@@ -1,0 +1,13 @@
+{
+    "name": "the-events-calendar/stellar-plugin-delivery-client",
+    "type": "project",
+    "license": "GPLv2",
+    "require": {
+        "lucatume/di52": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "StellarWP\\PluginDelivery\\": "src/PluginDelivery/"
+        }
+    }
+}

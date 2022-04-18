@@ -1,18 +1,18 @@
 <?php
 /**
- * Plugin Name: StellarWP Plugin Delivery
- * Description: Integrates with the StellarWP Plugin Delivery service.
+ * Plugin Name: StellarWP Network
+ * Description: Adds integration with the StellarWP Plugin Network.
  * Author: StellarWP
- * Author URI: https://evnt.is/1x
+ * Author URI: https://stellarwp.com
  * Version: 1.0
- * Text Domain: stellar-pdc
+ * Text Domain: stellar-network
  * License: GPLv2 or later
  */
 
-namespace StellarWP\PluginDelivery;
+namespace StellarWP\Network;
 
-define( 'STELLAR_PDC_PATH', __DIR__ );
+define( 'STELLAR_NETWORK_PATH', __DIR__ );
 
-require_once STELLAR_PDC_PATH . '/vendor/autoload.php';
+require_once STELLAR_NETWORK_PATH . '/vendor/autoload.php';
 
-Container::init()->register( Plugin::class );
+Container::init()->register( Provider::class );

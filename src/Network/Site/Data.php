@@ -1,0 +1,472 @@
+<?php
+
+namespace StellarWP\Network\API;
+
+use StellarWP\Network\Container;
+
+class Data {
+	/**
+	 * Container.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @var Container
+	 */
+	protected $container;
+
+	/**
+	 * Constructor.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param Container $container DI Container.
+	 */
+	public function __construct( Container $container = null ) {
+		$this->container = $container ?: Container::init();
+	}
+
+	/**
+	 * Build full stats for endpoints
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $stats Initial stats
+	 *
+	 * @return array
+	 */
+	protected function build_full_stats( $stats ) {
+		$stats['versions']['php']   = $this->get_php_version();
+		$stats['versions']['mysql'] = $this->get_db_version();
+		$stats['theme']             = $this->get_theme_info();
+		$stats['site_language']     = $this->get_site_language();
+		$stats['user_language']     = $this->get_user_language();
+		$stats['is_public']         = $this->is_public();
+		$stats['wp_debug']          = $this->is_debug_enabled();
+		$stats['site_timezone']     = $this->get_timezone();
+		$stats['totals']            = $this->get_totals();
+		return $stats;
+	}
+
+	/**
+	 * Build stats for sending to the license server.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array
+	 */
+	protected function build_stats() {
+		$stats = [
+			'versions' => [
+				'wp' => $this->get_wp_version(),
+			],
+			'network'  => [
+				'multisite'         => (int) is_multisite(),
+				'network_activated' => 0,
+				'active_sites'      => $this->get_multisite_active_sites(),
+			],
+		];
+
+		return $stats;
+
+	}
+
+	/**
+	 * Gets the database version.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string
+	 */
+	public function get_db_version() {
+		global $wpdb;
+
+		$version = $wpdb->db_version();
+
+		/**
+		 * Filters the DB version.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param string $version DB version.
+		 */
+		$version = apply_filters( 'stellar_network_get_db_version', $version );
+
+		return sanitize_text_field( $version );
+	}
+
+	/**
+	 * Gets the domain for the site.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string
+	 */
+	public function get_domain() {
+		$cache_key = 'stellar_network_domain';
+		$domain    = $this->container->getVar( $cache_key );
+
+		if ( null === $domain ) {
+			$url = wp_parse_url( get_option( 'siteurl' ) );
+			if ( ! empty( $url ) && isset( $url['host'] ) ) {
+				$domain = $url['host'];
+			} elseif ( isset( $_SERVER['SERVER_NAME'] ) ) {
+				$domain = $_SERVER['SERVER_NAME'];
+			}
+
+			// For multisite, return the network-level siteurl
+			if ( is_multisite() ) {
+				$site_url = wp_parse_url( get_site_option( 'siteurl' ) );
+				if ( ! $site_url || ! isset( $site_url['host'] ) ) {
+					$domain = '';
+				} else {
+					$domain = strtolower( $site_url['host'] );
+				}
+			}
+
+			$this->container->setVar( $cache_key, $domain );
+		}
+
+		/**
+		 * Filters the domain for the site.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param string $domain Domain.
+		 */
+		$domain = apply_filters( 'stellar_network_get_domain', $domain );
+
+		return sanitize_text_field( $domain );
+	}
+
+	/**
+	 * Gets multi-site active site count.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return int
+	 */
+	public function get_multisite_active_sites() {
+		global $wpdb;
+
+		$cache_key    = 'stellar_network_multisite_active_sites';
+		$active_sites = $this->container->getVar( $cache_key );
+
+		if ( null === $active_sites ) {
+			if ( ! is_multisite() ) {
+				$active_sites = 1;
+			} else {
+				$sql_count = "
+					SELECT
+						COUNT( `blog_id` )
+					FROM
+						`{$wpdb->blogs}`
+					WHERE
+						`public` = '1'
+						AND `archived` = '0'
+						AND `spam` = '0'
+						AND `deleted` = '0'
+				";
+
+				$active_sites = (int) $wpdb->get_var( $sql_count );
+			}
+
+			$this->container->setVar( $cache_key, $active_sites );
+		}
+
+		/**
+		 * Filters the active site count for the site.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param int $active_sites Number of active sites.
+		 */
+		$active_sites = apply_filters( 'stellar_network_get_multisite_active_sites', $active_sites );
+
+		return (int) $active_sites;
+	}
+
+	/**
+	 * Gets the PHP version.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string
+	 */
+	public function get_php_version() {
+		$version = phpversion();
+
+		/**
+		 * Filters the PHP version.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param string $version PHP version.
+		 */
+		$version = apply_filters( 'stellar_network_get_php_version', $version );
+
+		return sanitize_text_field( $version );
+	}
+
+	/**
+	 * Gets the site language.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string
+	 */
+	public function get_site_language() {
+		$locale = get_locale();
+
+		/**
+		 * Filters the locale.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param string $locale Site language.
+		 */
+		$locale = apply_filters( 'stellar_network_get_site_language', $locale );
+
+		return sanitize_text_field( $locale );
+	}
+
+	/**
+	 * Build and get the stats
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array
+	 */
+	public function get_stats() {
+		$stats = $this->build_stats();
+
+		/**
+		 * Allow full stats data to be built and sent.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param boolean $use_full_stats Whether to send full stats
+		 */
+		$use_full_stats = apply_filters( 'stellar_network_use_full_stats', false );
+
+		if ( $use_full_stats ) {
+			$stats = $this->build_full_stats( $stats );
+		}
+
+		/**
+		 * Filter stats and allow plugins to add their own stats for tracking specific points of data.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param array    $stats          Stats gathered by PUE Checker class.
+		 * @param boolean  $use_full_stats Whether to send full stats.
+		 * @param Data     $checker        Data object.
+		 */
+		$stats = apply_filters( 'stellar_network_get_stats', $stats, $use_full_stats, $this );
+
+		return $stats;
+	}
+
+	/**
+	 * Gets the theme data.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array
+	 */
+	public function get_theme_info() {
+		$theme = wp_get_theme();
+
+		$info = [
+			'name'       => sanitize_text_field( $theme->get( 'Name' ) ),
+			'version'    => sanitize_text_field( $theme->get( 'Version' ) ),
+			'stylesheet' => sanitize_text_field( $theme->get_stylesheet() ),
+			'template'   => sanitize_text_field( $theme->get_template() ),
+		];
+
+		/**
+		 * Filters the theme info.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param array $info Theme info.
+		 */
+		$info = apply_filters( 'stellar_network_get_theme_info', $info );
+
+		return (array) $info;
+	}
+
+	/**
+	 * Gets the timezone string.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string
+	 */
+	public function get_timezone() {
+		$cache_key = 'stellar_network_timezone';
+		$timezone  = $this->container->getVar( $cache_key );
+
+		if (null === $timezone) {
+			$current_offset = (int) get_option( 'gmt_offset', 0 );
+			$tzstring       = get_option( 'timezone_string' );
+
+			// Remove old Etc mappings. Fallback to gmt_offset.
+			if ( false !== strpos( $tzstring, 'Etc/GMT' ) ) {
+				$timezone = '';
+			}
+
+			// Create a UTC+- zone if no timezone string exists
+			if ( empty( $tzstring ) ) {
+				if ( 0 === $current_offset ) {
+					$timezone = 'UTC+0';
+				} elseif ( $current_offset < 0 ) {
+					$timezone = 'UTC' . $current_offset;
+				} else {
+					$timezone = 'UTC+' . $current_offset;
+				}
+			}
+
+			$this->container->setVar( $cache_key, $timezone );
+		}
+
+		/**
+		 * Filters the timezone.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param string $timezone Site timezone.
+		 */
+		$timezone = apply_filters( 'stellar_network_get_timezone', $timezone );
+
+		return sanitize_text_field( $timezone );
+	}
+
+	/**
+	 * Gets the site's post totals.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array
+	 */
+	public function get_totals() {
+		global $wpdb;
+
+		$cache_key = 'stellar_network_totals';
+		$totals    = $this->container->getVar( $cache_key );
+
+		if ( null === $totals ) {
+			$totals = [
+				'all_post_types' => (int) $wpdb->get_var( "SELECT COUNT(1) FROM {$wpdb->posts}" ),
+			];
+
+			$this->container->setVar( $cache_key, $totals );
+		}
+
+		/**
+		 * Filters the site post totals.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param array $totals Site post totals.
+		 */
+		$totals = apply_filters( 'stellar_network_get_totals', $totals );
+
+		return (array) $totals;
+	}
+
+	/**
+	 * Gets the user language.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string
+	 */
+	public function get_user_language() {
+		$locale = get_user_locale();
+
+		/**
+		 * Filters the locale.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param string $locale Site language.
+		 */
+		$locale = apply_filters( 'stellar_network_get_user_language', $locale );
+
+		return sanitize_text_field( $locale );
+	}
+
+	/**
+	 * Gets the WordPress version.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string
+	 */
+	public function get_wp_version() {
+		global $wp_version;
+
+		$version = $wp_version;
+
+		/**
+		 * Filters the WordPress version.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param string $wp_version WordPress version.
+		 */
+		$version = apply_filters( 'stellar_network_get_wp_version', $version );
+
+		return sanitize_text_field( $version );
+	}
+
+	/**
+	 * Gets the debug state.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return bool
+	 */
+	public function is_debug_enabled() {
+		$debug_status = (bool) ( defined( 'WP_DEBUG' ) && WP_DEBUG );
+
+		/**
+		 * Filters the Debug status.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param bool $debug_status Debug status.
+		 */
+		$debug_status = apply_filters( 'stellar_network_is_debug_enabled', $debug_status );
+
+		return (bool) $debug_status;
+	}
+
+	/**
+	 * Returns whether or not the site is public.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return bool
+	 */
+	public function is_public() {
+		$cache_key = 'stellar_network_is_public';
+		$is_public = $this->container->getVar( $cache_key );
+
+		if ( null === $is_public ) {
+			$is_public = (bool) get_option('blog_public', false);
+			$this->container->setVar( $cache_key, $is_public );
+		}
+
+		/**
+		 * Filters the DB version.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param bool $is_public Is the site public?
+		 */
+		$is_public = apply_filters( 'stellar_network_get_db_version', $is_public );
+
+		return (bool) $is_public;
+	}
+}

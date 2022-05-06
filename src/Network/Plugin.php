@@ -2,7 +2,7 @@
 
 namespace StellarWP\Network;
 
-class Provider extends \tad_DI52_ServiceProvider {
+class Plugin extends \tad_DI52_ServiceProvider {
 	/**
 	 * Binds and sets up implementations.
 	 *
@@ -10,7 +10,7 @@ class Provider extends \tad_DI52_ServiceProvider {
 	 */
 	public function register() {
 		$this->container->singleton( static::class, $this );
-		$this->container->singleton( Plugin\Collection::class, Plugin\Collection::class );
+		$this->container->singleton( Resource\Collection::class, Resource\Collection::class );
 
 		$this->register_hooks();
 	}

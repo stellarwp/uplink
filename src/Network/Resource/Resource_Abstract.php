@@ -45,6 +45,15 @@ abstract class Resource_Abstract {
 	protected $type = 'resource';
 
 	/**
+	 * License class.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @var string
+	 */
+	protected $license_class;
+
+	/**
 	 * License key.
 	 *
 	 * @since 1.0.0
@@ -99,15 +108,17 @@ abstract class Resource_Abstract {
 	 * @param string $path Resource path to bootstrap file.
 	 * @param string $class Resource class.
 	 * @param string $version Resource version.
+	 * @param string $license_class Class that holds the embedded license key.
 	 * @param Container|null $container Container instance.
 	 */
-	public function __construct( $slug, $name, $path, $class, $version, Container $container = null ) {
-		$this->name      = $name;
-		$this->slug      = $slug;
-		$this->path      = $path;
-		$this->class     = $class;
-		$this->version   = $version;
-		$this->container = $container ?: Container::init();
+	public function __construct( $slug, $name, $path, $class, $version, $license_class = null, Container $container = null ) {
+		$this->name          = $name;
+		$this->slug          = $slug;
+		$this->path          = $path;
+		$this->class         = $class;
+		$this->license_class = $license_class;
+		$this->version       = $version;
+		$this->container     = $container ?: Container::init();
 	}
 
 	/**
@@ -130,6 +141,9 @@ abstract class Resource_Abstract {
 	 */
 	public function get_license_key() {
 		if ( empty( $this->license_key ) ) {
+			if ( ! empty( $this->license_class ) ) {
+				$this->license_key = $this->license_class::KEY;
+			}
 		}
 
 		return $this->license_key;
@@ -227,15 +241,16 @@ abstract class Resource_Abstract {
 	 * @param string $resource_class Resource class.
 	 * @param string $slug Resource slug.
 	 * @param string $name Resource name.
+	 * @param string $version Resource version.
 	 * @param string $path Resource path to bootstrap file.
 	 * @param string $class Resource class.
-	 * @param string $version Resource version.
+	 * @param string $license_class Class that holds the embedded license key.
 	 *
 	 * @return Resource_Abstract
 	 */
-	public static function register_resource( $resource_class, $slug, $name, $path, $class, $version ) {
+	public static function register_resource( $resource_class, $slug, $name, $version, $path, $class, $license_class = null ) {
 		/** @var Resource_Abstract */
-		$resource   = new $resource_class( $slug, $name, $path, $class, $version );
+		$resource   = new $resource_class( $slug, $name, $version, $path, $class, $license_class );
 
 		/** @var Collection */
 		$collection = Container::init()->make( Collection::class );

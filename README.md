@@ -22,7 +22,8 @@ Register::plugin(
 	$plugin_slug,
 	$plugin_version,
 	$plugin_path,
-	$plugin_class
+	$plugin_class,
+	$license_class
 );
 ```
 
@@ -38,6 +39,7 @@ Register::service(
 	$plugin_slug,
 	$plugin_version,
 	$plugin_path,
-	$plugin_class
+	$plugin_class,
+	$license_class
 );
 ```

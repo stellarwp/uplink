@@ -45,6 +45,15 @@ abstract class Resource_Abstract {
 	protected $type = 'resource';
 
 	/**
+	 * License object.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @var License
+	 */
+	protected $license;
+
+	/**
 	 * License class.
 	 *
 	 * @since 1.0.0
@@ -52,15 +61,6 @@ abstract class Resource_Abstract {
 	 * @var string|null
 	 */
 	protected $license_class;
-
-	/**
-	 * License key.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var string
-	 */
-	protected $license_key;
 
 	/**
 	 * Resource name.
@@ -133,27 +133,40 @@ abstract class Resource_Abstract {
 	}
 
 	/**
+	 * Get the license class.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string|null
+	 */
+	public function get_license_class() {
+		return $this->license_class;
+	}
+
+	/**
 	 * Gets the resource license key.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return string
+	 * @return string|null
 	 */
 	public function get_license_key() {
-		// If the license key is already set, return it.
-		if ( ! empty( $this->license_key ) ) {
-			return $this->license_key;
+		return $this->get_license_object()->get_key();
+	}
+
+	/**
+	 * Get the license object.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return License
+	 */
+	public function get_license_object() {
+		if ( null === $this->license ) {
+			$this->license = new License( $this );
 		}
 
-		// If there's a class that holds the license key, get it from there.
-		if (
-			! empty( $this->license_class )
-			&& defined( $this->license_class . '::KEY' )
-		) {
-			$this->license_key = $this->license_class::KEY;
-		}
-
-		return $this->license_key;
+		return $this->license;
 	}
 
 	/**

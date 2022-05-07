@@ -32,5 +32,8 @@
       "test:analysis": [
         "phpstan analyse -c phpstan.neon.dist --memory-limit=512M"
       ]
+    },
+    "scripts-descriptions": {
+      "test:analysis": "Run static code analysis."
     }
 }

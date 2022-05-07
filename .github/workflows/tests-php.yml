@@ -1,4 +1,4 @@
-name: 'Codeception Tests'
+name: 'CI'
 on:
   push:
 jobs:
@@ -65,8 +65,6 @@ jobs:
           ${TRIC_BIN} debug on
           ${TRIC_BIN} info
           ${TRIC_BIN} config
-      - name: Start the Chrome container
-        run: ${TRIC_BIN} up chrome
       - name: Set up StellarWP Network
         run: |
           ${TRIC_BIN} use stellar-network-client

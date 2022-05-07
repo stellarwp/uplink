@@ -15,5 +15,7 @@ jobs:
           extensions: mbstring, intl
           coverage: none
       - uses: ramsey/composer-install@v2
+        with:
+          composer-options: "--ignore-platform-reqs --optimize-autoloader"
       - name: Run PHPStan static analysis
         run: composer test:analysis

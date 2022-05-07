@@ -3,6 +3,7 @@
 namespace StellarWP\Network\Resource;
 
 use StellarWP\Network\Container;
+use StellarWP\Network\Exceptions;
 
 /**
  * The base resource class for StellarWP Network plugins and services.
@@ -285,6 +286,10 @@ abstract class Resource_Abstract {
 		 */
 		$resource = apply_filters( 'stellar_network_resource_register_before_collection', $resource );
 
+		if ( ! empty( $collection[ $resource->get_slug() ] ) ) {
+			throw new Exceptions\ResourceAlreadyRegisteredException( $resource->get_slug() );
+		}
+
 		$collection->add( $resource );
 
 		/**
@@ -299,7 +304,16 @@ abstract class Resource_Abstract {
 		return $resource;
 	}
 
-	public function validate(): bool {
-		return true;
+	/**
+	 * Sets the license key for the resource.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $key License key.
+	 *
+	 * @return bool
+	 */
+	public function set_license_key( $key ): bool {
+		return $this->get_license_object()->set_key( $key );
 	}
 }

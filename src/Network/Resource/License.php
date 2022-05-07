@@ -104,7 +104,7 @@ class License {
 	 */
 	protected function get_key_from_option() {
 		/** @var string|null */
-		return get_option( $this->get_key_option_name(), null );
+		return get_site_option( $this->get_key_option_name(), null );
 	}
 
 	/**
@@ -116,6 +116,21 @@ class License {
 	 */
 	public function get_key_option_name(): string {
 		return static::$option_prefix . $this->resource->get_slug();
+	}
+
+	/**
+	 * Sets the key in site options.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $key License key.
+	 *
+	 * @return bool
+	 */
+	public function set_key( $key ): bool {
+		$this->key = $key;
+
+		return update_site_option( $this->get_key_option_name(), $key );
 	}
 
 	/**

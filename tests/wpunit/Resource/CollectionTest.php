@@ -23,9 +23,9 @@ class CollectionTest extends \StellarWP\Network\Tests\NetworkTestCase {
 				Register::class . '::' . $resource['type'],
 				$resource['slug'],
 				$resource['name'],
+				$resource['version'],
 				$resource['path'],
-				$resource['class'],
-				$resource['version']
+				$resource['class']
 			);
 		}
 	}

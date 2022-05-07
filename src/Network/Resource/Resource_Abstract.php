@@ -49,7 +49,7 @@ abstract class Resource_Abstract {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @var string
+	 * @var string|null
 	 */
 	protected $license_class;
 
@@ -108,10 +108,10 @@ abstract class Resource_Abstract {
 	 * @param string $path Resource path to bootstrap file.
 	 * @param string $class Resource class.
 	 * @param string $version Resource version.
-	 * @param string $license_class Class that holds the embedded license key.
+	 * @param string|null $license_class Class that holds the embedded license key.
 	 * @param Container|null $container Container instance.
 	 */
-	public function __construct( $slug, $name, $path, $class, $version, $license_class = null, Container $container = null ) {
+	public function __construct( $slug, $name, $version, $path, $class, string $license_class = null, Container $container = null ) {
 		$this->name          = $name;
 		$this->slug          = $slug;
 		$this->path          = $path;
@@ -140,10 +140,17 @@ abstract class Resource_Abstract {
 	 * @return string
 	 */
 	public function get_license_key() {
-		if ( empty( $this->license_key ) ) {
-			if ( ! empty( $this->license_class ) ) {
-				$this->license_key = $this->license_class::KEY;
-			}
+		// If the license key is already set, return it.
+		if ( ! empty( $this->license_key ) ) {
+			return $this->license_key;
+		}
+
+		// If there's a class that holds the license key, get it from there.
+		if (
+			! empty( $this->license_class )
+			&& defined( $this->license_class . '::KEY' )
+		) {
+			$this->license_key = $this->license_class::KEY;
 		}
 
 		return $this->license_key;
@@ -226,12 +233,13 @@ abstract class Resource_Abstract {
 	 * @param string $name Resource name.
 	 * @param string $slug Resource slug.
 	 * @param string $path Resource path to bootstrap file.
-	 * @param string $class Resource class.
 	 * @param string $version Resource version.
+	 * @param string $class Resource class.
+	 * @param string|null $license_class Class that holds the embedded license key.
 	 *
 	 * @return Resource_Abstract
 	 */
-	abstract public static function register( $name, $slug, $path, $class, $version );
+	abstract public static function register( $name, $slug, $path, $class, $version, string $license_class = null );
 
 	/**
 	 * Register a resource and add it to the collection.
@@ -244,11 +252,11 @@ abstract class Resource_Abstract {
 	 * @param string $version Resource version.
 	 * @param string $path Resource path to bootstrap file.
 	 * @param string $class Resource class.
-	 * @param string $license_class Class that holds the embedded license key.
+	 * @param string|null $license_class Class that holds the embedded license key.
 	 *
 	 * @return Resource_Abstract
 	 */
-	public static function register_resource( $resource_class, $slug, $name, $version, $path, $class, $license_class = null ) {
+	public static function register_resource( $resource_class, $slug, $name, $version, $path, $class, string $license_class = null ) {
 		/** @var Resource_Abstract */
 		$resource   = new $resource_class( $slug, $name, $version, $path, $class, $license_class );
 

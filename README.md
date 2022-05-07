@@ -1,5 +1,7 @@
 # StellarWP Plugin Delivery Client
 
+[![CI](https://github.com/the-events-calendar/stellar-network-client/workflows/CI/badge.svg)](https://github.com/the-events-calendar/stellar-network-client/actions?query=branch%3Amain)
+
 ## Initialize the library
 
 ```php

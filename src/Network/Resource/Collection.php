@@ -49,28 +49,28 @@ class Collection implements \ArrayAccess, \Iterator {
 	/**
 	 * @inheritDoc
 	 */
-	public function offsetExists( mixed $offset ): bool {
+	public function offsetExists( $offset ): bool {
 		return isset( $this->resources[ $offset ] );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function offsetGet( mixed $offset ): mixed {
+	public function offsetGet( $offset ): mixed {
 		return $this->resources[ $offset ];
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function offsetSet( mixed $offset, mixed $value ): void {
+	public function offsetSet( $offset, $value ): void {
 		$this->resources[ $offset ] = $value;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function offsetUnset( mixed $offset ): void {
+	public function offsetUnset( $offset ): void {
 		unset( $this->resources[ $offset ] );
 	}
 

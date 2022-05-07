@@ -62,17 +62,22 @@ class License {
 	 * @return string|null
 	 */
 	public function get_key() {
-		if ( ! empty( $this->key ) ) {
-			return $this->key;
+		if ( empty( $this->key ) ) {
+			$this->key = $this->get_key_from_option();
 		}
-
-		$this->key = $this->get_key_from_option();
 
 		if ( empty( $this->key ) ) {
 			$this->key = $this->get_key_from_license_file();
 		}
 
-		return $this->key;
+		/**
+		 * Filter the license key.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param string|null $key The license key.
+		 */
+		return apply_filters( 'stellar_network_license_get_key', $this->key );
 	}
 
 	/**
@@ -84,15 +89,19 @@ class License {
 	 */
 	protected function get_key_from_license_file() {
 		$license_class = $this->resource->get_license_class();
+		$key           = null;
 
-		if (
-			empty( $license_class )
-			|| ! defined( $license_class . '::KEY' )
-		) {
+		if ( empty( $license_class ) ) {
 			return null;
 		}
 
-		return $license_class::KEY;
+		if ( defined( $license_class . '::KEY' ) ) {
+			$key = $license_class::KEY;
+		} elseif ( defined( $license_class . '::DATA' ) ) {
+			$key = $license_class::DATA;
+		}
+
+		return $key;
 	}
 
 	/**

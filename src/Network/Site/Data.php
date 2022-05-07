@@ -228,11 +228,16 @@ class Data {
 	 *
 	 * @return string
 	 */
-	protected function get_site_domain() {
+	public function get_site_domain() {
 		if ( isset( $_SERVER['SERVER_NAME'] ) ) {
 			return $_SERVER['SERVER_NAME'];
 		}
-		$site_url = wp_parse_url( get_option( 'siteurl' ) );
+
+		/** @var string */
+		$site_url = get_option( 'siteurl', '' );
+
+		/** @var array<string> */
+		$site_url = wp_parse_url( $site_url );
 		if ( ! $site_url || ! isset( $site_url['host'] ) ) {
 			return '';
 		}

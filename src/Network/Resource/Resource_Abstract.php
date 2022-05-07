@@ -4,7 +4,7 @@ namespace StellarWP\Network\Resource;
 
 use StellarWP\Network\Container;
 use StellarWP\Network\Exceptions;
-
+use StellarWP\Network\Site\Data;
 /**
  * The base resource class for StellarWP Network plugins and services.
  *
@@ -134,6 +134,40 @@ abstract class Resource_Abstract {
 	}
 
 	/**
+	 * Get the arguments for generating the download URL.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array<mixed>
+	 */
+	public function get_download_args() {
+		$args = [];
+
+		/** @var Data */
+		$data = $this->container->make( Data::class );
+
+		$args['plugin']            = sanitize_text_field( $this->get_slug() );
+		$args['installed_version'] = sanitize_text_field( $this->get_installed_version() ?: '' );
+		$args['domain']            = sanitize_text_field( $data->get_domain() );
+
+		// get general stats
+		/** @var array<string,array<mixed>> */
+		$stats = $data->get_stats();
+
+		$args['multisite']         = $stats['network']['multisite'];
+		$args['network_activated'] = (int) $this->is_network_active();
+		$args['active_sites']      = $stats['network']['active_sites'];
+		$args['wp_version']        = $stats['versions']['wp'];
+
+		// the following is for install key inclusion (will apply later with PUE addons.)
+		$args['key'] = sanitize_text_field( $this->get_license_object()->get_key() ?: '' );
+		$args['dk']  = sanitize_text_field( $this->get_license_object()->get_key( 'default' ) ?: '' );
+		$args['o']   = sanitize_text_field( $this->get_license_object()->get_key_origin_code() );
+
+		return $args;
+	}
+
+	/**
 	 * Get the currently installed version of the plugin.
 	 *
 	 * @since 1.0.0
@@ -243,6 +277,30 @@ abstract class Resource_Abstract {
 	 */
 	public function get_type() {
 		return $this->type;
+	}
+
+	/**
+	 * Get the arguments for generating the validation URL.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array<mixed>
+	 */
+	public function get_validation_args() {
+		$args = [];
+
+		/** @var Data */
+		$data = $this->container->make( Data::class );
+
+		$args['key']            = sanitize_text_field( $this->get_license_object()->get_key() ?: '' );
+		$args['default_key']    = sanitize_text_field( $this->get_license_object()->get_key( 'default' ) ?: '' );
+		$args['license_origin'] = sanitize_text_field( $this->get_license_object()->get_key_origin_code() );
+		$args['plugin']         = sanitize_text_field( $this->get_slug() );
+		$args['version']        = sanitize_text_field( $this->get_installed_version() ?: '' );
+		$args['domain']         = sanitize_text_field( $data->get_domain() );
+		$args['stats']          = $data->get_stats();
+
+		return $args;
 	}
 
 	/**

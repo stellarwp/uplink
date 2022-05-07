@@ -4,8 +4,16 @@ namespace StellarWP\Network\Resource;
 
 use StellarWP\Network\Container;
 use StellarWP\Network\Site\Data;
+use StellarWP\Network\Utils;
 
 class License {
+	/**
+	 * How often to check for updates (in hours).
+	 *
+	 * @var int
+	 */
+	protected $check_period = 12;
+
 	/**
 	 * Container instance.
 	 *
@@ -234,9 +242,15 @@ class License {
 	 *
 	 * @return string|null
 	 */
-	protected function get_key_status_from_option() {
+	protected function get_key_status() {
 		/** @var string|null */
-		return get_option( $this->get_key_status_option_name(), null );
+		$status = get_option( $this->get_key_status_option_name(), 'invalid' );
+
+		if ( null === $status && $this->get_key() ) {
+			// @todo validate key
+		}
+
+		return $status;
 	}
 
 	/**
@@ -247,7 +261,10 @@ class License {
 	 * @return string
 	 */
 	public function get_key_status_option_name(): string {
-		return static::$key_status_option_prefix . $this->resource->get_slug() . '_'. $this->container->make( Data::class )->get_site_domain();
+		/** @var Data */
+		$data = $this->container->make( Data::class );
+
+		return static::$key_status_option_prefix . $this->resource->get_slug() . '_'. $data->get_site_domain();
 	}
 
 	/**
@@ -274,6 +291,29 @@ class License {
 	}
 
 	/**
+	 * Whether the plugin is validly licensed or not.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return bool
+	 */
+	public function is_valid() {
+		return 'valid' === $this->get_key_status();
+	}
+
+	/**
+	 * Whether the validation has expired.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return bool
+	 */
+	public function is_validation_expired() {
+		$option_expiration = get_option( $this->get_key_status_option_name() . '_timeout', null );
+		return is_null( $option_expiration ) || ( time() > $option_expiration );
+	}
+
+	/**
 	 * Sets the key in site options.
 	 *
 	 * @since 1.0.0
@@ -291,6 +331,19 @@ class License {
 		}
 
 		return update_option( $this->get_key_option_name(), sanitize_text_field( $key ) );
+	}
+
+	/**
+	 * Sets the key status based on the key validation check results.
+	 *
+	 * @since TBD
+	 *
+	 * @param int $valid 0 for invalid, 1 or 2 for valid.
+	 */
+	public function set_key_status( $valid ): void {
+		$status = Utils\Checks::is_truthy( $valid ) ? 'valid' : 'invalid';
+		update_option( $this->get_key_status_option_name(), $status );
+		update_option( $this->get_key_status_option_name() . '_timeout', $this->check_period * HOUR_IN_SECONDS );
 	}
 
 	/**

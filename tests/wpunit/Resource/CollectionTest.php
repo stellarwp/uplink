@@ -1,11 +1,11 @@
 <?php
 
-namespace StellarWP\Network\Tests\Collection;
+namespace StellarWP\Network\Tests\Resource;
 
 use StellarWP\Network\Container;
 use StellarWP\Network\Network;
 use StellarWP\Network\Register;
-use StellarWP\Network\Resource;
+use StellarWP\Network\Resource as Network_Resource;
 
 class CollectionTest extends \StellarWP\Network\Tests\NetworkTestCase {
 	public $collection;
@@ -15,7 +15,7 @@ class CollectionTest extends \StellarWP\Network\Tests\NetworkTestCase {
 		parent::setUp();
 
 		$this->container  = Container::init();
-		$this->collection = $this->container->make( Resource\Collection::class );
+		$this->collection = $this->container->make( Network_Resource\Collection::class );
 
 		$resources = $this->get_resources();
 		foreach ( $resources as $resource ) {
@@ -79,10 +79,10 @@ class CollectionTest extends \StellarWP\Network\Tests\NetworkTestCase {
 	 */
 	public function it_should_register_resources() {
 
-		$this->assertInstanceOf( Resource\Plugin::class, $this->collection['plugin-1'] );
-		$this->assertInstanceOf( Resource\Plugin::class, $this->collection['plugin-2'] );
-		$this->assertInstanceOf( Resource\Service::class, $this->collection['service-1'] );
-		$this->assertInstanceOf( Resource\Service::class, $this->collection['service-2'] );
+		$this->assertInstanceOf( Network_Resource\Plugin::class, $this->collection['plugin-1'] );
+		$this->assertInstanceOf( Network_Resource\Plugin::class, $this->collection['plugin-2'] );
+		$this->assertInstanceOf( Network_Resource\Service::class, $this->collection['service-1'] );
+		$this->assertInstanceOf( Network_Resource\Service::class, $this->collection['service-2'] );
 
 		$this->assertEquals( 'plugin-1', $this->collection['plugin-1']->get_slug() );
 		$this->assertEquals( 'Plugin 1', $this->collection['plugin-1']->get_name() );
@@ -100,7 +100,7 @@ class CollectionTest extends \StellarWP\Network\Tests\NetworkTestCase {
 	 */
 	public function it_should_loop_over_resources() {
 		foreach ( $this->collection as $resource ) {
-			$this->assertInstanceOf( Resource\Resource_Abstract::class, $resource );
+			$this->assertInstanceOf( Network_Resource\Resource_Abstract::class, $resource );
 		}
 	}
 }

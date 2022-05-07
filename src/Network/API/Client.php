@@ -4,6 +4,15 @@ namespace StellarWP\Network\API;
 
 use StellarWP\Network\Container;
 
+/**
+ * API Client class.
+ *
+ * @since 1.0.0
+ *
+ * @property-read string    $base_url  The service base URL.
+ * @property-read string    $api_root  The API root path.
+ * @property-read Container $container Container instance.
+ */
 class Client {
 	/**
 	 * Base URL for the license key server.

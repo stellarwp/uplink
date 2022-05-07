@@ -1,13 +1,27 @@
 {
-    "name": "the-events-calendar/stellar-plugin-delivery-client",
-    "type": "project",
+    "name": "the-events-calendar/stellar-network-client",
+    "type": "library",
     "license": "GPLv2",
-    "require": {
-        "lucatume/di52": "^3.0"
-    },
+    "authors": [
+        {
+            "name": "StellarWP",
+            "homepage": "https://stellarwp.com"
+        }
+    ],
     "autoload": {
         "psr-4": {
-            "StellarWP\\PluginDelivery\\": "src/Network/"
+            "StellarWP\\Network\\": "src/Network/"
+        }
+    },
+    "require": {
+        "lucatume/di52": "^3.0",
+        "php": "^5.6 | ^7.0 | ^8.0"
+    },
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     }
 }

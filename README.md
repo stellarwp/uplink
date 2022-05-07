@@ -1,13 +1,21 @@
 # StellarWP Plugin Delivery Client
 
+## Initialize the library
+
+```php
+use StellarWP\Network\Network;
+
+Network::init();
+```
+
 ## Registering a plugin
 
 Registers a plugin for licensing and updates.
 
 ```php
-use StellarWP\Network\Resource;
+use StellarWP\Network\Register;
 
-Resource::register_plugin(
+Register::plugin(
 	$plugin_name,
 	$plugin_slug,
 	$plugin_version,
@@ -21,9 +29,9 @@ Resource::register_plugin(
 Registers a service for licensing.
 
 ```php
-use StellarWP\Network\Resource;
+use StellarWP\Network\Register;
 
-Resource::register_service(
+Register::service(
 	$plugin_name,
 	$plugin_slug,
 	$plugin_version,

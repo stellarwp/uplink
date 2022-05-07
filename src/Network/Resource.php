@@ -2,7 +2,19 @@
 
 namespace StellarWP\Network;
 
-class Resource {
+/**
+ * The base resource class for StellarWP Network plugins and services.
+ *
+ * @property-read string    $class The class name.
+ * @property-read Container $container Container instance.
+ * @property-read string    $type The resource type.
+ * @property-read string    $license_key License key.
+ * @property-read string    $name The resource name.
+ * @property-read string    $slug The resource slug.
+ * @property-read string    $version The resource version.
+ * @property-read string    $path The resource path.
+ */
+abstract class Resource {
 	/**
 	 * Resource class.
 	 *
@@ -185,7 +197,7 @@ class Resource {
 	 *
 	 * @return Resource
 	 */
-	protected static function register( $name, $slug, $path, $class, $version ) {
+	public static function register( $name, $slug, $path, $class, $version ) {
 		$resource   = new static( $name, $slug, $path, $class, $version );
 		$collection = Container::init()->make( Resource\Collection::class );
 
@@ -210,40 +222,6 @@ class Resource {
 		$resource = apply_filters( 'stellar_network_resource_register', $resource );
 
 		return $resource;
-	}
-
-	/**
-	 * Register a plugin resource.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $name Resource name.
-	 * @param string $slug Resource slug.
-	 * @param string $path Resource path to bootstrap file.
-	 * @param string $class Resource class.
-	 * @param string $version Resource version.
-	 *
-	 * @return Resource
-	 */
-	public static function register_plugin( $name, $slug, $path, $class, $version ) {
-		return Resource\Plugin::register( $name, $slug, $path, $class, $version );
-	}
-
-	/**
-	 * Register a service resource.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $name Resource name.
-	 * @param string $slug Resource slug.
-	 * @param string $path Resource path to bootstrap file.
-	 * @param string $class Resource class.
-	 * @param string $version Resource version.
-	 *
-	 * @return Resource
-	 */
-	public static function register_service( $name, $slug, $path, $class, $version ) {
-		return Resource\Service::register( $name, $slug, $path, $class, $version );
 	}
 
 	public function validate() {

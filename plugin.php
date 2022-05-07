@@ -15,4 +15,4 @@ define( 'STELLAR_NETWORK_PATH', __DIR__ );
 
 require_once STELLAR_NETWORK_PATH . '/vendor/autoload.php';
 
-Container::init()->register( Plugin::class );
+Network::init();

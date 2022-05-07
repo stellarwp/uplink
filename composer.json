@@ -23,5 +23,9 @@
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true
         }
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1.6",
+        "szepeviktor/phpstan-wordpress": "^1.1"
     }
 }

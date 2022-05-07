@@ -1,27 +1,19 @@
 name: Static Analysis
-on: [push]
+on:
+  push:
 jobs:
   phpstsan:
     name: phpstan
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Set src directory hash
-        run: echo "SRC_HASH=$(_build/dir_hash.sh src)" >> $GITHUB_ENV
-      - name: Cache Composer dependencies
-        uses: gerbal/always-cache@v1
+      - name: Configure PHP environment
+        uses: shivammathur/setup-php@v2
         with:
-          path: vendor
-          key: composer-7.1-cc-4.0-${{ hashFiles('**/composer.json') }}-${{ env.SRC_HASH }}
-      - name: Prepare Composer dependencies
-        run: make php_container composer_install
-        env:
-          PHP_VERSION: 7.1
-          CODECEPTION_MAJOR_VERSION: 4
-          COMPOSER_VERSION: 2
+          php-version: '7.1'
+          extensions: mbstring, intl
+          coverage: none
+      - uses: ramsey/composer-install@v2
       - name: Run PHPStan static analysis
-        run: make phpstan
-        env:
-          PHP_VERSION: 7.1
-          PHPSTAN_LEVEL: max
+        run: composer test:analysis

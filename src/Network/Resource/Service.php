@@ -2,7 +2,7 @@
 
 namespace StellarWP\Network\Resource;
 
-class Service extends \StellarWP\Network\Resource {
+class Service extends Resource_Abstract {
 	/**
 	 * @inheritDoc
 	 */

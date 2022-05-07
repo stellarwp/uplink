@@ -1,6 +1,8 @@
 <?php
 
-namespace StellarWP\Network;
+namespace StellarWP\Network\Resource;
+
+use StellarWP\Network\Container;
 
 /**
  * The base resource class for StellarWP Network plugins and services.
@@ -14,7 +16,7 @@ namespace StellarWP\Network;
  * @property-read string    $version The resource version.
  * @property-read string    $path The resource path.
  */
-abstract class Resource {
+abstract class Resource_Abstract {
 	/**
 	 * Resource class.
 	 *
@@ -199,7 +201,7 @@ abstract class Resource {
 	 */
 	public static function register( $name, $slug, $path, $class, $version ) {
 		$resource   = new static( $name, $slug, $path, $class, $version );
-		$collection = Container::init()->make( Resource\Collection::class );
+		$collection = Container::init()->make( Collection::class );
 
 		/**
 		 * Filters the registered plugin before adding to the collection.

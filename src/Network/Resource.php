@@ -115,6 +115,9 @@ class Resource {
 	 * @return string
 	 */
 	public function get_license_key() {
+		if ( empty( $this->license_key ) ) {
+		}
+
 		return $this->license_key;
 	}
 
@@ -148,7 +151,14 @@ class Resource {
 	 * @return string
 	 */
 	public function get_slug() {
-		return $this->slug;
+		/**
+		 * Filter the resource slug.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param string $slug Resource slug.
+		 */
+		return apply_filters( 'stellar_network_resource_get_slug', $this->slug );
 	}
 
 	/**
@@ -175,7 +185,7 @@ class Resource {
 	 *
 	 * @return Resource
 	 */
-	public static function register( $name, $slug, $path, $class, $version ) {
+	protected static function register( $name, $slug, $path, $class, $version ) {
 		$resource   = new static( $name, $slug, $path, $class, $version );
 		$collection = Container::init()->make( Resource\Collection::class );
 
@@ -200,5 +210,43 @@ class Resource {
 		$resource = apply_filters( 'stellar_network_resource_register', $resource );
 
 		return $resource;
+	}
+
+	/**
+	 * Register a plugin resource.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $name Resource name.
+	 * @param string $slug Resource slug.
+	 * @param string $path Resource path to bootstrap file.
+	 * @param string $class Resource class.
+	 * @param string $version Resource version.
+	 *
+	 * @return Resource
+	 */
+	public static function register_plugin( $name, $slug, $path, $class, $version ) {
+		return Resource\Plugin::register( $name, $slug, $path, $class, $version );
+	}
+
+	/**
+	 * Register a service resource.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $name Resource name.
+	 * @param string $slug Resource slug.
+	 * @param string $path Resource path to bootstrap file.
+	 * @param string $class Resource class.
+	 * @param string $version Resource version.
+	 *
+	 * @return Resource
+	 */
+	public static function register_service( $name, $slug, $path, $class, $version ) {
+		return Resource\Service::register( $name, $slug, $path, $class, $version );
+	}
+
+	public function validate() {
+		return true;
 	}
 }

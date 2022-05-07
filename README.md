@@ -5,15 +5,25 @@
 Registers a plugin for licensing and updates.
 
 ```php
-stellar_network_plugin_register(
+use StellarWP\Network\Resource;
+
+Resource::register_plugin(
 	$plugin_name,
 	$plugin_slug,
 	$plugin_version,
 	$plugin_path,
 	$plugin_class
 );
+```
 
-StellarWP\Network\Plugin::register(
+## Registering a service
+
+Registers a service for licensing.
+
+```php
+use StellarWP\Network\Resource;
+
+Resource::register_service(
 	$plugin_name,
 	$plugin_slug,
 	$plugin_version,

@@ -21,7 +21,7 @@ class Client {
 	 *
 	 * @var string
 	 */
-	public static $api_endpoint = '/api/plugins/v1/';
+	public static $api_root = '/api/plugins/v1/';
 
 	/**
 	 * Container.
@@ -43,7 +43,11 @@ class Client {
 		$this->container = $container ?: Container::init();
 
 		if ( defined( 'STELLAR_NETWORK_API_BASE_URL' ) && STELLAR_NETWORK_API_BASE_URL ) {
-			static::$base_url = STELLAR_NETWORK_API_BASE_URL;
+			static::$base_url = preg_replace( '!/$!', '', STELLAR_NETWORK_API_BASE_URL );
+		}
+
+		if ( defined( 'STELLAR_NETWORK_API_ROOT' ) && STELLAR_NETWORK_API_ROOT ) {
+			static::$api_root = trailingslashit( STELLAR_NETWORK_API_ROOT );
 		}
 	}
 
@@ -124,7 +128,7 @@ class Client {
 		 */
 		$request_args = apply_filters( 'stellar_network_api_request_args', $request_args, $endpoint, $args );
 
-		$url = static::$base_url . $endpoint;
+		$url = static::$base_url . static::$api_root . $endpoint;
 
 		$response      = wp_remote_get( $url, $request_args );
 		$response_body = wp_remote_retrieve_body( $response );
@@ -149,7 +153,14 @@ class Client {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array $args License validation arguments.
+	 * @param array $args {
+	 *     License validation arguments.
+	 *
+	 *     @type string $key     License key.
+	 *     @type string $plugin  Plugin slug.
+	 *     @type array  $stats   Array of stats.
+	 *     @type string $version Optional. Plugin version.
+	 * }
 	 *
 	 * @return array<mixed>
 	 */
@@ -158,14 +169,35 @@ class Client {
 		$request_hash = $this->build_hash( $args );
 		$cache_key    = 'stellar_network_validate_license_' . $request_hash;
 
-		if ( ! $force && $results = $this->container->getVar( $cache_key ) ) {
-			return $results;
+		$results = $this->container->getVar( $cache_key );
+
+		if ( $force || ! $results ) {
+			$site_data      = $this->container->make( Data::class );
+			$args['domain'] = $site_data->get_domain();
+			$args['stats']  = $site_data->get_stats();
+
+			/**
+			 * Filter the license validation arguments.
+			 *
+			 * @since 1.0.0
+			 *
+			 * @param array<mixed> $args License validation arguments.
+			 */
+			$args = apply_filters( 'stellar_network_client_validate_license_args', $args );
+
+			$results = $this->post( 'license/validate', $args );
+
+			$this->container->setVar( $cache_key, $results );
 		}
 
-		$results = $this->post( 'license/validate', $args );
-
-		$this->container->setVar( $cache_key, $results );
-
-		return $results;
+		/**
+		 * Filter the license validation results.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param array<mixed> $results License validation results.
+		 * @param array<mixed> $args License validation arguments.
+		 */
+		return apply_filters( 'stellar_network_client_validate_license', $results, $args );
 	}
 }

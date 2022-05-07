@@ -2,10 +2,9 @@
 
 namespace StellarWP\Network\Tests;
 
-use Codeception\PHPUnit\TestCase;
 use StellarWP\Network\Container;
 
-class ContainerTest extends \Codeception\TestCase\WPTestCase {
+class ContainerTest extends NetworkTestCase {
 	/**
 	 * Test that the container is correctly instantiated.
 	 *

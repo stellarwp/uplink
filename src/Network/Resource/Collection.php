@@ -28,7 +28,7 @@ class Collection implements \ArrayAccess, \Iterator {
 	/**
 	 * @inheritDoc
 	 */
-	public function current(): mixed {
+	public function current() {
 		return current( $this->resources );
 	}
 
@@ -56,7 +56,7 @@ class Collection implements \ArrayAccess, \Iterator {
 	/**
 	 * @inheritDoc
 	 */
-	public function offsetGet( $offset ): mixed {
+	public function offsetGet( $offset ) {
 		return $this->resources[ $offset ];
 	}
 

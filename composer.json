@@ -13,6 +13,11 @@
             "StellarWP\\Network\\": "src/Network/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "StellarWP\\Network\\Tests\\": "tests/_support/Helper/"
+        }
+    },
     "require": {
         "lucatume/di52": "^3.0",
         "php": "^5.6 | ^7.0 | ^8.0"

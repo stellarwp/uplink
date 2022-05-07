@@ -70,6 +70,6 @@ jobs:
       - name: Set up StellarWP Network
         run: |
           ${TRIC_BIN} use stellar-network-client
-          ${TRIC_BIN} composer install
+          ${TRIC_BIN} composer install --ignore-platform-reqs
       - name: Run suite tests
         run: ${TRIC_BIN} run ${{ matrix.suite }} --ext DotReporter

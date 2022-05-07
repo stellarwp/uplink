@@ -3,6 +3,7 @@
 namespace StellarWP\Network\API;
 
 use StellarWP\Network\Container;
+use StellarWP\Network\Site\Data;
 
 /**
  * API Client class.
@@ -48,7 +49,7 @@ class Client {
 	 *
 	 * @param Container $container Container.
 	 */
-	public function __construct( \tad_DI52_Container $container = null ) {
+	public function __construct( Container $container = null ) {
 		$this->container = $container ?: Container::init();
 
 		if ( defined( 'STELLAR_NETWORK_API_BASE_URL' ) && STELLAR_NETWORK_API_BASE_URL ) {
@@ -75,6 +76,10 @@ class Client {
 		ksort( $args );
 
 		$args = json_encode( $args );
+
+		if ( ! $args ) {
+			return '';
+		}
 
 		return hash( 'sha256', $args );
 	}
@@ -148,9 +153,9 @@ class Client {
 		 *
 		 * @since 1.0.0
 		 *
-		 * @param array $result API response.
+		 * @param mixed $result API response.
 		 * @param string $endpoint API endpoint.
-		 * @param array $args API arguments.
+		 * @param array<mixed> $args API arguments.
 		 */
 		$result = apply_filters( 'stellar_network_api_response', $result, $endpoint, $args );
 
@@ -162,7 +167,7 @@ class Client {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array $args {
+	 * @param array<mixed> $args {
 	 *     License validation arguments.
 	 *
 	 *     @type string $key     License key.
@@ -171,9 +176,9 @@ class Client {
 	 *     @type string $version Optional. Plugin version.
 	 * }
 	 *
-	 * @return array<mixed>
+	 * @return mixed
 	 */
-	public function validate_license( $args = [], $force = false ) {
+	public function validate_license( array $args = [], bool $force = false ) {
 		$results      = [];
 		$request_hash = $this->build_hash( $args );
 		$cache_key    = 'stellar_network_validate_license_' . $request_hash;
@@ -181,7 +186,9 @@ class Client {
 		$results = $this->container->getVar( $cache_key );
 
 		if ( $force || ! $results ) {
-			$site_data      = $this->container->make( Data::class );
+			/** @var Data */
+			$site_data = $this->container->make( Data::class );
+
 			$args['domain'] = $site_data->get_domain();
 			$args['stats']  = $site_data->get_stats();
 
@@ -204,7 +211,7 @@ class Client {
 		 *
 		 * @since 1.0.0
 		 *
-		 * @param array<mixed> $results License validation results.
+		 * @param mixed $results License validation results.
 		 * @param array<mixed> $args License validation arguments.
 		 */
 		return apply_filters( 'stellar_network_client_validate_license', $results, $args );

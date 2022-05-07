@@ -17,7 +17,7 @@ class Register {
 	 * @param string $class Resource class.
 	 * @param string $version Resource version.
 	 *
-	 * @return Resource
+	 * @return Resource\Resource_Abstract
 	 */
 	public static function plugin( $name, $slug, $path, $class, $version ) {
 		return Resource\Plugin::register( $name, $slug, $path, $class, $version );
@@ -34,7 +34,7 @@ class Register {
 	 * @param string $class Resource class.
 	 * @param string $version Resource version.
 	 *
-	 * @return Resource
+	 * @return Resource\Resource_Abstract
 	 */
 	public static function service( $name, $slug, $path, $class, $version ) {
 		return Resource\Service::register( $name, $slug, $path, $class, $version );

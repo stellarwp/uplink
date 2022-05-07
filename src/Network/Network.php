@@ -8,7 +8,7 @@ class Network extends \tad_DI52_ServiceProvider {
 	 *
 	 * @since 1.0.0
 	 */
-	public static function init() {
+	public static function init() : void {
 		Container::init()->register( static::class );
 	}
 
@@ -31,6 +31,6 @@ class Network extends \tad_DI52_ServiceProvider {
 	 *
 	 * @since 1.0.0
 	 */
-	private function register_hooks() {
+	private function register_hooks() : void {
 	}
 }

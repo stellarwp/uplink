@@ -1,6 +1,6 @@
 <?php
 
-namespace StellarWP\Network\API;
+namespace StellarWP\Network\Site;
 
 use StellarWP\Network\Container;
 
@@ -30,11 +30,11 @@ class Data {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array $stats Initial stats
+	 * @param array<string,array<mixed>> $stats Initial stats
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 */
-	protected function build_full_stats( $stats ) {
+	protected function build_full_stats( array $stats ): array {
 		$stats['versions']['php']   = $this->get_php_version();
 		$stats['versions']['mysql'] = $this->get_db_version();
 		$stats['theme']             = $this->get_theme_info();
@@ -52,9 +52,9 @@ class Data {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return array
+	 * @return array<string,array<mixed>>
 	 */
-	protected function build_stats() {
+	protected function build_stats(): array {
 		$stats = [
 			'versions' => [
 				'wp' => $this->get_wp_version(),
@@ -77,7 +77,7 @@ class Data {
 	 *
 	 * @return string
 	 */
-	public function get_db_version() {
+	public function get_db_version(): string {
 		global $wpdb;
 
 		$version = $wpdb->db_version();
@@ -101,12 +101,17 @@ class Data {
 	 *
 	 * @return string
 	 */
-	public function get_domain() {
+	public function get_domain(): string {
 		$cache_key = 'stellar_network_domain';
 		$domain    = $this->container->getVar( $cache_key );
 
 		if ( null === $domain ) {
-			$url = wp_parse_url( get_option( 'siteurl' ) );
+			/** @var string */
+			$site_url = get_option( 'siteurl', '' );
+
+			/** @var array<string> */
+			$url = wp_parse_url( $site_url );
+
 			if ( ! empty( $url ) && isset( $url['host'] ) ) {
 				$domain = $url['host'];
 			} elseif ( isset( $_SERVER['SERVER_NAME'] ) ) {
@@ -115,7 +120,11 @@ class Data {
 
 			// For multisite, return the network-level siteurl
 			if ( is_multisite() ) {
-				$site_url = wp_parse_url( get_site_option( 'siteurl' ) );
+				/** @var string */
+				$site_url = get_site_option( 'siteurl', '' );
+
+				/** @var array<string> */
+				$site_url = wp_parse_url( $site_url );
 				if ( ! $site_url || ! isset( $site_url['host'] ) ) {
 					$domain = '';
 				} else {
@@ -145,10 +154,12 @@ class Data {
 	 *
 	 * @return int
 	 */
-	public function get_multisite_active_sites() {
+	public function get_multisite_active_sites(): int {
 		global $wpdb;
 
 		$cache_key    = 'stellar_network_multisite_active_sites';
+
+		/** @var int|null */
 		$active_sites = $this->container->getVar( $cache_key );
 
 		if ( null === $active_sites ) {
@@ -192,7 +203,7 @@ class Data {
 	 *
 	 * @return string
 	 */
-	public function get_php_version() {
+	public function get_php_version(): string {
 		$version = phpversion();
 
 		/**
@@ -214,7 +225,7 @@ class Data {
 	 *
 	 * @return string
 	 */
-	public function get_site_language() {
+	public function get_site_language(): string {
 		$locale = get_locale();
 
 		/**
@@ -234,9 +245,9 @@ class Data {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return array
+	 * @return array<string,mixed>
 	 */
-	public function get_stats() {
+	public function get_stats(): array {
 		$stats = $this->build_stats();
 
 		/**
@@ -257,9 +268,9 @@ class Data {
 		 *
 		 * @since 1.0.0
 		 *
-		 * @param array    $stats          Stats gathered by PUE Checker class.
-		 * @param boolean  $use_full_stats Whether to send full stats.
-		 * @param Data     $checker        Data object.
+		 * @param array<string,mixed> $stats          Stats gathered by PUE Checker class.
+		 * @param boolean             $use_full_stats Whether to send full stats.
+		 * @param Data                $checker        Data object.
 		 */
 		$stats = apply_filters( 'stellar_network_get_stats', $stats, $use_full_stats, $this );
 
@@ -271,14 +282,20 @@ class Data {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return array
+	 * @return array<string>
 	 */
-	public function get_theme_info() {
+	public function get_theme_info(): array {
 		$theme = wp_get_theme();
 
+		/** @var string */
+		$name    = $theme->get( 'Name' );
+
+		/** @var string */
+		$version = $theme->get( 'Version' );
+
 		$info = [
-			'name'       => sanitize_text_field( $theme->get( 'Name' ) ),
-			'version'    => sanitize_text_field( $theme->get( 'Version' ) ),
+			'name'       => sanitize_text_field( $name ),
+			'version'    => sanitize_text_field( $version ),
 			'stylesheet' => sanitize_text_field( $theme->get_stylesheet() ),
 			'template'   => sanitize_text_field( $theme->get_template() ),
 		];
@@ -288,7 +305,7 @@ class Data {
 		 *
 		 * @since 1.0.0
 		 *
-		 * @param array $info Theme info.
+		 * @param array<string> $info Theme info.
 		 */
 		$info = apply_filters( 'stellar_network_get_theme_info', $info );
 
@@ -302,13 +319,21 @@ class Data {
 	 *
 	 * @return string
 	 */
-	public function get_timezone() {
+	public function get_timezone(): string {
 		$cache_key = 'stellar_network_timezone';
+
+		/** @var string|null */
 		$timezone  = $this->container->getVar( $cache_key );
 
-		if (null === $timezone) {
-			$current_offset = (int) get_option( 'gmt_offset', 0 );
-			$tzstring       = get_option( 'timezone_string' );
+		if ( null === $timezone ) {
+			$current_offset = get_option( 'gmt_offset', 0 );
+
+			if ( ! is_numeric( $current_offset ) ) {
+				$current_offset = 0;
+			}
+
+			/** @var string */
+			$tzstring = get_option( 'timezone_string', '' );
 
 			// Remove old Etc mappings. Fallback to gmt_offset.
 			if ( false !== strpos( $tzstring, 'Etc/GMT' ) ) {
@@ -336,7 +361,7 @@ class Data {
 		 *
 		 * @param string $timezone Site timezone.
 		 */
-		$timezone = apply_filters( 'stellar_network_get_timezone', $timezone );
+		$timezone = apply_filters( 'stellar_network_get_timezone', $timezone ?: '' );
 
 		return sanitize_text_field( $timezone );
 	}
@@ -346,12 +371,14 @@ class Data {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return array
+	 * @return array<int>
 	 */
-	public function get_totals() {
+	public function get_totals(): array {
 		global $wpdb;
 
 		$cache_key = 'stellar_network_totals';
+
+		/** @var array<int>|null */
 		$totals    = $this->container->getVar( $cache_key );
 
 		if ( null === $totals ) {
@@ -367,7 +394,7 @@ class Data {
 		 *
 		 * @since 1.0.0
 		 *
-		 * @param array $totals Site post totals.
+		 * @param array<int> $totals Site post totals.
 		 */
 		$totals = apply_filters( 'stellar_network_get_totals', $totals );
 
@@ -381,7 +408,7 @@ class Data {
 	 *
 	 * @return string
 	 */
-	public function get_user_language() {
+	public function get_user_language(): string {
 		$locale = get_user_locale();
 
 		/**
@@ -403,7 +430,7 @@ class Data {
 	 *
 	 * @return string
 	 */
-	public function get_wp_version() {
+	public function get_wp_version(): string {
 		global $wp_version;
 
 		$version = $wp_version;
@@ -427,7 +454,7 @@ class Data {
 	 *
 	 * @return bool
 	 */
-	public function is_debug_enabled() {
+	public function is_debug_enabled(): bool {
 		$debug_status = (bool) ( defined( 'WP_DEBUG' ) && WP_DEBUG );
 
 		/**
@@ -449,8 +476,10 @@ class Data {
 	 *
 	 * @return bool
 	 */
-	public function is_public() {
+	public function is_public(): bool {
 		$cache_key = 'stellar_network_is_public';
+
+		/** @var bool|null */
 		$is_public = $this->container->getVar( $cache_key );
 
 		if ( null === $is_public ) {

@@ -101,7 +101,7 @@ abstract class Resource_Abstract {
 	 * @param string $version Resource version.
 	 * @param Container|null $container Container instance.
 	 */
-	public function __construct( $name, $slug, $path, $class, $version, \tad_DI52_Container $container = null ) {
+	public function __construct( $name, $slug, $path, $class, $version, Container $container = null ) {
 		$this->name      = $name;
 		$this->slug      = $slug;
 		$this->path      = $path;
@@ -197,10 +197,29 @@ abstract class Resource_Abstract {
 	 * @param string $class Resource class.
 	 * @param string $version Resource version.
 	 *
-	 * @return Resource
+	 * @return Resource_Abstract
 	 */
-	public static function register( $name, $slug, $path, $class, $version ) {
-		$resource   = new static( $name, $slug, $path, $class, $version );
+	abstract public static function register( $name, $slug, $path, $class, $version );
+
+	/**
+	 * Register a resource and add it to the collection.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $resource_class Resource class.
+	 * @param string $name Resource name.
+	 * @param string $slug Resource slug.
+	 * @param string $path Resource path to bootstrap file.
+	 * @param string $class Resource class.
+	 * @param string $version Resource version.
+	 *
+	 * @return Resource_Abstract
+	 */
+	public static function register_resource( $resource_class, $name, $slug, $path, $class, $version ) {
+		/** @var Resource_Abstract */
+		$resource   = new $resource_class( $name, $slug, $path, $class, $version );
+
+		/** @var Collection */
 		$collection = Container::init()->make( Collection::class );
 
 		/**
@@ -208,7 +227,7 @@ abstract class Resource_Abstract {
 		 *
 		 * @since 1.0.0
 		 *
-		 * @param Resource $resource Resource instance.
+		 * @param Resource_Abstract $resource Resource instance.
 		 */
 		$resource = apply_filters( 'stellar_network_resource_register_before_collection', $resource );
 
@@ -219,14 +238,14 @@ abstract class Resource_Abstract {
 		 *
 		 * @since 1.0.0
 		 *
-		 * @param Resource $resource Resource instance.
+		 * @param Resource_Abstract $resource Resource instance.
 		 */
 		$resource = apply_filters( 'stellar_network_resource_register', $resource );
 
 		return $resource;
 	}
 
-	public function validate() {
+	public function validate(): bool {
 		return true;
 	}
 }

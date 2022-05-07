@@ -2,9 +2,12 @@
 
 namespace StellarWP\Network\Resource;
 
-use StellarWP\Network\Resource as Network_Resource;
-
 class Collection implements \ArrayAccess, \Iterator {
+	/**
+	 * Collection of resources.
+	 *
+	 * @var array<mixed>
+	 */
 	private $resources = [];
 
 	/**
@@ -12,11 +15,11 @@ class Collection implements \ArrayAccess, \Iterator {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Network_Resource $resource Resource instance.
+	 * @param Resource_Abstract $resource Resource instance.
 	 *
-	 * @return Network_Resource
+	 * @return mixed
 	 */
-	public function add( Network_Resource $resource ) {
+	public function add( Resource_Abstract $resource ) {
 		$this->offsetSet( $resource->get_slug(), $resource );
 
 		return $this->offsetGet( $resource->get_slug() );
@@ -78,7 +81,7 @@ class Collection implements \ArrayAccess, \Iterator {
 	 *
 	 * @param string $slug Resource slug.
 	 */
-	public function remove( $slug ) {
+	public function remove( $slug ): void {
 		$this->offsetUnset( $slug );
 	}
 
@@ -95,11 +98,11 @@ class Collection implements \ArrayAccess, \Iterator {
 	 * @since 1.0.0
 	 *
 	 * @param string $slug Resource slug.
-	 * @param Network_Resource $resource Resource instance.
+	 * @param Resource_Abstract $resource Resource instance.
 	 *
-	 * @return Network_Resource
+	 * @return mixed
 	 */
-	public function set( $slug, Network_Resource $resource ) {
+	public function set( $slug, Resource_Abstract $resource ) {
 		$this->offsetSet( $slug, $resource );
 
 		return $this->offsetGet( $slug );

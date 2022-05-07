@@ -19,7 +19,7 @@ class Container extends \tad_DI52_Container {
 	 * @return Container
 	 */
 	public static function init() {
-		if ( empty( static::$instance ) ) {
+		if ( null === static::$instance ) {
 			static::$instance = new self;
 		}
 

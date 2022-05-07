@@ -1,6 +1,6 @@
 # StellarWP Plugin Delivery Client
 
-[![CI](https://github.com/the-events-calendar/stellar-network-client/workflows/CI/badge.svg)](https://github.com/the-events-calendar/stellar-network-client/actions?query=branch%3Amain)
+[![CI](https://github.com/the-events-calendar/stellar-network-client/workflows/CI/badge.svg)](https://github.com/the-events-calendar/stellar-network-client/actions?query=branch%3Amain) [![Static Analysis](https://github.com/the-events-calendar/stellar-network-client/actions/workflows/static-analysis.yml/badge.svg)](https://github.com/the-events-calendar/stellar-network-client/actions/workflows/static-analysis.yml)
 
 ## Initialize the library
 

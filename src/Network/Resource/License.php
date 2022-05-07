@@ -24,6 +24,32 @@ class License {
 	protected $key;
 
 	/**
+	 * License origin.
+	 *
+	 *     network_option
+	 *     site_option
+	 *     file
+	 *
+	 * @since 1.0.0
+	 *
+	 * @var string
+	 */
+	protected $key_origin;
+
+	/**
+	 * License origin code.
+	 *
+	 *     m = manual
+	 *     e = embedded
+	 *     o = original
+	 *
+	 * @since 1.0.0
+	 *
+	 * @var string
+	 */
+	protected $key_origin_code;
+
+	/**
 	 * Option prefix.
 	 *
 	 * @since 1.0.0
@@ -59,15 +85,33 @@ class License {
 	 *
 	 * @since 1.0.0
 	 *
+	 * @param string $type The type of key to get (any, network, local, default).
+	 *
 	 * @return string|null
 	 */
-	public function get_key() {
-		if ( empty( $this->key ) ) {
-			$this->key = $this->get_key_from_option();
+	public function get_key( $type = 'any' ) {
+		if ( empty( $this->key ) && ( 'any' === $type || 'network' === $type ) ) {
+			$this->key = $this->get_key_from_network_option();
+
+			if ( ! empty( $this->key ) ) {
+				$this->key_origin = 'network_option';
+			}
 		}
 
-		if ( empty( $this->key ) ) {
+		if ( empty( $this->key ) && ( 'any' === $type || 'local' === $type ) ) {
+			$this->key = $this->get_key_from_option();
+
+			if ( ! empty( $this->key ) ) {
+				$this->key_origin = 'site_option';
+			}
+		}
+
+		if ( empty( $this->key ) && ( 'any' === $type || 'default' === $type ) ) {
 			$this->key = $this->get_key_from_license_file();
+
+			if ( ! empty( $this->key ) ) {
+				$this->key_origin = 'file';
+			}
 		}
 
 		/**
@@ -105,6 +149,26 @@ class License {
 	}
 
 	/**
+	 * Get the license key from a network option.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string|null
+	 */
+	protected function get_key_from_network_option() {
+		if ( ! is_multisite() ) {
+			return null;
+		}
+
+		if ( ! $this->resource->is_network_active() ) {
+			return null;
+		}
+
+		/** @var string|null */
+		return get_network_option( 0, $this->get_key_option_name(), null );
+	}
+
+	/**
 	 * Get the license key from an option.
 	 *
 	 * @since 1.0.0
@@ -128,18 +192,72 @@ class License {
 	}
 
 	/**
+	 * Get the license key origin code.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string
+	 */
+	public function get_key_origin_code(): string {
+		if ( ! empty( $this->key_origin_code ) ) {
+			return $this->key_origin_code;
+		}
+
+		$key         = $this->get_key();
+		$default_key = $this->get_key( 'default' );
+
+		if ( $key === $default_key ) {
+			$this->key_origin_code = 'o';
+		} elseif ( 'file' === $this->key_origin ) {
+			$this->key_origin_code = 'e';
+		} else {
+			$this->key_origin_code = 'm';
+		}
+
+		return $this->key_origin_code;
+	}
+
+	/**
+	 * Whether the plugin is network activated and licensed or not.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return bool
+	 */
+	public function is_network_licensed() {
+		$is_network_licensed = false;
+
+		if ( ! is_network_admin() && $this->resource->is_network_active() ) {
+			$network_key = $this->get_key( 'network' );
+			$local_key   = $this->get_key( 'local' );
+
+			// Check whether the network is licensed and NOT overridden by local license
+			if ( $network_key && ( empty( $local_key ) || $local_key === $network_key ) ) {
+				$is_network_licensed = true;
+			}
+		}
+
+		return $is_network_licensed;
+	}
+
+	/**
 	 * Sets the key in site options.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param string $key License key.
+	 * @param string $type Type of key (network, local).
 	 *
 	 * @return bool
 	 */
-	public function set_key( $key ): bool {
+	public function set_key( string $key, string $type = 'local' ): bool {
 		$this->key = $key;
 
-		return update_site_option( $this->get_key_option_name(), $key );
+		if ( 'network' === $type && is_multisite() ) {
+			return update_network_option( 0, $this->get_key_option_name(), sanitize_text_field( $key ) );
+		}
+
+		return update_option( $this->get_key_option_name(), sanitize_text_field( $key ) );
 	}
 
 	/**

@@ -134,6 +134,30 @@ abstract class Resource_Abstract {
 	}
 
 	/**
+	 * Get the currently installed version of the plugin.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string|null
+	 */
+	public function get_installed_version() {
+		if ( ! function_exists( 'get_plugins' ) ) {
+			return null;
+		}
+
+		$all_plugins = get_plugins();
+
+		if (
+			! array_key_exists( $this->get_path(), $all_plugins )
+			|| ! array_key_exists( 'Version', $all_plugins[ $this->get_path() ] )
+		) {
+			return null;
+		}
+
+		return $all_plugins[ $this->get_path() ]['Version'];
+	}
+
+	/**
 	 * Get the license class.
 	 *
 	 * @since 1.0.0
@@ -240,6 +264,21 @@ abstract class Resource_Abstract {
 	}
 
 	/**
+	 * Checks if the resource is installed at the network level.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return bool
+	 */
+	public function is_network_active() {
+		if ( ! is_multisite() ) {
+			return false;
+		}
+
+		return is_plugin_active_for_network( $this->get_path() );
+}
+
+/**
 	 * Register a resource and add it to the collection.
 	 *
 	 * @since 1.0.0

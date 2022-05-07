@@ -17,8 +17,4 @@ modules:
             domain: %WP_DOMAIN%
             adminEmail: admin@tribe.localhost
             title: 'StellarWP Network Tests'
-            plugins:
-                - stellar-network-client/plugin.php
-            activatePlugins:
-                - stellar-network-client/plugin.php
             theme: twentytwenty

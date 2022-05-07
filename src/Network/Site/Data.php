@@ -219,6 +219,28 @@ class Data {
 	}
 
 	/**
+	 * Returns the domain of the single site installation
+	 *
+	 * Will try to read it from the $_SERVER['SERVER_NAME'] variable
+	 * and fall back on the one contained in the siteurl option.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string
+	 */
+	protected function get_site_domain() {
+		if ( isset( $_SERVER['SERVER_NAME'] ) ) {
+			return $_SERVER['SERVER_NAME'];
+		}
+		$site_url = wp_parse_url( get_option( 'siteurl' ) );
+		if ( ! $site_url || ! isset( $site_url['host'] ) ) {
+			return '';
+		}
+
+		return strtolower( $site_url['host'] );
+	}
+
+	/**
 	 * Gets the site language.
 	 *
 	 * @since 1.0.0

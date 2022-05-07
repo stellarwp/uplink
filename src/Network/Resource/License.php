@@ -3,6 +3,7 @@
 namespace StellarWP\Network\Resource;
 
 use StellarWP\Network\Container;
+use StellarWP\Network\Site\Data;
 
 class License {
 	/**
@@ -50,13 +51,22 @@ class License {
 	protected $key_origin_code;
 
 	/**
-	 * Option prefix.
+	 * Option prefix for the key.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @var string
 	 */
-	public static $option_prefix = 'stellar_network_license_key_';
+	public static $key_option_prefix = 'stellar_network_license_key_';
+
+	/**
+	 * Option prefix for the key status.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @var string
+	 */
+	public static $key_status_option_prefix = 'stellar_network_license_key_status_';
 
 	/**
 	 * Resource instance.
@@ -177,7 +187,7 @@ class License {
 	 */
 	protected function get_key_from_option() {
 		/** @var string|null */
-		return get_site_option( $this->get_key_option_name(), null );
+		return get_option( $this->get_key_option_name(), null );
 	}
 
 	/**
@@ -188,7 +198,7 @@ class License {
 	 * @return string
 	 */
 	public function get_key_option_name(): string {
-		return static::$option_prefix . $this->resource->get_slug();
+		return static::$key_option_prefix . $this->resource->get_slug();
 	}
 
 	/**
@@ -215,6 +225,29 @@ class License {
 		}
 
 		return $this->key_origin_code;
+	}
+
+	/**
+	 * Get the license key status from an option.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string|null
+	 */
+	protected function get_key_status_from_option() {
+		/** @var string|null */
+		return get_option( $this->get_key_status_option_name(), null );
+	}
+
+	/**
+	 * Get the option name for the license key status.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string
+	 */
+	public function get_key_status_option_name(): string {
+		return static::$key_status_option_prefix . $this->resource->get_slug() . '_'. $this->container->make( Data::class )->get_site_domain();
 	}
 
 	/**

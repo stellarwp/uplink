@@ -8,26 +8,21 @@ includes:
 	- vendor/szepeviktor/phpstan-wordpress/extension.neon
 
 parameters:
+	parallel:
+		jobSize: 10
+		maximumNumberOfProcesses: 32
+		minimumNumberOfJobsPerProcess: 2
 	level: max
 	inferPrivatePropertyTypeFromConstructor: true
+	reportUnmatchedIgnoredErrors: false
+	checkGenericClassInNonGenericObjectType: false
 
 	# Paths to be analyzed.
 	paths:
-		- src
+		- %currentWorkingDirectory%/src
 
 	ignoreErrors:
 		# Uses func_get_args()
+		- '#^Function add_query_arg invoked with [123] parameters?, 0 required\.$#'
+		# Uses func_get_args()
 		- '#^Function apply_filters(_ref_array)? invoked with [34567] parameters, 2 required\.$#'
-
-	# Additional checks.
-	checkAlwaysTrueCheckTypeFunctionCall: true
-	checkAlwaysTrueInstanceof: true
-	checkAlwaysTrueStrictComparison: true
-	checkExplicitMixedMissingReturn: true
-	checkFunctionNameCase: true
-	reportMaybesInMethodSignatures: true
-	reportStaticMethodSignatures: true
-	checkTooWideReturnTypesInProtectedAndPublicMethods: true
-	checkUninitializedProperties: true
-	checkMissingIterableValueType: true
-	checkGenericClassInNonGenericObjectType: false

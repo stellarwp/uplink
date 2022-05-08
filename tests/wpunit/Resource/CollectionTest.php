@@ -1,13 +1,13 @@
 <?php
 
-namespace StellarWP\Network\Tests\Resource;
+namespace StellarWP\Uplink\Tests\Resource;
 
-use StellarWP\Network\Container;
-use StellarWP\Network\Network;
-use StellarWP\Network\Register;
-use StellarWP\Network\Resource as Network_Resource;
+use StellarWP\Uplink\Container;
+use StellarWP\Uplink\Uplink;
+use StellarWP\Uplink\Register;
+use StellarWP\Uplink\Resource as Uplink_Resource;
 
-class CollectionTest extends \StellarWP\Network\Tests\NetworkTestCase {
+class CollectionTest extends \StellarWP\Uplink\Tests\UplinkTestCase {
 	public $collection;
 	public $container;
 
@@ -15,7 +15,7 @@ class CollectionTest extends \StellarWP\Network\Tests\NetworkTestCase {
 		parent::setUp();
 
 		$this->container  = Container::init();
-		$this->collection = $this->container->make( Network_Resource\Collection::class );
+		$this->collection = $this->container->make( Uplink_Resource\Collection::class );
 
 		$resources = $this->get_resources();
 		foreach ( $resources as $resource ) {
@@ -41,8 +41,8 @@ class CollectionTest extends \StellarWP\Network\Tests\NetworkTestCase {
 				'slug'          => 'plugin-1',
 				'name'          => 'Plugin 1',
 				'path'          => $root . '/plugin.php',
-				'class'         => Network::class,
-				'license_class' => Network::class,
+				'class'         => Uplink::class,
+				'license_class' => Uplink::class,
 				'version'       => '1.0.0',
 				'type'          => 'plugin',
 			],
@@ -50,8 +50,8 @@ class CollectionTest extends \StellarWP\Network\Tests\NetworkTestCase {
 				'slug'          => 'plugin-2',
 				'name'          => 'Plugin 2',
 				'path'          => $root . '/plugin.php',
-				'class'         => Network::class,
-				'license_class' => Network::class,
+				'class'         => Uplink::class,
+				'license_class' => Uplink::class,
 				'version'       => '2.0.0',
 				'type'          => 'plugin',
 			],
@@ -59,8 +59,8 @@ class CollectionTest extends \StellarWP\Network\Tests\NetworkTestCase {
 				'slug'          => 'service-1',
 				'name'          => 'Service 1',
 				'path'          => $root . '/plugin.php',
-				'class'         => Network::class,
-				'license_class' => Network::class,
+				'class'         => Uplink::class,
+				'license_class' => Uplink::class,
 				'version'       => '3.0.0',
 				'type'          => 'service',
 			],
@@ -68,8 +68,8 @@ class CollectionTest extends \StellarWP\Network\Tests\NetworkTestCase {
 				'slug'          => 'service-2',
 				'name'          => 'Service 2',
 				'path'          => $root . '/plugin.php',
-				'class'         => Network::class,
-				'license_class' => Network::class,
+				'class'         => Uplink::class,
+				'license_class' => Uplink::class,
 				'version'       => '4.0.0',
 				'type'          => 'service',
 			],
@@ -83,10 +83,10 @@ class CollectionTest extends \StellarWP\Network\Tests\NetworkTestCase {
 	 */
 	public function it_should_register_resources() {
 
-		$this->assertInstanceOf( Network_Resource\Plugin::class, $this->collection['plugin-1'] );
-		$this->assertInstanceOf( Network_Resource\Plugin::class, $this->collection['plugin-2'] );
-		$this->assertInstanceOf( Network_Resource\Service::class, $this->collection['service-1'] );
-		$this->assertInstanceOf( Network_Resource\Service::class, $this->collection['service-2'] );
+		$this->assertInstanceOf( Uplink_Resource\Plugin::class, $this->collection['plugin-1'] );
+		$this->assertInstanceOf( Uplink_Resource\Plugin::class, $this->collection['plugin-2'] );
+		$this->assertInstanceOf( Uplink_Resource\Service::class, $this->collection['service-1'] );
+		$this->assertInstanceOf( Uplink_Resource\Service::class, $this->collection['service-2'] );
 
 		$this->assertEquals( 'plugin-1', $this->collection['plugin-1']->get_slug() );
 		$this->assertEquals( 'Plugin 1', $this->collection['plugin-1']->get_name() );
@@ -104,7 +104,7 @@ class CollectionTest extends \StellarWP\Network\Tests\NetworkTestCase {
 	 */
 	public function it_should_loop_over_resources() {
 		foreach ( $this->collection as $resource ) {
-			$this->assertInstanceOf( Network_Resource\Resource_Abstract::class, $resource );
+			$this->assertInstanceOf( Uplink_Resource\Resource_Abstract::class, $resource );
 		}
 	}
 }

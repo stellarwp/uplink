@@ -1,6 +1,6 @@
 <?php
 
-namespace StellarWP\Network\Resource;
+namespace StellarWP\Uplink\Resource;
 
 class Collection implements \ArrayAccess, \Iterator {
 	/**

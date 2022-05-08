@@ -1,5 +1,5 @@
 {
-    "name": "the-events-calendar/stellar-network-client",
+    "name": "the-events-calendar/stellar-uplink",
     "type": "library",
     "license": "GPLv2",
     "authors": [
@@ -10,12 +10,12 @@
     ],
     "autoload": {
         "psr-4": {
-            "StellarWP\\Network\\": "src/Network/"
+            "StellarWP\\Uplink\\": "src/Uplink/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "StellarWP\\Network\\Tests\\": "tests/_support/Helper/"
+            "StellarWP\\Uplink\\Tests\\": "tests/_support/Helper/"
         }
     },
     "require": {

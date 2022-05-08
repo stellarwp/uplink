@@ -1,5 +1,5 @@
 <?php
-namespace StellarWP\Network;
+namespace StellarWP\Uplink;
 
 class Container extends \tad_DI52_Container {
 	/**

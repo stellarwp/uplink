@@ -16,5 +16,5 @@ modules:
             tablePrefix: test_
             domain: %WP_DOMAIN%
             adminEmail: admin@tribe.localhost
-            title: 'StellarWP Network Tests'
+            title: 'StellarWP Uplink Tests'
             theme: twentytwenty

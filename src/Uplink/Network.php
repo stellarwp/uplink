@@ -1,8 +1,8 @@
 <?php
 
-namespace StellarWP\Network;
+namespace StellarWP\Uplink;
 
-class Network extends \tad_DI52_ServiceProvider {
+class Uplink extends \tad_DI52_ServiceProvider {
 	/**
 	 * Initializes the service provider.
 	 *

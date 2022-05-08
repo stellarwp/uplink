@@ -1,9 +1,10 @@
 <?php
 
-namespace StellarWP\Network\API;
+namespace StellarWP\Uplink\API;
 
-use StellarWP\Network\Container;
-use StellarWP\Network\Site\Data;
+use StellarWP\Uplink\Container;
+use StellarWP\Uplink\Resource\Resource_Abstract;
+use StellarWP\Uplink\Site\Data;
 
 /**
  * API Client class.
@@ -52,12 +53,12 @@ class Client {
 	public function __construct( Container $container = null ) {
 		$this->container = $container ?: Container::init();
 
-		if ( defined( 'STELLAR_NETWORK_API_BASE_URL' ) && STELLAR_NETWORK_API_BASE_URL ) {
-			static::$base_url = preg_replace( '!/$!', '', STELLAR_NETWORK_API_BASE_URL );
+		if ( defined( 'STELLAR_UPLINK_API_BASE_URL' ) && STELLAR_UPLINK_API_BASE_URL ) {
+			static::$base_url = preg_replace( '!/$!', '', STELLAR_UPLINK_API_BASE_URL );
 		}
 
-		if ( defined( 'STELLAR_NETWORK_API_ROOT' ) && STELLAR_NETWORK_API_ROOT ) {
-			static::$api_root = trailingslashit( STELLAR_NETWORK_API_ROOT );
+		if ( defined( 'STELLAR_UPLINK_API_ROOT' ) && STELLAR_UPLINK_API_ROOT ) {
+			static::$api_root = trailingslashit( STELLAR_UPLINK_API_ROOT );
 		}
 	}
 
@@ -111,7 +112,7 @@ class Client {
 	}
 
 	/**
-	 * Send a request to the StellarWP Network API.
+	 * Send a request to the StellarWP Uplink API.
 	 *
 	 * @since 1.0.0
 	 *
@@ -140,7 +141,7 @@ class Client {
 		 * @param string $endpoint Request method.
 		 * @param array<mixed> $args Request data.
 		 */
-		$request_args = apply_filters( 'stellar_network_api_request_args', $request_args, $endpoint, $args );
+		$request_args = apply_filters( 'stellar_uplink_api_request_args', $request_args, $endpoint, $args );
 
 		$url = static::$base_url . static::$api_root . $endpoint;
 
@@ -157,7 +158,7 @@ class Client {
 		 * @param string $endpoint API endpoint.
 		 * @param array<mixed> $args API arguments.
 		 */
-		$result = apply_filters( 'stellar_network_api_response', $result, $endpoint, $args );
+		$result = apply_filters( 'stellar_uplink_api_response', $result, $endpoint, $args );
 
 		return $result;
 	}
@@ -167,39 +168,42 @@ class Client {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array<mixed> $args {
-	 *     License validation arguments.
-	 *
-	 *     @type string $key     License key.
-	 *     @type string $plugin  Plugin slug.
-	 *     @type array  $stats   Array of stats.
-	 *     @type string $version Optional. Plugin version.
-	 * }
+	 * @param Resource_Abstract $resource Resource to validate.
+	 * @param string|null $key License key to validate.
 	 *
 	 * @return mixed
 	 */
-	public function validate_license( array $args = [], bool $force = false ) {
-		$results      = [];
+	public function validate_license( Resource_Abstract $resource, string $key = null, bool $force = false ) {
+		$results = [];
+
+		/** @var Data */
+		$site_data = $this->container->make( Data::class );
+		$args      = $resource->get_validation_args();
+
+		if ( ! empty( $key ) ) {
+			$args['key'] = sanitize_text_field( $key );
+		}
+
+		$args['domain'] = $site_data->get_domain();
+		$args['stats']  = $site_data->get_stats();
+
+		$args['stats']['network']['network_activated'] = $resource->is_network_activated();
+
+		/**
+		 * Filter the license validation arguments.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param array<mixed> $args License validation arguments.
+		 */
+		$args = apply_filters( 'stellar_uplink_client_validate_license_args', $args );
+
 		$request_hash = $this->build_hash( $args );
-		$cache_key    = 'stellar_network_validate_license_' . $request_hash;
+		$cache_key    = 'stellar_uplink_validate_license_' . $request_hash;
 
 		$results = $this->container->getVar( $cache_key );
 
 		if ( $force || ! $results ) {
-			/** @var Data */
-			$site_data = $this->container->make( Data::class );
-
-			$args['domain'] = $site_data->get_domain();
-			$args['stats']  = $site_data->get_stats();
-
-			/**
-			 * Filter the license validation arguments.
-			 *
-			 * @since 1.0.0
-			 *
-			 * @param array<mixed> $args License validation arguments.
-			 */
-			$args = apply_filters( 'stellar_network_client_validate_license_args', $args );
 
 			$results = $this->post( 'license/validate', $args );
 
@@ -214,6 +218,6 @@ class Client {
 		 * @param mixed $results License validation results.
 		 * @param array<mixed> $args License validation arguments.
 		 */
-		return apply_filters( 'stellar_network_client_validate_license', $results, $args );
+		return apply_filters( 'stellar_uplink_client_validate_license', $results, $args );
 	}
 }

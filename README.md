@@ -1,13 +1,13 @@
 # StellarWP Plugin Delivery Client
 
-[![CI](https://github.com/the-events-calendar/stellar-network-client/workflows/CI/badge.svg)](https://github.com/the-events-calendar/stellar-network-client/actions?query=branch%3Amain) [![Static Analysis](https://github.com/the-events-calendar/stellar-network-client/actions/workflows/static-analysis.yml/badge.svg)](https://github.com/the-events-calendar/stellar-network-client/actions/workflows/static-analysis.yml)
+[![CI](https://github.com/the-events-calendar/stellar-uplink/workflows/CI/badge.svg)](https://github.com/the-events-calendar/stellar-uplink/actions?query=branch%3Amain) [![Static Analysis](https://github.com/the-events-calendar/stellar-uplink/actions/workflows/static-analysis.yml/badge.svg)](https://github.com/the-events-calendar/stellar-uplink/actions/workflows/static-analysis.yml)
 
 ## Initialize the library
 
 ```php
-use StellarWP\Network\Network;
+use StellarWP\Uplink\Uplink;
 
-Network::init();
+Uplink::init();
 ```
 
 ## Registering a plugin
@@ -15,7 +15,7 @@ Network::init();
 Registers a plugin for licensing and updates.
 
 ```php
-use StellarWP\Network\Register;
+use StellarWP\Uplink\Register;
 
 Register::plugin(
 	$plugin_name,
@@ -32,7 +32,7 @@ Register::plugin(
 Registers a service for licensing.
 
 ```php
-use StellarWP\Network\Register;
+use StellarWP\Uplink\Register;
 
 Register::service(
 	$plugin_name,

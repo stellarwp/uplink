@@ -1,6 +1,6 @@
 <?php
 
-namespace StellarWP\Network\Resource;
+namespace StellarWP\Uplink\Resource;
 
 class Plugin extends Resource_Abstract {
 	/**

@@ -1,6 +1,6 @@
 <?php
 
-namespace StellarWP\Network\Exceptions;
+namespace StellarWP\Uplink\Exceptions;
 
 class ResourceAlreadyRegisteredException extends \Exception {
 	/**
@@ -11,6 +11,6 @@ class ResourceAlreadyRegisteredException extends \Exception {
 	 * @param string $slug Resource slug.
 	 */
 	public function __construct( $slug ) {
-		parent::__construct( sprintf( __( 'The resource "%s" is already registered.', 'stellar-network-client' ), $slug ) );
+		parent::__construct( sprintf( __( 'The resource "%s" is already registered.', 'stellar-uplink-client' ), $slug ) );
 	}
 }

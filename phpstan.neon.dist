@@ -12,7 +12,7 @@ parameters:
 		jobSize: 10
 		maximumNumberOfProcesses: 32
 		minimumNumberOfJobsPerProcess: 2
-	level: max
+	level: 8
 	inferPrivatePropertyTypeFromConstructor: true
 	reportUnmatchedIgnoredErrors: false
 	checkGenericClassInNonGenericObjectType: false

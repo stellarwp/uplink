@@ -1,11 +1,11 @@
 <?php
 
-namespace StellarWP\Network\Tests\Site;
+namespace StellarWP\Uplink\Tests\Site;
 
-use StellarWP\Network\Container;
-use StellarWP\Network;
+use StellarWP\Uplink\Container;
+use StellarWP\Uplink;
 
-class DataTest extends \StellarWP\Network\Tests\NetworkTestCase {
+class DataTest extends \StellarWP\Uplink\Tests\UplinkTestCase {
 	public $container;
 
 	public function setUp() {
@@ -21,7 +21,7 @@ class DataTest extends \StellarWP\Network\Tests\NetworkTestCase {
 	public function it_should_collect_base_stats() {
 		global $wp_version;
 
-		$data = $this->container->make( Network\Site\Data::class );
+		$data = $this->container->make( Uplink\Site\Data::class );
 		$stats = $data->get_stats();
 
 		$this->assertArrayHasKey( 'versions', $stats );
@@ -40,9 +40,9 @@ class DataTest extends \StellarWP\Network\Tests\NetworkTestCase {
 	 * @test
 	 */
 	public function it_should_collect_full_stats() {
-		add_filter( 'stellar_network_use_full_stats', '__return_true' );
+		add_filter( 'stellar_uplink_use_full_stats', '__return_true' );
 
-		$data = $this->container->make( Network\Site\Data::class );
+		$data = $this->container->make( Uplink\Site\Data::class );
 		$stats = $data->get_stats();
 
 		$this->assertArrayHasKey( 'versions', $stats );
@@ -54,6 +54,6 @@ class DataTest extends \StellarWP\Network\Tests\NetworkTestCase {
 
 		$this->assertEquals( phpversion(), $stats['versions']['php'] );
 
-		remove_filter( 'stellar_network_use_full_stats', '__return_true' );
+		remove_filter( 'stellar_uplink_use_full_stats', '__return_true' );
 	}
 }

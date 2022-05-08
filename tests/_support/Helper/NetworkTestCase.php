@@ -1,14 +1,14 @@
 <?php
 
-namespace StellarWP\Network\Tests;
+namespace StellarWP\Uplink\Tests;
 
-use StellarWP\Network\Network;
+use StellarWP\Uplink\Uplink;
 
-class NetworkTestCase extends \Codeception\TestCase\WPTestCase {
+class UplinkTestCase extends \Codeception\TestCase\WPTestCase {
 	public function setUp() {
 		// before
 		parent::setUp();
 
-		Network::init();
+		Uplink::init();
 	}
 }

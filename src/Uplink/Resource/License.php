@@ -1,10 +1,10 @@
 <?php
 
-namespace StellarWP\Network\Resource;
+namespace StellarWP\Uplink\Resource;
 
-use StellarWP\Network\Container;
-use StellarWP\Network\Site\Data;
-use StellarWP\Network\Utils;
+use StellarWP\Uplink\Container;
+use StellarWP\Uplink\Site\Data;
+use StellarWP\Uplink\Utils;
 
 class License {
 	/**
@@ -65,7 +65,7 @@ class License {
 	 *
 	 * @var string
 	 */
-	public static $key_option_prefix = 'stellar_network_license_key_';
+	public static $key_option_prefix = 'stellar_uplink_license_key_';
 
 	/**
 	 * Option prefix for the key status.
@@ -74,7 +74,7 @@ class License {
 	 *
 	 * @var string
 	 */
-	public static $key_status_option_prefix = 'stellar_network_license_key_status_';
+	public static $key_status_option_prefix = 'stellar_uplink_license_key_status_';
 
 	/**
 	 * Resource instance.
@@ -139,7 +139,7 @@ class License {
 		 *
 		 * @param string|null $key The license key.
 		 */
-		return apply_filters( 'stellar_network_license_get_key', $this->key );
+		return apply_filters( 'stellar_uplink_license_get_key', $this->key );
 	}
 
 	/**
@@ -178,7 +178,7 @@ class License {
 			return null;
 		}
 
-		if ( ! $this->resource->is_network_active() ) {
+		if ( ! $this->resource->is_network_activated() ) {
 			return null;
 		}
 
@@ -277,7 +277,7 @@ class License {
 	public function is_network_licensed() {
 		$is_network_licensed = false;
 
-		if ( ! is_network_admin() && $this->resource->is_network_active() ) {
+		if ( ! is_network_admin() && $this->resource->is_network_activated() ) {
 			$network_key = $this->get_key( 'network' );
 			$local_key   = $this->get_key( 'local' );
 

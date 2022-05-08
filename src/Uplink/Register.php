@@ -1,9 +1,9 @@
 <?php
 
-namespace StellarWP\Network;
+namespace StellarWP\Uplink;
 
 /**
- * A helper class for registering StellarWP Network resources.
+ * A helper class for registering StellarWP Uplink resources.
  */
 class Register {
 	/**

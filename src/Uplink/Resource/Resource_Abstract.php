@@ -1,12 +1,13 @@
 <?php
 
-namespace StellarWP\Network\Resource;
+namespace StellarWP\Uplink\Resource;
 
-use StellarWP\Network\Container;
-use StellarWP\Network\Exceptions;
-use StellarWP\Network\Site\Data;
+use StellarWP\Uplink\API\Client;
+use StellarWP\Uplink\Container;
+use StellarWP\Uplink\Exceptions;
+use StellarWP\Uplink\Site\Data;
 /**
- * The base resource class for StellarWP Network plugins and services.
+ * The base resource class for StellarWP Uplink plugins and services.
  *
  * @property-read string    $class The class name.
  * @property-read Container $container Container instance.
@@ -155,7 +156,7 @@ abstract class Resource_Abstract {
 		$stats = $data->get_stats();
 
 		$args['multisite']         = $stats['network']['multisite'];
-		$args['network_activated'] = (int) $this->is_network_active();
+		$args['network_activated'] = (int) $this->is_network_activated();
 		$args['active_sites']      = $stats['network']['active_sites'];
 		$args['wp_version']        = $stats['versions']['wp'];
 
@@ -265,7 +266,7 @@ abstract class Resource_Abstract {
 		 *
 		 * @param string $slug Resource slug.
 		 */
-		return apply_filters( 'stellar_network_resource_get_slug', $this->slug );
+		return apply_filters( 'stellar_uplink_resource_get_slug', $this->slug );
 	}
 
 	/**
@@ -284,21 +285,16 @@ abstract class Resource_Abstract {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return array<mixed>
+	 * @return array<string,mixed>
 	 */
 	public function get_validation_args() {
 		$args = [];
-
-		/** @var Data */
-		$data = $this->container->make( Data::class );
 
 		$args['key']            = sanitize_text_field( $this->get_license_object()->get_key() ?: '' );
 		$args['default_key']    = sanitize_text_field( $this->get_license_object()->get_key( 'default' ) ?: '' );
 		$args['license_origin'] = sanitize_text_field( $this->get_license_object()->get_key_origin_code() );
 		$args['plugin']         = sanitize_text_field( $this->get_slug() );
 		$args['version']        = sanitize_text_field( $this->get_installed_version() ?: '' );
-		$args['domain']         = sanitize_text_field( $data->get_domain() );
-		$args['stats']          = $data->get_stats();
 
 		return $args;
 	}
@@ -318,7 +314,7 @@ abstract class Resource_Abstract {
 		 *
 		 * @param string $version Resource version.
 		 */
-		return apply_filters( 'stellar_network_resource_get_version', $this->version );
+		return apply_filters( 'stellar_uplink_resource_get_version', $this->version );
 	}
 
 	/**
@@ -328,7 +324,7 @@ abstract class Resource_Abstract {
 	 *
 	 * @return bool
 	 */
-	public function is_network_active() {
+	public function is_network_activated() {
 		if ( ! is_multisite() ) {
 			return false;
 		}
@@ -381,7 +377,7 @@ abstract class Resource_Abstract {
 		 *
 		 * @param Resource_Abstract $resource Resource instance.
 		 */
-		$resource = apply_filters( 'stellar_network_resource_register_before_collection', $resource );
+		$resource = apply_filters( 'stellar_uplink_resource_register_before_collection', $resource );
 
 		if ( ! empty( $collection[ $resource->get_slug() ] ) ) {
 			throw new Exceptions\ResourceAlreadyRegisteredException( $resource->get_slug() );
@@ -396,7 +392,7 @@ abstract class Resource_Abstract {
 		 *
 		 * @param Resource_Abstract $resource Resource instance.
 		 */
-		$resource = apply_filters( 'stellar_network_resource_register', $resource );
+		$resource = apply_filters( 'stellar_uplink_resource_register', $resource );
 
 		return $resource;
 	}
@@ -412,5 +408,111 @@ abstract class Resource_Abstract {
 	 */
 	public function set_license_key( $key ): bool {
 		return $this->get_license_object()->set_key( $key );
+	}
+
+	/**
+	 * Validates the resource's license key.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $key License key.
+	 * @param bool $do_network_validate Validate the key as a network key.
+	 *
+	 * @return array<mixed>
+	 */
+	public function validate_license( $key, $do_network_validate = false ): array {
+		/** @var Client */
+		$api = $this->container->make( Client::class );
+
+		if ( empty( $key ) ) {
+			$key = $this->get_license_object()->get_key();
+		}
+
+		$results            = $api->validate_license( $this, $key );
+		$expiration         = isset( $results->expiration ) ? $results->expiration : __( 'unknown date', 'stellar-uplink-client' );
+		$response           = [];
+		$response['status'] = 0;
+
+		if ( empty( $results ) ) {
+			$response['message'] = __( 'Sorry, key validation server is not available.', 'stellar-uplink-client' );
+		} elseif ( isset( $results->api_expired ) && 1 === (int) $results->api_expired ) {
+			$response['message'] = $this->get_license_expired_message();
+			$response['api_expired'] = true;
+		} elseif ( isset( $results->api_upgrade ) && 1 === (int) $results->api_upgrade ) {
+			$response['message'] = $this->get_api_message( $results );
+			$response['api_upgrade'] = true;
+		} elseif ( isset( $results->api_invalid ) && 1 === (int) $results->api_invalid ) {
+			$response['message'] = $this->get_api_message( $results );
+			$response['api_invalid'] = true;
+		} else {
+			$key_type = 'local';
+
+			if ( $do_network_validate ) {
+				$key_type = 'network';
+			}
+
+			$current_key = $this->get_license_object()->get_key( $key_type );
+
+			if ( $current_key && $current_key === $key ) {
+				$default_success_msg = esc_html( sprintf( __( 'Valid Key! Expires on %s', 'stellar-uplink-client' ), $expiration ) );
+			} else {
+				$this->get_license_object()->set_key( $key, $key_type );
+
+				$default_success_msg = esc_html( sprintf( __( 'Thanks for setting up a valid key. It will expire on %s', 'stellar-uplink-client' ), $expiration ) );
+			}
+
+			//$pue_notices->clear_notices( $this->get_name() );
+
+			$response['status']     = isset( $results->api_message ) ? 2 : 1;
+			$response['message']    = isset( $results->api_message ) ? $results->api_message : $default_success_msg;
+			$response['expiration'] = esc_html( $expiration );
+
+			if ( isset( $results->daily_limit ) ) {
+				$response['daily_limit'] = intval( $results->daily_limit );
+			}
+		}
+
+		$response['message'] = wp_kses( $response['message'], 'data' );
+
+		$this->get_license_object()->set_key_status( $response['status'] );
+
+		return $response;
+	}
+
+	public function get_license_expired_message() {
+		return '<a href="https://evnt.is/195y" target="_blank" class="button button-primary">' .
+			__( 'Renew Your License Now', 'stellar-uplink-client' ) .
+			'<span class="screen-reader-text">' .
+			__( ' (opens in a new window)', 'stellar-uplink-client' ) .
+			'</span></a>';
+	}
+
+		/**
+	 * Processes variable substitutions for server-side API message.
+	 *
+	 * @param Tribe__PUE__Plugin_Info $info
+	 *
+	 * @return string
+	 */
+	private function get_api_message( $info ) {
+		// this default message should never show, but is here as a fallback just in case.
+		$message = sprintf(
+			esc_html__( 'There is an update for %s. You\'ll need to %scheck your license%s to have access to updates, downloads, and support.', 'stellar-uplink-client' ),
+			$this->get_name(),
+			'<a href="https://theeventscalendar.com/license-keys/">',
+			'</a>'
+		);
+
+		if ( ! empty( $info->api_inline_invalid_message ) ) {
+			$message = wp_kses( $info->api_inline_invalid_message, 'post' );
+		}
+
+		$message = str_replace( '%plugin_name%', $this->get_name(), $message );
+		$message = str_replace( '%plugin_slug%', $this->get_slug(), $message );
+		$message = str_replace( '%update_url%', $this->get_pue_update_url() . '/', $message );
+		$message = str_replace( '%version%', $info->version, $message );
+		$message = str_replace( '%changelog%', '<a class="thickbox" title="' . $this->get_name() . '" href="plugin-install.php?tab=plugin-information&plugin=' . $this->get_slug() . '&TB_iframe=true&width=640&height=808">what\'s new</a>', $message );
+
+		return $message;
 	}
 }

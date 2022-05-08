@@ -1,8 +1,8 @@
 <?php
 
-namespace StellarWP\Network\Site;
+namespace StellarWP\Uplink\Site;
 
-use StellarWP\Network\Container;
+use StellarWP\Uplink\Container;
 
 class Data {
 	/**
@@ -89,7 +89,7 @@ class Data {
 		 *
 		 * @param string $version DB version.
 		 */
-		$version = apply_filters( 'stellar_network_get_db_version', $version );
+		$version = apply_filters( 'stellar_uplink_get_db_version', $version );
 
 		return sanitize_text_field( $version );
 	}
@@ -102,7 +102,7 @@ class Data {
 	 * @return string
 	 */
 	public function get_domain(): string {
-		$cache_key = 'stellar_network_domain';
+		$cache_key = 'stellar_uplink_domain';
 		$domain    = $this->container->getVar( $cache_key );
 
 		if ( null === $domain ) {
@@ -142,7 +142,7 @@ class Data {
 		 *
 		 * @param string $domain Domain.
 		 */
-		$domain = apply_filters( 'stellar_network_get_domain', $domain );
+		$domain = apply_filters( 'stellar_uplink_get_domain', $domain );
 
 		return sanitize_text_field( $domain );
 	}
@@ -157,7 +157,7 @@ class Data {
 	public function get_multisite_active_sites(): int {
 		global $wpdb;
 
-		$cache_key    = 'stellar_network_multisite_active_sites';
+		$cache_key    = 'stellar_uplink_multisite_active_sites';
 
 		/** @var int|null */
 		$active_sites = $this->container->getVar( $cache_key );
@@ -191,7 +191,7 @@ class Data {
 		 *
 		 * @param int $active_sites Number of active sites.
 		 */
-		$active_sites = apply_filters( 'stellar_network_get_multisite_active_sites', $active_sites );
+		$active_sites = apply_filters( 'stellar_uplink_get_multisite_active_sites', $active_sites );
 
 		return (int) $active_sites;
 	}
@@ -213,7 +213,7 @@ class Data {
 		 *
 		 * @param string $version PHP version.
 		 */
-		$version = apply_filters( 'stellar_network_get_php_version', $version );
+		$version = apply_filters( 'stellar_uplink_get_php_version', $version );
 
 		return sanitize_text_field( $version );
 	}
@@ -262,7 +262,7 @@ class Data {
 		 *
 		 * @param string $locale Site language.
 		 */
-		$locale = apply_filters( 'stellar_network_get_site_language', $locale );
+		$locale = apply_filters( 'stellar_uplink_get_site_language', $locale );
 
 		return sanitize_text_field( $locale );
 	}
@@ -284,7 +284,7 @@ class Data {
 		 *
 		 * @param boolean $use_full_stats Whether to send full stats
 		 */
-		$use_full_stats = apply_filters( 'stellar_network_use_full_stats', false );
+		$use_full_stats = apply_filters( 'stellar_uplink_use_full_stats', false );
 
 		if ( $use_full_stats ) {
 			$stats = $this->build_full_stats( $stats );
@@ -299,7 +299,7 @@ class Data {
 		 * @param boolean             $use_full_stats Whether to send full stats.
 		 * @param Data                $checker        Data object.
 		 */
-		$stats = apply_filters( 'stellar_network_get_stats', $stats, $use_full_stats, $this );
+		$stats = apply_filters( 'stellar_uplink_get_stats', $stats, $use_full_stats, $this );
 
 		return $stats;
 	}
@@ -334,7 +334,7 @@ class Data {
 		 *
 		 * @param array<string> $info Theme info.
 		 */
-		$info = apply_filters( 'stellar_network_get_theme_info', $info );
+		$info = apply_filters( 'stellar_uplink_get_theme_info', $info );
 
 		return (array) $info;
 	}
@@ -347,7 +347,7 @@ class Data {
 	 * @return string
 	 */
 	public function get_timezone(): string {
-		$cache_key = 'stellar_network_timezone';
+		$cache_key = 'stellar_uplink_timezone';
 
 		/** @var string|null */
 		$timezone  = $this->container->getVar( $cache_key );
@@ -388,7 +388,7 @@ class Data {
 		 *
 		 * @param string $timezone Site timezone.
 		 */
-		$timezone = apply_filters( 'stellar_network_get_timezone', $timezone ?: '' );
+		$timezone = apply_filters( 'stellar_uplink_get_timezone', $timezone ?: '' );
 
 		return sanitize_text_field( $timezone );
 	}
@@ -403,7 +403,7 @@ class Data {
 	public function get_totals(): array {
 		global $wpdb;
 
-		$cache_key = 'stellar_network_totals';
+		$cache_key = 'stellar_uplink_totals';
 
 		/** @var array<int>|null */
 		$totals    = $this->container->getVar( $cache_key );
@@ -423,7 +423,7 @@ class Data {
 		 *
 		 * @param array<int> $totals Site post totals.
 		 */
-		$totals = apply_filters( 'stellar_network_get_totals', $totals );
+		$totals = apply_filters( 'stellar_uplink_get_totals', $totals );
 
 		return (array) $totals;
 	}
@@ -445,7 +445,7 @@ class Data {
 		 *
 		 * @param string $locale Site language.
 		 */
-		$locale = apply_filters( 'stellar_network_get_user_language', $locale );
+		$locale = apply_filters( 'stellar_uplink_get_user_language', $locale );
 
 		return sanitize_text_field( $locale );
 	}
@@ -469,7 +469,7 @@ class Data {
 		 *
 		 * @param string $wp_version WordPress version.
 		 */
-		$version = apply_filters( 'stellar_network_get_wp_version', $version );
+		$version = apply_filters( 'stellar_uplink_get_wp_version', $version );
 
 		return sanitize_text_field( $version );
 	}
@@ -491,7 +491,7 @@ class Data {
 		 *
 		 * @param bool $debug_status Debug status.
 		 */
-		$debug_status = apply_filters( 'stellar_network_is_debug_enabled', $debug_status );
+		$debug_status = apply_filters( 'stellar_uplink_is_debug_enabled', $debug_status );
 
 		return (bool) $debug_status;
 	}
@@ -504,7 +504,7 @@ class Data {
 	 * @return bool
 	 */
 	public function is_public(): bool {
-		$cache_key = 'stellar_network_is_public';
+		$cache_key = 'stellar_uplink_is_public';
 
 		/** @var bool|null */
 		$is_public = $this->container->getVar( $cache_key );
@@ -521,7 +521,7 @@ class Data {
 		 *
 		 * @param bool $is_public Is the site public?
 		 */
-		$is_public = apply_filters( 'stellar_network_get_db_version', $is_public );
+		$is_public = apply_filters( 'stellar_uplink_get_db_version', $is_public );
 
 		return (bool) $is_public;
 	}

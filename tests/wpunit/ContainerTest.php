@@ -1,10 +1,10 @@
 <?php
 
-namespace StellarWP\Network\Tests;
+namespace StellarWP\Uplink\Tests;
 
-use StellarWP\Network\Container;
+use StellarWP\Uplink\Container;
 
-class ContainerTest extends NetworkTestCase {
+class ContainerTest extends UplinkTestCase {
 	/**
 	 * Test that the container is correctly instantiated.
 	 *

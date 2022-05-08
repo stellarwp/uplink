@@ -1,6 +1,6 @@
 <?php
 
-namespace StellarWP\Network\Utils;
+namespace StellarWP\Uplink\Utils;
 
 class Checks {
 	/**
@@ -23,7 +23,7 @@ class Checks {
 		 *
 		 * @param array $truthy_strings
 		 */
-		$truthy_strings = (array) apply_filters( 'stellar_network_is_truthy_strings', [
+		$truthy_strings = (array) apply_filters( 'stellar_uplink_is_truthy_strings', [
 			'1',
 			'enable',
 			'enabled',

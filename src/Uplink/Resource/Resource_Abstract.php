@@ -321,6 +321,17 @@ abstract class Resource_Abstract {
 	}
 
 	/**
+	 * Returns whether or not the license is listed as valid.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return bool
+	 */
+	public function has_valid_license(): bool {
+		return $this->get_license_object()->is_valid();
+	}
+
+	/**
 	 * Checks if the resource is installed at the network level.
 	 *
 	 * @since 1.0.0
@@ -333,9 +344,20 @@ abstract class Resource_Abstract {
 		}
 
 		return is_plugin_active_for_network( $this->get_path() );
-}
+	}
 
-/**
+	/**
+	 * Whether the plugin is network activated and licensed or not.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return bool
+	 */
+	public function is_network_licensed(): bool {
+		return $this->get_license_object()->is_network_licensed();
+	}
+
+	/**
 	 * Register a resource and add it to the collection.
 	 *
 	 * @since 1.0.0
@@ -411,6 +433,17 @@ abstract class Resource_Abstract {
 	 */
 	public function set_license_key( $key ): bool {
 		return $this->get_license_object()->set_key( $key );
+	}
+
+	/**
+	 * Returns whether or not the license key is in need of validation.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return bool
+	 */
+	public function should_validate(): bool {
+		return $this->get_license_object()->is_validation_expired();
 	}
 
 	/**

@@ -249,7 +249,8 @@ class License {
 		$status = get_option( $this->get_key_status_option_name(), 'invalid' );
 
 		if ( null === $status && $this->get_key() ) {
-			// @todo validate key
+			$this->resource->validate_license( $this->get_key(), $this->resource->is_network_licensed() );
+			$status = get_option( $this->get_key_status_option_name(), 'invalid' );
 		}
 
 		return $status;

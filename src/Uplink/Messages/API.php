@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\Messages;
 
-use StellarWP\Uplink\API;
+use StellarWP\Uplink\API\Client;
 use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Resource\Resource_Abstract;
 
@@ -50,8 +50,8 @@ class API extends Message_Abstract {
 	 * @inheritDoc
 	 */
 	public function get(): string {
-		/** @var API\Client */
-		$api = $this->container->make( API\Client::class );
+		/** @var Client */
+		$api = $this->container->make( Client::class );
 
 		$message = $this->message;
 

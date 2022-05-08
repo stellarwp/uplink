@@ -207,6 +207,17 @@ class Validation_Response {
 	}
 
 	/**
+	 * Gets the raw response from the validation request.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return \stdClass
+	 */
+	public function get_raw_response() {
+		return $this->response;
+	}
+
+	/**
 	 * Gets the validation response result.
 	 *
 	 * @since 1.0.0

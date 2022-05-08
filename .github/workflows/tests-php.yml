@@ -65,9 +65,9 @@ jobs:
           ${TRIC_BIN} debug on
           ${TRIC_BIN} info
           ${TRIC_BIN} config
-      - name: Set up StellarWP Network
+      - name: Set up StellarWP Uplink
         run: |
-          ${TRIC_BIN} use stellar-network-client
+          ${TRIC_BIN} use stellar-uplink
           ${TRIC_BIN} composer install --ignore-platform-reqs
       - name: Run suite tests
         run: ${TRIC_BIN} run ${{ matrix.suite }} --ext DotReporter

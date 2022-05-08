@@ -99,6 +99,24 @@ class Client {
 	}
 
 	/**
+	 * Get API base URL.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string
+	 */
+	public function get_api_base_url(): string {
+		/**
+		 * Filter the API base URL.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param string $base_url Base URL.
+		 */
+		return apply_filters( 'stellar_uplink_api_get_base_url', static::$base_url );
+	}
+
+	/**
 	 * POST request.
 	 *
 	 * @since 1.0.0
@@ -120,7 +138,7 @@ class Client {
 	 * @param string $endpoint
 	 * @param array<mixed> $args
 	 *
-	 * @return mixed
+	 * @return \stdClass|null
 	 */
 	protected function request( $method, $endpoint, $args ) {
 		$request_args = [
@@ -154,7 +172,7 @@ class Client {
 		 *
 		 * @since 1.0.0
 		 *
-		 * @param mixed $result API response.
+		 * @param \stdClass|null $result API response.
 		 * @param string $endpoint API endpoint.
 		 * @param array<mixed> $args API arguments.
 		 */
@@ -168,12 +186,14 @@ class Client {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Resource_Abstract $resource Resource to validate.
-	 * @param string|null $key License key to validate.
+	 * @param Resource_Abstract $resource        Resource to validate.
+	 * @param string|null       $key             License key.
+	 * @param string            $validation_type Validation type (local or network).
+	 * @param bool              $force           Force the validation.
 	 *
 	 * @return mixed
 	 */
-	public function validate_license( Resource_Abstract $resource, string $key = null, bool $force = false ) {
+	public function validate_license( Resource_Abstract $resource, string $key = null, string $validation_type = 'local', bool $force = false ) {
 		$results = [];
 
 		/** @var Data */
@@ -182,6 +202,8 @@ class Client {
 
 		if ( ! empty( $key ) ) {
 			$args['key'] = sanitize_text_field( $key );
+		} else {
+			$key = $resource->get_license_key();
 		}
 
 		$args['domain'] = $site_data->get_domain();
@@ -210,12 +232,14 @@ class Client {
 			$this->container->setVar( $cache_key, $results );
 		}
 
+		$results = new Validation_Response( $key, $validation_type, $results, $resource );
+
 		/**
 		 * Filter the license validation results.
 		 *
 		 * @since 1.0.0
 		 *
-		 * @param mixed $results License validation results.
+		 * @param Validation_Response $results License validation results.
 		 * @param array<mixed> $args License validation arguments.
 		 */
 		return apply_filters( 'stellar_uplink_client_validate_license', $results, $args );

@@ -105,7 +105,7 @@ class License {
 	 *
 	 * @param string $type The type of key to get (any, network, local, default).
 	 *
-	 * @return string|null
+	 * @return string
 	 */
 	public function get_key( $type = 'any' ) {
 		if ( empty( $this->key ) && ( 'any' === $type || 'network' === $type ) ) {
@@ -139,7 +139,9 @@ class License {
 		 *
 		 * @param string|null $key The license key.
 		 */
-		return apply_filters( 'stellar_uplink_license_get_key', $this->key );
+		$key = apply_filters( 'stellar_uplink_license_get_key', $this->key );
+
+		return $key ?: '';
 	}
 
 	/**

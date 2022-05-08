@@ -202,8 +202,6 @@ class Client {
 
 		if ( ! empty( $key ) ) {
 			$args['key'] = sanitize_text_field( $key );
-		} else {
-			$key = $resource->get_license_key();
 		}
 
 		$args['domain'] = $site_data->get_domain();

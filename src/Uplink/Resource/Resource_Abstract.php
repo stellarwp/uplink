@@ -428,7 +428,7 @@ abstract class Resource_Abstract {
 		$api = $this->container->make( API\Client::class );
 
 		if ( empty( $key ) ) {
-			$key = $this->get_license_object()->get_key();
+			$key = $this->get_license_key();
 		}
 
 		$results = $api->validate_license( $this, $key, $do_network_validate ? 'network' : 'local' );

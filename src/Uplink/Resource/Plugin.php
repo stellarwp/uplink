@@ -4,14 +4,118 @@ namespace StellarWP\Uplink\Resource;
 
 class Plugin extends Resource_Abstract {
 	/**
+	 * Plugin update status.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @var \stdClass
+	 */
+	protected $update_status;
+
+	/**
 	 * @inheritDoc
 	 */
 	protected $type = 'plugin';
+
+	/**
+	 * Update status for the resource.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @var string
+	 */
+	public static $update_status_option_prefix = 'stellar_uplink_update_status_';
+
+	/**
+	 * Check for plugin updates.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array<mixed> $updates Array of updates.
+	 * @param bool $force_fetch Force fetching the update status.
+	 *
+	 * @return array<mixed>
+	 */
+	public function check_for_updates( $updates = [], $force_fetch = false ) {
+		$status                  = $this->get_update_status();
+		$status->last_check      = time();
+		$status->checked_version = $this->get_installed_version();
+
+		// Save before actually doing the checking just in case something goes wrong. We don't want to continually recheck.
+		$this->set_update_status( $status );
+
+		$results        = $this->validate_license();
+		$status->update = $results->get_raw_response();
+
+		if ( null !== $status->update ) {
+			if ( version_compare( $results->get_version(), $this->get_installed_version(), '>' ) ) {
+				if ( empty( $updates ) ) {
+					$updates = (object) [ 'response' => [] ];
+				}
+
+				$updates->response[ $this->get_path() ] = $results->get_update_details();
+
+				if ( $results->api_expired ) {
+					// @TODO add expired notice.
+				}
+			}
+		}
+
+		$this->set_update_status( $status );
+
+		return $updates;
+	}
+
+	/**
+	 * Get the update status of the plugin.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param bool $force_fetch Force fetching the update status.
+	 *
+	 * @return \stdClass
+	 */
+	protected function get_update_status( $force_fetch = false) {
+		if ( ! $force_fetch ) {
+			$this->update_status = get_option( $this->get_update_status_option_name(), null, false );
+		}
+
+		if ( empty( $this->update_status ) ) {
+			$this->update_status                  = new \stdClass;
+			$this->update_status->last_check      = 0;
+			$this->update_status->checked_version = '';
+			$this->update_status->update          = null;
+		}
+
+		return $this->update_status;
+	}
+
+	/**
+	 * Gets the update status option name.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string
+	 */
+	protected function get_update_status_option_name(): string {
+		return static::$update_status_option_prefix . $this->get_slug();
+	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public static function register( $slug, $name, $version, $path, $class, string $license_class = null ) {
 		return parent::register_resource( static::class, $slug, $name, $version, $path, $class, $license_class );
+	}
+
+	/**
+	 * Updates the update status value in options.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \stdClass $status
+	 */
+	protected function set_update_status( $status ) {
+		update_option( $this->get_update_status_option_name(), $status );
 	}
 }

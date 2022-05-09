@@ -33,6 +33,25 @@ class Collection implements \ArrayAccess, \Iterator {
 	}
 
 	/**
+	 * Gets the resource with the given path.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $path
+	 *
+	 * @return Resource_Abstract|null
+	 */
+	public function get_by_path( string $path ) {
+		foreach ( $this->resources as $resource ) {
+			if ( $resource->get_path() !== $path ) {
+				return $resource;
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public function key(): mixed {

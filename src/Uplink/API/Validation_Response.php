@@ -248,6 +248,54 @@ class Validation_Response {
 	}
 
 	/**
+	 * Get update details from the validation response.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return \stdClass
+	 */
+	public function get_update_details() {
+		$update = new \stdClass;
+
+		$update->id          = $this->id;
+		$update->plugin      = $this->plugin;
+		$update->slug        = $this->slug;
+		$update->new_version = $this->version;
+		$update->url         = $this->homepage;
+		$update->package     = $this->download_url;
+
+		if ( ! empty( $this->upgrade_notice ) ) {
+			$update->upgrade_notice = $this->upgrade_notice;
+		}
+
+		// Support custom $update properties coming straight from PUE
+		if ( ! empty( $this->custom_update ) ) {
+			$custom_update = get_object_vars( $this->custom_update );
+
+			foreach ( $custom_update as $field => $custom_value ) {
+				if ( is_object( $custom_value ) ) {
+					$custom_value = get_object_vars( $custom_value );
+				}
+
+				$update->$field = $custom_value;
+			}
+		}
+
+		return $update;
+	}
+
+	/**
+	 * Gets the version from the validation response.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string
+	 */
+	public function get_version(): string {
+		return $this->version ?: '';
+	}
+
+	/**
 	 * Returns where or not the license key was valid.
 	 *
 	 * @since 1.0.0
@@ -302,5 +350,31 @@ class Validation_Response {
 				$this->result = 'new';
 			}
 		}
+	}
+
+	/**
+	 * Magic getter for the response properties.
+	 *
+	 * @param string $key Response value to fetch.
+	 *
+	 * @return mixed
+	 */
+	public function __get( $key ) {
+		if ( ! isset( $this->response->$key ) ) {
+			return null;
+		}
+
+		return $this->response->$key;
+	}
+
+	/**
+	 * Magic isset for the response properties.
+	 *
+	 * @param string $key
+	 *
+	 * @return bool
+	 */
+	public function __isset( $key ) {
+		return isset( $this->response->$key );
 	}
 }

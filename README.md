@@ -26,6 +26,7 @@ src/Uplink/Helper.php
 The file should match the following - keeping the KEY constant set to a blank string, or, if you want a default license key, set it to that.:
 
 ```php
+<?php
 namespace Whatever\Namespace\Uplink;
 
 class Helper {

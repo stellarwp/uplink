@@ -23,7 +23,7 @@ StellarWP Uplink plugins are downloaded with an embedded license key so that use
 src/Uplink/Helper.php
 ```
 
-The file should match the following - keeping the KEY constant set to a blank string, or, if you want a default license key, set it to that.:
+The file should match the following - keeping the `KEY` constant set to a blank string, or, if you want a default license key, set it to that.:
 
 ```php
 <?php

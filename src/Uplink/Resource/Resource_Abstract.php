@@ -174,11 +174,11 @@ abstract class Resource_Abstract {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return string|null
+	 * @return string
 	 */
-	public function get_installed_version() {
+	public function get_installed_version(): string {
 		if ( ! function_exists( 'get_plugins' ) ) {
-			return null;
+			return '';
 		}
 
 		$all_plugins = get_plugins();
@@ -187,7 +187,7 @@ abstract class Resource_Abstract {
 			! array_key_exists( $this->get_path(), $all_plugins )
 			|| ! array_key_exists( 'Version', $all_plugins[ $this->get_path() ] )
 		) {
-			return null;
+			return '';
 		}
 
 		return $all_plugins[ $this->get_path() ]['Version'];

@@ -3,10 +3,11 @@
 namespace StellarWP\Uplink\Admin;
 
 use StellarWP\Uplink\Container;
+use StellarWP\Uplink\Messages;
 use StellarWP\Uplink\Resource\Collection;
 use StellarWP\Uplink\Resource\Collection\Path_FilterIterator;
 use StellarWP\Uplink\Resource\Collection\Plugin_FilterIterator;
-use StellarWP\Uplink\Resource\Resource_Abstract;
+use StellarWP\Uplink\Resource\Plugin;
 
 class Plugins_Page {
 	/**
@@ -51,12 +52,18 @@ class Plugins_Page {
 		$notices              = [];
 
 		foreach ( $plugins_with_updates as $resource ) {
+			if ( ! $resource instanceof Plugin ) {
+				continue;
+			}
+
 			// @TODO figure out the message fetching (see PUE Checker line 1198+)
 			$message = $this->get_plugin_message( $resource );
 
-			if ( empty( $message ) ) {
+			if ( null === $message ) {
 				continue;
 			}
+
+			$message = $message->get();
 
 			if ( $resource->is_network_licensed() ) {
 				continue;
@@ -83,6 +90,16 @@ class Plugins_Page {
 		}
 	}
 
-	public function get_plugin_message( Resource_Abstract $resource ) {
+	/**
+	 * Get the plugin message.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param Plugin $resource
+	 *
+	 * @return Messages\Message_Abstract|null
+	 */
+	public function get_plugin_message( Plugin $resource ) {
+		return new Messages\Expired_Key();
 	}
 }

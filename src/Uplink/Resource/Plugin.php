@@ -31,12 +31,16 @@ class Plugin extends Resource_Abstract {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array<mixed> $updates Array of updates.
+	 * @param mixed $transient The pre-saved value of the `update_plugins` site transient.
 	 * @param bool $force_fetch Force fetching the update status.
 	 *
-	 * @return array<mixed>
+	 * @return mixed
 	 */
-	public function check_for_updates( $updates = [], $force_fetch = false ) {
+	public function check_for_updates( $transient, $force_fetch = false ) {
+		if ( ! is_object( $transient ) ) {
+			return $transient;
+		}
+
 		$status                  = $this->get_update_status();
 		$status->last_check      = time();
 		$status->checked_version = $this->get_installed_version();
@@ -49,13 +53,14 @@ class Plugin extends Resource_Abstract {
 
 		if ( null !== $status->update ) {
 			if ( version_compare( $results->get_version(), $this->get_installed_version(), '>' ) ) {
-				if ( empty( $updates ) ) {
-					$updates = (object) [ 'response' => [] ];
+				/** @var \stdClass $transient */
+				if ( ! isset( $transient->response ) ) {
+					$transient->response = [];
 				}
 
-				$updates->response[ $this->get_path() ] = $results->get_update_details();
+				$transient->response[ $this->get_path() ] = $results->get_update_details();
 
-				if ( $results->api_expired ) {
+				if ( 'expired' === $results->get_result() ) {
 					// @TODO add expired notice.
 				}
 			}
@@ -63,7 +68,7 @@ class Plugin extends Resource_Abstract {
 
 		$this->set_update_status( $status );
 
-		return $updates;
+		return $transient;
 	}
 
 	/**
@@ -73,18 +78,19 @@ class Plugin extends Resource_Abstract {
 	 *
 	 * @param bool $force_fetch Force fetching the update status.
 	 *
-	 * @return \stdClass
+	 * @return mixed
 	 */
-	protected function get_update_status( $force_fetch = false) {
+	public function get_update_status( $force_fetch = false) {
 		if ( ! $force_fetch ) {
-			$this->update_status = get_option( $this->get_update_status_option_name(), null, false );
+			$this->update_status = get_option( $this->get_update_status_option_name(), null );
 		}
 
-		if ( empty( $this->update_status ) ) {
-			$this->update_status                  = new \stdClass;
-			$this->update_status->last_check      = 0;
-			$this->update_status->checked_version = '';
-			$this->update_status->update          = null;
+		if ( ! is_object( $this->update_status ) ) {
+			$this->update_status = (object) [
+				'last_check'      => 0,
+				'checked_version' => '',
+				'update'          => null,
+			];
 		}
 
 		return $this->update_status;
@@ -113,9 +119,9 @@ class Plugin extends Resource_Abstract {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param \stdClass $status
+	 * @param mixed $status
 	 */
-	protected function set_update_status( $status ) {
+	protected function set_update_status( $status ): void {
 		update_option( $this->get_update_status_option_name(), $status );
 	}
 }

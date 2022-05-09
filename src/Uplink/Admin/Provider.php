@@ -14,7 +14,7 @@ class Provider extends \tad_DI52_ServiceProvider {
 		$this->register_hooks();
 	}
 
-	public function register_hooks() {
+	public function register_hooks(): void {
 		add_action( 'admin_enqueue_scripts', $this->container->callback( Plugins_Page::class, 'display_plugin_messages' ) );
 	}
 }

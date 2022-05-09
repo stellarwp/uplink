@@ -257,20 +257,20 @@ class Validation_Response {
 	public function get_update_details() {
 		$update = new \stdClass;
 
-		$update->id          = $this->id;
-		$update->plugin      = $this->plugin;
-		$update->slug        = $this->slug;
-		$update->new_version = $this->version;
-		$update->url         = $this->homepage;
-		$update->package     = $this->download_url;
+		$update->id          = $this->response->id ?: '';
+		$update->plugin      = $this->response->plugin ?: '';
+		$update->slug        = $this->response->slug ?: '';
+		$update->new_version = $this->response->version ?: '';
+		$update->url         = $this->response->homepage ?: '';
+		$update->package     = $this->response->download_url ?: '';
 
-		if ( ! empty( $this->upgrade_notice ) ) {
-			$update->upgrade_notice = $this->upgrade_notice;
+		if ( ! empty( $this->response->upgrade_notice ) ) {
+			$update->upgrade_notice = $this->response->upgrade_notice;
 		}
 
 		// Support custom $update properties coming straight from PUE
-		if ( ! empty( $this->custom_update ) ) {
-			$custom_update = get_object_vars( $this->custom_update );
+		if ( ! empty( $this->response->custom_update ) ) {
+			$custom_update = get_object_vars( $this->response->custom_update );
 
 			foreach ( $custom_update as $field => $custom_value ) {
 				if ( is_object( $custom_value ) ) {

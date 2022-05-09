@@ -3,13 +3,13 @@
 namespace StellarWP\Uplink\Messages;
 
 use StellarWP\Uplink\Container;
-use StellarWP\Uplink\Resource\Resource_Abstract;
+use StellarWP\Uplink\Resource\Plugin;
 
 class Update_Now extends Message_Abstract {
 	/**
 	 * Resource instance.
 	 *
-	 * @var Resource_Abstract
+	 * @var Plugin
 	 */
 	protected $resource;
 
@@ -18,10 +18,10 @@ class Update_Now extends Message_Abstract {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Resource_Abstract $resource Resource instance.
+	 * @param Plugin $resource Resource instance.
 	 * @param Container|null $container Container instance.
 	 */
-	public function __construct( Resource_Abstract $resource, Container $container = null ) {
+	public function __construct( Plugin $resource, Container $container = null ) {
 		parent::__construct( $container );
 
 		$this->resource = $resource;
@@ -34,7 +34,7 @@ class Update_Now extends Message_Abstract {
 		// A plugin update is available
 		$update_now = sprintf(
 			esc_html__( 'Update now to version %s.', 'tribe-common' ),
-			$this->resource->get_state()->update->version
+			$this->resource->get_update_status()->update->version
 		);
 
 		$update_now_link = sprintf(

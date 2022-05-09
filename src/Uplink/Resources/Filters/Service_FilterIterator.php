@@ -1,6 +1,6 @@
 <?php
 
-namespace StellarWP\Uplink\Resource\Collection;
+namespace StellarWP\Uplink\Resources\Filters;
 
 class Service_FilterIterator extends \FilterIterator {
 	/**

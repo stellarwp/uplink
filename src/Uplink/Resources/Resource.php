@@ -1,11 +1,10 @@
 <?php
 
-namespace StellarWP\Uplink\Resource;
+namespace StellarWP\Uplink\Resources;
 
 use StellarWP\Uplink\API;
 use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Exceptions;
-use StellarWP\Uplink\Messages;
 use StellarWP\Uplink\Site\Data;
 /**
  * The base resource class for StellarWP Uplink plugins and services.
@@ -19,7 +18,7 @@ use StellarWP\Uplink\Site\Data;
  * @property-read string    $version The resource version.
  * @property-read string    $path The resource path.
  */
-abstract class Resource_Abstract {
+abstract class Resource {
 	/**
 	 * Resource class.
 	 *
@@ -369,7 +368,7 @@ abstract class Resource_Abstract {
 	 * @param string $class Resource class.
 	 * @param string|null $license_class Class that holds the embedded license key.
 	 *
-	 * @return Resource_Abstract
+	 * @return Resource
 	 */
 	abstract public static function register( $name, $slug, $path, $class, $version, string $license_class = null );
 
@@ -386,10 +385,10 @@ abstract class Resource_Abstract {
 	 * @param string $class Resource class.
 	 * @param string|null $license_class Class that holds the embedded license key.
 	 *
-	 * @return Resource_Abstract
+	 * @return Resource
 	 */
 	public static function register_resource( $resource_class, $slug, $name, $version, $path, $class, string $license_class = null ) {
-		/** @var Resource_Abstract */
+		/** @var Resource */
 		$resource   = new $resource_class( $slug, $name, $version, $path, $class, $license_class );
 
 		/** @var Collection */
@@ -400,7 +399,7 @@ abstract class Resource_Abstract {
 		 *
 		 * @since 1.0.0
 		 *
-		 * @param Resource_Abstract $resource Resource instance.
+		 * @param Resource $resource Resource instance.
 		 */
 		$resource = apply_filters( 'stellar_uplink_resource_register_before_collection', $resource );
 
@@ -415,7 +414,7 @@ abstract class Resource_Abstract {
 		 *
 		 * @since 1.0.0
 		 *
-		 * @param Resource_Abstract $resource Resource instance.
+		 * @param Resource $resource Resource instance.
 		 */
 		$resource = apply_filters( 'stellar_uplink_resource_register', $resource );
 

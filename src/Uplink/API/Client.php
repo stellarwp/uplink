@@ -3,7 +3,7 @@
 namespace StellarWP\Uplink\API;
 
 use StellarWP\Uplink\Container;
-use StellarWP\Uplink\Resource\Resource_Abstract;
+use StellarWP\Uplink\Resources\Resource;
 use StellarWP\Uplink\Site\Data;
 
 /**
@@ -186,14 +186,14 @@ class Client {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Resource_Abstract $resource        Resource to validate.
-	 * @param string|null       $key             License key.
-	 * @param string            $validation_type Validation type (local or network).
-	 * @param bool              $force           Force the validation.
+	 * @param Resource    $resource        Resource to validate.
+	 * @param string|null $key             License key.
+	 * @param string      $validation_type Validation type (local or network).
+	 * @param bool        $force           Force the validation.
 	 *
 	 * @return mixed
 	 */
-	public function validate_license( Resource_Abstract $resource, string $key = null, string $validation_type = 'local', bool $force = false ) {
+	public function validate_license( Resource $resource, string $key = null, string $validation_type = 'local', bool $force = false ) {
 		$results = [];
 
 		/** @var Data */

@@ -3,13 +3,13 @@
 namespace StellarWP\Uplink\Messages;
 
 use StellarWP\Uplink\Container;
-use StellarWP\Uplink\Resource\Resource_Abstract;
+use StellarWP\Uplink\Resources\Resource;
 
 class Update_Available extends Message_Abstract {
 	/**
 	 * Resource instance.
 	 *
-	 * @var Resource_Abstract
+	 * @var Resource
 	 */
 	protected $resource;
 
@@ -18,10 +18,10 @@ class Update_Available extends Message_Abstract {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Resource_Abstract $resource Resource instance.
+	 * @param Resource $resource Resource instance.
 	 * @param Container|null $container Container instance.
 	 */
-	public function __construct( Resource_Abstract $resource, Container $container = null ) {
+	public function __construct( Resource $resource, Container $container = null ) {
 		parent::__construct( $container );
 
 		$this->resource = $resource;

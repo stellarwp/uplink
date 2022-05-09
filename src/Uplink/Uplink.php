@@ -20,7 +20,7 @@ class Uplink extends \tad_DI52_ServiceProvider {
 	public function register() {
 		$this->container->singleton( static::class, $this );
 		$this->container->singleton( API\Client::class, API\Client::class );
-		$this->container->singleton( Resource\Collection::class, Resource\Collection::class );
+		$this->container->singleton( Resources\Collection::class, Resources\Collection::class );
 		$this->container->singleton( Site\Data::class, Site\Data::class );
 
 		$this->container->register( Admin\Provider::class );

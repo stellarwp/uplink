@@ -4,10 +4,8 @@ namespace StellarWP\Uplink\Admin;
 
 use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Messages;
-use StellarWP\Uplink\Resource\Collection;
-use StellarWP\Uplink\Resource\Collection\Path_FilterIterator;
-use StellarWP\Uplink\Resource\Collection\Plugin_FilterIterator;
-use StellarWP\Uplink\Resource\Plugin;
+use StellarWP\Uplink\Resources\Collection;
+use StellarWP\Uplink\Resources\Plugin;
 
 class Plugins_Page {
 	/**

@@ -3,7 +3,7 @@
 namespace StellarWP\Uplink\Messages;
 
 use StellarWP\Uplink\Container;
-use StellarWP\Uplink\Resource\Plugin;
+use StellarWP\Uplink\Resources\Plugin;
 
 class Update_Now extends Message_Abstract {
 	/**

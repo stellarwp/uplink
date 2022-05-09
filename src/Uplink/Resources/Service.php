@@ -1,8 +1,8 @@
 <?php
 
-namespace StellarWP\Uplink\Resource;
+namespace StellarWP\Uplink\Resources;
 
-class Service extends Resource_Abstract {
+class Service extends Resource {
 	/**
 	 * @inheritDoc
 	 */

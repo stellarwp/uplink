@@ -1,8 +1,8 @@
 <?php
 
-namespace StellarWP\Uplink\Resource;
+namespace StellarWP\Uplink\Resources;
 
-class Plugin extends Resource_Abstract {
+class Plugin extends Resource {
 	/**
 	 * Plugin update status.
 	 *

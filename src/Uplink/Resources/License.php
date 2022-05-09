@@ -1,6 +1,6 @@
 <?php
 
-namespace StellarWP\Uplink\Resource;
+namespace StellarWP\Uplink\Resources;
 
 use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Site\Data;
@@ -81,7 +81,7 @@ class License {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @var Resource_Abstract
+	 * @var Resource
 	 */
 	protected $resource;
 
@@ -90,10 +90,10 @@ class License {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Resource_Abstract $resource The resource instance.
+	 * @param Resource $resource The resource instance.
 	 * @param Container|null $container Container instance.
 	 */
-	public function __construct( Resource_Abstract $resource, Container $container = null ) {
+	public function __construct( Resource $resource, Container $container = null ) {
 		$this->resource  = $resource;
 		$this->container = $container ?: Container::init();
 	}

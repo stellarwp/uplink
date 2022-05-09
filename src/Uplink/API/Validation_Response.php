@@ -4,7 +4,7 @@ namespace StellarWP\Uplink\API;
 
 use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Messages;
-use StellarWP\Uplink\Resource\Resource_Abstract;
+use StellarWP\Uplink\Resources\Resource;
 
 class Validation_Response {
 	/**
@@ -75,7 +75,7 @@ class Validation_Response {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @var Resource_Abstract
+	 * @var Resource
 	 */
 	protected $resource;
 
@@ -120,13 +120,13 @@ class Validation_Response {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string|null       $key             License key.
-	 * @param string            $validation_type Validation type (local or network).
-	 * @param \stdClass         $response        Validation response.
-	 * @param Resource_Abstract $resource        Resource instance.
-	 * @param Container|null    $container       Container instance.
+	 * @param string|null    $key             License key.
+	 * @param string         $validation_type Validation type (local or network).
+	 * @param \stdClass      $response        Validation response.
+	 * @param Resource       $resource        Resource instance.
+	 * @param Container|null $container       Container instance.
 	 */
-	public function __construct( $key, string $validation_type, \stdClass $response, Resource_Abstract $resource, Container $container = null ) {
+	public function __construct( $key, string $validation_type, \stdClass $response, Resource $resource, Container $container = null ) {
 		$this->key             = $key ?: '';
 		$this->validation_type = 'network' === $validation_type ? 'network' : 'local';
 		$this->response        = $response;

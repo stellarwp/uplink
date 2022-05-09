@@ -1,11 +1,11 @@
 <?php
 
-namespace StellarWP\Uplink\Tests\Resource;
+namespace StellarWP\Uplink\Tests\Resources;
 
 use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Uplink;
 use StellarWP\Uplink\Register;
-use StellarWP\Uplink\Resource as Uplink_Resource;
+use StellarWP\Uplink\Resources as Uplink_Resources;
 
 class CollectionTest extends \StellarWP\Uplink\Tests\UplinkTestCase {
 	public $collection;
@@ -15,7 +15,7 @@ class CollectionTest extends \StellarWP\Uplink\Tests\UplinkTestCase {
 		parent::setUp();
 
 		$this->container  = Container::init();
-		$this->collection = $this->container->make( Uplink_Resource\Collection::class );
+		$this->collection = $this->container->make( Uplink_Resources\Collection::class );
 
 		$resources = $this->get_resources();
 		foreach ( $resources as $resource ) {
@@ -83,10 +83,10 @@ class CollectionTest extends \StellarWP\Uplink\Tests\UplinkTestCase {
 	 */
 	public function it_should_register_resources() {
 
-		$this->assertInstanceOf( Uplink_Resource\Plugin::class, $this->collection['plugin-1'] );
-		$this->assertInstanceOf( Uplink_Resource\Plugin::class, $this->collection['plugin-2'] );
-		$this->assertInstanceOf( Uplink_Resource\Service::class, $this->collection['service-1'] );
-		$this->assertInstanceOf( Uplink_Resource\Service::class, $this->collection['service-2'] );
+		$this->assertInstanceOf( Uplink_Resources\Plugin::class, $this->collection['plugin-1'] );
+		$this->assertInstanceOf( Uplink_Resources\Plugin::class, $this->collection['plugin-2'] );
+		$this->assertInstanceOf( Uplink_Resources\Service::class, $this->collection['service-1'] );
+		$this->assertInstanceOf( Uplink_Resources\Service::class, $this->collection['service-2'] );
 
 		$this->assertEquals( 'plugin-1', $this->collection['plugin-1']->get_slug() );
 		$this->assertEquals( 'Plugin 1', $this->collection['plugin-1']->get_name() );
@@ -104,7 +104,7 @@ class CollectionTest extends \StellarWP\Uplink\Tests\UplinkTestCase {
 	 */
 	public function it_should_loop_over_resources() {
 		foreach ( $this->collection as $resource ) {
-			$this->assertInstanceOf( Uplink_Resource\Resource_Abstract::class, $resource );
+			$this->assertInstanceOf( Uplink_Resources\Resource::class, $resource );
 		}
 	}
 }

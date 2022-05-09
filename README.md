@@ -18,8 +18,8 @@ add_action( 'plugins_loaded', function() {
 
 StellarWP Uplink plugins are downloaded with an embedded license key so that users do not need to manually enter the key when activating their plugin. To make this possible, the class must be in a specific location so that the licensing server can find it.
 
-```
-# The path should be in this path:
+```bash
+# The class file should be in this path:
 src/Uplink/Helper.php
 ```
 

@@ -47,8 +47,8 @@ class Plugins_Page {
 
 		/** @var Collection */
 		$collection           = $this->container->make( Collection::class );
-		$plugins              = new Plugin_FilterIterator( $collection );
-		$plugins_with_updates = new Path_FilterIterator( $plugins, array_keys( $plugin_updates ) );
+		$plugins              = $collection->get_plugins();
+		$plugins_with_updates = $collection->get_by_paths( array_keys( $plugin_updates ), $plugins );
 		$notices              = [];
 
 		foreach ( $plugins_with_updates as $resource ) {

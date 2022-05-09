@@ -37,18 +37,53 @@ class Collection implements \ArrayAccess, \Iterator {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $path
+	 * @param string $path Path to filter collection by.
+	 * @param \Iterator $iterator Optional. Iterator to filter.
 	 *
-	 * @return Resource_Abstract|null
+	 * @return Collection\Path_FilterIterator
 	 */
-	public function get_by_path( string $path ) {
-		foreach ( $this->resources as $resource ) {
-			if ( $resource->get_path() !== $path ) {
-				return $resource;
-			}
-		}
+	public function get_by_path( string $path, $iterator = null ) {
+		return new Collection\Path_FilterIterator( $iterator ?: $this, [ $path ] );
+	}
 
-		return null;
+	/**
+	 * Gets the resource with the given paths.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array<string> $paths Paths to filter collection by.
+	 * @param \Iterator $iterator Optional. Iterator to filter.
+	 *
+	 * @return Collection\Path_FilterIterator
+	 */
+	public function get_by_paths( array $paths, $iterator = null ) {
+		return new Collection\Path_FilterIterator( $iterator ?: $this, $paths );
+	}
+
+	/**
+	 * Gets the plugin resources.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \Iterator $iterator Optional. Iterator to filter.
+	 *
+	 * @return Collection\Plugin_FilterIterator
+	 */
+	public function get_plugins( $iterator = null ) {
+		return new Collection\Plugin_FilterIterator( $iterator ?: $this );
+	}
+
+	/**
+	 * Gets the service resources.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \Iterator $iterator Optional. Iterator to filter.
+	 *
+	 * @return Collection\Service_FilterIterator
+	 */
+	public function get_services( $iterator = null ) {
+		return new Collection\Service_FilterIterator( $iterator ?: $this );
 	}
 
 	/**

@@ -57,9 +57,12 @@ sequenceDiagram
 	uplink->>stellar: POST /api/plugins/v2/license/validate
 
 	stellar-->>+uplink: 200 OK response
-	uplink->>uplink: Store response
-	uplink->>-uplink: Maybe update stored license key
-	Note right of uplink: Updating the stored license key only<br>happens when working with the<br>WordPress Marketplace integration
+	uplink-->>wp: Store response in wp_options
+	uplink->>uplink: Check for response_key in response
+	opt replacement_key in response
+		uplink-->>-wp: Update stored license key in wp_options
+		Note over wp, uplink: The replacement_key is typically only set if the provided license key is a placeholder key from the<br>WordPress Marketplace.
+	end
 ```
 
 

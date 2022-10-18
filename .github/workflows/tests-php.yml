@@ -67,7 +67,7 @@ jobs:
           ${SLIC_BIN} config
       - name: Set up StellarWP Uplink
         run: |
-          ${SLIC_BIN} use stellar-uplink
+          ${SLIC_BIN} use uplink
           ${SLIC_BIN} composer install --ignore-platform-reqs
       - name: Run suite tests
         run: ${SLIC_BIN} run ${{ matrix.suite }} --ext DotReporter

@@ -34,13 +34,32 @@ When a page is loaded where the Uplink library should call home to the Stellar L
 
 ```mermaid
 sequenceDiagram
-	Plugin->>Uplink: Register::plugin()
-	Uplink->>Uplink: Check for stored/embedded license key
-	Uplink->>Uplink: Check for cached validation
-	Uplink->>Stellar Licensing: POST /api/plugins/v2/license/validate
-	Stellar Licensing-->>Uplink: 200 OK response
-	Uplink->>Uplink: Store response
-	Uplink->>Uplink: Maybe update stored license key
+	autonumber
+	participant wp as WordPress
+	participant plugin as Plugin
+	participant uplink as Uplink
+	participant stellar as Stellar Licensing
+	link uplink: stellarwp/uplink @ https://github.com/stellarwp/uplink
+	link stellar: the-events-calendar/pue-service @ https://github.com/the-events-calendar/pue-service
+	link stellar: stellarwp/licensing @ https://github.com/stellarwp/licensing
+
+	wp->>plugin: plugins_loaded action
+	plugin->>uplink: Register::plugin()
+	Note over wp, stellar: The following is triggered by the 3 conditions mentioned above.
+	alt License key in wp_options
+		uplink-->>+wp: Check for license key in wp_options
+		wp->>-uplink: license key
+	else License key embedded in plugin
+		uplink-->>+plugin: Check for embedded license key in plugin
+		plugin->>-uplink: license key
+	end
+
+	uplink->>stellar: POST /api/plugins/v2/license/validate
+
+	stellar-->>+uplink: 200 OK response
+	uplink->>uplink: Store response
+	uplink->>-uplink: Maybe update stored license key
+	Note right of uplink: Updating the stored license key only<br>happens when working with the<br>WordPress Marketplace integration
 ```
 
 

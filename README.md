@@ -2,6 +2,18 @@
 
 [![CI](https://github.com/the-events-calendar/stellar-uplink/workflows/CI/badge.svg)](https://github.com/the-events-calendar/stellar-uplink/actions?query=branch%3Amain) [![Static Analysis](https://github.com/the-events-calendar/stellar-uplink/actions/workflows/static-analysis.yml/badge.svg)](https://github.com/the-events-calendar/stellar-uplink/actions/workflows/static-analysis.yml)
 
+## Installation
+
+It's recommended that you install Uplink as a project dependency via [Composer](https://getcomposer.org/):
+
+```bash
+composer require stellarwp/uplink
+```
+
+> We _actually_ recommend that this library gets included in your project using [Strauss](https://github.com/BrianHenryIE/strauss).
+>
+> Luckily, adding Strauss to your `composer.json` is only slightly more complicated than adding a typical dependency, so checkout our [strauss docs](https://github.com/stellarwp/global-docs/blob/main/docs/strauss-setup.md).
+
 ## Initialize the library
 
 Initializing the StellarWP Uplink library should be done within the `plugins_loaded` action, preferably at priority `0`.

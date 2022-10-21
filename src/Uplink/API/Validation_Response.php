@@ -122,11 +122,11 @@ class Validation_Response {
 	 *
 	 * @param string|null    $key             License key.
 	 * @param string         $validation_type Validation type (local or network).
-	 * @param array	         $response        Validation response.
+	 * @param \stdClass      $response        Validation response.
 	 * @param Resource       $resource        Resource instance.
 	 * @param Container|null $container       Container instance.
 	 */
-	public function __construct( $key, string $validation_type, array $response, Resource $resource, Container $container = null ) {
+	public function __construct( $key, string $validation_type, \stdClass $response, Resource $resource, Container $container = null ) {
 		$this->key             = $key ?: '';
 		$this->validation_type = 'network' === $validation_type ? 'network' : 'local';
 		$this->response        = $response;

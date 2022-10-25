@@ -2,6 +2,8 @@
 
 namespace StellarWP\Uplink\Resources;
 
+use StellarWP\Uplink\API\Validation_Response;
+
 class Plugin extends Resource {
 	/**
 	 * Plugin update status.
@@ -74,15 +76,11 @@ class Plugin extends Resource {
 	/**
 	 * Retrieve version from response
 	 *
-	 * @param $response
+	 * @param Validation_Response $response
 	 *
 	 * @return string
 	 */
 	protected function get_version_from_response( $response ): string {
-		if ( empty( $response->get_raw_response() ) ) {
-			return '';
-		}
-
 		return $response->get_raw_response()->version ?: '';
 	}
 

@@ -180,9 +180,10 @@ abstract class Resource {
 			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		}
 
+		// @phpstan-ignore-next-line
 		$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $this->get_path() );
 
-		return empty( $plugin_data ) ? '' : $plugin_data['Version'];
+		return $plugin_data['Version'] ?: '';
 	}
 
 	/**

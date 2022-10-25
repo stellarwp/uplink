@@ -83,13 +83,7 @@ class Plugin extends Resource {
 			return '';
 		}
 
-		$response_body = reset( $response->get_raw_response()->results );
-
-		if ( empty( $response_body ) || empty( $response_body->version ) ) {
-			return '';
-		}
-
-		return $response_body->version;
+		return $response->get_raw_response()->version ?: '';
 	}
 
 	/**

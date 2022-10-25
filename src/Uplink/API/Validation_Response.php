@@ -129,7 +129,7 @@ class Validation_Response {
 	public function __construct( $key, string $validation_type, \stdClass $response, Resource $resource, Container $container = null ) {
 		$this->key             = $key ?: '';
 		$this->validation_type = 'network' === $validation_type ? 'network' : 'local';
-		$this->response        = $response;
+		$this->response        = ! empty( $response->results ) ? reset( $response->results ) : $response;
 		$this->resource        = $resource;
 		$this->container       = $container ?: Container::init();
 
@@ -256,22 +256,21 @@ class Validation_Response {
 	 */
 	public function get_update_details() {
 		$update = new \stdClass;
-		$result = reset( $this->response->results );
 
-		$update->id          = $result->id ?: '';
-		$update->plugin      = $result->plugin ?: '';
-		$update->slug        = $result->slug ?: '';
-		$update->new_version = $result->version ?: '';
-		$update->url         = $result->homepage ?: '';
-		$update->package     = $result->download_url ?: '';
+		$update->id          = $this->response->id ?: '';
+		$update->plugin      = $this->response->plugin ?: '';
+		$update->slug        = $this->response->slug ?: '';
+		$update->new_version = $this->response->version ?: '';
+		$update->url         = $this->response->homepage ?: '';
+		$update->package     = $this->response->download_url ?: '';
 
-		if ( ! empty( $result->upgrade_notice ) ) {
+		if ( ! empty( $this->response->upgrade_notice ) ) {
 			$update->upgrade_notice =$result->upgrade_notice;
 		}
 
 		// Support custom $update properties coming straight from PUE
-		if ( ! empty( $result->custom_update ) ) {
-			$custom_update = get_object_vars( $result->custom_update );
+		if ( ! empty( $this->response->custom_update ) ) {
+			$custom_update = get_object_vars( $this->response->custom_update );
 
 			foreach ( $custom_update as $field => $custom_value ) {
 				if ( is_object( $custom_value ) ) {

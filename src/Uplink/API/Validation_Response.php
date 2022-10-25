@@ -129,7 +129,7 @@ class Validation_Response {
 	public function __construct( $key, string $validation_type, \stdClass $response, Resource $resource, Container $container = null ) {
 		$this->key             = $key ?: '';
 		$this->validation_type = 'network' === $validation_type ? 'network' : 'local';
-		$this->response        = $response;
+		$this->response        = ! empty( $response->results ) ? reset( $response->results ) : $response;
 		$this->resource        = $resource;
 		$this->container       = $container ?: Container::init();
 
@@ -265,7 +265,7 @@ class Validation_Response {
 		$update->package     = $this->response->download_url ?: '';
 
 		if ( ! empty( $this->response->upgrade_notice ) ) {
-			$update->upgrade_notice = $this->response->upgrade_notice;
+			$update->upgrade_notice =$this->response->upgrade_notice;
 		}
 
 		// Support custom $update properties coming straight from PUE

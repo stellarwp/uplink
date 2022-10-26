@@ -305,6 +305,17 @@ class License {
 	}
 
 	/**
+	 * Whether the plugin license is expired or not.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return bool
+	 */
+	public function is_expired(): bool {
+		return 'expired' === $this->get_key_status();
+	}
+
+	/**
 	 * Whether the validation has expired.
 	 *
 	 * @since 1.0.0

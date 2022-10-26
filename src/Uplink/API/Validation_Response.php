@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\API;
 
+use stdClass;
 use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Messages;
 use StellarWP\Uplink\Resources\Resource;
@@ -84,7 +85,7 @@ class Validation_Response {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @var \stdClass
+	 * @var stdClass
 	 */
 	protected $response;
 
@@ -118,15 +119,15 @@ class Validation_Response {
 	/**
 	 * Constructor.
 	 *
-	 * @since 1.0.0
-	 *
 	 * @param string|null    $key             License key.
 	 * @param string         $validation_type Validation type (local or network).
-	 * @param \stdClass      $response        Validation response.
+	 * @param stdClass      $response Validation response.
 	 * @param Resource       $resource        Resource instance.
 	 * @param Container|null $container       Container instance.
+	 *@since 1.0.0
+	 *
 	 */
-	public function __construct( $key, string $validation_type, \stdClass $response, Resource $resource, Container $container = null ) {
+	public function __construct($key, string $validation_type, stdClass $response, Resource $resource, Container $container = null ) {
 		$this->key             = $key ?: '';
 		$this->validation_type = 'network' === $validation_type ? 'network' : 'local';
 		$this->response        = ! empty( $response->results ) ? reset( $response->results ) : $response;
@@ -209,9 +210,9 @@ class Validation_Response {
 	/**
 	 * Gets the raw response from the validation request.
 	 *
-	 * @since 1.0.0
+	 * @return stdClass
+	 *@since 1.0.0
 	 *
-	 * @return \stdClass
 	 */
 	public function get_raw_response() {
 		return $this->response;
@@ -250,12 +251,12 @@ class Validation_Response {
 	/**
 	 * Get update details from the validation response.
 	 *
-	 * @since 1.0.0
+	 * @return stdClass
+	 *@since 1.0.0
 	 *
-	 * @return \stdClass
 	 */
 	public function get_update_details() {
-		$update = new \stdClass;
+		$update = new stdClass;
 
 		$update->id          = $this->response->id ?: '';
 		$update->plugin      = $this->response->plugin ?: '';
@@ -280,6 +281,23 @@ class Validation_Response {
 				$update->$field = $custom_value;
 			}
 		}
+
+		return $update;
+	}
+
+	/**
+	 * Get expiration details from response
+	 *
+	 * @return stdClass
+	 */
+	public function get_expire_details(): stdClass {
+		$update = new stdClass;
+
+		$update->version        = $this->response->version ?: '';
+		$update->message        = $this->response->api_invalid_message ?: '';
+		$update->inline_message = $this->response->api_inline_invalid_message ?: '';
+		$update->api_expired    = $this->response->api_expired ?: '';
+		$update->sections       = $this->response->sections ?: new stdClass;
 
 		return $update;
 	}

@@ -4,17 +4,18 @@ namespace StellarWP\Uplink\Admin;
 
 use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Resources\Collection;
+use StellarWP\Uplink\Resources\Plugin;
 
 class License_Field extends Field {
 
     public const LICENSE_FIELD_ID = 'stellarwp_uplink_license';
 
 	/**
-	 * @param $plugin
+	 * @param Plugin $plugin
 	 *
 	 * @return string
 	 */
-    public function get_section_name( $plugin ): string {
+    public function get_section_name( Plugin $plugin ): string {
         return sprintf( '%s_%s', self::LICENSE_FIELD_ID, sanitize_title( $plugin->get_name() ) );
     }
 

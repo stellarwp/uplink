@@ -23,7 +23,7 @@ abstract class Field {
     }
 
     /**
-     * @param array $args
+     * @param array<string> $args
      */
     public function get_html_content( array $args = [] ): void {
         if ( empty( $args['html'] ) ) {
@@ -43,7 +43,7 @@ abstract class Field {
     }
 
     /**
-     * @param array $args
+     * @param array<string> $args
      */
     public function field_html( array $args = [] ): void {
         printf(

@@ -21,7 +21,7 @@ class Settings extends Page {
 		);
 	}
 
-	public function maybe_add_network_settings_page() {
+	public function maybe_add_network_settings_page(): void {
 		$plugin = $this->get_plugin();
 
 		if ( ! is_plugin_active_for_network( $plugin->get_path() ) ) {

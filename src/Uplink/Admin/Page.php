@@ -37,7 +37,7 @@ abstract class Page {
 	}
 
 	/**
-	 * @param array $options
+	 * @param array<mixed> $options
 	 *
 	 * @return mixed
 	 */
@@ -115,12 +115,15 @@ abstract class Page {
 		return apply_filters( 'stellar_uplink_menu_icon', $icon );
 	}
 
-	public function get_path() {
+	/**
+	 * @return string
+	 */
+	public function get_path(): string {
 		return apply_filters( 'stellar_uplink_template_path', dirname( __DIR__, 2 ) . $this->path, $this->path );
 	}
 
 	/**
-	 * @param array $context
+	 * @param array<mixed> $context
 	 *
 	 * @return false|string
 	 */

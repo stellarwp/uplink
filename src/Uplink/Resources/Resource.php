@@ -176,8 +176,8 @@ abstract class Resource {
 	 * @return string
 	 */
 	public function get_installed_version(): string {
-		if( ! function_exists( 'get_plugin_data' ) ) {
-			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		if ( ! function_exists( 'get_plugin_data' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
 		// @phpstan-ignore-next-line
@@ -337,7 +337,7 @@ abstract class Resource {
 		}
 
 		if( ! function_exists( 'get_plugin_data' ) ) {
-			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
 		return is_plugin_active_for_network( $this->get_path() );

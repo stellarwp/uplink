@@ -119,15 +119,15 @@ class Validation_Response {
 	/**
 	 * Constructor.
 	 *
+	 * @since 1.0.0
+	 *
 	 * @param string|null    $key             License key.
 	 * @param string         $validation_type Validation type (local or network).
-	 * @param stdClass      $response Validation response.
+	 * @param stdClass       $response        Validation response.
 	 * @param Resource       $resource        Resource instance.
 	 * @param Container|null $container       Container instance.
-	 *@since 1.0.0
-	 *
 	 */
-	public function __construct($key, string $validation_type, stdClass $response, Resource $resource, Container $container = null ) {
+	public function __construct( $key, string $validation_type, stdClass $response, Resource $resource, Container $container = null ) {
 		$this->key             = $key ?: '';
 		$this->validation_type = 'network' === $validation_type ? 'network' : 'local';
 		$this->response        = ! empty( $response->results ) ? reset( $response->results ) : $response;
@@ -210,9 +210,9 @@ class Validation_Response {
 	/**
 	 * Gets the raw response from the validation request.
 	 *
-	 * @return stdClass
-	 *@since 1.0.0
+	 * @since 1.0.0
 	 *
+	 * @return stdClass
 	 */
 	public function get_raw_response() {
 		return $this->response;
@@ -249,11 +249,11 @@ class Validation_Response {
 	}
 
 	/**
-	 * Get update details from the validation response.
+	 * Gets the raw response from the validation request.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @return stdClass
-	 *@since 1.0.0
-	 *
 	 */
 	public function get_update_details() {
 		$update = new stdClass;
@@ -266,7 +266,7 @@ class Validation_Response {
 		$update->package     = $this->response->download_url ?: '';
 
 		if ( ! empty( $this->response->upgrade_notice ) ) {
-			$update->upgrade_notice =$this->response->upgrade_notice;
+			$update->upgrade_notice = $this->response->upgrade_notice;
 		}
 
 		// Support custom $update properties coming straight from PUE

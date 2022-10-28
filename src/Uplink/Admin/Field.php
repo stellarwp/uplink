@@ -11,7 +11,7 @@ abstract class Field {
     /**
      * @param array $args
      */
-    public function get_description( array $args ): void {
+    public function get_description( array $args = [] ): void {
         if ( empty( $args['description'] ) ) {
             return;
         }
@@ -25,7 +25,7 @@ abstract class Field {
     /**
      * @param array $args
      */
-    public function get_html_content( array $args ): void {
+    public function get_html_content( array $args = [] ): void {
         if ( empty( $args['html'] ) ) {
             return;
         }
@@ -45,7 +45,7 @@ abstract class Field {
     /**
      * @param array $args
      */
-    public function field_html( array $args ): void {
+    public function field_html( array $args = [] ): void {
         printf(
             '<fieldset class="stellarwp-uplink__settings-group">
 				<input type="%1$s" id="%2$s" name="%2$s" value="%3$s" placeholder="%4$s" class="regular-text stellarwp-uplink__settings-field" data-js="" />

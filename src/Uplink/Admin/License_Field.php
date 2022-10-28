@@ -9,6 +9,11 @@ class License_Field extends Field {
 
     public const LICENSE_FIELD_ID = 'stellarwp_uplink_license';
 
+	/**
+	 * @param $plugin
+	 *
+	 * @return string
+	 */
     public function get_section_name( $plugin ): string {
         return sprintf( '%s_%s', self::LICENSE_FIELD_ID, sanitize_title( $plugin->get_name() ) );
     }
@@ -19,8 +24,8 @@ class License_Field extends Field {
 
         add_settings_section(
             sprintf( '%s_%s', self::LICENSE_FIELD_ID, sanitize_title( $plugin->get_name() ) ),
-            null,
-            [ $this, 'description' ],
+            '',
+            [ $this, 'description' ], // @phpstan-ignore-line
             self::get_group_name( sanitize_title( $plugin->get_name() ) )
         );
 

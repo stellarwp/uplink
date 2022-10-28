@@ -337,7 +337,7 @@ abstract class Resource {
 		}
 
 		if( ! function_exists( 'get_plugin_data' ) ) {
-			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
 		return is_plugin_active_for_network( $this->get_path() );

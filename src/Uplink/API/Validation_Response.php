@@ -266,7 +266,7 @@ class Validation_Response {
 		$update->package     = $this->response->download_url ?: '';
 
 		if ( ! empty( $this->response->upgrade_notice ) ) {
-			$update->upgrade_notice =$this->response->upgrade_notice;
+			$update->upgrade_notice = $this->response->upgrade_notice;
 		}
 
 		// Support custom $update properties coming straight from PUE

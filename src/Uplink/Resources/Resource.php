@@ -176,14 +176,14 @@ abstract class Resource {
 	 * @return string
 	 */
 	public function get_installed_version(): string {
-		if( ! function_exists( 'get_plugin_data' ) ) {
-			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		if ( ! function_exists( 'get_plugin_data' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
 		// @phpstan-ignore-next-line
 		$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $this->get_path() );
 
-		return $plugin_data['Version'] ?: '';
+		return $plugin_data['Version'] ?? '';
 	}
 
 	/**

@@ -183,7 +183,7 @@ abstract class Resource {
 		// @phpstan-ignore-next-line
 		$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $this->get_path() );
 
-		return $plugin_data['Version'] ?? '';
+		return $plugin_data['Version'] ?: '';
 	}
 
 	/**

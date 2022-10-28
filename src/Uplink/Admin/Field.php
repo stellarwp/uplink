@@ -9,7 +9,7 @@ abstract class Field {
     abstract public function register_settings(): void;
 
     /**
-     * @param array $args
+     * @param array<string> $args
      */
     public function get_description( array $args = [] ): void {
         if ( empty( $args['description'] ) ) {

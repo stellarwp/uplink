@@ -8,7 +8,9 @@ use StellarWP\Uplink\Resources\Plugin;
 
 class License_Field extends Field {
 
-    public const LICENSE_FIELD_ID = 'stellarwp_uplink_license';
+    public const LICENSE_FIELD_ID = 'stellar_uplink_license';
+
+    protected string $path = '/resources/views/fields/settings.php';
 
 	/**
 	 * @param Plugin $plugin
@@ -34,7 +36,7 @@ class License_Field extends Field {
 
         add_settings_field(
             $plugin->get_license_object()->get_key_option_name(),
-            __( 'License Number', 'stellarwp_uplink' ),
+            __( 'License Number', 'stellar_uplink' ),
             [ $this, 'field_html' ],
             self::get_group_name( sanitize_title( $plugin->get_name() ) ),
             $this->get_section_name( $plugin ),
@@ -43,10 +45,36 @@ class License_Field extends Field {
                 'label_for'   => $plugin->get_license_object()->get_key_option_name(),
                 'type'        => 'text',
                 'value'       => $plugin->get_license_key(),
-                'placeholder' => __( 'License Number', 'stellarwp_uplink' ),
+                'placeholder' => __( 'License Number', 'stellar_uplink' ),
                 'html'        => '',
             ]
         );
+    }
+
+    public function render(): void {
+        echo $this->get_content( [
+            'plugin' => $this->get_plugin()
+        ] );
+    }
+
+    public function submission(): void {
+        $capability = apply_filters( 'stellar_uplink_submission_capability', 'manage_options' );
+
+        if ( ! current_user_can( $capability ) ) {
+            return;
+        }
+
+        $option = $this->get_plugin()->get_license_object()->get_key_option_name();
+        $input  = filter_input( INPUT_POST, $option );
+
+        /**
+         * Allow modifying license field data before save
+         */
+        $input = apply_filters( 'stellar_uplink_before_submit', $input );
+
+        update_option( $option, $input );
+
+        do_action( 'stellar_uplink_after_submit' );
     }
 
 }

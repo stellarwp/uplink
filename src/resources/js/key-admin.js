@@ -1,54 +1,53 @@
-let stellarUplink = stellarUplink || {};
-
 ( function( $, obj ) {
 
 	obj.init = function() {
 		$( '.stellar-uplink-license-key-field' ).each( function() {
 			var $el = $( this );
-			var $field = $el.find( 'input' );
+			var $field = $el.find( 'input[type="text"]' );
 
 			if ( '' === $field.val().trim() ) {
 				$el.find( '.license-test-results' ).hide();
 			}
 
-			obj.valdateKey( $el );
+			obj.validateKey( $el );
 		} );
 
 		$( document ).on( 'change', '.stellar-uplink-license-key-field', function() {
 			const $el = $( this );
-			obj.valdateKey( $el );
+			obj.validateKey( $el );
 		} );
 	};
 
 	obj.validateKey = function( $el ) {
-		const fieldID        = $el.attr( 'id' );
-		const slug           = $el.data( 'slug' );
-		let $validityMessage = $( fieldID + ' .key-validity' );
+		const field       	 = $el.find( 'input[type="text"]' )
+		const plugin         = $el.data( 'plugin' );
+		let $validityMessage = $el.find( '.key-validity' );
 
-		if ( '' === $( fieldID + ' input' ).val().trim() ) {
+		if ( '' === field.val().trim() ) {
 			return;
 		}
 
-		$( fieldID + ' .license-test-results' ).show();
-		$( fieldID + ' .tooltip' ).hide();
-		$( fieldID + ' .ajax-loading-license' ).show();
+		$( $el ).find( '.license-test-results' ).show();
+		$( $el ).find( '.tooltip' ).hide();
+		$( $el ).find( '.ajax-loading-license' ).show();
 
 		$validityMessage.hide();
 
 		// Strip whitespace from key
-		let licenseKey = $( fieldID + ' input' ).val().trim();
-		$( fieldID + ' input' ).val( licenseKey );
+		let licenseKey = field.val().trim();
+		field.val( licenseKey );
 
 		var data = {
-			action: 'pue-validate-key_' + slug,
+			action: 'pue-validate-key-uplink',
+			plugin: plugin,
 			key: licenseKey,
-			_wpnonce: $( fieldID + ' .wp-nonce' ).val()
+			_wpnonce: $( $el ).find( '.wp-nonce' ).val()
 		};
 
 		$.post( ajaxurl, data, function ( response ) {
 			var data = $.parseJSON( response );
 
-			$( fieldID + ' .ajax-loading-license' ).hide();
+			$( $el ).find( '.ajax-loading-license' ).hide();
 			$validityMessage.show();
 			$validityMessage.html( data.message );
 
@@ -63,4 +62,4 @@ let stellarUplink = stellarUplink || {};
 	$( function() {
 		obj.init();
 	} );
-} )( jQuery, stellarUplink );
+} )( jQuery, {}	 );

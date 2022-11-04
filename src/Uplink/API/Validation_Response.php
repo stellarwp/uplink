@@ -123,7 +123,7 @@ class Validation_Response {
 	 *
 	 * @param string|null    $key             License key.
 	 * @param string         $validation_type Validation type (local or network).
-	 * @param stdClass       $response        Validation response.
+	 * @param stdClass      $response        Validation response.
 	 * @param Resource       $resource        Resource instance.
 	 * @param Container|null $container       Container instance.
 	 */
@@ -249,7 +249,7 @@ class Validation_Response {
 	}
 
 	/**
-	 * Gets the raw response from the validation request.
+	 * Get update details from the validation response.
 	 *
 	 * @since 1.0.0
 	 *
@@ -258,12 +258,16 @@ class Validation_Response {
 	public function get_update_details() {
 		$update = new stdClass;
 
-		$update->id          = $this->response->id ?: '';
-		$update->plugin      = $this->response->plugin ?: '';
-		$update->slug        = $this->response->slug ?: '';
-		$update->new_version = $this->response->version ?: '';
-		$update->url         = $this->response->homepage ?: '';
-		$update->package     = $this->response->download_url ?: '';
+		if ( ! empty( $this->response->api_invalid ) ) {
+			return $update;
+		}
+
+		$update->id          = $this->response->id ?? '';
+		$update->plugin      = $this->response->plugin ?? '';
+		$update->slug        = $this->response->slug ?? '';
+		$update->new_version = $this->response->version ?? '';
+		$update->url         = $this->response->homepage ?? '';
+		$update->package     = $this->response->download_url ?? '';
 
 		if ( ! empty( $this->response->upgrade_notice ) ) {
 			$update->upgrade_notice = $this->response->upgrade_notice;

@@ -176,20 +176,14 @@ abstract class Resource {
 	 * @return string
 	 */
 	public function get_installed_version(): string {
-		if ( ! function_exists( 'get_plugins' ) ) {
-			return '';
+		if ( ! function_exists( 'get_plugin_data' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		$all_plugins = get_plugins();
+		// @phpstan-ignore-next-line
+		$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $this->get_path() );
 
-		if (
-			! array_key_exists( $this->get_path(), $all_plugins )
-			|| ! array_key_exists( 'Version', $all_plugins[ $this->get_path() ] )
-		) {
-			return '';
-		}
-
-		return $all_plugins[ $this->get_path() ]['Version'];
+		return $plugin_data['Version'] ?: '';
 	}
 
 	/**

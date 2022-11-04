@@ -129,7 +129,7 @@ class Validation_Response {
 	public function __construct( $key, string $validation_type, \stdClass $response, Resource $resource, Container $container = null ) {
 		$this->key             = $key ?: '';
 		$this->validation_type = 'network' === $validation_type ? 'network' : 'local';
-		$this->response        = $response;
+		$this->response        = ! empty( $response->results ) ? reset( $response->results ) : $response;
 		$this->resource        = $resource;
 		$this->container       = $container ?: Container::init();
 

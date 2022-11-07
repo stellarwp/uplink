@@ -63,7 +63,7 @@ class Plugin extends Resource {
 				$transient->response[ $this->get_path() ] = $results->get_update_details();
 
 				if ( 'expired' === $results->get_result() ) {
-					// @TODO add expired notice.
+					$transient->response[ $this->get_path() ] = $results->get_expire_details();
 				}
 			}
 		}

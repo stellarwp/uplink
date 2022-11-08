@@ -47,38 +47,54 @@ class Plugins_Page {
 			return;
 		}
 
-		$notices        = [];
 		$messages       = [];
 		$plugin_file    = $this->get_plugin()->get_path();
 		$plugin_updates = get_plugin_updates();
-		$resource       = $plugin_updates[ $plugin_file ];
+		$resource       = $plugin_updates[ $plugin_file ] ?? null;
 
 		if ( empty( $resource ) ) {
 			return;
 		}
 
-		$update_available = isset( $plugin_updates[ $plugin_file ] );
-
 		if ( ! empty( $resource->update->license_error ) ) {
 			$messages[] = $resource->update->license_error;
-		} elseif ( $update_available && current_user_can( 'update_plugins' ) ) {
+		} elseif ( current_user_can( 'update_plugins' ) ) {
+			if ( empty( $resource->update->new_version ) ) {
+				return;
+			}
 			// A plugin update is available
 			$update_now = sprintf(
 				esc_html__( 'Update now to version %s.', 'stellar-uplink' ),
 				$resource->update->new_version
 			);
 
+			$href = sprintf(
+				'%s&key=%s',
+				$resource->update->package, // @phpstan-ignore-line
+				$this->get_plugin()->get_license_key()
+			);
+
 			$update_now_link = sprintf(
 				' <a href="%1$s" class="update-link">%2$s</a>',
-				$resource->update->package,
+				$href,
 				$update_now
 			);
 
-			$update_message = sprintf(
-				esc_html__( '%1$s. %2$s', 'stellar-uplink' ),
-				$resource->update->upgrade_notice,
-				$update_now_link
-			);
+			if ( ! empty ( $resource->update->upgrade_notice ) ) {
+				$update_message = sprintf(
+					esc_html__( '%1$s. %2$s', 'stellar-uplink' ),
+					$resource->update->upgrade_notice,
+					$update_now_link
+				);
+			} else {
+				$update_message = sprintf(
+					esc_html__( 'There is a new version of %1$s available. %2$s', 'stellar-uplink' ),
+					$this->get_plugin()->get_name(),
+					$update_now_link
+				);
+			}
+
+
 
 			$messages[] = sprintf(
 				'<p>%s</p>',
@@ -109,7 +125,7 @@ class Plugins_Page {
 			'message_row_html' => $message_row_html,
 		];
 
-		add_filter( 'stellarwp_uplink_plugin_notices', [ $this, 'add_notice_to_plugin_notices' ] );
+		add_filter( 'stellar_uplink_plugin_notices', [ $this, 'add_notice_to_plugin_notices' ] );
 	}
 
 	/**
@@ -136,13 +152,13 @@ class Plugins_Page {
 		if ( 'plugins.php' !== $page ) {
 			return;
 		}
-		$notices = apply_filters( 'stellarwp_uplink_plugin_notices', [] );
+		$notices = apply_filters( 'stellar_uplink_plugin_notices', [] );
 		$path    = preg_replace( '/.*\/vendor/', plugin_dir_url( $this->get_plugin()->get_path() ) . 'vendor', dirname( __DIR__, 2 ) );
 		$js_src  = apply_filters( 'stellar_uplink_admin_js_source', $path .  '/resources/js/notices.js' );
-		$handle  = 'stellarwp_uplink-notices';
+		$handle  = 'stellar_uplink-notices';
 
 		wp_register_script( $handle, $js_src, ['jquery'], '1.0.0', true );
-		wp_localize_script( $handle, 'stellarwp_uplink_plugin_notices', $notices );
+		wp_localize_script( $handle, 'stellar_uplink_plugin_notices', $notices );
 		wp_enqueue_script( $handle );
 	}
 
@@ -173,7 +189,11 @@ class Plugins_Page {
 	 * @return mixed
 	 */
 	public function check_for_updates( $transient ) {
-		return $this->get_plugin()->check_for_updates( $transient );
+		try {
+			return $this->get_plugin()->check_for_updates( $transient );
+		} catch ( \Throwable $exception ) {
+			return $transient;
+		}
 	}
 
 	/**

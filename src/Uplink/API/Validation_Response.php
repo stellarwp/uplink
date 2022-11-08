@@ -259,7 +259,7 @@ class Validation_Response {
 		$update = new stdClass;
 
 		if ( ! empty( $this->response->api_invalid ) ) {
-			return $update;
+			return $this->handle_api_errors();
 		}
 
 		$update->id          = $this->response->id ?? '';
@@ -267,7 +267,7 @@ class Validation_Response {
 		$update->slug        = $this->response->slug ?? '';
 		$update->new_version = $this->response->version ?? '';
 		$update->url         = $this->response->homepage ?? '';
-		$update->package     = $this->response->download_url ?? '';
+		$update->package     = $this->response->download_url ? $this->response->download_url . '&pu_get_download=1&key=' . $this->get_key() : '';
 
 		if ( ! empty( $this->response->upgrade_notice ) ) {
 			$update->upgrade_notice = $this->response->upgrade_notice;
@@ -285,6 +285,44 @@ class Validation_Response {
 				$update->$field = $custom_value;
 			}
 		}
+
+		return $update;
+	}
+
+	/**
+	 * @return stdClass
+	 */
+	public function handle_api_errors(): stdClass {
+		$update     = new stdClass;
+		$copyFields = [
+			'id',
+			'slug',
+			'version',
+			'homepage',
+			'download_url',
+			'upgrade_notice',
+			'sections',
+			'plugin',
+			'api_expired',
+			'api_upgrade',
+			'api_invalid',
+			'api_invalid_message',
+			'api_inline_invalid_message',
+			'custom_update',
+		];
+
+		foreach ( $copyFields as $field ) {
+			if ( ! isset( $this->response->$field ) ) {
+				continue;
+			}
+
+			$update->$field = $this->response->$field;
+		}
+
+		$update->license_error = $this->get_message()->get();
+		$update->slug          = $this->resource->get_slug();
+		$update->new_version   = $this->response->version ?? '';
+		$update->package       = 'invalid_license';
 
 		return $update;
 	}
@@ -372,6 +410,60 @@ class Validation_Response {
 				$this->result = 'new';
 			}
 		}
+	}
+
+	/**
+	 * Transform plugin info into the format used by the native WordPress.org API
+	 *
+	 * @return object
+	 */
+	public function to_wp_format() {
+		$info = new StdClass;
+
+		// The custom update API is built so that many fields have the same name and format
+		// as those returned by the native WordPress.org API. These can be assigned directly.
+		$sameFormat = [
+			'name',
+			'slug',
+			'version',
+			'requires',
+			'tested',
+			'rating',
+			'upgrade_notice',
+			'num_ratings',
+			'downloaded',
+			'homepage',
+			'last_updated',
+			'api_expired',
+			'api_upgrade',
+			'api_invalid',
+		];
+
+		foreach ( $sameFormat as $field ) {
+			if ( isset( $this->$field ) ) {
+				$info->$field = $this->$field;
+			} else {
+				$info->$field = null;
+			}
+		}
+
+		//Other fields need to be renamed and/or transformed.
+		$info->download_link = $this->response->download_url . '&pu_get_download=1';
+
+		if ( ! empty( $this->author_homepage ) ) {
+			$info->author = sprintf( '<a href="%s">%s</a>', esc_url( $this->author_homepage ), $this->response->author );
+		} else {
+			$info->author = $this->response->author;
+		}
+
+		if ( is_object( $this->response->sections ) ) {
+			$info->sections = get_object_vars( $this->response->sections );
+		} elseif ( is_array( $this->response->sections ) ) {
+			$info->sections = $this->response->sections;
+		} else {
+			$info->sections = [ 'description' => '' ];
+		}
+		return $info;
 	}
 
 	/**

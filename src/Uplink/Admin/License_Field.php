@@ -36,7 +36,7 @@ class License_Field extends Field {
 
 		add_settings_field(
 			$plugin->get_license_object()->get_key_option_name(),
-			__( 'License Number', 'stellar_uplink' ),
+			__( 'License Key', 'stellar_uplink' ),
 			[ $this, 'field_html' ],
 			self::get_group_name( sanitize_title( $plugin->get_name() ) ),
 			$this->get_section_name( $plugin ),

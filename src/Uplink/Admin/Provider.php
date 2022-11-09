@@ -20,7 +20,7 @@ class Provider extends \tad_DI52_ServiceProvider {
 	}
 
 	public function register_hooks(): void {
-        add_filter( 'plugins_api', $this->container->callback( Plugins_Page::class, 'inject_info' ), 10, 3 );
+		add_filter( 'plugins_api', $this->container->callback( Plugins_Page::class, 'inject_info' ), 10, 3 );
 
 		if ( ( ! defined( 'TRIBE_DISABLE_PUE' ) || true !== TRIBE_DISABLE_PUE ) ) {
 			add_filter( 'pre_set_site_transient_update_plugins', $this->container->callback( Plugins_Page::class, 'check_for_updates' ) );

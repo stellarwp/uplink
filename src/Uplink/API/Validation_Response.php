@@ -294,7 +294,7 @@ class Validation_Response {
 	 */
 	public function handle_api_errors(): stdClass {
 		$update     = new stdClass;
-		$copyFields = [
+		$copy_fields = [
 			'id',
 			'slug',
 			'version',
@@ -311,7 +311,7 @@ class Validation_Response {
 			'custom_update',
 		];
 
-		foreach ( $copyFields as $field ) {
+		foreach ( $copy_fields as $field ) {
 			if ( ! isset( $this->response->$field ) ) {
 				continue;
 			}
@@ -422,7 +422,7 @@ class Validation_Response {
 
 		// The custom update API is built so that many fields have the same name and format
 		// as those returned by the native WordPress.org API. These can be assigned directly.
-		$sameFormat = [
+		$same_format = [
 			'name',
 			'slug',
 			'version',
@@ -439,7 +439,7 @@ class Validation_Response {
 			'api_invalid',
 		];
 
-		foreach ( $sameFormat as $field ) {
+		foreach ( $same_format as $field ) {
 			if ( isset( $this->$field ) ) {
 				$info->$field = $this->$field;
 			} else {

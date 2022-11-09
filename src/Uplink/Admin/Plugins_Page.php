@@ -157,7 +157,7 @@ class Plugins_Page {
 		$js_src  = apply_filters( 'stellar_uplink_admin_js_source', $path .  '/resources/js/notices.js' );
 		$handle  = 'stellar_uplink-notices';
 
-		wp_register_script( $handle, $js_src, ['jquery'], '1.0.0', true );
+		wp_register_script( $handle, $js_src, [ 'jquery' ], '1.0.0', true );
 		wp_localize_script( $handle, 'stellar_uplink_plugin_notices', $notices );
 		wp_enqueue_script( $handle );
 	}

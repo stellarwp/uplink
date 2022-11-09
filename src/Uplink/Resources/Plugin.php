@@ -69,7 +69,7 @@ class Plugin extends Resource {
 			}
 
 			// In order to show relevant issues on plugins page parse response data and add it to transient
-			if ( in_array( $results->get_result(), ['expired', 'invalid'] ) ) {
+			if ( in_array( $results->get_result(), [ 'expired', 'invalid' ] ) ) {
 				/** @var \stdClass $transient */
 				if ( ! isset( $transient->response ) ) {
 					$transient->response = [];

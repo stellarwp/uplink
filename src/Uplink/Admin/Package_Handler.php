@@ -39,7 +39,7 @@ class Package_Handler {
     }
 
     /**
-     * Whether the current package is an MT plugin package or not.
+     * Whether the current package is an StellarWP product or not.
      *
      * @param string $package The package file name or URL.
      *
@@ -110,7 +110,7 @@ class Package_Handler {
         $moved = $this->filesystem->move( $download_file, $file );
 
         if ( empty( $moved ) ) {
-            // we tried, we failed, we bail and let WP do its job
+            // We tried, we failed, we bail and let WP do its job
             return false;
         }
 

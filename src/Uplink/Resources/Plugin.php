@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Resources;
 
+use StellarWP\Uplink\Admin\Notice;
 use StellarWP\Uplink\API\Validation_Response;
 
 class Plugin extends Resource {
@@ -43,7 +44,7 @@ class Plugin extends Resource {
 			return $transient;
 		}
 
-		$status                  = $this->get_update_status();
+		$status                  = $this->get_update_status( $force_fetch );
 		$status->last_check      = time();
 		$status->checked_version = $this->get_installed_version();
 
@@ -63,9 +64,19 @@ class Plugin extends Resource {
 				$transient->response[ $this->get_path() ] = $results->get_update_details();
 
 				if ( 'expired' === $results->get_result() ) {
-					$transient->response[ $this->get_path() ] = $results->get_expire_details();
+					$this->container->make( Notice::class )->add_notice( Notice::EXPIRED_KEY, $this->get_slug() );
 				}
 			}
+
+			// In order to show relevant issues on plugins page parse response data and add it to transient
+			if ( in_array( $results->get_result(), [ 'expired', 'invalid' ] ) ) {
+				/** @var \stdClass $transient */
+				if ( ! isset( $transient->response ) ) {
+					$transient->response = [];
+				}
+				$transient->response[ $this->get_path() ] = $results->handle_api_errors();
+			}
+
 		}
 
 		$this->set_update_status( $status );
@@ -137,4 +148,5 @@ class Plugin extends Resource {
 	protected function set_update_status( $status ): void {
 		update_option( $this->get_update_status_option_name(), $status );
 	}
+
 }

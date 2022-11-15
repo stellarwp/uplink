@@ -17,7 +17,7 @@ class Ajax {
 		if ( empty( $submission ) || empty( $submission['key'] ) || ! wp_verify_nonce( $submission['_wpnonce'], License_Field::get_group_name() ) ) {
 			echo json_encode( [
 				'status'  => 0,
-				'message' => __( 'Invalid request: nonce field is expired. Please try again.', 'stellar_uplink' )
+				'message' => __( 'Invalid request: nonce field is expired. Please try again.', '%stellar-uplink-domain%' )
 			] );
 			wp_die();
 		}

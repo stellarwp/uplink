@@ -41,7 +41,7 @@ You can also add lines below to your composer file in order to run command autom
 ```json
 "scripts": {
 	"stellar-uplink": [
-	  "vendor/bin/stellar-uplink"
+	  "vendor/bin/stellar-uplink domain=<your-plugin-domain>"
 	],
 	"post-install-cmd": [
 	  "@stellar-uplink"

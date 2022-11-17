@@ -25,7 +25,7 @@ class Package_Handler {
         if ( empty( $package ) || 'invalid_license' === $package ) {
             return new \WP_Error(
                 'download_failed',
-               __( 'Failed to update plugin. Check your license details first.', 'stellar-uplink' ),
+               __( 'Failed to update plugin. Check your license details first.', '%stellar-uplink-domain%' ),
                 ''
             );
         }

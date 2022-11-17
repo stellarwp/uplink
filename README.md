@@ -26,6 +26,31 @@ add_action( 'plugins_loaded', function() {
 }, 0 );
 ```
 
+## Translation
+
+Package is using `__( 'Invalid request: nonce field is expired. Please try again.', '%stellar-uplink-domain%' )` function for translation. In order to change domain placeholder `'%stellar-uplink-domain%'` to your plugin translation domain run
+```bash
+./vendor/bin/stellar-uplink domain=<your-plugin-domain>
+```
+or
+```bash
+./vendor/bin/stellar-uplink
+```
+and prompt the plugin domain
+You can also add lines below to your composer file in order to run command automatically
+```json
+"scripts": {
+	"stellar-uplink": [
+	  "vendor/bin/stellar-uplink domain=<your-plugin-domain>"
+	],
+	"post-install-cmd": [
+	  "@stellar-uplink"
+	],
+	"post-update-cmd": [
+	  "@stellar-uplink"
+	]
+  }
+```
 ## Embedding a license in your plugin
 
 StellarWP Uplink plugins are downloaded with an embedded license key so that users do not need to manually enter the key when activating their plugin. To make this possible, the class must be in a specific location so that the licensing server can find it.

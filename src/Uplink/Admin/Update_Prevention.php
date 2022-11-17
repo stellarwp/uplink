@@ -106,10 +106,10 @@ class Update_Prevention {
 		$full_plugin_path = $remote_source . '/' . $plugin;
 		$plugin_data = get_plugin_data( $full_plugin_path );
 
-		$link_read_more = '<a href="http://evnt.is/1aev" target="_blank">' . esc_html__( 'Read more', 'stellar-uplink' ) . '.</a>';
+		$link_read_more = '<a href="http://evnt.is/1aev" target="_blank">' . esc_html__( 'Read more', '%stellar-uplink-domain%' ) . '.</a>';
 
 		$message = sprintf(
-			esc_html__( 'Your update failed due to an incompatibility between the version (%1$s) of the %2$s you tried to update to. %3$s', 'stellar-uplink' ),
+			esc_html__( 'Your update failed due to an incompatibility between the version (%1$s) of the %2$s you tried to update to. %3$s', '%stellar-uplink-domain%' ),
 			esc_html( $plugin_data['Version'] ),
 			esc_html( $plugin_data['Name'] ),
 			$link_read_more

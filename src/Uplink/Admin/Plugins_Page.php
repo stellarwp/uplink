@@ -64,7 +64,7 @@ class Plugins_Page {
 			}
 			// A plugin update is available
 			$update_now = sprintf(
-				esc_html__( 'Update now to version %s.', 'stellar-uplink' ),
+				esc_html__( 'Update now to version %s.', '%stellar-uplink-domain%' ),
 				$resource->update->new_version
 			);
 
@@ -82,13 +82,13 @@ class Plugins_Page {
 
 			if ( ! empty ( $resource->update->upgrade_notice ) ) {
 				$update_message = sprintf(
-					esc_html__( '%1$s. %2$s', 'stellar-uplink' ),
+					esc_html__( '%1$s. %2$s', '%stellar-uplink-domain%' ),
 					$resource->update->upgrade_notice,
 					$update_now_link
 				);
 			} else {
 				$update_message = sprintf(
-					esc_html__( 'There is a new version of %1$s available. %2$s', 'stellar-uplink' ),
+					esc_html__( 'There is a new version of %1$s available. %2$s', '%stellar-uplink-domain%' ),
 					$this->get_plugin()->get_name(),
 					$update_now_link
 				);

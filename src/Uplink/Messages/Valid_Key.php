@@ -31,7 +31,7 @@ class Valid_Key extends Message_Abstract {
 	 */
 	public function get(): string {
 		$message = sprintf(
-			__( 'Valid key! Expires on %s.', 'stellar-uplink' ),
+			__( 'Valid key! Expires on %s.', '%stellar-uplink-domain%' ),
 			$this->expiration
 		);
 

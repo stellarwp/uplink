@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\API;
 
+use stdClass;
 use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Messages;
 use StellarWP\Uplink\Resources\Resource;
@@ -84,7 +85,7 @@ class Validation_Response {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @var \stdClass
+	 * @var stdClass
 	 */
 	protected $response;
 
@@ -122,14 +123,14 @@ class Validation_Response {
 	 *
 	 * @param string|null    $key             License key.
 	 * @param string         $validation_type Validation type (local or network).
-	 * @param \stdClass      $response        Validation response.
+	 * @param stdClass      $response        Validation response.
 	 * @param Resource       $resource        Resource instance.
 	 * @param Container|null $container       Container instance.
 	 */
-	public function __construct( $key, string $validation_type, \stdClass $response, Resource $resource, Container $container = null ) {
+	public function __construct( $key, string $validation_type, stdClass $response, Resource $resource, Container $container = null ) {
 		$this->key             = $key ?: '';
 		$this->validation_type = 'network' === $validation_type ? 'network' : 'local';
-		$this->response        = $response;
+		$this->response        = ! empty( $response->results ) ? reset( $response->results ) : $response;
 		$this->resource        = $resource;
 		$this->container       = $container ?: Container::init();
 
@@ -211,7 +212,7 @@ class Validation_Response {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return \stdClass
+	 * @return stdClass
 	 */
 	public function get_raw_response() {
 		return $this->response;
@@ -252,17 +253,21 @@ class Validation_Response {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return \stdClass
+	 * @return stdClass
 	 */
 	public function get_update_details() {
-		$update = new \stdClass;
+		$update = new stdClass;
 
-		$update->id          = $this->response->id ?: '';
-		$update->plugin      = $this->response->plugin ?: '';
-		$update->slug        = $this->response->slug ?: '';
-		$update->new_version = $this->response->version ?: '';
-		$update->url         = $this->response->homepage ?: '';
-		$update->package     = $this->response->download_url ?: '';
+		if ( ! empty( $this->response->api_invalid ) ) {
+			return $this->handle_api_errors();
+		}
+
+		$update->id          = $this->response->id ?? '';
+		$update->plugin      = $this->response->plugin ?? '';
+		$update->slug        = $this->response->slug ?? '';
+		$update->new_version = $this->response->version ?? '';
+		$update->url         = $this->response->homepage ?? '';
+		$update->package     = $this->response->download_url ? $this->response->download_url . '&pu_get_download=1&key=' . $this->get_key() : '';
 
 		if ( ! empty( $this->response->upgrade_notice ) ) {
 			$update->upgrade_notice = $this->response->upgrade_notice;
@@ -280,6 +285,61 @@ class Validation_Response {
 				$update->$field = $custom_value;
 			}
 		}
+
+		return $update;
+	}
+
+	/**
+	 * @return stdClass
+	 */
+	public function handle_api_errors(): stdClass {
+		$update     = new stdClass;
+		$copy_fields = [
+			'id',
+			'slug',
+			'version',
+			'homepage',
+			'download_url',
+			'upgrade_notice',
+			'sections',
+			'plugin',
+			'api_expired',
+			'api_upgrade',
+			'api_invalid',
+			'api_invalid_message',
+			'api_inline_invalid_message',
+			'custom_update',
+		];
+
+		foreach ( $copy_fields as $field ) {
+			if ( ! isset( $this->response->$field ) ) {
+				continue;
+			}
+
+			$update->$field = $this->response->$field;
+		}
+
+		$update->license_error = $this->get_message()->get();
+		$update->slug          = $this->resource->get_slug();
+		$update->new_version   = $this->response->version ?? '';
+		$update->package       = 'invalid_license';
+
+		return $update;
+	}
+
+	/**
+	 * Get expiration details from response
+	 *
+	 * @return stdClass
+	 */
+	public function get_expire_details(): stdClass {
+		$update = new stdClass;
+
+		$update->version        = $this->response->version ?: '';
+		$update->message        = $this->response->api_invalid_message ?: '';
+		$update->inline_message = $this->response->api_inline_invalid_message ?: '';
+		$update->api_expired    = $this->response->api_expired ?: '';
+		$update->sections       = $this->response->sections ?: new stdClass;
 
 		return $update;
 	}
@@ -350,6 +410,60 @@ class Validation_Response {
 				$this->result = 'new';
 			}
 		}
+	}
+
+	/**
+	 * Transform plugin info into the format used by the native WordPress.org API
+	 *
+	 * @return object
+	 */
+	public function to_wp_format() {
+		$info = new StdClass;
+
+		// The custom update API is built so that many fields have the same name and format
+		// as those returned by the native WordPress.org API. These can be assigned directly.
+		$same_format = [
+			'name',
+			'slug',
+			'version',
+			'requires',
+			'tested',
+			'rating',
+			'upgrade_notice',
+			'num_ratings',
+			'downloaded',
+			'homepage',
+			'last_updated',
+			'api_expired',
+			'api_upgrade',
+			'api_invalid',
+		];
+
+		foreach ( $same_format as $field ) {
+			if ( isset( $this->$field ) ) {
+				$info->$field = $this->$field;
+			} else {
+				$info->$field = null;
+			}
+		}
+
+		//Other fields need to be renamed and/or transformed.
+		$info->download_link = $this->response->download_url . '&pu_get_download=1';
+
+		if ( ! empty( $this->author_homepage ) ) {
+			$info->author = sprintf( '<a href="%s">%s</a>', esc_url( $this->author_homepage ), $this->response->author );
+		} else {
+			$info->author = $this->response->author;
+		}
+
+		if ( is_object( $this->response->sections ) ) {
+			$info->sections = get_object_vars( $this->response->sections );
+		} elseif ( is_array( $this->response->sections ) ) {
+			$info->sections = $this->response->sections;
+		} else {
+			$info->sections = [ 'description' => '' ];
+		}
+		return $info;
 	}
 
 	/**

@@ -165,7 +165,7 @@ class Client {
 
 		$response      = wp_remote_get( $url, $request_args );
 		$response_body = wp_remote_retrieve_body( $response );
-		$result        = json_decode( $response_body, true );
+		$result        = json_decode( $response_body );
 
 		/**
 		 * Filter the API response.

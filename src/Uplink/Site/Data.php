@@ -106,32 +106,7 @@ class Data {
 		$domain    = $this->container->getVar( $cache_key );
 
 		if ( null === $domain ) {
-			/** @var string */
-			$site_url = get_option( 'siteurl', '' );
-
-			/** @var array<string> */
-			$url = wp_parse_url( $site_url );
-
-			if ( ! empty( $url ) && isset( $url['host'] ) ) {
-				$domain = $url['host'];
-			} elseif ( isset( $_SERVER['SERVER_NAME'] ) ) {
-				$domain = $_SERVER['SERVER_NAME'];
-			}
-
-			// For multisite, return the network-level siteurl
-			if ( is_multisite() ) {
-				/** @var string */
-				$site_url = get_site_option( 'siteurl', '' );
-
-				/** @var array<string> */
-				$site_url = wp_parse_url( $site_url );
-				if ( ! $site_url || ! isset( $site_url['host'] ) ) {
-					$domain = '';
-				} else {
-					$domain = strtolower( $site_url['host'] );
-				}
-			}
-
+			$domain = is_multisite() ? $this->get_domain_multisite_option() : $this->get_site_domain();
 			$this->container->setVar( $cache_key, $domain );
 		}
 
@@ -145,6 +120,24 @@ class Data {
 		$domain = apply_filters( 'stellar_uplink_get_domain', $domain );
 
 		return sanitize_text_field( $domain );
+	}
+
+	/**
+	 * Return domain for multisite
+	 *
+	 * @return string
+	 */
+	protected function get_domain_multisite_option(): string {
+		/** @var string */
+		$site_url = get_site_option( 'siteurl', '' );
+
+		/** @var array<string> */
+		$site_url = wp_parse_url( $site_url );
+		if ( ! $site_url || ! isset( $site_url['host'] ) ) {
+			return '';
+		}
+
+		return strtolower( $site_url['host'] );
 	}
 
 	/**

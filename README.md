@@ -26,6 +26,31 @@ add_action( 'plugins_loaded', function() {
 }, 0 );
 ```
 
+## Translation
+
+Package is using `__( 'Invalid request: nonce field is expired. Please try again.', '%stellar-uplink-domain%' )` function for translation. In order to change domain placeholder `'%stellar-uplink-domain%'` to your plugin translation domain run
+```bash
+./vendor/bin/stellar-uplink domain=<your-plugin-domain>
+```
+or
+```bash
+./vendor/bin/stellar-uplink
+```
+and prompt the plugin domain
+You can also add lines below to your composer file in order to run command automatically
+```json
+"scripts": {
+	"stellar-uplink": [
+	  "vendor/bin/stellar-uplink domain=<your-plugin-domain>"
+	],
+	"post-install-cmd": [
+	  "@stellar-uplink"
+	],
+	"post-update-cmd": [
+	  "@stellar-uplink"
+	]
+  }
+```
 ## Embedding a license in your plugin
 
 StellarWP Uplink plugins are downloaded with an embedded license key so that users do not need to manually enter the key when activating their plugin. To make this possible, the class must be in a specific location so that the licensing server can find it.
@@ -91,3 +116,36 @@ Register::service(
 	$plugin_class
 );
 ```
+
+## Render license key form on your settings page
+In order to render license key form just add 2 lines of code to your settings page, tab, etc.
+```php
+$container = Container::init();
+$container->get( License_Field::class )->render();
+```
+### Example: Register settings page and render license fields
+Register a settings page for a plugin if you need it
+```php
+add_action( 'admin_menu', function () {
+    add_menu_page(
+        'Sample',
+        'Sample',
+        'manage_options',
+        'sample-plugin-lib',
+        'render_settings_page',
+        '',
+        null
+    );
+
+}, 11 );
+```
+Add lines below to your settings page. This will render license key form with submit button
+```php
+function render_settings_page() {
+    // ....
+    $container = Container::init();
+    $container->get( License_Field::class )->render();
+    //....
+}
+```
+

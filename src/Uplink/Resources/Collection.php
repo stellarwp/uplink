@@ -89,7 +89,7 @@ class Collection implements \ArrayAccess, \Iterator {
 	/**
 	 * @inheritDoc
 	 */
-	public function key(): mixed {
+	public function key() {
 		return key( $this->resources );
 	}
 

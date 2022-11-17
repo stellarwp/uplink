@@ -116,3 +116,36 @@ Register::service(
 	$plugin_class
 );
 ```
+
+## Render license key form on your settings page
+In order to render license key form just add 2 lines of code to your settings page, tab, etc.
+```php
+$container = Container::init();
+$container->get( License_Field::class )->render();
+```
+### Example: Register settings page and render license fields
+Register a settings page for a plugin if you need it
+```php
+add_action( 'admin_menu', function () {
+    add_menu_page(
+        'Sample',
+        'Sample',
+        'manage_options',
+        'sample-plugin-lib',
+        'render_settings_page',
+        '',
+        null
+    );
+
+}, 11 );
+```
+Add lines below to your settings page. This will render license key form with submit button
+```php
+function render_settings_page() {
+    // ....
+    $container = Container::init();
+    $container->get( License_Field::class )->render();
+    //....
+}
+```
+

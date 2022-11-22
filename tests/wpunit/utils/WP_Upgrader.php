@@ -1,6 +1,6 @@
 <?php
 
-namespace wpunit\utils;
+namespace StellarWP\Uplink\utils;
 
 class WP_Upgrader
 {

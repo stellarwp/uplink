@@ -6,8 +6,7 @@ use StellarWP\Uplink\Admin\Update_Prevention;
 use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Uplink;
-use WP_Error;
-use WP_Upgrader;
+use \wpunit\utils\WP_Upgrader;
 
 class Update_PreventionTest extends UplinkTestCase {
 	public $resource;
@@ -39,7 +38,7 @@ class Update_PreventionTest extends UplinkTestCase {
 	public function test_filter_upgrader_source_selection() {
 		$update_prevention = new Update_Prevention();
 		$test_source 	   = 'https://test.source';
-		$upgrader 		   = new \WP_Upgrader();
+		$upgrader 		   = new WP_Upgrader();
 
 		$this->assertSame( $test_source, $update_prevention->filter_upgrader_source_selection(
 			$test_source,

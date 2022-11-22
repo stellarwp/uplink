@@ -39,7 +39,7 @@ class Update_PreventionTest extends UplinkTestCase {
 	public function test_filter_upgrader_source_selection() {
 		$update_prevention = new Update_Prevention();
 		$test_source 	   = 'https://test.source';
-		$upgrader 		   = new WP_Upgrader();
+		$upgrader 		   = new \WP_Upgrader();
 
 		$this->assertSame( $test_source, $update_prevention->filter_upgrader_source_selection(
 			$test_source,

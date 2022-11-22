@@ -42,7 +42,7 @@ class Validation_ResponseTest extends UplinkTestCase {
 		$this->assertEquals( '', $update->plugin );
 		$this->assertEquals( 'sample', $update->slug );
 		$this->assertEquals( '1.0.10', $update->new_version );
-		$this->assertEquals( 'upgrade_notice', $update->upgrade_notice );
+		$this->assertEquals( 'Test message update', $update->upgrade_notice );
 	}
 
 	public function test_it_should_provide_api_error_details_with_corresponding_message() {
@@ -51,7 +51,6 @@ class Validation_ResponseTest extends UplinkTestCase {
 
 		$this->assertEquals( '1.0.10', $update->new_version );
 		$this->assertEquals( true, $update->api_invalid );
-		$this->assertEquals( 'sample', $update->slug );
 		$this->assertEquals( 'invalid_license', $update->package );
 		$this->assertStringContainsString( '<p>There is a new version of Lib Sample available but your license key is invalid. View ', $update->license_error );
 	}

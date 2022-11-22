@@ -6,7 +6,7 @@ use StellarWP\Uplink\Admin\Update_Prevention;
 use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Uplink;
-use \wpunit\utils\WP_Upgrader;
+use wpunit\utils\WP_Upgrader;
 
 class Update_PreventionTest extends UplinkTestCase {
 	public $resource;

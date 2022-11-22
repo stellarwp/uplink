@@ -20,8 +20,8 @@ class Update_PreventionTest extends UplinkTestCase {
 		$root 		    = dirname( __DIR__, 3 );
 		$this->path     = $root . '/plugin.php';
 		$this->resource = Register::plugin(
-			'Lib Sample',
 			'sample',
+			'Lib Sample',
 			$this->path,
 			Uplink::class,
 			'1.0.10',

@@ -101,7 +101,8 @@ class Plugins_Page {
 				$update_message
 			);
 		}
-
+codecept_debug('$messages');
+codecept_debug($messages);
 		if ( empty( $messages ) ) {
 			return;
 		}

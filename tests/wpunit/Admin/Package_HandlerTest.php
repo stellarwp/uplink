@@ -22,13 +22,13 @@ class Package_HandlerTest extends UplinkTestCase {
 		$this->filesystem = $this->prophesize( \WP_Filesystem_Base::class );
 	}
 
-	public function test_it_should_not_filter_the_download_if_the_package_is_empty() {
+	public function test_it_should_return_WP_Error_if_the_package_is_empty() {
 		$upgrader = $this->prophesize( \WP_Upgrader::class );
 
 		$sut      = new Package_Handler();
 		$filtered = $sut->filter_upgrader_pre_download( false, '', $upgrader->reveal() );
 
-		$this->assertFalse( $filtered );
+		$this->assertWPError( $filtered );
 	}
 
 	public function test_it_should_not_filter_the_download_if_the_pu_get_download_flag_is_not_1() {
@@ -41,7 +41,7 @@ class Package_HandlerTest extends UplinkTestCase {
 		$this->assertFalse( $filtered );
 	}
 
-	public function test_it_should_return_WP_Error_if_the_file_was_not_found() {
+	public function test_it_should_not_filter_if_file_system_is_out() {
 		$package           = add_query_arg( [ 'pu_get_download' => '1' ], 'http://foo.bar' );
 		$upgrader          = $this->getMockBuilder( \WP_Upgrader::class )->getMock();
 		$upgrader->strings = [ 'download_failed' => 'meh' ];
@@ -53,7 +53,24 @@ class Package_HandlerTest extends UplinkTestCase {
 		$sut      = new Package_Handler();
 		$filtered = $sut->filter_upgrader_pre_download( false, $package, $upgrader );
 
-		$this->assertWPError( $filtered );
+		$this->assertFalse( $filtered );
+	}
+
+	public function it_should_return_WP_Error_if_the_file_was_not_found() {
+		$package           = add_query_arg( [ 'pu_get_download' => '1' ], 'http://foo.bar' );
+		$upgrader          = $this->getMockBuilder( \WP_Upgrader::class )->getMock();
+		$upgrader->strings = [ 'download_failed' => 'meh' ];
+		$skin              = $this->prophesize( \WP_Upgrader_Skin::class );
+
+		$skin->feedback( 'downloading_package', $package )->shouldBeCalled();
+
+		$GLOBALS['wp_filesystem'] = $this->filesystem->reveal();
+		$upgrader->skin 	  	  = $skin->reveal();
+
+		$sut      = new Package_Handler();
+		$filtered = $sut->filter_upgrader_pre_download( false, $package, $upgrader );
+
+		$this->assertFalse( $filtered );
 	}
 
 	public function it_should_move_the_file_and_return_a_shorter_named_version_of_it() {

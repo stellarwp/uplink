@@ -51,11 +51,11 @@ class Plugins_Page {
 		$plugin_file    = $this->get_plugin()->get_path();
 		$plugin_updates = get_plugin_updates();
 		$resource       = $plugin_updates[ $plugin_file ] ?? null;
-		var_dump('1st');
+
 		if ( empty( $resource ) ) {
 			return;
 		}
-var_dump(current_user_can( 'update_plugins' ));
+
 		if ( ! empty( $resource->update->license_error ) ) {
 			$messages[] = $resource->update->license_error;
 		} elseif ( current_user_can( 'update_plugins' ) ) {

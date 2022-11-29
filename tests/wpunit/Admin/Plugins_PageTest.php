@@ -40,11 +40,13 @@ class Plugins_PageTest extends UplinkTestCase {
 		$this->assertNull( $handler->display_plugin_messages( 'plugins.php' ) );
 	}
 
-	public function test_it_should_have_valid_message( \WpunitTester $tester ) {
+	public function test_it_should_have_valid_message() {
 		$handler = new Plugins_Page();
-		$tester->am( 'administrator' );
-
-		$this->assertNotNull( $handler->display_plugin_messages( 'plugins.php' ) );
+		$user    = $this->factory()->user->create_and_get();
+		$user->add_role( 'administrator' );
+		wp_set_current_user( $user->ID );
+		$handler->display_plugin_messages( 'plugins.php' );
+		$this->assertArrayHasKey( 'message_row_html', $handler->plugin_notice );
 		$this->expectOutputString( $handler->plugin_notice[ 'message_row_html' ] );
 		$this->assertSame( 'sample', $handler->plugin_notice['slug'] );
 	}

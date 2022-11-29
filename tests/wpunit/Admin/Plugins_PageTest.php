@@ -44,7 +44,7 @@ class Plugins_PageTest extends UplinkTestCase {
 		$handler = new Plugins_Page();
 		$user    = $this->factory()->user->create_and_get();
 		$user->add_role( 'administrator' );
-		$handler->display_plugin_messages( 'plugins.php' )
+		$handler->display_plugin_messages( 'plugins.php' );
 		$this->expectOutputString( $handler->plugin_notice[ 'message_row_html' ] );
 		$this->assertSame( 'sample', $handler->plugin_notice['slug'] );
 	}

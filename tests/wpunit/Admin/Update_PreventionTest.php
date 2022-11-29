@@ -17,7 +17,7 @@ class Update_PreventionTest extends UplinkTestCase {
 
 		$root 		    = dirname( __DIR__, 3 );
 		$this->path     = $root . '/plugin.php';
-		var_dump($this->path);
+
 		$this->resource = Register::plugin(
 			'sample',
 			'Lib Sample',
@@ -30,6 +30,7 @@ class Update_PreventionTest extends UplinkTestCase {
 
 	public function test_is_stellar_uplink_resource() {
 		$update_prevention = new Update_Prevention();
+		codecept_debug($this->path);
 
 		$this->assertTrue( $update_prevention->is_stellar_uplink_resource( $this->path ) );
 		$this->assertFalse( $update_prevention->is_stellar_uplink_resource( 'sample/index.php' ) );

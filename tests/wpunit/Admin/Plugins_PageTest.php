@@ -3,18 +3,21 @@
 namespace wpunit\Admin;
 
 use StellarWP\Uplink\Admin\Plugins_Page;
+use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Register;
+use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Uplink;
 
 class Plugins_PageTest extends UplinkTestCase {
 
-	public $resource;
-
 	public function setUp() {
 		parent::setUp();
 
-		$this->resource  = Register::plugin(
+		$container = Container::init();
+		$container->make( Collection::class );
+
+		Register::plugin(
 			'sample',
 			'Lib Sample',
 			'sample/index.php',
@@ -45,7 +48,7 @@ class Plugins_PageTest extends UplinkTestCase {
 		$user    = $this->factory()->user->create_and_get();
 		$user->add_role( 'administrator' );
 		wp_set_current_user( $user->ID );
-		codecept_debug( current_user_can( 'update_plugins' ) );
+
 		$handler->display_plugin_messages( 'plugins.php' );
 		codecept_debug( $handler->step );
 		$this->assertArrayHasKey( 'message_row_html', $handler->plugin_notice );

@@ -47,6 +47,7 @@ class Plugins_PageTest extends UplinkTestCase {
 		wp_set_current_user( $user->ID );
 		codecept_debug( current_user_can( 'update_plugins' ) );
 		$handler->display_plugin_messages( 'plugins.php' );
+		codecept_debug( $handler->step );
 		$this->assertArrayHasKey( 'message_row_html', $handler->plugin_notice );
 		$this->expectOutputString( $handler->plugin_notice[ 'message_row_html' ] );
 		$this->assertSame( 'sample', $handler->plugin_notice['slug'] );

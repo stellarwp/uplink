@@ -32,7 +32,7 @@ class Update_PreventionTest extends UplinkTestCase {
 		$update_prevention = new Update_Prevention();
 		codecept_debug($this->path);
 
-		$this->assertFalse( $update_prevention->is_stellar_uplink_resource( $this->path ), "$this->path" );
+		$this->assertSame( true, $update_prevention->is_stellar_uplink_resource( $this->path ), "The path is " . $this->path );
 		$this->assertFalse( $update_prevention->is_stellar_uplink_resource( 'sample/index.php' ) );
 	}
 

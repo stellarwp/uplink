@@ -22,7 +22,7 @@ class Plugins_Page {
 	 *
 	 * @var array<mixed>
 	 */
-	public array $plugin_notice;
+	public array $plugin_notice = [];
 
 	/**
 	 * Constructor.

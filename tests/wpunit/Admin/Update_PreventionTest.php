@@ -14,13 +14,11 @@ class Update_PreventionTest extends UplinkTestCase {
 
 	public function setUp() {
 		parent::setUp();
-
-		$root 		    = dirname( __DIR__, 3 );
-		$this->path     = $root . '/plugin.php';
-
+		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+		$this->path     = 'uplink/plugin.php';
 		$this->resource = Register::plugin(
-			'sample',
-			'Lib Sample',
+			'uplink',
+			'Uplink',
 			$this->path,
 			Uplink::class,
 			'1.0.10',
@@ -30,16 +28,15 @@ class Update_PreventionTest extends UplinkTestCase {
 
 	public function test_is_stellar_uplink_resource() {
 		$update_prevention = new Update_Prevention();
-		codecept_debug($this->path);
 
-		$this->assertSame( true, $update_prevention->is_stellar_uplink_resource( $this->path ), "The path is " . $this->path );
+		$this->assertTrue( $update_prevention->is_stellar_uplink_resource( $this->path ) );
 		$this->assertFalse( $update_prevention->is_stellar_uplink_resource( 'sample/index.php' ) );
 	}
 
 	public function test_filter_upgrader_source_selection() {
 		$update_prevention = new Update_Prevention();
 		$test_source 	   = 'https://test.source';
-		$upgrader		   = new \stdClass();
+		$upgrader		   = new \WP_Upgrader();
 
 		$this->assertSame( $test_source, $update_prevention->filter_upgrader_source_selection(
 			$test_source,

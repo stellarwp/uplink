@@ -17,6 +17,7 @@ class Update_PreventionTest extends UplinkTestCase {
 
 		$root 		    = dirname( __DIR__, 3 );
 		$this->path     = $root . '/plugin.php';
+		var_dump($this->path);
 		$this->resource = Register::plugin(
 			'sample',
 			'Lib Sample',
@@ -68,15 +69,6 @@ class Update_PreventionTest extends UplinkTestCase {
 			$upgrader,
 			[ 'plugin' => $this->path ]
 		), 'It should return the same source if we do not prevent the update' );
-
-		add_filter( 'stellar_uplink_should_prevent_update_without_license', '__return_true' );
-
-		$this->assertWPError( $update_prevention->filter_upgrader_source_selection(
-			$test_source,
-			'',
-			$upgrader,
-			[ 'plugin' => $this->path ]
-		), 'It should return WP Error instance' );
 	}
 
 }

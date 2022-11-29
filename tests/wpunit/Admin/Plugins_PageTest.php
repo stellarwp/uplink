@@ -40,11 +40,11 @@ class Plugins_PageTest extends UplinkTestCase {
 		$this->assertNull( $handler->display_plugin_messages( 'plugins.php' ) );
 	}
 
-	public function test_it_should_have_valid_message() {
+	public function test_it_should_have_valid_message( \WpunitTester $tester ) {
 		$handler = new Plugins_Page();
-		$user    = $this->factory()->user->create_and_get();
-		$user->add_role( 'administrator' );
-		$handler->display_plugin_messages( 'plugins.php' );
+		$tester->am( 'administrator' );
+
+		$this->assertNotNull( $handler->display_plugin_messages( 'plugins.php' ) );
 		$this->expectOutputString( $handler->plugin_notice[ 'message_row_html' ] );
 		$this->assertSame( 'sample', $handler->plugin_notice['slug'] );
 	}

@@ -10,7 +10,6 @@ use StellarWP\Uplink\Uplink;
 class Validation_ResponseTest extends UplinkTestCase {
 
 	public $resource;
-	public $container;
 
 	public function setUp() {
 		parent::setUp();

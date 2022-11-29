@@ -3,7 +3,6 @@
 namespace wpunit\Admin;
 
 use StellarWP\Uplink\Admin\Notice;
-use StellarWP\Uplink\Messages\Expired_Key;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
 class NoticeTest extends UplinkTestCase {

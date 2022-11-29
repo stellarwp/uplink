@@ -9,7 +9,6 @@ use StellarWP\Uplink\Uplink;
 
 class Update_PreventionTest extends UplinkTestCase {
 	public $resource;
-	public $container;
 	public $path;
 
 	public function setUp() {

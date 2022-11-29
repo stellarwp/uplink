@@ -48,9 +48,8 @@ class Plugins_PageTest extends UplinkTestCase {
 		$user    = $this->factory()->user->create_and_get();
 		$user->add_role( 'administrator' );
 		wp_set_current_user( $user->ID );
-
+codecept_debug(get_plugin_updates());
 		$handler->display_plugin_messages( 'plugins.php' );
-		codecept_debug( $handler->step );
 		$this->assertArrayHasKey( 'message_row_html', $handler->plugin_notice );
 		$this->expectOutputString( $handler->plugin_notice[ 'message_row_html' ] );
 		$this->assertSame( 'sample', $handler->plugin_notice['slug'] );

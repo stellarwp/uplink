@@ -26,13 +26,6 @@ class Update_PreventionTest extends UplinkTestCase {
 		);
 	}
 
-	public function test_is_stellar_uplink_resource() {
-		$update_prevention = new Update_Prevention();
-
-		$this->assertTrue( $update_prevention->is_stellar_uplink_resource( $this->path ) );
-		$this->assertFalse( $update_prevention->is_stellar_uplink_resource( 'sample/index.php' ) );
-	}
-
 	public function test_filter_upgrader_source_selection() {
 		$update_prevention = new Update_Prevention();
 		$test_source 	   = 'https://test.source';

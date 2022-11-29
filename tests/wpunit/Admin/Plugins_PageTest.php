@@ -3,21 +3,18 @@
 namespace wpunit\Admin;
 
 use StellarWP\Uplink\Admin\Plugins_Page;
-use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Uplink;
 
 class Plugins_PageTest extends UplinkTestCase {
 
-	public $container;
 	public $resource;
 
 	public function setUp() {
 		parent::setUp();
 
-		$this->container  = Container::init();
-		$this->resource   = Register::plugin(
+		$this->resource  = Register::plugin(
 			'sample',
 			'Lib Sample',
 			'sample/index.php',

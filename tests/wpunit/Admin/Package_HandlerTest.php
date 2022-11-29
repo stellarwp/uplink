@@ -41,21 +41,6 @@ class Package_HandlerTest extends UplinkTestCase {
 		$this->assertFalse( $filtered );
 	}
 
-	public function test_it_should_not_filter_if_file_system_is_out() {
-		$package           = add_query_arg( [ 'pu_get_download' => '1' ], 'http://foo.bar' );
-		$upgrader          = $this->getMockBuilder( \WP_Upgrader::class )->getMock();
-		$upgrader->strings = [ 'download_failed' => 'meh' ];
-		$skin              = $this->prophesize( \WP_Upgrader_Skin::class );
-		$skin->feedback( 'downloading_package', $package )->shouldBeCalled();
-
-		$upgrader->skin = $skin->reveal();
-
-		$sut      = new Package_Handler();
-		$filtered = $sut->filter_upgrader_pre_download( false, $package, $upgrader );
-
-		$this->assertFalse( $filtered );
-	}
-
 	public function it_should_return_WP_Error_if_the_file_was_not_found() {
 		$package           = add_query_arg( [ 'pu_get_download' => '1' ], 'http://foo.bar' );
 		$upgrader          = $this->getMockBuilder( \WP_Upgrader::class )->getMock();

@@ -20,15 +20,15 @@ class PluginTest extends UplinkTestCase {
 		parent::setUp();
 		$mock = $this->getMockBuilder( Plugin::class )->disableOriginalConstructor()->getMock();
 		$mock->method( 'get_installed_version' )->will($this->returnValue( '1.0.3'));
-		$mock->expects( $this->once() )->method( 'register' )->with( [
+		$mock->expects( $this->once() )->method( 'register_resource' )->withAnyParameters();
+		$this->resource = $mock::register(
 			'sample',
 			'Lib Sample',
 			'sample/index.php',
 			Uplink::class,
 			'1.0.10',
 			Uplink::class
-		] );
-
+		);
 
 		$this->validate_license_mock();
 

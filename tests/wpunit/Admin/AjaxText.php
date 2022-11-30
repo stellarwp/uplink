@@ -44,6 +44,7 @@ class AjaxText extends UplinkTestCase {
 		$_POST['_wpnonce'] = wp_create_nonce( License_Field::get_group_name() );
 		$_POST['key']	   = 'sample';
 		$_POST['plugin']   = 'sample/index.php';
+		codecept_debug($handler->validate_license());
 		$this->assertSame( json_encode( [
 			'status' => 0
 		] ), $handler->validate_license() );

@@ -77,10 +77,10 @@ class PluginTest extends UplinkTestCase {
 
 	public function test_check_for_updates_with_fake_invalid_response() {
 		$result = $this->get_plugin()->check_for_updates( new \stdClass() );
-
-		$this->assertEquals( '1.0.10', $result->new_version );
-		$this->assertEquals( true, $result->api_invalid );
-		$this->assertEquals( 'invalid_license', $result->package );
+$this->assertNull($result);
+//		$this->assertEquals( '1.0.10', $result->new_version );
+//		$this->assertEquals( true, $result->api_invalid );
+//		$this->assertEquals( 'invalid_license', $result->package );
 	}
 
 	private function validate_license_mock() {

@@ -18,8 +18,8 @@ class PluginTest extends UplinkTestCase {
 
 	public function setUp() {
 		parent::setUp();
-		$mock = $this->getMockClass( 'Plugin' );
-		$mock::staticExpects($this->once())->method( 'get_installed_version' )->will($this->returnValue( '1.0.3'));
+		$mock = $this->getMockBuilder( Plugin::class )->getMock();
+		$mock->method( 'get_installed_version' )->will($this->returnValue( '1.0.3'));
 		$this->resource = $mock::plugin(
 			'sample',
 			'Lib Sample',

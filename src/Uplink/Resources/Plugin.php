@@ -29,6 +29,8 @@ class Plugin extends Resource {
 	 */
 	public static $update_status_option_prefix = 'stellar_uplink_update_status_';
 
+	public $res = null;
+
 	/**
 	 * Check for plugin updates.
 	 *
@@ -52,6 +54,7 @@ class Plugin extends Resource {
 		$this->set_update_status( $status );
 
 		$results        = $this->validate_license();
+		$this->res = $results;
 		$status->update = $results->get_raw_response();
 
 		if ( null !== $status->update ) {

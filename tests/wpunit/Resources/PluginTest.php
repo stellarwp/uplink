@@ -2,6 +2,7 @@
 
 namespace wpunit\Resources;
 
+use StellarWP\Uplink\API\Client;
 use StellarWP\Uplink\API\Validation_Response;
 use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Register;
@@ -26,6 +27,9 @@ class PluginTest extends UplinkTestCase {
 			'1.0.10',
 			Uplink::class
 		);
+
+		$this->validate_license_mock();
+
 		$this->expected_empty = (object) [
 			'last_check'      => 0,
 			'checked_version' => '',
@@ -33,7 +37,7 @@ class PluginTest extends UplinkTestCase {
 		];
 	}
 
-	public function test_check_for_updates() {
+	public function test_check_for_updates_with_same_results() {
 		$this->assertSame(
 			[],
 			$this->get_plugin()->check_for_updates( [] ),
@@ -41,26 +45,41 @@ class PluginTest extends UplinkTestCase {
 		);
 
 		$result = $this->get_plugin()->check_for_updates( new \stdClass() );
+		$this->assertEquals( new \stdClass(), $result, 'Transient should remain same since we do not make an api call' );
 
-		$this->assertEquals( '1.0.10', $result->new_version );
-		$this->assertTrue( $result->api_invalid );
-		$this->assertEquals( 'invalid_license', $result->package );
+		$update_from_option = get_option( 'stellar_uplink_update_status_' . $this->get_plugin()->get_slug() );
+		$this->assertSame( $this->expected_empty->checked_version,  $update_from_option->checked_version );
+		$this->assertSame( $this->expected_empty->update, $update_from_option->update );
 	}
 
 	public function test_get_update_status() {
 		$this->assertEquals( $this->expected_empty, $this->get_plugin()->get_update_status() );
 		$update = new \stdClass();
 		$time   = time();
+
 		$update->checked_version = '1.0';
 		$update->last_check      = $time;
 		$update->update			 = null;
+
 		update_option( 'stellar_uplink_update_status_' . $this->get_plugin()->get_slug(), $update );
 
 		$this->assertEquals( $update,  $this->get_plugin()->get_update_status() );
 	}
 
-	private function get_installed_version(): string {
-		return '1.0.3';
+	public function test_check_for_updates_with_fake_invalid_response() {
+		$result = $this->get_plugin()->check_for_updates( new \stdClass() );
+
+		$this->assertEquals( '1.0.10', $result->new_version );
+		$this->assertEquals( true, $result->api_invalid );
+		$this->assertEquals( 'invalid_license', $result->package );
+	}
+
+	private function validate_license_mock() {
+		$class = $this->createMock( Client::class );
+		$class->method( 'validate_license' )
+			->will( $this->returnCallback( [ $this, 'get_validation_response' ] ) );
+
+		return $class;
 	}
 
 	/**
@@ -75,15 +94,12 @@ class PluginTest extends UplinkTestCase {
 	}
 
 	/**
-	 * @return \PHPUnit\Framework\MockObject\MockObject|Plugin
+	 * @return Plugin
 	 */
 	private function get_plugin() {
-		$class = $this->createMock( Plugin::class );
-		$class->method( 'validate_license' )
-			->will( $this->returnCallback( [ $this, 'get_validation_response' ] ) );
-		$class->method( 'get_installed_version' )->will( $this->returnCallback( [ $this, 'get_installed_version' ] ) );
+		$collection = Container::init()->make( Collection::class );
 
-		return $class;
+		return $collection->current();
 	}
 
 }

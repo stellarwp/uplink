@@ -30,6 +30,11 @@ class Plugin extends Resource {
 	public static $update_status_option_prefix = 'stellar_uplink_update_status_';
 
 	/**
+	 * @var mixed
+	 */
+	public $step;
+
+	/**
 	 * Check for plugin updates.
 	 *
 	 * @since 1.0.0
@@ -41,6 +46,7 @@ class Plugin extends Resource {
 	 */
 	public function check_for_updates( $transient, $force_fetch = false ) {
 		if ( ! is_object( $transient ) ) {
+			$this->step = $transient;
 			return $transient;
 		}
 
@@ -80,7 +86,7 @@ class Plugin extends Resource {
 		}
 
 		$this->set_update_status( $status );
-
+		$this->step = 'end';
 		return $transient;
 	}
 

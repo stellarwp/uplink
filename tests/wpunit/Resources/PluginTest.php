@@ -43,11 +43,14 @@ class PluginTest extends UplinkTestCase {
 	}
 
 	public function test_check_for_updates_with_same_results() {
+		$result = $this->get_plugin()->check_for_updates( 'transient' );
+		codecept_debug($this->get_plugin()->step);
 		$this->assertSame(
 			'transient',
-			$this->get_plugin()->check_for_updates( 'transient' ),
+			$result,
 			'Return same transient if it is not an object'
 		);
+
 
 		$result = $this->get_plugin()->check_for_updates( new \stdClass() );
 		$this->assertEquals( new \stdClass(), $result, 'Transient should remain same since we do not make an api call' );
@@ -58,7 +61,7 @@ class PluginTest extends UplinkTestCase {
 	}
 
 	public function test_get_update_status() {
-		$this->assertEquals( $this->expected_empty, $this->get_plugin()->get_update_status( true ) );
+		$this->assertEquals( null, $this->get_plugin()->get_update_status() );
 		$update = new \stdClass();
 		$time   = time();
 
@@ -73,7 +76,7 @@ class PluginTest extends UplinkTestCase {
 
 	public function test_check_for_updates_with_fake_invalid_response() {
 		$result = $this->get_plugin()->check_for_updates( new \stdClass() );
-
+		codecept_debug($this->get_plugin()->step);
 		$this->assertEquals( '1.0.10', $result->new_version );
 		$this->assertEquals( true, $result->api_invalid );
 		$this->assertEquals( 'invalid_license', $result->package );

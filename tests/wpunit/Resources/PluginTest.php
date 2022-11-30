@@ -21,7 +21,7 @@ class PluginTest extends UplinkTestCase {
 	public function setUp() {
 		parent::setUp();
 		$this->resource = $this->getMockBuilder( Plugin::class )->disableOriginalConstructor()->getMock();
-		$this->resource->method( 'get_installed_version' )->will($this->returnValue( '1.0.3'));
+		$this->resource->method( 'get_installed_version' )->will( $this->returnValue( '1.0.3') );
 		$this->resource->expects( $this->once() )->method( 'register_resource' )->withAnyParameters();
 		$this->resource->expects( $this->once() )->method( 'register' )->with(
 			'sample',
@@ -45,7 +45,7 @@ class PluginTest extends UplinkTestCase {
 	public function test_check_for_updates_with_same_results() {
 		$result = $this->get_plugin()->check_for_updates( 'transient' );
 		codecept_debug($this->get_plugin()->step);
-		codecept_debug($result);
+
 		$this->assertSame(
 			'transient',
 			$result,

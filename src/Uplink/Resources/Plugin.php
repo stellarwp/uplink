@@ -46,20 +46,20 @@ class Plugin extends Resource {
 	 */
 	public function check_for_updates( $transient, $force_fetch = false ) {
 		if ( ! is_object( $transient ) ) {
-			$this->step = $transient;
+			$this->step = 1;
 			return $transient;
 		}
 
 		$status                  = $this->get_update_status( $force_fetch );
 		$status->last_check      = time();
 		$status->checked_version = $this->get_installed_version();
-
+		$this->step = 2;
 		// Save before actually doing the checking just in case something goes wrong. We don't want to continually recheck.
 		$this->set_update_status( $status );
 
 		$results        = $this->validate_license();
 		$status->update = $results->get_raw_response();
-
+		$this->step = 3;
 		if ( null !== $status->update ) {
 			if ( version_compare( $this->get_version_from_response( $results ), $this->get_installed_version(), '>' ) ) {
 				/** @var \stdClass $transient */
@@ -86,7 +86,7 @@ class Plugin extends Resource {
 		}
 
 		$this->set_update_status( $status );
-		$this->step = 'end';
+		$this->step = 4;
 		return $transient;
 	}
 

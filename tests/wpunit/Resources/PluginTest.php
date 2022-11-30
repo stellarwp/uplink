@@ -20,7 +20,7 @@ class PluginTest extends UplinkTestCase {
 		parent::setUp();
 		$mock = $this->getMockBuilder( Plugin::class )->getMock();
 		$mock->method( 'get_installed_version' )->will($this->returnValue( '1.0.3'));
-		$this->resource = $mock::plugin(
+		$this->resource = Register::plugin(
 			'sample',
 			'Lib Sample',
 			'sample/index.php',

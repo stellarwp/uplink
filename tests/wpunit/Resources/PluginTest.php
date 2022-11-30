@@ -18,7 +18,7 @@ class PluginTest extends UplinkTestCase {
 
 	public function setUp() {
 		parent::setUp();
-		$mock = $this->getMockBuilder( Plugin::class )->getMock();
+		$mock = $this->getMockBuilder( Plugin::class )->disableOriginalConstructor()->getMock();
 		$mock->method( 'get_installed_version' )->will($this->returnValue( '1.0.3'));
 		$this->resource = Register::plugin(
 			'sample',

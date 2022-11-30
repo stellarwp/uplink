@@ -20,7 +20,7 @@ class PluginTest extends UplinkTestCase {
 		parent::setUp();
 		$mock = $this->getMockBuilder( Plugin::class )->disableOriginalConstructor()->getMock();
 		$mock->method( 'get_installed_version' )->will($this->returnValue( '1.0.3'));
-		$mock->expects( $this->once() )->method( 'register_resource' )->withAnyParameters();
+		$mock::staticExpects( $this->once() )->method( 'register_resource' )->withAnyParameters();
 		$mock::staticExpects( $this->once() )->method( 'register' );
 		$mock::register(
 			'sample',

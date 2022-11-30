@@ -20,9 +20,8 @@ class PluginTest extends UplinkTestCase {
 		parent::setUp();
 		$mock = $this->getMockBuilder( Plugin::class )->disableOriginalConstructor()->getMock();
 		$mock->method( 'get_installed_version' )->will($this->returnValue( '1.0.3'));
-		$mock::staticExpects( $this->once() )->method( 'register_resource' )->withAnyParameters();
-		$mock::staticExpects( $this->once() )->method( 'register' );
-		$mock::register(
+		$mock->expects( $this->once() )->method( 'register_resource' )->withAnyParameters();
+		$mock->expects( $this->once() )->method( 'register' )->with(
 			'sample',
 			'Lib Sample',
 			'sample/index.php',
@@ -30,6 +29,7 @@ class PluginTest extends UplinkTestCase {
 			'1.0.10',
 			Uplink::class
 		);
+
 
 		$this->validate_license_mock();
 

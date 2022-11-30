@@ -70,4 +70,4 @@ jobs:
           ${SLIC_BIN} use uplink
           ${SLIC_BIN} composer install --ignore-platform-reqs
       - name: Run suite tests
-        run: ${SLIC_BIN} run ${{ matrix.suite }} -vvv --ext DotReporter
+        run: ${SLIC_BIN} run ${{ matrix.suite }} --ext DotReporter

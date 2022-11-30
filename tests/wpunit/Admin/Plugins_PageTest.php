@@ -38,21 +38,21 @@ class Plugins_PageTest extends UplinkTestCase {
 		$this->assertNull( $handler->display_plugin_messages( 'admin.php' ) );
 	}
 
-	public function test_it_should_bail_if_user_doesnt_have_permission() {
+	public function test_it_should_bail_if_there_is_no_plugin() {
 		$handler = new Plugins_Page();
 		$this->assertNull( $handler->display_plugin_messages( 'plugins.php' ) );
 	}
 
-	public function test_it_should_have_valid_message() {
+	public function test_add_notice_to_plugin_notices_should_return_same() {
 		$handler = new Plugins_Page();
-		$user    = $this->factory()->user->create_and_get();
-		$user->add_role( 'administrator' );
-		wp_set_current_user( $user->ID );
-codecept_debug(get_plugin_updates());
-		$handler->display_plugin_messages( 'plugins.php' );
-		$this->assertArrayHasKey( 'message_row_html', $handler->plugin_notice );
-		$this->expectOutputString( $handler->plugin_notice[ 'message_row_html' ] );
-		$this->assertSame( 'sample', $handler->plugin_notice['slug'] );
+		$this->assertSame( [], $handler->add_notice_to_plugin_notices( [] ) );
+	}
+
+	public function test_add_notice_to_plugin_notices_should_return_updated() {
+		$handler = new Plugins_Page();
+		$handler->plugin_notice = [ 'slug' => 'sample', 'message_row_html' => '<div></div>' ];
+
+		$this->assertSame( [ 'sample' => $handler->plugin_notice ], $handler->add_notice_to_plugin_notices( [] ) );
 	}
 
 }

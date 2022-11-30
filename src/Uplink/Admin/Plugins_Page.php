@@ -23,7 +23,6 @@ class Plugins_Page {
 	 * @var array<mixed>
 	 */
 	public array $plugin_notice = [];
-	public int $step = 1;
 
 	/**
 	 * Constructor.
@@ -54,7 +53,6 @@ class Plugins_Page {
 		$resource       = $plugin_updates[ $plugin_file ] ?? null;
 
 		if ( empty( $resource ) ) {
-			$this->step = 2;
 			return;
 		}
 
@@ -62,7 +60,6 @@ class Plugins_Page {
 			$messages[] = $resource->update->license_error;
 		} elseif ( current_user_can( 'update_plugins' ) ) {
 			if ( empty( $resource->update->new_version ) ) {
-				$this->step = 3;
 				return;
 			}
 			// A plugin update is available
@@ -106,7 +103,6 @@ class Plugins_Page {
 		}
 
 		if ( empty( $messages ) ) {
-			$this->step = 4;
 			return;
 		}
 

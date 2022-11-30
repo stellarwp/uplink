@@ -45,6 +45,7 @@ class PluginTest extends UplinkTestCase {
 	public function test_check_for_updates_with_same_results() {
 		$result = $this->get_plugin()->check_for_updates( 'transient' );
 		codecept_debug($this->get_plugin()->step);
+		codecept_debug($result);
 		$this->assertSame(
 			'transient',
 			$result,
@@ -69,14 +70,14 @@ class PluginTest extends UplinkTestCase {
 		$update->last_check      = $time;
 		$update->update			 = null;
 
-		update_option( 'stellar_uplink_update_status_' . $this->get_plugin()->get_slug(), $update );
+		update_option( 'stellar_uplink_update_status_sample', $update );
 
 		$this->assertEquals( $update,  $this->get_plugin()->get_update_status() );
 	}
 
 	public function test_check_for_updates_with_fake_invalid_response() {
 		$result = $this->get_plugin()->check_for_updates( new \stdClass() );
-		codecept_debug($this->get_plugin()->step);
+
 		$this->assertEquals( '1.0.10', $result->new_version );
 		$this->assertEquals( true, $result->api_invalid );
 		$this->assertEquals( 'invalid_license', $result->package );

@@ -44,8 +44,8 @@ class PluginTest extends UplinkTestCase {
 
 	public function test_check_for_updates_with_same_results() {
 		$this->assertSame(
-			[],
-			$this->get_plugin()->check_for_updates( [] ),
+			'transient',
+			$this->get_plugin()->check_for_updates( 'transient' ),
 			'Return same transient if it is not an object'
 		);
 
@@ -58,7 +58,7 @@ class PluginTest extends UplinkTestCase {
 	}
 
 	public function test_get_update_status() {
-		$this->assertEquals( $this->expected_empty, $this->get_plugin()->get_update_status() );
+		$this->assertEquals( $this->expected_empty, $this->get_plugin()->get_update_status( true ) );
 		$update = new \stdClass();
 		$time   = time();
 

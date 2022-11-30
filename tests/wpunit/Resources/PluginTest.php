@@ -60,28 +60,28 @@ class PluginTest extends UplinkTestCase {
 		$this->assertSame( $this->expected_empty->checked_version,  $update_from_option->checked_version );
 		$this->assertSame( $this->expected_empty->update, $update_from_option->update );
 	}
-
-	public function test_get_update_status() {
-		$this->assertEquals( null, $this->get_plugin()->get_update_status() );
-		$update = new \stdClass();
-		$time   = time();
-
-		$update->checked_version = '1.0';
-		$update->last_check      = $time;
-		$update->update			 = null;
-
-		update_option( 'stellar_uplink_update_status_sample', $update );
-
-		$this->assertEquals( $update,  $this->get_plugin()->get_update_status() );
-	}
-
-	public function test_check_for_updates_with_fake_invalid_response() {
-		$result = $this->get_plugin()->check_for_updates( new \stdClass() );
-$this->assertNull($result);
-//		$this->assertEquals( '1.0.10', $result->new_version );
-//		$this->assertEquals( true, $result->api_invalid );
-//		$this->assertEquals( 'invalid_license', $result->package );
-	}
+//
+//	public function test_get_update_status() {
+//		$this->assertEquals( null, $this->get_plugin()->get_update_status() );
+//		$update = new \stdClass();
+//		$time   = time();
+//
+//		$update->checked_version = '1.0';
+//		$update->last_check      = $time;
+//		$update->update			 = null;
+//
+//		update_option( 'stellar_uplink_update_status_sample', $update );
+//
+//		$this->assertEquals( $update,  $this->get_plugin()->get_update_status() );
+//	}
+//
+//	public function test_check_for_updates_with_fake_invalid_response() {
+//		$result = $this->get_plugin()->check_for_updates( new \stdClass() );
+//$this->assertNull($result);
+////		$this->assertEquals( '1.0.10', $result->new_version );
+////		$this->assertEquals( true, $result->api_invalid );
+////		$this->assertEquals( 'invalid_license', $result->package );
+//	}
 
 	private function validate_license_mock() {
 		$class = $this->createMock( Client::class );

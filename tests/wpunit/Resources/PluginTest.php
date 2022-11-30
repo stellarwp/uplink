@@ -20,10 +20,10 @@ class PluginTest extends UplinkTestCase {
 
 	public function setUp() {
 		parent::setUp();
-		$mock = $this->getMockBuilder( Plugin::class )->disableOriginalConstructor()->getMock();
-		$mock->method( 'get_installed_version' )->will($this->returnValue( '1.0.3'));
-		$mock->expects( $this->once() )->method( 'register_resource' )->withAnyParameters();
-		$mock->expects( $this->once() )->method( 'register' )->with(
+		$this->resource = $this->getMockBuilder( Plugin::class )->disableOriginalConstructor()->getMock();
+		$this->resource->method( 'get_installed_version' )->will($this->returnValue( '1.0.3'));
+		$this->resource->expects( $this->once() )->method( 'register_resource' )->withAnyParameters();
+		$this->resource->expects( $this->once() )->method( 'register' )->with(
 			'sample',
 			'Lib Sample',
 			'sample/index.php',
@@ -99,7 +99,7 @@ class PluginTest extends UplinkTestCase {
 	}
 
 	private function get_plugin() {
-		return Container::init()->make( Collection::class )->current();
+		return $this->resource;
 	}
 
 }

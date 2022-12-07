@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink\Resources;
 
 use StellarWP\Uplink\API;
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Exceptions;
 use StellarWP\Uplink\Site\Data;
@@ -262,7 +263,7 @@ abstract class Resource {
 		 *
 		 * @param string $slug Resource slug.
 		 */
-		return apply_filters( 'stellar_uplink_resource_get_slug', $this->slug );
+		return apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'resource_get_slug', $this->slug );
 	}
 
 	/**
@@ -310,7 +311,7 @@ abstract class Resource {
 		 *
 		 * @param string $version Resource version.
 		 */
-		return apply_filters( 'stellar_uplink_resource_get_version', $this->version );
+		return apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'resource_get_version', $this->version );
 	}
 
 	/**
@@ -399,7 +400,7 @@ abstract class Resource {
 		 *
 		 * @param Resource $resource Resource instance.
 		 */
-		$resource = apply_filters( 'stellar_uplink_resource_register_before_collection', $resource );
+		$resource = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'resource_register_before_collection', $resource );
 
 		if ( ! empty( $collection[ $resource->get_slug() ] ) ) {
 			throw new Exceptions\ResourceAlreadyRegisteredException( $resource->get_slug() );
@@ -414,7 +415,7 @@ abstract class Resource {
 		 *
 		 * @param Resource $resource Resource instance.
 		 */
-		$resource = apply_filters( 'stellar_uplink_resource_register', $resource );
+		$resource = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'resource_register', $resource );
 
 		return $resource;
 	}

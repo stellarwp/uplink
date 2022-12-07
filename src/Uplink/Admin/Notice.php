@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Admin;
 
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Messages\Expired_Key;
 use StellarWP\Uplink\Messages\Unlicensed;
 
@@ -92,7 +93,7 @@ class Notice {
 		 * @param array $current_notices
 		 * @param array $previously_saved_notices
 		 */
-		do_action( 'stellar_uplink_notices_save_notices', $this->notices, $this->saved_notices );
+		do_action( 'stellar_uplink_' . Config::get_hook_prefix(). 'notices_save_notices', $this->notices, $this->saved_notices );
 	}
 
 }

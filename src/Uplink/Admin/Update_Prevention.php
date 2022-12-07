@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Admin;
 
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Resources\Plugin;
@@ -63,7 +64,7 @@ class Update_Prevention {
 		}
 
 		$incompatible_plugins = apply_filters(
-			'stellar_uplink_update_prevention_incompatible_plugins',
+			'stellar_uplink_' . Config::get_hook_prefix(). 'update_prevention_incompatible_plugins',
 			[],
 			$source,
 			$remote_source
@@ -88,7 +89,7 @@ class Update_Prevention {
 		 * @param array       $extra                Extra arguments passed to hooked filters.
 		 */
 		$should_prevent_update = apply_filters(
-			'stellar_uplink_should_prevent_update_without_license',
+			'stellar_uplink_' . Config::get_hook_prefix(). 'should_prevent_update_without_license',
 			true,
 			$plugin,
 			$incompatible_plugins,

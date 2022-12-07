@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\API;
 
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Resources\Resource;
 use StellarWP\Uplink\Site\Data;
@@ -113,7 +114,7 @@ class Client {
 		 *
 		 * @param string $base_url Base URL.
 		 */
-		return apply_filters( 'stellar_uplink_api_get_base_url', static::$base_url );
+		return apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'api_get_base_url', static::$base_url );
 	}
 
 	/**
@@ -159,7 +160,7 @@ class Client {
 		 * @param string $endpoint Request method.
 		 * @param array<mixed> $args Request data.
 		 */
-		$request_args = apply_filters( 'stellar_uplink_api_request_args', $request_args, $endpoint, $args );
+		$request_args = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'api_request_args', $request_args, $endpoint, $args );
 
 		$url = static::$base_url . static::$api_root . $endpoint;
 
@@ -176,7 +177,7 @@ class Client {
 		 * @param string $endpoint API endpoint.
 		 * @param array<mixed> $args API arguments.
 		 */
-		$result = apply_filters( 'stellar_uplink_api_response', $result, $endpoint, $args );
+		$result = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'api_response', $result, $endpoint, $args );
 
 		return $result;
 	}
@@ -216,7 +217,7 @@ class Client {
 		 *
 		 * @param array<mixed> $args License validation arguments.
 		 */
-		$args = apply_filters( 'stellar_uplink_client_validate_license_args', $args );
+		$args = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'client_validate_license_args', $args );
 
 		$request_hash = $this->build_hash( $args );
 		$cache_key    = 'stellar_uplink_validate_license_' . $request_hash;
@@ -240,6 +241,6 @@ class Client {
 		 * @param Validation_Response $results License validation results.
 		 * @param array<mixed> $args License validation arguments.
 		 */
-		return apply_filters( 'stellar_uplink_client_validate_license', $results, $args );
+		return apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'client_validate_license', $results, $args );
 	}
 }

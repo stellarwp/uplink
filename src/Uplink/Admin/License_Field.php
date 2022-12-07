@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Admin;
 
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Resources\Plugin;
@@ -63,7 +64,7 @@ class License_Field extends Field {
 		$html .= '<div class="license-test-results"><img src="' . esc_url( admin_url( 'images/wpspin_light.gif' ) ) . '" class="ajax-loading-license" alt="Loading" style="display: none"/>';
 		$html .= '<div class="key-validity"></div></div>';
 
-		return apply_filters( 'stellar_uplink_license_field_html', $html, $plugin->get_slug() );
+		return apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'license_field_html', $html, $plugin->get_slug() );
 	}
 
 	public function render(): void {
@@ -75,12 +76,12 @@ class License_Field extends Field {
 	public function enqueue_assets(): void{
 		$handle = 'stellar-uplink-license-admin';
 		$path   = preg_replace( '/.*\/vendor/', plugin_dir_url( $this->get_plugin()->get_path() ) . 'vendor', dirname( __DIR__, 2 ) );
-		$js_src    = apply_filters( 'stellar_uplink_admin_js_source', $path .  '/resources/js/key-admin.js' );
+		$js_src    = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'admin_js_source', $path .  '/resources/js/key-admin.js' );
 
 		wp_register_script( $handle, $js_src, [ 'jquery' ], '1.0.0', true );
 		wp_enqueue_script( $handle );
 
-		$css_src    = apply_filters( 'stellar_uplink_admin_css_source', $path .  '/resources/css/main.css' );
+		$css_src    = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'admin_css_source', $path .  '/resources/css/main.css' );
 		wp_enqueue_style( 'stellar-uplink-license-admin', $css_src );
 	}
 

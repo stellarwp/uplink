@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Resources;
 
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Utils;
@@ -139,7 +140,7 @@ class License {
 		 *
 		 * @param string|null $key The license key.
 		 */
-		$key = apply_filters( 'stellar_uplink_license_get_key', $this->key );
+		$key = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'license_get_key', $this->key );
 
 		return $key ?: '';
 	}

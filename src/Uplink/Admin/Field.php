@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Admin;
 
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Resources\Collection;
 
@@ -99,7 +100,7 @@ abstract class Field {
 			$args['plugin']
 		);
 
-		echo apply_filters( 'stellar_uplink_license_field_html_render', $field, $args );
+		echo apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'license_field_html_render', $field, $args );
 
 		$this->get_description( $args );
 	}
@@ -130,7 +131,7 @@ abstract class Field {
 	 * @return string
 	 */
 	public function get_path(): string {
-		return apply_filters( 'stellar_uplink_field-template_path', dirname( __DIR__, 2 ) . $this->path, $this->path );
+		return apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'field-template_path', dirname( __DIR__, 2 ) . $this->path, $this->path );
 	}
 
 	/**

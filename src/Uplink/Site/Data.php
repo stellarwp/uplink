@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Site;
 
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Container;
 
 class Data {
@@ -89,7 +90,7 @@ class Data {
 		 *
 		 * @param string $version DB version.
 		 */
-		$version = apply_filters( 'stellar_uplink_get_db_version', $version );
+		$version = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'get_db_version', $version );
 
 		return sanitize_text_field( $version );
 	}
@@ -117,7 +118,7 @@ class Data {
 		 *
 		 * @param string $domain Domain.
 		 */
-		$domain = apply_filters( 'stellar_uplink_get_domain', $domain );
+		$domain = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'get_domain', $domain );
 
 		return sanitize_text_field( $domain );
 	}
@@ -184,7 +185,7 @@ class Data {
 		 *
 		 * @param int $active_sites Number of active sites.
 		 */
-		$active_sites = apply_filters( 'stellar_uplink_get_multisite_active_sites', $active_sites );
+		$active_sites = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'get_multisite_active_sites', $active_sites );
 
 		return (int) $active_sites;
 	}
@@ -206,7 +207,7 @@ class Data {
 		 *
 		 * @param string $version PHP version.
 		 */
-		$version = apply_filters( 'stellar_uplink_get_php_version', $version );
+		$version = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'get_php_version', $version );
 
 		return sanitize_text_field( $version );
 	}
@@ -255,7 +256,7 @@ class Data {
 		 *
 		 * @param string $locale Site language.
 		 */
-		$locale = apply_filters( 'stellar_uplink_get_site_language', $locale );
+		$locale = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'get_site_language', $locale );
 
 		return sanitize_text_field( $locale );
 	}
@@ -277,7 +278,7 @@ class Data {
 		 *
 		 * @param boolean $use_full_stats Whether to send full stats
 		 */
-		$use_full_stats = apply_filters( 'stellar_uplink_use_full_stats', false );
+		$use_full_stats = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'use_full_stats', false );
 
 		if ( $use_full_stats ) {
 			$stats = $this->build_full_stats( $stats );
@@ -292,7 +293,7 @@ class Data {
 		 * @param boolean             $use_full_stats Whether to send full stats.
 		 * @param Data                $checker        Data object.
 		 */
-		$stats = apply_filters( 'stellar_uplink_get_stats', $stats, $use_full_stats, $this );
+		$stats = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'get_stats', $stats, $use_full_stats, $this );
 
 		return $stats;
 	}
@@ -327,7 +328,7 @@ class Data {
 		 *
 		 * @param array<string> $info Theme info.
 		 */
-		$info = apply_filters( 'stellar_uplink_get_theme_info', $info );
+		$info = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'get_theme_info', $info );
 
 		return (array) $info;
 	}
@@ -381,7 +382,7 @@ class Data {
 		 *
 		 * @param string $timezone Site timezone.
 		 */
-		$timezone = apply_filters( 'stellar_uplink_get_timezone', $timezone ?: '' );
+		$timezone = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'get_timezone', $timezone ?: '' );
 
 		return sanitize_text_field( $timezone );
 	}
@@ -416,7 +417,7 @@ class Data {
 		 *
 		 * @param array<int> $totals Site post totals.
 		 */
-		$totals = apply_filters( 'stellar_uplink_get_totals', $totals );
+		$totals = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'get_totals', $totals );
 
 		return (array) $totals;
 	}
@@ -438,7 +439,7 @@ class Data {
 		 *
 		 * @param string $locale Site language.
 		 */
-		$locale = apply_filters( 'stellar_uplink_get_user_language', $locale );
+		$locale = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'get_user_language', $locale );
 
 		return sanitize_text_field( $locale );
 	}
@@ -462,7 +463,7 @@ class Data {
 		 *
 		 * @param string $wp_version WordPress version.
 		 */
-		$version = apply_filters( 'stellar_uplink_get_wp_version', $version );
+		$version = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'get_wp_version', $version );
 
 		return sanitize_text_field( $version );
 	}
@@ -484,7 +485,7 @@ class Data {
 		 *
 		 * @param bool $debug_status Debug status.
 		 */
-		$debug_status = apply_filters( 'stellar_uplink_is_debug_enabled', $debug_status );
+		$debug_status = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'is_debug_enabled', $debug_status );
 
 		return (bool) $debug_status;
 	}
@@ -514,7 +515,7 @@ class Data {
 		 *
 		 * @param bool $is_public Is the site public?
 		 */
-		$is_public = apply_filters( 'stellar_uplink_get_db_version', $is_public );
+		$is_public = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'get_db_version', $is_public );
 
 		return (bool) $is_public;
 	}

@@ -18,9 +18,17 @@
             "StellarWP\\Uplink\\Tests\\": "tests/_support/Helper/"
         }
     },
+    "repositories": [
+      {
+        "type": "vcs",
+        "url": "git@github.com:stellarwp/container-contract.git",
+        "no-api": true
+      }
+    ],
     "require": {
+        "php": "^7.0 | ^8.0",
         "lucatume/di52": "^3.0",
-        "php": "^7.0 | ^8.0"
+        "stellarwp/container-contract": "^1.0"
     },
     "config": {
         "preferred-install": "dist",

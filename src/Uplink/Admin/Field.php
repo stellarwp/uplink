@@ -19,26 +19,6 @@ abstract class Field {
 	 */
 	protected string $path = '';
 
-	/**
-	 * Container.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var ContainerInterface
-	 */
-	protected $container;
-
-	/**
-	 * Constructor.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param ContainerInterface $container DI Container.
-	 */
-	public function __construct( ContainerInterface $container = null ) {
-		$this->container = $container ?: Config::get_container();
-	}
-
 	abstract public function register_settings(): void;
 
 	/**
@@ -138,7 +118,7 @@ abstract class Field {
 	 * @return false|mixed
 	 */
 	protected function get_plugin() {
-		$collection = $this->container->get( Collection::class );
+		$collection = Config::get_container()->get( Collection::class );
 
 		return $collection->current();
 	}

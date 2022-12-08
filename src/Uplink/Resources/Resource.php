@@ -114,14 +114,14 @@ abstract class Resource {
 	 * @param string|null $license_class Class that holds the embedded license key.
 	 * @param ContainerInterface|null $container Container instance.
 	 */
-	public function __construct( $slug, $name, $version, $path, $class, string $license_class = null, ContainerInterface $container = null ) {
+	public function __construct( $slug, $name, $version, $path, $class, string $license_class = null ) {
 		$this->name          = $name;
 		$this->slug          = $slug;
 		$this->path          = $path;
 		$this->class         = $class;
 		$this->license_class = $license_class;
 		$this->version       = $version;
-		$this->container     = $container ?: Config::get_container();
+		$this->container     = Config::get_container();
 	}
 
 	/**

@@ -5,7 +5,6 @@ namespace StellarWP\Uplink\API;
 use stdClass;
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;
-use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Messages;
 use StellarWP\Uplink\Resources\Resource;
 
@@ -450,17 +449,17 @@ class Validation_Response {
 		}
 
 		//Other fields need to be renamed and/or transformed.
-		$info->download_link = $this->response->download_url . '&pu_get_download=1';
+		$info->download_link = isset( $this->response->download_url ) ? $this->response->download_url . '&pu_get_download=1' : '';
 
 		if ( ! empty( $this->author_homepage ) ) {
 			$info->author = sprintf( '<a href="%s">%s</a>', esc_url( $this->author_homepage ), $this->response->author );
 		} else {
-			$info->author = $this->response->author;
+			$info->author = $this->response->author ?? '';
 		}
 
-		if ( is_object( $this->response->sections ) ) {
+		if ( isset( $this->response->sections ) &&  is_object( $this->response->sections ) ) {
 			$info->sections = get_object_vars( $this->response->sections );
-		} elseif ( is_array( $this->response->sections ) ) {
+		} elseif ( isset( $this->response->sections ) &&  is_array( $this->response->sections ) ) {
 			$info->sections = $this->response->sections;
 		} else {
 			$info->sections = [ 'description' => '' ];

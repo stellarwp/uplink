@@ -22,7 +22,7 @@ class License_Field extends Field {
 	}
 
 	public function register_settings(): void {
-		$collection = $this->container->get( Collection::class );
+		$collection = Config::get_container()->get( Collection::class );
 		$plugin     = $collection->current();
 
 		add_settings_section(

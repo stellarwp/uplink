@@ -9,14 +9,6 @@ use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Resources\Plugin;
 
 class Plugins_Page {
-	/**
-	 * Container instance.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var ContainerInterface
-	 */
-	protected $container;
 
 	/**
 	 * Storing the `plugin_notice` message.
@@ -24,17 +16,6 @@ class Plugins_Page {
 	 * @var array<mixed>
 	 */
 	public array $plugin_notice = [];
-
-	/**
-	 * Constructor.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param ContainerInterface|null    $container       Container instance.
-	 */
-	public function __construct( ContainerInterface $container = null ) {
-		$this->container = $container ?: Config::get_container();
-	}
 
 	/**
 	 * Displays messages on the plugins page in the dashboard.
@@ -201,7 +182,7 @@ class Plugins_Page {
 	 * @return false|mixed
 	 */
 	protected function get_plugin() {
-		$collection = $this->container->get( Collection::class );
+		$collection = Config::get_container()->get( Collection::class );
 
 		return $collection->current();
 	}

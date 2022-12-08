@@ -75,19 +75,12 @@ class Uplink {
 	public function register() {
 		$container = Config::get_container();
 
-		$container->bind( static::class, $this );
-		$container->bind( Client::class, static function () use ( $container ) {
-			return new Client( $container );
-		} );
-		$container->bind( Collection::class, static function () {
-			return new Collection();
-		} );
-		$container->bind( Data::class, static function () use ( $container ) {
-			return new Data( $container );
-		} );
+		$container->singleton( static::class, $this );
+		$container->singleton( API\Client::class, API\Client::class );
+		$container->singleton( Resources\Collection::class, Resources\Collection::class );
+		$container->singleton( Site\Data::class, Site\Data::class );
 
 		$this->container = $container;
-
 		(new Provider( $this->container ))->register();
 
 		$this->register_hooks();

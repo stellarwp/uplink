@@ -21,8 +21,8 @@ class Update_Prevention {
 	 */
 	protected $container;
 
-	public function __construct( ContainerInterface $container = null ) {
-		$this->container = $container ?: Config::get_container();
+	public function __construct() {
+		$this->container = Config::get_container();
 	}
 
 	/**

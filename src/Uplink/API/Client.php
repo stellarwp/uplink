@@ -51,8 +51,8 @@ class Client {
 	 *
 	 * @param ContainerInterface $container Container.
 	 */
-	public function __construct( ContainerInterface $container = null ) {
-		$this->container = $container ?: Config::get_container();
+	public function __construct() {
+		$this->container = Config::get_container();
 
 		if ( defined( 'STELLAR_UPLINK_API_BASE_URL' ) && STELLAR_UPLINK_API_BASE_URL ) {
 			static::$base_url = preg_replace( '!/$!', '', STELLAR_UPLINK_API_BASE_URL );

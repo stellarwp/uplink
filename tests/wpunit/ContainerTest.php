@@ -1,8 +1,10 @@
 <?php
 
-namespace StellarWP\Uplink\Tests;
+namespace wpunit;
 
-use StellarWP\Uplink\Container;
+use StellarWP\ContainerContract\ContainerInterface;
+use StellarWP\Uplink\Config;
+use StellarWP\Uplink\Tests\UplinkTestCase;
 
 class ContainerTest extends UplinkTestCase {
 	/**
@@ -11,8 +13,8 @@ class ContainerTest extends UplinkTestCase {
 	 * @test
 	 */
 	public function it_should_instantiate() {
-		$container = Container::init();
+		$container = Config::get_container();
 
-		$this->assertInstanceOf( Container::class, $container );
+		$this->assertInstanceOf( ContainerInterface::class, $container );
 	}
 }

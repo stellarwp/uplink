@@ -72,7 +72,7 @@ class Uplink {
 	 *
 	 * @since 1.0.0
 	 */
-	public function register() {
+	public function register(): void {
 		$container = Config::get_container();
 
 		$container->singleton( static::class, $this );

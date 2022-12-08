@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\Site;
 
-use StellarWP\ContainerContract\ContainerInterface;
+use lucatume\DI52\Container;
 use StellarWP\Uplink\Config;
 
 class Data {
@@ -11,7 +11,7 @@ class Data {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @var ContainerInterface
+	 * @var Container
 	 */
 	protected $container;
 
@@ -19,10 +19,9 @@ class Data {
 	 * Constructor.
 	 *
 	 * @since 1.0.0
-	 *
-	 * @param ContainerInterface $container DI Container.
 	 */
 	public function __construct() {
+		// @phpstan-ignore-next-line
 		$this->container = Config::get_container();
 	}
 

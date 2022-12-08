@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\API;
 
-use StellarWP\ContainerContract\ContainerInterface;
+use lucatume\DI52\Container;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Resources\Resource;
 use StellarWP\Uplink\Site\Data;
@@ -14,7 +14,7 @@ use StellarWP\Uplink\Site\Data;
  *
  * @property-read string    $api_root  The API root path.
  * @property-read string    $base_url  The service base URL.
- * @property-read ContainerInterface $container Container instance.
+ * @property-read Container $container Container instance.
  */
 class Client {
 	/**
@@ -40,7 +40,7 @@ class Client {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @var ContainerInterface
+	 * @var Container
 	 */
 	protected $container;
 
@@ -48,10 +48,9 @@ class Client {
 	 * Constructor.
 	 *
 	 * @since 1.0.0
-	 *
-	 * @param ContainerInterface $container Container.
 	 */
 	public function __construct() {
+		// @phpstan-ignore-next-line
 		$this->container = Config::get_container();
 
 		if ( defined( 'STELLAR_UPLINK_API_BASE_URL' ) && STELLAR_UPLINK_API_BASE_URL ) {

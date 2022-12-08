@@ -7,7 +7,7 @@ if ( empty( $plugin ) ) {
 	return;
 }
 
-$group = License_Field::get_group_name( sanitize_title( $plugin->get_name() ) );
+$group = Config::get_container()->get( License_Field::class )->get_group_name( sanitize_title( $plugin->get_name() ) );
 
 ?>
 <h3>

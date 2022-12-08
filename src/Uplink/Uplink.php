@@ -4,6 +4,9 @@ namespace StellarWP\Uplink;
 
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Admin\Provider;
+use StellarWP\Uplink\API\Client;
+use StellarWP\Uplink\Resources\Collection;
+use StellarWP\Uplink\Site\Data;
 
 class Uplink {
 
@@ -70,13 +73,20 @@ class Uplink {
 	 * @since 1.0.0
 	 */
 	public function register() {
-		$container 		 = Config::get_container();
-		$this->container = $container;
+		$container = Config::get_container();
 
-		$this->container->singleton( static::class, $this );
-		$this->container->singleton( API\Client::class, API\Client::class );
-		$this->container->singleton( Resources\Collection::class, Resources\Collection::class );
-		$this->container->singleton( Site\Data::class, Site\Data::class );
+		$container->bind( static::class, $this );
+		$container->bind( Client::class, static function () use ( $container ) {
+			return new Client( $container );
+		} );
+		$container->bind( Collection::class, static function () {
+			return new Collection();
+		} );
+		$container->bind( Data::class, static function () use ( $container ) {
+			return new Data( $container );
+		} );
+
+		$this->container = $container;
 
 		(new Provider( $this->container ))->register();
 

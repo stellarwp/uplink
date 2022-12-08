@@ -2,8 +2,8 @@
 
 namespace StellarWP\Uplink\Admin;
 
+use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;
-use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Resources\Collection;
 
 abstract class Field {
@@ -24,7 +24,7 @@ abstract class Field {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @var Container
+	 * @var ContainerInterface
 	 */
 	protected $container;
 
@@ -33,10 +33,10 @@ abstract class Field {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Container $container DI Container.
+	 * @param ContainerInterface $container DI Container.
 	 */
-	public function __construct( Container $container = null ) {
-		$this->container = $container ?: Container::init();
+	public function __construct( ContainerInterface $container = null ) {
+		$this->container = $container ?: Config::get_container();
 	}
 
 	abstract public function register_settings(): void;
@@ -73,7 +73,7 @@ abstract class Field {
 	 *
 	 * @return string
 	 */
-	public static function get_group_name( string $group_modifier = '' ): string {
+	public function get_group_name( string $group_modifier = '' ): string {
 		return sprintf( '%s_%s', self::STELLARWP_UPLINK_GROUP, $group_modifier );
 	}
 
@@ -138,7 +138,7 @@ abstract class Field {
 	 * @return false|mixed
 	 */
 	protected function get_plugin() {
-		$collection = Container::init()->make( Collection::class );
+		$collection = $this->container->get( Collection::class );
 
 		return $collection->current();
 	}

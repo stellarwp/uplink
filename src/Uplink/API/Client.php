@@ -2,8 +2,8 @@
 
 namespace StellarWP\Uplink\API;
 
+use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;
-use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Resources\Resource;
 use StellarWP\Uplink\Site\Data;
 
@@ -14,7 +14,7 @@ use StellarWP\Uplink\Site\Data;
  *
  * @property-read string    $api_root  The API root path.
  * @property-read string    $base_url  The service base URL.
- * @property-read Container $container Container instance.
+ * @property-read ContainerInterface $container Container instance.
  */
 class Client {
 	/**
@@ -40,7 +40,7 @@ class Client {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @var Container
+	 * @var ContainerInterface
 	 */
 	protected $container;
 
@@ -49,10 +49,10 @@ class Client {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Container $container Container.
+	 * @param ContainerInterface $container Container.
 	 */
-	public function __construct( Container $container = null ) {
-		$this->container = $container ?: Container::init();
+	public function __construct( ContainerInterface $container = null ) {
+		$this->container = $container ?: Config::get_container();
 
 		if ( defined( 'STELLAR_UPLINK_API_BASE_URL' ) && STELLAR_UPLINK_API_BASE_URL ) {
 			static::$base_url = preg_replace( '!/$!', '', STELLAR_UPLINK_API_BASE_URL );
@@ -198,7 +198,7 @@ class Client {
 		$results = [];
 
 		/** @var Data */
-		$site_data = $this->container->make( Data::class );
+		$site_data = $this->container->get( Data::class );
 		$args      = $resource->get_validation_args();
 
 		if ( ! empty( $key ) ) {

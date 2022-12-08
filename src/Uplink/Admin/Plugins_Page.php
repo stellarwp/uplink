@@ -2,8 +2,8 @@
 
 namespace StellarWP\Uplink\Admin;
 
+use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;
-use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Messages;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Resources\Plugin;
@@ -14,7 +14,7 @@ class Plugins_Page {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @var Container
+	 * @var ContainerInterface
 	 */
 	protected $container;
 
@@ -30,10 +30,10 @@ class Plugins_Page {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Container|null    $container       Container instance.
+	 * @param ContainerInterface|null    $container       Container instance.
 	 */
-	public function __construct( Container $container = null ) {
-		$this->container = $container ?: Container::init();
+	public function __construct( ContainerInterface $container = null ) {
+		$this->container = $container ?: Config::get_container();
 	}
 
 	/**
@@ -201,7 +201,7 @@ class Plugins_Page {
 	 * @return false|mixed
 	 */
 	protected function get_plugin() {
-		$collection = Container::init()->make( Collection::class );
+		$collection = $this->container->get( Collection::class );
 
 		return $collection->current();
 	}

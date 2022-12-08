@@ -2,8 +2,8 @@
 
 namespace StellarWP\Uplink\Admin;
 
+use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;
-use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Resources\Plugin;
 use WP_Error;
@@ -17,6 +17,15 @@ use WP_Upgrader;
 class Update_Prevention {
 
 	/**
+	 * @var ContainerInterface
+	 */
+	protected $container;
+
+	public function __construct( ContainerInterface $container = null ) {
+		$this->container = $container ?: Config::get_container();
+	}
+
+	/**
 	 * Checks for the list of constants associate with plugin to make sure we are dealing
 	 * with a plugin owned by The Events Calendar.
 	 *
@@ -27,7 +36,7 @@ class Update_Prevention {
 	 * @return bool
 	 */
 	public function is_stellar_uplink_resource( string $plugin ): bool {
-		$collection = Container::init()->make( Collection::class );
+		$collection = $this->container->get( Collection::class );
 		$resource   = $collection->get_by_path( $plugin );
 
 		foreach ( $resource as $data ) {

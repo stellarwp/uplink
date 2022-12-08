@@ -2,8 +2,8 @@
 
 namespace StellarWP\Uplink\Messages;
 
+use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\API\Client;
-use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Resources\Resource;
 
 class API extends Message_Abstract {
@@ -36,9 +36,9 @@ class API extends Message_Abstract {
 	 * @param string $message API message.
 	 * @param string $version Resource version.
 	 * @param Resource $resource Resource instance.
-	 * @param Container|null $container Container instance.
+	 * @param ContainerInterface|null $container Container instance.
 	 */
-	public function __construct( string $message, string $version, Resource $resource, Container $container = null ) {
+	public function __construct( string $message, string $version, Resource $resource, ContainerInterface $container = null ) {
 		parent::__construct( $container );
 
 		$this->message  = $message;
@@ -51,7 +51,7 @@ class API extends Message_Abstract {
 	 */
 	public function get(): string {
 		/** @var Client */
-		$api = $this->container->make( Client::class );
+		$api = $this->container->get( Client::class );
 
 		$message = $this->message;
 

@@ -2,8 +2,8 @@
 
 namespace StellarWP\Uplink\Site;
 
+use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;
-use StellarWP\Uplink\Container;
 
 class Data {
 	/**
@@ -11,7 +11,7 @@ class Data {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @var Container
+	 * @var ContainerInterface
 	 */
 	protected $container;
 
@@ -20,10 +20,10 @@ class Data {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Container $container DI Container.
+	 * @param ContainerInterface $container DI Container.
 	 */
-	public function __construct( Container $container = null ) {
-		$this->container = $container ?: Container::init();
+	public function __construct( ContainerInterface $container = null ) {
+		$this->container = $container ?: Config::get_container();
 	}
 
 	/**

@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\Messages;
 
-use StellarWP\Uplink\Container;
+use StellarWP\ContainerContract\ContainerInterface;
 
 class Valid_Key extends Message_Abstract {
 	/**
@@ -18,9 +18,9 @@ class Valid_Key extends Message_Abstract {
 	 * @since 1.0.0
 	 *
 	 * @param string $expiration Expiration date.
-	 * @param Container|null $container Container instance.
+	 * @param ContainerInterface|null $container Container instance.
 	 */
-	public function __construct( $expiration, Container $container = null ) {
+	public function __construct( $expiration, ContainerInterface $container = null ) {
 		parent::__construct( $container );
 
 		$this->expiration = $expiration;

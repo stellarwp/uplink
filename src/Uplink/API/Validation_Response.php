@@ -3,6 +3,8 @@
 namespace StellarWP\Uplink\API;
 
 use stdClass;
+use StellarWP\ContainerContract\ContainerInterface;
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Messages;
 use StellarWP\Uplink\Resources\Resource;
@@ -18,11 +20,11 @@ class Validation_Response {
 	protected $api_response_message;
 
 	/**
-	 * Container instance.
+	 * ContainerInterface instance.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @var Container
+	 * @var ContainerInterface
 	 */
 	protected $container;
 
@@ -125,14 +127,14 @@ class Validation_Response {
 	 * @param string         $validation_type Validation type (local or network).
 	 * @param stdClass      $response        Validation response.
 	 * @param Resource       $resource        Resource instance.
-	 * @param Container|null $container       Container instance.
+	 * @param ContainerInterface|null $container       Container instance.
 	 */
-	public function __construct( $key, string $validation_type, stdClass $response, Resource $resource, Container $container = null ) {
+	public function __construct( $key, string $validation_type, stdClass $response, Resource $resource, ContainerInterface $container = null ) {
 		$this->key             = $key ?: '';
 		$this->validation_type = 'network' === $validation_type ? 'network' : 'local';
 		$this->response        = ! empty( $response->results ) ? reset( $response->results ) : $response;
 		$this->resource        = $resource;
-		$this->container       = $container ?: Container::init();
+		$this->container       = $container ?: Config::get_container();
 
 		$this->parse();
 	}

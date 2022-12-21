@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e1695d51d5655314ba5f3db6fdf8e314",
+    "content-hash": "6329a39f0c4e91f4476b94ee1a3d60cd",
     "packages": [
         {
             "name": "lucatume/di52",
@@ -101,6 +101,48 @@
                 "source": "https://github.com/php-fig/container/tree/1.1.2"
             },
             "time": "2021-11-05T16:50:12+00:00"
+        },
+        {
+            "name": "stellarwp/container-contract",
+            "version": "1.0.3",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:stellarwp/container-contract.git",
+                "reference": "65262f5b98538b56f0d20269b0deb55f5d366e3a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/stellarwp/container-contract/zipball/65262f5b98538b56f0d20269b0deb55f5d366e3a",
+                "reference": "65262f5b98538b56f0d20269b0deb55f5d366e3a",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "StellarWP\\ContainerContract\\": "src/"
+                }
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "StellarWP",
+                    "homepage": "https://stellarwp.com"
+                }
+            ],
+            "description": "StellarWP Container Interface",
+            "homepage": "https://github.com/stellarwp/container-contract",
+            "keywords": [
+                "container",
+                "container-interface",
+                "container-interop",
+                "psr-11"
+            ],
+            "time": "2022-09-23T02:59:52+00:00"
         }
     ],
     "packages-dev": [
@@ -6353,8 +6395,8 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "^5.6 | ^7.0 | ^8.0"
+        "php": "^7.0 | ^8.0"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.1.0"
 }

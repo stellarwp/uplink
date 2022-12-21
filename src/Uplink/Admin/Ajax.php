@@ -2,10 +2,20 @@
 
 namespace StellarWP\Uplink\Admin;
 
-use StellarWP\Uplink\Container;
+use StellarWP\ContainerContract\ContainerInterface;
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Resources\Collection;
 
 class Ajax {
+
+	/**
+	 * @var ContainerInterface
+	 */
+	protected $container;
+
+	public function __construct() {
+		$this->container = Config::get_container();
+	}
 
 	public function validate_license(): void {
 		$submission = filter_var_array( $_POST, [
@@ -14,7 +24,7 @@ class Ajax {
 			'plugin'   => FILTER_SANITIZE_STRING,
 		] );
 
-		if ( empty( $submission ) || empty( $submission['key'] ) || ! wp_verify_nonce( $submission['_wpnonce'], License_Field::get_group_name() ) ) {
+		if ( empty( $submission ) || empty( $submission['key'] ) || ! wp_verify_nonce( $submission['_wpnonce'], $this->container->get( License_Field::class )->get_group_name() ) ) {
 			echo json_encode( [
 				'status'  => 0,
 				'message' => __( 'Invalid request: nonce field is expired. Please try again.', '%stellar-uplink-domain%' )
@@ -22,7 +32,7 @@ class Ajax {
 			wp_die();
 		}
 
-		$collection = Container::init()->make( Collection::class );
+		$collection = $this->container->get( Collection::class );
 		$plugin     = $collection->current();
 
 		$results = $plugin->validate_license( $submission['key'] );

@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Tests;
 
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Uplink;
 
 class UplinkTestCase extends \Codeception\TestCase\WPTestCase {
@@ -9,6 +10,9 @@ class UplinkTestCase extends \Codeception\TestCase\WPTestCase {
 		// before
 		parent::setUp();
 
-		Uplink::init();
+		$container = new Container();
+		Config::set_container( $container );
+
+		Uplink::instance()->register();
 	}
 }

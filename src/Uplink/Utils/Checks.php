@@ -2,6 +2,8 @@
 
 namespace StellarWP\Uplink\Utils;
 
+use StellarWP\Uplink\Config;
+
 class Checks {
 	/**
 	 * Determines if the provided value should be regarded as 'true'.
@@ -23,7 +25,7 @@ class Checks {
 		 *
 		 * @param array $truthy_strings
 		 */
-		$truthy_strings = (array) apply_filters( 'stellar_uplink_is_truthy_strings', [
+		$truthy_strings = (array) apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'is_truthy_strings', [
 			'1',
 			'enable',
 			'enabled',

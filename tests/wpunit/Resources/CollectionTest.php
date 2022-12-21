@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\Tests\Resources;
 
-use StellarWP\Uplink\Container;
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Uplink;
 use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Resources as Uplink_Resources;
@@ -14,7 +14,7 @@ class CollectionTest extends \StellarWP\Uplink\Tests\UplinkTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->container  = Container::init();
+		$this->container  = Config::get_container();
 		$this->collection = $this->container->make( Uplink_Resources\Collection::class );
 
 		$resources = $this->get_resources();

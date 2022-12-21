@@ -2,7 +2,8 @@
 
 namespace StellarWP\Uplink\Resources;
 
-use StellarWP\Uplink\Container;
+use StellarWP\ContainerContract\ContainerInterface;
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Utils;
 
@@ -19,7 +20,7 @@ class License {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @var Container
+	 * @var ContainerInterface
 	 */
 	protected $container;
 
@@ -91,11 +92,11 @@ class License {
 	 * @since 1.0.0
 	 *
 	 * @param Resource $resource The resource instance.
-	 * @param Container|null $container Container instance.
+	 * @param ContainerInterface|null $container Container instance.
 	 */
-	public function __construct( Resource $resource, Container $container = null ) {
+	public function __construct( Resource $resource, ContainerInterface $container = null ) {
 		$this->resource  = $resource;
-		$this->container = $container ?: Container::init();
+		$this->container = $container ?: Config::get_container();
 	}
 
 	/**
@@ -139,7 +140,7 @@ class License {
 		 *
 		 * @param string|null $key The license key.
 		 */
-		$key = apply_filters( 'stellar_uplink_license_get_key', $this->key );
+		$key = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'license_get_key', $this->key );
 
 		return $key ?: '';
 	}
@@ -265,7 +266,7 @@ class License {
 	 */
 	public function get_key_status_option_name(): string {
 		/** @var Data */
-		$data = $this->container->make( Data::class );
+		$data = $this->container->get( Data::class );
 
 		return static::$key_status_option_prefix . $this->resource->get_slug() . '_'. $data->get_site_domain();
 	}

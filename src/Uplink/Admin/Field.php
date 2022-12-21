@@ -2,7 +2,8 @@
 
 namespace StellarWP\Uplink\Admin;
 
-use StellarWP\Uplink\Container;
+use StellarWP\ContainerContract\ContainerInterface;
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Resources\Collection;
 
 abstract class Field {
@@ -17,26 +18,6 @@ abstract class Field {
 	 * @var string
 	 */
 	protected string $path = '';
-
-	/**
-	 * Container.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var Container
-	 */
-	protected $container;
-
-	/**
-	 * Constructor.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param Container $container DI Container.
-	 */
-	public function __construct( Container $container = null ) {
-		$this->container = $container ?: Container::init();
-	}
 
 	abstract public function register_settings(): void;
 
@@ -72,7 +53,7 @@ abstract class Field {
 	 *
 	 * @return string
 	 */
-	public static function get_group_name( string $group_modifier = '' ): string {
+	public function get_group_name( string $group_modifier = '' ): string {
 		return sprintf( '%s_%s', self::STELLARWP_UPLINK_GROUP, $group_modifier );
 	}
 
@@ -99,7 +80,7 @@ abstract class Field {
 			$args['plugin']
 		);
 
-		echo apply_filters( 'stellar_uplink_license_field_html_render', $field, $args );
+		echo apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'license_field_html_render', $field, $args );
 
 		$this->get_description( $args );
 	}
@@ -130,14 +111,14 @@ abstract class Field {
 	 * @return string
 	 */
 	public function get_path(): string {
-		return apply_filters( 'stellar_uplink_field-template_path', dirname( __DIR__, 2 ) . $this->path, $this->path );
+		return apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'field-template_path', dirname( __DIR__, 2 ) . $this->path, $this->path );
 	}
 
 	/**
 	 * @return false|mixed
 	 */
 	protected function get_plugin() {
-		$collection = Container::init()->make( Collection::class );
+		$collection = Config::get_container()->get( Collection::class );
 
 		return $collection->current();
 	}

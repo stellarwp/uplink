@@ -3,9 +3,7 @@
 namespace wpunit\Admin;
 
 use StellarWP\Uplink\Admin\Plugins_Page;
-use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Register;
-use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Uplink;
 
@@ -13,9 +11,6 @@ class Plugins_PageTest extends UplinkTestCase {
 
 	public function setUp() {
 		parent::setUp();
-
-		$container = Container::init();
-		$container->make( Collection::class );
 
 		Register::plugin(
 			'sample',

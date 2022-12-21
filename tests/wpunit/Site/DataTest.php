@@ -2,7 +2,6 @@
 
 namespace StellarWP\Uplink\Tests\Site;
 
-use StellarWP\Uplink\Container;
 use StellarWP\Uplink;
 
 class DataTest extends \StellarWP\Uplink\Tests\UplinkTestCase {
@@ -10,7 +9,7 @@ class DataTest extends \StellarWP\Uplink\Tests\UplinkTestCase {
 
 	public function setUp() {
 		parent::setUp();
-		$this->container  = Container::init();
+		$this->container  = Uplink\Config::get_container();
 	}
 
 	/**

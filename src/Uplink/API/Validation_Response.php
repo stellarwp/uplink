@@ -3,7 +3,8 @@
 namespace StellarWP\Uplink\API;
 
 use stdClass;
-use StellarWP\Uplink\Container;
+use StellarWP\ContainerContract\ContainerInterface;
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Messages;
 use StellarWP\Uplink\Resources\Resource;
 
@@ -18,11 +19,11 @@ class Validation_Response {
 	protected $api_response_message;
 
 	/**
-	 * Container instance.
+	 * ContainerInterface instance.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @var Container
+	 * @var ContainerInterface
 	 */
 	protected $container;
 
@@ -125,14 +126,14 @@ class Validation_Response {
 	 * @param string         $validation_type Validation type (local or network).
 	 * @param stdClass      $response        Validation response.
 	 * @param Resource       $resource        Resource instance.
-	 * @param Container|null $container       Container instance.
+	 * @param ContainerInterface|null $container       Container instance.
 	 */
-	public function __construct( $key, string $validation_type, stdClass $response, Resource $resource, Container $container = null ) {
+	public function __construct( $key, string $validation_type, stdClass $response, Resource $resource, ContainerInterface $container = null ) {
 		$this->key             = $key ?: '';
 		$this->validation_type = 'network' === $validation_type ? 'network' : 'local';
 		$this->response        = ! empty( $response->results ) ? reset( $response->results ) : $response;
 		$this->resource        = $resource;
-		$this->container       = $container ?: Container::init();
+		$this->container       = $container ?: Config::get_container();
 
 		$this->parse();
 	}
@@ -448,17 +449,17 @@ class Validation_Response {
 		}
 
 		//Other fields need to be renamed and/or transformed.
-		$info->download_link = $this->response->download_url . '&pu_get_download=1';
+		$info->download_link = isset( $this->response->download_url ) ? $this->response->download_url . '&pu_get_download=1' : '';
 
 		if ( ! empty( $this->author_homepage ) ) {
 			$info->author = sprintf( '<a href="%s">%s</a>', esc_url( $this->author_homepage ), $this->response->author );
 		} else {
-			$info->author = $this->response->author;
+			$info->author = $this->response->author ?? '';
 		}
 
-		if ( is_object( $this->response->sections ) ) {
+		if ( isset( $this->response->sections ) &&  is_object( $this->response->sections ) ) {
 			$info->sections = get_object_vars( $this->response->sections );
-		} elseif ( is_array( $this->response->sections ) ) {
+		} elseif ( isset( $this->response->sections ) &&  is_array( $this->response->sections ) ) {
 			$info->sections = $this->response->sections;
 		} else {
 			$info->sections = [ 'description' => '' ];

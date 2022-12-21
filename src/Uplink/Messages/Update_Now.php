@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\Messages;
 
-use StellarWP\Uplink\Container;
+use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Resources\Plugin;
 
 class Update_Now extends Message_Abstract {
@@ -19,9 +19,9 @@ class Update_Now extends Message_Abstract {
 	 * @since 1.0.0
 	 *
 	 * @param Plugin $resource Resource instance.
-	 * @param Container|null $container Container instance.
+	 * @param ContainerInterface|null $container Container instance.
 	 */
-	public function __construct( Plugin $resource, Container $container = null ) {
+	public function __construct( Plugin $resource, ContainerInterface $container = null ) {
 		parent::__construct( $container );
 
 		$this->resource = $resource;

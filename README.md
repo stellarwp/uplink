@@ -22,7 +22,22 @@ Initializing the StellarWP Uplink library should be done within the `plugins_loa
 use StellarWP\Uplink\Uplink;
 
 add_action( 'plugins_loaded', function() {
-	Uplink::init();
+	/**
+	 * Configure the container.
+	 *
+	 * The container must be compatible with stellarwp/container-contract.
+	 * See here: https://github.com/stellarwp/container-contract#usage.
+	 *
+	 * If you do not have a container, we recommend https://github.com/lucatume/di52
+	 * and the corresponding wrapper:
+	 * https://github.com/stellarwp/container-contract/blob/main/examples/di52/Container.php
+	 */
+	 $container = new Container();
+	Config::set_container( $container );
+	// Optional: Set a unique prefix for actions & filters.
+	Config::set_hook_prefix( 'my-custom-prefix' );
+
+	Uplink::instance()->register();
 }, 0 );
 ```
 
@@ -120,7 +135,7 @@ Register::service(
 ## Render license key form on your settings page
 In order to render license key form just add 2 lines of code to your settings page, tab, etc.
 ```php
-$container = Container::init();
+$container = Uplink::instance()->container();
 $container->get( License_Field::class )->render();
 ```
 ### Example: Register settings page and render license fields
@@ -143,7 +158,7 @@ Add lines below to your settings page. This will render license key form with su
 ```php
 function render_settings_page() {
     // ....
-    $container = Container::init();
+    $container = Uplink::instance()->container();
     $container->get( License_Field::class )->render();
     //....
 }

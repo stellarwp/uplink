@@ -2,20 +2,13 @@
 
 namespace StellarWP\Uplink\Admin;
 
-use StellarWP\Uplink\Container;
+use StellarWP\ContainerContract\ContainerInterface;
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Messages;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Resources\Plugin;
 
 class Plugins_Page {
-	/**
-	 * Container instance.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var Container
-	 */
-	protected $container;
 
 	/**
 	 * Storing the `plugin_notice` message.
@@ -23,17 +16,6 @@ class Plugins_Page {
 	 * @var array<mixed>
 	 */
 	public array $plugin_notice = [];
-
-	/**
-	 * Constructor.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param Container|null    $container       Container instance.
-	 */
-	public function __construct( Container $container = null ) {
-		$this->container = $container ?: Container::init();
-	}
 
 	/**
 	 * Displays messages on the plugins page in the dashboard.
@@ -125,7 +107,7 @@ class Plugins_Page {
 			'message_row_html' => $message_row_html,
 		];
 
-		add_filter( 'stellar_uplink_plugin_notices', [ $this, 'add_notice_to_plugin_notices' ] );
+		add_filter( 'stellar_uplink_' . Config::get_hook_prefix(). 'plugin_notices', [ $this, 'add_notice_to_plugin_notices' ] );
 	}
 
 	/**
@@ -152,9 +134,9 @@ class Plugins_Page {
 		if ( 'plugins.php' !== $page ) {
 			return;
 		}
-		$notices = apply_filters( 'stellar_uplink_plugin_notices', [] );
+		$notices = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'plugin_notices', [] );
 		$path    = preg_replace( '/.*\/vendor/', plugin_dir_url( $this->get_plugin()->get_path() ) . 'vendor', dirname( __DIR__, 2 ) );
-		$js_src  = apply_filters( 'stellar_uplink_admin_js_source', $path .  '/resources/js/notices.js' );
+		$js_src  = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'admin_js_source', $path .  '/resources/js/notices.js' );
 		$handle  = 'stellar_uplink-notices';
 
 		wp_register_script( $handle, $js_src, [ 'jquery' ], '1.0.0', true );
@@ -200,7 +182,7 @@ class Plugins_Page {
 	 * @return false|mixed
 	 */
 	protected function get_plugin() {
-		$collection = Container::init()->make( Collection::class );
+		$collection = Config::get_container()->get( Collection::class );
 
 		return $collection->current();
 	}

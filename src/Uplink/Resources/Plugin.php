@@ -64,7 +64,7 @@ class Plugin extends Resource {
 				$transient->response[ $this->get_path() ] = $results->get_update_details();
 
 				if ( 'expired' === $results->get_result() ) {
-					$this->container->make( Notice::class )->add_notice( Notice::EXPIRED_KEY, $this->get_slug() );
+					$this->container->get( Notice::class )->add_notice( Notice::EXPIRED_KEY, $this->get_slug() );
 				}
 			}
 

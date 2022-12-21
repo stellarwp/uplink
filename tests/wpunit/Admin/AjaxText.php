@@ -4,9 +4,7 @@ namespace wpunit\Admin;
 
 use StellarWP\Uplink\Admin\Ajax;
 use StellarWP\Uplink\Admin\License_Field;
-use StellarWP\Uplink\Container;
 use StellarWP\Uplink\Register;
-use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Uplink;
 
@@ -14,9 +12,6 @@ class AjaxText extends UplinkTestCase {
 
 	public function _setUp() {
 		parent::_setUp();
-
-		$container = Container::init();
-		$container->make( Collection::class );
 
 		Register::plugin(
 			'sample',

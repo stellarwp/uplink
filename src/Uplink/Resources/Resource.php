@@ -2,15 +2,16 @@
 
 namespace StellarWP\Uplink\Resources;
 
+use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\API;
-use StellarWP\Uplink\Container;
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Exceptions;
 use StellarWP\Uplink\Site\Data;
 /**
  * The base resource class for StellarWP Uplink plugins and services.
  *
  * @property-read string    $class The class name.
- * @property-read Container $container Container instance.
+ * @property-read ContainerInterface $container Container instance.
  * @property-read string    $type The resource type.
  * @property-read string    $license_key License key.
  * @property-read string    $name The resource name.
@@ -33,7 +34,7 @@ abstract class Resource {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @var Container
+	 * @var ContainerInterface
 	 */
 	protected $container;
 
@@ -111,16 +112,15 @@ abstract class Resource {
 	 * @param string $class Resource class.
 	 * @param string $version Resource version.
 	 * @param string|null $license_class Class that holds the embedded license key.
-	 * @param Container|null $container Container instance.
 	 */
-	public function __construct( $slug, $name, $version, $path, $class, string $license_class = null, Container $container = null ) {
+	public function __construct( $slug, $name, $version, $path, $class, string $license_class = null ) {
 		$this->name          = $name;
 		$this->slug          = $slug;
 		$this->path          = $path;
 		$this->class         = $class;
 		$this->license_class = $license_class;
 		$this->version       = $version;
-		$this->container     = $container ?: Container::init();
+		$this->container     = Config::get_container();
 	}
 
 	/**
@@ -145,7 +145,7 @@ abstract class Resource {
 		$args = [];
 
 		/** @var Data */
-		$data = $this->container->make( Data::class );
+		$data = $this->container->get( Data::class );
 
 		$args['plugin']            = sanitize_text_field( $this->get_slug() );
 		$args['installed_version'] = sanitize_text_field( $this->get_installed_version() ?: '' );
@@ -262,7 +262,7 @@ abstract class Resource {
 		 *
 		 * @param string $slug Resource slug.
 		 */
-		return apply_filters( 'stellar_uplink_resource_get_slug', $this->slug );
+		return apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'resource_get_slug', $this->slug );
 	}
 
 	/**
@@ -310,7 +310,7 @@ abstract class Resource {
 		 *
 		 * @param string $version Resource version.
 		 */
-		return apply_filters( 'stellar_uplink_resource_get_version', $this->version );
+		return apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'resource_get_version', $this->version );
 	}
 
 	/**
@@ -390,7 +390,7 @@ abstract class Resource {
 		$resource   = new $resource_class( $slug, $name, $version, $path, $class, $license_class );
 
 		/** @var Collection */
-		$collection = Container::init()->make( Collection::class );
+		$collection = Config::get_container()->get( Collection::class );
 
 		/**
 		 * Filters the registered plugin before adding to the collection.
@@ -399,7 +399,7 @@ abstract class Resource {
 		 *
 		 * @param Resource $resource Resource instance.
 		 */
-		$resource = apply_filters( 'stellar_uplink_resource_register_before_collection', $resource );
+		$resource = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'resource_register_before_collection', $resource );
 
 		if ( ! empty( $collection[ $resource->get_slug() ] ) ) {
 			throw new Exceptions\ResourceAlreadyRegisteredException( $resource->get_slug() );
@@ -414,7 +414,7 @@ abstract class Resource {
 		 *
 		 * @param Resource $resource Resource instance.
 		 */
-		$resource = apply_filters( 'stellar_uplink_resource_register', $resource );
+		$resource = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'resource_register', $resource );
 
 		return $resource;
 	}
@@ -455,7 +455,7 @@ abstract class Resource {
 	 */
 	public function validate_license( $key = null, $do_network_validate = false ) {
 		/** @var API\Client */
-		$api = $this->container->make( API\Client::class );
+		$api = $this->container->get( API\Client::class );
 
 		if ( empty( $key ) ) {
 			$key = $this->get_license_key();

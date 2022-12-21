@@ -2,7 +2,8 @@
 
 namespace StellarWP\Uplink\Messages;
 
-use StellarWP\Uplink\Container;
+use StellarWP\ContainerContract\ContainerInterface;
+use StellarWP\Uplink\Config;
 
 abstract class Message_Abstract {
 	/**
@@ -10,7 +11,7 @@ abstract class Message_Abstract {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @var Container
+	 * @var ContainerInterface
 	 */
 	protected $container;
 
@@ -19,10 +20,10 @@ abstract class Message_Abstract {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Container|null $container Container instance.
+	 * @param ContainerInterface|null $container Container instance.
 	 */
-	public function __construct( Container $container = null ) {
-		$this->container = $container ?: Container::init();
+	public function __construct( ContainerInterface $container = null ) {
+		$this->container = $container ?: Config::get_container();
 	}
 
 	/**

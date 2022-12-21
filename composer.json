@@ -8,6 +8,7 @@
             "homepage": "https://stellarwp.com"
         }
     ],
+    "bin": ["bin/stellar-uplink"],
     "autoload": {
         "psr-4": {
             "StellarWP\\Uplink\\": "src/Uplink/"

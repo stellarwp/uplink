@@ -37,7 +37,7 @@ add_action( 'plugins_loaded', function() {
 	// Optional: Set a unique prefix for actions & filters.
 	Config::set_hook_prefix( 'my-custom-prefix' );
 
-	Uplink::instance()->register();
+	Uplink::init();
 }, 0 );
 ```
 

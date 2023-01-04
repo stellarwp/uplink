@@ -2,9 +2,9 @@
 
 namespace StellarWP\Uplink\Admin;
 
-use StellarWP\Uplink\Contracts\Abstract_Subscriber;
+use StellarWP\Uplink\Contracts\Abstract_Provider;
 
-class Provider extends Abstract_Subscriber {
+class Provider extends Abstract_Provider {
 	/**
 	 * Register the service provider.
 	 *
@@ -21,9 +21,14 @@ class Provider extends Abstract_Subscriber {
 		$this->register_hooks();
 	}
 
+	/**
+	 * Register the hooks for the service provider.
+	 *
+	 * @since 1.0.0
+	 */
 	public function register_hooks(): void {
 		add_filter( 'plugins_api', function ( $result, $action, $args ) {
-			return $this->container->get( Plugins_Page::class)->inject_info( $result, $action, $args );
+			return $this->container->get( Plugins_Page::class )->inject_info( $result, $action, $args );
 		}, 10, 3 );
 
 		if ( ( ! defined( 'TRIBE_DISABLE_PUE' ) || true !== TRIBE_DISABLE_PUE ) ) {
@@ -33,7 +38,7 @@ class Provider extends Abstract_Subscriber {
 		}
 
 		add_action( 'admin_init', function() {
-			$this->container->get( License_Field::class)->register_settings();
+			$this->container->get( License_Field::class )->register_settings();
 		}, 10, 0 );
 
 		add_action( 'admin_enqueue_scripts',  function () {
@@ -45,11 +50,11 @@ class Provider extends Abstract_Subscriber {
 		}, 10, 0 );
 
 		add_action( 'wp_ajax_pue-validate-key-uplink' , function () {
-			$this->container->get( Ajax::class)->validate_license();
+			$this->container->get( Ajax::class )->validate_license();
 		}, 10, 0 );
 
 		add_action( 'admin_enqueue_scripts', function ( $page ) {
-			$this->container->get( Plugins_Page::class)->display_plugin_messages( $page );
+			$this->container->get( Plugins_Page::class )->display_plugin_messages( $page );
 		}, 1, 1 );
 
 		add_action( 'admin_enqueue_scripts', function ( $page ) {

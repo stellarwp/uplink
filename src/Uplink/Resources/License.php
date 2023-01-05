@@ -100,6 +100,23 @@ class License {
 	}
 
 	/**
+	 * Deletes the key in site options.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $type Type of key (network, local).
+	 *
+	 * @return bool
+	 */
+	public function delete_key( string $type = 'local' ): bool {
+		if ( 'network' === $type && is_multisite() ) {
+			return delete_network_option( 0, $this->get_key_option_name() );
+		}
+
+		return delete_option( $this->get_key_option_name() );
+	}
+
+	/**
 	 * Get the license key.
 	 *
 	 * @since 1.0.0

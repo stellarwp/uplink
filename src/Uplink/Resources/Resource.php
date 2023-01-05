@@ -108,9 +108,9 @@ abstract class Resource {
 	 *
 	 * @param string $slug Resource slug.
 	 * @param string $name Resource name.
+	 * @param string $version Resource version.
 	 * @param string $path Resource path to bootstrap file.
 	 * @param string $class Resource class.
-	 * @param string $version Resource version.
 	 * @param string|null $license_class Class that holds the embedded license key.
 	 */
 	public function __construct( $slug, $name, $version, $path, $class, string $license_class = null ) {
@@ -121,6 +121,19 @@ abstract class Resource {
 		$this->license_class = $license_class;
 		$this->version       = $version;
 		$this->container     = Config::get_container();
+	}
+
+	/**
+	 * Deletes the resource license key.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $type The type of key to get (any, network, local, default).
+	 *
+	 * @return string
+	 */
+	public function delete_license_key( $type = 'local' ): string {
+		return $this->get_license_object()->delete_key( $type );
 	}
 
 	/**
@@ -207,7 +220,7 @@ abstract class Resource {
 	 * @return string
 	 */
 	public function get_license_key( $type = 'local' ): string {
-		return $this->get_license_object()->get_key();
+		return $this->get_license_object()->get_key( $type );
 	}
 
 	/**
@@ -425,11 +438,12 @@ abstract class Resource {
 	 * @since 1.0.0
 	 *
 	 * @param string $key License key.
+	 * @param string $type The type of key to get (any, network, local, default).
 	 *
 	 * @return bool
 	 */
-	public function set_license_key( $key ): bool {
-		return $this->get_license_object()->set_key( $key );
+	public function set_license_key( $key, $type = 'local' ): bool {
+		return $this->get_license_object()->set_key( $key, $type );
 	}
 
 	/**
@@ -461,10 +475,26 @@ abstract class Resource {
 			$key = $this->get_license_key();
 		}
 
-		$results = $api->validate_license( $this, $key, $do_network_validate ? 'network' : 'local' );
+		$validation_type = $do_network_validate ? 'network' : 'local';
 
-		if ( 'new' === $results->get_result() ) {
-			$this->get_license_object()->set_key( $results->get_key() );
+		if ( empty( $key ) ) {
+			$results = new API\Validation_Response( null, $validation_type, new \stdClass(), $this );
+			$results->set_is_valid( false );
+			return $results;
+		}
+
+		$results             = $api->validate_license( $this, $key, $validation_type );
+		$results_key         = $results->get_key();
+		$result_type         = $results->get_result();
+		$is_stored_key_empty = empty( $this->get_license_key() ) && ! empty( $key );
+		$has_replacement_key = $results->has_replacement_key();
+
+		if (
+			$result_type === 'new'
+			|| $is_stored_key_empty
+			|| $has_replacement_key
+		) {
+			$this->get_license_object()->set_key( $results_key );
 		}
 
 		$this->get_license_object()->set_key_status( $results->is_valid() );

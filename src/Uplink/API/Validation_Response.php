@@ -366,6 +366,17 @@ class Validation_Response {
 	}
 
 	/**
+	 * Returns where or not the response has a replacement key.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return bool
+	 */
+	public function has_replacement_key(): bool {
+		return ! empty( $this->replacement_key );
+	}
+
+	/**
 	 * Returns where or not the license key was valid.
 	 *
 	 * @since 1.0.0
@@ -374,6 +385,17 @@ class Validation_Response {
 	 */
 	public function is_valid(): bool {
 		return $this->is_valid;
+	}
+
+	/**
+	 * Set the is_valid value.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param bool $is_valid Whether the validation response should be set as valid or not.
+	 */
+	public function set_is_valid( bool $is_valid ) {
+		$this->is_valid = $is_valid;
 	}
 
 	/**
@@ -399,13 +421,13 @@ class Validation_Response {
 			$this->result = 'unreachable';
 		} elseif ( isset( $this->response->api_expired ) && 1 === (int) $this->response->api_expired ) {
 			$this->result = 'expired';
-			$this->is_valid = false;
+			$this->set_is_valid( false );
 		} elseif ( isset( $this->response->api_upgrade ) && 1 === (int) $this->response->api_upgrade ) {
 			$this->result = 'upgrade';
-			$this->is_valid = false;
+			$this->set_is_valid( false );
 		} elseif ( isset( $this->response->api_invalid ) && 1 === (int) $this->response->api_invalid ) {
 			$this->result = 'invalid';
-			$this->is_valid = false;
+			$this->set_is_valid( false );
 		} else {
 			if ( isset( $this->response->api_message ) ) {
 				$this->api_response_message = wp_kses( $this->response->api_message, 'data' );
@@ -421,7 +443,7 @@ class Validation_Response {
 			}
 		}
 
-		if ( ! empty( $this->respinse->replacement_key ) ) {
+		if ( ! empty( $this->response->replacement_key ) ) {
 			$this->replacement_key = $this->response->replacement_key;
 		}
 	}

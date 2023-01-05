@@ -24,7 +24,7 @@ class Client {
 	 *
 	 * @var string
 	 */
-	public static $api_root = '/api/plugins/v1/';
+	public static $api_root = '/api/plugins/v2/';
 
 	/**
 	 * Base URL for the license key server.

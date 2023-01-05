@@ -28,7 +28,7 @@ class AjaxText extends UplinkTestCase {
 		$handler          = new Ajax();
 		$invalid_response = [
 			'status'  => 0,
-			'message' => __( 'Invalid request: nonce field is expired. Please try again.', '%stellar-uplink-domain%' )
+			'message' => __( 'Invalid request: nonce field is expired. Please try again.', '%TEXTDOMAIN%' )
 		];
 
 		$this->assertSame(

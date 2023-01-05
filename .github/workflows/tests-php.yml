@@ -7,6 +7,7 @@ jobs:
       matrix:
         suite:
           - wpunit
+          - muwpunit
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository

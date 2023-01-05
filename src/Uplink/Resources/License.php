@@ -94,7 +94,7 @@ class License {
 	 * @param Resource $resource The resource instance.
 	 * @param ContainerInterface|null $container Container instance.
 	 */
-	public function __construct( Resource $resource, ContainerInterface $container = null ) {
+	public function __construct( Resource $resource, $container = null ) {
 		$this->resource  = $resource;
 		$this->container = $container ?: Config::get_container();
 	}

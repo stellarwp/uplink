@@ -73,6 +73,15 @@ class Validation_Response {
 	protected $key;
 
 	/**
+	 * Replacement key.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @var string|null
+	 */
+	protected $replacement_key;
+
+	/**
 	 * Resource instance.
 	 *
 	 * @since 1.0.0
@@ -128,7 +137,7 @@ class Validation_Response {
 	 * @param Resource       $resource        Resource instance.
 	 * @param ContainerInterface|null $container       Container instance.
 	 */
-	public function __construct( $key, string $validation_type, stdClass $response, Resource $resource, ContainerInterface $container = null ) {
+	public function __construct( $key, string $validation_type, stdClass $response, Resource $resource, $container = null ) {
 		$this->key             = $key ?: '';
 		$this->validation_type = 'network' === $validation_type ? 'network' : 'local';
 		$this->response        = ! empty( $response->results ) ? reset( $response->results ) : $response;
@@ -157,7 +166,7 @@ class Validation_Response {
 	 * @return string
 	 */
 	public function get_key(): string {
-		return $this->key;
+		return ! empty( $this->replacement_key ) ? $this->replacement_key : $this->key;
 	}
 
 	/**
@@ -410,6 +419,10 @@ class Validation_Response {
 			if ( ! ( $this->current_key && $this->current_key === $this->key ) ) {
 				$this->result = 'new';
 			}
+		}
+
+		if ( ! empty( $this->respinse->replacement_key ) ) {
+			$this->replacement_key = $this->response->replacement_key;
 		}
 	}
 

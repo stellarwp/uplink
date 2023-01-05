@@ -1,5 +1,6 @@
 {
     "name": "stellarwp/uplink",
+    "description": "A library that integrates a WordPress product with the StellarWP Licensing system.",
     "type": "library",
     "license": "GPLv2",
     "authors": [

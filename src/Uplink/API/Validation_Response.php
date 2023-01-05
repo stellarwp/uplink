@@ -394,7 +394,7 @@ class Validation_Response {
 	 *
 	 * @param bool $is_valid Whether the validation response should be set as valid or not.
 	 */
-	public function set_is_valid( bool $is_valid ) {
+	public function set_is_valid( bool $is_valid ): void {
 		$this->is_valid = $is_valid;
 	}
 

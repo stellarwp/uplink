@@ -75,7 +75,7 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @since 1.0.0
 	 */
-	public function ajax_validate_license() {
+	public function ajax_validate_license(): void {
 		$this->container->get( Ajax::class )->validate_license();
 	}
 
@@ -84,7 +84,7 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @since 1.0.0
 	 */
-	public function admin_init() {
+	public function admin_init(): void {
 		$this->container->get( License_Field::class )->register_settings();
 	}
 
@@ -93,7 +93,7 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @since 1.0.0
 	 */
-	public function enqueue_assets() {
+	public function enqueue_assets(): void {
 		$this->container->get( License_Field::class )->enqueue_assets();
 	}
 
@@ -102,7 +102,7 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @since 1.0.0
 	 */
-	public function admin_notices() {
+	public function admin_notices(): void {
 		$this->container->get( Notice::class )->setup_notices();
 	}
 
@@ -110,8 +110,10 @@ class Provider extends Abstract_Provider {
 	 * Display plugin messages.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @param mixed $page
 	 */
-	public function display_plugin_messages( $page ) {
+	public function display_plugin_messages( mixed $page ): void {
 		$this->container->get( Plugins_Page::class )->display_plugin_messages( $page );
 	}
 
@@ -119,15 +121,17 @@ class Provider extends Abstract_Provider {
 	 * Store admin notices.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @param mixed $page
 	 */
-	public function store_admin_notices( $page ) {
+	public function store_admin_notices( mixed $page ): void {
 		$this->container->get( Plugins_Page::class )->store_admin_notices( $page );
 	}
 
 	/**
 	 * Remove the default inline update message for a plugin.
 	 */
-	public function remove_default_update_message() {
+	public function remove_default_update_message(): void {
 		$this->container->get( Plugins_Page::class )->remove_default_inline_update_msg();
 	}
 
@@ -139,7 +143,7 @@ class Provider extends Abstract_Provider {
 	 * @param bool        $reply    Whether to bail without returning the package.
 	 *                              Default false.
 	 * @param string      $package  The package file name or URL.
-	 * @param WP_Upgrader $upgrader The WP_Upgrader instance.
+	 * @param \WP_Upgrader $upgrader The WP_Upgrader instance.
 	 *
 	 * @return mixed
 	 */
@@ -154,10 +158,10 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @param string       $source        File source location.
 	 * @param mixed        $remote_source Remote file source location.
-	 * @param WP_Upgrader  $upgrader      WP_Upgrader instance.
+	 * @param \WP_Upgrader  $upgrader      WP_Upgrader instance.
 	 * @param array<mixed> $extras         Extra arguments passed to hooked filters.
 	 *
-	 * @return string|WP_Error
+	 * @return string|\WP_Error
 	 */
 	public function filter_upgrader_source_selection( $source, $remote_source, $upgrader, $extras ) {
 		return $this->container->get( Update_Prevention::class )->filter_upgrader_source_selection( $source, $remote_source, $upgrader, $extras );

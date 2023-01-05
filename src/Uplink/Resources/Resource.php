@@ -130,9 +130,9 @@ abstract class Resource {
 	 *
 	 * @param string $type The type of key to get (any, network, local, default).
 	 *
-	 * @return string
+	 * @return bool
 	 */
-	public function delete_license_key( $type = 'local' ): string {
+	public function delete_license_key( $type = 'local' ): bool {
 		return $this->get_license_object()->delete_key( $type );
 	}
 
@@ -486,12 +486,10 @@ abstract class Resource {
 		$results             = $api->validate_license( $this, $key, $validation_type );
 		$results_key         = $results->get_key();
 		$result_type         = $results->get_result();
-		$is_stored_key_empty = empty( $this->get_license_key() ) && ! empty( $key );
 		$has_replacement_key = $results->has_replacement_key();
 
 		if (
 			$result_type === 'new'
-			|| $is_stored_key_empty
 			|| $has_replacement_key
 		) {
 			$this->get_license_object()->set_key( $results_key );

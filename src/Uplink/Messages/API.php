@@ -38,7 +38,7 @@ class API extends Message_Abstract {
 	 * @param Resource $resource Resource instance.
 	 * @param ContainerInterface|null $container Container instance.
 	 */
-	public function __construct( string $message, string $version, Resource $resource, ContainerInterface $container = null ) {
+	public function __construct( string $message, string $version, Resource $resource, $container = null ) {
 		parent::__construct( $container );
 
 		$this->message  = $message;

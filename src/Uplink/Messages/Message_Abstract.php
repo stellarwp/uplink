@@ -22,7 +22,7 @@ abstract class Message_Abstract {
 	 *
 	 * @param ContainerInterface|null $container Container instance.
 	 */
-	public function __construct( ContainerInterface $container = null ) {
+	public function __construct( $container = null ) {
 		$this->container = $container ?: Config::get_container();
 	}
 

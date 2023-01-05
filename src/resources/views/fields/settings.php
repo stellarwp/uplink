@@ -24,7 +24,7 @@ $group = Config::get_container()->get( License_Field::class )->get_group_name( s
 				<?php do_settings_fields( $group, sprintf( '%s_%s', License_Field::LICENSE_FIELD_ID, sanitize_title( $plugin->get_name() ) ) ); ?>
 			</table>
 			<?php do_action( 'stellar_uplink_' . Config::get_hook_prefix(). 'license_field_after_field', $plugin->get_slug() ) ?>
-			<?php submit_button( esc_html__( 'Save Changes', '%stellar-uplink-domain%' ) );?>
+			<?php submit_button( esc_html__( 'Save Changes', '%TEXTDOMAIN%' ) );?>
 		</form>
 		<?php do_action( 'stellar_uplink_' . Config::get_hook_prefix(). 'license_field_after_form', $plugin->get_slug() ) ?>
 	</div>

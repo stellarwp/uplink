@@ -3,8 +3,9 @@
 namespace StellarWP\Uplink\Contracts;
 
 use StellarWP\ContainerContract\ContainerInterface;
+use StellarWP\Uplink\Config;
 
-abstract class Abstract_Subscriber implements Subscriber_Interface {
+abstract class Abstract_Provider implements Provider_Interface {
 
 	/**
 	 * @var ContainerInterface
@@ -16,8 +17,8 @@ abstract class Abstract_Subscriber implements Subscriber_Interface {
 	 *
 	 * @param ContainerInterface $container
 	 */
-	public function __construct( ContainerInterface $container ) {
-		$this->container = $container;
+	public function __construct( $container = null ) {
+		$this->container = $container ?: Config::get_container();
 	}
 
 }

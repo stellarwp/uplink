@@ -8,7 +8,7 @@ class Valid_Key_New extends Valid_Key {
 	 */
 	public function get(): string {
 		$message = sprintf(
-			__( 'Thanks for setting up a valid key. It will expire on %s.', '%stellar-uplink-domain%' ),
+			__( 'Thanks for setting up a valid key. It will expire on %s.', '%TEXTDOMAIN%' ),
 			$this->expiration
 		);
 

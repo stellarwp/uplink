@@ -20,7 +20,7 @@ class Valid_Key extends Message_Abstract {
 	 * @param string $expiration Expiration date.
 	 * @param ContainerInterface|null $container Container instance.
 	 */
-	public function __construct( $expiration, ContainerInterface $container = null ) {
+	public function __construct( $expiration, $container = null ) {
 		parent::__construct( $container );
 
 		$this->expiration = $expiration;
@@ -31,7 +31,7 @@ class Valid_Key extends Message_Abstract {
 	 */
 	public function get(): string {
 		$message = sprintf(
-			__( 'Valid key! Expires on %s.', '%stellar-uplink-domain%' ),
+			__( 'Valid key! Expires on %s.', '%TEXTDOMAIN%' ),
 			$this->expiration
 		);
 

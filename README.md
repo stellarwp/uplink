@@ -37,13 +37,13 @@ add_action( 'plugins_loaded', function() {
 	// Optional: Set a unique prefix for actions & filters.
 	Config::set_hook_prefix( 'my-custom-prefix' );
 
-	Uplink::instance()->register();
+	Uplink::init();
 }, 0 );
 ```
 
 ## Translation
 
-Package is using `__( 'Invalid request: nonce field is expired. Please try again.', '%stellar-uplink-domain%' )` function for translation. In order to change domain placeholder `'%stellar-uplink-domain%'` to your plugin translation domain run
+Package is using `__( 'Invalid request: nonce field is expired. Please try again.', '%TEXTDOMAIN%' )` function for translation. In order to change domain placeholder `'%TEXTDOMAIN%'` to your plugin translation domain run
 ```bash
 ./vendor/bin/stellar-uplink domain=<your-plugin-domain>
 ```

@@ -92,7 +92,11 @@ class Plugin extends Resource {
 	 * @return string
 	 */
 	protected function get_version_from_response( $response ): string {
-		return $response->get_raw_response()->version ?: '';
+		if ( ! isset( $response->get_raw_response()->version ) ) {
+			return '';
+		}
+
+		return $response->get_raw_response()->version;
 	}
 
 	/**

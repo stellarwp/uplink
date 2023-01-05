@@ -21,7 +21,7 @@ class Update_Now extends Message_Abstract {
 	 * @param Plugin $resource Resource instance.
 	 * @param ContainerInterface|null $container Container instance.
 	 */
-	public function __construct( Plugin $resource, ContainerInterface $container = null ) {
+	public function __construct( Plugin $resource, $container = null ) {
 		parent::__construct( $container );
 
 		$this->resource = $resource;

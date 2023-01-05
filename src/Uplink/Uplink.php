@@ -2,95 +2,52 @@
 
 namespace StellarWP\Uplink;
 
-use StellarWP\ContainerContract\ContainerInterface;
-use StellarWP\Uplink\Admin\Provider;
-use StellarWP\Uplink\API\Client;
-use StellarWP\Uplink\Resources\Collection;
-use StellarWP\Uplink\Site\Data;
-
 class Uplink {
-
-	/**
-	 * The container that should be used for loading library resources.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var ContainerInterface
-	 */
-	private ContainerInterface $container;
 
 	/**
 	 * Initializes the service provider.
 	 *
 	 * @since 1.0.0
 	 */
-	public function init() : void {
+	public static function init() : void {
 		if ( ! Config::has_container() ) {
 			throw new \RuntimeException( 'You must call StellarWP\Uplink\Config::set_container() before calling StellarWP\Telemetry::init().' );
 		}
 
-		$this->register();
-	}
-
-	/**
-	 * The current instance of the library.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var self
-	 */
-	private static self $instance;
-
-	/**
-	 * Returns the current instance or creates one to return.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return self
-	 */
-	public static function instance() {
-		if ( ! isset( self::$instance ) ) {
-			self::$instance = new self();
-		}
-
-		return self::$instance;
-	}
-
-	/**
-	 * Gets the container.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return ContainerInterface
-	 */
-	public function container() {
-		return $this->container;
-	}
-
-	/**
-	 * Binds and sets up implementations.
-	 *
-	 * @since 1.0.0
-	 */
-	public function register(): void {
 		$container = Config::get_container();
 
-		$container->singleton( static::class, $this );
 		$container->singleton( API\Client::class, API\Client::class );
 		$container->singleton( Resources\Collection::class, Resources\Collection::class );
 		$container->singleton( Site\Data::class, Site\Data::class );
+		$container->singleton( Admin\Provider::class, Admin\Provider::class );
 
-		$this->container = $container;
-		(new Provider( $this->container ))->register();
-
-		$this->register_hooks();
+		if ( static::is_enabled() ) {
+			$container->get( Admin\Provider::class )->register();
+		}
 	}
 
 	/**
-	 * Registers all hooks.
+	 * Returns whether or not licensing validation is disabled.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @return bool
 	 */
-	private function register_hooks() : void {
+	public static function is_disabled() : bool {
+		$is_pue_disabled       = defined( 'TRIBE_DISABLE_PUE' ) && TRIBE_DISABLE_PUE;
+		$is_licensing_disabled = defined( 'STELLARWP_LICENSING_DISABLED' ) && STELLARWP_LICENSING_DISABLED;
+
+		return $is_pue_disabled || $is_licensing_disabled;
+	}
+
+	/**
+	 * Returns whether or not licensing validation is enabled.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return bool
+	 */
+	public static function is_enabled() : bool {
+		return ! static::is_disabled();
 	}
 }

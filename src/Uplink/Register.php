@@ -13,15 +13,15 @@ class Register {
 	 *
 	 * @param string $name Resource name.
 	 * @param string $slug Resource slug.
+	 * @param string $version Resource version.
 	 * @param string $path Resource path to bootstrap file.
 	 * @param string $class Resource class.
-	 * @param string $version Resource version.
 	 * @param string $license_class Resource license class
 	 *
 	 * @return Resources\Resource
 	 */
-	public static function plugin( $name, $slug, $path, $class, $version, $license_class = null ) {
-		return Resources\Plugin::register( $name, $slug, $path, $class, $version, $license_class );
+	public static function plugin( $name, $slug, $version, $path, $class, $license_class = null ) {
+		return Resources\Plugin::register( $name, $slug, $version, $path, $class, $license_class );
 	}
 
 	/**
@@ -31,14 +31,14 @@ class Register {
 	 *
 	 * @param string $name Resource name.
 	 * @param string $slug Resource slug.
+	 * @param string $version Resource version.
 	 * @param string $path Resource path to bootstrap file.
 	 * @param string $class Resource class.
-	 * @param string $version Resource version.
 	 * @param string $license_class Resource license class.
 	 *
 	 * @return Resources\Resource
 	 */
-	public static function service( $name, $slug, $path, $class, $version, $license_class = null ) {
-		return Resources\Service::register( $name, $slug, $path, $class, $version, $license_class );
+	public static function service( $name, $slug, $version, $path, $class, $license_class = null ) {
+		return Resources\Service::register( $name, $slug, $version, $path, $class, $license_class );
 	}
 }

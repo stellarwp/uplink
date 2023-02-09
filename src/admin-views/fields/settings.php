@@ -27,9 +27,15 @@ $group = $field->get_group_name( sanitize_title( $plugin->get_slug() ) );
 		<form method="post" action="options.php">
 			<?php settings_fields( $group ); ?>
 			<?php do_action( 'stellar_uplink_' . Config::get_hook_prefix(). 'license_field_before_field', $plugin->get_slug() ) ?>
-			<table class="form-table" role="presentation">
-				<?php $field->do_settings_fields( $group, sprintf( '%s_%s', License_Field::LICENSE_FIELD_ID, sanitize_title( $plugin->get_slug() ) ), $show_title ); ?>
-			</table>
+			<?php if ( $show_title ) : ?>
+				<table class="form-table" role="presentation">
+			<?php endif; ?>
+				<div class="stellarwp-uplink__license-field">
+					<?php $field->do_settings_fields( $group, sprintf( '%s_%s', License_Field::LICENSE_FIELD_ID, sanitize_title( $plugin->get_slug() ) ), $show_title ); ?>
+				</div>
+			<?php if ( $show_title ) : ?>
+				</table>
+			<?php endif; ?>
 			<?php do_action( 'stellar_uplink_' . Config::get_hook_prefix(). 'license_field_after_field', $plugin->get_slug() ) ?>
 			<?php if ( $show_button ) : ?>
 				<?php submit_button( esc_html__( 'Save Changes', '%TEXTDOMAIN%' ) );?>

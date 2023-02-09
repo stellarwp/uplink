@@ -169,20 +169,23 @@ abstract class Field {
 				$class = ' class="' . esc_attr( $field['args']['class'] ) . '"';
 			}
 
-			echo "<tr{$class}>";
-
 			if ( $show_title ) {
+				echo "<tr{$class}>";
 				if ( ! empty( $field['args']['label_for'] ) ) {
 					echo '<th scope="row"><label for="' . esc_attr( $field['args']['label_for'] ) . '">' . $field['title'] . '</label></th>';
 				} else {
 					echo '<th scope="row">' . $field['title'] . '</th>';
 				}
+
+				echo '<td>';
 			}
 
-			echo '<td>';
 			call_user_func( $field['callback'], $field['args'] );
-			echo '</td>';
-			echo '</tr>';
+
+			if ( $show_title ) {
+				echo '</td>';
+				echo '</tr>';
+			}
 		}
 	}
 }

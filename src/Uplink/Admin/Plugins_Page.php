@@ -139,7 +139,7 @@ class Plugins_Page {
 		}
 		$notices = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix() . 'plugin_notices', [] );
 		$path    = preg_replace( '/.*\/vendor/', plugin_dir_url( $this->get_plugin()->get_path() ) . 'vendor', dirname( __DIR__, 2 ) );
-		$js_src  = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix() . 'admin_js_source', $path . '/resources/js/notices.js' );
+		$js_src  = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix() . 'admin_js_source', $path . '/assets/js/notices.js' );
 		$handle  = 'stellar_uplink-notices';
 
 		wp_register_script( $handle, $js_src, [ 'jquery' ], '1.0.0', true );

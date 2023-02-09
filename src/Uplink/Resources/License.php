@@ -372,7 +372,7 @@ class License {
 	 *
 	 * @param int $valid 0 for invalid, 1 or 2 for valid.
 	 */
-	public function set_key_status( $valid ): void {
+	public function set_key_status( $valid ) {
 		$status = Utils\Checks::is_truthy( $valid ) ? 'valid' : 'invalid';
 		update_option( $this->get_key_status_option_name(), $status );
 		update_option( $this->get_key_status_option_name() . '_timeout', $this->check_period * HOUR_IN_SECONDS );

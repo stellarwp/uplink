@@ -394,7 +394,7 @@ class Validation_Response {
 	 *
 	 * @param bool $is_valid Whether the validation response should be set as valid or not.
 	 */
-	public function set_is_valid( bool $is_valid ): void {
+	public function set_is_valid( bool $is_valid ) {
 		$this->is_valid = $is_valid;
 	}
 
@@ -403,7 +403,7 @@ class Validation_Response {
 	 *
 	 * @since 1.0.0
 	 */
-	private function parse(): void {
+	private function parse() {
 		$this->current_key = $this->resource->get_license_key( $this->validation_type );
 		$this->expiration  = isset( $this->response->expiration ) ? $this->response->expiration : __( 'unknown date', 'stellar-uplink-client' );
 

@@ -27,7 +27,7 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @since 1.0.0
 	 */
-	public function register_hooks(): void {
+	public function register_hooks() {
 		add_filter( 'plugins_api', [ $this, 'filter_plugins_api' ], 10, 3 );
 		add_filter( 'pre_set_site_transient_update_plugins', [ $this, 'filter_pre_set_site_transient_update_plugins' ], 10, 1 );
 		add_filter( 'upgrader_pre_download', [ $this, 'filter_upgrader_pre_download' ], 5, 3 );
@@ -75,7 +75,7 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @since 1.0.0
 	 */
-	public function ajax_validate_license(): void {
+	public function ajax_validate_license() {
 		$this->container->get( Ajax::class )->validate_license();
 	}
 
@@ -84,7 +84,7 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @since 1.0.0
 	 */
-	public function admin_init(): void {
+	public function admin_init() {
 		$this->container->get( License_Field::class )->register_settings();
 	}
 
@@ -93,7 +93,7 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @since 1.0.0
 	 */
-	public function enqueue_assets(): void {
+	public function enqueue_assets() {
 		$this->container->get( License_Field::class )->enqueue_assets();
 	}
 
@@ -102,7 +102,7 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @since 1.0.0
 	 */
-	public function admin_notices(): void {
+	public function admin_notices() {
 		$this->container->get( Notice::class )->setup_notices();
 	}
 
@@ -113,7 +113,7 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @param mixed $page
 	 */
-	public function display_plugin_messages( mixed $page ): void {
+	public function display_plugin_messages( $page ) {
 		$this->container->get( Plugins_Page::class )->display_plugin_messages( $page );
 	}
 
@@ -124,14 +124,14 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @param mixed $page
 	 */
-	public function store_admin_notices( mixed $page ): void {
+	public function store_admin_notices( $page ) {
 		$this->container->get( Plugins_Page::class )->store_admin_notices( $page );
 	}
 
 	/**
 	 * Remove the default inline update message for a plugin.
 	 */
-	public function remove_default_update_message(): void {
+	public function remove_default_update_message() {
 		$this->container->get( Plugins_Page::class )->remove_default_inline_update_msg();
 	}
 

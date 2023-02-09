@@ -19,12 +19,12 @@ abstract class Field {
 	 */
 	protected string $path = '';
 
-	abstract public function register_settings(): void;
+	abstract public function register_settings();
 
 	/**
 	 * @param array<string> $args
 	 */
-	public function get_description( array $args = [] ): void {
+	public function get_description( array $args = [] ) {
 		if ( empty( $args['description'] ) ) {
 			return;
 		}
@@ -60,7 +60,7 @@ abstract class Field {
 	/**
 	 * @param array<string> $args
 	 */
-	public function field_html( array $args = [] ): void {
+	public function field_html( array $args = [] ) {
 		$field = sprintf(
 			'<div class="%6$s" id="%2$s" data-slug="%2$s" data-plugin="%9$s">
                     <fieldset class="stellarwp-uplink__settings-group">
@@ -92,7 +92,7 @@ abstract class Field {
 		return '<input type="hidden" value="' . wp_create_nonce( self::get_group_name() ) . '" class="wp-nonce" />';
 	}
 
-	abstract public function render(): void;
+	abstract public function render();
 
 	/**
 	 * @param array<mixed> $context

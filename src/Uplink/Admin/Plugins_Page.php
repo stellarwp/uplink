@@ -24,7 +24,7 @@ class Plugins_Page {
 	 *
 	 * @param string $page
 	 */
-	public function display_plugin_messages( string $page ): void {
+	public function display_plugin_messages( string $page ) {
 		if ( 'plugins.php' !== $page ) {
 			return;
 		}
@@ -130,7 +130,7 @@ class Plugins_Page {
 	 *
 	 * @param string $page
 	 */
-	public function store_admin_notices( string $page ): void {
+	public function store_admin_notices( string $page ) {
 		if ( 'plugins.php' !== $page ) {
 			return;
 		}
@@ -161,7 +161,7 @@ class Plugins_Page {
 	 * Prevent the default inline update-available messages from appearing, as we
 	 * have implemented our own
 	 */
-	public function remove_default_inline_update_msg(): void {
+	public function remove_default_inline_update_msg() {
 		remove_action( "after_plugin_row_{$this->get_plugin()->get_path()}", 'wp_plugin_update_row' );
 	}
 

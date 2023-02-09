@@ -17,7 +17,7 @@ class Ajax {
 		$this->container = Config::get_container();
 	}
 
-	public function validate_license(): void {
+	public function validate_license() {
 		$submission = filter_var_array( $_POST, [
 			'_wpnonce' => FILTER_SANITIZE_STRING,
 			'key'      => FILTER_SANITIZE_STRING,

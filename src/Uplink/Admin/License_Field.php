@@ -21,7 +21,7 @@ class License_Field extends Field {
 		return sprintf( '%s_%s', self::LICENSE_FIELD_ID, sanitize_title( $plugin->get_name() ) );
 	}
 
-	public function register_settings(): void {
+	public function register_settings() {
 		$collection = Config::get_container()->get( Collection::class );
 		$plugin     = $collection->current();
 
@@ -66,13 +66,13 @@ class License_Field extends Field {
 		return apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'license_field_html', $html, $plugin->get_slug() );
 	}
 
-	public function render(): void {
+	public function render() {
 		echo $this->get_content( [
 			'plugin' => $this->get_plugin()
 		] );
 	}
 
-	public function enqueue_assets(): void{
+	public function enqueue_assets() {
 		$handle = 'stellar-uplink-license-admin';
 		$path   = preg_replace( '/.*\/vendor/', plugin_dir_url( $this->get_plugin()->get_path() ) . 'vendor', dirname( __DIR__, 2 ) );
 		$js_src    = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'admin_js_source', $path .  '/resources/js/key-admin.js' );

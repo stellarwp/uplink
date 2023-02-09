@@ -9,7 +9,7 @@ class Uplink {
 	 *
 	 * @since 1.0.0
 	 */
-	public static function init() : void {
+	public static function init() {
 		if ( ! Config::has_container() ) {
 			throw new \RuntimeException( 'You must call StellarWP\Uplink\Config::set_container() before calling StellarWP\Telemetry::init().' );
 		}

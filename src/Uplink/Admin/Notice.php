@@ -23,7 +23,7 @@ class Notice {
 	 */
 	protected array $notices = [];
 
-	public function setup_notices(): void {
+	public function setup_notices() {
 		if ( empty( $this->notices ) ) {
 			return;
 		}
@@ -52,7 +52,7 @@ class Notice {
 	 * @param string $notice_type
 	 * @param string $plugin_name
 	 */
-	public function add_notice( string $notice_type, string $plugin_name ): void {
+	public function add_notice( string $notice_type, string $plugin_name ) {
 		$this->clear_notices( $plugin_name, true );
 		$this->notices[ $notice_type ][ $plugin_name ] = true;
 		$this->save_notices();
@@ -71,7 +71,7 @@ class Notice {
 	 * @param string $plugin_name
 	 * @param bool $defer_saving_change = false
 	 */
-	public function clear_notices( string $plugin_name, bool $defer_saving_change = false ): void {
+	public function clear_notices( string $plugin_name, bool $defer_saving_change = false ) {
 		foreach ( $this->notices as $notice_type => &$list_of_plugins ) {
 			unset( $list_of_plugins[ $plugin_name ] );
 		}
@@ -84,7 +84,7 @@ class Notice {
 	/**
 	 * Saves any license key notices already added.
 	 */
-	public function save_notices(): void {
+	public function save_notices() {
 		update_option( self::STORE_KEY, $this->notices );
 
 		/**

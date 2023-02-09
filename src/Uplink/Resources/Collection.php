@@ -96,7 +96,7 @@ class Collection implements \ArrayAccess, \Iterator {
 	/**
 	 * @inheritDoc
 	 */
-	public function next(): void {
+	public function next() {
 		next( $this->resources );
 	}
 
@@ -117,14 +117,14 @@ class Collection implements \ArrayAccess, \Iterator {
 	/**
 	 * @inheritDoc
 	 */
-	public function offsetSet( $offset, $value ): void {
+	public function offsetSet( $offset, $value ) {
 		$this->resources[ $offset ] = $value;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function offsetUnset( $offset ): void {
+	public function offsetUnset( $offset ) {
 		unset( $this->resources[ $offset ] );
 	}
 
@@ -135,14 +135,14 @@ class Collection implements \ArrayAccess, \Iterator {
 	 *
 	 * @param string $slug Resource slug.
 	 */
-	public function remove( $slug ): void {
+	public function remove( $slug ) {
 		$this->offsetUnset( $slug );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function rewind(): void {
+	public function rewind() {
 		reset( $this->resources );
 	}
 

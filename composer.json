@@ -22,7 +22,6 @@
     },
     "require": {
         "php": "^7.0 | ^8.0",
-        "lucatume/di52": "^3.0",
         "stellarwp/container-contract": "^1.0"
     },
     "config": {

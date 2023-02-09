@@ -104,9 +104,12 @@ abstract class Field {
 	/**
 	 * @since 1.0.0
 	 *
+	 * @param bool $show_title Whether to show the title or not.
+	 * @param bool $show_button Whether to show the submit button or not.
+	 *
 	 * @return void
 	 */
-	abstract public function render();
+	abstract public function render( bool $show_title = true, bool $show_button = true );
 
 	/**
 	 * @param array<mixed> $context

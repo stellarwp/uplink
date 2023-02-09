@@ -18,7 +18,7 @@ class License_Field extends Field {
 	 * @return string
 	 */
 	public function get_section_name( Plugin $plugin ) : string {
-		return sprintf( '%s_%s', self::LICENSE_FIELD_ID, sanitize_title( $plugin->get_name() ) );
+		return sprintf( '%s_%s', self::LICENSE_FIELD_ID, sanitize_title( $plugin->get_slug() ) );
 	}
 
 	/**
@@ -31,19 +31,19 @@ class License_Field extends Field {
 		$plugin     = $collection->current();
 
 		add_settings_section(
-			sprintf( '%s_%s', self::LICENSE_FIELD_ID, sanitize_title( $plugin->get_name() ) ),
+			sprintf( '%s_%s', self::LICENSE_FIELD_ID, sanitize_title( $plugin->get_slug() ) ),
 			'',
 			[ $this, 'description' ], // @phpstan-ignore-line
-			$this->get_group_name( sanitize_title( $plugin->get_name() ) )
+			$this->get_group_name( sanitize_title( $plugin->get_slug() ) )
 		);
 
-		register_setting( $this->get_group_name( sanitize_title( $plugin->get_name() ) ), $plugin->get_license_object()->get_key_option_name() );
+		register_setting( $this->get_group_name( sanitize_title( $plugin->get_slug() ) ), $plugin->get_license_object()->get_key_option_name() );
 
 		add_settings_field(
 			$plugin->get_license_object()->get_key_option_name(),
 			__( 'License Key', '%TEXTDOMAIN%' ),
 			[ $this, 'field_html' ],
-			$this->get_group_name( sanitize_title( $plugin->get_name() ) ),
+			$this->get_group_name( sanitize_title( $plugin->get_slug() ) ),
 			$this->get_section_name( $plugin ),
 			[
 				'id'           => $plugin->get_license_object()->get_key_option_name(),
@@ -75,13 +75,13 @@ class License_Field extends Field {
 	}
 
 	/**
-	 * @since 1.0.0
-	 *
-	 * @return void
+	 * @inheritDoc
 	 */
-	public function render() {
+	public function render( bool $show_title = true, bool $show_button = true ) {
 		echo $this->get_content( [
-			'plugin' => $this->get_plugin(),
+			'plugin'      => $this->get_plugin(),
+			'show_title'  => $show_title,
+			'show_button' => $show_button,
 		] );
 	}
 

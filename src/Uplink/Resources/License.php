@@ -371,6 +371,8 @@ class License {
 	 * @since TBD
 	 *
 	 * @param int $valid 0 for invalid, 1 or 2 for valid.
+	 *
+	 * @return void
 	 */
 	public function set_key_status( $valid ) {
 		$status = Utils\Checks::is_truthy( $valid ) ? 'valid' : 'invalid';

@@ -148,6 +148,8 @@ class Plugin extends Resource {
 	 * @since 1.0.0
 	 *
 	 * @param mixed $status
+	 *
+	 * @return void
 	 */
 	protected function set_update_status( $status ) {
 		update_option( $this->get_update_status_option_name(), $status );

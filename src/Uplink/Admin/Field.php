@@ -19,10 +19,17 @@ abstract class Field {
 	 */
 	protected string $path = '';
 
+	/**
+	 * @since 1.0.0
+	 *
+	 * @return void
+	 */
 	abstract public function register_settings();
 
 	/**
 	 * @param array<string> $args
+	 *
+	 * @return void
 	 */
 	public function get_description( array $args = [] ) {
 		if ( empty( $args['description'] ) ) {
@@ -40,7 +47,7 @@ abstract class Field {
 	 *
 	 * @return string
 	 */
-	public function get_html_content( array $args = [] ): string {
+	public function get_html_content( array $args = [] ) : string {
 		if ( empty( $args['html'] ) ) {
 			return '';
 		}
@@ -53,12 +60,14 @@ abstract class Field {
 	 *
 	 * @return string
 	 */
-	public function get_group_name( string $group_modifier = '' ): string {
+	public function get_group_name( string $group_modifier = '' ) : string {
 		return sprintf( '%s_%s', self::STELLARWP_UPLINK_GROUP, $group_modifier );
 	}
 
 	/**
 	 * @param array<string> $args
+	 *
+	 * @return void
 	 */
 	public function field_html( array $args = [] ) {
 		$field = sprintf(
@@ -80,7 +89,7 @@ abstract class Field {
 			$args['plugin']
 		);
 
-		echo apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'license_field_html_render', $field, $args );
+		echo apply_filters( 'stellar_uplink_' . Config::get_hook_prefix() . 'license_field_html_render', $field, $args );
 
 		$this->get_description( $args );
 	}
@@ -88,10 +97,15 @@ abstract class Field {
 	/**
 	 * @return string
 	 */
-	public function add_nonce_field(): string {
+	public function add_nonce_field() : string {
 		return '<input type="hidden" value="' . wp_create_nonce( self::get_group_name() ) . '" class="wp-nonce" />';
 	}
 
+	/**
+	 * @since 1.0.0
+	 *
+	 * @return void
+	 */
 	abstract public function render();
 
 	/**
@@ -110,8 +124,8 @@ abstract class Field {
 	/**
 	 * @return string
 	 */
-	public function get_path(): string {
-		return apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'field-template_path', dirname( __DIR__, 2 ) . $this->path, $this->path );
+	public function get_path() : string {
+		return apply_filters( 'stellar_uplink_' . Config::get_hook_prefix() . 'field-template_path', dirname( __DIR__, 2 ) . $this->path, $this->path );
 	}
 
 	/**

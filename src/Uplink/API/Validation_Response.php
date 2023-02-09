@@ -131,10 +131,10 @@ class Validation_Response {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string|null    $key             License key.
-	 * @param string         $validation_type Validation type (local or network).
-	 * @param stdClass      $response        Validation response.
-	 * @param Resource       $resource        Resource instance.
+	 * @param string|null             $key             License key.
+	 * @param string                  $validation_type Validation type (local or network).
+	 * @param stdClass                $response        Validation response.
+	 * @param Resource                $resource        Resource instance.
 	 * @param ContainerInterface|null $container       Container instance.
 	 */
 	public function __construct( $key, string $validation_type, stdClass $response, Resource $resource, $container = null ) {
@@ -154,7 +154,7 @@ class Validation_Response {
 	 *
 	 * @return int
 	 */
-	public function get_daily_limit(): int {
+	public function get_daily_limit() : int {
 		return $this->daily_limit;
 	}
 
@@ -165,7 +165,7 @@ class Validation_Response {
 	 *
 	 * @return string
 	 */
-	public function get_key(): string {
+	public function get_key() : string {
 		return ! empty( $this->replacement_key ) ? $this->replacement_key : $this->key;
 	}
 
@@ -235,7 +235,7 @@ class Validation_Response {
 	 *
 	 * @return string
 	 */
-	public function get_result(): string {
+	public function get_result() : string {
 		return $this->result;
 	}
 
@@ -302,8 +302,8 @@ class Validation_Response {
 	/**
 	 * @return stdClass
 	 */
-	public function handle_api_errors(): stdClass {
-		$update     = new stdClass;
+	public function handle_api_errors() : stdClass {
+		$update      = new stdClass;
 		$copy_fields = [
 			'id',
 			'slug',
@@ -342,7 +342,7 @@ class Validation_Response {
 	 *
 	 * @return stdClass
 	 */
-	public function get_expire_details(): stdClass {
+	public function get_expire_details() : stdClass {
 		$update = new stdClass;
 
 		$update->version        = $this->response->version ?: '';
@@ -361,7 +361,7 @@ class Validation_Response {
 	 *
 	 * @return string
 	 */
-	public function get_version(): string {
+	public function get_version() : string {
 		return $this->version ?: '';
 	}
 
@@ -372,7 +372,7 @@ class Validation_Response {
 	 *
 	 * @return bool
 	 */
-	public function has_replacement_key(): bool {
+	public function has_replacement_key() : bool {
 		return ! empty( $this->replacement_key );
 	}
 
@@ -383,7 +383,7 @@ class Validation_Response {
 	 *
 	 * @return bool
 	 */
-	public function is_valid(): bool {
+	public function is_valid() : bool {
 		return $this->is_valid;
 	}
 
@@ -393,6 +393,8 @@ class Validation_Response {
 	 * @since 1.0.0
 	 *
 	 * @param bool $is_valid Whether the validation response should be set as valid or not.
+	 *
+	 * @return void
 	 */
 	public function set_is_valid( bool $is_valid ) {
 		$this->is_valid = $is_valid;
@@ -402,6 +404,8 @@ class Validation_Response {
 	 * Parses the response from the API.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @return void
 	 */
 	private function parse() {
 		$this->current_key = $this->resource->get_license_key( $this->validation_type );
@@ -492,9 +496,9 @@ class Validation_Response {
 			$info->author = $this->response->author ?? '';
 		}
 
-		if ( isset( $this->response->sections ) &&  is_object( $this->response->sections ) ) {
+		if ( isset( $this->response->sections ) && is_object( $this->response->sections ) ) {
 			$info->sections = get_object_vars( $this->response->sections );
-		} elseif ( isset( $this->response->sections ) &&  is_array( $this->response->sections ) ) {
+		} elseif ( isset( $this->response->sections ) && is_array( $this->response->sections ) ) {
 			$info->sections = $this->response->sections;
 		} else {
 			$info->sections = [ 'description' => '' ];

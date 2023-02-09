@@ -10,6 +10,8 @@ class Provider extends Abstract_Provider {
 	 * Register the service provider.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @return void
 	 */
 	public function register() {
 		$this->container->singleton( Plugins_Page::class, Plugins_Page::class );
@@ -26,6 +28,8 @@ class Provider extends Abstract_Provider {
 	 * Register the hooks for the service provider.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @return void
 	 */
 	public function register_hooks() {
 		add_filter( 'plugins_api', [ $this, 'filter_plugins_api' ], 10, 3 );
@@ -33,7 +37,7 @@ class Provider extends Abstract_Provider {
 		add_filter( 'upgrader_pre_download', [ $this, 'filter_upgrader_pre_download' ], 5, 3 );
 		add_filter( 'upgrader_source_selection', [ $this, 'filter_upgrader_source_selection' ], 15, 4 );
 
-		add_action( 'wp_ajax_pue-validate-key-uplink' , [ $this, 'ajax_validate_license' ], 10, 0 );
+		add_action( 'wp_ajax_pue-validate-key-uplink', [ $this, 'ajax_validate_license' ], 10, 0 );
 		add_action( 'admin_init', [ $this, 'admin_init' ], 10, 0 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'display_plugin_messages' ], 1, 1 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_assets' ], 10, 0 );
@@ -47,8 +51,8 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param mixed        $result
-	 * @param string       $action
+	 * @param mixed               $result
+	 * @param string              $action
 	 * @param array<mixed>|object $args
 	 *
 	 * @return mixed
@@ -74,6 +78,8 @@ class Provider extends Abstract_Provider {
 	 * Validate the license.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @return void
 	 */
 	public function ajax_validate_license() {
 		$this->container->get( Ajax::class )->validate_license();
@@ -83,6 +89,8 @@ class Provider extends Abstract_Provider {
 	 * Hooked to the admin_init action. Register the settings.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @return void
 	 */
 	public function admin_init() {
 		$this->container->get( License_Field::class )->register_settings();
@@ -92,6 +100,8 @@ class Provider extends Abstract_Provider {
 	 * Hooked to the admin_enqueue_scripts action. Enqueues assets.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @return void
 	 */
 	public function enqueue_assets() {
 		$this->container->get( License_Field::class )->enqueue_assets();
@@ -101,6 +111,8 @@ class Provider extends Abstract_Provider {
 	 * Hooked to the admin_notices action. Sets up notices.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @return void
 	 */
 	public function admin_notices() {
 		$this->container->get( Notice::class )->setup_notices();
@@ -112,6 +124,8 @@ class Provider extends Abstract_Provider {
 	 * @since 1.0.0
 	 *
 	 * @param mixed $page
+	 *
+	 * @return void
 	 */
 	public function display_plugin_messages( $page ) {
 		$this->container->get( Plugins_Page::class )->display_plugin_messages( $page );
@@ -123,6 +137,8 @@ class Provider extends Abstract_Provider {
 	 * @since 1.0.0
 	 *
 	 * @param mixed $page
+	 *
+	 * @return void
 	 */
 	public function store_admin_notices( $page ) {
 		$this->container->get( Plugins_Page::class )->store_admin_notices( $page );
@@ -130,6 +146,10 @@ class Provider extends Abstract_Provider {
 
 	/**
 	 * Remove the default inline update message for a plugin.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return void
 	 */
 	public function remove_default_update_message() {
 		$this->container->get( Plugins_Page::class )->remove_default_inline_update_msg();
@@ -140,9 +160,9 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param bool        $reply    Whether to bail without returning the package.
-	 *                              Default false.
-	 * @param string      $package  The package file name or URL.
+	 * @param bool         $reply    Whether to bail without returning the package.
+	 *                               Default false.
+	 * @param string       $package  The package file name or URL.
 	 * @param \WP_Upgrader $upgrader The WP_Upgrader instance.
 	 *
 	 * @return mixed
@@ -158,8 +178,8 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @param string       $source        File source location.
 	 * @param mixed        $remote_source Remote file source location.
-	 * @param \WP_Upgrader  $upgrader      WP_Upgrader instance.
-	 * @param array<mixed> $extras         Extra arguments passed to hooked filters.
+	 * @param \WP_Upgrader $upgrader      WP_Upgrader instance.
+	 * @param array<mixed> $extras        Extra arguments passed to hooked filters.
 	 *
 	 * @return string|\WP_Error
 	 */

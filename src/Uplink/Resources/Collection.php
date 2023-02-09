@@ -134,6 +134,8 @@ class Collection implements \ArrayAccess, \Iterator {
 	 * @since 1.0.0
 	 *
 	 * @param string $slug Resource slug.
+	 *
+	 * @return void
 	 */
 	public function remove( $slug ) {
 		$this->offsetUnset( $slug );

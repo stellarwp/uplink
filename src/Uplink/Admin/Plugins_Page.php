@@ -23,6 +23,8 @@ class Plugins_Page {
 	 * @since 1.0.0
 	 *
 	 * @param string $page
+	 *
+	 * @return void
 	 */
 	public function display_plugin_messages( string $page ) {
 		if ( 'plugins.php' !== $page ) {
@@ -77,7 +79,6 @@ class Plugins_Page {
 			}
 
 
-
 			$messages[] = sprintf(
 				'<p>%s</p>',
 				$update_message
@@ -107,7 +108,7 @@ class Plugins_Page {
 			'message_row_html' => $message_row_html,
 		];
 
-		add_filter( 'stellar_uplink_' . Config::get_hook_prefix(). 'plugin_notices', [ $this, 'add_notice_to_plugin_notices' ] );
+		add_filter( 'stellar_uplink_' . Config::get_hook_prefix() . 'plugin_notices', [ $this, 'add_notice_to_plugin_notices' ] );
 	}
 
 	/**
@@ -115,7 +116,7 @@ class Plugins_Page {
 	 *
 	 * @return array<mixed>
 	 */
-	public function add_notice_to_plugin_notices( array $notices ): array {
+	public function add_notice_to_plugin_notices( array $notices ) : array {
 		if ( ! $this->plugin_notice || $this->get_plugin()->is_network_licensed() ) {
 			return $notices;
 		}
@@ -129,14 +130,16 @@ class Plugins_Page {
 	 * Add notices as JS variable
 	 *
 	 * @param string $page
+	 *
+	 * @return void
 	 */
 	public function store_admin_notices( string $page ) {
 		if ( 'plugins.php' !== $page ) {
 			return;
 		}
-		$notices = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'plugin_notices', [] );
+		$notices = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix() . 'plugin_notices', [] );
 		$path    = preg_replace( '/.*\/vendor/', plugin_dir_url( $this->get_plugin()->get_path() ) . 'vendor', dirname( __DIR__, 2 ) );
-		$js_src  = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'admin_js_source', $path .  '/resources/js/notices.js' );
+		$js_src  = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix() . 'admin_js_source', $path . '/resources/js/notices.js' );
 		$handle  = 'stellar_uplink-notices';
 
 		wp_register_script( $handle, $js_src, [ 'jquery' ], '1.0.0', true );
@@ -160,6 +163,8 @@ class Plugins_Page {
 	/**
 	 * Prevent the default inline update-available messages from appearing, as we
 	 * have implemented our own
+	 *
+	 * @return void
 	 */
 	public function remove_default_inline_update_msg() {
 		remove_action( "after_plugin_row_{$this->get_plugin()->get_path()}", 'wp_plugin_update_row' );
@@ -193,8 +198,8 @@ class Plugins_Page {
 	 *
 	 * @see plugins_api()
 	 *
-	 * @param mixed        $result
-	 * @param string       $action
+	 * @param mixed               $result
+	 * @param string              $action
 	 * @param array<mixed>|object $args
 	 *
 	 * @return mixed

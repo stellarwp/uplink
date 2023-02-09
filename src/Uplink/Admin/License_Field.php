@@ -17,10 +17,15 @@ class License_Field extends Field {
 	 *
 	 * @return string
 	 */
-	public function get_section_name( Plugin $plugin ): string {
+	public function get_section_name( Plugin $plugin ) : string {
 		return sprintf( '%s_%s', self::LICENSE_FIELD_ID, sanitize_title( $plugin->get_name() ) );
 	}
 
+	/**
+	 * @since 1.0.0
+	 *
+	 * @return void
+	 */
 	public function register_settings() {
 		$collection = Config::get_container()->get( Collection::class );
 		$plugin     = $collection->current();
@@ -49,39 +54,51 @@ class License_Field extends Field {
 				'placeholder'  => __( 'License Number', '%TEXTDOMAIN%' ),
 				'html'         => $this->get_field_html( $plugin ),
 				'html_classes' => 'stellar-uplink-license-key-field',
-				'plugin'       => $plugin->get_path()
+				'plugin'       => $plugin->get_path(),
 			]
 		);
 	}
 
 	/**
+	 * @since 1.0.0
+	 *
 	 * @param Plugin $plugin
+	 *
 	 * @return string
 	 */
-	public function get_field_html( Plugin $plugin ): string {
-		$html = sprintf( '<p class="tooltip description">%s</p>', __( 'A valid license key is required for support and updates', '%TEXTDOMAIN%') );
+	public function get_field_html( Plugin $plugin ) : string {
+		$html = sprintf( '<p class="tooltip description">%s</p>', __( 'A valid license key is required for support and updates', '%TEXTDOMAIN%' ) );
 		$html .= '<div class="license-test-results"><img src="' . esc_url( admin_url( 'images/wpspin_light.gif' ) ) . '" class="ajax-loading-license" alt="Loading" style="display: none"/>';
 		$html .= '<div class="key-validity"></div></div>';
 
-		return apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'license_field_html', $html, $plugin->get_slug() );
+		return apply_filters( 'stellar_uplink_' . Config::get_hook_prefix() . 'license_field_html', $html, $plugin->get_slug() );
 	}
 
+	/**
+	 * @since 1.0.0
+	 *
+	 * @return void
+	 */
 	public function render() {
 		echo $this->get_content( [
-			'plugin' => $this->get_plugin()
+			'plugin' => $this->get_plugin(),
 		] );
 	}
 
+	/**
+	 * @since 1.0.0
+	 *
+	 * @return void
+	 */
 	public function enqueue_assets() {
 		$handle = 'stellar-uplink-license-admin';
 		$path   = preg_replace( '/.*\/vendor/', plugin_dir_url( $this->get_plugin()->get_path() ) . 'vendor', dirname( __DIR__, 2 ) );
-		$js_src    = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'admin_js_source', $path .  '/resources/js/key-admin.js' );
+		$js_src = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix() . 'admin_js_source', $path . '/resources/js/key-admin.js' );
 
 		wp_register_script( $handle, $js_src, [ 'jquery' ], '1.0.0', true );
 		wp_enqueue_script( $handle );
 
-		$css_src    = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'admin_css_source', $path .  '/resources/css/main.css' );
+		$css_src = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix() . 'admin_css_source', $path . '/resources/css/main.css' );
 		wp_enqueue_style( 'stellar-uplink-license-admin', $css_src );
 	}
-
 }

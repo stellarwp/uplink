@@ -8,6 +8,8 @@ class Uplink {
 	 * Initializes the service provider.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @return void
 	 */
 	public static function init() {
 		if ( ! Config::has_container() ) {

@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\Site;
 
-use lucatume\DI52\Container;
+use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;
 
 class Data {
@@ -11,7 +11,7 @@ class Data {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @var Container
+	 * @var ContainerInterface
 	 */
 	protected $container;
 
@@ -103,11 +103,11 @@ class Data {
 	 */
 	public function get_domain(): string {
 		$cache_key = 'stellar_uplink_domain';
-		$domain    = $this->container->getVar( $cache_key );
+		$domain    = $this->container->get( $cache_key );
 
 		if ( null === $domain ) {
 			$domain = is_multisite() ? $this->get_domain_multisite_option() : $this->get_site_domain();
-			$this->container->setVar( $cache_key, $domain );
+			$this->container->bind( $cache_key, function() use ( $domain ) { return $domain; } );
 		}
 
 		/**
@@ -153,7 +153,7 @@ class Data {
 		$cache_key    = 'stellar_uplink_multisite_active_sites';
 
 		/** @var int|null */
-		$active_sites = $this->container->getVar( $cache_key );
+		$active_sites = $this->container->get( $cache_key );
 
 		if ( null === $active_sites ) {
 			if ( ! is_multisite() ) {
@@ -174,7 +174,7 @@ class Data {
 				$active_sites = (int) $wpdb->get_var( $sql_count );
 			}
 
-			$this->container->setVar( $cache_key, $active_sites );
+			$this->container->bind( $cache_key, function() use ( $active_sites ) { return $active_sites; } );
 		}
 
 		/**
@@ -343,7 +343,7 @@ class Data {
 		$cache_key = 'stellar_uplink_timezone';
 
 		/** @var string|null */
-		$timezone  = $this->container->getVar( $cache_key );
+		$timezone  = $this->container->get( $cache_key );
 
 		if ( null === $timezone ) {
 			$current_offset = get_option( 'gmt_offset', 0 );
@@ -371,7 +371,7 @@ class Data {
 				}
 			}
 
-			$this->container->setVar( $cache_key, $timezone );
+			$this->container->bind( $cache_key, function() use ( $timezone ) { return $timezone; } );
 		}
 
 		/**
@@ -399,14 +399,14 @@ class Data {
 		$cache_key = 'stellar_uplink_totals';
 
 		/** @var array<int>|null */
-		$totals    = $this->container->getVar( $cache_key );
+		$totals    = $this->container->get( $cache_key );
 
 		if ( null === $totals ) {
 			$totals = [
 				'all_post_types' => (int) $wpdb->get_var( "SELECT COUNT(1) FROM {$wpdb->posts}" ),
 			];
 
-			$this->container->setVar( $cache_key, $totals );
+			$this->container->bind( $cache_key, function() use ( $totals ) { return $totals; } );
 		}
 
 		/**
@@ -500,11 +500,11 @@ class Data {
 		$cache_key = 'stellar_uplink_is_public';
 
 		/** @var bool|null */
-		$is_public = $this->container->getVar( $cache_key );
+		$is_public = $this->container->get( $cache_key );
 
 		if ( null === $is_public ) {
 			$is_public = (bool) get_option('blog_public', false);
-			$this->container->setVar( $cache_key, $is_public );
+			$this->container->bind( $cache_key, function() use ( $is_public ) { return $is_public; } );
 		}
 
 		/**

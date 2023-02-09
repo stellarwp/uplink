@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\API;
 
-use lucatume\DI52\Container;
+use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Resources\Resource;
 use StellarWP\Uplink\Site\Data;
@@ -12,9 +12,9 @@ use StellarWP\Uplink\Site\Data;
  *
  * @since 1.0.0
  *
- * @property-read string    $api_root  The API root path.
- * @property-read string    $base_url  The service base URL.
- * @property-read Container $container Container instance.
+ * @property-read string             $api_root  The API root path.
+ * @property-read string             $base_url  The service base URL.
+ * @property-read ContainerInterface $container Container instance.
  */
 class Client {
 	/**
@@ -40,7 +40,7 @@ class Client {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @var Container
+	 * @var ContainerInterface
 	 */
 	protected $container;
 
@@ -90,8 +90,9 @@ class Client {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $endpoint
+	 * @param string       $endpoint
 	 * @param array<mixed> $args
+	 *
 	 * @return mixed
 	 */
 	protected function get( $endpoint, $args ) {
@@ -105,7 +106,7 @@ class Client {
 	 *
 	 * @return string
 	 */
-	public function get_api_base_url(): string {
+	public function get_api_base_url() : string {
 		/**
 		 * Filter the API base URL.
 		 *
@@ -113,7 +114,7 @@ class Client {
 		 *
 		 * @param string $base_url Base URL.
 		 */
-		return apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'api_get_base_url', static::$base_url );
+		return apply_filters( 'stellar_uplink_' . Config::get_hook_prefix() . 'api_get_base_url', static::$base_url );
 	}
 
 	/**
@@ -121,8 +122,9 @@ class Client {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $endpoint
+	 * @param string       $endpoint
 	 * @param array<mixed> $args
+	 *
 	 * @return mixed
 	 */
 	protected function post( $endpoint, $args ) {
@@ -134,8 +136,8 @@ class Client {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $method
-	 * @param string $endpoint
+	 * @param string       $method
+	 * @param string       $endpoint
 	 * @param array<mixed> $args
 	 *
 	 * @return \stdClass|null
@@ -156,10 +158,10 @@ class Client {
 		 * @since 1.0.0
 		 *
 		 * @param array<mixed> $request_args Request arguments.
-		 * @param string $endpoint Request method.
-		 * @param array<mixed> $args Request data.
+		 * @param string       $endpoint     Request method.
+		 * @param array<mixed> $args         Request data.
 		 */
-		$request_args = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'api_request_args', $request_args, $endpoint, $args );
+		$request_args = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix() . 'api_request_args', $request_args, $endpoint, $args );
 
 		$url = static::$base_url . static::$api_root . $endpoint;
 
@@ -172,11 +174,11 @@ class Client {
 		 *
 		 * @since 1.0.0
 		 *
-		 * @param \stdClass|null $result API response.
-		 * @param string $endpoint API endpoint.
-		 * @param array<mixed> $args API arguments.
+		 * @param \stdClass|null $result   API response.
+		 * @param string         $endpoint API endpoint.
+		 * @param array<mixed>   $args     API arguments.
 		 */
-		$result = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'api_response', $result, $endpoint, $args );
+		$result = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix() . 'api_response', $result, $endpoint, $args );
 
 		return $result;
 	}
@@ -216,18 +218,18 @@ class Client {
 		 *
 		 * @param array<mixed> $args License validation arguments.
 		 */
-		$args = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'client_validate_license_args', $args );
+		$args = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix() . 'client_validate_license_args', $args );
 
 		$request_hash = $this->build_hash( $args );
 		$cache_key    = 'stellar_uplink_validate_license_' . $request_hash;
 
-		$results = $this->container->getVar( $cache_key );
+		$results = $this->container->get( $cache_key );
 
 		if ( $force || ! $results ) {
 
 			$results = $this->post( 'license/validate', $args );
 
-			$this->container->setVar( $cache_key, $results );
+			$this->container->bind( $cache_key, function() use ( $results ) { return $results; } );
 		}
 
 		$results = new Validation_Response( $key, $validation_type, $results, $resource );
@@ -238,8 +240,8 @@ class Client {
 		 * @since 1.0.0
 		 *
 		 * @param Validation_Response $results License validation results.
-		 * @param array<mixed> $args License validation arguments.
+		 * @param array<mixed>        $args    License validation arguments.
 		 */
-		return apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'client_validate_license', $results, $args );
+		return apply_filters( 'stellar_uplink_' . Config::get_hook_prefix() . 'client_validate_license', $results, $args );
 	}
 }

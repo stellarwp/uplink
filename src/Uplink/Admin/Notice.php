@@ -23,6 +23,11 @@ class Notice {
 	 */
 	protected array $notices = [];
 
+	/**
+	 * @since 1.0.0
+	 *
+	 * @return void
+	 */
 	public function setup_notices() {
 		if ( empty( $this->notices ) ) {
 			return;
@@ -49,8 +54,13 @@ class Notice {
 	}
 
 	/**
-	 * @param string $notice_type
+	 * @since 1.0.0
+	 *
 	 * @param string $plugin_name
+	 *
+	 * @param string $notice_type
+	 *
+	 * @return void
 	 */
 	public function add_notice( string $notice_type, string $plugin_name ) {
 		$this->clear_notices( $plugin_name, true );
@@ -69,7 +79,9 @@ class Notice {
 	 * any case later on in the same request).
 	 *
 	 * @param string $plugin_name
-	 * @param bool $defer_saving_change = false
+	 * @param bool   $defer_saving_change = false
+	 *
+	 * @return void
 	 */
 	public function clear_notices( string $plugin_name, bool $defer_saving_change = false ) {
 		foreach ( $this->notices as $notice_type => &$list_of_plugins ) {
@@ -83,6 +95,10 @@ class Notice {
 
 	/**
 	 * Saves any license key notices already added.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return void
 	 */
 	public function save_notices() {
 		update_option( self::STORE_KEY, $this->notices );
@@ -93,7 +109,7 @@ class Notice {
 		 * @param array $current_notices
 		 * @param array $previously_saved_notices
 		 */
-		do_action( 'stellar_uplink_' . Config::get_hook_prefix(). 'notices_save_notices', $this->notices, $this->saved_notices );
+		do_action( 'stellar_uplink_' . Config::get_hook_prefix() . 'notices_save_notices', $this->notices, $this->saved_notices );
 	}
 
 }

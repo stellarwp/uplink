@@ -17,11 +17,11 @@ $field = Config::get_container()->get( License_Field::class );
 $group = $field->get_group_name( sanitize_title( $plugin->get_slug() ) );
 
 ?>
-<h3>
-	<?php echo $plugin->get_name(); ?>
-</h3>
+<?php if ( $show_title ) : ?>
+	<h3><?php echo esc_html( $plugin->get_name() ); ?></h3>
+<?php endif; ?>
 
-<div class="wrap stellarwp-uplink" data-js="stellarwp-uplink">
+<div class="stellarwp-uplink" data-js="stellarwp-uplink">
 	<div class="stellarwp-uplink__settings">
 		<?php do_action( 'stellar_uplink_' . Config::get_hook_prefix(). 'license_field_before_form', $plugin->get_slug() ) ?>
 		<form method="post" action="options.php">

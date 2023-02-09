@@ -135,7 +135,9 @@ Register::service(
 ## Render license key form on your settings page
 In order to render license key form just add 2 lines of code to your settings page, tab, etc.
 ```php
-$container = Uplink::instance()->container();
+use StellarWP\Uplink\Config;
+
+$container = Config::get_container();
 $container->get( License_Field::class )->render();
 ```
 ### Example: Register settings page and render license fields
@@ -156,9 +158,11 @@ add_action( 'admin_menu', function () {
 ```
 Add lines below to your settings page. This will render license key form with submit button
 ```php
+use StellarWP\Uplink\Config;
+
 function render_settings_page() {
     // ....
-    $container = Uplink::instance()->container();
+    $container = Config::get_container();
     $container->get( License_Field::class )->render();
     //....
 }

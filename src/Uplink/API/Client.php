@@ -223,7 +223,7 @@ class Client {
 		$request_hash = $this->build_hash( $args );
 		$cache_key    = 'stellar_uplink_validate_license_' . $request_hash;
 
-		$results = $this->container->get( $cache_key );
+		$results = $this->container->has( $cache_key ) ? $this->container->get( $cache_key ) : null;
 
 		if ( $force || ! $results ) {
 

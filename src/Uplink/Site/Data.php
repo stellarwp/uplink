@@ -103,7 +103,7 @@ class Data {
 	 */
 	public function get_domain(): string {
 		$cache_key = 'stellar_uplink_domain';
-		$domain    = $this->container->get( $cache_key );
+		$domain    = $this->container->has( $cache_key ) ? $this->container->get( $cache_key ) : null;
 
 		if ( null === $domain ) {
 			$domain = is_multisite() ? $this->get_domain_multisite_option() : $this->get_site_domain();
@@ -153,7 +153,7 @@ class Data {
 		$cache_key    = 'stellar_uplink_multisite_active_sites';
 
 		/** @var int|null */
-		$active_sites = $this->container->get( $cache_key );
+		$active_sites = $this->container->has( $cache_key ) ? $this->container->get( $cache_key ) : null;
 
 		if ( null === $active_sites ) {
 			if ( ! is_multisite() ) {
@@ -343,7 +343,7 @@ class Data {
 		$cache_key = 'stellar_uplink_timezone';
 
 		/** @var string|null */
-		$timezone  = $this->container->get( $cache_key );
+		$timezone  = $this->container->has( $cache_key ) ? $this->container->get( $cache_key ) : null;
 
 		if ( null === $timezone ) {
 			$current_offset = get_option( 'gmt_offset', 0 );
@@ -399,7 +399,7 @@ class Data {
 		$cache_key = 'stellar_uplink_totals';
 
 		/** @var array<int>|null */
-		$totals    = $this->container->get( $cache_key );
+		$totals    = $this->container->has( $cache_key ) ? $this->container->get( $cache_key ) : null;
 
 		if ( null === $totals ) {
 			$totals = [
@@ -500,7 +500,7 @@ class Data {
 		$cache_key = 'stellar_uplink_is_public';
 
 		/** @var bool|null */
-		$is_public = $this->container->get( $cache_key );
+		$is_public = $this->container->has( $cache_key ) ? $this->container->get( $cache_key ) : null;
 
 		if ( null === $is_public ) {
 			$is_public = (bool) get_option('blog_public', false);

@@ -12,7 +12,9 @@
     "bin": ["bin/stellar-uplink"],
     "autoload": {
         "psr-4": {
-            "StellarWP\\Uplink\\": "src/Uplink/"
+            "StellarWP\\Uplink\\": "src/Uplink/",
+            "StellarWP\\Uplink\\Admin_Views\\": "src/admin-views/",
+            "StellarWP\\Uplink\\Assets_Dir\\": "src/assets/"
         }
     },
     "autoload-dev": {

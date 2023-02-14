@@ -33,7 +33,7 @@ class Package_Handler {
 				''
 			);
 		}
-		if ( $this->is_uplink_package( $package, $hook_extra ) ) {
+		if ( $this->is_uplink_package_url( $package, $hook_extra ) ) {
 			$this->upgrader = $upgrader;
 
 			return $this->download( $package );
@@ -62,11 +62,32 @@ class Package_Handler {
 		$plugin = $extras['plugin'];
 
 		// Bail if we are not dealing with a plugin we own.
-		if ( ! $this->is_uplink_package( $plugin, $extras ) ) {
+		if ( ! $this->is_uplink_package( $plugin ) ) {
 			return $source;
 		}
 
 		return $plugin;
+	}
+
+	/**
+	 * Whether the current package is an StellarWP product or not.
+	 *
+	 * @param string $plugin The plugin file relative to the plugins dir.
+	 *
+	 * @return bool
+	 */
+	protected function is_uplink_package( string $plugin ) : bool {
+		if ( empty( $plugin ) ) {
+			return false;
+		}
+
+		$container = Config::get_container();
+		$resource  = $container->get( Resources\Collection::class )->get_by_path( $plugin );
+		if ( empty( $resource ) ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -77,7 +98,7 @@ class Package_Handler {
 	 *
 	 * @return bool
 	 */
-	protected function is_uplink_package( string $package, $hook_extra ) : bool {
+	protected function is_uplink_package_url( string $package, $hook_extra ) : bool {
 		if ( empty( $hook_extra['plugin'] ) ) {
 			return false;
 		}
@@ -95,12 +116,11 @@ class Package_Handler {
 			return false;
 		}
 
-		$container = Config::get_container();
-		$resource  = $container->get( Resources\Collection::class )->get_by_path( $hook_extra['plugin'] );
-		if ( empty( $resource ) ) {
+		if ( ! $this->is_uplink_package( $hook_extra['plugin'] ) ) {
 			return false;
 		}
 
+		$container    = Config::get_container();
 		$api_base_url = $container->get( API\Client::class )->get_api_base_url();
 
 		return preg_match( '!^' . preg_quote( $api_base_url, '!' ) . '!i', $package );

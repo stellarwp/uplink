@@ -35,7 +35,8 @@ class Provider extends Abstract_Provider {
 		add_filter( 'plugins_api', [ $this, 'filter_plugins_api' ], 10, 3 );
 		add_filter( 'pre_set_site_transient_update_plugins', [ $this, 'filter_pre_set_site_transient_update_plugins' ], 10, 1 );
 		add_filter( 'upgrader_pre_download', [ $this, 'filter_upgrader_pre_download' ], 5, 4 );
-		add_filter( 'upgrader_source_selection', [ $this, 'filter_upgrader_source_selection' ], 15, 4 );
+		add_filter( 'upgrader_source_selection', [ $this, 'filter_upgrader_source_selection_dir' ], 15, 4 );
+		add_filter( 'upgrader_source_selection', [ $this, 'filter_upgrader_source_selection_for_update_prevention' ], 16, 4 );
 
 		add_action( 'wp_ajax_pue-validate-key-uplink', [ $this, 'ajax_validate_license' ], 10, 0 );
 		add_action( 'admin_init', [ $this, 'admin_init' ], 10, 0 );
@@ -173,7 +174,7 @@ class Provider extends Abstract_Provider {
 	}
 
 	/**
-	 * Get the services provided by the provider.
+	 * Filter the upgrader source selection to handle final destination dir name.
 	 *
 	 * @since 1.0.0
 	 *
@@ -184,7 +185,23 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @return string|\WP_Error
 	 */
-	public function filter_upgrader_source_selection( $source, $remote_source, $upgrader, $extras ) {
+	public function filter_upgrader_source_selection_dir( $source, $remote_source, $upgrader, $extras ) {
+		return $this->container->get( Package_Handler::class )->filter_upgrader_source_selection( $source, $remote_source, $upgrader, $extras );
+	}
+
+	/**
+	 * Filter the upgrader source selection to handle Update Prevention.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string       $source        File source location.
+	 * @param mixed        $remote_source Remote file source location.
+	 * @param \WP_Upgrader $upgrader      WP_Upgrader instance.
+	 * @param array<mixed> $extras        Extra arguments passed to hooked filters.
+	 *
+	 * @return string|\WP_Error
+	 */
+	public function filter_upgrader_source_selection_for_update_prevention( $source, $remote_source, $upgrader, $extras ) {
 		return $this->container->get( Update_Prevention::class )->filter_upgrader_source_selection( $source, $remote_source, $upgrader, $extras );
 	}
 }

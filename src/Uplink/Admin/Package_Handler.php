@@ -43,6 +43,33 @@ class Package_Handler {
 	}
 
 	/**
+	 * Filters the source file location.
+	 *
+	 * @since  1.0.0
+	 *
+	 * @param string       $source        File source location.
+	 * @param mixed        $remote_source Remote file source location.
+	 * @param WP_Upgrader  $upgrader      WP_Upgrader instance.
+	 * @param array<mixed> $extras         Extra arguments passed to hooked filters.
+	 *
+	 * @return string|WP_Error
+	 */
+	public function filter_upgrader_source_selection( string $source, $remote_source, WP_Upgrader $upgrader, array $extras ) {
+		if ( ! isset( $extras['plugin'] ) ) {
+			return $source;
+		}
+
+		$plugin = $extras['plugin'];
+
+		// Bail if we are not dealing with a plugin we own.
+		if ( ! $this->is_uplink_package( $plugin, $extras ) ) {
+			return $source;
+		}
+
+		return $plugin;
+	}
+
+	/**
 	 * Whether the current package is an StellarWP product or not.
 	 *
 	 * @param string $package The package file name or URL.

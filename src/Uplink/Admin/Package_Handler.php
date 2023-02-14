@@ -4,6 +4,7 @@ namespace StellarWP\Uplink\Admin;
 
 use StellarWP\Uplink\API;
 use StellarWP\Uplink\Config;
+use StellarWP\Uplink\Resources;
 use WP_Upgrader;
 
 class Package_Handler {
@@ -20,10 +21,11 @@ class Package_Handler {
 	 *                              Default false.
 	 * @param string      $package  The package file name or URL.
 	 * @param WP_Upgrader $upgrader The WP_Upgrader instance.
+	 * @param array        $hook_extra Extra arguments passed to hooked filters.
 	 *
 	 * @return mixed
 	 */
-	public function filter_upgrader_pre_download( bool $reply, string $package, WP_Upgrader $upgrader ) {
+	public function filter_upgrader_pre_download( bool $reply, string $package, WP_Upgrader $upgrader, $hook_extra ) {
 		if ( empty( $package ) || 'invalid_license' === $package ) {
 			return new \WP_Error(
 				'download_failed',
@@ -31,7 +33,7 @@ class Package_Handler {
 				''
 			);
 		}
-		if ( $this->is_uplink_package( $package ) ) {
+		if ( $this->is_uplink_package( $package, $hook_extra ) ) {
 			$this->upgrader = $upgrader;
 
 			return $this->download( $package );
@@ -44,10 +46,15 @@ class Package_Handler {
 	 * Whether the current package is an StellarWP product or not.
 	 *
 	 * @param string $package The package file name or URL.
+	 * @param array  $hook_extra Extra arguments passed to hooked filters.
 	 *
 	 * @return bool
 	 */
-	protected function is_uplink_package( string $package ) : bool {
+	protected function is_uplink_package( string $package, $hook_extra ) : bool {
+		if ( empty( $hook_extra['plugin'] ) ) {
+			return false;
+		}
+
 		if (
 			empty( $package )
 			|| ! preg_match( '!^(http|https|ftp)://!i', $package )
@@ -61,7 +68,12 @@ class Package_Handler {
 			return false;
 		}
 
-		$container    = Config::get_container();
+		$container = Config::get_container();
+		$resource  = $container->get( Resources\Collection::class )->get_by_path( $hook_extra['plugin'] );
+		if ( empty( $resource ) ) {
+			return false;
+		}
+
 		$api_base_url = $container->get( API\Client::class )->get_api_base_url();
 
 		return preg_match( '!^' . preg_quote( $api_base_url, '!' ) . '!i', $package );

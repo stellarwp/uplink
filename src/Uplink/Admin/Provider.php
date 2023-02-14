@@ -34,7 +34,7 @@ class Provider extends Abstract_Provider {
 	public function register_hooks() {
 		add_filter( 'plugins_api', [ $this, 'filter_plugins_api' ], 10, 3 );
 		add_filter( 'pre_set_site_transient_update_plugins', [ $this, 'filter_pre_set_site_transient_update_plugins' ], 10, 1 );
-		add_filter( 'upgrader_pre_download', [ $this, 'filter_upgrader_pre_download' ], 5, 3 );
+		add_filter( 'upgrader_pre_download', [ $this, 'filter_upgrader_pre_download' ], 5, 4 );
 		add_filter( 'upgrader_source_selection', [ $this, 'filter_upgrader_source_selection' ], 15, 4 );
 
 		add_action( 'wp_ajax_pue-validate-key-uplink', [ $this, 'ajax_validate_license' ], 10, 0 );
@@ -164,11 +164,12 @@ class Provider extends Abstract_Provider {
 	 *                               Default false.
 	 * @param string       $package  The package file name or URL.
 	 * @param \WP_Upgrader $upgrader The WP_Upgrader instance.
+	 * @param array        $hook_extra Extra arguments passed to hooked filters.
 	 *
 	 * @return mixed
 	 */
-	public function filter_upgrader_pre_download( $reply, $package, $upgrader ) {
-		return $this->container->get( Package_Handler::class )->filter_upgrader_pre_download( $reply, $package, $upgrader );
+	public function filter_upgrader_pre_download( $reply, $package, $upgrader, $hook_extra ) {
+		return $this->container->get( Package_Handler::class )->filter_upgrader_pre_download( $reply, $package, $upgrader, $hook_extra );
 	}
 
 	/**

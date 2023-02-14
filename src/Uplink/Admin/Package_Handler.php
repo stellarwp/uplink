@@ -79,6 +79,7 @@ class Package_Handler {
 		) {
 			$wp_filesystem->move( $containing_dir . '/' . $actual_dir, $containing_dir . '/' . $intended_dir );
 			$result['remote_destination'] = $containing_dir . '/' . $intended_dir;
+			activate_plugin( $plugin );
 		}
 
 		return $result;

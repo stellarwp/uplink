@@ -52,10 +52,9 @@ class Plugins_Page {
 				$resource->update->new_version
 			);
 
-			$href = sprintf(
-				'%s&key=%s',
-				$resource->update->package, // @phpstan-ignore-line
-				$this->get_plugin()->get_license_key()
+			$href = wp_nonce_url(
+				self_admin_url( 'update.php?action=upgrade-plugin&plugin=' ) . $plugin_file,
+				'upgrade-plugin_' . $plugin_file
 			);
 
 			$update_now_link = sprintf(

@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\Resources\Filters;
 
-class Plugin_FilterIterator extends \FilterIterator {
+class Plugin_FilterIterator extends \FilterIterator implements \Countable {
 	/**
 	 * @inheritDoc
 	 */
@@ -10,5 +10,17 @@ class Plugin_FilterIterator extends \FilterIterator {
 		$resource = $this->getInnerIterator()->current();
 
 		return 'plugin' === $resource->get_type();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function count() : int {
+		$count = 0;
+		foreach ( $this as $item ) {
+			$count++;
+		}
+
+		return $count;
 	}
 }

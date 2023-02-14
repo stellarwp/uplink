@@ -47,24 +47,23 @@ class Package_Handler {
 	 *
 	 * @since  1.0.0
 	 *
-	 * @param bool         $response Upgrader response.
-	 * @param array<mixed> $extras   Extra args for the upgrader process.
 	 * @param array<mixed> $result   Result of the upgrader process.
+	 * @param array<mixed> $extras   Extra args for the upgrader process.
 	 *
-	 * @return string|WP_Error
+	 * @return array
 	 */
-	public function filter_upgrader_post_install( $response, $extras, array $result ) {
+	public function filter_upgrader_install_package_result( $result, $extras ) {
 		global $wp_filesystem;
 
 		if ( ! isset( $extras['plugin'] ) ) {
-			return $response;
+			return $result;
 		}
 
 		$plugin = $extras['plugin'];
 
 		// Bail if we are not dealing with a plugin we own.
 		if ( ! $this->is_uplink_package( $plugin ) ) {
-			return $response;
+			return $result;
 		}
 
 		$containing_dir = dirname( $result['remote_destination'] );
@@ -79,9 +78,10 @@ class Package_Handler {
 			&& ! in_array( $containing_dir . '/' . $intended_dir, $protected_directories, true )
 		) {
 			$wp_filesystem->move( $containing_dir . '/' . $actual_dir, $containing_dir . '/' . $intended_dir );
+			$result['remote_destination'] = $containing_dir . '/' . $intended_dir;
 		}
 
-		return $response;
+		return $result;
 	}
 
 	/**

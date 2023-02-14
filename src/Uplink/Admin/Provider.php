@@ -35,7 +35,7 @@ class Provider extends Abstract_Provider {
 		add_filter( 'plugins_api', [ $this, 'filter_plugins_api' ], 10, 3 );
 		add_filter( 'pre_set_site_transient_update_plugins', [ $this, 'filter_pre_set_site_transient_update_plugins' ], 10, 1 );
 		add_filter( 'upgrader_pre_download', [ $this, 'filter_upgrader_pre_download' ], 5, 4 );
-		add_filter( 'upgrader_post_install', [ $this, 'filter_upgrader_post_install' ], 10, 3 );
+		add_filter( 'upgrader_install_package_result', [ $this, 'filter_upgrader_install_package_result' ], 10, 2 );
 		add_filter( 'upgrader_source_selection', [ $this, 'filter_upgrader_source_selection_for_update_prevention' ], 15, 4 );
 
 		add_action( 'wp_ajax_pue-validate-key-uplink', [ $this, 'ajax_validate_license' ], 10, 0 );
@@ -178,14 +178,13 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param bool         $response      Upgrader response.
-	 * @param array<mixed> $extras        Extra arguments passed to hooked filters.
 	 * @param array<mixed> $result        Final arguments for the result.
+	 * @param array<mixed> $extras        Extra arguments passed to hooked filters.
 	 *
-	 * @return bool
+	 * @return array
 	 */
-	public function filter_upgrader_post_install( $response, $extras, $result ) {
-		return $this->container->get( Package_Handler::class )->filter_upgrader_post_install( $response, $extras, $result );
+	public function filter_upgrader_install_package_result( $result, $extras ) {
+		return $this->container->get( Package_Handler::class )->filter_upgrader_install_package_result( $result, $extras );
 	}
 
 	/**

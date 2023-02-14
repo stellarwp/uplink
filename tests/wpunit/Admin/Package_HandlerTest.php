@@ -26,7 +26,7 @@ class Package_HandlerTest extends UplinkTestCase {
 		$upgrader = $this->prophesize( \WP_Upgrader::class );
 
 		$sut      = new Package_Handler();
-		$filtered = $sut->filter_upgrader_pre_download( false, '', $upgrader->reveal() );
+		$filtered = $sut->filter_upgrader_pre_download( false, '', $upgrader->reveal(), [] );
 
 		$this->assertWPError( $filtered );
 	}
@@ -36,7 +36,7 @@ class Package_HandlerTest extends UplinkTestCase {
 		$upgrader = $this->prophesize( \WP_Upgrader::class );
 
 		$sut      = new Package_Handler();
-		$filtered = $sut->filter_upgrader_pre_download( false, $package, $upgrader->reveal() );
+		$filtered = $sut->filter_upgrader_pre_download( false, $package, $upgrader->reveal(), [] );
 
 		$this->assertFalse( $filtered );
 	}

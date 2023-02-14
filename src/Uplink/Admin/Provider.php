@@ -161,10 +161,10 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param bool         $reply    Whether to bail without returning the package.
-	 *                               Default false.
-	 * @param string       $package  The package file name or URL.
-	 * @param \WP_Upgrader $upgrader The WP_Upgrader instance.
+	 * @param bool         $reply      Whether to bail without returning the package.
+	 *                                 Default false.
+	 * @param string       $package    The package file name or URL.
+	 * @param \WP_Upgrader $upgrader   The WP_Upgrader instance.
 	 * @param array        $hook_extra Extra arguments passed to hooked filters.
 	 *
 	 * @return mixed
@@ -178,8 +178,8 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array<mixed> $result        Final arguments for the result.
-	 * @param array<mixed> $extras        Extra arguments passed to hooked filters.
+	 * @param array $result Final arguments for the result.
+	 * @param array $extras Extra arguments passed to hooked filters.
 	 *
 	 * @return array
 	 */
@@ -195,7 +195,7 @@ class Provider extends Abstract_Provider {
 	 * @param string       $source        File source location.
 	 * @param mixed        $remote_source Remote file source location.
 	 * @param \WP_Upgrader $upgrader      WP_Upgrader instance.
-	 * @param array<mixed> $extras        Extra arguments passed to hooked filters.
+	 * @param array        $extras        Extra arguments passed to hooked filters.
 	 *
 	 * @return string|\WP_Error
 	 */

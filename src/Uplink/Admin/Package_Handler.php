@@ -70,7 +70,8 @@ class Package_Handler {
 		$intended_dir   = dirname( $plugin );
 		$actual_dir     = basename( $result['remote_destination'] );
 
-		$protected_directories = array( ABSPATH, WP_CONTENT_DIR, WP_PLUGIN_DIR, WP_CONTENT_DIR . '/themes' );
+		// @phpstan-ignore-next-line
+		$protected_directories = [ ABSPATH, WP_CONTENT_DIR, WP_PLUGIN_DIR, WP_CONTENT_DIR . '/themes' ];
 
 		if (
 			$intended_dir !== $actual_dir

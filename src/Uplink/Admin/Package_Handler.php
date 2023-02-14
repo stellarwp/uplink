@@ -47,26 +47,41 @@ class Package_Handler {
 	 *
 	 * @since  1.0.0
 	 *
-	 * @param string       $source        File source location.
-	 * @param mixed        $remote_source Remote file source location.
-	 * @param WP_Upgrader  $upgrader      WP_Upgrader instance.
-	 * @param array<mixed> $extras         Extra arguments passed to hooked filters.
+	 * @param bool         $response Upgrader response.
+	 * @param array<mixed> $extras   Extra args for the upgrader process.
+	 * @param array<mixed> $result   Result of the upgrader process.
 	 *
 	 * @return string|WP_Error
 	 */
-	public function filter_upgrader_source_selection( string $source, $remote_source, WP_Upgrader $upgrader, array $extras ) {
+	public function filter_upgrader_post_install( $response, $extras, array $result ) {
+		global $wp_filesystem;
+
 		if ( ! isset( $extras['plugin'] ) ) {
-			return $source;
+			return $response;
 		}
 
 		$plugin = $extras['plugin'];
 
 		// Bail if we are not dealing with a plugin we own.
 		if ( ! $this->is_uplink_package( $plugin ) ) {
-			return $source;
+			return $response;
 		}
 
-		return $plugin;
+		$containing_dir = dirname( $result['remote_destination'] );
+		$intended_dir   = dirname( $plugin );
+		$actual_dir     = basename( $result['remote_destination'] );
+
+		$protected_directories = array( ABSPATH, WP_CONTENT_DIR, WP_PLUGIN_DIR, WP_CONTENT_DIR . '/themes' );
+
+		if (
+			$intended_dir !== $actual_dir
+			&& ! in_array( $containing_dir . '/' . $actual_dir, $protected_directories, true )
+			&& ! in_array( $containing_dir . '/' . $intended_dir, $protected_directories, true )
+		) {
+			$wp_filesystem->move( $containing_dir . '/' . $actual_dir, $containing_dir . '/' . $intended_dir );
+		}
+
+		return $response;
 	}
 
 	/**

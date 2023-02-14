@@ -35,8 +35,8 @@ class Provider extends Abstract_Provider {
 		add_filter( 'plugins_api', [ $this, 'filter_plugins_api' ], 10, 3 );
 		add_filter( 'pre_set_site_transient_update_plugins', [ $this, 'filter_pre_set_site_transient_update_plugins' ], 10, 1 );
 		add_filter( 'upgrader_pre_download', [ $this, 'filter_upgrader_pre_download' ], 5, 4 );
-		add_filter( 'upgrader_source_selection', [ $this, 'filter_upgrader_source_selection_dir' ], 15, 4 );
-		add_filter( 'upgrader_source_selection', [ $this, 'filter_upgrader_source_selection_for_update_prevention' ], 16, 4 );
+		add_filter( 'upgrader_post_install', [ $this, 'filter_upgrader_post_install' ], 10, 3 );
+		add_filter( 'upgrader_source_selection', [ $this, 'filter_upgrader_source_selection_for_update_prevention' ], 15, 4 );
 
 		add_action( 'wp_ajax_pue-validate-key-uplink', [ $this, 'ajax_validate_license' ], 10, 0 );
 		add_action( 'admin_init', [ $this, 'admin_init' ], 10, 0 );
@@ -178,15 +178,14 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string       $source        File source location.
-	 * @param mixed        $remote_source Remote file source location.
-	 * @param \WP_Upgrader $upgrader      WP_Upgrader instance.
+	 * @param bool         $response      Upgrader response.
 	 * @param array<mixed> $extras        Extra arguments passed to hooked filters.
+	 * @param array<mixed> $result        Final arguments for the result.
 	 *
-	 * @return string|\WP_Error
+	 * @return bool
 	 */
-	public function filter_upgrader_source_selection_dir( $source, $remote_source, $upgrader, $extras ) {
-		return $this->container->get( Package_Handler::class )->filter_upgrader_source_selection( $source, $remote_source, $upgrader, $extras );
+	public function filter_upgrader_post_install( $response, $extras, $result ) {
+		return $this->container->get( Package_Handler::class )->filter_upgrader_post_install( $response, $extras, $result );
 	}
 
 	/**

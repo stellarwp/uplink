@@ -12,6 +12,7 @@ class UplinkTestCase extends \Codeception\TestCase\WPTestCase {
 
 		$container = new Container();
 		Config::set_container( $container );
+		Config::set_hook_prefix( 'test' );
 
 		Uplink::init();
 	}

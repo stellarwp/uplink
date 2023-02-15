@@ -66,7 +66,7 @@ class License {
 	 *
 	 * @var string
 	 */
-	public static $key_option_prefix = 'stellar_uplink_license_key_';
+	public static $key_option_prefix = 'stellarwp_uplink_license_key_';
 
 	/**
 	 * Option prefix for the key status.
@@ -75,7 +75,7 @@ class License {
 	 *
 	 * @var string
 	 */
-	public static $key_status_option_prefix = 'stellar_uplink_license_key_status_';
+	public static $key_status_option_prefix = 'stellarwp_uplink_license_key_status_';
 
 	/**
 	 * Resource instance.
@@ -157,7 +157,7 @@ class License {
 		 *
 		 * @param string|null $key The license key.
 		 */
-		$key = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix(). 'license_get_key', $this->key );
+		$key = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_get_key', $this->key );
 
 		return $key ?: '';
 	}

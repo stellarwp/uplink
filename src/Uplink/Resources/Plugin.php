@@ -27,7 +27,7 @@ class Plugin extends Resource {
 	 *
 	 * @var string
 	 */
-	public static $update_status_option_prefix = 'stellar_uplink_update_status_';
+	public static $update_status_option_prefix = 'stellarwp_uplink_update_status_';
 
 	/**
 	 * Check for plugin updates.

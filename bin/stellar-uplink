@@ -44,7 +44,7 @@ function run( string $command ): string {
 
 parse_str( implode( '&', array_slice( $argv, 1 ) ), $result );
 
-$domain = $result['domain'] ?? ask( 'Domain Name', 'stellar-uplink' );
+$domain = $result['domain'] ?? ask( 'Text Domain Name', 'my-text-domain' );
 
 if ( empty( $domain ) ) {
 	writeln( 'Translation domain could not be empty' );
@@ -60,6 +60,6 @@ $files = array_filter( $files );
 
 foreach ( $files as $file ) {
 	replace_in_file( $file, [
-			'%stellar-uplink-domain%' => $domain
+			'%TEXTDOMAIN%' => $domain
 	] );
 }

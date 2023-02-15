@@ -409,7 +409,7 @@ class Validation_Response {
 	 */
 	private function parse() {
 		$this->current_key = $this->resource->get_license_key( $this->validation_type );
-		$this->expiration  = isset( $this->response->expiration ) ? $this->response->expiration : __( 'unknown date', 'stellar-uplink-client' );
+		$this->expiration  = isset( $this->response->expiration ) ? $this->response->expiration : __( 'unknown date', '%TEXTDOMAIN%' );
 
 		if ( ! empty( $this->response->api_inline_invalid_message ) ) {
 			$this->api_response_message = wp_kses( $this->response->api_inline_invalid_message, 'post' );

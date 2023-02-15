@@ -8,7 +8,7 @@ use StellarWP\Uplink\Resources\Plugin;
 
 class License_Field extends Field {
 
-	public const LICENSE_FIELD_ID = 'stellar_uplink_license';
+	public const LICENSE_FIELD_ID = 'stellarwp_uplink_license';
 
 	protected string $path = '/admin-views/fields/settings.php';
 
@@ -53,7 +53,7 @@ class License_Field extends Field {
 				'value'        => $plugin->get_license_key(),
 				'placeholder'  => __( 'License Number', '%TEXTDOMAIN%' ),
 				'html'         => $this->get_field_html( $plugin ),
-				'html_classes' => 'stellar-uplink-license-key-field',
+				'html_classes' => 'stellarwp-uplink-license-key-field',
 				'plugin'       => $plugin->get_path(),
 			]
 		);
@@ -71,7 +71,7 @@ class License_Field extends Field {
 		$html .= '<div class="license-test-results"><img src="' . esc_url( admin_url( 'images/wpspin_light.gif' ) ) . '" class="ajax-loading-license" alt="Loading" style="display: none"/>';
 		$html .= '<div class="key-validity"></div></div>';
 
-		return apply_filters( 'stellar_uplink_' . Config::get_hook_prefix() . 'license_field_html', $html, $plugin->get_slug() );
+		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/license_field_html', $html, $plugin->get_slug() );
 	}
 
 	/**
@@ -91,14 +91,14 @@ class License_Field extends Field {
 	 * @return void
 	 */
 	public function enqueue_assets() {
-		$handle = 'stellar-uplink-license-admin';
+		$handle = 'stellarwp-uplink-license-admin';
 		$path   = preg_replace( '/.*\/vendor/', plugin_dir_url( $this->get_plugin()->get_path() ) . 'vendor', dirname( __DIR__, 2 ) );
-		$js_src = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix() . 'admin_js_source', $path . '/assets/js/key-admin.js' );
+		$js_src = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/admin_js_source', $path . '/assets/js/key-admin.js' );
 
 		wp_register_script( $handle, $js_src, [ 'jquery' ], '1.0.0', true );
 		wp_enqueue_script( $handle );
 
-		$css_src = apply_filters( 'stellar_uplink_' . Config::get_hook_prefix() . 'admin_css_source', $path . '/assets/css/main.css' );
-		wp_enqueue_style( 'stellar-uplink-license-admin', $css_src );
+		$css_src = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/admin_css_source', $path . '/assets/css/main.css' );
+		wp_enqueue_style( 'stellarwp-uplink-license-admin', $css_src );
 	}
 }

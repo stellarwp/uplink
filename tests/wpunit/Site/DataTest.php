@@ -39,7 +39,7 @@ class DataTest extends \StellarWP\Uplink\Tests\UplinkTestCase {
 	 * @test
 	 */
 	public function it_should_collect_full_stats() {
-		add_filter( 'stellar_uplink_use_full_stats', '__return_true' );
+		add_filter( 'stellarwp/uplink/test/use_full_stats', '__return_true' );
 
 		$data = $this->container->make( Uplink\Site\Data::class );
 		$stats = $data->get_stats();
@@ -53,6 +53,6 @@ class DataTest extends \StellarWP\Uplink\Tests\UplinkTestCase {
 
 		$this->assertEquals( phpversion(), $stats['versions']['php'] );
 
-		remove_filter( 'stellar_uplink_use_full_stats', '__return_true' );
+		remove_filter( 'stellarwp/uplink/test/use_full_stats', '__return_true' );
 	}
 }

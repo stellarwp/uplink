@@ -1,6 +1,6 @@
 # StellarWP Uplink
 
-[![CI](https://github.com/the-events-calendar/stellar-uplink/workflows/CI/badge.svg)](https://github.com/the-events-calendar/stellar-uplink/actions?query=branch%3Amain) [![Static Analysis](https://github.com/the-events-calendar/stellar-uplink/actions/workflows/static-analysis.yml/badge.svg)](https://github.com/the-events-calendar/stellar-uplink/actions/workflows/static-analysis.yml)
+[![CI](https://github.com/stellarwp/uplink/workflows/CI/badge.svg)](https://github.com/stellarwp/uplink/actions?query=branch%3Amain) [![Static Analysis](https://github.com/stellarwp/uplink/actions/workflows/static-analysis.yml/badge.svg)](https://github.com/stellarwp/uplink/actions/workflows/static-analysis.yml)
 
 ## Installation
 
@@ -34,7 +34,6 @@ add_action( 'plugins_loaded', function() {
 	 */
 	 $container = new Container();
 	Config::set_container( $container );
-	// Optional: Set a unique prefix for actions & filters.
 	Config::set_hook_prefix( 'my-custom-prefix' );
 
 	Uplink::init();

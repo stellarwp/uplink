@@ -1,7 +1,7 @@
 ( function( $, obj ) {
 
 	obj.init = function() {
-		$( '.stellar-uplink-license-key-field' ).each( function() {
+		$( '.stellarwp-uplink-license-key-field' ).each( function() {
 			var $el = $( this );
 			var $field = $el.find( 'input[type="text"]' );
 
@@ -12,7 +12,7 @@
 			obj.validateKey( $el );
 		} );
 
-		$( document ).on( 'change', '.stellar-uplink-license-key-field', function() {
+		$( document ).on( 'change', '.stellarwp-uplink-license-key-field', function() {
 			const $el = $( this );
 			obj.validateKey( $el );
 		} );

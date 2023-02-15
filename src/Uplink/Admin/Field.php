@@ -8,7 +8,7 @@ use StellarWP\Uplink\Resources\Collection;
 
 abstract class Field {
 
-	public const STELLARWP_UPLINK_GROUP = 'stellar_uplink_group';
+	public const STELLARWP_UPLINK_GROUP = 'stellarwp_uplink_group';
 
 	/**
 	 * Path to page template
@@ -89,7 +89,7 @@ abstract class Field {
 			$args['plugin']
 		);
 
-		echo apply_filters( 'stellar_uplink_' . Config::get_hook_prefix() . 'license_field_html_render', $field, $args );
+		echo apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/license_field_html_render', $field, $args );
 
 		$this->get_description( $args );
 	}
@@ -128,7 +128,7 @@ abstract class Field {
 	 * @return string
 	 */
 	public function get_path() : string {
-		return apply_filters( 'stellar_uplink_' . Config::get_hook_prefix() . 'field-template_path', dirname( __DIR__, 2 ) . $this->path, $this->path );
+		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/field-template_path', dirname( __DIR__, 2 ) . $this->path, $this->path );
 	}
 
 	/**

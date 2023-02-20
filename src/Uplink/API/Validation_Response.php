@@ -141,6 +141,11 @@ class Validation_Response {
 		$this->key             = $key ?: '';
 		$this->validation_type = 'network' === $validation_type ? 'network' : 'local';
 		$this->response        = $response;
+
+		if ( isset( $this->response->results ) ) {
+			$this->response = is_array( $this->response->results ) ? reset( $this->response->results ) : $this->response->results;
+		}
+
 		$this->resource        = $resource;
 		$this->container       = $container ?: Config::get_container();
 

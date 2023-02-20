@@ -421,7 +421,7 @@ class Validation_Response {
 
 		$this->version = $this->version ?: $this->resource->get_version();
 
-		if ( null === $this->response || empty( $this->response ) ) {
+		if ( null === $this->response ) {
 			$this->result = 'unreachable';
 		} elseif ( isset( $this->response->api_expired ) && 1 === (int) $this->response->api_expired ) {
 			$this->result = 'expired';

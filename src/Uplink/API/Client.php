@@ -232,8 +232,8 @@ class Client {
 			$this->container->bind( $cache_key, function() use ( $results ) { return $results; } );
 		}
 
-		if ( ! $results ) {
-			$results = new \stdClass();
+		if ( $results !== null && ! is_object( $results ) ) {
+			$results = null;
 		}
 
 		$results = new Validation_Response( $key, $validation_type, $results, $resource );

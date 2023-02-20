@@ -133,11 +133,11 @@ class Validation_Response {
 	 *
 	 * @param string|null             $key             License key.
 	 * @param string                  $validation_type Validation type (local or network).
-	 * @param stdClass                $response        Validation response.
+	 * @param stdClass|null           $response        Validation response.
 	 * @param Resource                $resource        Resource instance.
 	 * @param ContainerInterface|null $container       Container instance.
 	 */
-	public function __construct( $key, string $validation_type, stdClass $response, Resource $resource, $container = null ) {
+	public function __construct( $key, string $validation_type, $response, Resource $resource, $container = null ) {
 		$this->key             = $key ?: '';
 		$this->validation_type = 'network' === $validation_type ? 'network' : 'local';
 		$this->response        = ! empty( $response->results ) ? reset( $response->results ) : $response;
@@ -490,7 +490,7 @@ class Validation_Response {
 		//Other fields need to be renamed and/or transformed.
 		$info->download_link = isset( $this->response->download_url ) ? $this->response->download_url . '&pu_get_download=1' : '';
 
-		if ( ! empty( $this->author_homepage ) ) {
+		if ( ! empty( $this->author_homepage ) && ! empty( $this->response->author ) ) {
 			$info->author = sprintf( '<a href="%s">%s</a>', esc_url( $this->author_homepage ), $this->response->author );
 		} else {
 			$info->author = $this->response->author ?? '';

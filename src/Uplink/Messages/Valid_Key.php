@@ -30,10 +30,14 @@ class Valid_Key extends Message_Abstract {
 	 * @inheritDoc
 	 */
 	public function get(): string {
-		$message = sprintf(
-			__( 'Valid key! Expires on %s.', '%TEXTDOMAIN%' ),
-			$this->expiration
-		);
+		if ( $this->expiration ) {
+			$message = sprintf(
+				__( 'Valid key! Expires on %s.', '%TEXTDOMAIN%' ),
+				$this->expiration
+			);
+		} else {
+			$message = __( 'Valid key!', '%TEXTDOMAIN%' );
+		}
 
 		return esc_html( $message );
 	}

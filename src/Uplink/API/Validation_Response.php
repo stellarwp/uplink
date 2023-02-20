@@ -140,7 +140,7 @@ class Validation_Response {
 	public function __construct( $key, string $validation_type, $response, Resource $resource, $container = null ) {
 		$this->key             = $key ?: '';
 		$this->validation_type = 'network' === $validation_type ? 'network' : 'local';
-		$this->response        = ! empty( $response->results ) ? reset( $response->results ) : $response;
+		$this->response        = $response;
 		$this->resource        = $resource;
 		$this->container       = $container ?: Config::get_container();
 
@@ -421,7 +421,7 @@ class Validation_Response {
 
 		$this->version = $this->version ?: $this->resource->get_version();
 
-		if ( null === $this->response ) {
+		if ( null === $this->response || empty( $this->response ) ) {
 			$this->result = 'unreachable';
 		} elseif ( isset( $this->response->api_expired ) && 1 === (int) $this->response->api_expired ) {
 			$this->result = 'expired';

@@ -501,7 +501,7 @@ class Validation_Response {
 				'callback_uri' => sprintf( '%s/stellarwp/connect', get_site_url() ),
 				'refer'		   => wp_get_referer(),
 			];
-			$url 		  = sprintf( '%s/stellarwp/oauth_connect?%s', $url, http_build_query( $query_params ) );
+			$url 		  = sprintf( '%s/stellarwp/oauth_connect/login?%s', $url, http_build_query( $query_params ) );
 
 			$info->api_upgrade   = sprintf(
 				esc_html__( 'Please connect plugin on Setting page in order to receive updates. You can use plugin settings page or follow this <a href="%s">link</a>', '%TEXTDOMAIN%' ),

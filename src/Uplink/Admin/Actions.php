@@ -62,7 +62,7 @@ class Actions {
 				'callback_uri' => sprintf( '%s/stellarwp/connect', get_site_url() ),
 				'refer'		   => wp_get_referer(),
 			];
-			$url = sprintf( '%s/stellarwp/oauth_connect?%s', $url, http_build_query( $query_params ) );
+			$url = sprintf( '%s/stellarwp/oauth_connect/login?%s', $url, http_build_query( $query_params ) );
 
 			wp_safe_redirect( $url );
 			exit();

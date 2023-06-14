@@ -80,7 +80,7 @@ class Actions {
 		$origin  = $api->post('/origin', [ 'slug' => $license->get_slug() ] );
 
 		if ( ! empty( $origin ) ) {
-			return $origin->url;
+			return $origin->url . '/stellarwp_connect';
 		}
 
 		return '';

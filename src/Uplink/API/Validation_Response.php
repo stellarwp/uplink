@@ -496,7 +496,17 @@ class Validation_Response {
 		if ( empty( $this->response->auth_required ) || $this->resource->has_valid_auth_token( $this->response->origin ) ) {
 			$info->download_link = isset($this->response->download_url) ? $this->response->download_url . '&pu_get_download=1' : '';
 		} else {
-			$info->api_invalid   = esc_html__( 'Please connect plugin on Setting page in order to receive updates', '%TEXTDOMAIN%' );
+			$url 		  = $this->origin->url;
+			$query_params = [
+				'callback_uri' => sprintf( '%s/stellarwp/connect', get_site_url() ),
+				'refer'		   => wp_get_referer(),
+			];
+			$url 		  = sprintf( '%s?%s', $url, http_build_query( $query_params ) );
+
+			$info->api_upgrade   = sprintf(
+				esc_html__( 'Please connect plugin on Setting page in order to receive updates. You can use plugin settings page or follow this <a href="%s">link</a>', '%TEXTDOMAIN%' ),
+				$url
+			);
 			$info->download_link = '';
 		}
 

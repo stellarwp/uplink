@@ -313,6 +313,7 @@ class Validation_Response {
 			'id',
 			'slug',
 			'version',
+			'auth_required',
 			'homepage',
 			'download_url',
 			'upgrade_notice',
@@ -492,8 +493,12 @@ class Validation_Response {
 			}
 		}
 
-		//Other fields need to be renamed and/or transformed.
-		$info->download_link = isset( $this->response->download_url ) ? $this->response->download_url . '&pu_get_download=1' : '';
+		if ( empty( $this->response->auth_required ) || $this->resource->has_valid_auth_token( $this->response->origin ) ) {
+			$info->download_link = isset($this->response->download_url) ? $this->response->download_url . '&pu_get_download=1' : '';
+		} else {
+			$info->api_invalid   = esc_html__( 'Please connect plugin on Setting page in order to receive updates', '%TEXTDOMAIN%' );
+			$info->download_link = '';
+		}
 
 		if ( ! empty( $this->author_homepage ) && ! empty( $this->response->author ) ) {
 			$info->author = sprintf( '<a href="%s">%s</a>', esc_url( $this->author_homepage ), $this->response->author );

@@ -499,4 +499,20 @@ abstract class Resource {
 
 		return $results;
 	}
+
+	public function has_valid_auth_token( array $origin ) {
+		$token = get_option( sprintf( 'stellarwp_origin_%s_auth_token', $origin['slug'] ?? '' ), '' );
+
+		if ( empty( $token ) ) {
+			return false;
+		}
+
+		$token = json_decode( $token, [] );
+
+		if ( empty( $token ) ) {
+			return false;
+		}
+
+		return $token['expiration'] > time();
+	}
 }

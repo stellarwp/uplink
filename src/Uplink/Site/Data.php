@@ -518,4 +518,9 @@ class Data {
 
 		return (bool) $is_public;
 	}
+
+	public function save_auth_token( array $data ) {
+		update_option(  sprintf( 'stellarwp_origin_%s_auth_token', $data['origin'] ?? '' ), json_encode( $data ) );
+	}
+
 }

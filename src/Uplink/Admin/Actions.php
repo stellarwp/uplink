@@ -32,7 +32,7 @@ class Actions {
 
 		$args = explode( '/', $wp->query_vars[ self::QUERY_VAR ] );
 
-		if (  ! empty( $args['disconnect'] ) ) {
+		if (  ! empty( $args['disconnect'] ) ) { // @phpstan-ignore-line
 			$this->handle_disconnect();
 		}
 

@@ -32,7 +32,7 @@ class Actions {
 
 		$args = explode( '/', $wp->query_vars[ self::QUERY_VAR ] );
 
-		if ( $args['disconnect'] ) {
+		if (  ! empty( $args['disconnect'] ) ) {
 			$this->handle_disconnect();
 		}
 
@@ -43,7 +43,7 @@ class Actions {
 	 * Remove auth token§
 	 */
 	public function handle_disconnect() {
-		$license    = $this->get_license_object();
+		$license = $this->get_license_object();
 
 		delete_option( sprintf( 'stellarwp_origin_%s_auth_token', $license->origin->slug ?? '' ) );
 

@@ -493,7 +493,7 @@ class Validation_Response {
 			}
 		}
 
-		if ( empty( $this->response->auth_required ) || $this->resource->has_valid_auth_token( $this->response->origin ) ) {
+		if ( empty( $this->response->auth_required ) || $this->resource->has_valid_auth_token( (array) $this->response->origin ) ) {
 			$info->download_link = isset($this->response->download_url) ? $this->response->download_url . '&pu_get_download=1' : '';
 		} else {
 			$url 		  = $this->response->origin->url;

@@ -55,4 +55,18 @@ class DataTest extends \StellarWP\Uplink\Tests\UplinkTestCase {
 
 		remove_filter( 'stellarwp/uplink/test/use_full_stats', '__return_true' );
 	}
+
+	public function it_should_save_auth_token() {
+		$token = json_encode( [
+			'token'      => '11111',
+			'expiration' => strtotime( '+1 day'),
+			'origin'     => 'sample',
+		] );
+
+		$data = $this->container->make( Uplink\Site\Data::class );
+		$data->save_auth_token( base64_encode( $token ) );
+
+		$options_value = get_option( sprintf( 'stellarwp_origin_%s_auth_token', 'sample' ) );
+		$this->assertSame( $token, $options_value );
+	}
 }

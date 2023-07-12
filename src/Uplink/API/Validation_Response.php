@@ -282,6 +282,8 @@ class Validation_Response {
 		$update->slug        = $this->response->slug ?? '';
 		$update->new_version = $this->response->version ?? '';
 		$update->url         = $this->response->homepage ?? '';
+		$update->tested      = $this->response->tested ?? '';
+		$update->requires    = $this->response->requires ?? '';
 		$update->package     = $this->response->download_url ? $this->response->download_url . '&pu_get_download=1&key=' . $this->get_key() : '';
 
 		if ( ! empty( $this->response->upgrade_notice ) ) {

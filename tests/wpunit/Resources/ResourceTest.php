@@ -33,7 +33,6 @@ class ResourceTest extends \StellarWP\Uplink\Tests\UplinkTestCase {
 
 		update_option( sprintf( 'stellarwp_origin_%s_auth_token', 'sample' ), [
 			'token'      => '11111',
-			'expiration' => strtotime( '-1 day'),
 			'origin'     => '',
 		] );
 		$result = $this->resource->has_valid_auth_token( [ 'slug' => 'sample' ] );
@@ -41,7 +40,6 @@ class ResourceTest extends \StellarWP\Uplink\Tests\UplinkTestCase {
 
 		update_option( sprintf( 'stellarwp_origin_%s_auth_token', 'sample' ), [
 			'token'      => '11111',
-			'expiration' => strtotime( '+1 day'),
 			'origin'     => '',
 		] );
 

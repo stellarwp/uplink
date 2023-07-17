@@ -62,7 +62,6 @@ class DataTest extends \StellarWP\Uplink\Tests\UplinkTestCase {
 	public function it_should_save_auth_token() {
 		$token = json_encode( [
 			'token'      => '11111',
-			'expiration' => strtotime( '+1 day'),
 			'origin'     => 'sample',
 		] );
 

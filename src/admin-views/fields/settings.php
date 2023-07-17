@@ -25,7 +25,6 @@ $group = $field->get_group_name( sanitize_title( $plugin->get_slug() ) );
 
 <div class="stellarwp-uplink" data-js="stellarwp-uplink">
 	<div class="stellarwp-uplink__settings">
-		<?php echo $auth->do_auth_html(); ?>
 		<?php do_action( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_field_before_form', $plugin->get_slug() ) ?>
 		<form method="post" action="options.php">
 			<?php settings_fields( $group ); ?>

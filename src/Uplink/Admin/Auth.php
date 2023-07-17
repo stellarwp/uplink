@@ -8,7 +8,7 @@ use StellarWP\Uplink\Utils\Namespaces;
 
 class Auth {
 
-	public function do_auth_html() {
+	public static function do_auth_html() {
 		$collection = Config::get_container()->get( Collection::class );
 		$plugin     = $collection->current();
 		$license    = $plugin->get_license_object();

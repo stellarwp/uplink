@@ -8,6 +8,13 @@ use StellarWP\Uplink\Utils\Namespaces;
 
 class Auth {
 
+	/**
+	 * Return auth button html
+	 *
+	 * @since 1.0.1
+	 *
+	 * @return mixed
+	 */
 	public static function do_auth_html() {
 		$collection = Config::get_container()->get( Collection::class );
 		$plugin     = $collection->current();

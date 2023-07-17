@@ -66,10 +66,12 @@ class Provider extends Abstract_Provider {
 	/**
 	 * Handle auth and disconnect requests to origin
 	 *
+	 * @since 1.0.1
+	 *
 	 * @param \WP $wp
 	 */
 	public function auth_request( $wp ) {
-		if ( ! is_user_logged_in() ) {
+		if ( ! is_user_logged_in() || ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 		$this->container->get( Actions::class )->handle_auth_request( $wp );

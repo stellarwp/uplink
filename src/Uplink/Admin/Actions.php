@@ -13,7 +13,12 @@ class Actions {
 	const QUERY_VAR = 'stellarwp_action';
 
 	/**
+	 * Register handle route for connect/disconnect
+	 *
+	 * @since 1.0.1
+	 *
 	 * @return void
+	 *
 	 * @action init
 	 */
 	public function register_route() {
@@ -21,9 +26,14 @@ class Actions {
 	}
 
 	/**
+	 * Handle auth connect and disconnect request
+	 *
+	 * @since 1.0.1
+	 *
 	 * @param \WP $wp
 	 *
 	 * @return void
+	 *
 	 * @action parse_request
 	 */
 	public function handle_auth_request( $wp ) {
@@ -41,7 +51,9 @@ class Actions {
 	}
 
 	/**
-	 * Remove auth tokens
+	 * Remove auth tokens and redirect back to settings page
+	 *
+	 * @since 1.0.1
 	 */
 	public function handle_disconnect() {
 		$license = $this->get_license_object();
@@ -56,6 +68,13 @@ class Actions {
 		exit();
 	}
 
+	/**
+	 * Save auth token and redirect back to referer URL
+	 *
+	 * @since 1.0.1
+	 *
+	 * @param array $args
+	 */
 	public function handle_connect( $args ) {
 		if ( empty( $args['token'] ) ) {
 			$url = $this->get_origin_url();
@@ -83,6 +102,13 @@ class Actions {
 		exit();
 	}
 
+	/**
+	 * Retrieve origin URL from server
+	 *
+	 * @since 1.0.1
+	 *
+	 * @return string
+	 */
 	protected function get_origin_url() {
 		$license = $this->get_license_object();
 		$api     = Config::get_container()->get( API\Client::class );
@@ -95,6 +121,13 @@ class Actions {
 		return '';
 	}
 
+	/**
+	 * Retrieve License
+	 *
+	 * @since 1.0.1
+	 *
+	 * @return mixed
+	 */
 	protected function get_license_object() {
 		$collection = Config::get_container()->get( Collection::class );
 		$plugin     = $collection->current();

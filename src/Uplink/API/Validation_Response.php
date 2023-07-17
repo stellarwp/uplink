@@ -497,13 +497,13 @@ class Validation_Response {
 		if ( empty( $this->response->auth_required ) || $this->resource->has_valid_auth_token( (array) $this->response->origin ) ) {
 			$info->download_link = isset($this->response->download_url) ? $this->response->download_url . '&pu_get_download=1' : '';
 		} else {
-			$url 		  = $this->response->origin->url;
+			$url          = $this->response->origin->url;
 			$query_params = [
 				'callback_uri' => urlencode( sprintf( '%s/%s', get_site_url(), Namespaces::get_hook_name( 'connect', '%TEXTDOMAIN%' ) ) ),
 				'refer'		   => urlencode( wp_get_referer() ),
 			];
 
-			$url 		  		 = sprintf( '%s/%s?%s', $url, Namespaces::get_hook_name( 'oauth_connect/login' ) , http_build_query( $query_params ) );
+			$url                 = sprintf( '%s/%s?%s', $url, Namespaces::get_hook_name( 'oauth_connect/login' ) , http_build_query( $query_params ) );
 			$info->api_upgrade   = sprintf(
 				esc_html__( 'Please <a href="%s">authenticate this plugin</a> to receive updates.', '%TEXTDOMAIN%' ),
 				$url

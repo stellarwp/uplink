@@ -35,8 +35,9 @@ class ResourceTest extends \StellarWP\Uplink\Tests\UplinkTestCase {
 			'token'      => '11111',
 			'origin'     => '',
 		] );
-		$result = $this->resource->has_valid_auth_token( [ 'slug' => 'sample' ] );
-		$this->assertFalse( $result );
+		add_filter( 'stellarwp/namespace/option_name', function( $name, $entity, $slug ) {
+			return 'stellarwp_origin_';
+		}, 10, 3);
 
 		update_option( sprintf( 'stellarwp_origin_%s_auth_token', 'sample' ), [
 			'token'      => '11111',

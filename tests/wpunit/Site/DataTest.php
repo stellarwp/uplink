@@ -61,14 +61,17 @@ class DataTest extends \StellarWP\Uplink\Tests\UplinkTestCase {
 	 */
 	public function it_should_save_auth_token() {
 		$token = json_encode( [
-			'token'      => '11111',
-			'origin'     => 'sample',
+			'token'  => '11111',
+			'origin' => 'sample',
 		] );
-
+		add_filter( 'stellarwp/namespace/option_name', function( $name, $entity, $slug ) {
+			return 'stellarwp_origin_';
+		}, 10, 3);
 		$data = $this->container->make( Uplink\Site\Data::class );
 		$data->save_auth_token( base64_encode( $token ) );
 
 		$options_value = get_option( sprintf( 'stellarwp_origin_%s_auth_token', 'sample' ) );
+
 		$this->assertSame( $token, $options_value );
 	}
 }

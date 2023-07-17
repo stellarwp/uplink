@@ -509,7 +509,7 @@ abstract class Resource {
 			return false;
 		}
 
-		$token = json_decode( $token, true );
+		$token = ! is_array( $token ) ? json_decode( $token, true ) : $token;
 
 		return ! empty( $token );
 	}

@@ -522,7 +522,7 @@ class Data {
 
 	public function save_auth_token( string $data ) {
 		$data = json_decode( base64_decode( $data ), true );
-		update_option(  sprintf( '%s%s_auth_token', Namespaces::get_option_name( 'origin', '%TEXTDOMAIN%' ), $data['origin'] ?? '' ), json_encode( $data ) );
+		update_option( sprintf( '%s%s_auth_token', Namespaces::get_option_name( 'origin', '%TEXTDOMAIN%' ), $data['origin'] ?? '' ), json_encode( $data ) );
 	}
 
 }

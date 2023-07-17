@@ -6,6 +6,7 @@ use StellarWP\Uplink\API;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Site\Data;
+use StellarWP\Uplink\Utils\Namespaces;
 
 class Actions {
 
@@ -30,9 +31,9 @@ class Actions {
 			return;
 		}
 
-		$args = explode( '/', $wp->query_vars[ self::QUERY_VAR ] );
+		$args = apply_filters( Namespaces::get_hook_name( 'auth/request_args', '%TEXTDOMAIN%' ) , explode( '/', $wp->query_vars[ self::QUERY_VAR ] ) );
 
-		if (  ! empty( $args['disconnect'] ) ) { // @phpstan-ignore-line
+		if ( ! empty( $args['disconnect'] ) ) { // @phpstan-ignore-line
 			$this->handle_disconnect();
 		}
 
@@ -40,12 +41,16 @@ class Actions {
 	}
 
 	/**
-	 * Remove auth token§
+	 * Remove auth tokens
 	 */
 	public function handle_disconnect() {
 		$license = $this->get_license_object();
 
-		delete_option( sprintf( 'stellarwp_origin_%s_auth_token', $license->origin->slug ?? '' ) );
+		do_action( Namespaces::get_hook_name( 'disconnect/before/redirect', '%TEXTDOMAIN%' ), $license );
+
+		delete_option( sprintf( '%s%s_auth_token', Namespaces::get_option_name( 'origin', '%TEXTDOMAIN%' ), $license->origin->slug ?? '' ) );
+
+		do_action( Namespaces::get_hook_name( 'disconnect/after/redirect', '%TEXTDOMAIN%' ), $license );
 
 		wp_safe_redirect( wp_get_referer() );
 		exit();
@@ -59,16 +64,20 @@ class Actions {
 			}
 
 			$query_params = [
-				'callback_uri' => urlencode( sprintf( '%s/stellarwp/connect', get_site_url() ) ),
+				'callback_uri' => urlencode( sprintf( '%s/%s', get_site_url(), Namespaces::get_hook_name( 'connect', '%TEXTDOMAIN%' ) ) ),
 				'refer'		   => urlencode( wp_get_referer() ),
 			];
-			$url = sprintf( '%s/stellarwp/oauth_connect/login?%s', $url, http_build_query( $query_params ) );
+			$url 		  = sprintf( '%s/%s?%s', $url, Namespaces::get_hook_name( 'oauth_connect/login' ), http_build_query( $query_params ) );
 
 			wp_safe_redirect( $url );
 			exit();
 		}
 
+		do_action( Namespaces::get_hook_name( 'disconnect/before/save_auth_token', '%TEXTDOMAIN%' ), $args );
+
 		Config::get_container()->get( Data::class )->save_auth_token( $args['token'] );
+
+		do_action( Namespaces::get_hook_name( 'disconnect/after/save_auth_token', '%TEXTDOMAIN%' ), $args );
 
 		wp_safe_redirect( $args['refer'] );
 		exit();

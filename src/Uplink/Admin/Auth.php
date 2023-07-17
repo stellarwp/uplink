@@ -4,6 +4,7 @@ namespace StellarWP\Uplink\Admin;
 
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Resources\Collection;
+use StellarWP\Uplink\Utils\Namespaces;
 
 class Auth {
 
@@ -12,23 +13,25 @@ class Auth {
 		$plugin     = $collection->current();
 		$license    = $plugin->get_license_object();
 
-		$token   = get_option( sprintf( 'stellarwp_origin_%s_auth_token', $license->origin->slug ?? '' ), '' );
-		$message = esc_html__( 'Connect to origin', '%TEXTDOMAIN%' );
+		$token   = get_option( sprintf( '%s%s_auth_token', Namespaces::get_option_name( 'origin', '%TEXTDOMAIN%' ), $license->origin->slug ?? '' ), '' );
+		$message = esc_html__( 'Connect to receive updates', '%TEXTDOMAIN%' );
 		$classes = [ 'button', 'button-primary' ];
-		$url     = '/stellarwp/connect';
+		$url     = Namespaces::get_hook_name( 'connect', '%TEXTDOMAIN%' );
 
 		if ( ! empty( $token ) ) {
-			$message = esc_html__( 'Disconnect from origin', '%TEXTDOMAIN%' );
+			$message = esc_html__( 'Disconnect', '%TEXTDOMAIN%' );
 			$classes = [ 'button', 'button-secondary'];
-			$url     = '/stellarwp/disconnect';
+			$url     = Namespaces::get_hook_name( 'disconnect', '%TEXTDOMAIN%' );
 		}
 
-		return sprintf(
+		$btn_html = sprintf(
 			'<a href="%s" class="%s">%s</a>',
 			$url,
 			implode( ' ', $classes ),
 			$message
 		);
+
+		return apply_filters( Namespaces::get_hook_name( 'connect/btn/html', '%TEXTDOMAIN%' ), $btn_html, $url, $classes );
 	}
 
 }

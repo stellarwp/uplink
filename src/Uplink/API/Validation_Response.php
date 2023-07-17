@@ -7,6 +7,7 @@ use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Messages;
 use StellarWP\Uplink\Resources\Resource;
+use StellarWP\Uplink\Utils\Namespaces;
 
 class Validation_Response {
 	/**
@@ -498,13 +499,13 @@ class Validation_Response {
 		} else {
 			$url 		  = $this->response->origin->url;
 			$query_params = [
-				'callback_uri' => urlencode( sprintf( '%s/stellarwp/connect', get_site_url() ) ),
+				'callback_uri' => urlencode( sprintf( '%s/%s', get_site_url(), Namespaces::get_hook_name( 'connect', '%TEXTDOMAIN%' ) ) ),
 				'refer'		   => urlencode( wp_get_referer() ),
 			];
-			$url 		  = sprintf( '%s/stellarwp/oauth_connect/login?%s', $url, http_build_query( $query_params ) );
 
+			$url 		  		 = sprintf( '%s/%s?%s', $url, Namespaces::get_hook_name( 'oauth_connect/login' ) , http_build_query( $query_params ) );
 			$info->api_upgrade   = sprintf(
-				esc_html__( 'Please connect plugin on Setting page in order to receive updates. You can use plugin settings page or follow this <a href="%s">link</a>', '%TEXTDOMAIN%' ),
+				esc_html__( 'Please <a href="%s">authenticate this plugin</a> to receive updates.', '%TEXTDOMAIN%' ),
 				$url
 			);
 			$info->download_link = '';

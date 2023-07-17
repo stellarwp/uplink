@@ -7,6 +7,8 @@ use StellarWP\Uplink\API;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Exceptions;
 use StellarWP\Uplink\Site\Data;
+use StellarWP\Uplink\Utils\Namespaces;
+
 /**
  * The base resource class for StellarWP Uplink plugins and services.
  *
@@ -501,7 +503,7 @@ abstract class Resource {
 	}
 
 	public function has_valid_auth_token( array $origin ) {
-		$token = get_option( sprintf( 'stellarwp_origin_%s_auth_token', $origin['slug'] ?? '' ), '' );
+		$token = get_option( sprintf( '%s%s_auth_token', Namespaces::get_option_name( 'origin', '%TEXTDOMAIN%' ), $origin['slug'] ?? '' ), '' );
 
 		if ( empty( $token ) ) {
 			return false;
@@ -509,10 +511,6 @@ abstract class Resource {
 
 		$token = json_decode( $token, true );
 
-		if ( empty( $token ) ) {
-			return false;
-		}
-
-		return $token['expiration'] > time();
+		return ! empty( $token );
 	}
 }

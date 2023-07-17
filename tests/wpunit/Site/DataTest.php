@@ -56,6 +56,9 @@ class DataTest extends \StellarWP\Uplink\Tests\UplinkTestCase {
 		remove_filter( 'stellarwp/uplink/test/use_full_stats', '__return_true' );
 	}
 
+	/**
+	 * @test
+	 */
 	public function it_should_save_auth_token() {
 		$token = json_encode( [
 			'token'      => '11111',

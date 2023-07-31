@@ -45,6 +45,7 @@ class Provider extends Abstract_Provider {
 		add_action( 'admin_enqueue_scripts', [ $this, 'store_admin_notices' ], 10, 1 );
 		add_action( 'admin_notices', [ $this, 'admin_notices' ], 10, 0 );
 		add_action( 'load-plugins.php', [ $this, 'remove_default_update_message' ], 50, 0 );
+		add_action( 'parse_request', [ $this, 'auth_request' ], 10, 1 );
 	}
 
 	/**
@@ -60,6 +61,20 @@ class Provider extends Abstract_Provider {
 	 */
 	public function filter_plugins_api( $result, $action, $args ) {
 		return $this->container->get( Plugins_Page::class )->inject_info( $result, $action, $args );
+	}
+
+	/**
+	 * Handle auth and disconnect requests to origin
+	 *
+	 * @since 1.0.1
+	 *
+	 * @param \WP $wp
+	 */
+	public function auth_request( $wp ) {
+		if ( ! is_user_logged_in() || ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		$this->container->get( Actions::class )->handle_auth_request( $wp );
 	}
 
 	/**
@@ -94,6 +109,7 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	public function admin_init() {
+		$this->container->get( Actions::class )->register_route();
 		$this->container->get( License_Field::class )->register_settings();
 	}
 

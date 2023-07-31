@@ -92,3 +92,7 @@ The Uplink library should mark a registered plugin as needing an update when a v
 #### Plugin page
 
 On the _Plugins_ page in the WP Dashboard, any plugin that has an update available should display the update similar to how WordPress core does it. If a user click on `Update`, the zip files should be fetched from the Stellar Licensing system and installed if their license key is valid.
+
+#### Auth button
+
+Use `Auth::do_auth_html()` function to display auth button

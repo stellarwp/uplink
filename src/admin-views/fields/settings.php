@@ -6,6 +6,7 @@
  * @var bool $show_title Whether to show the title. Default true.
  */
 
+use StellarWP\Uplink\Admin\Auth;
 use StellarWP\Uplink\Admin\License_Field;
 use StellarWP\Uplink\Config;
 
@@ -14,6 +15,7 @@ if ( empty( $plugin ) ) {
 }
 
 $field = Config::get_container()->get( License_Field::class );
+$auth  = Config::get_container()->get( Auth::class );
 $group = $field->get_group_name( sanitize_title( $plugin->get_slug() ) );
 
 ?>

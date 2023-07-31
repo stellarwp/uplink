@@ -4,6 +4,7 @@ namespace StellarWP\Uplink\Site;
 
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;
+use StellarWP\Uplink\Utils\Namespaces;
 
 class Data {
 	/**
@@ -518,4 +519,10 @@ class Data {
 
 		return (bool) $is_public;
 	}
+
+	public function save_auth_token( string $data ) {
+		$data = json_decode( base64_decode( $data ), true );
+		update_option( sprintf( '%s%s_auth_token', Namespaces::get_option_name( 'origin', '%TEXTDOMAIN%' ), $data['origin'] ?? '' ), json_encode( $data ) );
+	}
+
 }

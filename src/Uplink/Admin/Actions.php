@@ -41,7 +41,7 @@ class Actions {
 			return;
 		}
 
-		$args = apply_filters( Namespaces::get_hook_name( 'auth/request_args', '%TEXTDOMAIN%' ) , explode( '/', $wp->query_vars[ self::QUERY_VAR ] ) );
+		$args = apply_filters( sprintf( 'stellarwp/%s/auth/request_args', Config::get_hook_prefix() ) , explode( '/', $wp->query_vars[ self::QUERY_VAR ] ) );
 
 		if ( ! empty( $args['disconnect'] ) ) { // @phpstan-ignore-line
 			$this->handle_disconnect();
@@ -58,11 +58,11 @@ class Actions {
 	public function handle_disconnect() {
 		$license = $this->get_license_object();
 
-		do_action( Namespaces::get_hook_name( 'disconnect/before/redirect', '%TEXTDOMAIN%' ), $license );
+		do_action( sprintf( 'stellarwp/%s/disconnect/before/redirect', Config::get_hook_prefix() ), $license );
 
 		delete_option( sprintf( '%s%s_auth_token', Namespaces::get_option_name( 'origin', '%TEXTDOMAIN%' ), $license->origin->slug ?? '' ) );
 
-		do_action( Namespaces::get_hook_name( 'disconnect/after/redirect', '%TEXTDOMAIN%' ), $license );
+		do_action( sprintf( 'stellarwp/%s/disconnect/after/redirect', Config::get_hook_prefix() ), $license );
 
 		wp_safe_redirect( wp_get_referer() );
 		exit();
@@ -92,11 +92,11 @@ class Actions {
 			exit();
 		}
 
-		do_action( Namespaces::get_hook_name( 'disconnect/before/save_auth_token', '%TEXTDOMAIN%' ), $args );
+		do_action( sprintf( 'stellarwp/%s/disconnect/before/save_auth_token', Config::get_hook_prefix() ), $args );
 
 		Config::get_container()->get( Data::class )->save_auth_token( $args['token'] );
 
-		do_action( Namespaces::get_hook_name( 'disconnect/after/save_auth_token', '%TEXTDOMAIN%' ), $args );
+		do_action( sprintf( 'stellarwp/%s/disconnect/after/save_auth_token', Config::get_hook_prefix() ), $args );
 
 		wp_safe_redirect( $args['refer'] );
 		exit();

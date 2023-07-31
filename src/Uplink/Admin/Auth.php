@@ -38,7 +38,7 @@ class Auth {
 			$message
 		);
 
-		return apply_filters( Namespaces::get_hook_name( 'connect/btn/html', '%TEXTDOMAIN%' ), $btn_html, $url, $classes );
+		return apply_filters( sprintf( 'stellarwp/%s/connect/btn/html', Config::get_hook_prefix() ), $btn_html, $url, $classes );
 	}
 
 }

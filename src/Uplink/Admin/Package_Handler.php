@@ -17,15 +17,15 @@ class Package_Handler {
 	/**
 	 * Filters the package download step to store the downloaded file with a shorter file name.
 	 *
-	 * @param bool        $reply    Whether to bail without returning the package.
-	 *                              Default false.
-	 * @param string      $package  The package file name or URL.
-	 * @param WP_Upgrader $upgrader The WP_Upgrader instance.
-	 * @param array        $hook_extra Extra arguments passed to hooked filters.
+	 * @param bool|\WP_Error $reply    Whether to bail without returning the package.
+	 *                                 Default false.
+	 * @param string         $package  The package file name or URL.
+	 * @param WP_Upgrader    $upgrader The WP_Upgrader instance.
+	 * @param array          $hook_extra Extra arguments passed to hooked filters.
 	 *
 	 * @return mixed
 	 */
-	public function filter_upgrader_pre_download( bool $reply, string $package, WP_Upgrader $upgrader, $hook_extra ) {
+	public function filter_upgrader_pre_download( $reply, string $package, WP_Upgrader $upgrader, $hook_extra ) {
 		if ( empty( $package ) || 'invalid_license' === $package ) {
 			return new \WP_Error(
 				'download_failed',

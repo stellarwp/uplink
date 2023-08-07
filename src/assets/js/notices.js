@@ -1,5 +1,3 @@
-var stellarwp_uplink_plugin_notices = stellarwp_uplink_plugin_notices || {};
-
 /**
  * Appends license key notifications inline within the plugin table.
  *
@@ -10,22 +8,29 @@ var stellarwp_uplink_plugin_notices = stellarwp_uplink_plugin_notices || {};
 	'use strict';
 
 	my.init = function() {
-		for ( var plugin_file in stellarwp_uplink_plugin_notices ) {
-			if ( ! stellarwp_uplink_plugin_notices.hasOwnProperty( plugin_file ) ) { // eslint-disable-line no-prototype-builtins,max-len
-				continue;
+		$( 'tr.active' ).each( function() {
+			var $el = $( this );
+			var slug = $el.data( 'slug' ).replace( '-', '_' );
+			var row = window[`stellarwp_uplink_plugin_notices_${slug}`];
+
+			if (!row) {
+				return;
 			}
 
-			var $row = $( stellarwp_uplink_plugin_notices[ plugin_file ].message_row_html );
-			var $active_plugin_row = $( 'tr[data-plugin="' + plugin_file + '"].active' );
+			for ( var plugin_file in stellarwp_uplink_plugin_notices ) {
+				if ( ! stellarwp_uplink_plugin_notices.hasOwnProperty( plugin_file ) ) { // eslint-disable-line no-prototype-builtins,max-len
+					continue;
+				}
 
-			// Add the .update class to the plugin row and append our new row with the update message
-			$active_plugin_row.addClass( 'update' ).after( $row );
-		}
+				var $row = $( stellarwp_uplink_plugin_notices[ plugin_file ].message_row_html );
+
+				// Add the .update class to the plugin row and append our new row with the update message
+				$el.addClass( 'update' ).after( $row );
+			}
+		} );
 	};
 
 	$( function() {
-		if ( 'object' === typeof stellarwp_uplink_plugin_notices ) {
-			my.init();
-		}
+		my.init();
 	});
-})( jQuery, stellarwp_uplink_plugin_notices );
+})( jQuery, {} );

@@ -154,10 +154,11 @@ abstract class Field {
 	 * @since 1.0.0
 	 *
 	 * @param string $page Slug title of the admin page whose settings fields you want to show.
-	 * @param string $section Slug title of the settings section whose fields you want to show.
+	 * @param string $page Slug title of the admin page whose settings fields you want to show.
+	 * @param string $plugin_slug Slug title of the settings section whose fields you want to show.
 	 * @param bool   $show_title Whether to show the title or not.
 	 */
-	public function do_settings_fields( string $page, string $section, bool $show_title = true ) {
+	public function do_settings_fields( string $page, string $section, string $plugin_slug, bool $show_title = true ) {
 		global $wp_settings_fields;
 
 		if ( ! isset( $wp_settings_fields[ $page ][ $section ] ) ) {
@@ -169,6 +170,10 @@ abstract class Field {
 
 			if ( ! empty( $field['args']['class'] ) ) {
 				$class = ' class="' . esc_attr( $field['args']['class'] ) . '"';
+			}
+
+			if ( ! empty( $plugin_slug ) ) {
+				$field['args']['slug'] = $plugin_slug;
 			}
 
 			if ( $show_title ) {

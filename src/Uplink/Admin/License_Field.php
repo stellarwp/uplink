@@ -91,14 +91,15 @@ class License_Field extends Field {
 	 * @return void
 	 */
 	public function enqueue_assets() {
-		$handle = 'stellarwp-uplink-license-admin';
+		$handle = sprintf( 'stellarwp-uplink-license-admin-%s', Config::get_hook_prefix() );
 		$path   = preg_replace( '/.*\/vendor/', plugin_dir_url( $this->get_plugin()->get_path() ) . 'vendor', dirname( __DIR__, 2 ) );
 		$js_src = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/admin_js_source', $path . '/assets/js/key-admin.js' );
-
 		wp_register_script( $handle, $js_src, [ 'jquery' ], '1.0.0', true );
 		wp_enqueue_script( $handle );
+		$action_postfix = strtolower( str_replace( '-', '_', sanitize_title( Config::get_hook_prefix() ) ) );
+		wp_localize_script( $handle, sprintf( 'stellarwp_config_%s', $action_postfix ), [ 'action' => sprintf( 'pue-validate-key-uplink-%s', $action_postfix ) ] );
 
 		$css_src = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/admin_css_source', $path . '/assets/css/main.css' );
-		wp_enqueue_style( 'stellarwp-uplink-license-admin', $css_src );
+		wp_enqueue_style( sprintf( 'stellarwp-uplink-license-admin-%s', Config::get_hook_prefix() ), $css_src );
 	}
 }

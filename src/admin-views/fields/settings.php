@@ -13,8 +13,9 @@ if ( empty( $plugin ) ) {
 	return;
 }
 
-$field = Config::get_container()->get( License_Field::class );
-$group = $field->get_group_name( sanitize_title( $plugin->get_slug() ) );
+$field          = Config::get_container()->get( License_Field::class );
+$group          = $field->get_group_name( sanitize_title( $plugin->get_slug() ) );
+$action_postfix = Config::get_hook_prefix_underscored();
 
 ?>
 <?php if ( $show_title ) : ?>
@@ -31,7 +32,7 @@ $group = $field->get_group_name( sanitize_title( $plugin->get_slug() ) );
 				<table class="form-table" role="presentation">
 			<?php endif; ?>
 				<div class="stellarwp-uplink__license-field">
-					<?php $field->do_settings_fields( $group, sprintf( '%s_%s', License_Field::LICENSE_FIELD_ID, sanitize_title( $plugin->get_slug() ) ), $show_title ); ?>
+					<?php $field->do_settings_fields( $group, sprintf( '%s_%s', License_Field::LICENSE_FIELD_ID, sanitize_title( Config::get_hook_prefix() ) ), $action_postfix, $show_title ); ?>
 				</div>
 			<?php if ( $show_title ) : ?>
 				</table>

@@ -21,6 +21,7 @@
 	obj.validateKey = function( $el ) {
 		const field       	 = $el.find( 'input[type="text"]' )
 		const plugin         = $el.data( 'plugin' );
+		const slug           = $el.data( 'plugin-slug' );
 		let $validityMessage = $el.find( '.key-validity' );
 
 		if ( '' === field.val().trim() ) {
@@ -38,7 +39,7 @@
 		field.val( licenseKey );
 
 		var data = {
-			action: 'pue-validate-key-uplink',
+			action: window[`stellarwp_config_${slug}`]['action'],
 			plugin: plugin,
 			key: licenseKey,
 			_wpnonce: $( $el ).find( '.wp-nonce' ).val()

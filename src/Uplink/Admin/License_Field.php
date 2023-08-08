@@ -100,6 +100,6 @@ class License_Field extends Field {
 		wp_localize_script( $handle, sprintf( 'stellarwp_config_%s', $action_postfix ), [ 'action' => sprintf( 'pue-validate-key-uplink-%s', $action_postfix ) ] );
 
 		$css_src = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/admin_css_source', $path . '/assets/css/main.css' );
-		wp_enqueue_style( sprintf( 'stellarwp-uplink-license-admin-%s', Config::get_hook_prefix() ), $css_src );
+		wp_enqueue_style( $handle, $css_src );
 	}
 }

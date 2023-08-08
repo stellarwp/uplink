@@ -32,7 +32,7 @@ class Update_Available extends Message_Abstract {
 	 */
 	public function get(): string {
 		$message = sprintf(
-			esc_html__( 'There is an update for %s. You\'ll need to %scheck your license%s to have access to updates, downloads, and support.', 'stellar-uplink-client' ),
+			esc_html__( 'There is an update for %s. You\'ll need to %scheck your license%s to have access to updates, downloads, and support.', '%TEXTDOMAIN%' ),
 			$this->resource->get_name(),
 			'<a href="https://theeventscalendar.com/license-keys/">',
 			'</a>'

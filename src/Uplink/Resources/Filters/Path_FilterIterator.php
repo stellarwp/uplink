@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\Resources\Filters;
 
-class Path_FilterIterator extends \FilterIterator {
+class Path_FilterIterator extends \FilterIterator implements \Countable {
 	/**
 	 * Paths to filter.
 	 *
@@ -33,5 +33,17 @@ class Path_FilterIterator extends \FilterIterator {
 		$resource = $this->getInnerIterator()->current();
 
 		return in_array( $resource->get_path(), $this->paths, true );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function count() : int {
+		$count = 0;
+		foreach ( $this as $item ) {
+			$count++;
+		}
+
+		return $count;
 	}
 }

@@ -49,7 +49,26 @@ class Config {
 	 * @return string
 	 */
 	public static function get_hook_prefix() {
+		if ( self::$hook_prefix === null ) {
+			throw new \RuntimeException( 'You must provide a hook prefix via StellarWP\Uplink\Config::set_hook_prefix() before attempting to fetch it.' );
+		}
+
 		return static::$hook_prefix;
+	}
+
+	/**
+	 * Gets the hook underscored prefix.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string
+	 */
+	public static function get_hook_prefix_underscored() {
+		if ( self::$hook_prefix === null ) {
+			throw new \RuntimeException( 'You must provide a hook prefix via StellarWP\Uplink\Config::set_hook_prefix() before attempting to fetch it.' );
+		}
+
+		return strtolower( str_replace( '-', '_', sanitize_title( static::$hook_prefix ) ) );
 	}
 
 	/**
@@ -97,12 +116,6 @@ class Config {
 	 * @return void
 	 */
 	public static function set_hook_prefix( string $prefix ) {
-		// Make sure the prefix always ends with a separator.
-		if ( substr( $prefix, -1 ) !== '/' ) {
-			$prefix = $prefix . '/';
-		}
-
 		static::$hook_prefix = $prefix;
 	}
-
 }

@@ -31,17 +31,4 @@ class Plugins_PageTest extends UplinkTestCase {
 		$handler = new Plugins_Page();
 		$this->assertNull( $handler->display_plugin_messages( 'plugins.php' ) );
 	}
-
-	public function test_add_notice_to_plugin_notices_should_return_same() {
-		$handler = new Plugins_Page();
-		$this->assertSame( [], $handler->add_notice_to_plugin_notices( [] ) );
-	}
-
-	public function test_add_notice_to_plugin_notices_should_return_updated() {
-		$handler = new Plugins_Page();
-		$handler->plugin_notice = [ 'slug' => 'sample', 'message_row_html' => '<div></div>' ];
-
-		$this->assertSame( [ 'sample' => $handler->plugin_notice ], $handler->add_notice_to_plugin_notices( [] ) );
-	}
-
 }

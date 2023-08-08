@@ -8,7 +8,7 @@ use StellarWP\Uplink\Resources\Collection;
 
 abstract class Field {
 
-	public const STELLARWP_UPLINK_GROUP = 'stellar_uplink_group';
+	public const STELLARWP_UPLINK_GROUP = 'stellarwp_uplink_group';
 
 	/**
 	 * Path to page template
@@ -61,7 +61,9 @@ abstract class Field {
 	 * @return string
 	 */
 	public function get_group_name( string $group_modifier = '' ) : string {
-		return sprintf( '%s_%s', self::STELLARWP_UPLINK_GROUP, $group_modifier );
+		$group_name = sprintf( '%s_%s', self::STELLARWP_UPLINK_GROUP, $group_modifier );
+
+		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/license_field_group_name', $group_name, self::STELLARWP_UPLINK_GROUP, $group_modifier );
 	}
 
 	/**
@@ -71,7 +73,7 @@ abstract class Field {
 	 */
 	public function field_html( array $args = [] ) {
 		$field = sprintf(
-			'<div class="%6$s" id="%2$s" data-slug="%2$s" data-plugin="%9$s">
+			'<div class="%6$s" id="%2$s" data-slug="%2$s" data-plugin="%9$s" data-plugin-slug="%10$s">
                     <fieldset class="stellarwp-uplink__settings-group">
                         <input type="%1$s" name="%3$s" value="%4$s" placeholder="%5$s" class="regular-text stellarwp-uplink__settings-field" />
                         %7$s
@@ -86,10 +88,11 @@ abstract class Field {
 			esc_attr( $args['html_classes'] ?: '' ),
 			$this->get_html_content( $args ),
 			$this->add_nonce_field(),
-			$args['plugin']
+			$args['plugin'],
+			Config::get_hook_prefix_underscored()
 		);
 
-		echo apply_filters( 'stellar_uplink_' . Config::get_hook_prefix() . 'license_field_html_render', $field, $args );
+		echo apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/license_field_html_render', $field, $args );
 
 		$this->get_description( $args );
 	}
@@ -128,7 +131,7 @@ abstract class Field {
 	 * @return string
 	 */
 	public function get_path() : string {
-		return apply_filters( 'stellar_uplink_' . Config::get_hook_prefix() . 'field-template_path', dirname( __DIR__, 2 ) . $this->path, $this->path );
+		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/field-template_path', dirname( __DIR__, 2 ) . $this->path, $this->path );
 	}
 
 	/**
@@ -152,10 +155,11 @@ abstract class Field {
 	 * @since 1.0.0
 	 *
 	 * @param string $page Slug title of the admin page whose settings fields you want to show.
-	 * @param string $section Slug title of the settings section whose fields you want to show.
+	 * @param string $page Slug title of the admin page whose settings fields you want to show.
+	 * @param string $plugin_slug Slug title of the settings section whose fields you want to show.
 	 * @param bool   $show_title Whether to show the title or not.
 	 */
-	public function do_settings_fields( string $page, string $section, bool $show_title = true ) {
+	public function do_settings_fields( string $page, string $section, string $plugin_slug, bool $show_title = true ) {
 		global $wp_settings_fields;
 
 		if ( ! isset( $wp_settings_fields[ $page ][ $section ] ) ) {
@@ -167,6 +171,10 @@ abstract class Field {
 
 			if ( ! empty( $field['args']['class'] ) ) {
 				$class = ' class="' . esc_attr( $field['args']['class'] ) . '"';
+			}
+
+			if ( ! empty( $plugin_slug ) ) {
+				$field['args']['slug'] = $plugin_slug;
 			}
 
 			if ( $show_title ) {

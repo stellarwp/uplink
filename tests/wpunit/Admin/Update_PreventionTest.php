@@ -44,7 +44,7 @@ class Update_PreventionTest extends UplinkTestCase {
 			[ 'plugin' => 'sample/index.php' ]
 		), 'It should return the same source if it is not a stellar uplink resource' );
 
-		add_filter( 'stellar_uplink_should_prevent_update_without_license', '__return_false' );
+		add_filter( 'stellarwp_uplink_should_prevent_update_without_license', '__return_false' );
 
 		$this->assertSame( $test_source, $update_prevention->filter_upgrader_source_selection(
 			$test_source,

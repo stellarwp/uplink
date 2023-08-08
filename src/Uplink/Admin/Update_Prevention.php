@@ -73,7 +73,7 @@ class Update_Prevention {
 		}
 
 		$incompatible_plugins = apply_filters(
-			'stellar_uplink_' . Config::get_hook_prefix(). 'update_prevention_incompatible_plugins',
+			'stellarwp/uplink/' . Config::get_hook_prefix(). '/update_prevention_incompatible_plugins',
 			[],
 			$source,
 			$remote_source
@@ -98,7 +98,7 @@ class Update_Prevention {
 		 * @param array       $extra                Extra arguments passed to hooked filters.
 		 */
 		$should_prevent_update = apply_filters(
-			'stellar_uplink_' . Config::get_hook_prefix(). 'should_prevent_update_without_license',
+			'stellarwp/uplink/' . Config::get_hook_prefix(). '/should_prevent_update_without_license',
 			true,
 			$plugin,
 			$incompatible_plugins,
@@ -126,7 +126,7 @@ class Update_Prevention {
 		);
 
 		return new WP_Error(
-			'stellar-uplink-updater-failed-prevention',
+			'stellarwp-uplink-updater-failed-prevention',
 			$message,
 			[]
 		);

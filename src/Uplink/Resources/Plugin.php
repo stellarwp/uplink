@@ -27,7 +27,7 @@ class Plugin extends Resource {
 	 *
 	 * @var string
 	 */
-	public static $update_status_option_prefix = 'stellar_uplink_update_status_';
+	public static $update_status_option_prefix = 'stellarwp_uplink_update_status_';
 
 	/**
 	 * Check for plugin updates.
@@ -69,7 +69,7 @@ class Plugin extends Resource {
 			}
 
 			// In order to show relevant issues on plugins page parse response data and add it to transient
-			if ( in_array( $results->get_result(), [ 'expired', 'invalid' ] ) ) {
+			if ( version_compare( $this->get_version_from_response( $results ), $this->get_installed_version(), '>=' ) && in_array( $results->get_result(), [ 'expired', 'invalid' ] ) ) {
 				/** @var \stdClass $transient */
 				if ( ! isset( $transient->response ) ) {
 					$transient->response = [];

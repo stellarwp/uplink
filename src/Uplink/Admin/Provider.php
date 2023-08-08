@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Admin;
 
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Uplink;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
 
@@ -34,10 +35,12 @@ class Provider extends Abstract_Provider {
 	public function register_hooks() {
 		add_filter( 'plugins_api', [ $this, 'filter_plugins_api' ], 10, 3 );
 		add_filter( 'pre_set_site_transient_update_plugins', [ $this, 'filter_pre_set_site_transient_update_plugins' ], 10, 1 );
-		add_filter( 'upgrader_pre_download', [ $this, 'filter_upgrader_pre_download' ], 5, 3 );
-		add_filter( 'upgrader_source_selection', [ $this, 'filter_upgrader_source_selection' ], 15, 4 );
+		add_filter( 'upgrader_pre_download', [ $this, 'filter_upgrader_pre_download' ], 5, 4 );
+		add_filter( 'upgrader_install_package_result', [ $this, 'filter_upgrader_install_package_result' ], 10, 2 );
+		add_filter( 'upgrader_source_selection', [ $this, 'filter_upgrader_source_selection_for_update_prevention' ], 15, 4 );
 
-		add_action( 'wp_ajax_pue-validate-key-uplink', [ $this, 'ajax_validate_license' ], 10, 0 );
+		$action = sprintf( 'wp_ajax_pue-validate-key-uplink-%s', Config::get_hook_prefix_underscored() );
+		add_action($action, [ $this, 'ajax_validate_license' ], 10, 0 );
 		add_action( 'admin_init', [ $this, 'admin_init' ], 10, 0 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'display_plugin_messages' ], 1, 1 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_assets' ], 10, 0 );
@@ -160,30 +163,45 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param bool         $reply    Whether to bail without returning the package.
-	 *                               Default false.
-	 * @param string       $package  The package file name or URL.
-	 * @param \WP_Upgrader $upgrader The WP_Upgrader instance.
+	 * @param bool         $reply      Whether to bail without returning the package.
+	 *                                 Default false.
+	 * @param string       $package    The package file name or URL.
+	 * @param \WP_Upgrader $upgrader   The WP_Upgrader instance.
+	 * @param array        $hook_extra Extra arguments passed to hooked filters.
 	 *
 	 * @return mixed
 	 */
-	public function filter_upgrader_pre_download( $reply, $package, $upgrader ) {
-		return $this->container->get( Package_Handler::class )->filter_upgrader_pre_download( $reply, $package, $upgrader );
+	public function filter_upgrader_pre_download( $reply, $package, $upgrader, $hook_extra ) {
+		return $this->container->get( Package_Handler::class )->filter_upgrader_pre_download( $reply, $package, $upgrader, $hook_extra );
 	}
 
 	/**
-	 * Get the services provided by the provider.
+	 * Filter the upgrader source selection to handle final destination dir name.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param array $result Final arguments for the result.
+	 * @param array $extras Extra arguments passed to hooked filters.
+	 *
+	 * @return array
+	 */
+	public function filter_upgrader_install_package_result( $result, $extras ) {
+		return $this->container->get( Package_Handler::class )->filter_upgrader_install_package_result( $result, $extras );
+	}
+
+	/**
+	 * Filter the upgrader source selection to handle Update Prevention.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @param string       $source        File source location.
 	 * @param mixed        $remote_source Remote file source location.
 	 * @param \WP_Upgrader $upgrader      WP_Upgrader instance.
-	 * @param array<mixed> $extras        Extra arguments passed to hooked filters.
+	 * @param array        $extras        Extra arguments passed to hooked filters.
 	 *
 	 * @return string|\WP_Error
 	 */
-	public function filter_upgrader_source_selection( $source, $remote_source, $upgrader, $extras ) {
+	public function filter_upgrader_source_selection_for_update_prevention( $source, $remote_source, $upgrader, $extras ) {
 		return $this->container->get( Update_Prevention::class )->filter_upgrader_source_selection( $source, $remote_source, $upgrader, $extras );
 	}
 }

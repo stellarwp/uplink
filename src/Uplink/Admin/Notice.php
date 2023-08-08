@@ -11,7 +11,7 @@ class Notice {
 	const INVALID_KEY = 'invalid_key';
 	const UPGRADE_KEY = 'upgrade_key';
 	const EXPIRED_KEY = 'expired_key';
-	const STORE_KEY   = 'stellar_uplink_key_notices';
+	const STORE_KEY   = 'stellarwp_uplink_key_notices';
 
 	/**
 	 * @var array<mixed>
@@ -109,7 +109,7 @@ class Notice {
 		 * @param array $current_notices
 		 * @param array $previously_saved_notices
 		 */
-		do_action( 'stellar_uplink_' . Config::get_hook_prefix() . 'notices_save_notices', $this->notices, $this->saved_notices );
+		do_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/notices_save_notices', $this->notices, $this->saved_notices );
 	}
 
 }

@@ -1,6 +1,6 @@
 # StellarWP Uplink
 
-[![CI](https://github.com/the-events-calendar/stellar-uplink/workflows/CI/badge.svg)](https://github.com/the-events-calendar/stellar-uplink/actions?query=branch%3Amain) [![Static Analysis](https://github.com/the-events-calendar/stellar-uplink/actions/workflows/static-analysis.yml/badge.svg)](https://github.com/the-events-calendar/stellar-uplink/actions/workflows/static-analysis.yml)
+[![CI](https://github.com/stellarwp/uplink/workflows/CI/badge.svg)](https://github.com/stellarwp/uplink/actions?query=branch%3Amain) [![Static Analysis](https://github.com/stellarwp/uplink/actions/workflows/static-analysis.yml/badge.svg)](https://github.com/stellarwp/uplink/actions/workflows/static-analysis.yml)
 
 ## Installation
 
@@ -32,9 +32,8 @@ add_action( 'plugins_loaded', function() {
 	 * and the corresponding wrapper:
 	 * https://github.com/stellarwp/container-contract/blob/main/examples/di52/Container.php
 	 */
-	 $container = new Container();
+	$container = new Container();
 	Config::set_container( $container );
-	// Optional: Set a unique prefix for actions & filters.
 	Config::set_hook_prefix( 'my-custom-prefix' );
 
 	Uplink::init();
@@ -106,7 +105,7 @@ Register::plugin(
 	$plugin_version,
 	$plugin_path,
 	$plugin_class,
-	$license_class
+	$license_class // This is optional.
 );
 ```
 
@@ -133,13 +132,18 @@ Register::service(
 ```
 
 ## Render license key form on your settings page
-In order to render license key form just add 2 lines of code to your settings page, tab, etc.
+In order to render license key form just add the following to your settings page, tab, etc.
 ```php
 use StellarWP\Uplink\Config;
 
-$container = Config::get_container();
-$container->get( License_Field::class )->render();
+$fields = Config::get_container()->get( License_Field::class );
+
+// Do one of the following:
+$fields->render();               // Render the fields, titles, and submit button.
+$fields->render( false );        // Render the fields without the titles.
+$fields->render( false, false ); // Render the fields without the titles or submit buttons.
 ```
+
 ### Example: Register settings page and render license fields
 Register a settings page for a plugin if you need it
 ```php
@@ -156,15 +160,17 @@ add_action( 'admin_menu', function () {
 
 }, 11 );
 ```
-Add lines below to your settings page. This will render license key form with submit button
+
+Add lines below to your settings page. This will render license key form with titles and a submit button
 ```php
 use StellarWP\Uplink\Config;
 
 function render_settings_page() {
-    // ....
-    $container = Config::get_container();
-    $container->get( License_Field::class )->render();
+    // ...
+
+    $fields = Config::get_container()->get( License_Field::class );
+    $fields->render();
+
     //....
 }
 ```
-

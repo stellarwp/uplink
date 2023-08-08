@@ -139,7 +139,7 @@ class Plugins_Page {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return string
+	 * @return void
 	 */
 	public function output_notices_script() {
 		$slug = $this->get_plugin()->get_slug();

@@ -96,7 +96,7 @@ class License_Field extends Field {
 		$js_src = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/admin_js_source', $path . '/assets/js/key-admin.js' );
 		wp_register_script( $handle, $js_src, [ 'jquery' ], '1.0.0', true );
 		wp_enqueue_script( $handle );
-		$action_postfix = strtolower( str_replace( '-', '_', sanitize_title( Config::get_hook_prefix() ) ) );
+		$action_postfix = Config::get_hook_prefix_underscored();
 		wp_localize_script( $handle, sprintf( 'stellarwp_config_%s', $action_postfix ), [ 'action' => sprintf( 'pue-validate-key-uplink-%s', $action_postfix ) ] );
 
 		$css_src = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/admin_css_source', $path . '/assets/css/main.css' );

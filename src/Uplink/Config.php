@@ -57,6 +57,21 @@ class Config {
 	}
 
 	/**
+	 * Gets the hook underscored prefix.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string
+	 */
+	public static function get_hook_prefix_underscored() {
+		if ( self::$hook_prefix === null ) {
+			throw new \RuntimeException( 'You must provide a hook prefix via StellarWP\Uplink\Config::set_hook_prefix() before attempting to fetch it.' );
+		}
+
+		return strtolower( str_replace( '-', '_', sanitize_title( static::$hook_prefix ) ) );
+	}
+
+	/**
 	 * Returns whether the container has been set.
 	 *
 	 * @since 1.0.0

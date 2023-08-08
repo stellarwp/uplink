@@ -39,7 +39,7 @@ class Provider extends Abstract_Provider {
 		add_filter( 'upgrader_install_package_result', [ $this, 'filter_upgrader_install_package_result' ], 10, 2 );
 		add_filter( 'upgrader_source_selection', [ $this, 'filter_upgrader_source_selection_for_update_prevention' ], 15, 4 );
 
-		$action = sprintf( 'wp_ajax_pue-validate-key-uplink-%s', strtolower( str_replace( '-', '_', sanitize_title( Config::get_hook_prefix() ) ) ) );
+		$action = sprintf( 'wp_ajax_pue-validate-key-uplink-%s', Config::get_hook_prefix_underscored() );
 		add_action($action, [ $this, 'ajax_validate_license' ], 10, 0 );
 		add_action( 'admin_init', [ $this, 'admin_init' ], 10, 0 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'display_plugin_messages' ], 1, 1 );

@@ -73,7 +73,7 @@ abstract class Field {
 	 */
 	public function field_html( array $args = [] ) {
 		$field = sprintf(
-			'<div class="%6$s" id="%2$s" data-slug="%2$s" data-plugin="%9$s">
+			'<div class="%6$s" id="%2$s" data-slug="%2$s" data-plugin="%9$s" data-plugin-slug="%10$s">
                     <fieldset class="stellarwp-uplink__settings-group">
                         <input type="%1$s" name="%3$s" value="%4$s" placeholder="%5$s" class="regular-text stellarwp-uplink__settings-field" />
                         %7$s
@@ -88,7 +88,8 @@ abstract class Field {
 			esc_attr( $args['html_classes'] ?: '' ),
 			$this->get_html_content( $args ),
 			$this->add_nonce_field(),
-			$args['plugin']
+			$args['plugin'],
+			strtolower( str_replace( '-', '_', sanitize_title( Config::get_hook_prefix() ) ) )
 		);
 
 		echo apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/license_field_html_render', $field, $args );

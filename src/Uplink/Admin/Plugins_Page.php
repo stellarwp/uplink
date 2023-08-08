@@ -103,26 +103,20 @@ class Plugins_Page {
 		);
 
 		$this->plugin_notice = [
-			'slug'             => $this->get_plugin()->get_path(),
+			'slug'             => $this->get_plugin()->get_slug(),
 			'message_row_html' => $message_row_html,
 		];
-
-		add_filter( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/plugin_notices', [ $this, 'add_notice_to_plugin_notices' ] );
 	}
 
 	/**
-	 * @param array<mixed> $notices
+	 * Get plugin notice.
 	 *
-	 * @return array<mixed>
+	 * @since 1.0.0
+	 *
+	 * @return array
 	 */
-	public function add_notice_to_plugin_notices( array $notices ) : array {
-		if ( ! $this->plugin_notice || $this->get_plugin()->is_network_licensed() ) {
-			return $notices;
-		}
-
-		$notices[ $this->plugin_notice['slug'] ] = $this->plugin_notice;
-
-		return $notices;
+	public function get_plugin_notice() {
+		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/plugin_notices', $this->plugin_notice );
 	}
 
 	/**
@@ -136,14 +130,58 @@ class Plugins_Page {
 		if ( 'plugins.php' !== $page ) {
 			return;
 		}
-		$notices = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/plugin_notices', [] );
-		$path    = preg_replace( '/.*\/vendor/', plugin_dir_url( $this->get_plugin()->get_path() ) . 'vendor', dirname( __DIR__, 2 ) );
-		$js_src  = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/admin_js_source', $path . '/assets/js/notices.js' );
-		$handle  = 'stellarwp_uplink-notices';
 
-		wp_register_script( $handle, $js_src, [ 'jquery' ], '1.0.0', true );
-		wp_localize_script( $handle, 'stellarwp_uplink_plugin_notices', $notices );
-		wp_enqueue_script( $handle );
+		add_action( 'admin_footer', [ $this, 'output_notices_script' ] );
+	}
+
+	/**
+	 * Output the plugin-specific notices script.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return void
+	 */
+	public function output_notices_script() {
+		$slug = $this->get_plugin()->get_slug();
+		$notice = $this->get_plugin_notice();
+
+		if ( empty( $notice ) ) {
+			return;
+		}
+		?>
+		<script>
+		/**
+		 * Appends license key notifications inline within the plugin table.
+		 *
+		 * This is done via JS because the options for achieving the same things
+		 * server-side are currently limited.
+		 */
+		(function( $, my ) {
+			'use strict';
+
+			my.init = function() {
+				var $active_plugin_row = $( 'tr.active[data-slug="<?php echo esc_attr( $slug ); ?>"]' );
+
+				if ( ! $active_plugin_row.length ) {
+					return;
+				}
+
+				var notice = <?php echo wp_json_encode( $notice ); ?>;
+
+				if ( ! notice.message_row_html ) {
+					return;
+				}
+
+				// Add the .update class to the plugin row and append our new row with the update message
+				$active_plugin_row.addClass( 'update' ).after( notice.message_row_html );
+			};
+
+			$( function() {
+				my.init();
+			} );
+		})( jQuery, {} );
+		</script>
+		<?php
 	}
 
 	/**

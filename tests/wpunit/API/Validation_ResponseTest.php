@@ -19,7 +19,7 @@ class Validation_ResponseTest extends UplinkTestCase {
 			'sample',
 			'Lib Sample',
 			'1.0.10',
-			$root . '/plugin.php',
+			'uplink/plugin.php',
 			Uplink::class,
 			Uplink::class
 		);

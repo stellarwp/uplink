@@ -18,9 +18,9 @@ class Validation_ResponseTest extends UplinkTestCase {
 		$this->resource = Register::plugin(
 			'sample',
 			'Lib Sample',
+			'1.0.10',
 			$root . '/plugin.php',
 			Uplink::class,
-			'1.0.10',
 			Uplink::class
 		);
 	}

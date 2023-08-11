@@ -32,7 +32,7 @@ class Validation_ResponseTest extends UplinkTestCase {
 	}
 
 	public function get_dummy_api_invalid_response(): \stdClass {
-		return json_decode( '{"results":[{"api_invalid":true,"version":"1.0.10","api_invalid_message":"<p>You are using %plugin_name% but your license key is invalid. Visit the Events Calendar website to check your <a href=\"https:\/\/theeventscalendar.com\/license-keys\/?utm_medium=pue&utm_campaign=in-app\">licenses<\/a>.","api_inline_invalid_message":"<p>There is a new version of %plugin_name% available but your license key is invalid. View %changelog% with version %version%. Visit the Events Calendar website to check your <a href=\"https:\/\/theeventscalendar.com\/license-keys\/?utm_medium=pue&utm_campaign=in-app\">licenses<\/a>.","sections":{"changelog":"Changelog data"}}]}' );
+		return json_decode( '{"results":[{"api_invalid":true,"version":"1.0.10","api_invalid_message":"<p>You are using %plugin_name% but your license key is invalid. Visit the Events Calendar website to check your <a href=\"https:\/\/theeventscalendar.com\/license-keys\/?utm_medium=pue&utm_campaign=in-app\">licenses<\/a>.","api_inline_invalid_message":"<p>There is a new version of Lib Sample available but your license key is invalid. View %changelog% with version %version%. Visit the Events Calendar website to check your <a href=\"https:\/\/theeventscalendar.com\/license-keys\/?utm_medium=pue&utm_campaign=in-app\">licenses<\/a>.","sections":{"changelog":"Changelog data"}}]}' );
 	}
 
 	public function test_it_should_provide_valid_update_details(): void {

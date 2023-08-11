@@ -14,7 +14,6 @@ class Validation_ResponseTest extends UplinkTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$root 		    = dirname( __DIR__, 3 );
 		$this->resource = Register::plugin(
 			'sample',
 			'Lib Sample',

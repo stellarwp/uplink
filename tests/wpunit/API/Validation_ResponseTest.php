@@ -16,14 +16,15 @@ class Validation_ResponseTest extends UplinkTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->resource = Register::plugin(
-			'sample',
+		$this->resource = $this->getMockBuilder( Plugin::class )->setConstructorArgs( [ 'sample',
 			'Lib Sample',
 			'1.0.10',
 			'uplink/plugin.php',
 			Uplink::class,
 			Uplink::class
-		);
+		] )->getMock();
+
+		$this->resource->method('get_installed_version')->willReturn( '1.0.10' );
 	}
 
 	public function get_dummy_valid_response(): \stdClass {
@@ -35,15 +36,8 @@ class Validation_ResponseTest extends UplinkTestCase {
 	}
 
 	public function test_it_should_provide_valid_update_details(): void {
-		$resource = $this->getMockBuilder( Plugin::class )->setConstructorArgs( [ 'sample',
-			'Lib Sample',
-			'1.0.10',
-			'uplink/plugin.php',
-			Uplink::class,
-			Uplink::class
-		] )->getMock();
-		$resource->method('get_installed_version')->willReturn( '1.0.10' );
-		$result = new Validation_Response( 'aaa11', 'local', $this->get_dummy_valid_response(), $resource );
+
+		$result = new Validation_Response( 'aaa11', 'local', $this->get_dummy_valid_response(), $this->resource );
 		$update = $result->get_update_details();
 
 		$this->assertEquals( '', $update->id );

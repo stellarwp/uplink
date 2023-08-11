@@ -2,15 +2,14 @@
 
 namespace wpunit\API;
 
-use phpmock\phpunit\PHPMock;
 use StellarWP\Uplink\API\Validation_Response;
 use StellarWP\Uplink\Register;
+use StellarWP\Uplink\Resources\Plugin;
+use StellarWP\Uplink\Resources\Resource;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Uplink;
 
 class Validation_ResponseTest extends UplinkTestCase {
-
-	use PHPMock;
 
 	public $resource;
 
@@ -36,9 +35,15 @@ class Validation_ResponseTest extends UplinkTestCase {
 	}
 
 	public function test_it_should_provide_valid_update_details(): void {
-		$exec = $this->getFunctionMock(__NAMESPACE__, "get_plugin_data");
-		$exec->expects($this->once())->with()->willReturn("1.0.10");
-		$result = new Validation_Response( 'aaa11', 'local', $this->get_dummy_valid_response(), $this->resource );
+		$resource = $this->getMockBuilder( Plugin::class )->setConstructorArgs( [ 'sample',
+			'Lib Sample',
+			'1.0.10',
+			'uplink/plugin.php',
+			Uplink::class,
+			Uplink::class
+		] )->getMock();
+		$resource->method('get_installed_version')->willReturn( '1.0.10' );
+		$result = new Validation_Response( 'aaa11', 'local', $this->get_dummy_valid_response(), $resource );
 		$update = $result->get_update_details();
 
 		$this->assertEquals( '', $update->id );

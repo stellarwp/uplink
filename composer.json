@@ -44,10 +44,11 @@
         "codeception/util-universalframework": "^1.0",
         "lucatume/di52": "^3.0",
         "lucatume/wp-browser": "^3.0.14",
+        "php-mock/php-mock-phpunit": "^2.7",
         "phpunit/phpunit": "~6.0",
-        "szepeviktor/phpstan-wordpress": "^1.1",
         "symfony/event-dispatcher-contracts": "^2.5.1",
-        "symfony/string": "^5.4"
+        "symfony/string": "^5.4",
+        "szepeviktor/phpstan-wordpress": "^1.1"
     },
     "scripts": {
       "test:analysis": [

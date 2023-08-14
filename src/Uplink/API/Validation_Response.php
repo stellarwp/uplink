@@ -422,6 +422,10 @@ class Validation_Response {
 			$this->api_response_message = wp_kses( $this->response->api_inline_invalid_message, 'post' );
 		}
 
+		if ( ! empty( $this->response->home_url ) ) {
+			$this->resource->set_home_url( $this->response->home_url );
+		}
+
 		if ( ! empty( $this->response->version ) ) {
 			$this->version = sanitize_text_field( $this->response->version );
 		}

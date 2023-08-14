@@ -36,7 +36,7 @@ class Update_Available extends Message_Abstract {
 		return sprintf(
 			esc_html__( 'There is an update for %s. You\'ll need to %scheck your license%s to have access to updates, downloads, and support.', '%TEXTDOMAIN%' ),
 			$this->resource->get_name(),
-				$link,
+			$link,
 			'</a>'
 		);
 	}

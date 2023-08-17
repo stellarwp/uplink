@@ -335,7 +335,7 @@ abstract class Resource {
 		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/resource_get_version', $this->version );
 	}
 
-	public function get_home_url(): string {
+	public function get_home_url(): ?string {
 		return $this->home_url;
 	}
 

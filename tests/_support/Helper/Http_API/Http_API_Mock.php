@@ -99,7 +99,7 @@ abstract class Http_API_Mock {
 
 		$url = rtrim( $this->get_url(), '/' );
 		$current_date = ( new \DateTime( 'now', new \DateTimezone( 'GMT' ) ) )->format( 'D, d M Y H:i:s GMT' );
-		$request_response = new \Requests_Response();
+		$request_response = new \WpOrg\Requests\Response();
 		$request_response->headers = new \Requests_Response_Headers( [
 			'date'                          => [ $current_date ],
 			'content-type'                  => [ "$content_type; charset=UTF-8" ],

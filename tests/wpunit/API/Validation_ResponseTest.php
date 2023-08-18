@@ -3,9 +3,7 @@
 namespace wpunit\API;
 
 use StellarWP\Uplink\API\Validation_Response;
-use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Resources\Plugin;
-use StellarWP\Uplink\Resources\Resource;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Uplink;
 

@@ -27,6 +27,9 @@ class ResourceTest extends \StellarWP\Uplink\Tests\UplinkTestCase {
 	/**
 	 * @test
 	 */
+	/**
+	 * @test
+	 */
 	public function it_should_check_auth_token_valid() {
 		$result = $this->resource->has_valid_auth_token( [ 'slug' => 'sample' ] );
 		$this->assertFalse( $result );

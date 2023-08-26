@@ -203,7 +203,7 @@ class Client {
 		$args      = $resource->get_validation_args();
 
 		if ( ! empty( $key ) ) {
-			$args['key'] = sanitize_text_field( $key );
+			$args['key'] = strip_tags( $key );
 		}
 
 		$args['domain'] = $site_data->get_domain();

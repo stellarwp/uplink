@@ -284,7 +284,7 @@ class Validation_Response {
 		$update->url         = $this->response->homepage ?? '';
 		$update->tested      = $this->response->tested ?? '';
 		$update->requires    = $this->response->requires ?? '';
-		$update->package     = $this->response->download_url ? $this->response->download_url . '&pu_get_download=1&key=' . $this->get_key() : '';
+		$update->package     = $this->response->download_url ? $this->response->download_url . '&key=' . urlencode( $this->get_key() ) : '';
 
 		if ( ! empty( $this->response->upgrade_notice ) ) {
 			$update->upgrade_notice = $this->response->upgrade_notice;
@@ -503,7 +503,7 @@ class Validation_Response {
 		}
 
 		//Other fields need to be renamed and/or transformed.
-		$info->download_link = isset( $this->response->download_url ) ? $this->response->download_url . '&pu_get_download=1' : '';
+		$info->download_link = isset( $this->response->download_url ) ? $this->response->download_url : '';
 
 		if ( ! empty( $this->author_homepage ) && ! empty( $this->response->author ) ) {
 			$info->author = sprintf( '<a href="%s">%s</a>', esc_url( $this->author_homepage ), $this->response->author );

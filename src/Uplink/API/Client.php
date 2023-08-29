@@ -6,6 +6,7 @@ use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Resources\Resource;
 use StellarWP\Uplink\Site\Data;
+use StellarWP\Uplink\Utils;
 
 /**
  * API Client class.
@@ -203,7 +204,7 @@ class Client {
 		$args      = $resource->get_validation_args();
 
 		if ( ! empty( $key ) ) {
-			$args['key'] = sanitize_text_field( $key );
+			$args['key'] = Utils\Sanitize::key( $key );
 		}
 
 		$args['domain'] = $site_data->get_domain();

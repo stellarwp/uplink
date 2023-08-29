@@ -359,10 +359,10 @@ class License {
 		$this->key = $key;
 
 		if ( 'network' === $type && is_multisite() ) {
-			return update_network_option( 0, $this->get_key_option_name(), sanitize_text_field( $key ) );
+			return update_network_option( 0, $this->get_key_option_name(), Utils\Sanitize::key( $key ) );
 		}
 
-		return update_option( $this->get_key_option_name(), sanitize_text_field( $key ) );
+		return update_option( $this->get_key_option_name(), Utils\Sanitize::key( $key ) );
 	}
 
 	/**

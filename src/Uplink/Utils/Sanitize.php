@@ -13,10 +13,6 @@ class Sanitize {
 	 * @return string
 	 */
 	public static function key( $key ) {
-		$key = strip_tags( $key );
-		$key = str_replace( [ '`', '"', "'" ], '', $key );
-
-		return $key;
+		return str_replace( [ '`', '"', "'" ], '', $key );
 	}
-
 }

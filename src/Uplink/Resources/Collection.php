@@ -28,6 +28,7 @@ class Collection implements \ArrayAccess, \Iterator {
 	/**
 	 * @inheritDoc
 	 */
+	#[\ReturnTypeWillChange]
 	public function current() {
 		return current( $this->resources );
 	}
@@ -89,6 +90,7 @@ class Collection implements \ArrayAccess, \Iterator {
 	/**
 	 * @inheritDoc
 	 */
+	#[\ReturnTypeWillChange]
 	public function key() {
 		return key( $this->resources );
 	}
@@ -96,7 +98,7 @@ class Collection implements \ArrayAccess, \Iterator {
 	/**
 	 * @inheritDoc
 	 */
-	public function next() {
+	public function next(): void {
 		next( $this->resources );
 	}
 
@@ -110,6 +112,7 @@ class Collection implements \ArrayAccess, \Iterator {
 	/**
 	 * @inheritDoc
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetGet( $offset ) {
 		return $this->resources[ $offset ];
 	}
@@ -117,14 +120,14 @@ class Collection implements \ArrayAccess, \Iterator {
 	/**
 	 * @inheritDoc
 	 */
-	public function offsetSet( $offset, $value ) {
+	public function offsetSet( $offset, $value ): void {
 		$this->resources[ $offset ] = $value;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function offsetUnset( $offset ) {
+	public function offsetUnset( $offset ): void {
 		unset( $this->resources[ $offset ] );
 	}
 
@@ -144,7 +147,7 @@ class Collection implements \ArrayAccess, \Iterator {
 	/**
 	 * @inheritDoc
 	 */
-	public function rewind() {
+	public function rewind(): void {
 		reset( $this->resources );
 	}
 

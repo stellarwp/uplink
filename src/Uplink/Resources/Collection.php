@@ -28,7 +28,8 @@ class Collection implements \ArrayAccess, \Iterator {
 	/**
 	 * @inheritDoc
 	 */
-	public function current(): Plugin {
+	#[\ReturnTypeWillChange]
+	public function current() {
 		return current( $this->resources );
 	}
 
@@ -111,7 +112,8 @@ class Collection implements \ArrayAccess, \Iterator {
 	/**
 	 * @inheritDoc
 	 */
-	public function offsetGet( $offset ): Plugin {
+	#[\ReturnTypeWillChange]
+	public function offsetGet( $offset ) {
 		return $this->resources[ $offset ];
 	}
 

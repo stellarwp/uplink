@@ -7,6 +7,8 @@ use StellarWP\Uplink\API;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Exceptions;
 use StellarWP\Uplink\Site\Data;
+use StellarWP\Uplink\Utils;
+
 /**
  * The base resource class for StellarWP Uplink plugins and services.
  *
@@ -174,8 +176,8 @@ abstract class Resource {
 		$args['wp_version']        = $stats['versions']['wp'];
 
 		// the following is for install key inclusion (will apply later with PUE addons.)
-		$args['key'] = sanitize_text_field( $this->get_license_object()->get_key() ?: '' );
-		$args['dk']  = sanitize_text_field( $this->get_license_object()->get_key( 'default' ) ?: '' );
+		$args['key'] = Utils\Sanitize::key( $this->get_license_object()->get_key() ?: '' );
+		$args['dk']  = Utils\Sanitize::key( $this->get_license_object()->get_key( 'default' ) ?: '' );
 		$args['o']   = sanitize_text_field( $this->get_license_object()->get_key_origin_code() );
 
 		return $args;
@@ -299,8 +301,8 @@ abstract class Resource {
 	public function get_validation_args() {
 		$args = [];
 
-		$args['key']            = sanitize_text_field( $this->get_license_object()->get_key() ?: '' );
-		$args['default_key']    = sanitize_text_field( $this->get_license_object()->get_key( 'default' ) ?: '' );
+		$args['key']            = Utils\Sanitize::key( $this->get_license_object()->get_key() ?: '' );
+		$args['default_key']    = Utils\Sanitize::key( $this->get_license_object()->get_key( 'default' ) ?: '' );
 		$args['license_origin'] = sanitize_text_field( $this->get_license_object()->get_key_origin_code() );
 		$args['plugin']         = sanitize_text_field( $this->get_slug() );
 		$args['version']        = sanitize_text_field( $this->get_installed_version() ?: '' );

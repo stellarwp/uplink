@@ -5,6 +5,7 @@ namespace StellarWP\Uplink\Admin;
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Resources\Collection;
+use StellarWP\Uplink\Utils;
 
 class Ajax {
 
@@ -22,11 +23,11 @@ class Ajax {
 	 * @return void
 	 */
 	public function validate_license() {
-		$submission = filter_var_array( $_POST, [
-			'_wpnonce' => FILTER_SANITIZE_STRING,
-			'key'      => FILTER_SANITIZE_STRING,
-			'plugin'   => FILTER_SANITIZE_STRING,
-		] );
+		$submission = [];
+
+		$submission['_wpnonce'] = isset( $_POST['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ) : '';
+		$submission['plugin']   = isset( $_POST['plugin'] ) ? sanitize_text_field( wp_unslash( $_POST['plugin'] ) ) : '';
+		$submission['key']      = isset( $_POST['key'] ) ? Utils\Sanitize::key( wp_unslash( $_POST['key'] ) ) : '';
 
 		if ( empty( $submission ) || empty( $submission['key'] ) || ! wp_verify_nonce( $submission['_wpnonce'], $this->container->get( License_Field::class )->get_group_name() ) ) {
 			echo json_encode( [

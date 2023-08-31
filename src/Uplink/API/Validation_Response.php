@@ -194,6 +194,7 @@ class Validation_Response {
 				$message = new Messages\API( $this->api_response_message, $this->version, $this->resource );
 				break;
 			case 'success':
+			case 'new':
 				$message = $this->get_success_message();
 				break;
 			default:
@@ -256,11 +257,7 @@ class Validation_Response {
 			return new Messages\API( $this->api_response_message, $this->version, $this->resource );
 		}
 
-		if ( 'new' !== $this->result ) {
-			return new Messages\Valid_Key( $this->expiration );
-		}
-
-		return new Messages\Valid_Key_New( $this->expiration );
+		return new Messages\Valid_Key( $this->expiration );
 	}
 
 	/**
@@ -420,6 +417,10 @@ class Validation_Response {
 
 		if ( ! empty( $this->response->api_inline_invalid_message ) ) {
 			$this->api_response_message = wp_kses( $this->response->api_inline_invalid_message, 'post' );
+		}
+
+		if ( ! empty( $this->response->home_url ) ) {
+			$this->resource->set_home_url( $this->response->home_url );
 		}
 
 		if ( ! empty( $this->response->version ) ) {

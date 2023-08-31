@@ -31,13 +31,13 @@ class Update_Available extends Message_Abstract {
 	 * @inheritDoc
 	 */
 	public function get(): string {
-		$message = sprintf(
+		$link = sprintf( '<a href="%s">', $this->resource->get_home_url() ?: '' );
+
+		return sprintf(
 			esc_html__( 'There is an update for %s. You\'ll need to %scheck your license%s to have access to updates, downloads, and support.', '%TEXTDOMAIN%' ),
 			$this->resource->get_name(),
-			'<a href="https://theeventscalendar.com/license-keys/">',
+			$link,
 			'</a>'
 		);
-
-		return $message;
 	}
 }

@@ -104,6 +104,15 @@ abstract class Resource {
 	protected $version;
 
 	/**
+	 * Resource home url
+	 *
+	 * @since 1.0.0
+	 *
+	 * @var string
+	 */
+	protected $home_url;
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 1.0.0
@@ -328,6 +337,10 @@ abstract class Resource {
 		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/resource_get_version', $this->version );
 	}
 
+	public function get_home_url(): ?string {
+		return $this->home_url;
+	}
+
 	/**
 	 * Returns whether or not the license is listed as valid.
 	 *
@@ -446,6 +459,19 @@ abstract class Resource {
 	 */
 	public function set_license_key( $key, $type = 'local' ): bool {
 		return $this->get_license_object()->set_key( $key, $type );
+	}
+
+	/**
+	 * Set plugin home url
+	 *
+	 * @param string $url
+	 *
+	 * @return string
+	 */
+	public function set_home_url( $url = '' ): string {
+		$this->home_url = $url;
+
+		return $this->home_url;
 	}
 
 	/**

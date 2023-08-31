@@ -450,7 +450,7 @@ class Validation_Response {
 			}
 
 			// If the license key is new or not the same as the one we have, mark it as a new key.
-			if ( ! ( $this->current_key && $this->current_key === $this->key ) && version_compare( $this->version, $this->resource->get_installed_version(), '>' ) ) {
+			if ( ! ( $this->current_key && $this->current_key === $this->key ) ) {
 				$this->result = 'new';
 			}
 

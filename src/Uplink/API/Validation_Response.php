@@ -453,10 +453,6 @@ class Validation_Response {
 			if ( ! ( $this->current_key && $this->current_key === $this->key ) ) {
 				$this->result = 'new';
 			}
-
-			if ( version_compare( $this->version, $this->resource->get_installed_version(), '<=' ) && $this->is_valid() ) {
-				$this->result = 'success';
-			}
 		}
 
 		if ( ! empty( $this->response->replacement_key ) ) {

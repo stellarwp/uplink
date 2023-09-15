@@ -44,11 +44,11 @@ add_action( 'plugins_loaded', function() {
 
 Package is using `__( 'Invalid request: nonce field is expired. Please try again.', '%TEXTDOMAIN%' )` function for translation. In order to change domain placeholder `'%TEXTDOMAIN%'` to your plugin translation domain run
 ```bash
-./vendor/bin/stellar-uplink domain=<your-plugin-domain>
+./bin/stellar-uplink domain=<your-plugin-domain>
 ```
 or
 ```bash
-./vendor/bin/stellar-uplink
+./bin/stellar-uplink
 ```
 and prompt the plugin domain
 You can also add lines below to your composer file in order to run command automatically

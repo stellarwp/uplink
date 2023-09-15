@@ -2,12 +2,25 @@
 
 namespace StellarWP\Uplink\Tests;
 
+use Codeception\TestCase\WPTestCase;
+use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Uplink;
 
-class UplinkTestCase extends \Codeception\TestCase\WPTestCase {
-	public function setUp() {
-		// before
+/**
+ * @mixin \Codeception\Test\Unit
+ * @mixin \PHPUnit\Framework\TestCase
+ * @mixin \Codeception\PHPUnit\TestCase
+ */
+class UplinkTestCase extends WPTestCase {
+
+	/**
+	 * @var ContainerInterface|\lucatume\DI52\Container
+	 */
+	protected $container;
+
+	protected function setUp() {
+		// @phpstan-ignore-next-line
 		parent::setUp();
 
 		$container = new Container();
@@ -15,5 +28,8 @@ class UplinkTestCase extends \Codeception\TestCase\WPTestCase {
 		Config::set_hook_prefix( 'test' );
 
 		Uplink::init();
+
+		$this->container = Config::get_container();
 	}
+
 }

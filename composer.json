@@ -19,11 +19,15 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "StellarWP\\Uplink\\Tests\\": "tests/_support/Helper/"
+            "StellarWP\\Uplink\\Tests\\": [
+              "tests/wpunit",
+              "tests/_support/Helper/"
+            ]
         }
     },
     "require": {
         "php": ">=7.1",
+        "ext-json": "*",
         "stellarwp/container-contract": "^1.0"
     },
     "config": {
@@ -51,7 +55,7 @@
     },
     "scripts": {
       "test:analysis": [
-        "phpstan analyse -c phpstan.neon.dist --memory-limit=512M"
+        "phpstan analyse -c phpstan.neon.dist --memory-limit=-1"
       ]
     },
     "scripts-descriptions": {

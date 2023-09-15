@@ -22,10 +22,13 @@ class Uplink {
 		$container->singleton( Resources\Collection::class, Resources\Collection::class );
 		$container->singleton( Site\Data::class, Site\Data::class );
 		$container->singleton( Admin\Provider::class, Admin\Provider::class );
+		$container->singleton( Rest\Provider::class, Rest\Provider::class );
 
 		if ( static::is_enabled() ) {
 			$container->get( Admin\Provider::class )->register();
 		}
+
+		$container->get( Rest\Provider::class )->register();
 	}
 
 	/**

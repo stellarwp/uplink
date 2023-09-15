@@ -24,7 +24,7 @@ final class Webhook_Controller extends Rest_Controller implements Authorized {
 
 	public const TOKEN = 'token';
 
-	public function register_routes() {
+	public function register_routes(): void {
 		register_rest_route( $this->namespace, $this->route( 'receive-token' ), [
 			[
 				'methods'             => WP_REST_Server::CREATABLE,

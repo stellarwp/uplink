@@ -35,6 +35,8 @@ add_action( 'plugins_loaded', function() {
 	$container = new Container();
 	Config::set_container( $container );
 	Config::set_hook_prefix( 'my-custom-prefix' );
+	// Important: The Token auth prefix should be the same across all of your products.
+	Config::set_token_auth_prefix( 'my_origin' );
 
 	Uplink::init();
 }, 0 );

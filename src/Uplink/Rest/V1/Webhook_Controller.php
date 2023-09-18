@@ -2,9 +2,11 @@
 
 namespace StellarWP\Uplink\Rest\V1;
 
+use StellarWP\Uplink\Auth\Token\Token_Manager_Factory;
 use StellarWP\Uplink\Rest\Contracts\Authorized;
 use StellarWP\Uplink\Rest\Rest_Controller;
 use StellarWP\Uplink\Rest\Traits\With_Webhook_Authorization;
+use WP_Http;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -24,6 +26,18 @@ final class Webhook_Controller extends Rest_Controller implements Authorized {
 
 	public const TOKEN = 'token';
 
+	/**
+	 * @var Token_Manager_Factory
+	 */
+	private $factory;
+
+	public function __construct( string $namespace_base, string $version, string $base, Token_Manager_Factory $factory ) {
+		parent::__construct( $namespace_base, $version, $base );
+
+		$this->factory = $factory;
+	}
+
+
 	public function register_routes(): void {
 		register_rest_route( $this->namespace, $this->route( 'receive-token' ), [
 			[
@@ -32,11 +46,12 @@ final class Webhook_Controller extends Rest_Controller implements Authorized {
 				'permission_callback' => [ $this, 'check_authorization' ],
 				'args'                => [
 					self::TOKEN => [
-						'description' => esc_html__( 'The Authorization Token', 'prophecy' ),
-						'type'        => 'string',
-						'required'    => true,
+						'description'       => esc_html__( 'The Authorization Token', 'prophecy' ),
+						'type'              => 'string',
+						'required'          => true,
+						'validate_callback' => [ $this->factory->make(), 'validate' ],
+						'sanitize_callback' => 'sanitize_text_field',
 					],
-					// TODO: We may need to accept an origin slug here.
 				],
 				'show_in_index'       => false,
 			],
@@ -44,16 +59,21 @@ final class Webhook_Controller extends Rest_Controller implements Authorized {
 	}
 
 	/**
-	 * @TODO Actually store the token and provide error checking.
+	 * Store the newly created UUIDv4 token.
 	 *
 	 * @param  WP_REST_Request  $request
 	 *
 	 * @return WP_REST_Response
 	 */
 	public function store_token( WP_REST_Request $request ): WP_REST_Response {
-		return $this->success( [
-			'message' => esc_html__( 'Token stored.', '%TEXTDOMAIN%' ),
-		] );
+		if ( $this->factory->make()->store( $request->get_param( self::TOKEN ) ) ) {
+			return $this->success( [], WP_Http::CREATED, esc_html__( 'Token stored successfully.', '%TEXTDOMAIN%' ) );
+		}
+
+		return $this->error(
+			esc_html__( 'Error storing token.', '%TEXTDOMAIN%' ),
+			WP_Http::UNPROCESSABLE_ENTITY
+		);
 	}
 
 }

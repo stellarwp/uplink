@@ -6,7 +6,8 @@ jobs:
     strategy:
       matrix:
         suite:
-          - wpunit
+          - wpunit --env singlesite
+          - wpunit --env multisite
           - muwpunit
     runs-on: ubuntu-latest
     steps:

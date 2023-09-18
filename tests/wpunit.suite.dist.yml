@@ -18,3 +18,14 @@ modules:
             adminEmail: admin@tribe.localhost
             title: 'StellarWP Uplink Tests'
             theme: twentytwenty
+            multisite: false
+
+env:
+  # nothing changes
+  singlesite:
+  # Force WPLoader to enable multisite
+  multisite:
+    modules:
+      config:
+        WPLoader:
+          multisite: true

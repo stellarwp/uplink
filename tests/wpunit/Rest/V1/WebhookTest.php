@@ -106,7 +106,7 @@ final class WebhookTest extends RestTestCase {
 
 		$token_manager = $this->factory->make();
 		$this->assertInstanceOf( Option_Token_Manager::class, $token_manager );
-		$token         = 'e12d9e0e-4428-415c-a9d0-3e003f3427c7';
+		$token         = 'fe357794-f50b-44d9-a82f-e48cf5cffeef';
 		$nonce         = $this->container->get( Nonce::class )->create();
 
 		$this->assertNull( $token_manager->get() );
@@ -142,7 +142,7 @@ final class WebhookTest extends RestTestCase {
 
 		$token_manager = $this->factory->make();
 		$this->assertInstanceOf( Network_Token_Manager::class, $token_manager );
-		$token         = 'e12d9e0e-4428-415c-a9d0-3e003f3427c7';
+		$token         = '7b734ddd-ff4a-452e-886c-a5bd697283de';
 		$nonce         = $this->container->get( Nonce::class )->create();
 
 		$this->assertNull( $token_manager->get() );

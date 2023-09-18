@@ -25,7 +25,7 @@ class Client {
 	 *
 	 * @var string
 	 */
-	public static $api_root = '/api/plugins/v2/';
+	protected $api_root = '/api/plugins/v2/';
 
 	/**
 	 * Base URL for the license key server.
@@ -34,7 +34,7 @@ class Client {
 	 *
 	 * @var string
 	 */
-	public static $base_url = 'https://pue.theeventscalendar.com';
+	protected $base_url = 'https://pue.theeventscalendar.com';
 
 	/**
 	 * Container.
@@ -55,11 +55,11 @@ class Client {
 		$this->container = Config::get_container();
 
 		if ( defined( 'STELLARWP_UPLINK_API_BASE_URL' ) && STELLARWP_UPLINK_API_BASE_URL ) {
-			static::$base_url = preg_replace( '!/$!', '', STELLARWP_UPLINK_API_BASE_URL );
+			$this->base_url = preg_replace( '!/$!', '', STELLARWP_UPLINK_API_BASE_URL );
 		}
 
 		if ( defined( 'STELLARWP_UPLINK_API_ROOT' ) && STELLARWP_UPLINK_API_ROOT ) {
-			static::$api_root = trailingslashit( STELLARWP_UPLINK_API_ROOT );
+			$this->api_root = trailingslashit( STELLARWP_UPLINK_API_ROOT );
 		}
 	}
 
@@ -115,7 +115,7 @@ class Client {
 		 *
 		 * @param string $base_url Base URL.
 		 */
-		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/api_get_base_url', static::$base_url );
+		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/api_get_base_url', $this->base_url );
 	}
 
 	/**
@@ -164,7 +164,7 @@ class Client {
 		 */
 		$request_args = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/api_request_args', $request_args, $endpoint, $args );
 
-		$url = static::$base_url . static::$api_root . $endpoint;
+		$url = $this->base_url . $this->api_root . $endpoint;
 
 		$response      = wp_remote_get( $url, $request_args );
 		$response_body = wp_remote_retrieve_body( $response );
@@ -179,9 +179,7 @@ class Client {
 		 * @param string         $endpoint API endpoint.
 		 * @param array<mixed>   $args     API arguments.
 		 */
-		$result = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/api_response', $result, $endpoint, $args );
-
-		return $result;
+		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/api_response', $result, $endpoint, $args );
 	}
 
 	/**
@@ -197,8 +195,6 @@ class Client {
 	 * @return mixed
 	 */
 	public function validate_license( Resource $resource, string $key = null, string $validation_type = 'local', bool $force = false ) {
-		$results = [];
-
 		/** @var Data */
 		$site_data = $this->container->get( Data::class );
 		$args      = $resource->get_validation_args();

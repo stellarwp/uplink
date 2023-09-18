@@ -58,22 +58,27 @@ class Rest_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * @param mixed $data
-	 * @param  int  $code
+	 * Generate a success response.
+	 *
+	 * @param  mixed  $data The data to attach to the response.
+	 * @param  int  $status The HTTP status code, should be in the 200-300 range.
+	 * @param  string  $message An optional message to include.
 	 *
 	 * @return WP_REST_Response
 	 */
-	protected function success( $data, int $code = 200 ): WP_REST_Response {
-		return new WP_REST_Response( [
-			'data' => $data,
-		], $code );
+	protected function success( $data = [], int $status = WP_Http::OK, string $message = '' ): WP_REST_Response {
+		return new WP_REST_Response( array_filter( [
+			'status'  => $status,
+			'message' => $message,
+			'data'    => $data,
+		] ), $status );
 	}
 
 	/**
-	 * Generate a RFC 7807 API error response (API Problem).
+	 * Generate an error response.
 	 *
-	 * @param  int  $status  The HTTP status code, should be in the 400+ range.
 	 * @param  string  $message  The message to display for the detail property.
+	 * @param  int  $status  The HTTP status code, should be in the 400+ range.
 	 */
 	protected function error( string $message = '', int $status = WP_Http::INTERNAL_SERVER_ERROR ): WP_REST_Response {
 		return new WP_REST_Response( [

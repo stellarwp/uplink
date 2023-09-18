@@ -2,6 +2,8 @@
 
 namespace StellarWP\Uplink;
 
+use RuntimeException;
+
 class Uplink {
 
 	/**
@@ -13,7 +15,7 @@ class Uplink {
 	 */
 	public static function init() {
 		if ( ! Config::has_container() ) {
-			throw new \RuntimeException( 'You must call StellarWP\Uplink\Config::set_container() before calling StellarWP\Telemetry::init().' );
+			throw new RuntimeException( 'You must call StellarWP\Uplink\Config::set_container() before calling StellarWP\Telemetry::init().' );
 		}
 
 		$container = Config::get_container();
@@ -22,13 +24,17 @@ class Uplink {
 		$container->singleton( Resources\Collection::class, Resources\Collection::class );
 		$container->singleton( Site\Data::class, Site\Data::class );
 		$container->singleton( Admin\Provider::class, Admin\Provider::class );
+		$container->singleton( Auth\Provider::class, Auth\Provider::class );
 		$container->singleton( Rest\Provider::class, Rest\Provider::class );
 
 		if ( static::is_enabled() ) {
 			$container->get( Admin\Provider::class )->register();
 		}
 
-		$container->get( Rest\Provider::class )->register();
+		if ( $container->has( Config::TOKEN_OPTION_NAME ) ) {
+			$container->get( Auth\Provider::class )->register();
+			$container->get( Rest\Provider::class )->register();
+		}
 	}
 
 	/**

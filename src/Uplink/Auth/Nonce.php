@@ -57,6 +57,8 @@ final class Nonce {
 	}
 
 	public function create_url( string $url ): string {
+		$url = str_replace( '&amp;', '&', $url );
+
 		return esc_html( add_query_arg( '_uplink_nonce', $this->create(), $url ) );
 	}
 

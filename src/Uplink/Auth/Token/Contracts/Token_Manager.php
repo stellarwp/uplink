@@ -2,6 +2,9 @@
 
 namespace StellarWP\Uplink\Auth\Token\Contracts;
 
+/**
+ * @internal
+ */
 interface Token_Manager {
 
 	/**
@@ -48,8 +51,8 @@ interface Token_Manager {
 	/**
 	 * Deletes the token from the database.
 	 *
-	 * @return void
+	 * @return bool
 	 */
-	public function delete(): void;
+	public function delete(): bool;
 
 }

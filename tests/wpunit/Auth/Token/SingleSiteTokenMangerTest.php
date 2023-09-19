@@ -2,9 +2,7 @@
 
 namespace StellarWP\Uplink\Tests\Auth\Token;
 
-use StellarWP\Uplink\Auth\Token\Network_Token_Manager;
-use StellarWP\Uplink\Auth\Token\Option_Token_Manager;
-use StellarWP\Uplink\Auth\Token\Token_Manager_Factory;
+use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Uplink;
@@ -12,7 +10,7 @@ use StellarWP\Uplink\Uplink;
 final class SingleSiteTokenMangerTest extends UplinkTestCase {
 
 	/***
-	 * @var Option_Token_Manager
+	 * @var Token_Manager
 	 */
 	private $token_manager;
 
@@ -24,10 +22,7 @@ final class SingleSiteTokenMangerTest extends UplinkTestCase {
 		// Run init again to reload the Token/Provider.
 		Uplink::init();
 
-		$this->token_manager = $this->container->get( Token_Manager_Factory::class )->make();
-
-		$this->assertInstanceOf( Option_Token_Manager::class, $this->token_manager );
-		$this->assertNotInstanceOf( Network_Token_Manager::class, $this->token_manager );
+		$this->token_manager = $this->container->get( Token_Manager::class );
 	}
 
 	/**
@@ -62,7 +57,7 @@ final class SingleSiteTokenMangerTest extends UplinkTestCase {
 
 		$this->token_manager->delete();
 
-		$this->assertEmpty( $this->token_manager->get() );
+		$this->assertNull( $this->token_manager->get() );
 	}
 
 	/**
@@ -73,40 +68,7 @@ final class SingleSiteTokenMangerTest extends UplinkTestCase {
 
 		$this->assertFalse( $this->token_manager->store( '' ) );
 
-		$this->assertSame( null, $this->token_manager->get() );
-	}
-
-	/**
-	 * @env singlesite
-	 */
-	public function test_it_validates_proper_tokens(): void {
-		$tokens = [
-			'93280f34-9054-42fb-8f90-e22830eb3225',
-			'565435c0-f601-4ba0-ae4e-982b83460f34',
-			'a6e8d999-8b55-47ed-8798-0adb608083a6',
-			'21897516-419a-4a4c-b0d5-9e21e6506421',
-			'09f7f9ea-f931-4600-9739-97fa6ac0d454'
-		];
-
-		foreach ( $tokens as $token ) {
-			$this->assertTrue( $this->token_manager->validate( $token ) );
-		}
-	}
-
-	/**
-	 * @env singlesite
-	 */
-	public function test_it_does_validate_invalid_tokens(): void {
-		$tokens = [
-			'4c79d900-5656-11ee-8c99-0242ac120002',
-			'6d12a782-5656-11ee-8c99-0242ac120002',
-			'invalid',
-			'',
-		];
-
-		foreach ( $tokens as $token ) {
-			$this->assertFalse( $this->token_manager->validate( $token ) );
-		}
+		$this->assertNull( $this->token_manager->get() );
 	}
 
 }

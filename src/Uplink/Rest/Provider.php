@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\Rest;
 
-use StellarWP\Uplink\Auth\Token\Token_Manager_Factory;
+use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\Rest\V1\Webhook_Controller;
@@ -44,12 +44,14 @@ final class Provider extends Abstract_Provider {
 	private function webhook_endpoint(): void {
 		$this->container->singleton(
 			Webhook_Controller::class,
-			new Webhook_Controller(
-				$this->container->get( self::NAMESPACE ),
-				$this->container->get( self::VERSION ),
-				'webhooks',
-				$this->container->get( Token_Manager_Factory::class )
-			)
+			static function( $c ) {
+				return new Webhook_Controller(
+					$c->get( self::NAMESPACE ),
+					$c->get( self::VERSION ),
+					'webhooks',
+					$c->get( Token_Manager::class )
+				);
+			}
 		);
 	}
 

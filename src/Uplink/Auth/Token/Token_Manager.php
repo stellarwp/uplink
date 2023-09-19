@@ -3,18 +3,14 @@
 namespace StellarWP\Uplink\Auth\Token;
 
 use InvalidArgumentException;
-use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
-use StellarWP\Uplink\Config;
 
 /**
- * Manages storing authorization tokens on non-multisite networks or
- * multisite networks where they are configured for subdirectories.
+ * Manages storing authorization tokens in a network.
  *
- * @note You should always use the Factory to make this instance.
- *
- * @see Token_Manager_Factory::make()
+ * @note All *_network_option() functions will fall back to
+ * single site functions if multisite is not enabled.
  */
-class Option_Token_Manager implements Token_Manager {
+final class Token_Manager implements Contracts\Token_Manager {
 
 	/**
 	 * The option name to store the token in wp_options table.
@@ -67,7 +63,7 @@ class Option_Token_Manager implements Token_Manager {
 			return false;
 		}
 
-		return update_option( $this->option_name, $token, false );
+		return update_network_option( get_current_network_id(), $this->option_name, $token );
 	}
 
 	/**
@@ -76,16 +72,21 @@ class Option_Token_Manager implements Token_Manager {
 	 * @return string|null
 	 */
 	public function get(): ?string {
-		return get_option( $this->option_name, null );
+		return get_network_option( get_current_network_id(), $this->option_name, null );
 	}
 
 	/**
 	 * Revoke the token.
 	 *
-	 * @return void
+	 * @return bool
 	 */
-	public function delete(): void {
-		delete_option( $this->option_name );
+	public function delete(): bool {
+		// Already doesn't exist, WordPress would normally return false.
+		if ( $this->get() === null ) {
+			return true;
+		}
+
+		return delete_network_option( get_current_network_id(), $this->option_name );
 	}
 
 }

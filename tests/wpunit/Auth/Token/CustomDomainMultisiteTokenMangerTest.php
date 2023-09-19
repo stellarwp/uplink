@@ -2,9 +2,7 @@
 
 namespace StellarWP\Uplink\Tests\Auth\Token;
 
-use StellarWP\Uplink\Auth\Token\Network_Token_Manager;
-use StellarWP\Uplink\Auth\Token\Option_Token_Manager;
-use StellarWP\Uplink\Auth\Token\Token_Manager_Factory;
+use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Uplink;
@@ -13,7 +11,7 @@ use WP_Error;
 final class CustomDomainMultisiteTokenMangerTest extends UplinkTestCase {
 
 	/***
-	 * @var Option_Token_Manager
+	 * @var Token_Manager
 	 */
 	private $token_manager;
 
@@ -31,13 +29,9 @@ final class CustomDomainMultisiteTokenMangerTest extends UplinkTestCase {
 		$this->assertNotInstanceOf( WP_Error::class, $sub_site_id );
 		$this->assertGreaterThan( 1, $sub_site_id );
 
-
 		switch_to_blog( $sub_site_id );
 
-		$this->token_manager = $this->container->get( Token_Manager_Factory::class )->make();
-
-		$this->assertInstanceOf( Option_Token_Manager::class, $this->token_manager );
-		$this->assertNotInstanceOf( Network_Token_Manager::class, $this->token_manager );
+		$this->token_manager = $this->container->get( Token_Manager::class );
 	}
 
 	/**
@@ -54,7 +48,8 @@ final class CustomDomainMultisiteTokenMangerTest extends UplinkTestCase {
 
 		$this->assertSame( $token, $this->token_manager->get() );
 
-		$this->assertSame( $token, get_option( $this->token_manager->option_name() ) );
+		$this->assertSame( $token, get_network_option( get_current_network_id(), $this->token_manager->option_name() ) );
+		$this->assertEmpty( get_option( $this->token_manager->option_name() ) );
 	}
 
 	/**
@@ -71,7 +66,8 @@ final class CustomDomainMultisiteTokenMangerTest extends UplinkTestCase {
 
 		$this->token_manager->delete();
 
-		$this->assertEmpty( $this->token_manager->get() );
+		$this->assertNull( $this->token_manager->get() );
+		$this->assertEmpty( get_network_option( get_current_network_id(), $this->token_manager->option_name() ) );
 	}
 
 	/**
@@ -82,7 +78,7 @@ final class CustomDomainMultisiteTokenMangerTest extends UplinkTestCase {
 
 		$this->assertFalse( $this->token_manager->store( '' ) );
 
-		$this->assertSame( null, $this->token_manager->get() );
+		$this->assertNull( $this->token_manager->get() );
 	}
 
 	/**

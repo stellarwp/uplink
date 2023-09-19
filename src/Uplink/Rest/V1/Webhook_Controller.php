@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\Rest\V1;
 
-use StellarWP\Uplink\Auth\Token\Token_Manager_Factory;
+use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Rest\Contracts\Authorized;
 use StellarWP\Uplink\Rest\Rest_Controller;
 use StellarWP\Uplink\Rest\Traits\With_Webhook_Authorization;
@@ -27,14 +27,14 @@ final class Webhook_Controller extends Rest_Controller implements Authorized {
 	public const TOKEN = 'token';
 
 	/**
-	 * @var Token_Manager_Factory
+	 * @var Token_Manager
 	 */
-	private $factory;
+	private $token_manager;
 
-	public function __construct( string $namespace_base, string $version, string $base, Token_Manager_Factory $factory ) {
+	public function __construct( string $namespace_base, string $version, string $base, Token_Manager $token_manager ) {
 		parent::__construct( $namespace_base, $version, $base );
 
-		$this->factory = $factory;
+		$this->token_manager = $token_manager;
 	}
 
 
@@ -49,7 +49,7 @@ final class Webhook_Controller extends Rest_Controller implements Authorized {
 						'description'       => esc_html__( 'The Authorization Token', 'prophecy' ),
 						'type'              => 'string',
 						'required'          => true,
-						'validate_callback' => [ $this->factory->make(), 'validate' ],
+						'validate_callback' => [ $this->token_manager, 'validate' ],
 						'sanitize_callback' => 'sanitize_text_field',
 					],
 				],
@@ -66,7 +66,7 @@ final class Webhook_Controller extends Rest_Controller implements Authorized {
 	 * @return WP_REST_Response
 	 */
 	public function store_token( WP_REST_Request $request ): WP_REST_Response {
-		if ( $this->factory->make()->store( $request->get_param( self::TOKEN ) ) ) {
+		if ( $this->token_manager->store( $request->get_param( self::TOKEN ) ) ) {
 			return $this->success( [], WP_Http::CREATED, esc_html__( 'Token stored successfully.', '%TEXTDOMAIN%' ) );
 		}
 

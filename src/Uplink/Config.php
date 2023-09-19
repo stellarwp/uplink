@@ -163,7 +163,7 @@ class Config {
 			);
 		}
 
-		self::$container->singleton( self::TOKEN_OPTION_NAME, $key );
+		self::get_container()->singleton( self::TOKEN_OPTION_NAME, $key );
 	}
 
 }

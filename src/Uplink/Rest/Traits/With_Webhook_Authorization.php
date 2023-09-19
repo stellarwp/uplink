@@ -23,7 +23,7 @@ trait With_Webhook_Authorization {
 	public function check_authorization( WP_REST_Request $request ): bool {
 		$nonce = $request->get_header( self::NONCE_HEADER );
 
-		return wp_verify_nonce( $nonce, Nonce::NONCE_ACTION ) === 1;
+		return Nonce::verify( (string) $nonce );
 	}
 
 }

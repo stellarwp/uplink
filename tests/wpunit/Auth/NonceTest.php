@@ -25,9 +25,9 @@ final class NonceTest extends UplinkTestCase {
 		$nonce = $this->nonce->create();
 
 		$this->assertNotEmpty( $nonce );
-		$this->assertSame( 10, strlen( $nonce ) );
-		$this->assertFalse( wp_verify_nonce( '', Nonce::NONCE_ACTION ) );
-		$this->assertSame( 1, wp_verify_nonce( $nonce, Nonce::NONCE_ACTION ) );
+		$this->assertSame( 16, strlen( $nonce ) );
+		$this->assertFalse( Nonce::verify( '') );
+		$this->assertTrue( Nonce::verify( $nonce ) );
 	}
 
 	public function test_it_creates_a_nonce_webhooks_token_rest_url(): void {
@@ -46,9 +46,9 @@ final class NonceTest extends UplinkTestCase {
 		$nonce = $parts[ '_uplink_nonce' ];
 
 		$this->assertNotEmpty( $nonce );
-		$this->assertSame( 10, strlen( $nonce ) );
-		$this->assertFalse( wp_verify_nonce( '', Nonce::NONCE_ACTION ) );
-		$this->assertSame( 1, wp_verify_nonce( $nonce, Nonce::NONCE_ACTION ) );
+		$this->assertSame( 16, strlen( $nonce ) );
+		$this->assertFalse( Nonce::verify( '') );
+		$this->assertTrue( Nonce::verify( $nonce ) );
 	}
 
 }

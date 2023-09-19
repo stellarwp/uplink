@@ -118,11 +118,11 @@ Registers a service for licensing. Since services require a plugin, we pull vers
 ```php
 use StellarWP\Uplink\Register;
 
-$service_slug   = 'my-service';
-$service_name   = 'My Service';
-$plugin_version = MyPlugin::VERSION;
-$plugin_path    = 'my-plugin/my-plugin.php';
-$plugin_class   = MyPlugin::class;
+$service_slug    = 'my-service';
+$service_name    = 'My Service';
+$service_version = MyPlugin::VERSION;
+$plugin_path     = 'my-plugin/my-plugin.php';
+$plugin_class    = MyPlugin::class;
 
 Register::service(
 	$service_slug,

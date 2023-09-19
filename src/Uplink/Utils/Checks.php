@@ -54,4 +54,20 @@ class Checks {
 		return (bool) $var;
 	}
 
+	/**
+	 * String Starts With PHP80 polyfill.
+	 *
+	 * @param  string  $haystack  The string to search in.
+	 * @param  string  $needle  The substring to search for in the haystack.
+	 *
+	 * @return bool Returns true if haystack begins with needle, false otherwise.
+	 */
+	public static function str_starts_with( string $haystack, string $needle ): bool {
+		if ( function_exists( 'str_starts_with' ) ) {
+			return str_starts_with( $haystack, $needle );
+		}
+
+		return 0 === strncmp( $haystack, $needle, strlen( $needle ) );
+	}
+
 }

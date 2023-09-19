@@ -6,7 +6,7 @@ use WP_REST_Request;
 
 interface Authorized {
 
-	public const NONCE_HEADER = 'X-Uplink-Nonce';
+	public const NONCE_HEADER = 'x_uplink_nonce';
 
 	/**
 	 * Used for the `permission_callback` callback to determine if a request is

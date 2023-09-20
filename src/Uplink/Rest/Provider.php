@@ -5,6 +5,7 @@ namespace StellarWP\Uplink\Rest;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
+use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Rest\V1\Webhook_Controller;
 
 final class Provider extends Abstract_Provider {
@@ -49,7 +50,8 @@ final class Provider extends Abstract_Provider {
 					$c->get( self::NAMESPACE ),
 					$c->get( self::VERSION ),
 					'webhooks',
-					$c->get( Token_Manager::class )
+					$c->get( Token_Manager::class ),
+					$c->get( Collection::class )
 				);
 			}
 		);

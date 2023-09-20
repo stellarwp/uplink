@@ -31,11 +31,11 @@ final class NonceTest extends UplinkTestCase {
 	}
 
 	public function test_it_creates_a_nonce_webhooks_token_rest_url(): void {
-		$url       = rest_url( '/uplink/v1/webhooks/receive-token' );
+		$url       = rest_url( '/uplink/v1/webhooks/receive-auth' );
 		$nonce_url = $this->nonce->create_url( $url );
 
 		$this->assertStringStartsWith(
-			'http://wordpress.test/wp-json/uplink/v1/webhooks/receive-token?_uplink_nonce=',
+			'http://wordpress.test/wp-json/uplink/v1/webhooks/receive-auth?_uplink_nonce=',
 			$nonce_url
 		);
 

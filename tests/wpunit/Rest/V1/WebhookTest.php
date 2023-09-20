@@ -5,6 +5,8 @@ namespace StellarWP\Uplink\Tests\Rest\V1;
 use StellarWP\Uplink\Auth\Nonce;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Config;
+use StellarWP\Uplink\Register;
+use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Rest\Contracts\Authorized;
 use StellarWP\Uplink\Tests\RestTestCase;
 use StellarWP\Uplink\Uplink;
@@ -40,7 +42,7 @@ final class WebhookTest extends RestTestCase {
 	}
 
 	public function test_token_storage_requires_authorization(): void {
-		$request = new WP_REST_Request( 'POST', '/uplink/v1/webhooks/receive-token' );
+		$request = new WP_REST_Request( 'POST', '/uplink/v1/webhooks/receive-auth' );
 		$request->set_param( 'token', 'fe3c74d1-0094-4b2a-a8da-c3a730ee71fb' );
 		$response = $this->server->dispatch( $request );
 
@@ -51,13 +53,56 @@ final class WebhookTest extends RestTestCase {
 		$token = 'invalid-token-format';
 		$nonce = $this->container->get( Nonce::class )->create();
 
-		$request = new WP_REST_Request( 'POST', '/uplink/v1/webhooks/receive-token' );
+		$request = new WP_REST_Request( 'POST', '/uplink/v1/webhooks/receive-auth' );
 		$request->set_param( 'token', $token );
 		$request->set_header( Authorized::NONCE_HEADER, $nonce );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( WP_Http::BAD_REQUEST, $response->get_status() );
 		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
+	}
+
+	public function test_it_throws_validation_error_with_license_key_but_no_slug(): void {
+		$nonce = $this->container->get( Nonce::class )->create();
+
+		$request = new WP_REST_Request( 'POST', '/uplink/v1/webhooks/receive-auth' );
+		$request->set_param( 'token', 'e12d9e0e-4428-415c-a9d0-3e003f3427c7' );
+		$request->set_param( 'license', 'xxxxxx' );
+		$request->set_header( Authorized::NONCE_HEADER, $nonce );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( WP_Http::BAD_REQUEST, $response->get_status() );
+		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
+		$this->assertStringContainsString( 'license', $response->get_data()['message'] );
+	}
+
+	public function test_it_throws_validation_error_with_slug_but_no_license_key(): void {
+		$nonce = $this->container->get( Nonce::class )->create();
+
+		$request = new WP_REST_Request( 'POST', '/uplink/v1/webhooks/receive-auth' );
+		$request->set_param( 'token', 'e12d9e0e-4428-415c-a9d0-3e003f3427c7' );
+		$request->set_param( 'slug', 'plugin-1' );
+		$request->set_header( Authorized::NONCE_HEADER, $nonce );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( WP_Http::BAD_REQUEST, $response->get_status() );
+		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
+		$this->assertStringContainsString( 'slug', $response->get_data()['message'] );
+	}
+
+	public function test_it_throws_validation_error_with_slug_that_does_not_exist(): void {
+		$nonce = $this->container->get( Nonce::class )->create();
+
+		$request = new WP_REST_Request( 'POST', '/uplink/v1/webhooks/receive-auth' );
+		$request->set_param( 'token', 'e12d9e0e-4428-415c-a9d0-3e003f3427c7' );
+		$request->set_param( 'slug', 'plugin-1' );
+		$request->set_param( 'license', 'xxxxxx' );
+		$request->set_header( Authorized::NONCE_HEADER, $nonce );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( WP_Http::BAD_REQUEST, $response->get_status() );
+		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
+		$this->assertStringContainsString( 'slug', $response->get_data()['message'] );
 	}
 
 	/**
@@ -70,7 +115,7 @@ final class WebhookTest extends RestTestCase {
 
 		$this->assertNull( $this->token_manager->get() );
 
-		$request = new WP_REST_Request( 'POST', '/uplink/v1/webhooks/receive-token' );
+		$request = new WP_REST_Request( 'POST', '/uplink/v1/webhooks/receive-auth' );
 		$request->set_param( 'token', $token );
 		$request->set_header( Authorized::NONCE_HEADER, $nonce );
 		$response = $this->server->dispatch( $request );
@@ -80,7 +125,7 @@ final class WebhookTest extends RestTestCase {
 
 		$this->assertSame( WP_Http::CREATED, $response->get_status() );
 		$this->assertSame( WP_Http::CREATED, $data['status'] );
-		$this->assertSame( 'Token stored successfully.', $data['message'] );
+		$this->assertSame( 'Stored successfully.', $data['message'] );
 
 		$this->assertSame( $token, $this->token_manager->get() );
 		$this->assertSame( $token, get_option( $this->token_manager->option_name() ) );
@@ -109,7 +154,7 @@ final class WebhookTest extends RestTestCase {
 
 		$this->assertNull( $this->token_manager->get() );
 
-		$request = new WP_REST_Request( 'POST', '/uplink/v1/webhooks/receive-token' );
+		$request = new WP_REST_Request( 'POST', '/uplink/v1/webhooks/receive-auth' );
 		$request->set_param( 'token', $token );
 		$request->set_header( Authorized::NONCE_HEADER, $nonce );
 		$response = $this->server->dispatch( $request );
@@ -119,7 +164,7 @@ final class WebhookTest extends RestTestCase {
 
 		$this->assertSame( WP_Http::CREATED, $response->get_status() );
 		$this->assertSame( WP_Http::CREATED, $data['status'] );
-		$this->assertSame( 'Token stored successfully.', $data['message'] );
+		$this->assertSame( 'Stored successfully.', $data['message'] );
 
 		$this->assertSame( $token, $this->token_manager->get() );
 		$this->assertSame( $token, get_network_option( get_current_network_id(), $this->token_manager->option_name() ) );
@@ -147,7 +192,7 @@ final class WebhookTest extends RestTestCase {
 		$token = '7b734ddd-ff4a-452e-886c-a5bd697283de';
 		$nonce = $this->container->get( Nonce::class )->create();
 
-		$request = new WP_REST_Request( 'POST', '/uplink/v1/webhooks/receive-token' );
+		$request = new WP_REST_Request( 'POST', '/uplink/v1/webhooks/receive-auth' );
 		$request->set_param( 'token', $token );
 		$request->set_header( Authorized::NONCE_HEADER, $nonce );
 		$response = $this->server->dispatch( $request );
@@ -157,11 +202,93 @@ final class WebhookTest extends RestTestCase {
 
 		$this->assertSame( WP_Http::CREATED, $response->get_status() );
 		$this->assertSame( WP_Http::CREATED, $data['status'] );
-		$this->assertSame( 'Token stored successfully.', $data['message'] );
+		$this->assertSame( 'Stored successfully.', $data['message'] );
 
 		// Token is now overridden in the network.
 		$this->assertSame( $token, $this->token_manager->get() );
 		$this->assertSame( $token, get_network_option( get_current_network_id(), $this->token_manager->option_name() ) );
+	}
+
+	/**
+	 * @env singlesite
+	 */
+	public function test_it_stores_token_and_license_key_on_single_site(): void {
+		$this->assertFalse( is_multisite() );
+
+		$token   = '39b3db27-2161-4633-9b2d-56c803e36301';
+		$license = 'ca60abe';
+		$slug    = 'test-plugin';
+		$nonce   = $this->container->get( Nonce::class )->create();
+
+		Register::plugin(
+			$slug,
+			'Test Plugin',
+			'1.0.0',
+			'plugin.php',
+			Uplink::class,
+			Uplink::class
+		);
+
+		$this->assertNull( $this->token_manager->get() );
+
+		$request = new WP_REST_Request( 'POST', '/uplink/v1/webhooks/receive-auth' );
+		$request->set_param( 'token', $token );
+		$request->set_param( 'license', $license );
+		$request->set_param( 'slug', $slug );
+		$request->set_header( Authorized::NONCE_HEADER, $nonce );
+		$response = $this->server->dispatch( $request );
+
+		/** @var array{status: int, message: string} $data */
+		$data = $response->get_data();
+
+		$this->assertSame( WP_Http::CREATED, $response->get_status() );
+		$this->assertSame( WP_Http::CREATED, $data['status'] );
+		$this->assertSame( 'Stored successfully.', $data['message'] );
+
+		$this->assertSame( $token, $this->token_manager->get() );
+		$this->assertSame( $token, get_option( $this->token_manager->option_name() ) );
+		$this->assertSame( $license, $this->container->get( Collection::class )->offsetGet( $slug )->get_license_key( 'local' ) );
+	}
+
+	/**
+	 * @env multisite
+	 */
+	public function test_it_stores_token_and_license_key_on_multisite(): void {
+		$this->assertTrue( is_multisite() );
+
+		$token   = '2a4b4af7-d21e-4e79-bd1c-5bf68c791530';
+		$license = '7d1237f4';
+		$slug    = 'test-plugin';
+		$nonce   = $this->container->get( Nonce::class )->create();
+
+		Register::plugin(
+			$slug,
+			'Test Plugin 2',
+			'1.0.0',
+			'plugin.php',
+			Uplink::class,
+			Uplink::class
+		);
+
+		$this->assertNull( $this->token_manager->get() );
+
+		$request = new WP_REST_Request( 'POST', '/uplink/v1/webhooks/receive-auth' );
+		$request->set_param( 'token', $token );
+		$request->set_param( 'license', $license );
+		$request->set_param( 'slug', $slug );
+		$request->set_header( Authorized::NONCE_HEADER, $nonce );
+		$response = $this->server->dispatch( $request );
+
+		/** @var array{status: int, message: string} $data */
+		$data = $response->get_data();
+
+		$this->assertSame( WP_Http::CREATED, $response->get_status() );
+		$this->assertSame( WP_Http::CREATED, $data['status'] );
+		$this->assertSame( 'Stored successfully.', $data['message'] );
+
+		$this->assertSame( $token, $this->token_manager->get() );
+		$this->assertSame( $token, get_network_option( get_current_network_id(), $this->token_manager->option_name() ) );
+		$this->assertSame( $license, $this->container->get( Collection::class )->offsetGet( $slug )->get_license_key( 'network' ) );
 	}
 
 }

@@ -63,6 +63,11 @@ final class Token_Manager implements Contracts\Token_Manager {
 			return false;
 		}
 
+		// WordPress would otherwise return false if the items match.
+		if ( $token === $this->get() ) {
+			return true;
+		}
+
 		return update_network_option( get_current_network_id(), $this->option_name, $token );
 	}
 

@@ -38,6 +38,8 @@ class Uplink {
 
 			$container->get( View\Provider::class )->register();
 		}
+
+		require_once __DIR__ . '/functions.php';
 	}
 
 	/**

@@ -46,6 +46,8 @@ final class Authorize_Button_Controller extends Controller {
 	 * @see src/views/authorize-button.php
 	 */
 	public function render(): void {
+		global $pagenow;
+
 		$authenticated = false;
 		$target        = '_blank';
 		$link_text     = __( 'Authenticate', '%TEXTDOMAIN%' );
@@ -69,11 +71,13 @@ final class Authorize_Button_Controller extends Controller {
 		 *
 		 * @param  string  $link_text  The current link text.
 		 * @param  bool  $authenticated  Whether they are authenticated.
+		 * @param  string|null  $pagenow  The value of WordPress's pagenow.
 		 */
 		$link_text = apply_filters(
 			"stellarwp/uplink/$hook_prefix/view/authorize_button/link_text",
 			$link_text,
-			$authenticated
+			$authenticated,
+			$pagenow
 		);
 
 		/**
@@ -81,11 +85,13 @@ final class Authorize_Button_Controller extends Controller {
 		 *
 		 * @param  string  $url  The current hyperlink url.
 		 * @param  bool  $authenticated  Whether they are authenticated.
+		 * @param  string|null  $pagenow  The value of WordPress's pagenow.
 		 */
 		$url = apply_filters(
 			"stellarwp/uplink/$hook_prefix/view/authorize_button/url",
 			$url,
-			$authenticated
+			$authenticated,
+			$pagenow
 		);
 
 		/**
@@ -93,11 +99,13 @@ final class Authorize_Button_Controller extends Controller {
 		 *
 		 * @param  string  $target  The current link target.
 		 * @param  bool  $authenticated  Whether they are authenticated.
+		 * @param  string|null  $pagenow  The value of WordPress's pagenow.
 		 */
 		$target = apply_filters(
 			"stellarwp/uplink/$hook_prefix/view/authorize_button/target",
 			$target,
-			$authenticated
+			$authenticated,
+			$pagenow
 		);
 
 		echo $this->view->render( self::VIEW, [

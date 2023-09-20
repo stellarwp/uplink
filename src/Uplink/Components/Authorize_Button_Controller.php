@@ -52,6 +52,10 @@ final class Authorize_Button_Controller extends Controller {
 		$target        = '_blank';
 		$link_text     = __( 'Authenticate', '%TEXTDOMAIN%' );
 		$url           = $this->build_auth_url();
+		$classes       = [
+			'uplink-authorize',
+			'not-authorized'
+		];
 
 		if ( ! $this->authorizer->can_auth() ) {
 			$target    = '_self';
@@ -62,6 +66,7 @@ final class Authorize_Button_Controller extends Controller {
 			$target        = '_self';
 			$link_text     = __( 'Disconnect', '%TEXTDOMAIN%' );
 			$url           = get_admin_url( get_current_blog_id(), 'disconnect' ); // TODO, is this rest as well?
+			$classes[1]    = 'authorized';
 		}
 
 		$hook_prefix = Config::get_hook_prefix();
@@ -108,10 +113,40 @@ final class Authorize_Button_Controller extends Controller {
 			$pagenow
 		);
 
+		/**
+		 * Filter the HTML wrapper tag.
+		 *
+		 * @param  string  $tag  The HTML tag to use for the wrapper.
+		 * @param  bool  $authenticated  Whether they are authenticated.
+		 * @param  string|null  $pagenow  The value of WordPress's pagenow.
+		 */
+		$tag = apply_filters(
+			"stellarwp/uplink/$hook_prefix/view/authorize_button/tag",
+			'div',
+			$authenticated,
+			$pagenow
+		);
+
+		/**
+		 * Filter the CSS classes
+		 *
+		 * @param  array  $classes  An array of CSS classes.
+		 * @param  bool  $authenticated  Whether they are authenticated.
+		 * @param  string|null  $pagenow  The value of WordPress's pagenow.
+		 */
+		$classes = (array) apply_filters(
+			"stellarwp/uplink/$hook_prefix/view/authorize_button/classes",
+			$classes,
+			$authenticated,
+			$pagenow
+		);
+
 		echo $this->view->render( self::VIEW, [
 			'link_text' => $link_text,
 			'url'       => $url,
 			'target'    => $target,
+			'tag'       => $tag,
+			'classes'   => $this->classes( $classes ),
 		] );
 	}
 

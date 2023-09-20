@@ -25,4 +25,21 @@ abstract class Controller {
 		$this->view = $view;
 	}
 
+	/**
+	 * Format an array of CSS classes into a string.
+	 *
+	 * @param  array  $classes
+	 *
+	 * @return string
+	 */
+	protected function classes( array $classes ): string {
+		if ( ! $classes ) {
+			return '';
+		}
+
+		$classes = array_unique( array_map( 'sanitize_html_class', $classes ) );
+
+		return implode( ' ', $classes );
+	}
+
 }

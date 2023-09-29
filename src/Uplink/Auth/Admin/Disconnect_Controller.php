@@ -3,6 +3,8 @@
 namespace StellarWP\Uplink\Auth\Admin;
 
 use StellarWP\Uplink\Auth\Token\Disconnector;
+use StellarWP\Uplink\Notice\Notice_Handler;
+use StellarWP\Uplink\Notice\Notice;
 
 final class Disconnect_Controller {
 
@@ -13,8 +15,14 @@ final class Disconnect_Controller {
 	 */
 	private $disconnect;
 
-	public function __construct( Disconnector $disconnect ) {
+	/**
+	 * @var Notice_Handler
+	 */
+	private $notice;
+
+	public function __construct( Disconnector $disconnect, Notice_Handler $notice ) {
 		$this->disconnect = $disconnect;
+		$this->notice     = $notice;
 	}
 
 	/**
@@ -25,7 +33,7 @@ final class Disconnect_Controller {
 	 * @return void
 	 */
 	public function maybe_disconnect(): void {
-		if ( empty( $_GET[ self::ARG ] ) || empty( $_GET[ '_wpnonce'] ) ) {
+		if ( empty( $_GET[ self::ARG ] ) || empty( $_GET['_wpnonce'] ) ) {
 			return;
 		}
 
@@ -33,12 +41,29 @@ final class Disconnect_Controller {
 			return;
 		}
 
-		if ( ! wp_verify_nonce( $_GET[ '_wpnonce' ], self::ARG ) ) {
-			return;
-		}
-
-		if ( ! $this->disconnect->disconnect() ) {
-			// TODO: should add a notice and/or logging that this failed.
+		if ( wp_verify_nonce( $_GET['_wpnonce'], self::ARG ) ) {
+			if ( $this->disconnect->disconnect() ) {
+				$this->notice->add(
+					new Notice( Notice::SUCCESS,
+						__( 'Token disconnected.', '%TEXTDOMAIN%' ),
+						true
+					)
+				);
+			} else {
+				$this->notice->add(
+					new Notice( Notice::ERROR,
+						__( 'Unable to disconnect token, ensure you have admin permissions.', '%TEXTDOMAIN%' ),
+						true
+					)
+				);
+			}
+		} else {
+			$this->notice->add(
+				new Notice( Notice::ERROR,
+					__( 'Unable to disconnect token: nonce verification failed.', '%TEXTDOMAIN%' ),
+					true
+				)
+			);
 		}
 
 		$referrer = wp_get_referer();

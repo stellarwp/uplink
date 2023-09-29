@@ -61,7 +61,7 @@ final class Provider extends Abstract_Provider {
 	private function register_auth_disconnect(): void {
 		add_action( 'admin_init', function(): void {
 			$this->container->get( Disconnect_Controller::class )->maybe_disconnect();
-		}, 10, 0 );
+		}, 9, 0 );
 	}
 
 }

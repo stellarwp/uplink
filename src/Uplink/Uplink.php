@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink;
 
 use RuntimeException;
+use StellarWP\ContainerContract\ContainerInterface;
 
 class Uplink {
 
@@ -20,15 +21,18 @@ class Uplink {
 
 		$container = Config::get_container();
 
+		$container->bind( ContainerInterface::class, $container );
 		$container->singleton( API\Client::class, API\Client::class );
 		$container->singleton( Resources\Collection::class, Resources\Collection::class );
 		$container->singleton( Site\Data::class, Site\Data::class );
+		$container->singleton( Notice\Provider::class, Notice\Provider::class );
 		$container->singleton( Admin\Provider::class, Admin\Provider::class );
 		$container->singleton( View\Provider::class, View\Provider::class );
 		$container->singleton( Auth\Provider::class, Auth\Provider::class );
 		$container->singleton( Rest\Provider::class, Rest\Provider::class );
 
 		if ( static::is_enabled() ) {
+			$container->get( Notice\Provider::class )->register();
 			$container->get( Admin\Provider::class )->register();
 
 			if ( $container->has( Config::TOKEN_OPTION_NAME ) ) {

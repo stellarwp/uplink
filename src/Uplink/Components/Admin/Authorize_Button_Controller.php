@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Components\Admin;
 
+use InvalidArgumentException;
 use League\Plates\Engine;
 use StellarWP\Uplink\API\V3\Auth\Contracts\Auth_Url;
 use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
@@ -59,30 +60,24 @@ final class Authorize_Button_Controller extends Controller {
 	}
 
 	/**
-	 * Render the button.
+	 * Renders the authorize-button view.
 	 *
-	 * @param  string  $slug  The product slug.
-	 *
-	 * @return void
-	 */
-	public function render_button( string $slug ): void {
-		$this->auth_url = $this->auth_url_manager->get( $slug );
-
-		if ( ! $this->auth_url ) {
-			return;
-		}
-
-		$this->render();
-	}
-
-	/**
-	 * Renders the authorize-button view, should always be called
-	 * via render_button() above.
+	 * @param  array{slug?: string} $args The Product slug.
 	 *
 	 * @see src/views/admin/authorize-button.php
+	 *
+	 * @throws InvalidArgumentException
 	 */
-	public function render(): void {
+	public function render( array $args = [] ): void {
 		global $pagenow;
+
+		$slug = $args['slug'] ?? '';
+
+		if ( empty ( $slug ) ) {
+			throw new InvalidArgumentException( 'The Product slug cannot be empty' );
+		}
+
+		$this->auth_url = $this->auth_url_manager->get( $slug );
 
 		if ( ! $this->auth_url ) {
 			return;

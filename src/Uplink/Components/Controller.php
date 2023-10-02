@@ -15,8 +15,10 @@ abstract class Controller {
 
 	/**
 	 * Echo the plates view.
+	 *
+	 * @param mixed[] $args An optional array of arguments to utilize when rendering.
 	 */
-	abstract public function render(): void;
+	abstract public function render( array $args = [] ): void;
 
 	/**
 	 * @param  Engine  $view

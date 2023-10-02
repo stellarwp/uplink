@@ -14,7 +14,8 @@ use Throwable;
  */
 function render_authorize_button( string $slug ): void {
 	try {
-		Config::get_container()->get( Authorize_Button_Controller::class )->render_button( $slug );
+		Config::get_container()->get( Authorize_Button_Controller::class )
+		                       ->render( [ 'slug' => $slug ] );
 	} catch ( Throwable $e ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( "Unable to render authorize button: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );

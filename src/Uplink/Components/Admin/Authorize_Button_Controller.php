@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink\Components\Admin;
 
 use League\Plates\Engine;
+use StellarWP\Uplink\API\V3\Auth\Contracts\Auth_Url;
 use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
 use StellarWP\Uplink\Auth\Authorizer;
 use StellarWP\Uplink\Auth\Nonce;
@@ -29,26 +30,63 @@ final class Authorize_Button_Controller extends Controller {
 	 */
 	private $nonce;
 
+	/**
+	 * @var Auth_Url
+	 */
+	private $auth_url_manager;
+
+	/**
+	 * The auth URL for the origin as fetched remotely from the
+	 * licensing server when we want to render the button.
+	 *
+	 * @var string
+	 */
+	private $auth_url = '';
+
 	public function __construct(
 		Engine $view,
 		Authorizer $authorizer,
 		Token_Manager $token_manager,
-		Nonce $nonce
+		Nonce $nonce,
+		Auth_Url $auth_url_manager
 	) {
 		parent::__construct( $view );
 
-		$this->authorizer    = $authorizer;
-		$this->token_manager = $token_manager;
-		$this->nonce         = $nonce;
+		$this->authorizer       = $authorizer;
+		$this->token_manager    = $token_manager;
+		$this->nonce            = $nonce;
+		$this->auth_url_manager = $auth_url_manager;
 	}
 
 	/**
-	 * Render the authorize-button view.
+	 * Render the button.
+	 *
+	 * @param  string  $slug  The product slug.
+	 *
+	 * @return void
+	 */
+	public function render_button( string $slug ): void {
+		$this->auth_url = $this->auth_url_manager->get( $slug );
+
+		if ( ! $this->auth_url ) {
+			return;
+		}
+
+		$this->render();
+	}
+
+	/**
+	 * Renders the authorize-button view, should always be called
+	 * via render_button() above.
 	 *
 	 * @see src/views/admin/authorize-button.php
 	 */
 	public function render(): void {
 		global $pagenow;
+
+		if ( ! $this->auth_url ) {
+			return;
+		}
 
 		$authenticated = false;
 		$target        = '_blank';
@@ -56,7 +94,7 @@ final class Authorize_Button_Controller extends Controller {
 		$url           = $this->build_auth_url();
 		$classes       = [
 			'uplink-authorize',
-			'not-authorized'
+			'not-authorized',
 		];
 
 		if ( ! $this->authorizer->can_auth() ) {
@@ -154,7 +192,7 @@ final class Authorize_Button_Controller extends Controller {
 
 	private function build_auth_url(): string {
 		return sprintf( '%s?%s',
-			'https://kadencewp.com/authorize', // TODO: This needs to come from Licensing /api/stellarwp/v3/tokens/auth_url
+			$this->auth_url,
 			http_build_query( [
 				'uplink_callback' => $this->nonce->create_url( rest_url( '/uplink/v1/webhooks/receive-auth' ) ),
 			] )

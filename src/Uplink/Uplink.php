@@ -23,6 +23,7 @@ class Uplink {
 
 		$container->bind( ContainerInterface::class, $container );
 		$container->singleton( API\Client::class, API\Client::class );
+		$container->singleton( API\V3\Provider::class, API\V3\Provider::class );
 		$container->singleton( Resources\Collection::class, Resources\Collection::class );
 		$container->singleton( Site\Data::class, Site\Data::class );
 		$container->singleton( Notice\Provider::class, Notice\Provider::class );
@@ -32,6 +33,7 @@ class Uplink {
 		$container->singleton( Rest\Provider::class, Rest\Provider::class );
 
 		if ( static::is_enabled() ) {
+			$container->get( API\V3\Provider::class )->register();
 			$container->get( Notice\Provider::class )->register();
 			$container->get( Admin\Provider::class )->register();
 

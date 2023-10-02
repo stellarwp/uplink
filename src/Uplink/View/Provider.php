@@ -8,7 +8,7 @@ use StellarWP\Uplink\Contracts\Abstract_Provider;
 final class Provider extends Abstract_Provider {
 
 	/**
-	 * Configure the directory League Plates.
+	 * Configure the directory League Plates looks for view files.
 	 *
 	 * @link https://platesphp.com/
 	 */

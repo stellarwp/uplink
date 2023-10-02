@@ -11,7 +11,7 @@ use StellarWP\Uplink\Config;
 
 final class Authorize_Button_Controller extends Controller {
 
-	public const VIEW = 'authorize-button';
+	public const VIEW = 'admin/authorize-button';
 
 	/**
 	 * @var Authorizer
@@ -44,7 +44,7 @@ final class Authorize_Button_Controller extends Controller {
 	/**
 	 * Render the authorize-button view.
 	 *
-	 * @see src/views/authorize-button.php
+	 * @see src/views/admin/authorize-button.php
 	 */
 	public function render(): void {
 		global $pagenow;

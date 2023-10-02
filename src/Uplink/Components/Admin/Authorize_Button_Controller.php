@@ -1,12 +1,13 @@
 <?php declare( strict_types=1 );
 
-namespace StellarWP\Uplink\Components;
+namespace StellarWP\Uplink\Components\Admin;
 
 use League\Plates\Engine;
 use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
 use StellarWP\Uplink\Auth\Authorizer;
 use StellarWP\Uplink\Auth\Nonce;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
+use StellarWP\Uplink\Components\Controller;
 use StellarWP\Uplink\Config;
 
 final class Authorize_Button_Controller extends Controller {

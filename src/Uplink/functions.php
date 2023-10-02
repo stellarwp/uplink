@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink;
 
-use StellarWP\Uplink\Components\Authorize_Button_Controller;
+use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
 use Throwable;
 
 /**

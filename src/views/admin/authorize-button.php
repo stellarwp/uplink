@@ -3,7 +3,7 @@
  * The authorize button view, allowing the user to authorize their install with
  * the license server via the origin site.
  *
- * @see \StellarWP\Uplink\Components\Authorize_Button_Controller
+ * @see \StellarWP\Uplink\Components\Admin\Authorize_Button_Controller
  *
  * @var \League\Plates\Template\Template $this
  * @var string $link_text The link text, changes based on whether the user is authorized to authorize :)

@@ -5,6 +5,7 @@ namespace StellarWP\Uplink\API\V3;
 use StellarWP\Uplink\API\V3\Contracts\Client_V3;
 use WP_Error;
 use WP_Http;
+use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
 
 /**
  * The Version 3 client for the licensing server.
@@ -59,14 +60,15 @@ final class Client implements Client_V3 {
 	 * @param  array<string, mixed>  $params
 	 *
 	 * @return WP_Error|array{
+	 *       'body' : array<string, mixed>,
+	 *       'headers' : CaseInsensitiveDictionary,
 	 *       'response' : array{
 	 *           'code' : int,
 	 *           'message' : string,
-	 *           'headers' : array<string, string>,
-	 *           'body' : array<string, mixed>,
 	 *       },
-	 *       'cookies' : array<string, string>,
-	 *       'filename' : string,
+	 *       'cookies' : array<int, \WP_Http_Cookie>,
+	 *       'filename' : string|null,
+	 *       'http_response' : \WP_HTTP_Requests_Response
 	 *   }
 	 */
 	public function get( string $endpoint, array $params = [] ) {
@@ -84,14 +86,15 @@ final class Client implements Client_V3 {
 	 * @param  array<string, mixed>  $params
 	 *
 	 * @return WP_Error|array{
+	 *       'body' : array<string, mixed>,
+	 *       'headers' : CaseInsensitiveDictionary,
 	 *       'response' : array{
 	 *           'code' : int,
 	 *           'message' : string,
-	 *           'headers' : array<string, string>,
-	 *           'body' : array<string, mixed>,
 	 *       },
-	 *       'cookies' : array<string, string>,
-	 *       'filename' : string,
+	 *       'cookies' : array<int, \WP_Http_Cookie>,
+	 *       'filename' : string|null,
+	 *       'http_response' : \WP_HTTP_Requests_Response
 	 *   }
 	 */
 	public function post( string $endpoint, array $params = [] ) {
@@ -110,14 +113,15 @@ final class Client implements Client_V3 {
 	 * @param  array<string, mixed>  $params
 	 *
 	 * @return WP_Error|array{
+	 *       'body' : array<string, mixed>,
+	 *       'headers' : CaseInsensitiveDictionary,
 	 *       'response' : array{
 	 *           'code' : int,
 	 *           'message' : string,
-	 *           'headers' : array<string, string>,
-	 *           'body' : array<string, mixed>,
 	 *       },
-	 *       'cookies' : array<string, string>,
-	 *       'filename' : string,
+	 *       'cookies' : array<int, \WP_Http_Cookie>,
+	 *       'filename' : string|null,
+	 *       'http_response' : \WP_HTTP_Requests_Response
 	 *   }
 	 */
 	public function request( string $endpoint, string $method = 'GET', array $params = [] ) {

@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink;
 
+use StellarWP\Uplink\API\V3\Auth\Token_Authorizer;
 use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
 use Throwable;
 
@@ -20,5 +21,28 @@ function render_authorize_button( string $slug ): void {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( "Unable to render authorize button: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
 		}
+	}
+}
+
+/**
+ * Manually check if a license is authorized.
+ *
+ * @param  string  $license  The license key.
+ * @param  string  $token  The stored token.
+ * @param  string  $domain  The user's domain.
+ *
+ * @return bool
+ */
+function is_authorized( string $license, string $token, string $domain ): bool {
+	try {
+		return Config::get_container()
+		             ->get( Token_Authorizer::class )
+		             ->is_authorized( $license, $token, $domain );
+	} catch ( Throwable $e ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( "An Authorization error occurred: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
+		}
+
+		return false;
 	}
 }

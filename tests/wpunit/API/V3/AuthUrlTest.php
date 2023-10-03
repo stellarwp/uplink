@@ -7,7 +7,7 @@ use StellarWP\Uplink\API\V3\Auth\Auth_Url_Cache_Decorator;
 use StellarWP\Uplink\API\V3\Contracts\Client_V3;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
-final class Auth_Url_Test extends UplinkTestCase {
+final class AuthUrlTest extends UplinkTestCase {
 
 	public function test_the_cache_decorator_is_enabled(): void {
 		$auth_url = $this->container->get( \StellarWP\Uplink\API\V3\Auth\Contracts\Auth_Url::class );

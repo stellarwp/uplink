@@ -3,17 +3,20 @@
 namespace wpunit\Admin;
 
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use StellarWP\Uplink\Admin\Package_Handler;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
 class Package_HandlerTest extends UplinkTestCase {
 
-	/**
-	 * @var \WP_Filesystem_Base
-	 */
-	protected $filesystem;
+	use ProphecyTrait;
 
-	public function setUp() {
+	/**
+	 * @var \WP_Filesystem_Base|\Prophecy\Prophecy\ObjectProphecy
+	 */
+	private $filesystem;
+
+	protected function setUp(): void {
 		parent::setUp();
 
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';

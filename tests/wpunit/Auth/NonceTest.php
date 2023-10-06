@@ -12,7 +12,7 @@ final class NonceTest extends UplinkTestCase {
 	 */
 	private $nonce;
 
-	protected function setUp() {
+	protected function setUp(): void {
 		parent::setUp();
 
 		// Force pretty permalinks.

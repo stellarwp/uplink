@@ -11,7 +11,7 @@ class RestTestCase extends UplinkTestCase {
 	 */
 	protected $server;
 
-	protected function setUp() {
+	protected function setUp(): void {
 		parent::setUp();
 
 		global $wp_rest_server;
@@ -19,7 +19,7 @@ class RestTestCase extends UplinkTestCase {
 		do_action( 'rest_api_init' );
 	}
 
-	protected function tearDown() {
+	protected function tearDown(): void {
 		// @phpstan-ignore-next-line
 		parent::tearDown();
 

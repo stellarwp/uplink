@@ -9,6 +9,8 @@
             "homepage": "https://stellarwp.com"
         }
     ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "bin": ["bin/stellar-uplink"],
     "autoload": {
         "psr-4": {
@@ -28,7 +30,7 @@
     "require": {
         "php": ">=7.1",
         "ext-json": "*",
-        "league/plates": "^3.5",
+        "league/plates": ">=3.4",
         "stellarwp/container-contract": "^1.0"
     },
     "config": {
@@ -49,9 +51,11 @@
         "codeception/util-universalframework": "^1.0",
         "lucatume/di52": "^3.0",
         "lucatume/wp-browser": "^3.0.14",
-        "phpunit/phpunit": "~6.0",
+        "phpspec/prophecy": "^1.0",
+        "phpspec/prophecy-phpunit": "^1.0|^2.0",
+        "phpunit/phpunit": "^6.0|^7.0|^8.0|^9.0",
         "symfony/event-dispatcher-contracts": "^2.5.1",
-        "symfony/string": "^5.4",
+        "symfony/string": "^5.4|^6.3",
         "szepeviktor/phpstan-wordpress": "^1.1"
     },
     "scripts": {

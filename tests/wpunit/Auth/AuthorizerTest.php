@@ -16,7 +16,7 @@ final class AuthorizerTest extends UplinkTestCase {
 	 */
 	private $authorizer;
 
-	protected function setUp() {
+	protected function setUp(): void {
 		parent::setUp();
 
 		Config::set_token_auth_prefix( 'kadence_' );

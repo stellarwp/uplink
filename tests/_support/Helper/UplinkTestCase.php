@@ -19,7 +19,7 @@ class UplinkTestCase extends WPTestCase {
 	 */
 	protected $container;
 
-	protected function setUp() {
+	protected function setUp(): void {
 		// @phpstan-ignore-next-line
 		parent::setUp();
 

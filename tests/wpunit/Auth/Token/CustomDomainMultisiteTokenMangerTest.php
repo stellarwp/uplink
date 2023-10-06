@@ -15,7 +15,7 @@ final class CustomDomainMultisiteTokenMangerTest extends UplinkTestCase {
 	 */
 	private $token_manager;
 
-	protected function setUp() {
+	protected function setUp(): void {
 		parent::setUp();
 
 		Config::set_token_auth_prefix( 'kadence_' );

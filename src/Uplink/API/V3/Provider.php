@@ -18,8 +18,7 @@ final class Provider extends Abstract_Provider {
 		$this->container->bind( Auth_Url::class, Auth_Url_Cache_Decorator::class );
 
 		$this->container->singleton( Client_V3::class, static function (): Client {
-			$prefix = 'stellarwp/uplink/' . Config::get_hook_prefix();
-
+			$prefix   = 'stellarwp/uplink/' . Config::get_hook_prefix();
 			$api_root = '/api/stellarwp/v3/';
 
 			if ( defined( 'STELLARWP_UPLINK_V3_API_ROOT' ) && STELLARWP_UPLINK_V3_API_ROOT ) {

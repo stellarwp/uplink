@@ -21,7 +21,7 @@ final class WebhookTest extends RestTestCase {
 	 */
 	private $token_manager;
 
-	protected function setUp() {
+	protected function setUp(): void {
 		parent::setUp();
 
 		// Configure the token prefix.

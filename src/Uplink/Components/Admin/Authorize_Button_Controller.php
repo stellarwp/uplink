@@ -185,11 +185,24 @@ final class Authorize_Button_Controller extends Controller {
 		] );
 	}
 
+	/**
+	 * We assume this button is only displayed within wp-admin,
+	 *
+	 * Build the callback URL with the current URL the user is on.
+	 */
 	private function build_auth_url(): string {
+		global $pagenow;
+
+		if ( empty( $pagenow ) ) {
+			return '';
+		}
+
+		$url = admin_url( $pagenow );
+
 		return sprintf( '%s?%s',
 			$this->auth_url,
 			http_build_query( [
-				'uplink_callback' => $this->nonce->create_url( rest_url( '/uplink/v1/webhooks/receive-auth' ) ),
+				'uplink_callback' => $this->nonce->create_url( $url ),
 			] )
 		);
 	}

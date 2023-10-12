@@ -197,7 +197,7 @@ final class Authorize_Button_Controller extends Controller {
 			return '';
 		}
 
-		$url = admin_url( $pagenow );
+		$url = add_query_arg( $_GET, admin_url( $pagenow ) );
 
 		return sprintf( '%s?%s',
 			$this->auth_url,

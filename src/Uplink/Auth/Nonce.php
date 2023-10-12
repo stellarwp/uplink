@@ -18,7 +18,7 @@ final class Nonce {
 	/**
 	 * @param  int  $expiration  How long the nonce is valid for in seconds.
 	 */
-	public function __construct( int $expiration = 300 ) {
+	public function __construct( int $expiration = 900 ) {
 		$this->expiration = $expiration;
 	}
 

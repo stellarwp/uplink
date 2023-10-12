@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink\Auth;
 
 use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
+use StellarWP\Uplink\Auth\Admin\Connect_Controller;
 use StellarWP\Uplink\Auth\Auth_Pipes\Multisite_Subfolder_Check;
 use StellarWP\Uplink\Auth\Auth_Pipes\Network_Token_Check;
 use StellarWP\Uplink\Auth\Auth_Pipes\User_Check;
@@ -30,6 +31,7 @@ final class Provider extends Abstract_Provider {
 
 		$this->register_authorizer();
 		$this->register_auth_disconnect();
+		$this->register_auth_connect();
 	}
 
 	/**
@@ -61,6 +63,12 @@ final class Provider extends Abstract_Provider {
 	private function register_auth_disconnect(): void {
 		add_action( 'admin_init', function(): void {
 			$this->container->get( Disconnect_Controller::class )->maybe_disconnect();
+		}, 9, 0 );
+	}
+
+	private function register_auth_connect(): void {
+		add_action( 'admin_init', function(): void {
+			$this->container->get( Connect_Controller::class )->maybe_store_token_data();
 		}, 9, 0 );
 	}
 

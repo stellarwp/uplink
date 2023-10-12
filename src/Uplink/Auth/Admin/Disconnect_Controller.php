@@ -69,7 +69,17 @@ final class Disconnect_Controller {
 		$referrer = wp_get_referer();
 
 		if ( $referrer ) {
-			wp_safe_redirect( $referrer );
+			$referrer = remove_query_arg(
+				[
+					Connect_Controller::TOKEN,
+					Connect_Controller::LICENSE,
+					Connect_Controller::SLUG,
+					Connect_Controller::NONCE,
+				],
+				$referrer
+			);
+
+			wp_safe_redirect( esc_url_raw( $referrer ) );
 			exit;
 		}
 	}

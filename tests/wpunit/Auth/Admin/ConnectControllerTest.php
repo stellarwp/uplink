@@ -116,7 +116,6 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		$this->assertSame( $token, $this->token_manager->get() );
-
 		$this->assertSame( $plugin->get_license_key(), $license );
 	}
 
@@ -201,7 +200,6 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		$this->assertSame( $token, $this->token_manager->get() );
-
 		$this->assertEmpty( $plugin->get_license_key() );
 	}
 
@@ -235,7 +233,6 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		$this->assertSame( $token, $this->token_manager->get() );
-
 		$this->assertEmpty( $plugin->get_license_key() );
 	}
 
@@ -268,7 +265,6 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		$this->assertSame( $token, $this->token_manager->get() );
-
 		$this->assertEmpty( $plugin->get_license_key() );
 	}
 
@@ -316,8 +312,57 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		$this->assertSame( $token, $this->token_manager->get() );
-
 		$this->assertSame( $plugin->get_license_key( 'network' ), $license );
+	}
+
+	/**
+	 * @env multisite
+	 */
+	public function test_it_does_not_store_token_data_on_a_subsite(): void {
+		global $_GET;
+
+		// Create a subsite.
+		$sub_site_id = wpmu_create_blog( 'wordpress.test', '/sub1', 'Test Subsite', 1 );
+		$this->assertNotInstanceOf( WP_Error::class, $sub_site_id );
+		$this->assertGreaterThan( 1, $sub_site_id );
+		$this->assertTrue( is_multisite() );
+
+		// Use this site, which should not allow a token to be set.
+		switch_to_blog( $sub_site_id );
+		wp_set_current_user( 1 );
+
+		// Mock our sample plugin is network activated, otherwise license key check fails.
+		$this->assertTrue( update_site_option( 'active_sitewide_plugins', [
+			'uplink/index.php' => time(),
+		] ) );
+
+		$plugin = $this->container->get( Collection::class )->offsetGet( $this->slug );
+		$this->assertEmpty( $plugin->get_license_key( 'network' ) );
+
+		$this->assertNull( $this->token_manager->get() );
+
+		$nonce   = ( $this->container->get( Nonce::class ) )->create();
+		$token   = '53ca40ab-c6c7-4482-a1eb-14c56da31015';
+		$license = '123456';
+
+		// Mock these were passed via the query string.
+		$_GET[ Connect_Controller::TOKEN ]   = $token;
+		$_GET[ Connect_Controller::NONCE ]   = $nonce;
+		$_GET[ Connect_Controller::LICENSE ] = $license;
+		$_GET[ Connect_Controller::SLUG ]    = $this->slug;
+
+		// Mock we're in the subsite admin.
+		$screen = WP_Screen::get( 'dashboard' );
+		$GLOBALS['current_screen'] = $screen;
+
+		$this->assertFalse( $screen->in_admin( 'network' ) );
+		$this->assertTrue( $screen->in_admin() );
+
+		// Fire off the action the Connect_Controller is running under.
+		do_action( 'admin_init' );
+
+		$this->assertNull( $this->token_manager->get() );
+		$this->assertEmpty(  $plugin->get_license_key( 'all' ) );
 	}
 
 }

@@ -93,7 +93,7 @@ final class Connect_Controller {
 
 			return;
 		}
-		
+
 		$license = $args[ self::LICENSE ] ?? '';
 		$slug    = $args[ self::SLUG ] ?? '';
 

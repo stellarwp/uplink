@@ -30,7 +30,6 @@ class Uplink {
 		$container->singleton( Admin\Provider::class, Admin\Provider::class );
 		$container->singleton( View\Provider::class, View\Provider::class );
 		$container->singleton( Auth\Provider::class, Auth\Provider::class );
-		$container->singleton( Rest\Provider::class, Rest\Provider::class );
 
 		if ( static::is_enabled() ) {
 			$container->get( API\V3\Provider::class )->register();
@@ -39,7 +38,6 @@ class Uplink {
 
 			if ( $container->has( Config::TOKEN_OPTION_NAME ) ) {
 				$container->get( Auth\Provider::class )->register();
-				$container->get( Rest\Provider::class )->register();
 			}
 
 			$container->get( View\Provider::class )->register();

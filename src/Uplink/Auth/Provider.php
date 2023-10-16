@@ -46,7 +46,7 @@ final class Provider extends Abstract_Provider {
 		 * @param int $expiration Nonce expiration time in seconds.
 		 */
 		$expiration = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/auth/nonce_expiration', 2100 );
-		$expiration = (int) absint( $expiration );
+		$expiration = absint( $expiration );
 
 		$this->container->singleton( Nonce::class, new Nonce( $expiration ) );
 	}

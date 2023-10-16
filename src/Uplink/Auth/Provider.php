@@ -29,9 +29,26 @@ final class Provider extends Abstract_Provider {
 			}
 		);
 
+		$this->register_nonce();
 		$this->register_authorizer();
 		$this->register_auth_disconnect();
 		$this->register_auth_connect();
+	}
+
+	private function register_nonce(): void {
+		/**
+		 * Filter how long the callback nonce is valid for.
+		 *
+		 * @note There is also an expiration time in the Uplink Origin plugin.
+		 *
+		 * Default: 35 minutes, to allow time for them to properly log in.
+		 *
+		 * @param int $expiration Nonce expiration time in seconds.
+		 */
+		$expiration = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/auth/nonce_expiration', 2100 );
+		$expiration = (int) absint( $expiration );
+
+		$this->container->singleton( Nonce::class, new Nonce( $expiration ) );
 	}
 
 	/**

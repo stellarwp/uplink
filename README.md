@@ -246,7 +246,7 @@ $container        = \StellarWP\Uplink\Config::get_container();
 $auth_url_manager = $container->get( \StellarWP\Uplink\API\V3\Auth\Contracts\Auth_Url::class );
 
 // Pass your product or service slug.
-$auth_url = $auth_url_manager->get( 'kadence-blogs-pro' );
+$auth_url = $auth_url_manager->get( 'kadence-blocks-pro' );
 
 echo $auth_url;
 ```

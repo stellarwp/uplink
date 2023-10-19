@@ -66,22 +66,38 @@ final class Disconnect_Controller {
 			);
 		}
 
-		$referrer = wp_get_referer();
+		$this->maybe_redirect_back();
+	}
 
-		if ( $referrer ) {
-			$referrer = remove_query_arg(
-				[
-					Connect_Controller::TOKEN,
-					Connect_Controller::LICENSE,
-					Connect_Controller::SLUG,
-					Connect_Controller::NONCE,
-				],
-				$referrer
-			);
+	/**
+	 * Attempts to redirect the user back to their previous dashboard page while
+	 * ensuring that any "Connect" token query variables are removed if they immediately
+	 * attempt to Disconnect after Connecting. This prevents them from automatically
+	 * getting connected again if the nonce is still valid.
+	 *
+	 * This will ensure the Notices set above are displayed.
+	 *
+	 * @return void
+	 */
+	private function maybe_redirect_back(): void {
+		$referer = wp_get_referer();
 
-			wp_safe_redirect( esc_url_raw( $referrer ) );
-			exit;
+		if ( ! $referer ) {
+			return;
 		}
+
+		$referer = remove_query_arg(
+			[
+				Connect_Controller::TOKEN,
+				Connect_Controller::LICENSE,
+				Connect_Controller::SLUG,
+				Connect_Controller::NONCE,
+			],
+			$referer
+		);
+
+		wp_safe_redirect( esc_url_raw( $referer ) );
+		exit;
 	}
 
 }

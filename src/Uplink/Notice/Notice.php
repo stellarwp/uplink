@@ -83,28 +83,11 @@ final class Notice {
 		$this->large       = $large;
 	}
 
-	public function get(): string {
-		$type = sprintf( 'notice-%s', sanitize_html_class( $this->type ) );
-
-		$class_map = [
-			'notice'         => true,
-			$type            => true,
-			'is-dismissible' => $this->dismissible,
-			'notice-alt'     => $this->alt,
-			'notice-large'   => $this->large,
-		];
-
-		$classes = '';
-
-		foreach ( $class_map as $class => $include ) {
-			if ( ! $include ) {
-				continue;
-			}
-
-			$classes .= sprintf( ' %s', $class );
-		}
-
-		return sprintf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $classes ), esc_html( $this->message ) );
+	/**
+	 * @return array{type: string, message: string, dismissible: bool, alt: bool, large: bool}
+	 */
+	public function toArray(): array {
+		return get_object_vars( $this );
 	}
 
 }

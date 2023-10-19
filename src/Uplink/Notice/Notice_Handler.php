@@ -12,12 +12,20 @@ final class Notice_Handler {
 	public const TRANSIENT = 'stellarwp_uplink_notices';
 
 	/**
+	 * Handles rendering notices.
+	 *
+	 * @var Notice_Controller
+	 */
+	private $controller;
+
+	/**
 	 * @var Notice[]
 	 */
 	private $notices;
 
-	public function __construct() {
-		$this->notices = $this->all();
+	public function __construct( Notice_Controller $controller ) {
+		$this->notices    = $this->all();
+		$this->controller = $controller;
 	}
 
 	/**
@@ -45,7 +53,7 @@ final class Notice_Handler {
 		}
 
 		foreach ( $this->notices as $notice ) {
-			echo $notice->get();
+			$this->controller->render( $notice->toArray() );
 		}
 
 		$this->clear();

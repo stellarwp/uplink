@@ -39,7 +39,7 @@ abstract class Controller {
 			return '';
 		}
 
-		$classes = array_unique( array_map( 'sanitize_html_class', $classes ) );
+		$classes = array_unique( array_map( 'sanitize_html_class', array_filter( $classes ) ) );
 
 		return implode( ' ', $classes );
 	}

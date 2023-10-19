@@ -12,7 +12,7 @@ class Register {
 	 * @since 1.0.0
 	 *
 	 * @param string $slug Resource slug.
-	 * @param string $name Resource name
+	 * @param string $name Resource name.
 	 * @param string $version Resource version.
 	 * @param string $path Resource path to bootstrap file.
 	 * @param string $class Resource class.

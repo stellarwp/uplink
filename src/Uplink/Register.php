@@ -29,8 +29,8 @@ class Register {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $name Resource name.
 	 * @param string $slug Resource slug.
+	 * @param string $name Resource name.
 	 * @param string $version Resource version.
 	 * @param string $path Resource path to bootstrap file.
 	 * @param string $class Resource class.
@@ -38,7 +38,7 @@ class Register {
 	 *
 	 * @return Resources\Resource
 	 */
-	public static function service( $name, $slug, $version, $path, $class, $license_class = null ) {
-		return Resources\Service::register( $name, $slug, $version, $path, $class, $license_class );
+	public static function service( $slug, $name, $version, $path, $class, $license_class = null ) {
+		return Resources\Service::register( $slug, $name, $version, $path, $class, $license_class );
 	}
 }

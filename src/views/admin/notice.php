@@ -8,6 +8,8 @@
  * @var string $message The message to display.
  * @var string $classes The CSS classes for the notice.
  */
+
+defined( 'ABSPATH' ) || exit;
 ?>
 <div class="<?php echo esc_attr( $classes ) ?>">
 	<p><?php echo esc_html( $message ) ?></p>

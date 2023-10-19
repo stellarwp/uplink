@@ -12,6 +12,8 @@
  * @var string $tag The HTML tag to use for the wrapper.
  * @var string $classes The CSS classes for the hyperlink.
  */
+
+defined( 'ABSPATH' ) || exit;
 ?>
 
 <<?php echo esc_html( $tag ) ?> class="uplink-authorize-container">

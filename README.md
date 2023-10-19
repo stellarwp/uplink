@@ -207,7 +207,7 @@ functionality:
 ### Render Authorize Button
 
 > 💡 Note: the button is only rendered if the following conditions are met:
-> 1. The current user is a Super Admin.
+> 1. The current user is a Super Admin (can be changed with a WP filter).
 > 2. This is not a multisite installation, or...
 > 3. If multisite and using subfolders, only on the root network dashboard.
 > 4. If multisite and NOT using subfolders and on a subsite AND a token doesn't already exist at the network level, in which case it needs to be managed at the network.

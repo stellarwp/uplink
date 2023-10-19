@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink;
 
 use StellarWP\Uplink\API\V3\Auth\Token_Authorizer;
+use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
 use Throwable;
 
@@ -21,6 +22,23 @@ function render_authorize_button( string $slug ): void {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( "Unable to render authorize button: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
 		}
+	}
+}
+
+/**
+ * Get the stored authorization token.
+ *
+ * @return string|null
+ */
+function get_authorization_token(): ?string {
+	try {
+		return Config::get_container()->get( Token_Manager::class )->get();
+	} catch ( Throwable $e ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( "Error occurred when fetching token: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
+		}
+
+		return null;
 	}
 }
 

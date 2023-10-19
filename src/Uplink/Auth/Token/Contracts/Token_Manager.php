@@ -2,9 +2,6 @@
 
 namespace StellarWP\Uplink\Auth\Token\Contracts;
 
-/**
- * @internal
- */
 interface Token_Manager {
 
 	/**

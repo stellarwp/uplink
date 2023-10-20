@@ -19,6 +19,9 @@ final class Auth_Url implements Contracts\Auth_Url {
 	 */
 	private $client;
 
+	/**
+	 * @param  Client_V3  $client  The V3 API Client.
+	 */
 	public function __construct( Client_V3 $client ) {
 		$this->client = $client;
 	}

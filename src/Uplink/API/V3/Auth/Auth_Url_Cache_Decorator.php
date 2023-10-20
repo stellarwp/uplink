@@ -23,6 +23,10 @@ final class Auth_Url_Cache_Decorator implements Contracts\Auth_Url {
 	 */
 	private $expiration;
 
+	/**
+	 * @param  Auth_Url  $auth_url  Remotely fetch the Origin's Auth URL.
+	 * @param  int  $expiration  The cache expiration in seconds.
+	 */
 	public function __construct( Auth_Url $auth_url, int $expiration = DAY_IN_SECONDS ) {
 		$this->auth_url   = $auth_url;
 		$this->expiration = $expiration;
@@ -39,7 +43,7 @@ final class Auth_Url_Cache_Decorator implements Contracts\Auth_Url {
 	 */
 	public function get( string $slug ): string {
 		if ( ! $slug ) {
-			throw new InvalidArgumentException( 'The Product Slug cannot be empty' );
+			throw new InvalidArgumentException( __( 'The Product Slug cannot be empty', '%TEXTDOMAIN%' ) );
 		}
 
 		$transient = $this->build_transient( $slug );

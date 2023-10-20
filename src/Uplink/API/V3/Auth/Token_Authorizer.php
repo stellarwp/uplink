@@ -46,7 +46,7 @@ final class Token_Authorizer {
 		if ( $response instanceof WP_Error ) {
 			if ( $this->is_wp_debug() ) {
 				error_log( sprintf(
-					'Authorization error occurred: License: "%s", Token: "%s", Domain: "%s". Errors: %s',
+					__( 'Authorization error occurred: License: "%s", Token: "%s", Domain: "%s". Errors: %s', '%TEXTDOMAIN%' ),
 					$license,
 					$token,
 					$domain,

@@ -20,6 +20,10 @@ final class Disconnect_Controller {
 	 */
 	private $notice;
 
+	/**
+	 * @param  Disconnector  $disconnect  Disconnects a Token, if the user has the capability.
+	 * @param  Notice_Handler  $notice  Handles storing and displaying notices.
+	 */
 	public function __construct( Disconnector $disconnect, Notice_Handler $notice ) {
 		$this->disconnect = $disconnect;
 		$this->notice     = $notice;
@@ -41,7 +45,7 @@ final class Disconnect_Controller {
 			return;
 		}
 
-		if ( wp_verify_nonce( $_GET['_wpnonce'], self::ARG ) ) {
+		if ( wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), self::ARG ) ) {
 			if ( $this->disconnect->disconnect() ) {
 				$this->notice->add(
 					new Notice( Notice::SUCCESS,

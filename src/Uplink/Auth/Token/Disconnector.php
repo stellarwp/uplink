@@ -17,6 +17,10 @@ final class Disconnector {
 	 */
 	private $token_manager;
 
+	/**
+	 * @param  Authorizer  $authorizer  Determines if the current user can perform actions.
+	 * @param  Token_Manager  $token_manager The Token Manager.
+	 */
 	public function __construct(
 		Authorizer $authorizer,
 		Token_Manager $token_manager

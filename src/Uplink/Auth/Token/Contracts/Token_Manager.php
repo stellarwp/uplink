@@ -19,7 +19,6 @@ interface Token_Manager {
 	 */
 	public function option_name(): string;
 
-
 	/**
 	 * Validates a token is in the accepted UUIDv4 format.
 	 *

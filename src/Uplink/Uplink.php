@@ -16,7 +16,9 @@ class Uplink {
 	 */
 	public static function init() {
 		if ( ! Config::has_container() ) {
-			throw new RuntimeException( 'You must call StellarWP\Uplink\Config::set_container() before calling StellarWP\Telemetry::init().' );
+			throw new RuntimeException(
+				__( 'You must call StellarWP\Uplink\Config::set_container() before calling StellarWP\Telemetry::init().', '%TEXTDOMAIN%' )
+			);
 		}
 
 		$container = Config::get_container();
@@ -46,7 +48,7 @@ class Uplink {
 	}
 
 	/**
-	 * Returns whether or not licensing validation is disabled.
+	 * Returns whether licensing validation is disabled.
 	 *
 	 * @since 1.0.0
 	 *
@@ -60,7 +62,7 @@ class Uplink {
 	}
 
 	/**
-	 * Returns whether or not licensing validation is enabled.
+	 * Returns whether licensing validation is enabled.
 	 *
 	 * @since 1.0.0
 	 *

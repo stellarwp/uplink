@@ -22,16 +22,17 @@ class Uplink {
 		$container = Config::get_container();
 
 		$container->bind( ContainerInterface::class, $container );
+		$container->singleton( View\Provider::class, View\Provider::class );
 		$container->singleton( API\Client::class, API\Client::class );
 		$container->singleton( API\V3\Provider::class, API\V3\Provider::class );
 		$container->singleton( Resources\Collection::class, Resources\Collection::class );
 		$container->singleton( Site\Data::class, Site\Data::class );
 		$container->singleton( Notice\Provider::class, Notice\Provider::class );
 		$container->singleton( Admin\Provider::class, Admin\Provider::class );
-		$container->singleton( View\Provider::class, View\Provider::class );
 		$container->singleton( Auth\Provider::class, Auth\Provider::class );
 
 		if ( static::is_enabled() ) {
+			$container->get( View\Provider::class )->register();
 			$container->get( API\V3\Provider::class )->register();
 			$container->get( Notice\Provider::class )->register();
 			$container->get( Admin\Provider::class )->register();
@@ -39,8 +40,6 @@ class Uplink {
 			if ( $container->has( Config::TOKEN_OPTION_NAME ) ) {
 				$container->get( Auth\Provider::class )->register();
 			}
-
-			$container->get( View\Provider::class )->register();
 		}
 
 		require_once __DIR__ . '/functions.php';

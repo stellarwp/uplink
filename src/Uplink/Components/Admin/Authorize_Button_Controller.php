@@ -47,6 +47,13 @@ final class Authorize_Button_Controller extends Controller {
 	 */
 	private $auth_url = '';
 
+	/**
+	 * @param  View  $view  The View Engine to render views.
+	 * @param  Authorizer  $authorizer  Determines if the current user can perform actions.
+	 * @param  Token_Manager  $token_manager  The Token Manager.
+	 * @param  Nonce  $nonce  The Nonce Manager.
+	 * @param  Auth_Url  $auth_url_manager  The Brand Auth URL fetcher.
+	 */
 	public function __construct(
 		View $view,
 		Authorizer $authorizer,

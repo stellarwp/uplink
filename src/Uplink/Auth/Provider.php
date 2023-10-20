@@ -35,6 +35,11 @@ final class Provider extends Abstract_Provider {
 		$this->register_auth_connect();
 	}
 
+	/**
+	 * Register nonce container definitions.
+	 *
+	 * @return void
+	 */
 	private function register_nonce(): void {
 		/**
 		 * Filter how long the callback nonce is valid for.
@@ -77,16 +82,26 @@ final class Provider extends Abstract_Provider {
 		);
 	}
 
+	/**
+	 * Register auth disconnection definitions and hooks.
+	 *
+	 * @return void
+	 */
 	private function register_auth_disconnect(): void {
-		add_action( 'admin_init', function(): void {
-			$this->container->get( Disconnect_Controller::class )->maybe_disconnect();
-		}, 9, 0 );
+		$this->container->singleton( Disconnect_Controller::class, Disconnect_Controller::class );
+
+		add_action( 'admin_init', [ $this->container->get( Disconnect_Controller::class ), 'maybe_disconnect' ], 9, 0 );
 	}
 
+	/**
+	 * Register auth connection definitions and hooks.
+	 *
+	 * @return void
+	 */
 	private function register_auth_connect(): void {
-		add_action( 'admin_init', function(): void {
-			$this->container->get( Connect_Controller::class )->maybe_store_token_data();
-		}, 9, 0 );
+		$this->container->singleton( Connect_Controller::class, Connect_Controller::class );
+
+		add_action( 'admin_init', [ $this->container->get( Connect_Controller::class ), 'maybe_store_token_data'], 9, 0 );
 	}
 
 }

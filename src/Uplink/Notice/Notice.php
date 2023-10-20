@@ -38,7 +38,7 @@ final class Notice {
 	private $message;
 
 	/**
-	 * Whether the notice is dismissible.
+	 * Whether this notice is dismissible.
 	 *
 	 * @var bool
 	 */
@@ -58,6 +58,13 @@ final class Notice {
 	 */
 	private $large;
 
+	/**
+	 * @param  string  $type  The notice type, one of the above constants.
+	 * @param  string  $message  The already translated message to display.
+	 * @param  bool  $dismissible  Whether this notice is dismissible.
+	 * @param  bool  $alt  Whether this is an alt-notice.
+	 * @param  bool  $large  Whether this should be a large notice.
+	 */
 	public function __construct(
 		string $type,
 		string $message,
@@ -67,13 +74,13 @@ final class Notice {
 	) {
 		if ( ! in_array( $type, self::ALLOWED_TYPES, true ) ) {
 			throw new InvalidArgumentException( sprintf(
-					'Notice $type must be one of: %s',
+					__( 'Notice $type must be one of: %s', '%TEXTDOMAIN%' ),
 					implode( ', ', self::ALLOWED_TYPES ) )
 			);
 		}
 
 		if ( empty( $message ) ) {
-			throw new InvalidArgumentException( 'The $message cannot be empty' );
+			throw new InvalidArgumentException( __( 'The $message cannot be empty', '%TEXTDOMAIN%' ) );
 		}
 
 		$this->type        = $type;

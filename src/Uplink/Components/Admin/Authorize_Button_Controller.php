@@ -74,7 +74,7 @@ final class Authorize_Button_Controller extends Controller {
 		$slug = $args['slug'] ?? '';
 
 		if ( empty ( $slug ) ) {
-			throw new InvalidArgumentException( 'The Product slug cannot be empty' );
+			throw new InvalidArgumentException( __( 'The Product slug cannot be empty', '%TEXTDOMAIN%' ) );
 		}
 
 		$this->auth_url = $this->auth_url_manager->get( $slug );

@@ -25,7 +25,7 @@ final class Provider extends Abstract_Provider {
 				$api_root = STELLARWP_UPLINK_V3_API_ROOT;
 			}
 
-			$base_url = 'https://pue.theeventscalendar.com';
+			$base_url = 'https://licensing.stellarwp.com';
 
 			if ( defined( 'STELLARWP_UPLINK_API_BASE_URL' ) && STELLARWP_UPLINK_API_BASE_URL ) {
 				$base_url = preg_replace( '!/$!', '', STELLARWP_UPLINK_API_BASE_URL );

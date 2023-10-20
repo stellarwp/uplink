@@ -5,7 +5,6 @@
  *
  * @see \StellarWP\Uplink\Components\Admin\Authorize_Button_Controller
  *
- * @var \League\Plates\Template\Template $this
  * @var string $link_text The link text, changes based on whether the user is authorized to authorize :)
  * @var string $url The location the link goes to, either the custom origin URL, or a link to the admin.
  * @var string $target The link target.

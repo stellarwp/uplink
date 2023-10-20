@@ -4,7 +4,6 @@
  *
  * @see \StellarWP\Uplink\Notice\Notice_Controller
  *
- * @var \League\Plates\Template\Template $this
  * @var string $message The message to display.
  * @var string $classes The CSS classes for the notice.
  */

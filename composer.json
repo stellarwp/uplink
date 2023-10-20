@@ -30,7 +30,6 @@
     "require": {
         "php": ">=7.1",
         "ext-json": "*",
-        "league/plates": ">=3.4",
         "stellarwp/container-contract": "^1.0"
     },
     "config": {

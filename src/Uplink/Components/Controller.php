@@ -2,28 +2,32 @@
 
 namespace StellarWP\Uplink\Components;
 
-use League\Plates\Engine;
+use StellarWP\Uplink\View\Contracts\View;
 
+/**
+ * Component/View controller made to accept arguments and render
+ * them in a view file.
+ */
 abstract class Controller {
 
 	/**
-	 * The Plates View Engine.
+	 * The View Engine to render views.
 	 *
-	 * @var Engine
+	 * @var View
 	 */
 	protected $view;
 
 	/**
-	 * Echo the plates view.
+	 * Render the view file.
 	 *
-	 * @param mixed[] $args An optional array of arguments to utilize when rendering.
+	 * @param  mixed[]  $args  An optional array of arguments to utilize when rendering.
 	 */
 	abstract public function render( array $args = [] ): void;
 
 	/**
-	 * @param  Engine  $view
+	 * @param  View  $view  The View Engine to render views.
 	 */
-	public function __construct( Engine $view ) {
+	public function __construct( View $view ) {
 		$this->view = $view;
 	}
 

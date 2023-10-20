@@ -9,6 +9,9 @@ use StellarWP\Uplink\Components\Controller;
  */
 final class Notice_Controller extends Controller {
 
+	/**
+	 * The view file, without ext, relative to the root views directory.
+	 */
 	public const VIEW = 'admin/notice';
 
 	/**

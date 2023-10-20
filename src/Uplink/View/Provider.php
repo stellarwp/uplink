@@ -2,20 +2,20 @@
 
 namespace StellarWP\Uplink\View;
 
-use League\Plates\Engine;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
+use StellarWP\Uplink\View\Contracts\View;
 
 final class Provider extends Abstract_Provider {
 
 	/**
-	 * Configure the directory League Plates looks for view files.
-	 *
-	 * @link https://platesphp.com/
+	 * Configure the View Renderer.
 	 */
 	public function register() {
 		$this->container->singleton(
-			Engine::class,
-			new Engine( trailingslashit( __DIR__ . '/../../views' ) )
+			WordPress_View::class,
+			new WordPress_View( __DIR__ . '/../../views' )
 		);
+
+		$this->container->bind( View::class, $this->container->get( WordPress_View::class ) );
 	}
 }

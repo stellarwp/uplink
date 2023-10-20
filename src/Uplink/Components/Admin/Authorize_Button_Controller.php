@@ -3,7 +3,6 @@
 namespace StellarWP\Uplink\Components\Admin;
 
 use InvalidArgumentException;
-use League\Plates\Engine;
 use StellarWP\Uplink\API\V3\Auth\Contracts\Auth_Url;
 use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
 use StellarWP\Uplink\Auth\Authorizer;
@@ -11,9 +10,13 @@ use StellarWP\Uplink\Auth\Nonce;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Components\Controller;
 use StellarWP\Uplink\Config;
+use StellarWP\Uplink\View\Contracts\View;
 
 final class Authorize_Button_Controller extends Controller {
 
+	/**
+	 * The view file, without ext, relative to the root views directory.
+	 */
 	public const VIEW = 'admin/authorize-button';
 
 	/**
@@ -45,7 +48,7 @@ final class Authorize_Button_Controller extends Controller {
 	private $auth_url = '';
 
 	public function __construct(
-		Engine $view,
+		View $view,
 		Authorizer $authorizer,
 		Token_Manager $token_manager,
 		Nonce $nonce,

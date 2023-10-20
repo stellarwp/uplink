@@ -12,6 +12,9 @@ final class Network_Token_Check {
 	 */
 	private $token_manager;
 
+	/**
+	 * @param  Token_Manager  $token_manager The Token Manager.
+	 */
 	public function __construct( Token_Manager $token_manager ) {
 		$this->token_manager = $token_manager;
 	}

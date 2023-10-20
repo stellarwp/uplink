@@ -14,6 +14,9 @@ final class Authorizer {
 	 */
 	private $pipeline;
 
+	/**
+	 * @param  Pipeline  $pipeline  The populated pipeline of a set of rules to authorize a user.
+	 */
 	public function __construct( Pipeline $pipeline ) {
 		$this->pipeline = $pipeline;
 	}

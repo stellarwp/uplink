@@ -6,6 +6,9 @@ use StellarWP\Uplink\Config;
 
 final class Nonce {
 
+	/**
+	 * The suffix for the transient name to store the nonce.
+	 */
 	public const NONCE_SUFFIX = '_uplink_nonce';
 
 	/**
@@ -56,12 +59,24 @@ final class Nonce {
 		return $nonce;
 	}
 
+	/**
+	 * Attach a nonce to a URL.
+	 *
+	 * @param  string  $url The existing URL to attach the nonce to.
+	 *
+	 * @return string
+	 */
 	public function create_url( string $url ): string {
 		$url = str_replace( '&amp;', '&', $url );
 
 		return esc_html( add_query_arg( '_uplink_nonce', $this->create(), $url ) );
 	}
 
+	/**
+	 * Get the transient key, combining the configured hook prefix with our suffix.
+	 *
+	 * @return string
+	 */
 	private function key(): string {
 		return Config::get_hook_prefix_underscored() . self::NONCE_SUFFIX;
 	}

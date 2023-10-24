@@ -36,6 +36,15 @@ add_action( 'plugins_loaded', function() {
 	Config::set_container( $container );
 	Config::set_hook_prefix( 'my-custom-prefix' );
 
+	/*
+	 * If you wish to allow a customer to authorize their product, set your Token Auth Prefix.
+	 *
+	 * This will allow storage of a unique token associated with the customer's license/domain.
+	 *
+	 * Important: The Token auth prefix should be the same across all of your products.
+	 */
+	Config::set_token_auth_prefix( 'my_origin' );
+
 	Uplink::init();
 }, 0 );
 ```
@@ -44,11 +53,11 @@ add_action( 'plugins_loaded', function() {
 
 Package is using `__( 'Invalid request: nonce field is expired. Please try again.', '%TEXTDOMAIN%' )` function for translation. In order to change domain placeholder `'%TEXTDOMAIN%'` to your plugin translation domain run
 ```bash
-./vendor/bin/stellar-uplink domain=<your-plugin-domain>
+./bin/stellar-uplink domain=<your-plugin-domain>
 ```
 or
 ```bash
-./vendor/bin/stellar-uplink
+./bin/stellar-uplink
 ```
 and prompt the plugin domain
 You can also add lines below to your composer file in order to run command automatically
@@ -116,11 +125,11 @@ Registers a service for licensing. Since services require a plugin, we pull vers
 ```php
 use StellarWP\Uplink\Register;
 
-$service_slug   = 'my-service';
-$service_name   = 'My Service';
-$plugin_version = MyPlugin::VERSION;
-$plugin_path    = 'my-plugin/my-plugin.php';
-$plugin_class   = MyPlugin::class;
+$service_slug    = 'my-service';
+$service_name    = 'My Service';
+$service_version = MyPlugin::VERSION;
+$plugin_path     = 'my-plugin/my-plugin.php';
+$plugin_class    = MyPlugin::class;
 
 Register::service(
 	$service_slug,
@@ -174,3 +183,98 @@ function render_settings_page() {
     //....
 }
 ```
+
+## License Authorization
+
+> ⚠️ Your `auth_url` is set on the Origins table on the [Stellar Licensing](https://github.com/stellarwp/licensing) server!
+> You must first request to have this added before proceeding.
+
+There may be certain functionality you wish to make available when you know a license is authorized.
+
+This library provides the tools to fetch and store unique tokens, working together with the Uplink Origin
+plugin.
+
+After following the instructions at the top to define a `Config::set_token_auth_prefix()`, this will enable the following
+functionality:
+
+1. The ability to render a "Connect" button anywhere in your plugin while the user is in wp-admin, using the provided function below.
+2. The button will display "Disconnect" once they are authorized, which deletes the locally stored Token.
+3. The ability for the customer's site to accept specific Query Variables in wp-admin, that will store the generated Token, and an optional new License Key for a Product Slug.
+4. Check if a license is authorized, either in the License Validation payload, or manually.
+
+> ⚠️ Generating a Token requires manual configuration on your Origin site using the [Uplink Origin Plugin](https://github.com/stellarwp/uplink-origin).
+
+### Render Authorize Button
+
+> 💡 Note: the button is only rendered if the following conditions are met:
+
+1. You have an `auth_url` set on the StellarWP Licensing Server.
+2. The current user is a Super Admin (can be changed with a WP filter).
+3. This is not a multisite installation, or...
+4. If multisite and using subfolders, only on the root network dashboard.
+5. If multisite and NOT using subfolders and on a subsite AND a token doesn't already exist at the network level, in which case it needs to be managed at the network.
+
+```php
+// Call the namespaced function with your plugin slug.
+\StellarWP\Uplink\render_authorize_button( 'kadence-blocks-pro' );
+```
+
+> 💡 The button is very customizable with filters, see [Authorize_Button_Controller.php](src/Uplink/Components/Admin/Authorize_Button_Controller.php).
+
+### Manually Check if a License is Remotely Authorized
+
+This connects to the licensing server to check in real time if the license is authorized. Use sparingly.
+
+```php
+$container     = \StellarWP\Uplink\Config::get_container();
+$token_manager = $container->get( \StellarWP\Uplink\Auth\Token\Contracts\Token_Manager::class );
+$token         = $token_manager->get();
+
+if ( ! $token ) {
+	return;
+}
+
+$is_authorized = \StellarWP\Uplink\is_authorized( 'customer_license_key', $token, 'customer_domain' );
+
+echo $is_authorized ? esc_html__( 'authorized' ) : esc_html__( 'not authorized' );
+```
+
+### Manually Fetch Auth URL
+
+If for some reason you need to fetch your `auth_url` manually, you can do so by:
+
+```php
+$container        = \StellarWP\Uplink\Config::get_container();
+$auth_url_manager = $container->get( \StellarWP\Uplink\API\V3\Auth\Contracts\Auth_Url::class );
+
+// Pass your product or service slug.
+$auth_url = $auth_url_manager->get( 'kadence-blocks-pro' );
+
+echo $auth_url;
+```
+
+> 💡 Auth URL connections are cached for one day using transients.
+
+
+### Callback Redirect
+
+The Callback Redirect generated by the Origin looks something like this, where `uplinksample.lndo.site` is your
+customer's website:
+
+```
+https://uplinksample.lndo.site/wp-admin/import.php?uplink_token=d9a407d0-0eb1-41cf-8cd0-e5da668143b4&_uplink_nonce=Oyj13TCvhaa12IJm
+```
+
+The Origin is responsible for asking StellarWP Licensing to generate a token and redirect back to where the customer originally
+clicked on the button.
+
+The following Query Variables are available for reference:
+
+> 💡 Note: This data automatically gets stored when detected, using the `admin_init` hook!
+
+1. `uplink_token` - The unique UUIDv4 token generated by StellarWP Licensing.
+2. `_uplink_nonce` - The original nonce sent with the callback URL, as part of the "Connect" button.
+3. `uplink_license` (optional) - Whether we should also update or set a License Key.
+4. `uplink_slug` (optional) - The Product or Service Slug that we're updating the license for.
+
+> ⚠️ `uplink_slug` MUST be supplied if `uplink_license` is!

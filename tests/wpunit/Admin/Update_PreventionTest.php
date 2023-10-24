@@ -11,7 +11,7 @@ class Update_PreventionTest extends UplinkTestCase {
 	public $resource;
 	public $path;
 
-	public function setUp() {
+	protected function setUp(): void {
 		parent::setUp();
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 		$this->path     = 'uplink/plugin.php';

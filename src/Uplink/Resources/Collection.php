@@ -2,11 +2,15 @@
 
 namespace StellarWP\Uplink\Resources;
 
-class Collection implements \ArrayAccess, \Iterator {
+use ArrayAccess;
+use Iterator;
+
+class Collection implements ArrayAccess, Iterator {
+
 	/**
 	 * Collection of resources.
 	 *
-	 * @var array<mixed>
+	 * @var array<string, Resource>
 	 */
 	private $resources = [];
 
@@ -17,7 +21,7 @@ class Collection implements \ArrayAccess, \Iterator {
 	 *
 	 * @param Resource $resource Resource instance.
 	 *
-	 * @return mixed
+	 * @return Resource
 	 */
 	public function add( Resource $resource ) {
 		$this->offsetSet( $resource->get_slug(), $resource );
@@ -26,10 +30,10 @@ class Collection implements \ArrayAccess, \Iterator {
 	}
 
 	/**
-	 * @inheritDoc
+	 * @return Resource
 	 */
 	#[\ReturnTypeWillChange]
-	public function current() {
+	public function current(): Resource {
 		return current( $this->resources );
 	}
 
@@ -39,7 +43,7 @@ class Collection implements \ArrayAccess, \Iterator {
 	 * @since 1.0.0
 	 *
 	 * @param string $path Path to filter collection by.
-	 * @param \Iterator $iterator Optional. Iterator to filter.
+	 * @param Iterator $iterator Optional. Iterator to filter.
 	 *
 	 * @return Filters\Path_FilterIterator
 	 */
@@ -53,7 +57,7 @@ class Collection implements \ArrayAccess, \Iterator {
 	 * @since 1.0.0
 	 *
 	 * @param array<string> $paths Paths to filter collection by.
-	 * @param \Iterator $iterator Optional. Iterator to filter.
+	 * @param Iterator $iterator Optional. Iterator to filter.
 	 *
 	 * @return Filters\Path_FilterIterator
 	 */
@@ -66,7 +70,7 @@ class Collection implements \ArrayAccess, \Iterator {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param \Iterator $iterator Optional. Iterator to filter.
+	 * @param Iterator $iterator Optional. Iterator to filter.
 	 *
 	 * @return Filters\Plugin_FilterIterator
 	 */
@@ -79,7 +83,7 @@ class Collection implements \ArrayAccess, \Iterator {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param \Iterator $iterator Optional. Iterator to filter.
+	 * @param Iterator $iterator Optional. Iterator to filter.
 	 *
 	 * @return Filters\Service_FilterIterator
 	 */
@@ -88,7 +92,7 @@ class Collection implements \ArrayAccess, \Iterator {
 	}
 
 	/**
-	 * @inheritDoc
+	 * @return array-key|null
 	 */
 	#[\ReturnTypeWillChange]
 	public function key() {
@@ -110,11 +114,11 @@ class Collection implements \ArrayAccess, \Iterator {
 	}
 
 	/**
-	 * @inheritDoc
+	 * @return Resource|null
 	 */
 	#[\ReturnTypeWillChange]
-	public function offsetGet( $offset ) {
-		return $this->resources[ $offset ];
+	public function offsetGet( $offset ): ?Resource {
+		return $this->resources[ $offset ] ?? null;
 	}
 
 	/**

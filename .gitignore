@@ -2,3 +2,4 @@ files/
 repo/
 vendor/
 .idea/
+/composer.lock

@@ -11,7 +11,7 @@ class Plugin extends Resource {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @var \stdClass
+	 * @var \stdClass|null
 	 */
 	protected $update_status;
 
@@ -108,7 +108,7 @@ class Plugin extends Resource {
 	 *
 	 * @return mixed
 	 */
-	public function get_update_status( $force_fetch = false) {
+	public function get_update_status( $force_fetch = false ) {
 		if ( ! $force_fetch ) {
 			$this->update_status = get_option( $this->get_update_status_option_name(), null );
 		}

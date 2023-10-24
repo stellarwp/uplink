@@ -11,7 +11,7 @@ class Validation_ResponseTest extends UplinkTestCase {
 
 	public $resource;
 
-	public function setUp() {
+	protected function setUp(): void {
 		parent::setUp();
 
 		$this->resource = $this->getMockBuilder( Plugin::class )->setConstructorArgs( [ 'sample',

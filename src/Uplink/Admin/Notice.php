@@ -16,12 +16,12 @@ class Notice {
 	/**
 	 * @var array<mixed>
 	 */
-	protected array $saved_notices = [];
+	protected $saved_notices = [];
 
 	/**
 	 * @var array<mixed>
 	 */
-	protected array $notices = [];
+	protected $notices = [];
 
 	/**
 	 * @since 1.0.0

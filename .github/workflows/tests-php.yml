@@ -6,7 +6,8 @@ jobs:
     strategy:
       matrix:
         suite:
-          - wpunit
+          - wpunit --env singlesite
+          - wpunit --env multisite
           - muwpunit
     runs-on: ubuntu-latest
     steps:
@@ -69,6 +70,6 @@ jobs:
       - name: Set up StellarWP Uplink
         run: |
           ${SLIC_BIN} use uplink
-          ${SLIC_BIN} composer install --ignore-platform-reqs
+          ${SLIC_BIN} composer install
       - name: Run suite tests
         run: ${SLIC_BIN} run ${{ matrix.suite }} --ext DotReporter

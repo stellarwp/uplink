@@ -2,9 +2,16 @@
 
 namespace StellarWP\Uplink;
 
+use InvalidArgumentException;
+use RuntimeException;
 use StellarWP\ContainerContract\ContainerInterface;
+use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
+use StellarWP\Uplink\Utils\Sanitize;
 
 class Config {
+
+	public const TOKEN_OPTION_NAME = 'uplink.token_prefix';
+
 
 	/**
 	 * Container object.
@@ -27,15 +34,17 @@ class Config {
 	/**
 	 * Get the container.
 	 *
-	 * @return ContainerInterface
-	 *@throws \RuntimeException
-	 *
 	 * @since 1.0.0
 	 *
+	 * @throws RuntimeException
+	 *
+	 * @return ContainerInterface
 	 */
 	public static function get_container() {
 		if ( self::$container === null ) {
-			throw new \RuntimeException( 'You must provide a container via StellarWP\Uplink\Config::set_container() before attempting to fetch it.' );
+			throw new RuntimeException(
+				__( 'You must provide a container via StellarWP\Uplink\Config::set_container() before attempting to fetch it.', '%TEXTDOMAIN%' )
+			);
 		}
 
 		return self::$container;
@@ -48,9 +57,11 @@ class Config {
 	 *
 	 * @return string
 	 */
-	public static function get_hook_prefix() {
+	public static function get_hook_prefix(): string {
 		if ( self::$hook_prefix === null ) {
-			throw new \RuntimeException( 'You must provide a hook prefix via StellarWP\Uplink\Config::set_hook_prefix() before attempting to fetch it.' );
+			throw new RuntimeException(
+				__( 'You must provide a hook prefix via StellarWP\Uplink\Config::set_hook_prefix() before attempting to fetch it.', '%TEXTDOMAIN%' )
+			);
 		}
 
 		return static::$hook_prefix;
@@ -63,9 +74,11 @@ class Config {
 	 *
 	 * @return string
 	 */
-	public static function get_hook_prefix_underscored() {
+	public static function get_hook_prefix_underscored(): string {
 		if ( self::$hook_prefix === null ) {
-			throw new \RuntimeException( 'You must provide a hook prefix via StellarWP\Uplink\Config::set_hook_prefix() before attempting to fetch it.' );
+			throw new RuntimeException(
+				__( 'You must provide a hook prefix via StellarWP\Uplink\Config::set_hook_prefix() before attempting to fetch it.', '%TEXTDOMAIN%' )
+			);
 		}
 
 		return strtolower( str_replace( '-', '_', sanitize_title( static::$hook_prefix ) ) );
@@ -78,7 +91,7 @@ class Config {
 	 *
 	 * @return bool
 	 */
-	public static function has_container() {
+	public static function has_container(): bool {
 		return self::$container !== null;
 	}
 
@@ -89,20 +102,24 @@ class Config {
 	 *
 	 * @return void
 	 */
-	public static function reset() {
+	public static function reset(): void {
 		static::$hook_prefix = '';
+
+		if ( self::has_container() ) {
+			self::$container->singleton( self::TOKEN_OPTION_NAME, null );
+		}
 	}
 
 	/**
 	* Set the container object.
 	*
+    * @since 1.0.0
+    *
 	* @param ContainerInterface $container Container object.
 	*
 	* @return void
-	*@since 1.0.0
-	*
 	*/
-	public static function set_container( ContainerInterface $container ) {
+	public static function set_container( ContainerInterface $container ): void {
 		self::$container = $container;
 	}
 
@@ -115,7 +132,46 @@ class Config {
 	 *
 	 * @return void
 	 */
-	public static function set_hook_prefix( string $prefix ) {
+	public static function set_hook_prefix( string $prefix ): void {
 		static::$hook_prefix = $prefix;
 	}
+
+	/**
+	 * Sets a token options table prefix for storing an origin's authorization token.
+	 *
+	 * This should be the same across all of your products.
+	 *
+	 * @since 1.3.0
+	 *
+	 * @param  string  $prefix
+	 *
+	 * @throws RuntimeException|InvalidArgumentException
+	 *
+	 * @return void
+	 */
+	public static function set_token_auth_prefix( string $prefix ): void {
+		if ( ! self::has_container() ) {
+			throw new RuntimeException(
+				__( 'You must set a container with StellarWP\Uplink\Config::set_container() before setting a token auth prefix.', '%TEXTDOMAIN%' )
+			);
+		}
+
+		$prefix = Sanitize::sanitize_title_with_hyphens( rtrim( $prefix, '_' ) );
+		$key    = sprintf( '%s_%s', $prefix, Token_Manager::TOKEN_SUFFIX );
+
+		// The option_name column in wp_options is a varchar(191)
+		$max_length = 191;
+
+		if ( strlen( $key ) > $max_length ) {
+			throw new InvalidArgumentException(
+				sprintf(
+					__( 'The token auth prefix must be at most %d characters, including a trailing hyphen.', '%TEXTDOMAIN%' ),
+					absint( $max_length - strlen( Token_Manager::TOKEN_SUFFIX ) )
+				)
+			);
+		}
+
+		self::get_container()->singleton( self::TOKEN_OPTION_NAME, $key );
+	}
+
 }

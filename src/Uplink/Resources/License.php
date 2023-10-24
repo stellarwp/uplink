@@ -356,13 +356,25 @@ class License {
 	 * @return bool
 	 */
 	public function set_key( string $key, string $type = 'local' ): bool {
+		$key = Utils\Sanitize::key( $key );
+
 		$this->key = $key;
 
 		if ( 'network' === $type && is_multisite() ) {
-			return update_network_option( 0, $this->get_key_option_name(), Utils\Sanitize::key( $key ) );
+			// WordPress would otherwise return false if the keys already match.
+			if ( $this->get_key_from_network_option() === $key ) {
+				return true;
+			}
+
+			return update_network_option( 0, $this->get_key_option_name(), $key );
 		}
 
-		return update_option( $this->get_key_option_name(), Utils\Sanitize::key( $key ) );
+		// WordPress would otherwise return false if the keys already match.
+		if ( $this->get_key_from_option() === $key ) {
+			return true;
+		}
+
+		return update_option( $this->get_key_option_name(), $key );
 	}
 
 	/**

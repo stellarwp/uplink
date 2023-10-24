@@ -9,7 +9,7 @@ use StellarWP\Uplink\Uplink;
 
 class Plugins_PageTest extends UplinkTestCase {
 
-	public function setUp() {
+	protected function setUp(): void {
 		parent::setUp();
 
 		Register::plugin(

@@ -20,7 +20,7 @@ class Replacement_Key_Test extends UplinkTestCase {
 	 */
 	private $resource;
 
-	public function setUp() {
+	protected function setUp(): void {
 		parent::setUp();
 
 		$this->resource = Register::plugin(

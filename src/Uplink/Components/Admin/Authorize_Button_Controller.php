@@ -208,14 +208,16 @@ final class Authorize_Button_Controller extends Controller {
 			return '';
 		}
 
-		$url = add_query_arg( $_GET, admin_url( $pagenow ) );
+		$url = add_query_arg(
+			array_filter( array_merge( $_GET, [ 'uplink_domain' => $domain ] ) ),
+			admin_url( $pagenow )
+		);
 
 		return sprintf( '%s?%s',
 			$this->auth_url,
-			http_build_query( array_filter( [
-				'uplink_domain'   => $domain,
+			http_build_query( [
 				'uplink_callback' => $this->nonce->create_url( $url ),
-			] ) )
+			] )
 		);
 	}
 

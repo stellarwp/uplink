@@ -230,7 +230,7 @@ abstract class Resource {
 	 *
 	 * @return string
 	 */
-	public function get_license_key( $type = 'local' ): string {
+	public function get_license_key( $type = 'any' ): string {
 		return $this->get_license_object()->get_key( $type );
 	}
 

@@ -216,7 +216,7 @@ final class Authorize_Button_Controller extends Controller {
 		return sprintf( '%s?%s',
 			$this->auth_url,
 			http_build_query( [
-				'uplink_callback' => $this->nonce->create_url( $url ),
+				'uplink_callback' => base64_encode( $this->nonce->create_url( $url ) ),
 			] )
 		);
 	}

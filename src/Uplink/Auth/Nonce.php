@@ -69,7 +69,7 @@ final class Nonce {
 	 * @return string
 	 */
 	public function create_url( string $url ): string {
-		return add_query_arg( '_uplink_nonce', $this->create(), $url );
+		return esc_url_raw( add_query_arg( '_uplink_nonce', $this->create(), $url ) );
 	}
 
 	/**

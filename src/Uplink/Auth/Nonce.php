@@ -62,14 +62,14 @@ final class Nonce {
 	/**
 	 * Attach a nonce to a URL.
 	 *
+	 * @note Unlike WordPress' function, you should escape this manually.
+	 *
 	 * @param  string  $url The existing URL to attach the nonce to.
 	 *
 	 * @return string
 	 */
 	public function create_url( string $url ): string {
-		$url = str_replace( '&amp;', '&', $url );
-
-		return esc_html( add_query_arg( '_uplink_nonce', $this->create(), $url ) );
+		return add_query_arg( '_uplink_nonce', $this->create(), $url );
 	}
 
 	/**

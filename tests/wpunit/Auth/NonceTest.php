@@ -54,8 +54,7 @@ final class NonceTest extends UplinkTestCase {
 	public function test_it_creates_a_nonce_url_with_extra_query_arguments(): void {
 		$url = 'http://wordpress.test/wp-admin/post.php?post=1&action=edit';
 
-		// URL is escaped, reverse that.
-		$nonce_url = html_entity_decode( $this->nonce->create_url( $url ) );
+		$nonce_url = $this->nonce->create_url( $url );
 
 		$this->assertStringStartsWith(
 			'http://wordpress.test/wp-admin/post.php?post=1&action=edit&_uplink_nonce=',

@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink\Messages;
 
 use StellarWP\ContainerContract\ContainerInterface;
+use StellarWP\Uplink\Config;
 
 class Valid_Key extends Message_Abstract {
 	/**
@@ -38,6 +39,7 @@ class Valid_Key extends Message_Abstract {
 		} else {
 			$message = __( 'Valid key!', '%TEXTDOMAIN%' );
 		}
+		$message = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/messages/valid_key', $message, $this->expiration );
 
 		return esc_html( $message );
 	}

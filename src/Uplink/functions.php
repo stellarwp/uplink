@@ -13,11 +13,15 @@ use Throwable;
  * token locally by disconnecting.
  *
  * @param string $slug The Product slug to render the button for.
+ * @param string $domain An optional domain associated with a license key to pass along.
  */
-function render_authorize_button( string $slug ): void {
+function render_authorize_button( string $slug, string $domain = '' ): void {
 	try {
 		Config::get_container()->get( Authorize_Button_Controller::class )
-		                       ->render( [ 'slug' => $slug ] );
+			->render( [
+				'slug'   => $slug,
+				'domain' => $domain,
+			] );
 	} catch ( Throwable $e ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( "Unable to render authorize button: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );

@@ -219,6 +219,13 @@ functionality:
 \StellarWP\Uplink\render_authorize_button( 'kadence-blocks-pro' );
 ```
 
+You can also pass in a custom license domain, which can be fetched on the Uplink Origin side from the `uplink_domain` query variable:
+
+```php
+// Call the namespaced function with your plugin slug and license domain.
+\StellarWP\Uplink\render_authorize_button( 'kadence-blocks-pro', 'customer-site.com' );
+```
+
 > 💡 The button is very customizable with filters, see [Authorize_Button_Controller.php](src/Uplink/Components/Admin/Authorize_Button_Controller.php).
 
 ### Manually Check if a License is Remotely Authorized

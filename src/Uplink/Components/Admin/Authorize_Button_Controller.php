@@ -72,7 +72,7 @@ final class Authorize_Button_Controller extends Controller {
 	/**
 	 * Renders the authorize-button view.
 	 *
-	 * @param  array{slug?: string} $args The Product slug.
+	 * @param  array{slug?: string, domain?: string} $args The Product slug and license domain.
 	 *
 	 * @see src/views/admin/authorize-button.php
 	 *
@@ -81,7 +81,8 @@ final class Authorize_Button_Controller extends Controller {
 	public function render( array $args = [] ): void {
 		global $pagenow;
 
-		$slug = $args['slug'] ?? '';
+		$slug   = $args['slug'] ?? '';
+		$domain = $args['domain'] ?? '';
 
 		if ( empty ( $slug ) ) {
 			throw new InvalidArgumentException( __( 'The Product slug cannot be empty', '%TEXTDOMAIN%' ) );
@@ -96,7 +97,7 @@ final class Authorize_Button_Controller extends Controller {
 		$authenticated = false;
 		$target        = '_blank';
 		$link_text     = __( 'Connect', '%TEXTDOMAIN%' );
-		$url           = $this->build_auth_url();
+		$url           = $this->build_auth_url( $domain );
 		$classes       = [
 			'uplink-authorize',
 			'not-authorized',
@@ -200,14 +201,17 @@ final class Authorize_Button_Controller extends Controller {
 	 *
 	 * Build the callback URL with the current URL the user is on.
 	 */
-	private function build_auth_url(): string {
+	private function build_auth_url( string $domain ): string {
 		global $pagenow;
 
 		if ( empty( $pagenow ) ) {
 			return '';
 		}
 
-		$url = add_query_arg( $_GET, admin_url( $pagenow ) );
+		$url = add_query_arg(
+			array_filter( array_merge( $_GET, [ 'uplink_domain' => $domain ] ) ),
+			admin_url( $pagenow )
+		);
 
 		return sprintf( '%s?%s',
 			$this->auth_url,

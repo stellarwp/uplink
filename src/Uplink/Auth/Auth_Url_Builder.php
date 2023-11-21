@@ -31,6 +31,8 @@ final class Auth_Url_Builder {
 	/**
 	 * Build a brand's authorization URL, with the uplink_callback base64 query variable.
 	 *
+	 * @note This URL requires escaping.
+	 *
 	 * @param  string  $slug  The product/service slug.
 	 * @param  string  $domain  An optional domain associated with a license key to pass along.
 	 *

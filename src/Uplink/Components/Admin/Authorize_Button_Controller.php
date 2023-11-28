@@ -3,10 +3,9 @@
 namespace StellarWP\Uplink\Components\Admin;
 
 use InvalidArgumentException;
-use StellarWP\Uplink\API\V3\Auth\Contracts\Auth_Url;
 use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
+use StellarWP\Uplink\Auth\Auth_Url_Builder;
 use StellarWP\Uplink\Auth\Authorizer;
-use StellarWP\Uplink\Auth\Nonce;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Components\Controller;
 use StellarWP\Uplink\Config;
@@ -30,43 +29,27 @@ final class Authorize_Button_Controller extends Controller {
 	private $token_manager;
 
 	/**
-	 * @var Nonce
+	 * @var Auth_Url_Builder
 	 */
-	private $nonce;
-
-	/**
-	 * @var Auth_Url
-	 */
-	private $auth_url_manager;
-
-	/**
-	 * The auth URL for the origin as fetched remotely from the
-	 * licensing server when we want to render the button.
-	 *
-	 * @var string
-	 */
-	private $auth_url = '';
+	private $url_builder;
 
 	/**
 	 * @param  View  $view  The View Engine to render views.
 	 * @param  Authorizer  $authorizer  Determines if the current user can perform actions.
 	 * @param  Token_Manager  $token_manager  The Token Manager.
-	 * @param  Nonce  $nonce  The Nonce Manager.
-	 * @param  Auth_Url  $auth_url_manager  The Brand Auth URL fetcher.
+	 * @param  Auth_Url_Builder  $url_builder  The Auth URL Builder.
 	 */
 	public function __construct(
 		View $view,
 		Authorizer $authorizer,
 		Token_Manager $token_manager,
-		Nonce $nonce,
-		Auth_Url $auth_url_manager
+		Auth_Url_Builder $url_builder
 	) {
 		parent::__construct( $view );
 
-		$this->authorizer       = $authorizer;
-		$this->token_manager    = $token_manager;
-		$this->nonce            = $nonce;
-		$this->auth_url_manager = $auth_url_manager;
+		$this->authorizer    = $authorizer;
+		$this->token_manager = $token_manager;
+		$this->url_builder   = $url_builder;
 	}
 
 	/**
@@ -88,16 +71,15 @@ final class Authorize_Button_Controller extends Controller {
 			throw new InvalidArgumentException( __( 'The Product slug cannot be empty', '%TEXTDOMAIN%' ) );
 		}
 
-		$this->auth_url = $this->auth_url_manager->get( $slug );
+		$url = $this->url_builder->build( $slug, $domain );
 
-		if ( ! $this->auth_url ) {
+		if ( ! $url ) {
 			return;
 		}
 
 		$authenticated = false;
 		$target        = '_blank';
 		$link_text     = __( 'Connect', '%TEXTDOMAIN%' );
-		$url           = $this->build_auth_url( $domain );
 		$classes       = [
 			'uplink-authorize',
 			'not-authorized',
@@ -194,31 +176,6 @@ final class Authorize_Button_Controller extends Controller {
 			'tag'       => $tag,
 			'classes'   => $this->classes( $classes ),
 		] );
-	}
-
-	/**
-	 * We assume this button is only displayed within wp-admin,
-	 *
-	 * Build the callback URL with the current URL the user is on.
-	 */
-	private function build_auth_url( string $domain ): string {
-		global $pagenow;
-
-		if ( empty( $pagenow ) ) {
-			return '';
-		}
-
-		$url = add_query_arg(
-			array_filter( array_merge( $_GET, [ 'uplink_domain' => $domain ] ) ),
-			admin_url( $pagenow )
-		);
-
-		return sprintf( '%s?%s',
-			$this->auth_url,
-			http_build_query( [
-				'uplink_callback' => $this->nonce->create_url( $url ),
-			] )
-		);
 	}
 
 }

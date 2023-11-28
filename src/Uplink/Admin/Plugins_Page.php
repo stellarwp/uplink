@@ -242,7 +242,7 @@ class Plugins_Page {
 	 * @return mixed
 	 */
 	public function inject_info( $result, string $action = null, $args = null ) {
-		$relevant = ( 'plugin_information' === $action ) && isset( $args->slug ) && ( $args->slug === $this->get_plugin()->get_slug() );
+		$relevant = ( 'plugin_information' === $action ) && is_object( $args ) && isset( $args->slug ) && ( $args->slug === $this->get_plugin()->get_slug() );
 
 		if ( ! $relevant ) {
 			return $result;

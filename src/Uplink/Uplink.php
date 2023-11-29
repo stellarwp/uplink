@@ -7,6 +7,8 @@ use StellarWP\ContainerContract\ContainerInterface;
 
 class Uplink {
 
+	public const UPLINK_ASSETS_URI = 'uplink.assets.uri';
+
 	/**
 	 * Initializes the service provider.
 	 *
@@ -23,6 +25,7 @@ class Uplink {
 
 		$container = Config::get_container();
 
+		$container->singleton( self::UPLINK_ASSETS_URI, dirname( plugin_dir_url( __FILE__ ) ) . '/assets' );
 		$container->bind( ContainerInterface::class, $container );
 		$container->singleton( View\Provider::class, View\Provider::class );
 		$container->singleton( API\Client::class, API\Client::class );

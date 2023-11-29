@@ -22,7 +22,9 @@ class License_Field extends Field {
 	 * @var string
 	 */
 	private $handle;
-
+	/**
+	 * Constructor. Initializes handle.
+	 */
 	public function __construct() {
 		$this->handle = sprintf( 'stellarwp-uplink-license-admin-%s', Config::get_hook_prefix() );
 	}

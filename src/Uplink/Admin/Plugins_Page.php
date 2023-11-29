@@ -15,7 +15,7 @@ class Plugins_Page {
 	 *
 	 * @var array<mixed>
 	 */
-	public array $plugin_notice = [];
+	public $plugin_notice = [];
 
 	/**
 	 * Displays messages on the plugins page in the dashboard.
@@ -26,7 +26,7 @@ class Plugins_Page {
 	 *
 	 * @return void
 	 */
-	public function display_plugin_messages( string $page ) {
+	public function display_plugin_messages( string $page ): void {
 		if ( 'plugins.php' !== $page ) {
 			return;
 		}
@@ -126,7 +126,7 @@ class Plugins_Page {
 	 *
 	 * @return void
 	 */
-	public function store_admin_notices( string $page ) {
+	public function store_admin_notices( string $page ): void {
 		if ( 'plugins.php' !== $page ) {
 			return;
 		}
@@ -141,8 +141,8 @@ class Plugins_Page {
 	 *
 	 * @return void
 	 */
-	public function output_notices_script() {
-		$slug = $this->get_plugin()->get_slug();
+	public function output_notices_script(): void {
+		$slug   = $this->get_plugin()->get_slug();
 		$notice = $this->get_plugin_notice();
 
 		if ( empty( $notice ) ) {
@@ -203,7 +203,7 @@ class Plugins_Page {
 	 *
 	 * @return void
 	 */
-	public function remove_default_inline_update_msg() {
+	public function remove_default_inline_update_msg(): void {
 		remove_action( "after_plugin_row_{$this->get_plugin()->get_path()}", 'wp_plugin_update_row' );
 	}
 
@@ -235,13 +235,13 @@ class Plugins_Page {
 	 *
 	 * @see plugins_api()
 	 *
-	 * @param mixed               $result
-	 * @param string              $action
-	 * @param array<mixed>|object $args
+	 * @param mixed  $result
+	 * @param  string|null  $action
+	 * @param  array<mixed>|object|null  $args
 	 *
 	 * @return mixed
 	 */
-	public function inject_info( $result, string $action = null, $args = null ) {
+	public function inject_info( $result, ?string $action = null, $args = null ) {
 		$relevant = ( 'plugin_information' === $action ) && is_object( $args ) && isset( $args->slug ) && ( $args->slug === $this->get_plugin()->get_slug() );
 
 		if ( ! $relevant ) {

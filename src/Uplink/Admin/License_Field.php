@@ -5,12 +5,16 @@ namespace StellarWP\Uplink\Admin;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Resources\Plugin;
+use StellarWP\Uplink\Uplink;
 
 class License_Field extends Field {
 
 	public const LICENSE_FIELD_ID = 'stellarwp_uplink_license';
 
-	protected string $path = '/admin-views/fields/settings.php';
+	/**
+	 * @var string
+	 */
+	protected $path = '/admin-views/fields/settings.php';
 
 	/**
 	 * @param Plugin $plugin
@@ -26,7 +30,7 @@ class License_Field extends Field {
 	 *
 	 * @return void
 	 */
-	public function register_settings() {
+	public function register_settings(): void {
 		$collection = Config::get_container()->get( Collection::class );
 		$plugin     = $collection->current();
 
@@ -77,7 +81,7 @@ class License_Field extends Field {
 	/**
 	 * @inheritDoc
 	 */
-	public function render( bool $show_title = true, bool $show_button = true ) {
+	public function render( bool $show_title = true, bool $show_button = true ): void {
 		echo $this->get_content( [
 			'plugin'      => $this->get_plugin(),
 			'show_title'  => $show_title,
@@ -90,16 +94,16 @@ class License_Field extends Field {
 	 *
 	 * @return void
 	 */
-	public function enqueue_assets() {
+	public function enqueue_assets(): void {
+		$path   = Config::get_container()->get( Uplink::UPLINK_ASSETS_URI );
 		$handle = sprintf( 'stellarwp-uplink-license-admin-%s', Config::get_hook_prefix() );
-		$path   = preg_replace( '/.*\/vendor/', plugin_dir_url( $this->get_plugin()->get_path() ) . 'vendor', dirname( __DIR__, 2 ) );
-		$js_src = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/admin_js_source', $path . '/assets/js/key-admin.js' );
+		$js_src = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/admin_js_source', $path . '/js/key-admin.js' );
 		wp_register_script( $handle, $js_src, [ 'jquery' ], '1.0.0', true );
 		wp_enqueue_script( $handle );
 		$action_postfix = Config::get_hook_prefix_underscored();
 		wp_localize_script( $handle, sprintf( 'stellarwp_config_%s', $action_postfix ), [ 'action' => sprintf( 'pue-validate-key-uplink-%s', $action_postfix ) ] );
 
-		$css_src = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/admin_css_source', $path . '/assets/css/main.css' );
+		$css_src = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/admin_css_source', $path . '/css/main.css' );
 		wp_enqueue_style( $handle, $css_src );
 	}
 }

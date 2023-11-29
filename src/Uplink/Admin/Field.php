@@ -17,21 +17,21 @@ abstract class Field {
 	 *
 	 * @var string
 	 */
-	protected string $path = '';
+	protected $path = '';
 
 	/**
 	 * @since 1.0.0
 	 *
 	 * @return void
 	 */
-	abstract public function register_settings();
+	abstract public function register_settings(): void;
 
 	/**
 	 * @param array<string> $args
 	 *
 	 * @return void
 	 */
-	public function get_description( array $args = [] ) {
+	public function get_description( array $args = [] ): void {
 		if ( empty( $args['description'] ) ) {
 			return;
 		}
@@ -71,7 +71,7 @@ abstract class Field {
 	 *
 	 * @return void
 	 */
-	public function field_html( array $args = [] ) {
+	public function field_html( array $args = [] ): void {
 		$field = sprintf(
 			'<div class="%6$s" id="%2$s" data-slug="%2$s" data-plugin="%9$s" data-plugin-slug="%10$s">
                     <fieldset class="stellarwp-uplink__settings-group">
@@ -112,7 +112,7 @@ abstract class Field {
 	 *
 	 * @return void
 	 */
-	abstract public function render( bool $show_title = true, bool $show_button = true );
+	abstract public function render( bool $show_title = true, bool $show_button = true ): void;
 
 	/**
 	 * @param array<mixed> $context
@@ -155,11 +155,11 @@ abstract class Field {
 	 * @since 1.0.0
 	 *
 	 * @param string $page Slug title of the admin page whose settings fields you want to show.
-	 * @param string $page Slug title of the admin page whose settings fields you want to show.
+	 * @param string $section Slug title of the settings section whose fields you want to show.
 	 * @param string $plugin_slug Slug title of the settings section whose fields you want to show.
 	 * @param bool   $show_title Whether to show the title or not.
 	 */
-	public function do_settings_fields( string $page, string $section, string $plugin_slug, bool $show_title = true ) {
+	public function do_settings_fields( string $page, string $section, string $plugin_slug, bool $show_title = true ): void {
 		global $wp_settings_fields;
 
 		if ( ! isset( $wp_settings_fields[ $page ][ $section ] ) ) {

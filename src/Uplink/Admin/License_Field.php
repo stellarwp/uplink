@@ -17,6 +17,17 @@ class License_Field extends Field {
 	protected $path = '/admin-views/fields/settings.php';
 
 	/**
+	 * The script and style handle when registering assets for this field.
+	 *
+	 * @var string
+	 */
+	private $handle;
+
+	public function __construct() {
+		$this->handle = sprintf( 'stellarwp-uplink-license-admin-%s', Config::get_hook_prefix() );
+	}
+
+	/**
 	 * @param Plugin $plugin
 	 *
 	 * @return string
@@ -82,6 +93,9 @@ class License_Field extends Field {
 	 * @inheritDoc
 	 */
 	public function render( bool $show_title = true, bool $show_button = true ): void {
+		wp_enqueue_script( $this->handle );
+		wp_enqueue_style( $this->handle );
+
 		echo $this->get_content( [
 			'plugin'      => $this->get_plugin(),
 			'show_title'  => $show_title,
@@ -96,14 +110,13 @@ class License_Field extends Field {
 	 */
 	public function enqueue_assets(): void {
 		$path   = Config::get_container()->get( Uplink::UPLINK_ASSETS_URI );
-		$handle = sprintf( 'stellarwp-uplink-license-admin-%s', Config::get_hook_prefix() );
 		$js_src = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/admin_js_source', $path . '/js/key-admin.js' );
-		wp_register_script( $handle, $js_src, [ 'jquery' ], '1.0.0', true );
-		wp_enqueue_script( $handle );
+		wp_register_script( $this->handle, $js_src, [ 'jquery' ], '1.0.0', true );
+
 		$action_postfix = Config::get_hook_prefix_underscored();
-		wp_localize_script( $handle, sprintf( 'stellarwp_config_%s', $action_postfix ), [ 'action' => sprintf( 'pue-validate-key-uplink-%s', $action_postfix ) ] );
+		wp_localize_script( $this->handle, sprintf( 'stellarwp_config_%s', $action_postfix ), [ 'action' => sprintf( 'pue-validate-key-uplink-%s', $action_postfix ) ] );
 
 		$css_src = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/admin_css_source', $path . '/css/main.css' );
-		wp_enqueue_style( $handle, $css_src );
+		wp_register_style( $this->handle, $css_src );
 	}
 }

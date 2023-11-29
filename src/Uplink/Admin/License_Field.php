@@ -30,6 +30,10 @@ class License_Field extends Field {
 		$collection = Config::get_container()->get( Collection::class );
 		$plugin     = $collection->current();
 
+		if ( ! $plugin ) {
+			return;
+		}
+
 		add_settings_section(
 			sprintf( '%s_%s', self::LICENSE_FIELD_ID, sanitize_title( $plugin->get_slug() ) ),
 			'',
@@ -78,8 +82,14 @@ class License_Field extends Field {
 	 * @inheritDoc
 	 */
 	public function render( bool $show_title = true, bool $show_button = true ) {
+		$plugin = $this->get_plugin();
+
+		if ( ! $plugin ) {
+			return;
+		}
+
 		echo $this->get_content( [
-			'plugin'      => $this->get_plugin(),
+			'plugin'      => $plugin,
 			'show_title'  => $show_title,
 			'show_button' => $show_button,
 		] );
@@ -91,8 +101,14 @@ class License_Field extends Field {
 	 * @return void
 	 */
 	public function enqueue_assets() {
+		$plugin = $this->get_plugin();
+
+		if ( ! $plugin ) {
+			return;
+		}
+
 		$handle = sprintf( 'stellarwp-uplink-license-admin-%s', Config::get_hook_prefix() );
-		$path   = preg_replace( '/.*\/vendor/', plugin_dir_url( $this->get_plugin()->get_path() ) . 'vendor', dirname( __DIR__, 2 ) );
+		$path   = preg_replace( '/.*\/vendor/', plugin_dir_url( $plugin->get_path() ) . 'vendor', dirname( __DIR__, 2 ) );
 		$js_src = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/admin_js_source', $path . '/assets/js/key-admin.js' );
 		wp_register_script( $handle, $js_src, [ 'jquery' ], '1.0.0', true );
 		wp_enqueue_script( $handle );

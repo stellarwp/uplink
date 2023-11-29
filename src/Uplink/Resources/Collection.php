@@ -30,11 +30,11 @@ class Collection implements ArrayAccess, Iterator {
 	}
 
 	/**
-	 * @return Resource
+	 * @return Resource|bool
 	 */
 	#[\ReturnTypeWillChange]
-	public function current(): Resource {
-		return current( $this->resources );
+	public function current() {
+		return ( ! $this->resources ) ? current( $this->resources ) : false;
 	}
 
 	/**

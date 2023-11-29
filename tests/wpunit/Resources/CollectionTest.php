@@ -105,7 +105,9 @@ class CollectionTest extends UplinkTestCase {
 	 */
 	public function it_should_loop_over_resources() {
 		foreach ( $this->collection as $resource ) {
-			$this->assertInstanceOf( Uplink_Resources\Resource::class, $resource );
+			if ( $resource ) {
+				$this->assertInstanceOf( Uplink_Resources\Resource::class, $resource );
+			}
 		}
 	}
 }

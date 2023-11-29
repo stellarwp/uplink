@@ -32,6 +32,10 @@ class Path_FilterIterator extends \FilterIterator implements \Countable {
 	public function accept(): bool {
 		$resource = $this->getInnerIterator()->current();
 
+		if ( ! $resource ) {
+			return false;
+		}
+
 		return in_array( $resource->get_path(), $this->paths, true );
 	}
 

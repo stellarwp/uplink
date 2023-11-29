@@ -31,8 +31,14 @@ class Plugins_Page {
 			return;
 		}
 
-		$messages       = [];
-		$plugin_file    = $this->get_plugin()->get_path();
+		$messages = [];
+		$plugin   = $this->get_plugin();
+
+		if ( ! $plugin ) {
+			return;
+		}
+
+		$plugin_file    = $plugin->get_path();
 		$plugin_updates = get_plugin_updates();
 		$resource       = $plugin_updates[ $plugin_file ] ?? null;
 
@@ -72,7 +78,7 @@ class Plugins_Page {
 			} else {
 				$update_message = sprintf(
 					esc_html__( 'There is a new version of %1$s available. %2$s', '%TEXTDOMAIN%' ),
-					$this->get_plugin()->get_name(),
+					$plugin->get_name(),
 					$update_now_link
 				);
 			}
@@ -103,7 +109,7 @@ class Plugins_Page {
 		);
 
 		$this->plugin_notice = [
-			'slug'             => $this->get_plugin()->get_slug(),
+			'slug'             => $plugin->get_slug(),
 			'message_row_html' => $message_row_html,
 		];
 	}
@@ -142,7 +148,13 @@ class Plugins_Page {
 	 * @return void
 	 */
 	public function output_notices_script() {
-		$slug = $this->get_plugin()->get_slug();
+		$plugin = $this->get_plugin();
+
+		if ( ! $plugin ) {
+			return;
+		}
+
+		$slug = $plugin->get_slug();
 		$notice = $this->get_plugin_notice();
 
 		if ( empty( $notice ) ) {
@@ -204,7 +216,13 @@ class Plugins_Page {
 	 * @return void
 	 */
 	public function remove_default_inline_update_msg() {
-		remove_action( "after_plugin_row_{$this->get_plugin()->get_path()}", 'wp_plugin_update_row' );
+		$plugin = $this->get_plugin();
+
+		if ( ! $plugin ) {
+			return;
+		}
+
+		remove_action( "after_plugin_row_{$plugin->get_path()}", 'wp_plugin_update_row' );
 	}
 
 	/**
@@ -214,7 +232,13 @@ class Plugins_Page {
 	 */
 	public function check_for_updates( $transient ) {
 		try {
-			return $this->get_plugin()->check_for_updates( $transient );
+			$plugin = $this->get_plugin();
+
+			if ( ! $plugin ) {
+				return $transient;
+			}
+
+			return $plugin->check_for_updates( $transient );
 		} catch ( \Throwable $exception ) {
 			return $transient;
 		}
@@ -242,13 +266,19 @@ class Plugins_Page {
 	 * @return mixed
 	 */
 	public function inject_info( $result, string $action = null, $args = null ) {
-		$relevant = ( 'plugin_information' === $action ) && is_object( $args ) && isset( $args->slug ) && ( $args->slug === $this->get_plugin()->get_slug() );
+		$plugin = $this->get_plugin();
+
+		if ( ! $plugin ) {
+			return $result;
+		}
+
+		$relevant = ( 'plugin_information' === $action ) && is_object( $args ) && isset( $args->slug ) && ( $args->slug === $plugin->get_slug() );
 
 		if ( ! $relevant ) {
 			return $result;
 		}
 
-		$plugin_info = $this->get_plugin()->validate_license();
+		$plugin_info = $plugin->validate_license();
 
 		if ( $plugin_info ) {
 			return $plugin_info->to_wp_format();

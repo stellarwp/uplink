@@ -75,6 +75,7 @@ class License_Field extends Field {
 					'html'         => $this->get_field_html( $resource ),
 					'html_classes' => 'stellarwp-uplink-license-key-field',
 					'plugin'       => $resource->get_path(),
+					'plugin_slug'  => $resource->get_slug(),
 				]
 			);
 		}

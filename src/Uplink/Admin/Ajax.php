@@ -26,6 +26,7 @@ class Ajax {
 		$submission = [
 			'_wpnonce' => sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ?? '' ) ),
 			'plugin'   => sanitize_text_field( wp_unslash( $_POST['plugin'] ?? '' ) ),
+			'slug'     => sanitize_text_field( wp_unslash( $_POST['slug'] ?? '' ) ),
 			'key'      => Utils\Sanitize::key( wp_unslash( $_POST['key'] ?? '' ) ),
 		];
 
@@ -37,32 +38,25 @@ class Ajax {
 		}
 
 		$collection = $this->container->get( Collection::class );
-		$plugins    = $collection->get_by_path( $submission['plugin'] );
+		$plugin     = $collection->offsetGet( $submission['slug'] );
 
-		if ( ! $plugins->count() ) {
+		if ( ! $plugin ) {
 			wp_send_json_error( [
 				'message'    => sprintf(
-					__( 'Error: The plugin with path "%s" was not found. It is impossible to validate the license key, please contact the plugin author.', '%TEXTDOMAIN%' ),
-					$submission['plugin']
+					__( 'Error: The plugin with slug "%s" was not found. It is impossible to validate the license key, please contact the plugin author.', '%TEXTDOMAIN%' ),
+					$submission['slug']
 				),
 				'submission' => $submission,
 			] );
 		}
 
-		$payload = [];
+		$results = $plugin->validate_license( $submission['key'] );
+		$message = is_plugin_active_for_network( $submission['plugin'] ) ? $results->get_network_message()->get() : $results->get_message()->get();
 
-		foreach ( $plugins as $plugin ) {
-			$results = $plugin->validate_license( $submission['key'] );
-			$message = is_plugin_active_for_network( $submission['plugin'] ) ? $results->get_network_message()->get() : $results->get_message()->get();
-
-			$payload[] = [
-				'plugin'  => $plugin->get_slug(),
-				'status'  => absint( $results->is_valid() ),
-				'message' => $message,
-			];
-		}
-
-		wp_send_json( $payload );
+		wp_send_json( [
+			'status'  => absint( $results->is_valid() ),
+			'message' => $message,
+		] );
 	}
 
 }

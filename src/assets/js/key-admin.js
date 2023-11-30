@@ -1,6 +1,4 @@
 ( function( $, obj ) {
-
-	// TODO: This all needs a look over for the situation where multiple license fields appear together.
 	obj.init = function() {
 		$( '.stellarwp-uplink-license-key-field' ).each( function() {
 			var $el = $( this );
@@ -21,6 +19,7 @@
 
 	obj.validateKey = function( $el ) {
 		const field       	 = $el.find( 'input[type="text"]' )
+		const action	     = $el.data( 'action' );
 		const plugin         = $el.data( 'plugin' );
 		const slug           = $el.data( 'plugin-slug' );
 		let $validityMessage = $el.find( '.key-validity' );
@@ -40,29 +39,28 @@
 		field.val( licenseKey );
 
 		const data = {
-			action: window[`stellarwp_config_${slug}`]['action'],
+			action: window[`stellarwp_config_${action}`]['action'],
 			plugin: plugin,
+			slug: slug,
 			key: licenseKey,
 			_wpnonce: $($el).find('.wp-nonce').val()
 		};
 
 		$.post(ajaxurl, data, function (response) {
-			$.each(response, function (index, value) {
-				$validityMessage.show();
-				$validityMessage.html(value.message);
+			$validityMessage.show();
+			$validityMessage.html(response.message);
 
-				switch (value.status) {
-					case 1:
-						$validityMessage.addClass('valid-key').removeClass('invalid-key');
-						break;
-					case 2:
-						$validityMessage.addClass('valid-key service-msg');
-						break;
-					default:
-						$validityMessage.addClass('invalid-key').removeClass('valid-key');
-						break;
-				}
-			});
+			switch (response.status) {
+				case 1:
+					$validityMessage.addClass('valid-key').removeClass('invalid-key');
+					break;
+				case 2:
+					$validityMessage.addClass('valid-key service-msg');
+					break;
+				default:
+					$validityMessage.addClass('invalid-key').removeClass('valid-key');
+					break;
+			}
 		}).fail(function(error) {
 			$validityMessage.show();
 			$validityMessage.html(error.message);

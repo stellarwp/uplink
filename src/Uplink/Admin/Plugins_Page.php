@@ -2,7 +2,6 @@
 
 namespace StellarWP\Uplink\Admin;
 
-use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Messages;
 use StellarWP\Uplink\Resources\Collection;

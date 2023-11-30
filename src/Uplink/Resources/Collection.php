@@ -209,6 +209,11 @@ class Collection implements ArrayAccess, Iterator, Countable {
 		return count( $this->resources );
 	}
 
+	/**
+	 * Returns a clone of the underlying iterator.
+	 *
+	 * @return ArrayIterator
+	 */
 	public function getIterator(): ArrayIterator {
 		return new ArrayIterator( $this->resources );
 	}

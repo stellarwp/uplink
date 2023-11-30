@@ -1,8 +1,7 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace StellarWP\Uplink\Admin;
 
-use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Resources\Collection;
 
@@ -25,6 +24,18 @@ abstract class Field {
 	 * @return void
 	 */
 	abstract public function register_settings(): void;
+
+	/**
+	 * Renders the field.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param bool $show_title Whether to show the title or not.
+	 * @param bool $show_button Whether to show the submit button or not.
+	 *
+	 * @return void
+	 */
+	abstract public function render( bool $show_title = true, bool $show_button = true ): void;
 
 	/**
 	 * @param array<string> $args
@@ -105,16 +116,6 @@ abstract class Field {
 	}
 
 	/**
-	 * @since 1.0.0
-	 *
-	 * @param bool $show_title Whether to show the title or not.
-	 * @param bool $show_button Whether to show the submit button or not.
-	 *
-	 * @return void
-	 */
-	abstract public function render( bool $show_title = true, bool $show_button = true ): void;
-
-	/**
 	 * @param array<mixed> $context
 	 *
 	 * @return false|string
@@ -135,12 +136,12 @@ abstract class Field {
 	}
 
 	/**
-	 * @return false|mixed
+	 * Get the collection of Plugins/Services.
+	 *
+	 * @return Collection
 	 */
-	protected function get_plugin() {
-		$collection = Config::get_container()->get( Collection::class );
-
-		return $collection->current();
+	protected function get_resources(): Collection {
+		return Config::get_container()->get( Collection::class );
 	}
 
 	/**

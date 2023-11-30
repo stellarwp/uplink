@@ -1,11 +1,10 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace StellarWP\Uplink\Admin;
 
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Resources\Collection;
-use StellarWP\Uplink\Resources\Plugin;
 use WP_Error;
 use WP_Upgrader;
 
@@ -27,7 +26,7 @@ class Update_Prevention {
 
 	/**
 	 * Checks for the list of constants associate with plugin to make sure we are dealing
-	 * with a plugin owned by The Events Calendar.
+	 * with a plugin owned by the plugin using this library.
 	 *
 	 * @since  4.9.12
 	 *
@@ -37,15 +36,13 @@ class Update_Prevention {
 	 */
 	public function is_stellar_uplink_resource( string $plugin ): bool {
 		$collection = $this->container->get( Collection::class );
-		$resource   = $collection->get_by_path( $plugin );
+		$resources  = $collection->get_by_path( $plugin );
 
-		foreach ( $resource as $data ) {
-			if ( $data instanceof Plugin ) {
-				return true;
-			}
+		if ( ! $resources->count() ) {
+			return false;
 		}
 
-		return false;
+		return (bool) $collection->get_plugins( $resources )->count();
 	}
 
 	/**
@@ -85,7 +82,7 @@ class Update_Prevention {
 		}
 
 		/**
-		 * Filter the if we should prevent the update.
+		 * Filter if we should prevent the update.
 		 *
 		 * @since  4.9.12
 		 *
@@ -118,6 +115,7 @@ class Update_Prevention {
 
 		$link_read_more = '<a href="http://evnt.is/1aev" target="_blank">' . esc_html__( 'Read more', '%TEXTDOMAIN%' ) . '.</a>';
 
+		// @TODO: Matt wants to adjust this.
 		$message = sprintf(
 			esc_html__( 'Your update failed due to an incompatibility between the version (%1$s) of the %2$s you tried to update to. %3$s', '%TEXTDOMAIN%' ),
 			esc_html( $plugin_data['Version'] ),

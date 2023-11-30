@@ -1,18 +1,32 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace StellarWP\Uplink\Resources;
 
 use ArrayAccess;
+use ArrayIterator;
+use Countable;
 use Iterator;
+use Traversable;
 
-class Collection implements ArrayAccess, Iterator {
+class Collection implements ArrayAccess, Iterator, Countable {
 
 	/**
 	 * Collection of resources.
 	 *
 	 * @var array<string, Resource>
 	 */
-	private $resources = [];
+	private $resources;
+
+	/**
+	 * @param  Iterator|array<string, Resource>  $resources
+	 */
+	public function __construct( $resources = [] ) {
+		if ( $resources instanceof Traversable ) {
+			$resources = iterator_to_array( $resources );
+		}
+
+		$this->resources = $resources;
+	}
 
 	/**
 	 * Adds a resource to the collection.
@@ -24,7 +38,9 @@ class Collection implements ArrayAccess, Iterator {
 	 * @return Resource
 	 */
 	public function add( Resource $resource ) {
-		$this->offsetSet( $resource->get_slug(), $resource );
+		if ( ! $this->offsetExists( $resource->get_slug() ) ) {
+			$this->offsetSet( $resource->get_slug(), $resource );
+		}
 
 		return $this->offsetGet( $resource->get_slug() );
 	}
@@ -43,12 +59,14 @@ class Collection implements ArrayAccess, Iterator {
 	 * @since 1.0.0
 	 *
 	 * @param string $path Path to filter collection by.
-	 * @param Iterator $iterator Optional. Iterator to filter.
+	 * @param Iterator|null  $iterator Optional. Iterator to filter.
 	 *
-	 * @return Filters\Path_FilterIterator
+	 * @return Collection
 	 */
-	public function get_by_path( string $path, $iterator = null ) {
-		return new Filters\Path_FilterIterator( $iterator ?: $this, [ $path ] );
+	public function get_by_path( string $path, ?Iterator $iterator = null ): Collection {
+		$results = new Filters\Path_FilterIterator( $iterator ?: $this->getIterator(), [ $path ] );
+
+		return new self( $results );
 	}
 
 	/**
@@ -57,12 +75,14 @@ class Collection implements ArrayAccess, Iterator {
 	 * @since 1.0.0
 	 *
 	 * @param array<string> $paths Paths to filter collection by.
-	 * @param Iterator $iterator Optional. Iterator to filter.
+	 * @param Iterator|null  $iterator Optional. Iterator to filter.
 	 *
-	 * @return Filters\Path_FilterIterator
+	 * @return Collection
 	 */
-	public function get_by_paths( array $paths, $iterator = null ) {
-		return new Filters\Path_FilterIterator( $iterator ?: $this, $paths );
+	public function get_by_paths( array $paths, ?Iterator $iterator = null ): Collection {
+		$results = new Filters\Path_FilterIterator( $iterator ?: $this->getIterator(), $paths );
+
+		return new self( $results );
 	}
 
 	/**
@@ -70,12 +90,14 @@ class Collection implements ArrayAccess, Iterator {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Iterator $iterator Optional. Iterator to filter.
+	 * @param  Iterator|null  $iterator Optional. Iterator to filter.
 	 *
-	 * @return Filters\Plugin_FilterIterator
+	 * @return Collection
 	 */
-	public function get_plugins( $iterator = null ) {
-		return new Filters\Plugin_FilterIterator( $iterator ?: $this );
+	public function get_plugins( ?Iterator $iterator = null ): Collection {
+		$results = new Filters\Plugin_FilterIterator( $iterator ?: $this->getIterator() );
+
+		return new self( $results );
 	}
 
 	/**
@@ -83,12 +105,14 @@ class Collection implements ArrayAccess, Iterator {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Iterator $iterator Optional. Iterator to filter.
+	 * @param  Iterator|null  $iterator Optional. Iterator to filter.
 	 *
-	 * @return Filters\Service_FilterIterator
+	 * @return Collection
 	 */
-	public function get_services( $iterator = null ) {
-		return new Filters\Service_FilterIterator( $iterator ?: $this );
+	public function get_services( ?Iterator $iterator = null ): Collection {
+		$results = new Filters\Service_FilterIterator( $iterator ?: $this->getIterator() );
+
+		return new self( $results );
 	}
 
 	/**
@@ -144,7 +168,7 @@ class Collection implements ArrayAccess, Iterator {
 	 *
 	 * @return void
 	 */
-	public function remove( $slug ) {
+	public function remove( string $slug ): void {
 		$this->offsetUnset( $slug );
 	}
 
@@ -163,9 +187,9 @@ class Collection implements ArrayAccess, Iterator {
 	 * @param string $slug Resource slug.
 	 * @param Resource $resource Resource instance.
 	 *
-	 * @return mixed
+	 * @return Resource|null
 	 */
-	public function set( $slug, Resource $resource ) {
+	public function set( string $slug, Resource $resource ) {
 		$this->offsetSet( $slug, $resource );
 
 		return $this->offsetGet( $slug );
@@ -177,4 +201,16 @@ class Collection implements ArrayAccess, Iterator {
 	public function valid(): bool {
 		return key( $this->resources ) !== null;
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function count(): int {
+		return count( $this->resources );
+	}
+
+	public function getIterator(): ArrayIterator {
+		return new ArrayIterator( $this->resources );
+	}
+
 }

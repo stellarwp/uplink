@@ -25,7 +25,6 @@ class Ajax {
 	public function validate_license(): void {
 		$submission = [
 			'_wpnonce' => sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ?? '' ) ),
-			'plugin'   => sanitize_text_field( wp_unslash( $_POST['plugin'] ?? '' ) ),
 			'slug'     => sanitize_text_field( wp_unslash( $_POST['slug'] ?? '' ) ),
 			'key'      => Utils\Sanitize::key( wp_unslash( $_POST['key'] ?? '' ) ),
 		];
@@ -51,7 +50,7 @@ class Ajax {
 		}
 
 		$results = $plugin->validate_license( $submission['key'] );
-		$message = is_plugin_active_for_network( $submission['plugin'] ) ? $results->get_network_message()->get() : $results->get_message()->get();
+		$message = is_plugin_active_for_network( $plugin->get_path() ) ? $results->get_network_message()->get() : $results->get_message()->get();
 
 		wp_send_json( [
 			'status'  => absint( $results->is_valid() ),

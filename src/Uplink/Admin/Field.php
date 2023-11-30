@@ -101,7 +101,7 @@ abstract class Field {
 			$this->add_nonce_field(),
 			esc_attr( $args['plugin'] ),
 			esc_attr( $args['plugin_slug'] ),
-			Config::get_hook_prefix_underscored()
+			esc_attr( Config::get_hook_prefix_underscored() )
 		);
 
 		echo apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/license_field_html_render', $field, $args );

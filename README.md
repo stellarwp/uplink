@@ -141,7 +141,11 @@ Register::service(
 ```
 
 ## Render license key form on your settings page
+
 In order to render license key form just add the following to your settings page, tab, etc.
+
+> ⚠️ This will render license key fields for all of your registered plugins/services.
+
 ```php
 use StellarWP\Uplink\Config;
 
@@ -151,6 +155,19 @@ $fields = Config::get_container()->get( License_Field::class );
 $fields->render();               // Render the fields, titles, and submit button.
 $fields->render( false );        // Render the fields without the titles.
 $fields->render( false, false ); // Render the fields without the titles or submit buttons.
+```
+
+To render a single product's license key, use the following:
+
+```php
+use StellarWP\Uplink\Config;
+
+$fields = Config::get_container()->get( License_Field::class );
+
+// Do one of the following:
+$fields->render_single( 'my-plugin' );               // Render the fields, titles, and submit button.
+$fields->render_single( 'my-plugin', false );        // Render the fields without the titles.
+$fields->render_single( 'my-plugin', false, false ); // Render the fields without the titles or submit buttons.
 ```
 
 ### Example: Register settings page and render license fields
@@ -178,7 +195,7 @@ function render_settings_page() {
     // ...
 
     $fields = Config::get_container()->get( License_Field::class );
-    $fields->render();
+    $fields->render(); // or $fields->render_single( 'my-plugin' ); to render a single plugin
 
     //....
 }

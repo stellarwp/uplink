@@ -1,8 +1,19 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace StellarWP\Uplink\Resources\Filters;
 
-class Path_FilterIterator extends \FilterIterator implements \Countable {
+use Countable;
+use FilterIterator;
+use Iterator;
+use StellarWP\Uplink\Resources\Plugin;
+use StellarWP\Uplink\Resources\Resource;
+use StellarWP\Uplink\Resources\Service;
+
+/**
+ * @method Resource|Plugin|Service current()
+ */
+class Path_FilterIterator extends FilterIterator implements Countable {
+
 	/**
 	 * Paths to filter.
 	 *
@@ -10,17 +21,17 @@ class Path_FilterIterator extends \FilterIterator implements \Countable {
 	 *
 	 * @var array<string>
 	 */
-	private $paths = [];
+	private $paths;
 
 	/**
 	 * Constructor.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param \Iterator $iterator Iterator to filter.
+	 * @param Iterator $iterator Iterator to filter.
 	 * @param array<string> $paths Paths to filter.
 	 */
-	public function __construct( \Iterator $iterator, array $paths ) {
+	public function __construct( Iterator $iterator, array $paths ) {
 		parent::__construct( $iterator );
 
 		$this->paths = $paths;
@@ -39,11 +50,7 @@ class Path_FilterIterator extends \FilterIterator implements \Countable {
 	 * @inheritDoc
 	 */
 	public function count() : int {
-		$count = 0;
-		foreach ( $this as $item ) {
-			$count++;
-		}
-
-		return $count;
+		return iterator_count( $this );
 	}
+
 }

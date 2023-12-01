@@ -34,7 +34,7 @@ class Client {
 	 *
 	 * @var string
 	 */
-	protected $base_url = 'https://pue.theeventscalendar.com';
+	protected $base_url = 'https://licensing.stellarwp.com';
 
 	/**
 	 * Container.

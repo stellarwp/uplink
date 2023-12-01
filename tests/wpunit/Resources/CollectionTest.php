@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Tests\Resources;
 
+use ArrayIterator;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Uplink;
 use StellarWP\Uplink\Register;
@@ -114,9 +115,11 @@ final class CollectionTest extends UplinkTestCase {
 		$resources = $this->collection->get_by_path( $this->root . '/plugin.php' );
 
 		$this->assertSame( 2, $resources->count() );
+		$this->assertInstanceOf( Uplink_Resources\Collection::class, $resources );
 
 		// Assert we didn't modify the underlying collection.
 		$this->assertSame( 4, $this->collection->count() );
+		$this->assertCount( 4, $this->collection->getIterator() );
 
 		foreach ( $resources as $resource ) {
 			$this->assertThat( $resource->get_slug(), $this->logicalOr(
@@ -133,9 +136,11 @@ final class CollectionTest extends UplinkTestCase {
 		] );
 
 		$this->assertSame( 3, $resources->count() );
+		$this->assertInstanceOf( Uplink_Resources\Collection::class, $resources );
 
 		// Assert we didn't modify the underlying collection.
 		$this->assertSame( 4, $this->collection->count() );
+		$this->assertCount( 4, $this->collection->getIterator() );
 
 		foreach ( $resources as $resource ) {
 			$this->assertThat( $resource->get_slug(), $this->logicalOr(
@@ -150,6 +155,7 @@ final class CollectionTest extends UplinkTestCase {
 		$resources = $this->collection->get_plugins();
 
 		$this->assertSame( 2, $resources->count() );
+		$this->assertInstanceOf( Uplink_Resources\Collection::class, $resources );
 
 		// Assert we didn't modify the underlying collection.
 		$this->assertSame( 4, $this->collection->count() );
@@ -166,6 +172,7 @@ final class CollectionTest extends UplinkTestCase {
 		$resources = $this->collection->get_services();
 
 		$this->assertSame( 2, $resources->count() );
+		$this->assertInstanceOf( Uplink_Resources\Collection::class, $resources );
 
 		// Assert we didn't modify the underlying collection.
 		$this->assertSame( 4, $this->collection->count() );
@@ -176,6 +183,40 @@ final class CollectionTest extends UplinkTestCase {
 				$this->equalTo( 'service-2' )
 			) );
 		}
+	}
+
+	public function test_it_accepts_an_iterator(): void {
+		$plugins   = array_slice( $this->get_resources(), 0, 2 );
+		$resources = [];
+
+		foreach ( $plugins as $slug => $plugin ) {
+			$resources[ $slug ] = new Uplink_Resources\Plugin( $plugin['slug'],
+				$plugin['name'],
+				$plugin['version'],
+				$plugin['path'],
+				$plugin['class'] );
+		}
+
+		$collection = new Uplink_Resources\Collection( new ArrayIterator( $resources ) );
+
+		$this->assertSame( 2, $collection->count() );
+		$this->assertCount( 2, $collection->getIterator() );
+
+		foreach ( $collection as $resource ) {
+			$this->assertThat( $resource->get_slug(), $this->logicalOr(
+				$this->equalTo( 'plugin-1' ),
+				$this->equalTo( 'plugin-2' )
+			) );
+		}
+
+		$services = $collection->get_services();
+
+		$this->assertCount( 0, $services );
+
+		// Assert the original underlying iterator was not changed.
+		$this->assertSame( 2, $collection->count() );
+		$this->assertCount( 2, $collection->getIterator() );
+
 	}
 
 }

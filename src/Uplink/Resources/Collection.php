@@ -6,7 +6,6 @@ use ArrayAccess;
 use ArrayIterator;
 use Countable;
 use Iterator;
-use Traversable;
 
 class Collection implements ArrayAccess, Iterator, Countable {
 
@@ -18,11 +17,19 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	private $resources;
 
 	/**
-	 * @param  Iterator|array<string, Resource>  $resources
+	 * The original Iterator, for memoization.
+	 *
+	 * @var Iterator|null
+	 */
+	private $iterator;
+
+	/**
+	 * @param Iterator|array<string, Resource> $resources An array or iterator of Resources.
 	 */
 	public function __construct( $resources = [] ) {
-		if ( $resources instanceof Traversable ) {
-			$resources = iterator_to_array( $resources );
+		if ( $resources instanceof Iterator ) {
+			$this->iterator = $resources;
+			$resources      = iterator_to_array( $resources );
 		}
 
 		$this->resources = $resources;
@@ -61,9 +68,9 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	 * @param string $path Path to filter collection by.
 	 * @param Iterator|null  $iterator Optional. Iterator to filter.
 	 *
-	 * @return Collection
+	 * @return self
 	 */
-	public function get_by_path( string $path, ?Iterator $iterator = null ): Collection {
+	public function get_by_path( string $path, ?Iterator $iterator = null ): self {
 		$results = new Filters\Path_FilterIterator( $iterator ?: $this->getIterator(), [ $path ] );
 
 		return new self( $results );
@@ -77,9 +84,9 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	 * @param array<string> $paths Paths to filter collection by.
 	 * @param Iterator|null  $iterator Optional. Iterator to filter.
 	 *
-	 * @return Collection
+	 * @return self
 	 */
-	public function get_by_paths( array $paths, ?Iterator $iterator = null ): Collection {
+	public function get_by_paths( array $paths, ?Iterator $iterator = null ): self {
 		$results = new Filters\Path_FilterIterator( $iterator ?: $this->getIterator(), $paths );
 
 		return new self( $results );
@@ -92,9 +99,9 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @param  Iterator|null  $iterator Optional. Iterator to filter.
 	 *
-	 * @return Collection
+	 * @return self
 	 */
-	public function get_plugins( ?Iterator $iterator = null ): Collection {
+	public function get_plugins( ?Iterator $iterator = null ): self {
 		$results = new Filters\Plugin_FilterIterator( $iterator ?: $this->getIterator() );
 
 		return new self( $results );
@@ -107,9 +114,9 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @param  Iterator|null  $iterator Optional. Iterator to filter.
 	 *
-	 * @return Collection
+	 * @return self
 	 */
-	public function get_services( ?Iterator $iterator = null ): Collection {
+	public function get_services( ?Iterator $iterator = null ): self {
 		$results = new Filters\Service_FilterIterator( $iterator ?: $this->getIterator() );
 
 		return new self( $results );
@@ -134,7 +141,7 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	 * @inheritDoc
 	 */
 	public function offsetExists( $offset ): bool {
-		return isset( $this->resources[ $offset ] );
+		return array_key_exists( $offset, $this->resources );
 	}
 
 	/**
@@ -189,7 +196,7 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @return Resource|null
 	 */
-	public function set( string $slug, Resource $resource ) {
+	public function set( string $slug, Resource $resource ): ?Resource {
 		$this->offsetSet( $slug, $resource );
 
 		return $this->offsetGet( $slug );
@@ -212,10 +219,14 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	/**
 	 * Returns a clone of the underlying iterator.
 	 *
-	 * @return ArrayIterator
+	 * @return Iterator
 	 */
-	public function getIterator(): ArrayIterator {
-		return new ArrayIterator( $this->resources );
+	public function getIterator(): Iterator {
+		if ( isset( $this->iterator ) ) {
+			return $this->iterator;
+		}
+
+		return $this->iterator = new ArrayIterator( $this->resources );
 	}
 
 }

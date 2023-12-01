@@ -73,6 +73,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		// Mock these were passed via the query string.
 		$_GET[ Connect_Controller::TOKEN ] = $token;
 		$_GET[ Connect_Controller::NONCE ] = $nonce;
+		$_GET[ Connect_Controller::SLUG ]  = $this->slug;
 
 		// Mock we're an admin inside the dashboard.
 		$screen = WP_Screen::get( 'dashboard' );
@@ -131,6 +132,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		// Mock these were passed via the query string.
 		$_GET[ Connect_Controller::TOKEN ] = $token;
 		$_GET[ Connect_Controller::NONCE ] = 'wrong_nonce';
+		$_GET[ Connect_Controller::SLUG ]  = $this->slug;
 
 		// Mock we're an admin inside the dashboard.
 		$screen = WP_Screen::get( 'dashboard' );
@@ -157,6 +159,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		// Mock these were passed via the query string.
 		$_GET[ Connect_Controller::TOKEN ] = $token;
 		$_GET[ Connect_Controller::NONCE ] = $nonce;
+		$_GET[ Connect_Controller::SLUG ]  = $this->slug;
 
 		// Mock we're an admin inside the dashboard.
 		$screen = WP_Screen::get( 'dashboard' );
@@ -170,25 +173,19 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$this->assertNull( $this->token_manager->get() );
 	}
 
-	public function test_it_stores_token_but_not_license_without_a_slug(): void {
+	public function test_it_does_not_store_a_token_without_a_slug(): void {
 		global $_GET;
 
 		wp_set_current_user( 1 );
 
-		$plugin = $this->container->get( Collection::class )->offsetGet( $this->slug );
-		$this->assertEmpty( $plugin->get_license_key() );
-
 		$this->assertNull( $this->token_manager->get() );
 
-		$nonce   = ( $this->container->get( Nonce::class ) )->create();
-		$token   = '53ca40ab-c6c7-4482-a1eb-14c56da31015';
-		$license = '123456';
+		$nonce = ( $this->container->get( Nonce::class ) )->create();
+		$token = '53ca40ab-c6c7-4482-a1eb-14c56da31015';
 
 		// Mock these were passed via the query string.
-		$_GET[ Connect_Controller::TOKEN ]   = $token;
-		$_GET[ Connect_Controller::NONCE ]   = $nonce;
-		$_GET[ Connect_Controller::LICENSE ] = $license;
-		$_GET[ Connect_Controller::SLUG ]    = '';
+		$_GET[ Connect_Controller::TOKEN ] = $token;
+		$_GET[ Connect_Controller::NONCE ] = $nonce;
 
 		// Mock we're an admin inside the dashboard.
 		$screen = WP_Screen::get( 'dashboard' );
@@ -199,41 +196,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		// Fire off the action the Connect_Controller is running under.
 		do_action( 'admin_init' );
 
-		$this->assertSame( $token, $this->token_manager->get() );
-		$this->assertEmpty( $plugin->get_license_key() );
-	}
-
-	public function test_it_stores_token_but_not_license_with_a_slug_that_does_not_exist(): void {
-		global $_GET;
-
-		wp_set_current_user( 1 );
-
-		$plugin = $this->container->get( Collection::class )->offsetGet( $this->slug );
-		$this->assertEmpty( $plugin->get_license_key() );
-
 		$this->assertNull( $this->token_manager->get() );
-
-		$nonce   = ( $this->container->get( Nonce::class ) )->create();
-		$token   = '53ca40ab-c6c7-4482-a1eb-14c56da31015';
-		$license = '123456';
-
-		// Mock these were passed via the query string.
-		$_GET[ Connect_Controller::TOKEN ]   = $token;
-		$_GET[ Connect_Controller::NONCE ]   = $nonce;
-		$_GET[ Connect_Controller::LICENSE ] = $license;
-		$_GET[ Connect_Controller::SLUG ]    = 'a-plugin-slug-that-does-not-exist';
-
-		// Mock we're an admin inside the dashboard.
-		$screen = WP_Screen::get( 'dashboard' );
-		$GLOBALS['current_screen'] = $screen;
-
-		$this->assertTrue( $screen->in_admin() );
-
-		// Fire off the action the Connect_Controller is running under.
-		do_action( 'admin_init' );
-
-		$this->assertSame( $token, $this->token_manager->get() );
-		$this->assertEmpty( $plugin->get_license_key() );
 	}
 
 	public function test_it_stores_token_but_not_license_without_a_license(): void {

@@ -3,42 +3,46 @@
 namespace StellarWP\Uplink\Auth\Auth_Pipes;
 
 use Closure;
+use StellarWP\Uplink\Auth\Authorized;
 use StellarWP\Uplink\Utils\Checks;
 
 final class Multisite_Subfolder_Check {
 
 	/**
-	 * Prevent authorization if on a sub-site with multisite sub-folders enabled.
+	 * Prevent authorization if on a sub-site with multisite sub-folders enabled and
+	 * the plugin is network activated.
 	 *
-	 * @param  bool  $can_auth
+	 * @param  Authorized  $authorized
 	 * @param  Closure  $next
 	 *
-	 * @return bool
+	 * @return Authorized
 	 */
-	public function __invoke( bool $can_auth, Closure $next ): bool {
+	public function __invoke( Authorized $authorized, Closure $next ): Authorized {
 		if ( ! is_multisite() ) {
-			return $next( $can_auth );
+			return $next( $authorized );
 		}
 
 		if ( is_main_site() ) {
-			return $next( $can_auth );
+			return $next( $authorized );
 		}
 
 		$id = get_main_site_id();
 
 		if ( $id <= 0 ) {
-			return $next( $can_auth );
+			return $next( $authorized );
 		}
 
 		$current_site_url = get_site_url();
 		$main_site_url    = get_site_url( $id );
 
 		// The current sites with the main site URL, so we're in subfolder mode.
-		if ( Checks::str_starts_with( $current_site_url, $main_site_url ) ) {
-			return false;
+		if ( Checks::str_starts_with( $current_site_url, $main_site_url ) && $authorized->resource->is_network_activated() ) {
+			$authorized->authorized = false;
+
+			return $authorized;
 		}
 
-		return $next( $can_auth );
+		return $next( $authorized );
 	}
 
 }

@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink\Auth;
 
 use StellarWP\Uplink\Pipeline\Pipeline;
+use StellarWP\Uplink\Resources\Resource;
 
 /**
  * Determines if the current site will allow the user to use the authorize button.
@@ -27,10 +28,17 @@ final class Authorizer {
 	 *
 	 * @see Provider::register_authorizer()
 	 *
+	 * @param  Resource  $resource
+	 *
 	 * @return bool
 	 */
-	public function can_auth(): bool {
-		return $this->pipeline->send( true )->thenReturn();
+	public function can_auth( Resource $resource ): bool {
+		$authorized = new Authorized();
+		$authorized->resource = $resource;
+
+		$result = $this->pipeline->send( $authorized )->thenReturn();
+
+		return $result->authorized;
 	}
 
 }

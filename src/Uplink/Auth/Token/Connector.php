@@ -5,6 +5,7 @@ namespace StellarWP\Uplink\Auth\Token;
 use StellarWP\Uplink\Auth\Authorizer;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Auth\Token\Exceptions\InvalidTokenException;
+use StellarWP\Uplink\Resources\Resource;
 
 final class Connector {
 
@@ -35,8 +36,8 @@ final class Connector {
 	 *
 	 * @throws InvalidTokenException
 	 */
-	public function connect( string $token ): bool {
-		if ( ! $this->authorizer->can_auth() ) {
+	public function connect( string $token, Resource $resource ): bool {
+		if ( ! $this->authorizer->can_auth( $resource ) ) {
 			return false;
 		}
 

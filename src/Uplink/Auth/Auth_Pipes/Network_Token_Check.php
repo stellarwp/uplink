@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink\Auth\Auth_Pipes;
 
 use Closure;
+use StellarWP\Uplink\Auth\Authorized;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 
 final class Network_Token_Check {
@@ -22,26 +23,28 @@ final class Network_Token_Check {
 	/**
 	 * Checks if a sub-site already has a network token.
 	 *
-	 * @param  bool  $can_auth
+	 * @param  Authorized  $authorized
 	 * @param  Closure  $next
 	 *
-	 * @return bool
+	 * @return Authorized
 	 */
-	public function __invoke( bool $can_auth, Closure $next ): bool {
+	public function __invoke( Authorized $authorized, Closure $next ): Authorized {
 		if ( ! is_multisite() ) {
-			return $next( $can_auth );
+			return $next( $authorized );
 		}
 
 		if ( is_main_site() ) {
-			return $next( $can_auth );
+			return $next( $authorized );
 		}
 
 		// Token already exists at the network level, don't authorize for this sub-site.
-		if ( $this->token_manager->get() ) {
-			return false;
+		if ( $authorized->resource->is_network_activated() && $this->token_manager->get() ) {
+			$authorized->authorized = false;
+
+			return $authorized;
 		}
 
-		return $next( $can_auth );
+		return $next( $authorized );
 	}
 
 }

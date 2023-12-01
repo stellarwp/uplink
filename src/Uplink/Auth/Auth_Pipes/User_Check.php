@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink\Auth\Auth_Pipes;
 
 use Closure;
+use StellarWP\Uplink\Auth\Authorized;
 use StellarWP\Uplink\Config;
 
 final class User_Check {
@@ -10,12 +11,12 @@ final class User_Check {
 	/**
 	 * Ensure the user is logged in and is an admin.
 	 *
-	 * @param  bool  $can_auth
+	 * @param  Authorized $authorized
 	 * @param  Closure  $next
 	 *
-	 * @return bool
+	 * @return Authorized
 	 */
-	public function __invoke( bool $can_auth, Closure $next ): bool {
+	public function __invoke( Authorized $authorized, Closure $next ): Authorized {
 		/**
 		 * Filter the super admin user check.
 		 *
@@ -27,10 +28,12 @@ final class User_Check {
 		);
 
 		if ( ! $is_super_admin ) {
-			return false;
+			$authorized->authorized = false;
+
+			return $authorized;
 		}
 
-		return $next( $can_auth );
+		return $next( $authorized );
 	}
 
 }

@@ -36,7 +36,7 @@ class License_Field extends Field {
 	 *
 	 * @return string
 	 */
-	public function get_section_name( $plugin ) : string {
+	public static function get_section_name( $plugin ) : string {
 		return sprintf( '%s_%s', self::LICENSE_FIELD_ID, sanitize_title( $plugin->get_slug() ) );
 	}
 
@@ -48,7 +48,7 @@ class License_Field extends Field {
 	public function register_settings(): void {
 		foreach ( $this->get_resources() as $resource ) {
 			add_settings_section(
-				sprintf( '%s_%s', self::LICENSE_FIELD_ID, sanitize_title( $resource->get_slug() ) ),
+				self::get_section_name( $resource ),
 				'',
 				[ $this, 'description' ], // @phpstan-ignore-line
 				$this->get_group_name( sanitize_title( $resource->get_slug() ) )
@@ -64,7 +64,7 @@ class License_Field extends Field {
 				__( 'License Key', '%TEXTDOMAIN%' ),
 				[ $this, 'field_html' ],
 				$this->get_group_name( sanitize_title( $resource->get_slug() ) ),
-				$this->get_section_name( $resource ),
+				self::get_section_name( $resource ),
 				[
 					'id'           => $resource->get_license_object()->get_key_option_name(),
 					'label_for'    => $resource->get_license_object()->get_key_option_name(),

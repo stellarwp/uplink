@@ -28,8 +28,8 @@ class Path_FilterIterator extends FilterIterator implements Countable {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Iterator $iterator Iterator to filter.
-	 * @param array<string> $paths Paths to filter.
+	 * @param  Iterator<string, Resource>  $iterator  Iterator to filter.
+	 * @param  string[]  $paths  Paths to filter.
 	 */
 	public function __construct( Iterator $iterator, array $paths ) {
 		parent::__construct( $iterator );

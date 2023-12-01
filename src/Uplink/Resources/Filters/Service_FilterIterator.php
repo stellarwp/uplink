@@ -1,8 +1,16 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace StellarWP\Uplink\Resources\Filters;
 
-class Service_FilterIterator extends \FilterIterator implements \Countable {
+use Countable;
+use FilterIterator;
+use StellarWP\Uplink\Resources\Service;
+
+/**
+ * @method Service current()
+ */
+class Service_FilterIterator extends FilterIterator implements Countable {
+
 	/**
 	 * @inheritDoc
 	 */
@@ -16,11 +24,7 @@ class Service_FilterIterator extends \FilterIterator implements \Countable {
 	 * @inheritDoc
 	 */
 	public function count() : int {
-		$count = 0;
-		foreach ( $this as $item ) {
-			$count++;
-		}
-
-		return $count;
+		return iterator_count( $this );
 	}
+
 }

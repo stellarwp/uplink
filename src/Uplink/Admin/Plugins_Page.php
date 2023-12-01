@@ -1,21 +1,27 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace StellarWP\Uplink\Admin;
 
-use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;
-use StellarWP\Uplink\Messages;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Resources\Plugin;
+use Throwable;
 
 class Plugins_Page {
 
 	/**
-	 * Storing the `plugin_notice` message.
+	 * Storing the `plugin_notice` message for each plugin.
 	 *
-	 * @var array<mixed>
+	 * @var array<string, array{slug: string, message_row_html: string}>
 	 */
-	public $plugin_notice = [];
+	private $plugin_notices = [];
+
+	/**
+	 * The memoization cache for existing plugins.
+	 *
+	 * @var ?Collection<Plugin>
+	 */
+	private $plugins;
 
 	/**
 	 * Displays messages on the plugins page in the dashboard.
@@ -32,91 +38,96 @@ class Plugins_Page {
 		}
 
 		$messages       = [];
-		$plugin_file    = $this->get_plugin()->get_path();
+		$plugins        = $this->get_plugins();
 		$plugin_updates = get_plugin_updates();
-		$resource       = $plugin_updates[ $plugin_file ] ?? null;
 
-		if ( empty( $resource ) ) {
-			return;
-		}
+		foreach ( $plugins as $plugin ) {
+			$plugin_file = $plugin->get_path();
+			$resource    = $plugin_updates[ $plugin_file ] ?? null;
 
-		if ( ! empty( $resource->update->license_error ) ) {
-			$messages[] = $resource->update->license_error;
-		} elseif ( current_user_can( 'update_plugins' ) ) {
-			if ( empty( $resource->update->new_version ) ) {
-				return;
-			}
-			// A plugin update is available
-			$update_now = sprintf(
-				esc_html__( 'Update now to version %s.', '%TEXTDOMAIN%' ),
-				$resource->update->new_version
-			);
-
-			$href = wp_nonce_url(
-				self_admin_url( 'update.php?action=upgrade-plugin&plugin=' ) . $plugin_file,
-				'upgrade-plugin_' . $plugin_file
-			);
-
-			$update_now_link = sprintf(
-				' <a href="%1$s" class="update-link">%2$s</a>',
-				$href,
-				$update_now
-			);
-
-			if ( ! empty ( $resource->update->upgrade_notice ) ) {
-				$update_message = sprintf(
-					esc_html__( '%1$s. %2$s', '%TEXTDOMAIN%' ),
-					$resource->update->upgrade_notice,
-					$update_now_link
-				);
-			} else {
-				$update_message = sprintf(
-					esc_html__( 'There is a new version of %1$s available. %2$s', '%TEXTDOMAIN%' ),
-					$this->get_plugin()->get_name(),
-					$update_now_link
-				);
+			if ( empty( $resource ) ) {
+				continue;
 			}
 
+			if ( ! empty( $resource->update->license_error ) ) {
+				$messages[] = $resource->update->license_error;
+			} elseif ( current_user_can( 'update_plugins' ) ) {
+				if ( empty( $resource->update->new_version ) ) {
+					continue;
+				}
 
-			$messages[] = sprintf(
-				'<p>%s</p>',
-				$update_message
+				// A plugin update is available
+				$update_now = sprintf(
+					esc_html__( 'Update now to version %s.', '%TEXTDOMAIN%' ),
+					$resource->update->new_version
+				);
+
+				$href = wp_nonce_url(
+					self_admin_url( 'update.php?action=upgrade-plugin&plugin=' ) . $plugin_file,
+					'upgrade-plugin_' . $plugin_file
+				);
+
+				$update_now_link = sprintf(
+					' <a href="%1$s" class="update-link">%2$s</a>',
+					$href,
+					$update_now
+				);
+
+				if ( ! empty ( $resource->update->upgrade_notice ) ) {
+					$update_message = sprintf(
+						esc_html__( '%1$s. %2$s', '%TEXTDOMAIN%' ),
+						$resource->update->upgrade_notice,
+						$update_now_link
+					);
+				} else {
+					$update_message = sprintf(
+						esc_html__( 'There is a new version of %1$s available. %2$s', '%TEXTDOMAIN%' ),
+						$plugin->get_name(),
+						$update_now_link
+					);
+				}
+
+
+				$messages[] = sprintf(
+					'<p>%s</p>',
+					$update_message
+				);
+			}
+
+			if ( empty( $messages ) ) {
+				continue;
+			}
+
+			$message_row_html = '';
+
+			foreach ( $messages as $message ) {
+				$message_row_html .= sprintf(
+					'<div class="update-message notice inline notice-warning notice-alt">%s</div>',
+					$message
+				);
+			}
+
+			$message_row_html = sprintf(
+				'<tr class="plugin-update-tr active"><td colspan="4" class="plugin-update">%s</td></tr>',
+				$message_row_html
 			);
+
+			$this->plugin_notices[ $plugin->get_slug() ] = [
+				'slug'             => $plugin->get_slug(),
+				'message_row_html' => $message_row_html,
+			];
 		}
-
-		if ( empty( $messages ) ) {
-			return;
-		}
-
-		$message_row_html = '';
-
-		foreach ( $messages as $message ) {
-			$message_row_html .= sprintf(
-				'<div class="update-message notice inline notice-warning notice-alt">%s</div>',
-				$message
-			);
-		}
-
-		$message_row_html = sprintf(
-			'<tr class="plugin-update-tr active"><td colspan="4" class="plugin-update">%s</td></tr>',
-			$message_row_html
-		);
-
-		$this->plugin_notice = [
-			'slug'             => $this->get_plugin()->get_slug(),
-			'message_row_html' => $message_row_html,
-		];
 	}
 
 	/**
-	 * Get plugin notice.
+	 * Get plugin notices.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return array
+	 * @return array<string, array{slug: string, message_row_html: string}>
 	 */
-	public function get_plugin_notice() {
-		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/plugin_notices', $this->plugin_notice );
+	public function get_plugin_notices(): array {
+		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/plugin_notices', $this->plugin_notices );
 	}
 
 	/**
@@ -142,12 +153,18 @@ class Plugins_Page {
 	 * @return void
 	 */
 	public function output_notices_script(): void {
-		$slug   = $this->get_plugin()->get_slug();
-		$notice = $this->get_plugin_notice();
+		$notices = $this->get_plugin_notices();
 
-		if ( empty( $notice ) ) {
+		if ( empty( $notices ) ) {
 			return;
 		}
+
+		foreach ( $this->get_plugins() as $resource ) :
+			$notice = $notices[ $resource->get_slug() ] ?? null;
+
+			if ( ! $notice ) {
+				continue;
+			}
 		?>
 		<script>
 		/**
@@ -160,7 +177,7 @@ class Plugins_Page {
 			'use strict';
 
 			my.init = function() {
-				var $active_plugin_row = $( 'tr.active[data-slug="<?php echo esc_attr( $slug ); ?>"]' );
+				var $active_plugin_row = $( 'tr.active[data-slug="<?php echo esc_attr( $resource->get_slug() ); ?>"]' );
 
 				if ( ! $active_plugin_row.length ) {
 					return;
@@ -182,19 +199,7 @@ class Plugins_Page {
 		})( jQuery, {} );
 		</script>
 		<?php
-	}
-
-	/**
-	 * Get the plugin message.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param Plugin $resource
-	 *
-	 * @return Messages\Message_Abstract|null
-	 */
-	public function get_plugin_message( Plugin $resource ) {
-		return new Messages\Expired_Key();
+		endforeach;
 	}
 
 	/**
@@ -204,7 +209,9 @@ class Plugins_Page {
 	 * @return void
 	 */
 	public function remove_default_inline_update_msg(): void {
-		remove_action( "after_plugin_row_{$this->get_plugin()->get_path()}", 'wp_plugin_update_row' );
+		foreach ( $this->get_plugins() as $plugin ) {
+			remove_action( "after_plugin_row_{$plugin->get_path()}", 'wp_plugin_update_row' );
+		}
 	}
 
 	/**
@@ -214,19 +221,28 @@ class Plugins_Page {
 	 */
 	public function check_for_updates( $transient ) {
 		try {
-			return $this->get_plugin()->check_for_updates( $transient );
-		} catch ( \Throwable $exception ) {
+			/** @var Plugin $resource */
+			foreach ( $this->get_plugins() as $resource ) {
+				$transient = $resource->check_for_updates( $transient );
+			}
+		} catch ( Throwable $exception ) {
 			return $transient;
 		}
+
+		return $transient;
 	}
 
 	/**
-	 * @return false|mixed
+	 * Get the collection of Plugins/Services.
+	 *
+	 * @return Collection<Plugin>
 	 */
-	protected function get_plugin() {
-		$collection = Config::get_container()->get( Collection::class );
+	protected function get_plugins(): Collection {
+		if ( isset( $this->plugins ) ) {
+			return $this->plugins;
+		}
 
-		return $collection->current();
+		return $this->plugins = Config::get_container()->get( Collection::class )->get_plugins();
 	}
 
 	/**
@@ -236,25 +252,25 @@ class Plugins_Page {
 	 * @see plugins_api()
 	 *
 	 * @param mixed  $result
-	 * @param  string|null  $action
-	 * @param  array<mixed>|object|null  $args
+	 * @param string|null  $action
+	 * @param array<mixed>|object|null  $args
 	 *
 	 * @return mixed
 	 */
 	public function inject_info( $result, ?string $action = null, $args = null ) {
-		$relevant = ( 'plugin_information' === $action ) && is_object( $args ) && isset( $args->slug ) && ( $args->slug === $this->get_plugin()->get_slug() );
+		$relevant = ( 'plugin_information' === $action ) && is_object( $args ) && ! empty( $args->slug );
 
 		if ( ! $relevant ) {
 			return $result;
 		}
 
-		$plugin_info = $this->get_plugin()->validate_license();
+		$plugin = $this->get_plugins()->offsetGet( $args->slug );
 
-		if ( $plugin_info ) {
-			return $plugin_info->to_wp_format();
+		if ( ! $plugin ) {
+			return $result;
 		}
 
-		return $result;
+		return $plugin->validate_license()->to_wp_format();
 	}
 
 }

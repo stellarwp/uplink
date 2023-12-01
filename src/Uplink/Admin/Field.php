@@ -1,8 +1,7 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace StellarWP\Uplink\Admin;
 
-use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Resources\Collection;
 
@@ -25,6 +24,18 @@ abstract class Field {
 	 * @return void
 	 */
 	abstract public function register_settings(): void;
+
+	/**
+	 * Renders the field.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param bool $show_title Whether to show the title or not.
+	 * @param bool $show_button Whether to show the submit button or not.
+	 *
+	 * @return void
+	 */
+	abstract public function render( bool $show_title = true, bool $show_button = true ): void;
 
 	/**
 	 * @param array<string> $args
@@ -73,7 +84,7 @@ abstract class Field {
 	 */
 	public function field_html( array $args = [] ): void {
 		$field = sprintf(
-			'<div class="%6$s" id="%2$s" data-slug="%2$s" data-plugin="%9$s" data-plugin-slug="%10$s">
+			'<div class="%6$s" id="%2$s" data-slug="%2$s" data-plugin="%9$s" data-plugin-slug="%10$s" data-action="%11$s">
                     <fieldset class="stellarwp-uplink__settings-group">
                         <input type="%1$s" name="%3$s" value="%4$s" placeholder="%5$s" class="regular-text stellarwp-uplink__settings-field" />
                         %7$s
@@ -88,8 +99,9 @@ abstract class Field {
 			esc_attr( $args['html_classes'] ?: '' ),
 			$this->get_html_content( $args ),
 			$this->add_nonce_field(),
-			$args['plugin'],
-			Config::get_hook_prefix_underscored()
+			esc_attr( $args['plugin'] ),
+			esc_attr( $args['plugin_slug'] ),
+			esc_attr( Config::get_hook_prefix_underscored() )
 		);
 
 		echo apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/license_field_html_render', $field, $args );
@@ -103,16 +115,6 @@ abstract class Field {
 	public function add_nonce_field() : string {
 		return '<input type="hidden" value="' . wp_create_nonce( self::get_group_name() ) . '" class="wp-nonce" />';
 	}
-
-	/**
-	 * @since 1.0.0
-	 *
-	 * @param bool $show_title Whether to show the title or not.
-	 * @param bool $show_button Whether to show the submit button or not.
-	 *
-	 * @return void
-	 */
-	abstract public function render( bool $show_title = true, bool $show_button = true ): void;
 
 	/**
 	 * @param array<mixed> $context
@@ -135,12 +137,12 @@ abstract class Field {
 	}
 
 	/**
-	 * @return false|mixed
+	 * Get the collection of Plugins/Services.
+	 *
+	 * @return Collection
 	 */
-	protected function get_plugin() {
-		$collection = Config::get_container()->get( Collection::class );
-
-		return $collection->current();
+	protected function get_resources(): Collection {
+		return Config::get_container()->get( Collection::class );
 	}
 
 	/**

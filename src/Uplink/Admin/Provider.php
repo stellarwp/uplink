@@ -1,9 +1,8 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace StellarWP\Uplink\Admin;
 
 use StellarWP\Uplink\Config;
-use StellarWP\Uplink\Uplink;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
 
 class Provider extends Abstract_Provider {
@@ -43,7 +42,7 @@ class Provider extends Abstract_Provider {
 		add_action($action, [ $this, 'ajax_validate_license' ], 10, 0 );
 		add_action( 'admin_init', [ $this, 'admin_init' ], 10, 0 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'display_plugin_messages' ], 1, 1 );
-		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_assets' ], 10, 0 );
+		add_action( 'admin_enqueue_scripts', [ $this, 'register_assets' ], 10, 0 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'store_admin_notices' ], 10, 1 );
 		add_action( 'admin_notices', [ $this, 'admin_notices' ], 10, 0 );
 		add_action( 'load-plugins.php', [ $this, 'remove_default_update_message' ], 50, 0 );
@@ -84,7 +83,7 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @return void
 	 */
-	public function ajax_validate_license() {
+	public function ajax_validate_license(): void {
 		$this->container->get( Ajax::class )->validate_license();
 	}
 
@@ -95,19 +94,19 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @return void
 	 */
-	public function admin_init() {
+	public function admin_init(): void {
 		$this->container->get( License_Field::class )->register_settings();
 	}
 
 	/**
-	 * Hooked to the admin_enqueue_scripts action. Enqueues assets.
+	 * Hooked to the admin_enqueue_scripts action. Register assets.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @return void
 	 */
-	public function enqueue_assets() {
-		$this->container->get( License_Field::class )->enqueue_assets();
+	public function register_assets(): void {
+		$this->container->get( License_Field::class )->register_assets();
 	}
 
 	/**
@@ -117,7 +116,7 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @return void
 	 */
-	public function admin_notices() {
+	public function admin_notices(): void {
 		$this->container->get( Notice::class )->setup_notices();
 	}
 
@@ -130,7 +129,7 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @return void
 	 */
-	public function display_plugin_messages( $page ) {
+	public function display_plugin_messages( $page ): void {
 		$this->container->get( Plugins_Page::class )->display_plugin_messages( $page );
 	}
 
@@ -143,7 +142,7 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @return void
 	 */
-	public function store_admin_notices( $page ) {
+	public function store_admin_notices( $page ): void {
 		$this->container->get( Plugins_Page::class )->store_admin_notices( $page );
 	}
 
@@ -154,7 +153,7 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @return void
 	 */
-	public function remove_default_update_message() {
+	public function remove_default_update_message(): void {
 		$this->container->get( Plugins_Page::class )->remove_default_inline_update_msg();
 	}
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace StellarWP\Uplink;
 
@@ -16,10 +16,10 @@ class Uplink {
 	 *
 	 * @return void
 	 */
-	public static function init() {
+	public static function init(): void {
 		if ( ! Config::has_container() ) {
 			throw new RuntimeException(
-				__( 'You must call StellarWP\Uplink\Config::set_container() before calling StellarWP\Telemetry::init().', '%TEXTDOMAIN%' )
+				__( 'You must call StellarWP\Uplink\Config::set_container() before calling StellarWP\Uplink::init().', '%TEXTDOMAIN%' )
 			);
 		}
 

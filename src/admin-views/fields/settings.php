@@ -32,7 +32,7 @@ $action_postfix = Config::get_hook_prefix_underscored();
 				<table class="form-table" role="presentation">
 			<?php endif; ?>
 				<div class="stellarwp-uplink__license-field">
-					<?php $field->do_settings_fields( $group, sprintf( '%s_%s', License_Field::LICENSE_FIELD_ID, sanitize_title( Config::get_hook_prefix() ) ), $action_postfix, $show_title ); ?>
+					<?php $field->do_settings_fields( $group, License_Field::get_section_name( $plugin ), $action_postfix, $show_title ); ?>
 				</div>
 			<?php if ( $show_title ) : ?>
 				</table>

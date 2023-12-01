@@ -100,11 +100,8 @@ class Package_Handler {
 
 		$container = Config::get_container();
 		$resource  = $container->get( Resources\Collection::class )->get_by_path( $plugin );
-		if ( $resource->count() === 0 ) {
-			return false;
-		}
 
-		return true;
+		return (bool) $resource->count();
 	}
 
 	/**

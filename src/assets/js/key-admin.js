@@ -1,5 +1,4 @@
 ( function( $, obj ) {
-
 	obj.init = function() {
 		$( '.stellarwp-uplink-license-key-field' ).each( function() {
 			var $el = $( this );
@@ -19,8 +18,8 @@
 	};
 
 	obj.validateKey = function( $el ) {
-		const field       	 = $el.find( 'input[type="text"]' )
-		const plugin         = $el.data( 'plugin' );
+		const field          = $el.find( 'input[type="text"]' )
+		const action         = $el.data( 'action' );
 		const slug           = $el.data( 'plugin-slug' );
 		let $validityMessage = $el.find( '.key-validity' );
 
@@ -38,26 +37,34 @@
 		let licenseKey = field.val().trim();
 		field.val( licenseKey );
 
-		var data = {
-			action: window[`stellarwp_config_${slug}`]['action'],
-			plugin: plugin,
+		const data = {
+			action: window[`stellarwp_config_${action}`]['action'],
+			slug: slug,
 			key: licenseKey,
-			_wpnonce: $( $el ).find( '.wp-nonce' ).val()
+			_wpnonce: $($el).find('.wp-nonce').val()
 		};
 
-		$.post( ajaxurl, data, function ( response ) {
-			var data = $.parseJSON( response );
-
-			$( $el ).find( '.ajax-loading-license' ).hide();
+		$.post(ajaxurl, data, function (response) {
 			$validityMessage.show();
-			$validityMessage.html( data.message );
+			$validityMessage.html(response.message);
 
-			switch ( data.status ) {
-				case 1: $validityMessage.addClass( 'valid-key' ).removeClass( 'invalid-key' ); break;
-				case 2: $validityMessage.addClass( 'valid-key service-msg' ); break;
-				default: $validityMessage.addClass( 'invalid-key' ).removeClass( 'valid-key' ); break;
+			switch (response.status) {
+				case 1:
+					$validityMessage.addClass('valid-key').removeClass('invalid-key');
+					break;
+				case 2:
+					$validityMessage.addClass('valid-key service-msg');
+					break;
+				default:
+					$validityMessage.addClass('invalid-key').removeClass('valid-key');
+					break;
 			}
-		} );
+		}).fail(function(error) {
+			$validityMessage.show();
+			$validityMessage.html(error.message);
+		}).always(function() {
+			$($el).find('.ajax-loading-license').hide();
+		});
 	};
 
 	$( function() {

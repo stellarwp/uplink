@@ -18,8 +18,8 @@
 	};
 
 	obj.validateKey = function( $el ) {
-		const field       	 = $el.find( 'input[type="text"]' )
-		const action	     = $el.data( 'action' );
+		const field          = $el.find( 'input[type="text"]' )
+		const action         = $el.data( 'action' );
 		const slug           = $el.data( 'plugin-slug' );
 		let $validityMessage = $el.find( '.key-validity' );
 

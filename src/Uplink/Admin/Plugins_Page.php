@@ -3,7 +3,6 @@
 namespace StellarWP\Uplink\Admin;
 
 use StellarWP\Uplink\Config;
-use StellarWP\Uplink\Messages;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Resources\Plugin;
 use Throwable;
@@ -201,21 +200,6 @@ class Plugins_Page {
 		</script>
 		<?php
 		endforeach;
-	}
-
-	/**
-	 * Get the plugin message.
-	 *
-	 * @TODO Matt, this isn't used anywhere, can we delete?
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param Plugin $resource
-	 *
-	 * @return Messages\Message_Abstract|null
-	 */
-	public function get_plugin_message( Plugin $resource ) {
-		return new Messages\Expired_Key();
 	}
 
 	/**

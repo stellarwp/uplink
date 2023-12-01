@@ -9,6 +9,7 @@ use StellarWP\Uplink\Notice\Notice;
 final class Disconnect_Controller {
 
 	public const ARG = 'uplink_disconnect';
+	public const SLUG = 'uplink_slug';
 
 	/**
 	 * @var Disconnector
@@ -37,7 +38,7 @@ final class Disconnect_Controller {
 	 * @return void
 	 */
 	public function maybe_disconnect(): void {
-		if ( empty( $_GET[ self::ARG ] ) || empty( $_GET['_wpnonce'] ) ) {
+		if ( empty( $_GET[ self::ARG ] ) || empty( $_GET['_wpnonce'] ) || empty( $_GET[ self::SLUG ] ) ) {
 			return;
 		}
 
@@ -46,7 +47,7 @@ final class Disconnect_Controller {
 		}
 
 		if ( wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), self::ARG ) ) {
-			if ( $this->disconnect->disconnect() ) {
+			if ( $this->disconnect->disconnect( $_GET[ self::SLUG ] ) ) {
 				$this->notice->add(
 					new Notice( Notice::SUCCESS,
 						__( 'Token disconnected.', '%TEXTDOMAIN%' ),

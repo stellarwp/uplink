@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink\Tests;
 
 use Codeception\TestCase\WPTestCase;
+use RuntimeException;
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Uplink;
@@ -30,6 +31,30 @@ class UplinkTestCase extends WPTestCase {
 		Uplink::init();
 
 		$this->container = Config::get_container();
+	}
+
+	/**
+	 * @param  string  $path  The path to the plugin file, e.g. my-plugin/my-plugin.php
+	 * @param  bool  $network_wide  Whether this should happen network wide.
+	 *
+	 * @return void
+	 */
+	protected function mock_activate_plugin( string $path, bool $network_wide = false ): void {
+		if ( $network_wide ) {
+			if ( ! is_multisite() ) {
+				throw new RuntimeException( 'Multisite is not enabled!, try running with slic run wpunit --env multisite' );
+			}
+
+			$current          = get_site_option( 'active_sitewide_plugins', [] );
+			$current[ $path ] = time();
+
+			update_site_option( 'active_sitewide_plugins', $current );
+		} else {
+			update_option(
+				'active_plugins',
+				array_merge(get_option('active_plugins', []), [$path])
+			);
+		}
 	}
 
 }

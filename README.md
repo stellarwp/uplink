@@ -144,7 +144,7 @@ Register::service(
 
 In order to render license key form just add the following to your settings page, tab, etc.
 
-> ⚠️ This will render license key fields for all of your registered plugins/services.
+> ⚠️ This will render license key fields for all of your registered plugins/services in the same Uplink/Container instance.
 
 ```php
 use StellarWP\Uplink\Config;

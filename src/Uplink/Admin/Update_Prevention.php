@@ -115,7 +115,6 @@ class Update_Prevention {
 
 		$link_read_more = '<a href="http://evnt.is/1aev" target="_blank">' . esc_html__( 'Read more', '%TEXTDOMAIN%' ) . '.</a>';
 
-		// @TODO: Matt wants to adjust this.
 		$message = sprintf(
 			esc_html__( 'Your update failed due to an incompatibility between the version (%1$s) of the %2$s you tried to update to. %3$s', '%TEXTDOMAIN%' ),
 			esc_html( $plugin_data['Version'] ),

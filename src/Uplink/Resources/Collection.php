@@ -19,12 +19,12 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	/**
 	 * The original Iterator, for memoization.
 	 *
-	 * @var Iterator|null
+	 * @var Iterator<string, Resource>|null
 	 */
 	private $iterator;
 
 	/**
-	 * @param Iterator|array<string, Resource> $resources An array or iterator of Resources.
+	 * @param Iterator<string, Resource>|array<string, Resource> $resources An array or iterator of Resources.
 	 */
 	public function __construct( $resources = [] ) {
 		if ( $resources instanceof Iterator ) {
@@ -44,7 +44,7 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @return Resource
 	 */
-	public function add( Resource $resource ) {
+	public function add( Resource $resource ): Resource {
 		if ( ! $this->offsetExists( $resource->get_slug() ) ) {
 			$this->offsetSet( $resource->get_slug(), $resource );
 		}
@@ -66,7 +66,7 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	 * @since 1.0.0
 	 *
 	 * @param string $path Path to filter collection by.
-	 * @param Iterator|null  $iterator Optional. Iterator to filter.
+	 * @param Iterator<string, Resource>|null  $iterator Optional. Iterator to filter.
 	 *
 	 * @return self
 	 */
@@ -82,7 +82,7 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	 * @since 1.0.0
 	 *
 	 * @param array<string> $paths Paths to filter collection by.
-	 * @param Iterator|null  $iterator Optional. Iterator to filter.
+	 * @param Iterator<string, Resource>|null  $iterator Optional. Iterator to filter.
 	 *
 	 * @return self
 	 */
@@ -97,7 +97,7 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  Iterator|null  $iterator Optional. Iterator to filter.
+	 * @param  Iterator<string, Resource>|null  $iterator Optional. Iterator to filter.
 	 *
 	 * @return self
 	 */
@@ -112,7 +112,7 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  Iterator|null  $iterator Optional. Iterator to filter.
+	 * @param  Iterator<string, Resource>|null  $iterator Optional. Iterator to filter.
 	 *
 	 * @return self
 	 */
@@ -219,7 +219,7 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	/**
 	 * Returns a clone of the underlying iterator.
 	 *
-	 * @return Iterator
+	 * @return Iterator<string, Resource>
 	 */
 	public function getIterator(): Iterator {
 		if ( isset( $this->iterator ) ) {

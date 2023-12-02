@@ -38,7 +38,7 @@ final class Network_Token_Check {
 		}
 
 		// Token already exists at the network level, don't authorize for this sub-site.
-		if ( $authorized->resource->is_network_activated() && $this->token_manager->get() ) {
+		if ( $authorized->resource()->is_network_activated() && $this->token_manager->get() ) {
 			$authorized->authorized = false;
 
 			return $authorized;

@@ -33,10 +33,8 @@ final class Authorizer {
 	 * @return bool
 	 */
 	public function can_auth( Resource $resource ): bool {
-		$authorized = new Authorized();
-		$authorized->resource = $resource;
-
-		$result = $this->pipeline->send( $authorized )->thenReturn();
+		$authorized = new Authorized( $resource );
+		$result     = $this->pipeline->send( $authorized )->thenReturn();
 
 		return $result->authorized;
 	}

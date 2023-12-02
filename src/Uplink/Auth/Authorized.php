@@ -24,6 +24,22 @@ final class Authorized {
 	 *
 	 * @var Resource
 	 */
-	public $resource;
+	private $resource;
+
+	/**
+	 * @param  Resource  $resource The Plugin/Service to check against.
+	 */
+	public function __construct( Resource $resource ) {
+		$this->resource = $resource;
+	}
+
+	/**
+	 * Return the current resource being checked.
+	 *
+	 * @return Resource
+	 */
+	public function resource(): Resource {
+		return $this->resource;
+	}
 
 }

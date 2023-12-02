@@ -36,7 +36,7 @@ final class Multisite_Subfolder_Check {
 		$main_site_url    = get_site_url( $id );
 
 		// The current sites with the main site URL, so we're in subfolder mode.
-		if ( Checks::str_starts_with( $current_site_url, $main_site_url ) && $authorized->resource->is_network_activated() ) {
+		if ( Checks::str_starts_with( $current_site_url, $main_site_url ) && $authorized->resource()->is_network_activated() ) {
 			$authorized->authorized = false;
 
 			return $authorized;

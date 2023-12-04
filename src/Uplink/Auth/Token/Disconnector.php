@@ -3,7 +3,6 @@
 namespace StellarWP\Uplink\Auth\Token;
 
 use StellarWP\Uplink\Auth\Authorizer;
-use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Resources\Collection;
 
 final class Disconnector {
@@ -14,9 +13,9 @@ final class Disconnector {
 	private $authorizer;
 
 	/**
-	 * @var Token_Manager
+	 * @var Token_Manager_Factory
 	 */
-	private $token_manager;
+	private $token_manager_factory;
 
 	/**
 	 * @var Collection
@@ -25,17 +24,17 @@ final class Disconnector {
 
 	/**
 	 * @param  Authorizer  $authorizer  Determines if the current user can perform actions.
-	 * @param  Token_Manager  $token_manager The Token Manager.
-	 * @param  Collection  $resources The resources collection.
+	 * @param  Token_Manager_Factory  $token_manager_factory  The Token Manager Factory.
+	 * @param  Collection  $resources  The resources collection.
 	 */
 	public function __construct(
 		Authorizer $authorizer,
-		Token_Manager $token_manager,
+		Token_Manager_Factory $token_manager_factory,
 		Collection $resources
 	) {
-		$this->authorizer    = $authorizer;
-		$this->token_manager = $token_manager;
-		$this->resources     = $resources;
+		$this->authorizer            = $authorizer;
+		$this->token_manager_factory = $token_manager_factory;
+		$this->resources             = $resources;
 	}
 
 	/**
@@ -54,7 +53,7 @@ final class Disconnector {
 			return false;
 		}
 
-		return $this->token_manager->delete();
+		return $this->token_manager_factory->make( $plugin->is_network_activated() )->delete();
 	}
 
 }

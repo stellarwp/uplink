@@ -360,7 +360,7 @@ class License {
 
 		$this->key = $key;
 
-		if ( 'network' === $type && is_multisite() ) {
+		if ( 'network' === $type && is_multisite() && $this->resource->is_network_activated() ) {
 			// WordPress would otherwise return false if the keys already match.
 			if ( $this->get_key_from_network_option() === $key ) {
 				return true;

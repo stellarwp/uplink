@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink\Tests\Auth\Token;
 
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
+use StellarWP\Uplink\Auth\Token\Token_Manager_Factory;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Uplink;
@@ -22,7 +23,8 @@ final class SingleSiteTokenMangerTest extends UplinkTestCase {
 		// Run init again to reload the Token/Provider.
 		Uplink::init();
 
-		$this->token_manager = $this->container->get( Token_Manager::class );
+		$this->token_manager = $this->container->get( Token_Manager_Factory::class )
+		                                       ->make();
 	}
 
 	/**

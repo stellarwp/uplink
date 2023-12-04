@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink\Tests\Auth\Token;
 
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
+use StellarWP\Uplink\Auth\Token\Token_Manager_Factory;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Uplink;
@@ -31,7 +32,8 @@ final class CustomDomainMultisiteTokenMangerTest extends UplinkTestCase {
 
 		switch_to_blog( $sub_site_id );
 
-		$this->token_manager = $this->container->get( Token_Manager::class );
+		$this->token_manager = $this->container->get( Token_Manager_Factory::class )
+		                                       ->make( true );
 	}
 
 	/**

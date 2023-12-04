@@ -495,7 +495,7 @@ abstract class Resource {
 	 *
 	 * @return API\Validation_Response
 	 */
-	public function validate_license( $key = null, $do_network_validate = false ) {
+	public function validate_license( ?string $key = null, bool $do_network_validate = false ) {
 		/** @var API\Client */
 		$api = $this->container->get( API\Client::class );
 

@@ -6,7 +6,7 @@ use InvalidArgumentException;
 use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
 use StellarWP\Uplink\Auth\Auth_Url_Builder;
 use StellarWP\Uplink\Auth\Authorizer;
-use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
+use StellarWP\Uplink\Auth\Token\Token_Manager_Factory;
 use StellarWP\Uplink\Components\Controller;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Resources\Collection;
@@ -25,9 +25,9 @@ final class Authorize_Button_Controller extends Controller {
 	private $authorizer;
 
 	/**
-	 * @var Token_Manager
+	 * @var Token_Manager_Factory
 	 */
-	private $token_manager;
+	private $token_manager_factory;
 
 	/**
 	 * @var Auth_Url_Builder
@@ -42,23 +42,23 @@ final class Authorize_Button_Controller extends Controller {
 	/**
 	 * @param  View  $view  The View Engine to render views.
 	 * @param  Authorizer  $authorizer  Determines if the current user can perform actions.
-	 * @param  Token_Manager  $token_manager  The Token Manager.
+	 * @param  Token_Manager_Factory  $token_manager_factory  The Token Manager Factory.
 	 * @param  Auth_Url_Builder  $url_builder  The Auth URL Builder.
 	 * @param  Collection  $resources  The resources collection.
 	 */
 	public function __construct(
 		View $view,
 		Authorizer $authorizer,
-		Token_Manager $token_manager,
+		Token_Manager_Factory $token_manager_factory,
 		Auth_Url_Builder $url_builder,
 		Collection $resources
 	) {
 		parent::__construct( $view );
 
-		$this->authorizer    = $authorizer;
-		$this->token_manager = $token_manager;
-		$this->url_builder   = $url_builder;
-		$this->resources     = $resources;
+		$this->authorizer            = $authorizer;
+		$this->token_manager_factory = $token_manager_factory;
+		$this->url_builder           = $url_builder;
+		$this->resources             = $resources;
 	}
 
 	/**
@@ -104,7 +104,7 @@ final class Authorize_Button_Controller extends Controller {
 			$target    = '_self';
 			$link_text = __( 'Contact your network administrator to connect', '%TEXTDOMAIN%' );
 			$url       = get_admin_url( get_current_blog_id(), 'network/' );
-		} elseif ( $this->token_manager->get() ) {
+		} elseif ( $this->token_manager_factory->make( $plugin->is_network_activated() )->get() ) {
 			$authenticated = true;
 			$target        = '_self';
 			$link_text     = __( 'Disconnect', '%TEXTDOMAIN%' );

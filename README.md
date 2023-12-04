@@ -250,9 +250,7 @@ You can also pass in a custom license domain, which can be fetched on the Uplink
 This connects to the licensing server to check in real time if the license is authorized. Use sparingly.
 
 ```php
-$container     = \StellarWP\Uplink\Config::get_container();
-$token_manager = $container->get( \StellarWP\Uplink\Auth\Token\Contracts\Token_Manager::class );
-$token         = $token_manager->get();
+$token = \StellarWP\Uplink\get_authorization_token( 'my-plugin-slug' );
 
 if ( ! $token ) {
 	return;

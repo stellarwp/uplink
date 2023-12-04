@@ -5,6 +5,7 @@ namespace StellarWP\Uplink\Tests\Auth\Admin;
 use StellarWP\Uplink\Auth\Admin\Connect_Controller;
 use StellarWP\Uplink\Auth\Nonce;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
+use StellarWP\Uplink\Auth\Token\Token_Manager_Factory;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Resources\Collection;
@@ -17,9 +18,9 @@ use WP_Screen;
 final class ConnectControllerTest extends UplinkTestCase {
 
 	/**
-	 * @var Token_Manager
+	 * @var Token_Manager_Factory
 	 */
-	private $token_manager;
+	private $token_manager_factory;
 
 	/**
 	 * The sample plugin slug
@@ -42,7 +43,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 			$this->container->get( Config::TOKEN_OPTION_NAME )
 		);
 
-		$this->token_manager = $this->container->get( Token_Manager::class );
+		$this->token_manager_factory = $this->container->get( Token_Manager_Factory::class );
 
 		// Register the sample plugin as a developer would in their plugin.
 		Register::plugin(
@@ -65,7 +66,9 @@ final class ConnectControllerTest extends UplinkTestCase {
 
 		wp_set_current_user( 1 );
 
-		$this->assertNull( $this->token_manager->get() );
+		$token_manager = $this->token_manager_factory->make();
+
+		$this->assertNull( $token_manager->get() );
 
 		$nonce = ( $this->container->get( Nonce::class ) )->create();
 		$token = '53ca40ab-c6c7-4482-a1eb-14c56da31015';
@@ -84,7 +87,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		// Fire off the action the Connect_Controller is running under.
 		do_action( 'admin_init' );
 
-		$this->assertSame( $token, $this->token_manager->get() );
+		$this->assertSame( $token, $token_manager->get() );
 	}
 
 	public function test_it_sets_additional_license_key(): void {
@@ -95,7 +98,9 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$plugin = $this->container->get( Collection::class )->offsetGet( $this->slug );
 		$this->assertEmpty( $plugin->get_license_key() );
 
-		$this->assertNull( $this->token_manager->get() );
+		$token_manager = $this->token_manager_factory->make();
+
+		$this->assertNull( $token_manager->get() );
 
 		$nonce   = ( $this->container->get( Nonce::class ) )->create();
 		$token   = '53ca40ab-c6c7-4482-a1eb-14c56da31015';
@@ -116,7 +121,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		// Fire off the action the Connect_Controller is running under.
 		do_action( 'admin_init' );
 
-		$this->assertSame( $token, $this->token_manager->get() );
+		$this->assertSame( $token, $token_manager->get() );
 		$this->assertSame( $plugin->get_license_key(), $license );
 	}
 
@@ -125,7 +130,9 @@ final class ConnectControllerTest extends UplinkTestCase {
 
 		wp_set_current_user( 1 );
 
-		$this->assertNull( $this->token_manager->get() );
+		$token_manager = $this->token_manager_factory->make();
+
+		$this->assertNull( $token_manager->get() );
 
 		$token = '53ca40ab-c6c7-4482-a1eb-14c56da31015';
 
@@ -143,7 +150,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		// Fire off the action the Connect_Controller is running under.
 		do_action( 'admin_init' );
 
-		$this->assertNull( $this->token_manager->get() );
+		$this->assertNull( $token_manager->get() );
 	}
 
 	public function test_it_does_not_store_an_invalid_token(): void {
@@ -151,7 +158,9 @@ final class ConnectControllerTest extends UplinkTestCase {
 
 		wp_set_current_user( 1 );
 
-		$this->assertNull( $this->token_manager->get() );
+		$token_manager = $this->token_manager_factory->make();
+
+		$this->assertNull( $token_manager->get() );
 
 		$nonce = ( $this->container->get( Nonce::class ) )->create();
 		$token = 'invalid-token-format';
@@ -170,7 +179,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		// Fire off the action the Connect_Controller is running under.
 		do_action( 'admin_init' );
 
-		$this->assertNull( $this->token_manager->get() );
+		$this->assertNull( $token_manager->get() );
 	}
 
 	public function test_it_does_not_store_a_token_without_a_slug(): void {
@@ -178,7 +187,9 @@ final class ConnectControllerTest extends UplinkTestCase {
 
 		wp_set_current_user( 1 );
 
-		$this->assertNull( $this->token_manager->get() );
+		$token_manager = $this->token_manager_factory->make();
+
+		$this->assertNull( $token_manager->get() );
 
 		$nonce = ( $this->container->get( Nonce::class ) )->create();
 		$token = '53ca40ab-c6c7-4482-a1eb-14c56da31015';
@@ -196,7 +207,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		// Fire off the action the Connect_Controller is running under.
 		do_action( 'admin_init' );
 
-		$this->assertNull( $this->token_manager->get() );
+		$this->assertNull( $token_manager->get() );
 	}
 
 	public function test_it_stores_token_but_not_license_without_a_license(): void {
@@ -207,7 +218,9 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$plugin = $this->container->get( Collection::class )->offsetGet( $this->slug );
 		$this->assertEmpty( $plugin->get_license_key() );
 
-		$this->assertNull( $this->token_manager->get() );
+		$token_manager = $this->token_manager_factory->make();
+
+		$this->assertNull( $token_manager->get() );
 
 		$nonce   = ( $this->container->get( Nonce::class ) )->create();
 		$token   = '53ca40ab-c6c7-4482-a1eb-14c56da31015';
@@ -227,7 +240,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		// Fire off the action the Connect_Controller is running under.
 		do_action( 'admin_init' );
 
-		$this->assertSame( $token, $this->token_manager->get() );
+		$this->assertSame( $token, $token_manager->get() );
 		$this->assertEmpty( $plugin->get_license_key() );
 	}
 
@@ -245,14 +258,14 @@ final class ConnectControllerTest extends UplinkTestCase {
 		wp_set_current_user( 1 );
 
 		// Mock our sample plugin is network activated, otherwise license key check fails.
-		$this->assertTrue( update_site_option( 'active_sitewide_plugins', [
-			'uplink/index.php' => time(),
-		] ) );
+		$this->mock_activate_plugin( 'uplink/index.php', true );
 
 		$plugin = $this->container->get( Collection::class )->offsetGet( $this->slug );
 		$this->assertEmpty( $plugin->get_license_key( 'network' ) );
 
-		$this->assertNull( $this->token_manager->get() );
+		$token_manager = $this->token_manager_factory->make( true );
+
+		$this->assertNull( $token_manager->get() );
 
 		$nonce   = ( $this->container->get( Nonce::class ) )->create();
 		$token   = '53ca40ab-c6c7-4482-a1eb-14c56da31015';
@@ -274,7 +287,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		// Fire off the action the Connect_Controller is running under.
 		do_action( 'admin_init' );
 
-		$this->assertSame( $token, $this->token_manager->get() );
+		$this->assertSame( $token, $token_manager->get() );
 		$this->assertSame( $plugin->get_license_key( 'network' ), $license );
 	}
 
@@ -295,14 +308,14 @@ final class ConnectControllerTest extends UplinkTestCase {
 		wp_set_current_user( 1 );
 
 		// Mock our sample plugin is network activated, otherwise license key check fails.
-		$this->assertTrue( update_site_option( 'active_sitewide_plugins', [
-			'uplink/index.php' => time(),
-		] ) );
+		$this->mock_activate_plugin( 'uplink/index.php', true );
 
 		$plugin = $this->container->get( Collection::class )->offsetGet( $this->slug );
 		$this->assertEmpty( $plugin->get_license_key( 'network' ) );
 
-		$this->assertNull( $this->token_manager->get() );
+		$token_manager = $this->token_manager_factory->make( true );
+
+		$this->assertNull( $token_manager->get() );
 
 		$nonce   = ( $this->container->get( Nonce::class ) )->create();
 		$token   = '53ca40ab-c6c7-4482-a1eb-14c56da31015';
@@ -324,7 +337,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		// Fire off the action the Connect_Controller is running under.
 		do_action( 'admin_init' );
 
-		$this->assertNull( $this->token_manager->get() );
+		$this->assertNull( $token_manager->get() );
 		$this->assertEmpty(  $plugin->get_license_key( 'all' ) );
 	}
 

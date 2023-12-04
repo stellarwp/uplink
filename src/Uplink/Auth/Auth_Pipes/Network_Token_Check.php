@@ -4,19 +4,19 @@ namespace StellarWP\Uplink\Auth\Auth_Pipes;
 
 use Closure;
 use StellarWP\Uplink\Auth\Authorized;
-use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
+use StellarWP\Uplink\Auth\Token\Managers\Network_Token_Manager;
 
 final class Network_Token_Check {
 
 	/**
-	 * @var Token_Manager
+	 * @var Network_Token_Manager
 	 */
 	private $token_manager;
 
 	/**
-	 * @param  Token_Manager  $token_manager The Token Manager.
+	 * @param  Network_Token_Manager  $token_manager The Token Manager Factory.
 	 */
-	public function __construct( Token_Manager $token_manager ) {
+	public function __construct( Network_Token_Manager $token_manager ) {
 		$this->token_manager = $token_manager;
 	}
 

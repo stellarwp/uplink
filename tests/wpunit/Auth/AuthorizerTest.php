@@ -3,7 +3,7 @@
 namespace StellarWP\Uplink\Tests\Auth;
 
 use StellarWP\Uplink\Auth\Authorizer;
-use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
+use StellarWP\Uplink\Auth\Token\Token_Manager_Factory;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Resources\Collection;
@@ -117,7 +117,7 @@ final class AuthorizerTest extends UplinkTestCase {
 		$this->mock_activate_plugin( 'uplink/index.php', true );
 		$this->assertTrue( is_multisite() );
 
-		$token_manager = $this->container->get( Token_Manager::class );
+		$token_manager = $this->container->get( Token_Manager_Factory::class )->make( true );
 		$token         = '695be4b3-ad6e-4863-9287-3052f597b1f6';
 
 		// Store a token while on the main site.

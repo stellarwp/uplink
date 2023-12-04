@@ -2,12 +2,13 @@
 
 namespace StellarWP\Uplink\Auth;
 
-use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
 use StellarWP\Uplink\Auth\Admin\Connect_Controller;
+use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
 use StellarWP\Uplink\Auth\Auth_Pipes\Multisite_Subfolder_Check;
 use StellarWP\Uplink\Auth\Auth_Pipes\Network_Token_Check;
 use StellarWP\Uplink\Auth\Auth_Pipes\User_Check;
-use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
+use StellarWP\Uplink\Auth\Token\Managers\Network_Token_Manager;
+use StellarWP\Uplink\Auth\Token\Managers\Token_Manager;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\Pipeline\Pipeline;
@@ -22,10 +23,17 @@ final class Provider extends Abstract_Provider {
 			return;
 		}
 
-		$this->container->bind(
+		$this->container->singleton(
 			Token_Manager::class,
 			static function ( $c ) {
-				return new Token\Token_Manager( $c->get( Config::TOKEN_OPTION_NAME ) );
+				return new Token_Manager( $c->get( Config::TOKEN_OPTION_NAME ) );
+			}
+		);
+
+		$this->container->singleton(
+			Network_Token_Manager::class,
+			static function ( $c ) {
+				return new Network_Token_Manager( $c->get( Config::TOKEN_OPTION_NAME ) );
 			}
 		);
 
@@ -64,7 +72,7 @@ final class Provider extends Abstract_Provider {
 		$this->container->singleton(
 			Network_Token_Check::class,
 			static function ( $c ) {
-				return new Network_Token_Check( $c->get( Token_Manager::class ) );
+				return new Network_Token_Check( $c->get( Network_Token_Manager::class ) );
 			}
 		);
 

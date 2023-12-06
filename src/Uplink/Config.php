@@ -270,4 +270,21 @@ class Config {
 		);
 	}
 
+	/**
+	 * Check if any of the network license options are enabled.
+	 *
+	 * @throws RuntimeException
+	 *
+	 * @return bool
+	 */
+	public static function allows_network_licenses(): bool {
+		$config = [
+			self::allows_network_subfolder_license(),
+			self::allows_network_subdomain_license(),
+			self::allows_network_domain_mapping_license(),
+		];
+
+		return in_array( true, $config, true );
+	}
+
 }

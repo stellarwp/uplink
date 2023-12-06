@@ -54,4 +54,22 @@ final class ConfigTest extends UplinkTestCase {
 		Config::set_token_auth_prefix( 'fluffy_unicorn_rainbow_sunshine_happy_smile_peace_joy_love_puppy_harmony_giggles_dreams_celebrate_fantastic_wonderful_whimsical_serendipity_butterfly_magic_sparkle_sweetness_trust_' );
 	}
 
+	public function test_it_detects_allowed_network_licenses_subfolder(): void {
+		$this->assertFalse( Config::allows_network_licenses() );
+		Config::set_network_subfolder_license( true );
+		$this->assertTrue( Config::allows_network_licenses() );
+	}
+
+	public function test_it_detects_allowed_network_licenses_subdomain(): void {
+		$this->assertFalse( Config::allows_network_licenses() );
+		Config::set_network_subdomain_license( true );
+		$this->assertTrue( Config::allows_network_licenses() );
+	}
+
+	public function test_it_detects_allowed_network_licenses_domain_mapping(): void {
+		$this->assertFalse( Config::allows_network_licenses() );
+		Config::set_network_domain_mapping_license( true );
+		$this->assertTrue( Config::allows_network_licenses() );
+	}
+
 }

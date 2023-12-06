@@ -19,16 +19,8 @@ final class Multisite_Main_Site {
 	 * @return bool
 	 */
 	public function __invoke( bool $is_multisite_license, Closure $next ): bool {
-		if ( is_main_site() ) {
-			$config = [
-				Config::allows_network_subfolder_license(),
-				Config::allows_network_subdomain_license(),
-				Config::allows_network_domain_mapping_license(),
-			];
-
-			if ( in_array( true, $config, true ) ) {
-				$is_multisite_license = true;
-			}
+		if ( is_main_site() && Config::allows_network_licenses() ) {
+			$is_multisite_license = true;
 		}
 
 		return $next( $is_multisite_license );

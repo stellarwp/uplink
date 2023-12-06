@@ -43,6 +43,20 @@ final class Disconnect_Controller {
 	}
 
 	/**
+	 * Get the disconnect URL to render.
+	 *
+	 * @param  string  $slug The plugin/service slug.
+	 *
+	 * @return string
+	 */
+	public function get_url( string $slug ): string {
+		return wp_nonce_url( add_query_arg( [
+			self::ARG  => true,
+			self::SLUG => $slug,
+		], get_admin_url( get_current_blog_id() ) ), self::ARG );
+	}
+
+	/**
 	 * Disconnect (delete) a token if the user is allowed to.
 	 *
 	 * @action admin_init

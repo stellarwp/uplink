@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink;
 
 use StellarWP\Uplink\API\V3\Auth\Token_Authorizer;
+use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
 use StellarWP\Uplink\Auth\Auth_Url_Builder;
 use StellarWP\Uplink\Auth\License\License_Manager;
 use StellarWP\Uplink\Auth\Token\Token_Factory;
@@ -177,4 +178,17 @@ function get_token( string $slug ): ?string {
  */
 function get_license_domain(): string {
 	return Config::get_container()->get( Data::class )->get_domain();
+}
+
+/**
+ * Get the disconnect token URL.
+ *
+ * @param  string  $slug The plugin/service slug.
+ *
+ * @throws \RuntimeException
+ *
+ * @return string
+ */
+function get_disconnect_url( string $slug ): string {
+	return Config::get_container()->get( Disconnect_Controller::class )->get_url( $slug );
 }

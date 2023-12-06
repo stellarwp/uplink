@@ -40,18 +40,25 @@ final class Authorize_Button_Controller extends Controller {
 	private $resources;
 
 	/**
+	 * @var Disconnect_Controller
+	 */
+	private $disconnect_controller;
+
+	/**
 	 * @param  View  $view  The View Engine to render views.
 	 * @param  Authorizer  $authorizer  Determines if the current user can perform actions.
 	 * @param  Token_Factory  $token_manager_factory  The Token Manager Factory.
 	 * @param  Auth_Url_Builder  $url_builder  The Auth URL Builder.
 	 * @param  Collection  $resources  The resources collection.
+	 * @param  Disconnect_Controller  $disconnect_controller  The disconnect controller.
 	 */
 	public function __construct(
 		View $view,
 		Authorizer $authorizer,
 		Token_Factory $token_manager_factory,
 		Auth_Url_Builder $url_builder,
-		Collection $resources
+		Collection $resources,
+		Disconnect_Controller $disconnect_controller
 	) {
 		parent::__construct( $view );
 
@@ -59,6 +66,7 @@ final class Authorize_Button_Controller extends Controller {
 		$this->token_manager_factory = $token_manager_factory;
 		$this->url_builder           = $url_builder;
 		$this->resources             = $resources;
+		$this->disconnect_controller = $disconnect_controller;
 	}
 
 	/**
@@ -108,7 +116,7 @@ final class Authorize_Button_Controller extends Controller {
 			$authenticated = true;
 			$target        = '_self';
 			$link_text     = __( 'Disconnect', '%TEXTDOMAIN%' );
-			$url           = wp_nonce_url( add_query_arg( [ Disconnect_Controller::ARG => true, Disconnect_Controller::SLUG => $slug ], get_admin_url( get_current_blog_id() ) ), Disconnect_Controller::ARG );
+			$url           = $this->disconnect_controller->get_url( $slug );
 			$classes[1]    = 'authorized';
 		}
 

@@ -116,6 +116,17 @@ class Data {
 				$domain = $this->get_domain_multisite_option();
 				$this->container->bind( $cache_key, function() use ( $domain ) { return $domain; } );
 			}
+
+			/*
+			 * Append a hash to the end of the main site domain when on multisite and network licenses
+			 * are allowed.
+			 *
+			 * This prevents the main site from refreshing the token on the Licensing server
+			 * when multisite is off or network licenses aren't enabled.
+			 */
+			if ( Config::allows_network_licenses() ) {
+				$domain .= '/' . hash( 'crc32c', $domain );
+			}
 		} elseif ( $domain === null ) {
 			$domain = $this->get_site_domain();
 			$this->container->bind( $cache_key, function() use ( $domain ) { return $domain; } );

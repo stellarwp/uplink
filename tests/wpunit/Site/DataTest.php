@@ -10,6 +10,16 @@ use WP_Error;
 class DataTest extends UplinkTestCase {
 
 	/**
+	 * The main site URL, with a crc32c hash of "wordpress.test" appended to the
+	 * end of the main multisite domain.
+	 *
+	 * @see Uplink\Site\Data::get_domain()
+	 *
+	 * @var string
+	 */
+	private $main_site = 'wordpress.test/22f4af21';
+
+	/**
 	 * It should collect base stats.
 	 *
 	 * @test
@@ -120,11 +130,11 @@ class DataTest extends UplinkTestCase {
 		$this->assertGreaterThan( 1, $sub_site_id_1 );
 
 		// Assert the main site still returns correctly before switching.
-		$this->assertSame( 'wordpress.test', $data->get_domain() );
+		$this->assertSame( $this->main_site, $data->get_domain() );
 
 		switch_to_blog( $sub_site_id_1 );
 
-		$this->assertSame( 'wordpress.test', $data->get_domain() );
+		$this->assertSame( $this->main_site, $data->get_domain() );
 
 		$sub_site_id_2 = wpmu_create_blog( 'wordpress.test', '/sub2', 'Test Subsite 2', 1 );
 
@@ -133,7 +143,7 @@ class DataTest extends UplinkTestCase {
 
 		switch_to_blog( $sub_site_id_2 );
 
-		$this->assertSame( 'wordpress.test', $data->get_domain() );
+		$this->assertSame( $this->main_site, $data->get_domain() );
 	}
 
 	/**
@@ -178,7 +188,7 @@ class DataTest extends UplinkTestCase {
 		switch_to_blog( $sub_site_id_1 );
 
 		// Should return main domain, not the custom one.
-		$this->assertSame( 'wordpress.test', $data->get_domain() );
+		$this->assertSame( $this->main_site, $data->get_domain() );
 	}
 
 	/**
@@ -223,7 +233,7 @@ class DataTest extends UplinkTestCase {
 		switch_to_blog( $sub_site_id_1 );
 
 		// Should return main domain, not the custom one.
-		$this->assertSame( 'wordpress.test', $data->get_domain() );
+		$this->assertSame( $this->main_site, $data->get_domain() );
 	}
 
 }

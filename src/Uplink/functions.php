@@ -8,6 +8,10 @@ use StellarWP\Uplink\Auth\License\License_Manager;
 use StellarWP\Uplink\Auth\Token\Token_Factory;
 use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
 use StellarWP\Uplink\Resources\Collection;
+use StellarWP\Uplink\Resources\Plugin;
+use StellarWP\Uplink\Resources\Resource;
+use StellarWP\Uplink\Resources\Service;
+use StellarWP\Uplink\Site\Data;
 use Throwable;
 
 /**
@@ -42,16 +46,16 @@ function render_authorize_button( string $slug, string $domain = '' ): void {
  * @return string|null
  */
 function get_authorization_token( string $slug ): ?string {
-	$container = Config::get_container();
+	$c = Config::get_container();
 
 	try {
-		$plugin = $container->get( Collection::class )->offsetGet( $slug );
+		$plugin = $c->get( Collection::class )->offsetGet( $slug );
 
 		if ( ! $plugin ) {
 			return null;
 		}
 
-		return $container->get( Token_Factory::class )
+		return $c->get( Token_Factory::class )
 		                 ->make( $plugin )
 		                 ->get();
 	} catch ( Throwable $e ) {
@@ -108,7 +112,20 @@ function build_auth_url( string $slug, string $domain = '' ): string {
 }
 
 /**
- * A multisite license aware way to get a resource's license key either
+ * Get a resource (plugin/service) from the collection.
+ *
+ * @param  string  $slug  The resource slug to find.
+ *
+ * @throws \RuntimeException
+ *
+ * @return Resource|Plugin|Service|null
+ */
+function get_resource( string $slug ) {
+	return Config::get_container()->get( Collection::class )->offsetGet( $slug );
+}
+
+/**
+ * A multisite license aware way to get a resource's license key automatically
  * from the network or local site level.
  *
  * @param  string  $slug  The plugin/service slug.
@@ -118,14 +135,46 @@ function build_auth_url( string $slug, string $domain = '' ): string {
  * @return string
  */
 function get_license_key( string $slug ): string {
-	$container = Config::get_container();
-	$resource  = $container->get( Collection::class )->offsetGet( $slug );
+	$resource = get_resource( $slug );
 
 	if ( ! $resource ) {
 		return '';
 	}
 
-	$network = $container->get( License_Manager::class )->allows_multisite_license( $resource );
+	$c = Config::get_container();
+
+	$network = $c->get( License_Manager::class )->allows_multisite_license( $resource );
 
 	return $resource->get_license_key( $network ? 'network' : 'local' );
+}
+
+/**
+ * Multisite license friendly token fetching.
+ *
+ * @param  string  $slug The plugin/service slug.
+ *
+ * @throws \RuntimeException
+ *
+ * @return string|null
+ */
+function get_token( string $slug ): ?string {
+	$resource = get_resource( $slug );
+
+	if ( ! $resource ) {
+		return null;
+	}
+
+	$c = Config::get_container();
+
+	return $c->get( Token_Factory::class )->make( $resource )->get();
+}
+
+/**
+ * Get the current site's license domain, multisite friendly.
+ *
+ * @throws \RuntimeException
+ * @return string
+ */
+function get_domain(): string {
+	return Config::get_container()->get( Data::class )->get_domain();
 }

@@ -173,7 +173,7 @@ abstract class Resource {
 
 		$args['plugin']            = sanitize_text_field( $this->get_slug() );
 		$args['installed_version'] = sanitize_text_field( $this->get_installed_version() ?: '' );
-		$args['domain']            = sanitize_text_field( $data->get_domain() );
+		$args['domain']            = sanitize_text_field( $data->get_domain( true ) );
 
 		// get general stats
 		/** @var array<string,array<mixed>> */

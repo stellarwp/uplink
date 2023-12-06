@@ -38,7 +38,7 @@ function render_authorize_button( string $slug, string $domain = '' ): void {
 }
 
 /**
- * Get the stored authorization token.
+ * Get the stored authorization token, automatically detects multisite.
  *
  * @param  string  $slug  The plugin/service slug to use to determine if we use network/single site token storage.
  *
@@ -47,25 +47,13 @@ function render_authorize_button( string $slug, string $domain = '' ): void {
  * @return string|null
  */
 function get_authorization_token( string $slug ): ?string {
-	$c = Config::get_container();
+	$resource = get_resource( $slug );
 
-	try {
-		$plugin = $c->get( Collection::class )->offsetGet( $slug );
-
-		if ( ! $plugin ) {
-			return null;
-		}
-
-		return $c->get( Token_Factory::class )
-		                 ->make( $plugin )
-		                 ->get();
-	} catch ( Throwable $e ) {
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( "Error occurred when fetching token: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
-		}
-
+	if ( ! $resource ) {
 		return null;
 	}
+
+	return Config::get_container()->get( Token_Factory::class )->make( $resource )->get();
 }
 
 /**
@@ -147,27 +135,6 @@ function get_license_key( string $slug ): string {
 	$network = $c->get( License_Manager::class )->allows_multisite_license( $resource );
 
 	return $resource->get_license_key( $network ? 'network' : 'local' );
-}
-
-/**
- * Multisite license friendly token fetching.
- *
- * @param  string  $slug The plugin/service slug.
- *
- * @throws \RuntimeException
- *
- * @return string|null
- */
-function get_token( string $slug ): ?string {
-	$resource = get_resource( $slug );
-
-	if ( ! $resource ) {
-		return null;
-	}
-
-	$c = Config::get_container();
-
-	return $c->get( Token_Factory::class )->make( $resource )->get();
 }
 
 /**

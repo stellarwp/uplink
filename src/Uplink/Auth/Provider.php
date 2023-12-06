@@ -6,9 +6,9 @@ use StellarWP\Uplink\Auth\Admin\Connect_Controller;
 use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
 use StellarWP\Uplink\Auth\License\License_Manager;
 use StellarWP\Uplink\Auth\License\Pipeline\Processors\Multisite_Domain_Mapping;
+use StellarWP\Uplink\Auth\License\Pipeline\Processors\Multisite_Main_Site;
 use StellarWP\Uplink\Auth\License\Pipeline\Processors\Multisite_Subdomain;
 use StellarWP\Uplink\Auth\License\Pipeline\Processors\Multisite_Subfolder;
-use StellarWP\Uplink\Auth\License\Pipeline\Processors\Multisite_Token;
 use StellarWP\Uplink\Auth\Token\Managers\Network_Token_Manager;
 use StellarWP\Uplink\Auth\Token\Managers\Token_Manager;
 use StellarWP\Uplink\Config;
@@ -74,10 +74,10 @@ final class Provider extends Abstract_Provider {
 	 */
 	private function register_license_manager(): void {
 		$pipeline = ( new Pipeline( $this->container ) )->through( [
+			Multisite_Main_Site::class,
 			Multisite_Subfolder::class,
 			Multisite_Subdomain::class,
 			Multisite_Domain_Mapping::class,
-			Multisite_Token::class,
 		] );
 
 		$this->container->singleton(

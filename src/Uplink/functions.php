@@ -175,6 +175,6 @@ function get_token( string $slug ): ?string {
  * @throws \RuntimeException
  * @return string
  */
-function get_domain(): string {
+function get_license_domain(): string {
 	return Config::get_container()->get( Data::class )->get_domain();
 }

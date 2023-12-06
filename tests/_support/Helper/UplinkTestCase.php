@@ -20,6 +20,27 @@ class UplinkTestCase extends WPTestCase {
 	 */
 	protected $container;
 
+	/**
+	 * Holds the original configuration value.
+	 *
+	 * @var bool
+	 */
+	protected $network_subfolder_license;
+
+	/**
+	 * Holds the original configuration value.
+	 *
+	 * @var bool
+	 */
+	protected $network_subdomain_license;
+
+	/**
+	 * Holds the original configuration value.
+	 *
+	 * @var bool
+	 */
+	protected $network_domain_mapping_license;
+
 	protected function setUp(): void {
 		// @phpstan-ignore-next-line
 		parent::setUp();
@@ -31,6 +52,19 @@ class UplinkTestCase extends WPTestCase {
 		Uplink::init();
 
 		$this->container = Config::get_container();
+
+		$this->network_subfolder_license      = Config::allows_network_subfolder_license();
+		$this->network_subdomain_license      = Config::allows_network_subdomain_license();
+		$this->network_domain_mapping_license = Config::allows_network_domain_mapping_license();
+	}
+
+	protected function tearDown(): void {
+		// Reset back to default config, in case any tests changed them.
+		Config::set_network_subfolder_license( $this->network_subfolder_license );
+		Config::set_network_subdomain_license( $this->network_subdomain_license );
+		Config::set_network_domain_mapping_license( $this->network_domain_mapping_license );
+
+		parent::tearDown();
 	}
 
 	/**

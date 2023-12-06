@@ -99,14 +99,25 @@ class Data {
 	 *
 	 * @since 1.0.0
 	 *
+	 * @throws \RuntimeException
+	 *
 	 * @return string
 	 */
 	public function get_domain(): string {
-		$cache_key = 'stellarwp_uplink_domain';
-		$domain    = $this->container->has( $cache_key ) ? $this->container->get( $cache_key ) : null;
+		$cache_key                        = 'stellarwp_uplink_domain';
+		$domain                           = $this->container->has( $cache_key ) ? $this->container->get( $cache_key ) : null;
+		$allows_network_subfolder_license = Config::allows_network_subfolder_license();
 
-		if ( null === $domain ) {
-			$domain = is_multisite() ? $this->get_domain_multisite_option() : $this->get_site_domain();
+		if ( is_multisite() ) {
+			// Ensure subsite also contains its path and don't cache.
+			if ( ! $allows_network_subfolder_license ) {
+				$domain = $this->get_domain_multisite_subsite_subfolder();
+			} elseif ( $domain === null ) {
+				$domain = $this->get_domain_multisite_option();
+				$this->container->bind( $cache_key, function() use ( $domain ) { return $domain; } );
+			}
+		} elseif ( $domain === null ) {
+			$domain = $this->get_site_domain();
 			$this->container->bind( $cache_key, function() use ( $domain ) { return $domain; } );
 		}
 
@@ -115,9 +126,10 @@ class Data {
 		 *
 		 * @since 1.0.0
 		 *
-		 * @param string $domain Domain.
+		 * @param  string  $domain  Domain.
+		 * @param  bool  $allows_network_subfolder_license  Whether network subfolder licenses are allowed.
 		 */
-		$domain = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/get_domain', $domain );
+		$domain = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/get_domain', $domain, $allows_network_subfolder_license );
 
 		return sanitize_text_field( $domain );
 	}
@@ -138,6 +150,35 @@ class Data {
 		}
 
 		return strtolower( $site_url['host'] );
+	}
+
+	/**
+	 * When network licensing for multisite subfolders isn't active,
+	 * each subsite domain needs to be unique, so we'll include the
+	 * subfolder path.
+	 *
+	 * @return string
+	 */
+	protected function get_domain_multisite_subsite_subfolder(): string {
+		if ( is_main_site() ) {
+			return $this->get_domain_multisite_option();
+		}
+
+		$url = get_site_url();
+		$url = wp_parse_url( $url );
+
+		if ( ! $url || ! isset( $url['host'] ) ) {
+			return '';
+		}
+
+		$domain = $url['host'];
+
+		// Append the multisite subfolder path.
+		if ( ! empty( $url['path'] ) && $url['path'] !== '/' ) {
+			$domain .= $url['path'];
+		}
+
+		return strtolower( $domain );
 	}
 
 	/**

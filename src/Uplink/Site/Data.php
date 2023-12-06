@@ -99,11 +99,13 @@ class Data {
 	 *
 	 * @since 1.0.0
 	 *
+	 * @param  bool  $original Return the original domain without any added hashes.
+	 *
 	 * @throws \RuntimeException
 	 *
 	 * @return string
 	 */
-	public function get_domain(): string {
+	public function get_domain( bool $original = false ): string {
 		$cache_key                        = 'stellarwp_uplink_domain';
 		$domain                           = $this->container->has( $cache_key ) ? $this->container->get( $cache_key ) : null;
 		$allows_network_subfolder_license = Config::allows_network_subfolder_license();
@@ -124,7 +126,7 @@ class Data {
 			 * This prevents the main site from refreshing the token on the Licensing server
 			 * when multisite is off or network licenses aren't enabled.
 			 */
-			if ( Config::allows_network_licenses() ) {
+			if ( ! $original && Config::allows_network_licenses() ) {
 				$domain .= '/' . hash( 'crc32c', $domain );
 			}
 		} elseif ( $domain === null ) {

@@ -171,6 +171,17 @@ function get_token( string $slug ): ?string {
 }
 
 /**
+ * Get the current site's license domain without any hash suffix.
+ *
+ * @throws \RuntimeException
+ *
+ * @return string
+ */
+function get_original_domain(): string {
+	return Config::get_container()->get( Data::class )->get_domain( true );
+}
+
+/**
  * Get the current site's license domain, multisite friendly.
  *
  * @throws \RuntimeException

@@ -4,9 +4,11 @@ namespace StellarWP\Uplink\Auth;
 
 use StellarWP\Uplink\Auth\Admin\Connect_Controller;
 use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
-use StellarWP\Uplink\Auth\Auth_Pipes\Multisite_Subfolder_Check;
-use StellarWP\Uplink\Auth\Auth_Pipes\Network_Token_Check;
-use StellarWP\Uplink\Auth\Auth_Pipes\User_Check;
+use StellarWP\Uplink\Auth\License\License_Manager;
+use StellarWP\Uplink\Auth\License\Pipeline\Processors\Multisite_Domain_Mapping;
+use StellarWP\Uplink\Auth\License\Pipeline\Processors\Multisite_Subdomain;
+use StellarWP\Uplink\Auth\License\Pipeline\Processors\Multisite_Subfolder;
+use StellarWP\Uplink\Auth\License\Pipeline\Processors\Multisite_Token;
 use StellarWP\Uplink\Auth\Token\Managers\Network_Token_Manager;
 use StellarWP\Uplink\Auth\Token\Managers\Token_Manager;
 use StellarWP\Uplink\Config;
@@ -38,7 +40,7 @@ final class Provider extends Abstract_Provider {
 		);
 
 		$this->register_nonce();
-		$this->register_authorizer();
+		$this->register_license_manager();
 		$this->register_auth_disconnect();
 		$this->register_auth_connect();
 	}
@@ -65,27 +67,23 @@ final class Provider extends Abstract_Provider {
 	}
 
 	/**
-	 * Registers the Authorizer and the steps in order for the pipeline
-	 * processing.
+	 * Register the license manager and its pipeline to detect different
+	 * mulitsite licenses.
+	 *
+	 * @return void
 	 */
-	private function register_authorizer(): void {
-		$this->container->singleton(
-			Network_Token_Check::class,
-			static function ( $c ) {
-				return new Network_Token_Check( $c->get( Network_Token_Manager::class ) );
-			}
-		);
-
+	private function register_license_manager(): void {
 		$pipeline = ( new Pipeline( $this->container ) )->through( [
-			User_Check::class,
-			Multisite_Subfolder_Check::class,
-			Network_Token_Check::class,
+			Multisite_Subfolder::class,
+			Multisite_Subdomain::class,
+			Multisite_Domain_Mapping::class,
+			Multisite_Token::class,
 		] );
 
 		$this->container->singleton(
-			Authorizer::class,
+			License_Manager::class,
 			static function () use ( $pipeline ) {
-				return new Authorizer( $pipeline );
+				return new License_Manager( $pipeline );
 			}
 		);
 	}

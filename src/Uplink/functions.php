@@ -4,7 +4,7 @@ namespace StellarWP\Uplink;
 
 use StellarWP\Uplink\API\V3\Auth\Token_Authorizer;
 use StellarWP\Uplink\Auth\Auth_Url_Builder;
-use StellarWP\Uplink\Auth\Token\Token_Manager_Factory;
+use StellarWP\Uplink\Auth\Token\Token_Factory;
 use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
 use StellarWP\Uplink\Resources\Collection;
 use Throwable;
@@ -34,7 +34,9 @@ function render_authorize_button( string $slug, string $domain = '' ): void {
 /**
  * Get the stored authorization token.
  *
- * @param  string  $slug The plugin/service slug to use to determine if we use network/single site token storage.
+ * @param  string  $slug  The plugin/service slug to use to determine if we use network/single site token storage.
+ *
+ * @throws \RuntimeException
  *
  * @return string|null
  */
@@ -48,8 +50,8 @@ function get_authorization_token( string $slug ): ?string {
 			return null;
 		}
 
-		return $container->get( Token_Manager_Factory::class )
-		                 ->make( $plugin->is_network_activated() )
+		return $container->get( Token_Factory::class )
+		                 ->make( $plugin )
 		                 ->get();
 	} catch ( Throwable $e ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {

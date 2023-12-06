@@ -32,6 +32,27 @@ class Config {
 	protected static $hook_prefix = '';
 
 	/**
+	 * Whether your plugin allows multisite network subfolder licenses.
+	 *
+	 * @var bool
+	 */
+	protected static $network_subfolder_license = false;
+
+	/**
+	 * Whether your plugin allows multisite subdomain licenses.
+	 *
+	 * @var bool
+	 */
+	protected static $network_subdomain_license = false;
+
+	/**
+	 * Whether your plugin allows multisite domain mapping licenses.
+	 *
+	 * @var bool
+	 */
+	protected static $network_domain_mapping_license = false;
+
+	/**
 	 * Get the container.
 	 *
 	 * @since 1.0.0
@@ -172,6 +193,81 @@ class Config {
 		}
 
 		self::get_container()->singleton( self::TOKEN_OPTION_NAME, $key );
+	}
+
+	/**
+	 * Allow or disallow multisite subfolder licenses at the network level.
+	 *
+	 * @param  bool  $allowed
+	 *
+	 * @return void
+	 */
+	public static function set_network_subfolder_license( bool $allowed ): void {
+		self::$network_subfolder_license = $allowed;
+	}
+
+	/**
+	 * Whether your plugin allows multisite network subfolder licenses.
+	 *
+	 * @throws RuntimeException
+	 *
+	 * @return bool
+	 */
+	public static function allows_network_subfolder_license(): bool {
+		return (bool) apply_filters(
+			'stellarwp/uplink/' . Config::get_hook_prefix() . '/allows_network_subfolder_license',
+			self::$network_subfolder_license
+		);
+	}
+
+	/**
+	 * Allow or disallow multisite subdomain licenses at the network level.
+	 *
+	 * @param  bool  $allowed
+	 *
+	 * @return void
+	 */
+	public static function set_network_subdomain_license( bool $allowed ): void {
+		self::$network_subdomain_license = $allowed;
+	}
+
+	/**
+	 * Whether your plugin allows multisite network subdomain licenses.
+	 *
+	 * @throws RuntimeException
+	 *
+	 * @return bool
+	 */
+	public static function allows_network_subdomain_license(): bool {
+		return (bool) apply_filters(
+			'stellarwp/uplink/' . Config::get_hook_prefix() . '/allows_network_subdomain_license',
+			self::$network_subdomain_license
+		);
+	}
+
+	/**
+	 * Allow or disallow multisite domain mapping licenses at the network level.
+	 *
+	 * @param  bool  $allowed
+	 *
+	 * @return void
+	 */
+	public static function set_network_domain_mapping_license( bool $allowed ): void {
+		self::$network_domain_mapping_license = $allowed;
+	}
+
+	/**
+	 * Whether your plugin allows multisite network domain mapping licenses.
+	 *
+	 * @throws RuntimeException
+	 *
+	 * @return bool
+	 */
+	public static function allows_network_domain_mapping_license(): bool {
+		return (bool) apply_filters(
+			'stellarwp/uplink/' . Config::get_hook_prefix() . '/allows_network_domain_mapping_license',
+			self::$network_domain_mapping_license
+		);
 	}
 
 }

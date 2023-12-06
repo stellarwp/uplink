@@ -2,6 +2,8 @@
 
 namespace StellarWP\Uplink\Auth\Admin;
 
+use StellarWP\Uplink\Auth\Authorizer;
+use StellarWP\Uplink\Auth\License\License_Manager;
 use StellarWP\Uplink\Auth\Nonce;
 use StellarWP\Uplink\Auth\Token\Connector;
 use StellarWP\Uplink\Auth\Token\Exceptions\InvalidTokenException;
@@ -35,24 +37,39 @@ final class Connect_Controller {
 	 */
 	private $collection;
 
+	/**
+	 * @var License_Manager
+	 */
+	private $license_manager;
 
-	public function __construct( Connector $connector, Notice_Handler $notice, Collection $collection ) {
-		$this->connector  = $connector;
-		$this->notice     = $notice;
-		$this->collection = $collection;
+	/**
+	 * @var Authorizer
+	 */
+	private $authorizer;
+
+	public function __construct(
+		Connector $connector,
+		Notice_Handler $notice,
+		Collection $collection,
+		License_Manager $license_manager,
+		Authorizer $authorizer
+	) {
+		$this->connector       = $connector;
+		$this->notice          = $notice;
+		$this->collection      = $collection;
+		$this->license_manager = $license_manager;
+		$this->authorizer      = $authorizer;
 	}
 
 	/**
 	 * Store the token data passed back from the Origin site.
 	 *
 	 * @action admin_init
+	 *
+	 * @throws \RuntimeException
 	 */
 	public function maybe_store_token_data(): void {
 		if ( ! is_admin() || wp_doing_ajax() ) {
-			return;
-		}
-
-		if ( ! is_user_logged_in() ) {
 			return;
 		}
 
@@ -64,6 +81,15 @@ final class Connect_Controller {
 		] );
 
 		if ( ! $args ) {
+			return;
+		}
+
+		if ( ! $this->authorizer->can_auth() ) {
+			$this->notice->add( new Notice( Notice::ERROR,
+				__( 'Sorry, you do not have permission to connect a token.', '%TEXTDOMAIN%' ),
+				true
+			) );
+
 			return;
 		}
 
@@ -110,7 +136,9 @@ final class Connect_Controller {
 
 		// Store or override an existing license.
 		if ( $license ) {
-			if ( ! $plugin->set_license_key( $license, 'network' ) ) {
+			$type = $this->license_manager->allows_multisite_license( $plugin ) ? 'network' : 'local';
+
+			if ( ! $plugin->set_license_key( $license, $type ) ) {
 				$this->notice->add( new Notice( Notice::ERROR,
 					__( 'Error storing license key.', '%TEXTDOMAIN%' ),
 				true

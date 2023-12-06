@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Auth\Admin;
 
+use StellarWP\Uplink\Auth\Authorizer;
 use StellarWP\Uplink\Auth\Token\Disconnector;
 use StellarWP\Uplink\Notice\Notice_Handler;
 use StellarWP\Uplink\Notice\Notice;
@@ -10,6 +11,11 @@ final class Disconnect_Controller {
 
 	public const ARG = 'uplink_disconnect';
 	public const SLUG = 'uplink_slug';
+
+	/**
+	 * @var Authorizer
+	 */
+	private $authorizer;
 
 	/**
 	 * @var Disconnector
@@ -22,10 +28,16 @@ final class Disconnect_Controller {
 	private $notice;
 
 	/**
+	 * @param  Authorizer  $authorizer  The authorizer.
 	 * @param  Disconnector  $disconnect  Disconnects a Token, if the user has the capability.
 	 * @param  Notice_Handler  $notice  Handles storing and displaying notices.
 	 */
-	public function __construct( Disconnector $disconnect, Notice_Handler $notice ) {
+	public function __construct(
+		Authorizer $authorizer,
+		Disconnector $disconnect,
+		Notice_Handler $notice
+	) {
+		$this->authorizer = $authorizer;
 		$this->disconnect = $disconnect;
 		$this->notice     = $notice;
 	}
@@ -34,6 +46,8 @@ final class Disconnect_Controller {
 	 * Disconnect (delete) a token if the user is allowed to.
 	 *
 	 * @action admin_init
+	 *
+	 * @throws \RuntimeException
 	 *
 	 * @return void
 	 */
@@ -47,7 +61,7 @@ final class Disconnect_Controller {
 		}
 
 		if ( wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), self::ARG ) ) {
-			if ( $this->disconnect->disconnect( $_GET[ self::SLUG ] ) ) {
+			if ( $this->authorizer->can_auth() && $this->disconnect->disconnect( $_GET[ self::SLUG ] ) ) {
 				$this->notice->add(
 					new Notice( Notice::SUCCESS,
 						__( 'Token disconnected.', '%TEXTDOMAIN%' ),

@@ -5,7 +5,7 @@ namespace StellarWP\Uplink\Tests\Auth\Admin;
 use StellarWP\Uplink\Auth\Admin\Connect_Controller;
 use StellarWP\Uplink\Auth\Nonce;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
-use StellarWP\Uplink\Auth\Token\Token_Manager_Factory;
+use StellarWP\Uplink\Auth\Token\Token_Factory;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Resources\Collection;
@@ -18,7 +18,7 @@ use WP_Screen;
 final class ConnectControllerTest extends UplinkTestCase {
 
 	/**
-	 * @var Token_Manager_Factory
+	 * @var Token_Factory
 	 */
 	private $token_manager_factory;
 
@@ -43,7 +43,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 			$this->container->get( Config::TOKEN_OPTION_NAME )
 		);
 
-		$this->token_manager_factory = $this->container->get( Token_Manager_Factory::class );
+		$this->token_manager_factory = $this->container->get( Token_Factory::class );
 
 		// Register the sample plugin as a developer would in their plugin.
 		Register::plugin(
@@ -66,7 +66,8 @@ final class ConnectControllerTest extends UplinkTestCase {
 
 		wp_set_current_user( 1 );
 
-		$token_manager = $this->token_manager_factory->make();
+		$plugin        = $this->container->get( Collection::class )->offsetGet( $this->slug );
+		$token_manager = $this->token_manager_factory->make( $plugin );
 
 		$this->assertNull( $token_manager->get() );
 
@@ -98,7 +99,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$plugin = $this->container->get( Collection::class )->offsetGet( $this->slug );
 		$this->assertEmpty( $plugin->get_license_key() );
 
-		$token_manager = $this->token_manager_factory->make();
+		$token_manager = $this->token_manager_factory->make( $plugin );
 
 		$this->assertNull( $token_manager->get() );
 
@@ -130,7 +131,8 @@ final class ConnectControllerTest extends UplinkTestCase {
 
 		wp_set_current_user( 1 );
 
-		$token_manager = $this->token_manager_factory->make();
+		$plugin        = $this->container->get( Collection::class )->offsetGet( $this->slug );
+		$token_manager = $this->token_manager_factory->make( $plugin );
 
 		$this->assertNull( $token_manager->get() );
 
@@ -158,7 +160,8 @@ final class ConnectControllerTest extends UplinkTestCase {
 
 		wp_set_current_user( 1 );
 
-		$token_manager = $this->token_manager_factory->make();
+		$plugin        = $this->container->get( Collection::class )->offsetGet( $this->slug );
+		$token_manager = $this->token_manager_factory->make( $plugin );
 
 		$this->assertNull( $token_manager->get() );
 
@@ -187,7 +190,8 @@ final class ConnectControllerTest extends UplinkTestCase {
 
 		wp_set_current_user( 1 );
 
-		$token_manager = $this->token_manager_factory->make();
+		$plugin        = $this->container->get( Collection::class )->offsetGet( $this->slug );
+		$token_manager = $this->token_manager_factory->make( $plugin );
 
 		$this->assertNull( $token_manager->get() );
 
@@ -218,7 +222,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$plugin = $this->container->get( Collection::class )->offsetGet( $this->slug );
 		$this->assertEmpty( $plugin->get_license_key() );
 
-		$token_manager = $this->token_manager_factory->make();
+		$token_manager = $this->token_manager_factory->make( $plugin );
 
 		$this->assertNull( $token_manager->get() );
 
@@ -263,7 +267,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$plugin = $this->container->get( Collection::class )->offsetGet( $this->slug );
 		$this->assertEmpty( $plugin->get_license_key( 'network' ) );
 
-		$token_manager = $this->token_manager_factory->make( true );
+		$token_manager = $this->token_manager_factory->make( $plugin );
 
 		$this->assertNull( $token_manager->get() );
 
@@ -294,7 +298,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 	/**
 	 * @env multisite
 	 */
-	public function test_it_does_not_store_token_data_on_a_subsite(): void {
+	public function test_it_stores_token_data_on_subfolder_subsite(): void {
 		global $_GET;
 
 		// Create a subsite.
@@ -313,7 +317,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$plugin = $this->container->get( Collection::class )->offsetGet( $this->slug );
 		$this->assertEmpty( $plugin->get_license_key( 'network' ) );
 
-		$token_manager = $this->token_manager_factory->make( true );
+		$token_manager = $this->token_manager_factory->make( $plugin );
 
 		$this->assertNull( $token_manager->get() );
 
@@ -337,8 +341,8 @@ final class ConnectControllerTest extends UplinkTestCase {
 		// Fire off the action the Connect_Controller is running under.
 		do_action( 'admin_init' );
 
-		$this->assertNull( $token_manager->get() );
-		$this->assertEmpty(  $plugin->get_license_key( 'all' ) );
+		$this->assertSame( $token, $token_manager->get() );
+		$this->assertSame( $plugin->get_license_key( 'network' ), $license );
 	}
 
 }

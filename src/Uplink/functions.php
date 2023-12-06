@@ -4,6 +4,7 @@ namespace StellarWP\Uplink;
 
 use StellarWP\Uplink\API\V3\Auth\Token_Authorizer;
 use StellarWP\Uplink\Auth\Auth_Url_Builder;
+use StellarWP\Uplink\Auth\License\License_Manager;
 use StellarWP\Uplink\Auth\Token\Token_Factory;
 use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
 use StellarWP\Uplink\Resources\Collection;
@@ -104,4 +105,27 @@ function build_auth_url( string $slug, string $domain = '' ): string {
 
 		return '';
 	}
+}
+
+/**
+ * A multisite license aware way to get a resource's license key either
+ * from the network or local site level.
+ *
+ * @param  string  $slug  The plugin/service slug.
+ *
+ * @throws \RuntimeException
+ *
+ * @return string
+ */
+function get_license_key( string $slug ): string {
+	$container = Config::get_container();
+	$resource  = $container->get( Collection::class )->offsetGet( $slug );
+
+	if ( ! $resource ) {
+		return '';
+	}
+
+	$network = $container->get( License_Manager::class )->allows_multisite_license( $resource );
+
+	return $resource->get_license_key( $network ? 'network' : 'local' );
 }

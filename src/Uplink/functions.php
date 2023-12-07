@@ -74,24 +74,45 @@ function get_authorization_token( string $slug ): ?string {
 /**
  * Manually check if a license is authorized.
  *
- * @param  string  $slug  The plugin/service slug.
- * @param  string  $domain An optional domain to override the stored license domain.
+ * @param  string  $license  The license key.
+ * @param  string  $token  The stored token.
+ * @param  string  $domain  The user's license domain.
  *
  * @return bool
  */
-function is_authorized( string $slug, string $domain = '' ): bool {
+function is_authorized( string $license, string $token, string $domain ): bool {
 	try {
-		$c       = get_container();
+		return get_container()
+			->get( Token_Authorizer::class )
+			->is_authorized( $license, $token, $domain );
+	} catch ( Throwable $e ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( "An Authorization error occurred: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
+		}
+
+		return false;
+	}
+}
+
+/**
+ * Manually check if a license is authorized by fetching required
+ * data automatically.
+ *
+ * @param  string  $slug  The plugin/service slug.
+ *
+ * @return bool
+ */
+function is_authorized_by_resource( string $slug ): bool {
+	try {
 		$license = get_license_key( $slug );
 		$token   = get_authorization_token( $slug );
-		$domain  = $domain ?: get_license_domain();
+		$domain  = get_license_domain();
 
 		if ( ! $license || ! $token || ! $domain ) {
 			return false;
 		}
 
-		return $c->get( Token_Authorizer::class )
-		             ->is_authorized( $license, $token, $domain );
+		return is_authorized( $license, $token, $domain );
 	} catch ( Throwable $e ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( "An Authorization error occurred: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );

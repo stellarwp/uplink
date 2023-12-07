@@ -254,7 +254,23 @@ You can also pass in a custom license domain, which can be fetched on the Uplink
 This connects to the licensing server to check in real time if the license is authorized. Use sparingly.
 
 ```php
-$is_authorized = \StellarWP\Uplink\is_authorized( 'my-plugin-slug' );
+$is_authorized = \StellarWP\Uplink\is_authorized_by_resource( 'my-plugin-slug' );
+
+echo $is_authorized ? esc_html__( 'authorized' ) : esc_html__( 'not authorized' );
+```
+
+Or, if you have more complex licensing needs, you can provide specific data:
+
+```php
+$token       = \StellarWP\Uplink\get_authorization_token( 'my-plugin-slug' );
+$license_key = \StellarWP\Uplink\get_license_key( 'my-plugin-slug' );
+$domain      = \StellarWP\Uplink\get_license_domain();
+
+if ( ! $token || ! $license_key || ! $domain ) {
+	return; // or, log/show errors.
+}
+
+$is_authorized = \StellarWP\Uplink\is_authorized( $license_key, $token, $domain );
 
 echo $is_authorized ? esc_html__( 'authorized' ) : esc_html__( 'not authorized' );
 ```

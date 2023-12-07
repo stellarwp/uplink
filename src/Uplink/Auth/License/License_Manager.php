@@ -47,7 +47,7 @@ final class License_Manager {
 		$key   = $resource->get_slug();
 		$cache = $this->cache[ $key ] ?? null;
 
-		if ( $cache ) {
+		if ( $cache !== null ) {
 			return $cache;
 		}
 

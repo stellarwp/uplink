@@ -6,6 +6,7 @@ use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Admin\License_Field;
 use StellarWP\Uplink\API\V3\Auth\Contracts\Auth_Url;
 use StellarWP\Uplink\API\V3\Auth\Token_Authorizer;
+use StellarWP\Uplink\API\Validation_Response;
 use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
 use StellarWP\Uplink\Auth\Auth_Url_Builder;
 use StellarWP\Uplink\Auth\Authorizer;
@@ -199,26 +200,24 @@ function allows_multisite_license( $slug_or_resource ): bool {
  *
  * @throws \RuntimeException
  *
- * @return bool
+ * @return Validation_Response|null
  */
-function is_license_valid( string $slug, string $license = '' ): bool {
+function validate_license( string $slug, string $license = '' ): ?Validation_Response {
 	$resource = get_resource( $slug );
 
 	if ( ! $resource ) {
-		return false;
+		return null;
 	}
 
 	$license = $license ?: get_license_key( $slug );
 
 	if ( ! $license ) {
-		return false;
+		return null;
 	}
 
 	$network = allows_multisite_license( $resource );
 
-	$results = $resource->validate_license( $license, $network );
-
-	return $results->is_valid();
+	return $resource->validate_license( $license, $network );
 }
 
 /**

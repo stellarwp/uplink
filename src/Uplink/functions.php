@@ -192,6 +192,36 @@ function allows_multisite_license( $slug_or_resource ): bool {
 }
 
 /**
+ * A multisite aware license validation check.
+ *
+ * @param  string  $slug The plugin/service slug to validate against.
+ * @param  string  $license An optional license key, otherwise we'll fetch it automatically.
+ *
+ * @throws \RuntimeException
+ *
+ * @return bool
+ */
+function is_license_valid( string $slug, string $license = '' ): bool {
+	$resource = get_resource( $slug );
+
+	if ( ! $resource ) {
+		return false;
+	}
+
+	$license = $license ?: get_license_key( $slug );
+
+	if ( ! $license ) {
+		return false;
+	}
+
+	$network = allows_multisite_license( $resource );
+
+	$results = $resource->validate_license( $license, $network );
+
+	return $results->is_valid();
+}
+
+/**
  * A multisite license aware way to get a resource's license key automatically
  * from the network or local site level.
  *

@@ -52,7 +52,7 @@ class Ajax {
 
 		$network_validate = $this->container->get( License_Manager::class )->allows_multisite_license( $plugin );
 		$results          = $plugin->validate_license( $submission['key'], $network_validate );
-		$message          = is_plugin_active_for_network( $plugin->get_path() ) ? $results->get_network_message()->get() : $results->get_message()->get();
+		$message          = $network_validate ? $results->get_network_message()->get() : $results->get_message()->get();
 
 		wp_send_json( [
 			'status'  => absint( $results->is_valid() ),

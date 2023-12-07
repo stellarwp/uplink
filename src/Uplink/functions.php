@@ -3,6 +3,8 @@
 namespace StellarWP\Uplink;
 
 use StellarWP\ContainerContract\ContainerInterface;
+use StellarWP\Uplink\Admin\License_Field;
+use StellarWP\Uplink\API\V3\Auth\Contracts\Auth_Url;
 use StellarWP\Uplink\API\V3\Auth\Token_Authorizer;
 use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
 use StellarWP\Uplink\Auth\Auth_Url_Builder;
@@ -72,16 +74,23 @@ function get_authorization_token( string $slug ): ?string {
 /**
  * Manually check if a license is authorized.
  *
- * @param  string  $license  The license key.
- * @param  string  $token  The stored token.
- * @param  string  $domain  The user's domain.
+ * @param  string  $slug  The plugin/service slug.
+ * @param  string  $domain An optional domain to override the stored license domain.
  *
  * @return bool
  */
-function is_authorized( string $license, string $token, string $domain ): bool {
+function is_authorized( string $slug, string $domain = '' ): bool {
 	try {
-		return get_container()
-		             ->get( Token_Authorizer::class )
+		$c       = get_container();
+		$license = get_license_key( $slug );
+		$token   = get_authorization_token( $slug );
+		$domain  = $domain ?: get_license_domain();
+
+		if ( ! $license || ! $token || ! $domain ) {
+			return false;
+		}
+
+		return $c->get( Token_Authorizer::class )
 		             ->is_authorized( $license, $token, $domain );
 	} catch ( Throwable $e ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
@@ -140,6 +149,28 @@ function get_resource( string $slug ) {
 }
 
 /**
+ * Compares the Uplink configuration to the current site this function is called on,
+ * e.g. a sub-site to determine if the product supports multisite licenses.
+ *
+ * Not to be confused with Config::allows_network_licenses().
+ *
+ * @param  string  $slug The product/service slug.
+ *
+ * @throws \RuntimeException
+ *
+ * @return bool
+ */
+function allows_multisite_license( string $slug ): bool {
+	$resource = get_resource( $slug );
+
+	if ( ! $resource ) {
+		return false;
+	}
+
+	return get_container()->get( License_Manager::class )->allows_multisite_license( $resource );
+}
+
+/**
  * A multisite license aware way to get a resource's license key automatically
  * from the network or local site level.
  *
@@ -156,7 +187,7 @@ function get_license_key( string $slug ): string {
 		return '';
 	}
 
-	$network = get_container()->get( License_Manager::class )->allows_multisite_license( $resource );
+	$network = allows_multisite_license( $slug );
 
 	return $resource->get_license_key( $network ? 'network' : 'local' );
 }
@@ -193,4 +224,28 @@ function get_license_domain(): string {
  */
 function get_disconnect_url( string $slug ): string {
 	return get_container()->get( Disconnect_Controller::class )->get_url( $slug );
+}
+
+/**
+ * Get the License Field Object to render license key fields.
+ *
+ * @throws \RuntimeException
+ *
+ * @return License_Field
+ */
+function get_license_field(): License_Field {
+	return get_container()->get( License_Field::class );
+}
+
+/**
+ * Retrieve an Origin's auth url, if it exists.
+ *
+ * @param  string  $slug The product/service slug.
+ *
+ * @throws \RuntimeException
+ *
+ * @return string
+ */
+function get_auth_url( string $slug ): string {
+	return get_container()->get( Auth_Url::class )->get( $slug );
 }

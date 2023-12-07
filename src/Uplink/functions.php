@@ -2,9 +2,11 @@
 
 namespace StellarWP\Uplink;
 
+use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\API\V3\Auth\Token_Authorizer;
 use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
 use StellarWP\Uplink\Auth\Auth_Url_Builder;
+use StellarWP\Uplink\Auth\Authorizer;
 use StellarWP\Uplink\Auth\License\License_Manager;
 use StellarWP\Uplink\Auth\Token\Token_Factory;
 use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
@@ -16,6 +18,17 @@ use StellarWP\Uplink\Site\Data;
 use Throwable;
 
 /**
+ * Get the uplink container.
+ *
+ * @throws \RuntimeException
+ *
+ * @return ContainerInterface
+ */
+function get_container(): ContainerInterface {
+	return Config::get_container();
+}
+
+/**
  * Displays the token authorization button, which allows admins to
  * authorize their product through your origin server and clear the
  * token locally by disconnecting.
@@ -25,7 +38,7 @@ use Throwable;
  */
 function render_authorize_button( string $slug, string $domain = '' ): void {
 	try {
-		Config::get_container()->get( Authorize_Button_Controller::class )
+		get_container()->get( Authorize_Button_Controller::class )
 			->render( [
 				'slug'   => $slug,
 				'domain' => $domain,
@@ -53,7 +66,7 @@ function get_authorization_token( string $slug ): ?string {
 		return null;
 	}
 
-	return Config::get_container()->get( Token_Factory::class )->make( $resource )->get();
+	return get_container()->get( Token_Factory::class )->make( $resource )->get();
 }
 
 /**
@@ -67,7 +80,7 @@ function get_authorization_token( string $slug ): ?string {
  */
 function is_authorized( string $license, string $token, string $domain ): bool {
 	try {
-		return Config::get_container()
+		return get_container()
 		             ->get( Token_Authorizer::class )
 		             ->is_authorized( $license, $token, $domain );
 	} catch ( Throwable $e ) {
@@ -80,6 +93,19 @@ function is_authorized( string $license, string $token, string $domain ): bool {
 }
 
 /**
+ * If the current user is allowed to perform token authorization.
+ *
+ * Without being filtered, this just runs a is_super_admin() check.
+ *
+ * @throws \RuntimeException
+ *
+ * @return bool
+ */
+function is_user_authorized(): bool {
+	return get_container()->get( Authorizer::class )->can_auth();
+}
+
+/**
  * Build a brand's authorization URL, with the uplink_callback base64 query variable.
  *
  * @param  string  $slug  The Product slug to render the button for.
@@ -89,7 +115,7 @@ function is_authorized( string $license, string $token, string $domain ): bool {
  */
 function build_auth_url( string $slug, string $domain = '' ): string {
 	try {
-		return Config::get_container()->get( Auth_Url_Builder::class )
+		return get_container()->get( Auth_Url_Builder::class )
 		                              ->build( $slug, $domain );
 	} catch ( Throwable $e ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
@@ -110,7 +136,7 @@ function build_auth_url( string $slug, string $domain = '' ): string {
  * @return Resource|Plugin|Service|null
  */
 function get_resource( string $slug ) {
-	return Config::get_container()->get( Collection::class )->offsetGet( $slug );
+	return get_container()->get( Collection::class )->offsetGet( $slug );
 }
 
 /**
@@ -130,9 +156,7 @@ function get_license_key( string $slug ): string {
 		return '';
 	}
 
-	$c = Config::get_container();
-
-	$network = $c->get( License_Manager::class )->allows_multisite_license( $resource );
+	$network = get_container()->get( License_Manager::class )->allows_multisite_license( $resource );
 
 	return $resource->get_license_key( $network ? 'network' : 'local' );
 }
@@ -145,7 +169,7 @@ function get_license_key( string $slug ): string {
  * @return string
  */
 function get_original_domain(): string {
-	return Config::get_container()->get( Data::class )->get_domain( true );
+	return get_container()->get( Data::class )->get_domain( true );
 }
 
 /**
@@ -155,7 +179,7 @@ function get_original_domain(): string {
  * @return string
  */
 function get_license_domain(): string {
-	return Config::get_container()->get( Data::class )->get_domain();
+	return get_container()->get( Data::class )->get_domain();
 }
 
 /**
@@ -168,5 +192,5 @@ function get_license_domain(): string {
  * @return string
  */
 function get_disconnect_url( string $slug ): string {
-	return Config::get_container()->get( Disconnect_Controller::class )->get_url( $slug );
+	return get_container()->get( Disconnect_Controller::class )->get_url( $slug );
 }

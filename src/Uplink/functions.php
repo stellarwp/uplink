@@ -233,7 +233,7 @@ function set_license_key( string $slug, string $license ): bool {
 
 	$network = allows_multisite_license( $resource );
 
-	return $resource->set_license_key( $network ? 'network' : 'local' );
+	return $resource->set_license_key( $license, $network ? 'network' : 'local' );
 }
 
 /**

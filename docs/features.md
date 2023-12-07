@@ -166,8 +166,11 @@ the correct location.
 // Checks if the current WordPress user is authorized to make license/token changes (is_super_admin() out of the box).
 \StellarWP\Uplink\is_user_authorized();
 
-// Get a stored license key, with fetch from the current site's options or network, depending on your config.
+// Get a stored license key, will fetch from the current site's options or network, depending on your config.
 \StellarWP\Uplink\get_license_key( 'my-plugin-slug' );
+
+// Store a license key, will store in the current site's options or network, depending on your config.
+\StellarWP\Uplink\set_license_key( 'my-plugin-slug', 'new_license_key' );
 
 // Get the domain associated with a license.
 // Note that if any of the multisite options are enabled, the root multisite domain contains a unique suffix

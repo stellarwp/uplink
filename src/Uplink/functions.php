@@ -175,14 +175,14 @@ function get_resource( string $slug ) {
  *
  * Not to be confused with Config::allows_network_licenses().
  *
- * @param  string  $slug The product/service slug.
+ * @param  string|Resource|Plugin|Service  $slug_or_resource The product/service slug or a Resource object.
  *
  * @throws \RuntimeException
  *
  * @return bool
  */
-function allows_multisite_license( string $slug ): bool {
-	$resource = get_resource( $slug );
+function allows_multisite_license( $slug_or_resource ): bool {
+	$resource = $slug_or_resource instanceof Resource ? $slug_or_resource : get_resource( $slug_or_resource );
 
 	if ( ! $resource ) {
 		return false;
@@ -208,9 +208,32 @@ function get_license_key( string $slug ): string {
 		return '';
 	}
 
-	$network = allows_multisite_license( $slug );
+	$network = allows_multisite_license( $resource );
 
 	return $resource->get_license_key( $network ? 'network' : 'local' );
+}
+
+/**
+ * A multisite license aware way to set a resource's license key automatically
+ *  from the network or local site level.
+ *
+ * @param  string  $slug The plugin/service slug.
+ * @param  string  $license The license key to store.
+ *
+ * @throws \RuntimeException
+ *
+ * @return bool
+ */
+function set_license_key( string $slug, string $license ): bool {
+	$resource = get_resource( $slug );
+
+	if ( ! $resource ) {
+		return false;
+	}
+
+	$network = allows_multisite_license( $resource );
+
+	return $resource->set_license_key( $network ? 'network' : 'local' );
 }
 
 /**

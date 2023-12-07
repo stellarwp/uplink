@@ -129,7 +129,9 @@ Config::set_network_domain_mapping_license( true );
 Uplink::init();
 ```
 
-> 💡 You may wish to move
+> 🚨 Consider moving your plugin UI and the Uplink License Field settings to the WordPress network UI to prevent
+> sub-sites being able to control licensing and token authorization for the entire multisite network if you enable
+> any of the multisite config options.
 
 Each config option can also be filtered at runtime, assuming your plugin's slug is registered as `my-plugin-slug`:
 

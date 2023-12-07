@@ -9,7 +9,7 @@ use StellarWP\Uplink\Notice\Notice;
 
 final class Disconnect_Controller {
 
-	public const ARG = 'uplink_disconnect';
+	public const ARG  = 'uplink_disconnect';
 	public const SLUG = 'uplink_slug';
 
 	/**

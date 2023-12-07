@@ -29,7 +29,7 @@ final class Network_Token_Manager extends Token_Manager {
 			return false;
 		}
 
-		// WordPress would otherwise return falsMultisite_Token_Managere if the items match.
+		// WordPress would otherwise return false if the items match.
 		if ( $token === $this->get() ) {
 			return true;
 		}

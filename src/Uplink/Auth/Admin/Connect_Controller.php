@@ -136,9 +136,19 @@ final class Connect_Controller {
 
 		// Store or override an existing license.
 		if ( $license ) {
-			$type = $this->license_manager->allows_multisite_license( $plugin ) ? 'network' : 'local';
+			$network  = $this->license_manager->allows_multisite_license( $plugin );
+			$response = $plugin->validate_license( $license, $network );
 
-			if ( ! $plugin->set_license_key( $license, $type ) ) {
+			if ( ! $response->is_valid() ) {
+				$this->notice->add( new Notice( Notice::ERROR,
+					__( 'Provided license key is not valid.', '%TEXTDOMAIN%' ),
+					true
+				) );
+
+				return;
+			}
+
+			if ( ! $plugin->set_license_key( $license, $network ? 'network' : 'local' ) ) {
 				$this->notice->add( new Notice( Notice::ERROR,
 					__( 'Error storing license key.', '%TEXTDOMAIN%' ),
 				true
@@ -146,9 +156,6 @@ final class Connect_Controller {
 
 				return;
 			}
-
-			// Assume the license key we got is valid and update the cache.
-			$plugin->get_license_object()->set_key_status( 1 );
 		}
 
 		$this->notice->add(

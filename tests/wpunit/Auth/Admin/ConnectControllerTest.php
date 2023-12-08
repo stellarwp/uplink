@@ -2,6 +2,9 @@
 
 namespace StellarWP\Uplink\Tests\Auth\Admin;
 
+use stdClass;
+use StellarWP\Uplink\API\Client;
+use StellarWP\Uplink\API\Validation_Response;
 use StellarWP\Uplink\Auth\Admin\Connect_Controller;
 use StellarWP\Uplink\Auth\Nonce;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
@@ -94,9 +97,22 @@ final class ConnectControllerTest extends UplinkTestCase {
 	public function test_it_sets_additional_license_key(): void {
 		global $_GET;
 
+		$plugin = $this->container->get( Collection::class )->offsetGet( $this->slug );
+
+		$clientMock = $this->makeEmpty( Client::class, [
+			'validate_license' => static function () use ( $plugin ) {
+				$response = new stdClass();
+				$response->api_upgrade = 0;
+				$response->api_expired = 0;
+
+				return new Validation_Response( '123456', is_multisite() ? 'network' : 'local', $response, $plugin );
+			},
+		] );
+
+		$this->container->bind( Client::class, $clientMock );
+
 		wp_set_current_user( 1 );
 
-		$plugin = $this->container->get( Collection::class )->offsetGet( $this->slug );
 		$this->assertEmpty( $plugin->get_license_key() );
 
 		$token_manager = $this->token_manager_factory->make( $plugin );
@@ -123,7 +139,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		$this->assertSame( $token, $token_manager->get() );
-		$this->assertSame( $plugin->get_license_key(), $license );
+		$this->assertSame( $plugin->get_license_key( is_multisite() ? 'network' : 'local' ), $license );
 	}
 
 	public function test_it_does_not_store_with_an_invalid_nonce(): void {
@@ -245,7 +261,54 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		$this->assertSame( $token, $token_manager->get() );
+		$this->assertEmpty( $plugin->get_license_key( is_multisite() ? 'network' : 'local' ) );
+	}
+
+	public function test_it_stores_token_but_not_license_without_a_valid_license(): void {
+		global $_GET;
+
+		$plugin = $this->container->get( Collection::class )->offsetGet( $this->slug );
+
+		$clientMock = $this->makeEmpty( Client::class, [
+			'validate_license' => static function () use ( $plugin ) {
+				$response = new stdClass();
+				$response->api_upgrade = 0;
+				$response->api_expired = 1; // makes validation fail.
+
+				return new Validation_Response( '123456', is_multisite() ? 'network' : 'local', $response, $plugin );
+			},
+		] );
+
+		$this->container->bind( Client::class, $clientMock );
+
+		wp_set_current_user( 1 );
+
 		$this->assertEmpty( $plugin->get_license_key() );
+
+		$token_manager = $this->token_manager_factory->make( $plugin );
+
+		$this->assertNull( $token_manager->get() );
+
+		$nonce   = ( $this->container->get( Nonce::class ) )->create();
+		$token   = '53ca40ab-c6c7-4482-a1eb-14c56da31015';
+
+		// Mock these were passed via the query string.
+		$_GET[ Connect_Controller::TOKEN ]   = $token;
+		$_GET[ Connect_Controller::NONCE ]   = $nonce;
+		$_GET[ Connect_Controller::LICENSE ] = '123456';
+		$_GET[ Connect_Controller::SLUG ]    = $this->slug;
+
+		// Mock we're an admin inside the dashboard.
+		$screen = WP_Screen::get( 'dashboard' );
+		$GLOBALS['current_screen'] = $screen;
+
+		$this->assertTrue( $screen->in_admin() );
+
+		// Fire off the action the Connect_Controller is running under.
+		do_action( 'admin_init' );
+
+		$this->assertSame( $token, $token_manager->get() );
+		$this->assertEmpty( $plugin->get_license_key( is_multisite() ? 'network' : 'local' ) );
 	}
 
 	/**
@@ -253,6 +316,20 @@ final class ConnectControllerTest extends UplinkTestCase {
 	 */
 	public function test_it_sets_token_and_additional_license_key_on_multisite_network(): void {
 		global $_GET;
+
+		$plugin = $this->container->get( Collection::class )->offsetGet( $this->slug );
+
+		$clientMock = $this->makeEmpty( Client::class, [
+			'validate_license' => static function () use ( $plugin ) {
+				$response = new stdClass();
+				$response->api_upgrade = 0;
+				$response->api_expired = 0;
+
+				return new Validation_Response( '123456', 'network', $response, $plugin );
+			},
+		] );
+
+		$this->container->bind( Client::class, $clientMock );
 
 		// Create a subsite, but we won't use it.
 		$sub_site_id = wpmu_create_blog( 'wordpress.test', '/sub1', 'Test Subsite', 1 );
@@ -264,7 +341,6 @@ final class ConnectControllerTest extends UplinkTestCase {
 		// Mock our sample plugin is network activated, otherwise license key check fails.
 		$this->mock_activate_plugin( 'uplink/index.php', true );
 
-		$plugin = $this->container->get( Collection::class )->offsetGet( $this->slug );
 		$this->assertEmpty( $plugin->get_license_key( 'network' ) );
 
 		$token_manager = $this->token_manager_factory->make( $plugin );
@@ -301,6 +377,20 @@ final class ConnectControllerTest extends UplinkTestCase {
 	public function test_it_stores_token_data_on_subfolder_subsite(): void {
 		global $_GET;
 
+		$plugin = $this->container->get( Collection::class )->offsetGet( $this->slug );
+
+		$clientMock = $this->makeEmpty( Client::class, [
+			'validate_license' => static function () use ( $plugin ) {
+				$response = new stdClass();
+				$response->api_upgrade = 0;
+				$response->api_expired = 0;
+
+				return new Validation_Response( '123456', 'network', $response, $plugin );
+			},
+		] );
+
+		$this->container->bind( Client::class, $clientMock );
+
 		// Create a subsite.
 		$sub_site_id = wpmu_create_blog( 'wordpress.test', '/sub1', 'Test Subsite', 1 );
 		$this->assertNotInstanceOf( WP_Error::class, $sub_site_id );
@@ -314,7 +404,6 @@ final class ConnectControllerTest extends UplinkTestCase {
 		// Mock our sample plugin is network activated, otherwise license key check fails.
 		$this->mock_activate_plugin( 'uplink/index.php', true );
 
-		$plugin = $this->container->get( Collection::class )->offsetGet( $this->slug );
 		$this->assertEmpty( $plugin->get_license_key( 'network' ) );
 
 		$token_manager = $this->token_manager_factory->make( $plugin );

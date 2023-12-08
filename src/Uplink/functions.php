@@ -210,11 +210,6 @@ function validate_license( string $slug, string $license = '' ): ?Validation_Res
 	}
 
 	$license = $license ?: get_license_key( $slug );
-
-	if ( ! $license ) {
-		return null;
-	}
-
 	$network = allows_multisite_license( $resource );
 
 	return $resource->validate_license( $license, $network );

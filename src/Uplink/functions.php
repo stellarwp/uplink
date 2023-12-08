@@ -256,8 +256,12 @@ function set_license_key( string $slug, string $license ): bool {
 	}
 
 	$network = allows_multisite_license( $resource );
+	$result  = $resource->set_license_key( $license, $network ? 'network' : 'local' );
 
-	return $resource->set_license_key( $license, $network ? 'network' : 'local' );
+	// Force update the key status.
+	$resource->validate_license( $license, $network );
+
+	return $result;
 }
 
 /**

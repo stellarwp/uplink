@@ -199,6 +199,13 @@ class Validation_Response {
 	 * @return Messages\Message_Abstract
 	 */
 	public function get_network_message() {
+		$referer = wp_get_referer();
+
+		// If this request came from the network admin, show regular messaging.
+		if ( $referer && wp_doing_ajax() && str_contains( $referer, network_admin_url() ) ) {
+			return $this->get_message();
+		}
+
 		if ( $this->is_valid() ) {
 			return new Messages\Network_Licensed();
 		}

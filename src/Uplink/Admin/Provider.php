@@ -95,6 +95,10 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	public function admin_init(): void {
+		if ( wp_doing_ajax() ) {
+			return;
+		}
+
 		$this->container->get( License_Field::class )->register_settings();
 	}
 

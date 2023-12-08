@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Resources;
 
+use stdClass;
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\API;
 use StellarWP\Uplink\Config;
@@ -499,14 +500,14 @@ abstract class Resource {
 		/** @var API\Client */
 		$api = $this->container->get( API\Client::class );
 
-		if ( empty( $key ) ) {
-			$key = $this->get_license_key();
-		}
-
 		$validation_type = $do_network_validate ? 'network' : 'local';
 
 		if ( empty( $key ) ) {
-			$results = new API\Validation_Response( null, $validation_type, new \stdClass(), $this );
+			$key = $this->get_license_key( $validation_type );
+		}
+
+		if ( empty( $key ) ) {
+			$results = new API\Validation_Response( null, $validation_type, new stdClass(), $this );
 			$results->set_is_valid( false );
 			return $results;
 		}

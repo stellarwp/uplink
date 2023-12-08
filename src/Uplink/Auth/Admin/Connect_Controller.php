@@ -146,6 +146,9 @@ final class Connect_Controller {
 
 				return;
 			}
+
+			// Assume the license key we got is valid and update the cache.
+			$plugin->get_license_object()->set_key_status( 1 );
 		}
 
 		$this->notice->add(

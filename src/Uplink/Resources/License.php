@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink\Resources;
 
 use StellarWP\ContainerContract\ContainerInterface;
+use StellarWP\Uplink\Auth\License\License_Manager;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Utils;
@@ -262,13 +263,21 @@ class License {
 	 *
 	 * @return string|null
 	 */
-	protected function get_key_status() {
-		/** @var string|null */
-		$status = get_option( $this->get_key_status_option_name(), 'invalid' );
+	protected function get_key_status(): ?string {
+		$network = $this->container->get( License_Manager::class )->allows_multisite_license( $this->resource );
+		$func    = 'get_option';
 
-		if ( null === $status && $this->get_key() ) {
-			$this->resource->validate_license( $this->get_key(), $this->resource->is_network_licensed() );
-			$status = get_option( $this->get_key_status_option_name(), 'invalid' );
+		if ( $network ) {
+			$func = 'get_site_option';
+		}
+
+		/** @var string|null */
+		$status = $func( $this->get_key_status_option_name(), 'invalid' );
+		$key    = $this->get_key( $network ? 'network' : 'local' );
+
+		if ( null === $status && $key ) {
+			$this->resource->validate_license( $key, $network );
+			$status = $func( $this->get_key_status_option_name(), 'invalid' );
 		}
 
 		return $status;
@@ -386,10 +395,18 @@ class License {
 	 *
 	 * @return void
 	 */
-	public function set_key_status( $valid ) {
-		$status = Utils\Checks::is_truthy( $valid ) ? 'valid' : 'invalid';
-		update_option( $this->get_key_status_option_name(), $status );
-		update_option( $this->get_key_status_option_name() . '_timeout', $this->check_period * HOUR_IN_SECONDS );
+	public function set_key_status( $valid ): void {
+		$status  = Utils\Checks::is_truthy( $valid ) ? 'valid' : 'invalid';
+		$network = $this->container->get( License_Manager::class )->allows_multisite_license( $this->resource );
+		$timeout = $this->check_period * HOUR_IN_SECONDS;
+		$func    = 'update_option';
+
+		if ( $network ) {
+			$func = 'update_site_option';
+		}
+
+		$func( $this->get_key_status_option_name(), $status );
+		$func( $this->get_key_status_option_name() . '_timeout', $timeout );
 	}
 
 	/**

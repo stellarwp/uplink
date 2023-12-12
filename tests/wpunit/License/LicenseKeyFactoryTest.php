@@ -87,7 +87,7 @@ final class LicenseKeyFactoryTest extends UplinkTestCase {
 	/**
 	 * @env multisite
 	 */
-	public function test_it_gets_network_license_key_strategy_with_subfolders_enabled(): void {
+	public function test_it_gets_network_license_key_strategy_with_subfolders_configured(): void {
 		$this->assertTrue( is_multisite() );
 
 		// Mock our sample plugin is network activated, otherwise license key check fails.

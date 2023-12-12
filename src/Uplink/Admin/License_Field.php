@@ -2,12 +2,14 @@
 
 namespace StellarWP\Uplink\Admin;
 
-use StellarWP\Uplink\Auth\License\License_Manager;
 use StellarWP\Uplink\Config;
+use StellarWP\Uplink\License\Storage\License_Single_Site_Storage;
 use StellarWP\Uplink\Resources\Plugin;
 use StellarWP\Uplink\Resources\Resource;
 use StellarWP\Uplink\Resources\Service;
 use StellarWP\Uplink\Uplink;
+
+use function StellarWP\Uplink\get_license_key;
 
 class License_Field extends Field {
 
@@ -19,13 +21,6 @@ class License_Field extends Field {
 	protected $path = '/admin-views/fields/settings.php';
 
 	/**
-	 * The license manager.
-	 *
-	 * @var License_Manager
-	 */
-	private $license_manager;
-
-	/**
 	 * The script and style handle when registering assets for this field.
 	 *
 	 * @var string
@@ -34,14 +29,9 @@ class License_Field extends Field {
 
 	/**
 	 * Constructor.
-	 *
-	 * @param  License_Manager  $license_manager
-	 *
-	 * @throws \RuntimeException
 	 */
-	public function __construct( License_Manager $license_manager ) {
-		$this->license_manager = $license_manager;
-		$this->handle          = sprintf( 'stellarwp-uplink-license-admin-%s', Config::get_hook_prefix() );
+	public function __construct() {
+		$this->handle = sprintf( 'stellarwp-uplink-license-admin-%s', Config::get_hook_prefix() );
 	}
 
 	/**
@@ -56,10 +46,14 @@ class License_Field extends Field {
 	/**
 	 * @since 1.0.0
 	 *
+	 * @throws \RuntimeException
+	 *
 	 * @return void
 	 */
 	public function register_settings(): void {
 		foreach ( $this->get_resources() as $resource ) {
+			$id = License_Single_Site_Storage::option_name( $resource );
+
 			add_settings_section(
 				self::get_section_name( $resource ),
 				'',
@@ -69,23 +63,21 @@ class License_Field extends Field {
 
 			register_setting(
 				$this->get_group_name( sanitize_title( $resource->get_slug() ) ),
-				$resource->get_license_object()->get_key_option_name()
+				$id
 			);
 
-			$network = $this->license_manager->allows_multisite_license( $resource );
-
 			add_settings_field(
-				$resource->get_license_object()->get_key_option_name(),
+				$id,
 				__( 'License Key', '%TEXTDOMAIN%' ),
 				[ $this, 'field_html' ],
 				$this->get_group_name( sanitize_title( $resource->get_slug() ) ),
 				self::get_section_name( $resource ),
 				[
-					'id'           => $resource->get_license_object()->get_key_option_name(),
-					'label_for'    => $resource->get_license_object()->get_key_option_name(),
+					'id'           => $id,
+					'label_for'    => $id,
 					'type'         => 'text',
 					'path'         => $resource->get_path(),
-					'value'        => $resource->get_license_key( $network ? 'network' : 'local' ),
+					'value'        => get_license_key( $resource->get_slug() ),
 					'placeholder'  => __( 'License Number', '%TEXTDOMAIN%' ),
 					'html'         => $this->get_field_html( $resource ),
 					'html_classes' => 'stellarwp-uplink-license-key-field',

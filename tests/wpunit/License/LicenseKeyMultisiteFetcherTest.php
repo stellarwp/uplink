@@ -291,6 +291,7 @@ final class LicenseKeyMultisiteFetcherTest extends UplinkTestCase {
 		$this->mock_activate_plugin( 'uplink/index.php', true );
 
 		Config::set_license_key_strategy( License_Strategy::ISOLATED );
+		// Only subdomains of the main site are licensed.
 		Config::set_network_subdomain_license( true );
 
 		// Create a subsite.
@@ -319,6 +320,7 @@ final class LicenseKeyMultisiteFetcherTest extends UplinkTestCase {
 		$this->mock_activate_plugin( 'uplink/index.php', true );
 
 		Config::set_license_key_strategy( License_Strategy::ISOLATED );
+		// Only custom subsite domains are licensed.
 		Config::set_network_domain_mapping_license( true );
 
 		// Create a subsite.
@@ -334,6 +336,56 @@ final class LicenseKeyMultisiteFetcherTest extends UplinkTestCase {
 		$this->network_storage->store( $this->resource, 'network-key-domain' );
 
 		$this->assertSame( 'network-key-domain', $this->fetcher->get_key( $this->slug ) );
+	}
+
+	/**
+	 * @env multisite
+	 */
+	public function test_it_gets_network_license_key_with_all_multisite_types_and_isolated_strategy(): void {
+		$this->assertTrue( is_multisite() );
+		$this->assertNull( $this->fetcher->get_key( $this->slug ) );
+
+		// Mock our sample plugin is network activated, otherwise license key check fails.
+		$this->mock_activate_plugin( 'uplink/index.php', true );
+
+		Config::set_license_key_strategy( License_Strategy::ISOLATED );
+		Config::set_network_subfolder_license( true );
+		Config::set_network_subdomain_license( true );
+		Config::set_network_domain_mapping_license( true );
+
+		$sites = [
+			[
+				'domain' => 'wordpress.test',
+				'path'   => '/sub1',
+				'name'   => 'Test Subsite 1',
+			],
+			[
+				'domain' => 'temp.wordpress.test',
+				'path'   => '/',
+				'name'   => 'Test Subdomain Subsite',
+			],
+			[
+				'domain' => 'wordpress.custom',
+				'path'   => '/',
+				'name'   => 'Test Custom Domain Subsite',
+			],
+		];
+
+		$this->network_storage->store( $this->resource, 'network-key-domain' );
+
+		foreach ( $sites as $site ) {
+			$id = wpmu_create_blog( $site['domain'], $site['path'], $site['name'], 1 );
+			$this->assertNotInstanceOf( WP_Error::class, $id );
+			$this->assertGreaterThan( 1, $id );
+
+			switch_to_blog( $id );
+
+			$this->assertEmpty( $this->single_storage->get( $this->resource ) );
+			$this->single_storage->store( $this->resource, 'local-key' );
+			$this->assertSame( 'local-key', $this->single_storage->get( $this->resource ) );
+
+			$this->assertSame( 'network-key-domain', $this->fetcher->get_key( $this->slug ) );
+		}
 	}
 
 	/**

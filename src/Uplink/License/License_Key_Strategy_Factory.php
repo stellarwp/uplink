@@ -4,10 +4,10 @@ namespace StellarWP\Uplink\License;
 
 use RuntimeException;
 use StellarWP\ContainerContract\ContainerInterface;
-use StellarWP\Uplink\Auth\License\License_Manager;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Enums\License_Strategy;
 use StellarWP\Uplink\License\Contracts\License_Key_Fetching_Strategy;
+use StellarWP\Uplink\License\Manager\License_Manager;
 use StellarWP\Uplink\License\Strategies\Global_License_Key_Strategy;
 use StellarWP\Uplink\License\Strategies\Network_Only_License_Key_Strategy;
 use StellarWP\Uplink\License\Strategies\Single_Site_License_Key_Strategy;

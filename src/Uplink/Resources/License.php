@@ -3,8 +3,8 @@
 namespace StellarWP\Uplink\Resources;
 
 use StellarWP\ContainerContract\ContainerInterface;
-use StellarWP\Uplink\Auth\License\License_Manager;
 use StellarWP\Uplink\Config;
+use StellarWP\Uplink\License\Manager\License_Manager;
 use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Utils;
 

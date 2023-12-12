@@ -5,6 +5,11 @@ namespace StellarWP\Uplink\License;
 use RuntimeException;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\License\Contracts\License_Key_Fetching_Strategy;
+use StellarWP\Uplink\License\Manager\License_Manager;
+use StellarWP\Uplink\License\Manager\Pipeline\Processors\Multisite_Domain_Mapping;
+use StellarWP\Uplink\License\Manager\Pipeline\Processors\Multisite_Main_Site;
+use StellarWP\Uplink\License\Manager\Pipeline\Processors\Multisite_Subdomain;
+use StellarWP\Uplink\License\Manager\Pipeline\Processors\Multisite_Subfolder;
 use StellarWP\Uplink\License\Strategies\Global_License_Key_Strategy;
 use StellarWP\Uplink\License\Strategies\Network_Only_License_Key_Strategy;
 use StellarWP\Uplink\License\Strategies\Single_Site_License_Key_Strategy;
@@ -20,7 +25,30 @@ final class Provider extends Abstract_Provider {
 	 * @throws RuntimeException
 	 */
 	public function register(): void {
+		$this->register_license_manager();
 		$this->register_license_strategies();
+	}
+
+	/**
+	 * Register the license manager and its pipeline to detect different
+	 * multisite licenses.
+	 *
+	 * @return void
+	 */
+	private function register_license_manager(): void {
+		$pipeline = ( new Pipeline( $this->container ) )->through( [
+			Multisite_Main_Site::class,
+			Multisite_Subfolder::class,
+			Multisite_Subdomain::class,
+			Multisite_Domain_Mapping::class,
+		] );
+
+		$this->container->singleton(
+			License_Manager::class,
+			static function () use ( $pipeline ) {
+				return new License_Manager( $pipeline );
+			}
+		);
 	}
 
 	/**

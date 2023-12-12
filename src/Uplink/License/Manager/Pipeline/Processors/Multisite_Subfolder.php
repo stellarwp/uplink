@@ -1,18 +1,17 @@
 <?php declare( strict_types=1 );
 
-namespace StellarWP\Uplink\Auth\License\Pipeline\Processors;
+namespace StellarWP\Uplink\License\Manager\Pipeline\Processors;
 
 use Closure;
-use StellarWP\Uplink\Auth\License\Pipeline\Traits\Multisite_Trait;
 use StellarWP\Uplink\Config;
-use Throwable;
+use StellarWP\Uplink\License\Manager\Pipeline\Traits\Multisite_Trait;
 
-final class Multisite_Subdomain {
+final class Multisite_Subfolder {
 
 	use Multisite_Trait;
 
 	/**
-	 * Checks if a sub-site already has a network token.
+	 * Check if we're using multisite subfolders and if that type of network license is allowed.
 	 *
 	 * @param  bool $is_multisite_license
 	 * @param  Closure  $next
@@ -24,12 +23,8 @@ final class Multisite_Subdomain {
 			return $next( $is_multisite_license );
 		}
 
-		try {
-			if ( $this->is_subdomain() ) {
-				return Config::allows_network_subdomain_license();
-			}
-		} catch ( Throwable $e ) {
-			return false;
+		if ( $this->is_subfolder_install() ) {
+			return Config::allows_network_subfolder_license();
 		}
 
 		return $next( $is_multisite_license );

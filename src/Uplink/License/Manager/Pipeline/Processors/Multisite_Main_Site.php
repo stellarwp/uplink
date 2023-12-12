@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace StellarWP\Uplink\Auth\License\Pipeline\Processors;
+namespace StellarWP\Uplink\License\Manager\Pipeline\Processors;
 
 use Closure;
 use StellarWP\Uplink\Config;

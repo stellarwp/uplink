@@ -3,9 +3,9 @@
 namespace StellarWP\Uplink\Auth\Token;
 
 use StellarWP\ContainerContract\ContainerInterface;
-use StellarWP\Uplink\Auth\License\License_Manager;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Auth\Token\Managers\Network_Token_Manager;
+use StellarWP\Uplink\License\Manager\License_Manager;
 use StellarWP\Uplink\Resources\Resource;
 
 final class Token_Factory {

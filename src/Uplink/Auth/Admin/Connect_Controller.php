@@ -3,12 +3,12 @@
 namespace StellarWP\Uplink\Auth\Admin;
 
 use StellarWP\Uplink\Auth\Authorizer;
-use StellarWP\Uplink\Auth\License\License_Manager;
 use StellarWP\Uplink\Auth\Nonce;
 use StellarWP\Uplink\Auth\Token\Connector;
 use StellarWP\Uplink\Auth\Token\Exceptions\InvalidTokenException;
-use StellarWP\Uplink\Notice\Notice_Handler;
+use StellarWP\Uplink\License\Manager\License_Manager;
 use StellarWP\Uplink\Notice\Notice;
+use StellarWP\Uplink\Notice\Notice_Handler;
 use StellarWP\Uplink\Resources\Collection;
 
 /**

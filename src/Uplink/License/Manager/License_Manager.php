@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace StellarWP\Uplink\Auth\License;
+namespace StellarWP\Uplink\License\Manager;
 
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Pipeline\Pipeline;

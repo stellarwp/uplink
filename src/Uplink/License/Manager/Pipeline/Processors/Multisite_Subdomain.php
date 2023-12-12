@@ -1,13 +1,13 @@
 <?php declare( strict_types=1 );
 
-namespace StellarWP\Uplink\Auth\License\Pipeline\Processors;
+namespace StellarWP\Uplink\License\Manager\Pipeline\Processors;
 
 use Closure;
-use StellarWP\Uplink\Auth\License\Pipeline\Traits\Multisite_Trait;
 use StellarWP\Uplink\Config;
+use StellarWP\Uplink\License\Manager\Pipeline\Traits\Multisite_Trait;
 use Throwable;
 
-final class Multisite_Domain_Mapping {
+final class Multisite_Subdomain {
 
 	use Multisite_Trait;
 
@@ -25,8 +25,8 @@ final class Multisite_Domain_Mapping {
 		}
 
 		try {
-			if ( $this->is_unique_domain() ) {
-				return Config::allows_network_domain_mapping_license();
+			if ( $this->is_subdomain() ) {
+				return Config::allows_network_subdomain_license();
 			}
 		} catch ( Throwable $e ) {
 			return false;
@@ -34,4 +34,5 @@ final class Multisite_Domain_Mapping {
 
 		return $next( $is_multisite_license );
 	}
+
 }

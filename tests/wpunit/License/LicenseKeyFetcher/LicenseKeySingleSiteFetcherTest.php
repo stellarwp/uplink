@@ -3,10 +3,10 @@
 namespace StellarWP\Uplink\Tests\License\LicenseKeyFetcher;
 
 use RuntimeException;
-use StellarWP\Uplink\Auth\License\License_Manager;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Enums\License_Strategy;
 use StellarWP\Uplink\License\License_Key_Fetcher;
+use StellarWP\Uplink\License\Manager\License_Manager;
 use StellarWP\Uplink\License\Storage\License_Single_Site_Storage;
 use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Resources\Resource;

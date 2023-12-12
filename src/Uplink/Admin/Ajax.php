@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\Admin;
 
-use StellarWP\Uplink\Auth\License\License_Manager;
+use StellarWP\Uplink\License\Manager\License_Manager;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Utils;
 

@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace StellarWP\Uplink\Auth\License\Pipeline\Traits;
+namespace StellarWP\Uplink\License\Manager\Pipeline\Traits;
 
 use RuntimeException;
 use StellarWP\Uplink\Utils\Checks;

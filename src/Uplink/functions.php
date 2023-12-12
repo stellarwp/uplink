@@ -13,6 +13,7 @@ use StellarWP\Uplink\Auth\Authorizer;
 use StellarWP\Uplink\Auth\License\License_Manager;
 use StellarWP\Uplink\Auth\Token\Token_Factory;
 use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
+use StellarWP\Uplink\License\License_Key_Fetcher;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Resources\Plugin;
 use StellarWP\Uplink\Resources\Resource;
@@ -147,7 +148,7 @@ function is_user_authorized(): bool {
 function build_auth_url( string $slug, string $domain = '' ): string {
 	try {
 		return get_container()->get( Auth_Url_Builder::class )
-		                              ->build( $slug, $domain );
+		                      ->build( $slug, $domain );
 	} catch ( Throwable $e ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( "Error building auth URL: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
@@ -217,24 +218,18 @@ function validate_license( string $slug, string $license = '' ): ?Validation_Res
 
 /**
  * A multisite license aware way to get a resource's license key automatically
- * from the network or local site level.
+ * from the network, local site level or the helper class.
+ *
+ * @see Config::set_license_key_strategy()
  *
  * @param  string  $slug  The plugin/service slug.
  *
  * @throws \RuntimeException
  *
- * @return string
+ * @return string|null
  */
-function get_license_key( string $slug ): string {
-	$resource = get_resource( $slug );
-
-	if ( ! $resource ) {
-		return '';
-	}
-
-	$network = allows_multisite_license( $resource );
-
-	return $resource->get_license_key( $network ? 'network' : 'local' );
+function get_license_key( string $slug ): ?string {
+	return get_container()->get( License_Key_Fetcher::class )->get_key( $slug );
 }
 
 /**

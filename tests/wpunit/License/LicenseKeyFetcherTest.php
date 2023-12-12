@@ -11,6 +11,7 @@ use StellarWP\Uplink\License\Storage\License_Single_Site_Storage;
 use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Resources\Resource;
 use StellarWP\Uplink\Tests\Sample_Plugin;
+use StellarWP\Uplink\Tests\Sample_Plugin_Helper;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
 
@@ -286,6 +287,48 @@ final class LicenseKeyFetcherTest extends UplinkTestCase {
 
 		// Local key returned.
 		$this->assertSame( 'local-key', $this->fetcher->get_key( $this->slug ) );
+	}
+
+	/**
+	 * This is the default strategy and how Uplink originally fetched license keys before this
+	 * change, by first checking the network, then the single site, then the file based Helper
+	 * class.
+	 *
+	 * @env multisite
+	 */
+	public function test_it_gets_file_license_key_with_global_license_strategy(): void {
+		$this->assertTrue( is_multisite() );
+
+		$slug = 'sample-with-license';
+
+		// Register the sample plugin as a developer would in their plugin.
+		$resource = Register::plugin(
+			$slug,
+			'Lib Sample With License',
+			'1.2.0',
+			'uplink/index.php',
+			Sample_Plugin::class,
+			Sample_Plugin_Helper::class
+		);
+
+		// Mock our sample plugin is network activated, otherwise license key check fails.
+		$this->mock_activate_plugin( 'uplink/index.php', true );
+
+		// Create a subsite.
+		$sub_site_id = wpmu_create_blog( 'wordpress.test', '/sub1', 'Test Subsite', 1 );
+		$this->assertNotInstanceOf( WP_Error::class, $sub_site_id );
+		$this->assertGreaterThan( 1, $sub_site_id );
+
+		switch_to_blog( $sub_site_id );
+
+		// No local key stored.
+		$this->assertEmpty( $this->single_storage->get( $resource ) );
+
+		// No network key stored.
+		$this->assertEmpty( $this->network_storage->get( $resource ) );
+
+		// File based key returned.
+		$this->assertSame( 'file-based-license-key', $this->fetcher->get_key( $slug ) );
 	}
 
 }

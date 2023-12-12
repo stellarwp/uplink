@@ -89,6 +89,8 @@ On the _Plugins_ page in the WP Dashboard, any plugin that has an update availab
 
 ### Multisite Licenses
 
+TODO: Notes about stored license file?
+
 Out of the box, Uplink treats all sub-sites as their _own independent site_, storing license keys and authorization tokens
 in the options table of that sub-site.
 

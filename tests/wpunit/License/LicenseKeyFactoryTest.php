@@ -22,6 +22,11 @@ final class LicenseKeyFactoryTest extends UplinkTestCase {
 	 */
 	private $resource;
 
+	/**
+	 * @var License_Key_Strategy_Factory
+	 */
+	private $factory;
+
 	protected function setUp(): void {
 		parent::setUp();
 
@@ -33,6 +38,15 @@ final class LicenseKeyFactoryTest extends UplinkTestCase {
 			'uplink/index.php',
 			Sample_Plugin::class
 		);
+
+		$this->factory = $this->container->get( License_Key_Strategy_Factory::class );
+	}
+
+	public function test_it_gets_the_default_strategy(): void {
+		$this->assertInstanceOf(
+			Global_License_Key_Strategy::class,
+			$this->factory->make( $this->resource )
+		);
 	}
 
 	public function test_it_throws_exception_with_invalid_license_key_strategy(): void {
@@ -41,14 +55,7 @@ final class LicenseKeyFactoryTest extends UplinkTestCase {
 
 		Config::set_license_key_strategy( 'invalid' );
 
-		$this->container->get( License_Key_Strategy_Factory::class )->make( $this->resource );
-	}
-
-	public function test_it_gets_the_default_strategy(): void {
-		$this->assertInstanceOf(
-			Global_License_Key_Strategy::class,
-			$this->container->get( License_Key_Strategy_Factory::class )->make( $this->resource )
-		);
+		$this->factory->make( $this->resource );
 	}
 
 	public function test_it_gets_the_single_site_license_key_strategy(): void {
@@ -56,7 +63,7 @@ final class LicenseKeyFactoryTest extends UplinkTestCase {
 
 		$this->assertInstanceOf(
 			Single_Site_License_Key_Strategy::class,
-			$this->container->get( License_Key_Strategy_Factory::class )->make( $this->resource )
+			$this->factory->make( $this->resource )
 		);
 	}
 
@@ -80,7 +87,7 @@ final class LicenseKeyFactoryTest extends UplinkTestCase {
 
 		$this->assertInstanceOf(
 			Single_Site_License_Key_Strategy::class,
-			$this->container->get( License_Key_Strategy_Factory::class )->make( $this->resource )
+			$this->factory->make( $this->resource )
 		);
 	}
 
@@ -105,7 +112,7 @@ final class LicenseKeyFactoryTest extends UplinkTestCase {
 
 		$this->assertInstanceOf(
 			Network_Only_License_Key_Strategy::class,
-			$this->container->get( License_Key_Strategy_Factory::class )->make( $this->resource )
+			$this->factory->make( $this->resource )
 		);
 	}
 
@@ -130,7 +137,7 @@ final class LicenseKeyFactoryTest extends UplinkTestCase {
 
 		$this->assertInstanceOf(
 			Network_Only_License_Key_Strategy::class,
-			$this->container->get( License_Key_Strategy_Factory::class )->make( $this->resource )
+			$this->factory->make( $this->resource )
 		);
 	}
 
@@ -155,7 +162,7 @@ final class LicenseKeyFactoryTest extends UplinkTestCase {
 
 		$this->assertInstanceOf(
 			Network_Only_License_Key_Strategy::class,
-			$this->container->get( License_Key_Strategy_Factory::class )->make( $this->resource )
+			$this->factory->make( $this->resource )
 		);
 	}
 

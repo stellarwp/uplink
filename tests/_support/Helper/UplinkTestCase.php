@@ -41,6 +41,13 @@ class UplinkTestCase extends WPTestCase {
 	 */
 	protected $network_domain_mapping_license;
 
+	/**
+	 * The default license key strategy.
+	 *
+	 * @var string
+	 */
+	protected $strategy;
+
 	protected function setUp(): void {
 		// @phpstan-ignore-next-line
 		parent::setUp();
@@ -56,6 +63,9 @@ class UplinkTestCase extends WPTestCase {
 		$this->network_subfolder_license      = Config::allows_network_subfolder_license();
 		$this->network_subdomain_license      = Config::allows_network_subdomain_license();
 		$this->network_domain_mapping_license = Config::allows_network_domain_mapping_license();
+
+		// Capture default license key strategy.
+		$this->strategy = Config::get_license_key_strategy();
 	}
 
 	protected function tearDown(): void {
@@ -63,6 +73,9 @@ class UplinkTestCase extends WPTestCase {
 		Config::set_network_subfolder_license( $this->network_subfolder_license );
 		Config::set_network_subdomain_license( $this->network_subdomain_license );
 		Config::set_network_domain_mapping_license( $this->network_domain_mapping_license );
+
+		// Reset license key strategy to the default.
+		Config::set_license_key_strategy( $this->strategy );
 
 		parent::tearDown();
 	}

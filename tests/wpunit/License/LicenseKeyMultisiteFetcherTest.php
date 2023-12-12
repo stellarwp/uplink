@@ -15,7 +15,7 @@ use StellarWP\Uplink\Tests\Sample_Plugin_Helper;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
 
-final class LicenseKeyFetcherTest extends UplinkTestCase {
+final class LicenseKeyMultisiteFetcherTest extends UplinkTestCase {
 
 	/**
 	 * The resource slug.
@@ -65,7 +65,11 @@ final class LicenseKeyFetcherTest extends UplinkTestCase {
 		$this->network_storage = $this->container->get( License_Network_Storage::class );
 	}
 
+	/**
+	 * @env multisite
+	 */
 	public function test_it_throws_exception_with_invalid_license_key_strategy(): void {
+		$this->assertTrue( is_multisite() );
 		$this->expectException( RuntimeException::class );
 		$this->expectExceptionMessage( 'Invalid config license strategy provided.' );
 
@@ -74,19 +78,31 @@ final class LicenseKeyFetcherTest extends UplinkTestCase {
 		$this->fetcher->get_key( $this->slug );
 	}
 
+	/**
+	 * @env multisite
+	 */
 	public function test_it_returns_null_with_unknown_resource(): void {
+		$this->assertTrue( is_multisite() );
 		$this->assertNull( $this->fetcher->get_key( 'unknown-resource' ) );
 	}
 
-	public function test_it_gets_single_site_license_key(): void {
+	/**
+	 * @env multisite
+	 */
+	public function test_it_gets_single_site_license_key_on_main_site(): void {
+		$this->assertTrue( is_multisite() );
 		$this->assertNull( $this->fetcher->get_key( $this->slug ) );
 
-		$this->single_storage->store( $this->resource, 'abcdef' );
+		$this->single_storage->store( $this->resource, 'local-key' );
 
-		$this->assertSame( 'abcdef', $this->fetcher->get_key( $this->slug ) );
+		$this->assertSame( 'local-key', $this->fetcher->get_key( $this->slug ) );
 	}
 
-	public function test_it_gets_single_site_fallback_file_license_key(): void {
+	/**
+	 * @env multisite
+	 */
+	public function test_it_gets_single_site_fallback_file_license_key_on_main_site(): void {
+		$this->assertTrue( is_multisite() );
 		$slug = 'sample-with-license';
 
 		// Register the sample plugin as a developer would in their plugin.
@@ -104,6 +120,25 @@ final class LicenseKeyFetcherTest extends UplinkTestCase {
 
 		// File based key returned.
 		$this->assertSame( 'file-based-license-key', $this->fetcher->get_key( $slug ) );
+	}
+
+	/**
+	 * @env multisite
+	 */
+	public function test_it_gets_single_site_license_key_with_isolated_while_network_activated(): void {
+		$this->assertTrue( is_multisite() );
+		$this->assertNull( $this->fetcher->get_key( $this->slug ) );
+
+		// Mock our sample plugin is network activated, otherwise license key check fails.
+		$this->mock_activate_plugin( 'uplink/index.php', true );
+
+		Config::set_license_key_strategy( License_Strategy::ISOLATED );
+
+		$this->single_storage->store( $this->resource, 'local-key' );
+		$this->network_storage->store( $this->resource, 'network-key' );
+		$this->assertSame( 'network-key', $this->network_storage->get( $this->resource ) );
+
+		$this->assertSame( 'local-key', $this->fetcher->get_key( $this->slug ) );
 	}
 
 	/**

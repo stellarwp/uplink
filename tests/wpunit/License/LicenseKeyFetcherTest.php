@@ -73,6 +73,10 @@ final class LicenseKeyFetcherTest extends UplinkTestCase {
 		$this->fetcher->get_key( $this->slug );
 	}
 
+	public function test_it_returns_null_with_unknown_resource(): void {
+		$this->assertNull( $this->fetcher->get_key( 'unknown-resource' ) );
+	}
+
 	public function test_it_gets_single_site_license_key(): void {
 		$this->assertNull( $this->fetcher->get_key( $this->slug ) );
 

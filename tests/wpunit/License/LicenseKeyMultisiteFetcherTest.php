@@ -172,6 +172,53 @@ final class LicenseKeyMultisiteFetcherTest extends UplinkTestCase {
 	/**
 	 * @env multisite
 	 */
+	public function test_it_gets_single_site_license_key_with_all_multisite_types_disabled(): void {
+		$this->assertTrue( is_multisite() );
+		$this->assertNull( $this->fetcher->get_key( $this->slug ) );
+
+		// Mock our sample plugin is network activated, otherwise license key check fails.
+		$this->mock_activate_plugin( 'uplink/index.php', true );
+
+		Config::set_license_key_strategy( License_Strategy::ISOLATED );
+
+		$sites = [
+			[
+				'domain' => 'wordpress.test',
+				'path'   => '/sub1',
+				'name'   => 'Test Subsite 1',
+			],
+			[
+				'domain' => 'temp.wordpress.test',
+				'path'   => '/',
+				'name'   => 'Test Subdomain Subsite',
+			],
+			[
+				'domain' => 'wordpress.custom',
+				'path'   => '/',
+				'name'   => 'Test Custom Domain Subsite',
+			],
+		];
+
+		$this->network_storage->store( $this->resource, 'network-key' );
+		$this->assertSame( 'network-key', $this->network_storage->get( $this->resource ) );
+
+		foreach ( $sites as $site ) {
+			$id = wpmu_create_blog( $site['domain'], $site['path'], $site['name'], 1 );
+			$this->assertNotInstanceOf( WP_Error::class, $id );
+			$this->assertGreaterThan( 1, $id );
+
+			switch_to_blog( $id );
+
+			$this->assertEmpty( $this->single_storage->get( $this->resource ) );
+			$this->single_storage->store( $this->resource, 'local-key' );
+
+			$this->assertSame( 'local-key', $this->fetcher->get_key( $this->slug ) );
+		}
+	}
+
+	/**
+	 * @env multisite
+	 */
 	public function test_it_gets_fallback_file_license_key_with_isolated_strategy_and_no_multisite_configuration(): void {
 		$this->assertTrue( is_multisite() );
 
@@ -371,7 +418,7 @@ final class LicenseKeyMultisiteFetcherTest extends UplinkTestCase {
 			],
 		];
 
-		$this->network_storage->store( $this->resource, 'network-key-domain' );
+		$this->network_storage->store( $this->resource, 'network-key' );
 
 		foreach ( $sites as $site ) {
 			$id = wpmu_create_blog( $site['domain'], $site['path'], $site['name'], 1 );
@@ -384,7 +431,7 @@ final class LicenseKeyMultisiteFetcherTest extends UplinkTestCase {
 			$this->single_storage->store( $this->resource, 'local-key' );
 			$this->assertSame( 'local-key', $this->single_storage->get( $this->resource ) );
 
-			$this->assertSame( 'network-key-domain', $this->fetcher->get_key( $this->slug ) );
+			$this->assertSame( 'network-key', $this->fetcher->get_key( $this->slug ) );
 		}
 	}
 

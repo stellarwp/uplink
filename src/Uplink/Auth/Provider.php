@@ -21,6 +21,8 @@ final class Provider extends Abstract_Provider {
 	 * @inheritDoc
 	 */
 	public function register() {
+		$this->register_license_manager();
+
 		if ( ! $this->container->has( Config::TOKEN_OPTION_NAME ) ) {
 			return;
 		}
@@ -40,9 +42,30 @@ final class Provider extends Abstract_Provider {
 		);
 
 		$this->register_nonce();
-		$this->register_license_manager();
 		$this->register_auth_disconnect();
 		$this->register_auth_connect();
+	}
+
+	/**
+	 * Register the license manager and its pipeline to detect different
+	 * multisite licenses.
+	 *
+	 * @return void
+	 */
+	private function register_license_manager(): void {
+		$pipeline = ( new Pipeline( $this->container ) )->through( [
+			Multisite_Main_Site::class,
+			Multisite_Subfolder::class,
+			Multisite_Subdomain::class,
+			Multisite_Domain_Mapping::class,
+		] );
+
+		$this->container->singleton(
+			License_Manager::class,
+			static function () use ( $pipeline ) {
+				return new License_Manager( $pipeline );
+			}
+		);
 	}
 
 	/**
@@ -64,28 +87,6 @@ final class Provider extends Abstract_Provider {
 		$expiration = absint( $expiration );
 
 		$this->container->singleton( Nonce::class, new Nonce( $expiration ) );
-	}
-
-	/**
-	 * Register the license manager and its pipeline to detect different
-	 * mulitsite licenses.
-	 *
-	 * @return void
-	 */
-	private function register_license_manager(): void {
-		$pipeline = ( new Pipeline( $this->container ) )->through( [
-			Multisite_Main_Site::class,
-			Multisite_Subfolder::class,
-			Multisite_Subdomain::class,
-			Multisite_Domain_Mapping::class,
-		] );
-
-		$this->container->singleton(
-			License_Manager::class,
-			static function () use ( $pipeline ) {
-				return new License_Manager( $pipeline );
-			}
-		);
 	}
 
 	/**

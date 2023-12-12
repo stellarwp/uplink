@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\License\Storage;
 
+use StellarWP\Uplink\License\Storage\Traits\Option_Name_Trait;
 use StellarWP\Uplink\Resources\Resource;
 use StellarWP\Uplink\Utils\Sanitize;
 
@@ -9,6 +10,8 @@ use StellarWP\Uplink\Utils\Sanitize;
  * Manages license keys in a WordPress network.
  */
 final class License_Network_Storage implements Contracts\Storage {
+
+	use Option_Name_Trait;
 
 	/**
 	 * @inheritDoc
@@ -25,7 +28,7 @@ final class License_Network_Storage implements Contracts\Storage {
 			return true;
 		}
 
-		return update_site_option( $this->option_name( $resource ), $license_key );
+		return update_site_option( self::option_name( $resource ), $license_key );
 	}
 
 	/**
@@ -36,7 +39,7 @@ final class License_Network_Storage implements Contracts\Storage {
 			return null;
 		}
 
-		return get_site_option( $this->option_name( $resource ), null );
+		return get_site_option( self::option_name( $resource ), null );
 	}
 
 	/**
@@ -47,18 +50,7 @@ final class License_Network_Storage implements Contracts\Storage {
 			return false;
 		}
 
-		return delete_site_option( $this->option_name( $resource ) );
-	}
-
-	/**
-	 * Get the unique option name to save in the network.
-	 *
-	 * @param  Resource  $resource
-	 *
-	 * @return string
-	 */
-	private function option_name( Resource $resource ): string {
-		return self::KEY_PREFIX . $resource->get_slug();
+		return delete_site_option( self::option_name( $resource ) );
 	}
 
 	/**

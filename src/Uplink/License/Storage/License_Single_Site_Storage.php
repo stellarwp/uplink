@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\License\Storage;
 
+use StellarWP\Uplink\License\Storage\Traits\Option_Name_Trait;
 use StellarWP\Uplink\Resources\Resource;
 use StellarWP\Uplink\Utils\Sanitize;
 
@@ -9,6 +10,8 @@ use StellarWP\Uplink\Utils\Sanitize;
  * Manages license keys for the current site.
  */
 final class License_Single_Site_Storage implements Contracts\Storage {
+
+	use Option_Name_Trait;
 
 	/**
 	 * @inheritDoc
@@ -21,33 +24,21 @@ final class License_Single_Site_Storage implements Contracts\Storage {
 			return true;
 		}
 
-		return update_option( $this->option_name( $resource ), $license_key );
+		return update_option( self::option_name( $resource ), $license_key );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function get( Resource $resource ): ?string {
-		return get_option( $this->option_name( $resource ), null );
+		return get_option( self::option_name( $resource ), null );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function delete( Resource $resource ): bool {
-		return delete_option( $this->option_name( $resource ) );
-	}
-
-	/**
-	 * Get the unique option name to save in options table for the
-	 * current time.
-	 *
-	 * @param  Resource  $resource
-	 *
-	 * @return string
-	 */
-	private function option_name( Resource $resource ): string {
-		return self::KEY_PREFIX . $resource->get_slug();
+		return delete_option( self::option_name( $resource ) );
 	}
 
 }

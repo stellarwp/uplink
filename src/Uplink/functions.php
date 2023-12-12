@@ -14,6 +14,7 @@ use StellarWP\Uplink\Auth\License\License_Manager;
 use StellarWP\Uplink\Auth\Token\Token_Factory;
 use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
 use StellarWP\Uplink\License\License_Key_Fetcher;
+use StellarWP\Uplink\License\Storage\License_File_Storage;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Resources\Plugin;
 use StellarWP\Uplink\Resources\Resource;
@@ -218,7 +219,8 @@ function validate_license( string $slug, string $license = '' ): ?Validation_Res
 
 /**
  * A multisite license aware way to get a resource's license key automatically
- * from the network, local site level or the helper class.
+ * from the network, local site level or the file helper class which
+ * respects the configured license key strategy.
  *
  * @see Config::set_license_key_strategy()
  *
@@ -230,6 +232,45 @@ function validate_license( string $slug, string $license = '' ): ?Validation_Res
  */
 function get_license_key( string $slug ): ?string {
 	return get_container()->get( License_Key_Fetcher::class )->get_key( $slug );
+}
+
+/**
+ * Get the embedded license key provided by the plugin's helper class.
+ *
+ * @param  string  $slug  The plugin/service slug.
+ *
+ * @throws \RuntimeException
+ *
+ * @return string|null
+ */
+function get_default_license_key( string $slug ): ?string {
+	$resource = get_resource( $slug );
+
+	if ( ! $resource ) {
+		return null;
+	}
+
+	return get_container()->get( License_File_Storage::class )->get( $resource );
+}
+
+/**
+ * Check if the current license key is the default key.
+ *
+ * @param  string  $slug The plugin/service slug.
+ *
+ * @throws \RuntimeException
+ *
+ * @return bool
+ */
+function is_default_license_key( string $slug ): bool {
+	$key      = get_license_key( $slug );
+	$file_key = get_default_license_key( $slug );
+
+	if ( $key === null && $file_key === null ) {
+		return false;
+	}
+
+	return $key === $file_key;
 }
 
 /**

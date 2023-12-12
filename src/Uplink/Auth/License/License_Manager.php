@@ -23,6 +23,13 @@ final class License_Manager {
 	private $cache;
 
 	/**
+	 * Whether we allow memoization caching.
+	 *
+	 * @var bool
+	 */
+	private $cache_enabled = true;
+
+	/**
 	 * @param  Pipeline  $pipeline
 	 */
 	public function __construct( Pipeline $pipeline ) {
@@ -44,11 +51,14 @@ final class License_Manager {
 	 * @return bool
 	 */
 	public function allows_multisite_license( Resource $resource ): bool {
-		$key   = $resource->get_slug();
-		$cache = $this->cache[ $key ] ?? null;
+		$key = $resource->get_slug();
 
-		if ( $cache !== null ) {
-			return $cache;
+		if ( $this->cache_enabled ) {
+			$cache = $this->cache[ $key ] ?? null;
+
+			if ( $cache !== null ) {
+				return $cache;
+			}
 		}
 
 		// We're on single site or, the plugin isn't network activated.
@@ -57,6 +67,13 @@ final class License_Manager {
 		}
 
 		return $this->cache[ $key ] = $this->pipeline->send( false )->thenReturn();
+	}
+
+	/**
+	 * Disable memoization cache, useful for automated tests.
+	 */
+	public function disable_cache(): void {
+		$this->cache_enabled = false;
 	}
 
 }

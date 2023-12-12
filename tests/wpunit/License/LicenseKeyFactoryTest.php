@@ -18,13 +18,6 @@ use WP_Error;
 final class LicenseKeyFactoryTest extends UplinkTestCase {
 
 	/**
-	 * The Resource slug.
-	 *
-	 * @var string
-	 */
-	private $slug = 'sample';
-
-	/**
 	 * @var Resource
 	 */
 	private $resource;
@@ -34,7 +27,7 @@ final class LicenseKeyFactoryTest extends UplinkTestCase {
 
 		// Register the sample plugin as a developer would in their plugin.
 		$this->resource = Register::plugin(
-			$this->slug,
+			'sample',
 			'Lib Sample',
 			'1.0.10',
 			'uplink/index.php',

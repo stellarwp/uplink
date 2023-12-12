@@ -5,6 +5,8 @@ namespace StellarWP\Uplink\License;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Resources\Collection;
 
+use StellarWP\Uplink\Resources\Resource;
+
 use function StellarWP\Uplink\get_license_key;
 
 final class License_Key_Fetcher {
@@ -51,7 +53,17 @@ final class License_Key_Fetcher {
 			return null;
 		}
 
-		return $this->factory->make( $resource )->get_key( $resource );
+		$key = $this->factory->make( $resource )->get_key( $resource );
+
+		/**
+		 * Filter the license key.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param  string|null  $key       The license key.
+		 * @param  Resource     $resource  The resource associated with the license key.
+		 */
+		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/license_get_key', $key, $resource );
 	}
 
 }

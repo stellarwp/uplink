@@ -15,6 +15,8 @@ use StellarWP\Uplink\Auth\Token\Token_Factory;
 use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
 use StellarWP\Uplink\License\License_Key_Fetcher;
 use StellarWP\Uplink\License\Storage\License_File_Storage;
+use StellarWP\Uplink\License\Storage\License_Network_Storage;
+use StellarWP\Uplink\License\Storage\License_Single_Site_Storage;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Resources\Plugin;
 use StellarWP\Uplink\Resources\Resource;
@@ -232,6 +234,45 @@ function validate_license( string $slug, string $license = '' ): ?Validation_Res
  */
 function get_license_key( string $slug ): ?string {
 	return get_container()->get( License_Key_Fetcher::class )->get_key( $slug );
+}
+
+/**
+ * Get the raw license key from the network, ignoring any Uplink/multisite configuration.
+ *
+ * @param  string  $slug The plugin/service slug.
+ *
+ * @throws \RuntimeException
+ *
+ * @return string|null
+ */
+function get_raw_network_license_key( string $slug ): ?string {
+	$resource = get_resource( $slug );
+
+	if ( ! $resource ) {
+		return null;
+	}
+
+	return get_container()->get( License_Network_Storage::class )->get( $resource );
+}
+
+/**
+ * Get the raw license key from the current single site, ignoring any Uplink/multisite
+ * configuration.
+ *
+ * @param  string  $slug The plugin/service slug.
+ *
+ * @throws \RuntimeException
+ *
+ * @return string|null
+ */
+function get_raw_single_site_license_key( string $slug ): ?string {
+	$resource = get_resource( $slug );
+
+	if ( ! $resource ) {
+		return null;
+	}
+
+	return get_container()->get( License_Single_Site_Storage::class )->get( $resource );
 }
 
 /**

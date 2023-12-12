@@ -14,6 +14,8 @@ class Uplink {
 	 *
 	 * @since 1.0.0
 	 *
+	 * @throws RuntimeException
+	 *
 	 * @return void
 	 */
 	public static function init(): void {
@@ -35,16 +37,15 @@ class Uplink {
 		$container->singleton( Notice\Provider::class, Notice\Provider::class );
 		$container->singleton( Admin\Provider::class, Admin\Provider::class );
 		$container->singleton( Auth\Provider::class, Auth\Provider::class );
+		$container->singleton( License\Provider::class, License\Provider::class );
 
 		if ( static::is_enabled() ) {
 			$container->get( View\Provider::class )->register();
 			$container->get( API\V3\Provider::class )->register();
 			$container->get( Notice\Provider::class )->register();
 			$container->get( Admin\Provider::class )->register();
-
-			if ( $container->has( Config::TOKEN_OPTION_NAME ) ) {
-				$container->get( Auth\Provider::class )->register();
-			}
+			$container->get( Auth\Provider::class )->register();
+			$container->get( License\Provider::class )->register();
 		}
 
 		require_once __DIR__ . '/functions.php';

@@ -256,6 +256,7 @@ function get_license_network_storage(): License_Network_Storage {
  *  license keys without respecting Uplink Configuration/multisite, use this.
  *
  * @throws \RuntimeException
+ *
  * @return License_Single_Site_Storage
  */
 function get_license_single_site_storage(): License_Single_Site_Storage {

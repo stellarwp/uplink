@@ -251,9 +251,8 @@ function get_license_network_storage(): License_Network_Storage {
 
 /**
  * Get the underlying Single Site storage object to manipulate license keys directly.
- * Prefer get_license_key() were possible, but if you need to manipulate the
- * but if you need to manipulate the
- *  license keys without respecting Uplink Configuration/multisite, use this.
+ * Prefer get_license_key() were possible, but if you need to manipulate the license
+ * keys without respecting Uplink Configuration/multisite, use this.
  *
  * @throws \RuntimeException
  *
@@ -343,7 +342,7 @@ function is_default_license_key( string $slug ): bool {
 
 /**
  * A multisite license aware way to set a resource's license key automatically
- *  from the network or local site level.
+ * from the network or local site level.
  *
  * @param  string  $slug The plugin/service slug.
  * @param  string  $license The license key to store.
@@ -366,6 +365,28 @@ function set_license_key( string $slug, string $license ): bool {
 	$resource->validate_license( $license, $network );
 
 	return $result;
+}
+
+/**
+ * A multisite license aware way to delete a resource's license key automatically
+ * from the network or local site level which respects the configured license key strategy.
+ *
+ * @param  string  $slug The plugin/service slug.
+ *
+ * @throws \RuntimeException
+ *
+ * @return bool
+ */
+function delete_license_key( string $slug ): bool {
+	$resource = get_resource( $slug );
+
+	if ( ! $resource ) {
+		return false;
+	}
+
+	$network = allows_multisite_license( $resource );
+
+	return $network ? get_license_network_storage()->delete( $resource ) : get_license_single_site_storage()->delete( $resource );
 }
 
 /**

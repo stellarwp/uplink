@@ -237,6 +237,32 @@ function get_license_key( string $slug ): ?string {
 }
 
 /**
+ * Get the underlying Network storage object to manipulate license keys directly.
+ * Prefer get_license_key() were possible, but if you need to manipulate the
+ * license keys without respecting Uplink Configuration/multisite, use this.
+ *
+ * @throws \RuntimeException
+ *
+ * @return License_Network_Storage
+ */
+function get_license_network_storage(): License_Network_Storage {
+	return get_container()->get( License_Network_Storage::class );
+}
+
+/**
+ * Get the underlying Single Site storage object to manipulate license keys directly.
+ * Prefer get_license_key() were possible, but if you need to manipulate the
+ * but if you need to manipulate the
+ *  license keys without respecting Uplink Configuration/multisite, use this.
+ *
+ * @throws \RuntimeException
+ * @return License_Single_Site_Storage
+ */
+function get_license_single_site_storage(): License_Single_Site_Storage {
+	return get_container()->get( License_Single_Site_Storage::class );
+}
+
+/**
  * Get the raw license key from the network, ignoring any Uplink/multisite configuration.
  *
  * @param  string  $slug The plugin/service slug.
@@ -252,7 +278,7 @@ function get_raw_network_license_key( string $slug ): ?string {
 		return null;
 	}
 
-	return get_container()->get( License_Network_Storage::class )->get( $resource );
+	return get_license_network_storage()->get( $resource );
 }
 
 /**
@@ -272,7 +298,7 @@ function get_raw_single_site_license_key( string $slug ): ?string {
 		return null;
 	}
 
-	return get_container()->get( License_Single_Site_Storage::class )->get( $resource );
+	return get_license_single_site_storage()->get( $resource );
 }
 
 /**

@@ -86,10 +86,30 @@ final class LicenseKeyFetcherTest extends UplinkTestCase {
 		$this->assertSame( 'abcdef', $this->fetcher->get_key( $this->slug ) );
 	}
 
+	public function test_it_gets_single_site_fallback_file_license_key(): void {
+		$slug = 'sample-with-license';
+
+		// Register the sample plugin as a developer would in their plugin.
+		$resource = Register::plugin(
+			$slug,
+			'Lib Sample With License',
+			'1.2.0',
+			'uplink/index.php',
+			Sample_Plugin::class,
+			Sample_Plugin_Helper::class
+		);
+
+		// No local key stored.
+		$this->assertEmpty( $this->single_storage->get( $resource ) );
+
+		// File based key returned.
+		$this->assertSame( 'file-based-license-key', $this->fetcher->get_key( $slug ) );
+	}
+
 	/**
 	 * @env multisite
 	 */
-	public function test_it_gets_the_single_site_license_key_with_global_strategy_and_no_multisite_configuration(): void {
+	public function test_it_gets_single_site_license_key_with_isolated_strategy_and_no_multisite_configuration(): void {
 		$this->assertTrue( is_multisite() );
 		$this->assertNull( $this->fetcher->get_key( $this->slug ) );
 
@@ -112,6 +132,47 @@ final class LicenseKeyFetcherTest extends UplinkTestCase {
 
 		// Local key returned.
 		$this->assertSame( 'local-key', $this->fetcher->get_key( $this->slug ) );
+	}
+
+	/**
+	 * @env multisite
+	 */
+	public function test_it_gets_fallback_file_license_key_with_isolated_strategy_and_no_multisite_configuration(): void {
+		$this->assertTrue( is_multisite() );
+
+		$slug = 'sample-with-license';
+
+		// Register the sample plugin as a developer would in their plugin.
+		$resource = Register::plugin(
+			$slug,
+			'Lib Sample With License',
+			'1.2.0',
+			'uplink/index.php',
+			Sample_Plugin::class,
+			Sample_Plugin_Helper::class
+		);
+
+		// Mock our sample plugin is network activated, otherwise license key check fails.
+		$this->mock_activate_plugin( 'uplink/index.php', true );
+
+		Config::set_license_key_strategy( License_Strategy::ISOLATED );
+
+		// Create a subsite.
+		$sub_site_id = wpmu_create_blog( 'wordpress.test', '/sub1', 'Test Subsite', 1 );
+		$this->assertNotInstanceOf( WP_Error::class, $sub_site_id );
+		$this->assertGreaterThan( 1, $sub_site_id );
+
+		switch_to_blog( $sub_site_id );
+
+		// No local key.
+		$this->assertEmpty( $this->single_storage->get( $resource ) );
+
+		// Store network key, but it should never be fetched in this scenario.
+		$this->network_storage->store( $resource, 'network-key' );
+		$this->assertSame( 'network-key', $this->network_storage->get( $resource ));
+
+		// File based key returned.
+		$this->assertSame( 'file-based-license-key', $this->fetcher->get_key( $slug ) );
 	}
 
 	/**
@@ -140,6 +201,48 @@ final class LicenseKeyFetcherTest extends UplinkTestCase {
 		$this->network_storage->store( $this->resource, 'network-key-subfolder' );
 
 		$this->assertSame( 'network-key-subfolder', $this->fetcher->get_key( $this->slug ) );
+	}
+
+	/**
+	 * @env multisite
+	 */
+	public function test_it_gets_fallback_file_license_key_with_isolated_strategy_and_subfolders_configured(): void {
+		$this->assertTrue( is_multisite() );
+
+		$slug = 'sample-with-license';
+
+		// Register the sample plugin as a developer would in their plugin.
+		$resource = Register::plugin(
+			$slug,
+			'Lib Sample With License',
+			'1.2.0',
+			'uplink/index.php',
+			Sample_Plugin::class,
+			Sample_Plugin_Helper::class
+		);
+
+		// Mock our sample plugin is network activated, otherwise license key check fails.
+		$this->mock_activate_plugin( 'uplink/index.php', true );
+
+		Config::set_license_key_strategy( License_Strategy::ISOLATED );
+		Config::set_network_subfolder_license( true );
+
+		// Create a subsite.
+		$sub_site_id = wpmu_create_blog( 'wordpress.test', '/sub1', 'Test Subsite', 1 );
+		$this->assertNotInstanceOf( WP_Error::class, $sub_site_id );
+		$this->assertGreaterThan( 1, $sub_site_id );
+
+		switch_to_blog( $sub_site_id );
+
+		// Store a local key, but it should never be fetched in this scenario.
+		$this->single_storage->store( $resource, 'local-key' );
+		$this->assertSame( 'local-key', $this->single_storage->get( $resource ) );
+
+		// No network key stored.
+		$this->assertEmpty( $this->network_storage->get( $resource ) );
+
+		// File based key returned.
+		$this->assertSame( 'file-based-license-key', $this->fetcher->get_key( $slug ) );
 	}
 
 	/**

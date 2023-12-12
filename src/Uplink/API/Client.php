@@ -194,7 +194,7 @@ class Client {
 	 *
 	 * @throws \RuntimeException
 	 *
-	 * @return mixed
+	 * @return Validation_Response|mixed
 	 */
 	public function validate_license( Resource $resource, ?string $key = null, string $validation_type = 'local', bool $force = false ) {
 		/** @var Data */

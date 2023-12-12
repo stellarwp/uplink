@@ -1,8 +1,9 @@
 <?php declare( strict_types=1 );
 
-namespace StellarWP\Uplink\Tests\License;
+namespace StellarWP\Uplink\Tests\License\LicenseKeyFetcher;
 
 use RuntimeException;
+use StellarWP\Uplink\Auth\License\License_Manager;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Enums\License_Strategy;
 use StellarWP\Uplink\License\License_Key_Fetcher;
@@ -15,14 +16,21 @@ use StellarWP\Uplink\Tests\Sample_Plugin_Helper;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
 
-final class LicenseKeyMultisiteFetcherTest extends UplinkTestCase {
+/**
+ * The "isolated" licensing strategy takes into account Uplink configuring for each
+ * multisite type as well as the current site being checked.
+ *
+ * Without any configuration, every subsite is treated as their own site, requiring
+ * their own license key.
+ */
+final class LicenseKeyMultisiteIsolatedFetcherTest extends UplinkTestCase {
 
 	/**
 	 * The resource slug.
 	 *
 	 * @var string
 	 */
-	private $slug = 'sample';
+	private $slug = 'sample-isolated';
 
 	/**
 	 * @var Resource
@@ -59,6 +67,14 @@ final class LicenseKeyMultisiteFetcherTest extends UplinkTestCase {
 			'uplink/index.php',
 			Sample_Plugin::class
 		);
+
+		// Set isolated license key strategy.
+		Config::set_license_key_strategy( License_Strategy::ISOLATED );
+
+		// Mock our sample plugin is network activated, otherwise license key check fails.
+		$this->mock_activate_plugin( 'uplink/index.php', true );
+
+		$this->container->get( License_Manager::class )->disable_cache();
 
 		$this->fetcher         = $this->container->get( License_Key_Fetcher::class );
 		$this->single_storage  = $this->container->get( License_Single_Site_Storage::class );
@@ -103,7 +119,7 @@ final class LicenseKeyMultisiteFetcherTest extends UplinkTestCase {
 	 */
 	public function test_it_gets_single_site_fallback_file_license_key_on_main_site(): void {
 		$this->assertTrue( is_multisite() );
-		$slug = 'sample-with-license';
+		$slug = 'sample-isolated-with-license';
 
 		// Register the sample plugin as a developer would in their plugin.
 		$resource = Register::plugin(
@@ -125,14 +141,9 @@ final class LicenseKeyMultisiteFetcherTest extends UplinkTestCase {
 	/**
 	 * @env multisite
 	 */
-	public function test_it_gets_single_site_license_key_with_isolated_while_network_activated(): void {
+	public function test_it_gets_single_site_license_key_while_network_activated(): void {
 		$this->assertTrue( is_multisite() );
 		$this->assertNull( $this->fetcher->get_key( $this->slug ) );
-
-		// Mock our sample plugin is network activated, otherwise license key check fails.
-		$this->mock_activate_plugin( 'uplink/index.php', true );
-
-		Config::set_license_key_strategy( License_Strategy::ISOLATED );
 
 		$this->single_storage->store( $this->resource, 'local-key' );
 		$this->network_storage->store( $this->resource, 'network-key' );
@@ -144,14 +155,9 @@ final class LicenseKeyMultisiteFetcherTest extends UplinkTestCase {
 	/**
 	 * @env multisite
 	 */
-	public function test_it_gets_single_site_license_key_with_isolated_strategy_and_no_multisite_configuration(): void {
+	public function test_it_gets_single_site_license_key_with_no_multisite_configuration(): void {
 		$this->assertTrue( is_multisite() );
 		$this->assertNull( $this->fetcher->get_key( $this->slug ) );
-
-		// Mock our sample plugin is network activated, otherwise license key check fails.
-		$this->mock_activate_plugin( 'uplink/index.php', true );
-
-		Config::set_license_key_strategy( License_Strategy::ISOLATED );
 
 		// Create a subsite.
 		$sub_site_id = wpmu_create_blog( 'wordpress.test', '/sub1', 'Test Subsite', 1 );
@@ -172,14 +178,9 @@ final class LicenseKeyMultisiteFetcherTest extends UplinkTestCase {
 	/**
 	 * @env multisite
 	 */
-	public function test_it_gets_single_site_license_key_with_all_multisite_types_disabled(): void {
+	public function test_it_gets_single_site_license_key_with_all_multisite_types(): void {
 		$this->assertTrue( is_multisite() );
 		$this->assertNull( $this->fetcher->get_key( $this->slug ) );
-
-		// Mock our sample plugin is network activated, otherwise license key check fails.
-		$this->mock_activate_plugin( 'uplink/index.php', true );
-
-		Config::set_license_key_strategy( License_Strategy::ISOLATED );
 
 		$sites = [
 			[
@@ -219,7 +220,7 @@ final class LicenseKeyMultisiteFetcherTest extends UplinkTestCase {
 	/**
 	 * @env multisite
 	 */
-	public function test_it_gets_fallback_file_license_key_with_isolated_strategy_and_no_multisite_configuration(): void {
+	public function test_it_gets_fallback_file_license_key_with_no_multisite_configuration(): void {
 		$this->assertTrue( is_multisite() );
 
 		$slug = 'sample-with-license';
@@ -233,11 +234,6 @@ final class LicenseKeyMultisiteFetcherTest extends UplinkTestCase {
 			Sample_Plugin::class,
 			Sample_Plugin_Helper::class
 		);
-
-		// Mock our sample plugin is network activated, otherwise license key check fails.
-		$this->mock_activate_plugin( 'uplink/index.php', true );
-
-		Config::set_license_key_strategy( License_Strategy::ISOLATED );
 
 		// Create a subsite.
 		$sub_site_id = wpmu_create_blog( 'wordpress.test', '/sub1', 'Test Subsite', 1 );
@@ -260,14 +256,10 @@ final class LicenseKeyMultisiteFetcherTest extends UplinkTestCase {
 	/**
 	 * @env multisite
 	 */
-	public function test_it_gets_network_license_key_with_isolated_strategy_and_subfolders_configured(): void {
+	public function test_it_gets_network_license_key_with_subfolders_configured(): void {
 		$this->assertTrue( is_multisite() );
 		$this->assertNull( $this->fetcher->get_key( $this->slug ) );
 
-		// Mock our sample plugin is network activated, otherwise license key check fails.
-		$this->mock_activate_plugin( 'uplink/index.php', true );
-
-		Config::set_license_key_strategy( License_Strategy::ISOLATED );
 		Config::set_network_subfolder_license( true );
 
 		// Create a subsite.
@@ -288,7 +280,7 @@ final class LicenseKeyMultisiteFetcherTest extends UplinkTestCase {
 	/**
 	 * @env multisite
 	 */
-	public function test_it_gets_fallback_file_license_key_with_isolated_strategy_and_subfolders_configured(): void {
+	public function test_it_gets_fallback_file_license_key_with_subfolders_configured(): void {
 		$this->assertTrue( is_multisite() );
 
 		$slug = 'sample-with-license';
@@ -303,10 +295,6 @@ final class LicenseKeyMultisiteFetcherTest extends UplinkTestCase {
 			Sample_Plugin_Helper::class
 		);
 
-		// Mock our sample plugin is network activated, otherwise license key check fails.
-		$this->mock_activate_plugin( 'uplink/index.php', true );
-
-		Config::set_license_key_strategy( License_Strategy::ISOLATED );
 		Config::set_network_subfolder_license( true );
 
 		// Create a subsite.
@@ -330,14 +318,10 @@ final class LicenseKeyMultisiteFetcherTest extends UplinkTestCase {
 	/**
 	 * @env multisite
 	 */
-	public function test_it_gets_network_license_key_with_isolated_strategy_and_subdomains_configured(): void {
+	public function test_it_gets_network_license_key_with_subdomains_configured(): void {
 		$this->assertTrue( is_multisite() );
 		$this->assertNull( $this->fetcher->get_key( $this->slug ) );
 
-		// Mock our sample plugin is network activated, otherwise license key check fails.
-		$this->mock_activate_plugin( 'uplink/index.php', true );
-
-		Config::set_license_key_strategy( License_Strategy::ISOLATED );
 		// Only subdomains of the main site are licensed.
 		Config::set_network_subdomain_license( true );
 
@@ -359,14 +343,10 @@ final class LicenseKeyMultisiteFetcherTest extends UplinkTestCase {
 	/**
 	 * @env multisite
 	 */
-	public function test_it_gets_network_license_key_with_isolated_strategy_and_domain_mapping_configured(): void {
+	public function test_it_gets_network_license_key_with_domain_mapping_configured(): void {
 		$this->assertTrue( is_multisite() );
 		$this->assertNull( $this->fetcher->get_key( $this->slug ) );
 
-		// Mock our sample plugin is network activated, otherwise license key check fails.
-		$this->mock_activate_plugin( 'uplink/index.php', true );
-
-		Config::set_license_key_strategy( License_Strategy::ISOLATED );
 		// Only custom subsite domains are licensed.
 		Config::set_network_domain_mapping_license( true );
 
@@ -388,14 +368,10 @@ final class LicenseKeyMultisiteFetcherTest extends UplinkTestCase {
 	/**
 	 * @env multisite
 	 */
-	public function test_it_gets_network_license_key_with_all_multisite_types_and_isolated_strategy(): void {
+	public function test_it_gets_network_license_key_with_all_multisite_types_enabled(): void {
 		$this->assertTrue( is_multisite() );
 		$this->assertNull( $this->fetcher->get_key( $this->slug ) );
 
-		// Mock our sample plugin is network activated, otherwise license key check fails.
-		$this->mock_activate_plugin( 'uplink/index.php', true );
-
-		Config::set_license_key_strategy( License_Strategy::ISOLATED );
 		Config::set_network_subfolder_license( true );
 		Config::set_network_subdomain_license( true );
 		Config::set_network_domain_mapping_license( true );
@@ -436,16 +412,14 @@ final class LicenseKeyMultisiteFetcherTest extends UplinkTestCase {
 	}
 
 	/**
+	 * We allow only subfolder network licensing, but we check the license on a subsite with a custom domain.
+	 *
 	 * @env multisite
 	 */
-	public function test_it_gets_local_license_key_with_isolated_strategy_and_different_network_strategy(): void {
+	public function test_it_gets_local_license_key_when_from_a_multisite_type_that_is_not_enabled(): void {
 		$this->assertTrue( is_multisite() );
 		$this->assertNull( $this->fetcher->get_key( $this->slug ) );
 
-		// Mock our sample plugin is network activated, otherwise license key check fails.
-		$this->mock_activate_plugin( 'uplink/index.php', true );
-
-		Config::set_license_key_strategy( License_Strategy::ISOLATED );
 		// Only subfolders are network licensed.
 		Config::set_network_subfolder_license( true );
 
@@ -463,109 +437,6 @@ final class LicenseKeyMultisiteFetcherTest extends UplinkTestCase {
 
 		// Local key returned.
 		$this->assertSame( 'local-key', $this->fetcher->get_key( $this->slug ) );
-	}
-
-	/**
-	 * This is the default strategy and how Uplink originally fetched license keys before this
-	 * change, by first checking the network, then the single site, then the file based Helper
-	 * class.
-	 *
-	 * @env multisite
-	 */
-	public function test_it_gets_network_license_key_with_global_license_strategy(): void {
-		$this->assertTrue( is_multisite() );
-		$this->assertNull( $this->fetcher->get_key( $this->slug ) );
-
-		// Mock our sample plugin is network activated, otherwise license key check fails.
-		$this->mock_activate_plugin( 'uplink/index.php', true );
-
-		// Create a subsite.
-		$sub_site_id = wpmu_create_blog( 'wordpress.test', '/sub1', 'Test Subsite', 1 );
-		$this->assertNotInstanceOf( WP_Error::class, $sub_site_id );
-		$this->assertGreaterThan( 1, $sub_site_id );
-
-		switch_to_blog( $sub_site_id );
-
-		$this->single_storage->store( $this->resource, 'local-key' );
-		$this->assertSame( 'local-key', $this->single_storage->get( $this->resource ) );
-
-		$this->network_storage->store( $this->resource, 'network-key-legacy' );
-
-		// Network key returned.
-		$this->assertSame( 'network-key-legacy', $this->fetcher->get_key( $this->slug ) );
-	}
-
-	/**
-	 * This is the default strategy and how Uplink originally fetched license keys before this
-	 * change, by first checking the network, then the single site, then the file based Helper
-	 * class.
-	 *
-	 * @env multisite
-	 */
-	public function test_it_gets_local_license_key_with_global_license_strategy(): void {
-		$this->assertTrue( is_multisite() );
-		$this->assertNull( $this->fetcher->get_key( $this->slug ) );
-
-		// Mock our sample plugin is network activated, otherwise license key check fails.
-		$this->mock_activate_plugin( 'uplink/index.php', true );
-
-		// Create a subsite.
-		$sub_site_id = wpmu_create_blog( 'wordpress.test', '/sub1', 'Test Subsite', 1 );
-		$this->assertNotInstanceOf( WP_Error::class, $sub_site_id );
-		$this->assertGreaterThan( 1, $sub_site_id );
-
-		switch_to_blog( $sub_site_id );
-
-		$this->single_storage->store( $this->resource, 'local-key' );
-		$this->assertSame( 'local-key', $this->single_storage->get( $this->resource ) );
-
-		// No network key stored.
-		$this->assertEmpty( $this->network_storage->get( $this->resource ) );
-
-		// Local key returned.
-		$this->assertSame( 'local-key', $this->fetcher->get_key( $this->slug ) );
-	}
-
-	/**
-	 * This is the default strategy and how Uplink originally fetched license keys before this
-	 * change, by first checking the network, then the single site, then the file based Helper
-	 * class.
-	 *
-	 * @env multisite
-	 */
-	public function test_it_gets_file_license_key_with_global_license_strategy(): void {
-		$this->assertTrue( is_multisite() );
-
-		$slug = 'sample-with-license';
-
-		// Register the sample plugin as a developer would in their plugin.
-		$resource = Register::plugin(
-			$slug,
-			'Lib Sample With License',
-			'1.2.0',
-			'uplink/index.php',
-			Sample_Plugin::class,
-			Sample_Plugin_Helper::class
-		);
-
-		// Mock our sample plugin is network activated, otherwise license key check fails.
-		$this->mock_activate_plugin( 'uplink/index.php', true );
-
-		// Create a subsite.
-		$sub_site_id = wpmu_create_blog( 'wordpress.test', '/sub1', 'Test Subsite', 1 );
-		$this->assertNotInstanceOf( WP_Error::class, $sub_site_id );
-		$this->assertGreaterThan( 1, $sub_site_id );
-
-		switch_to_blog( $sub_site_id );
-
-		// No local key stored.
-		$this->assertEmpty( $this->single_storage->get( $resource ) );
-
-		// No network key stored.
-		$this->assertEmpty( $this->network_storage->get( $resource ) );
-
-		// File based key returned.
-		$this->assertSame( 'file-based-license-key', $this->fetcher->get_key( $slug ) );
 	}
 
 }

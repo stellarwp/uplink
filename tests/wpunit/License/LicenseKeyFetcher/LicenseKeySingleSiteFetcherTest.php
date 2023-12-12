@@ -1,11 +1,12 @@
 <?php declare( strict_types=1 );
 
-namespace StellarWP\Uplink\Tests\License;
+namespace StellarWP\Uplink\Tests\License\LicenseKeyFetcher;
 
 use RuntimeException;
+use StellarWP\Uplink\Auth\License\License_Manager;
 use StellarWP\Uplink\Config;
+use StellarWP\Uplink\Enums\License_Strategy;
 use StellarWP\Uplink\License\License_Key_Fetcher;
-use StellarWP\Uplink\License\Storage\License_Network_Storage;
 use StellarWP\Uplink\License\Storage\License_Single_Site_Storage;
 use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Resources\Resource;
@@ -13,6 +14,9 @@ use StellarWP\Uplink\Tests\Sample_Plugin;
 use StellarWP\Uplink\Tests\Sample_Plugin_Helper;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
+/**
+ * Test both "isolated" and "global" strategies function in single site mode.
+ */
 final class LicenseKeySingleSiteFetcherTest extends UplinkTestCase {
 
 	/**
@@ -39,13 +43,6 @@ final class LicenseKeySingleSiteFetcherTest extends UplinkTestCase {
 	 */
 	private $single_storage;
 
-	/**
-	 * Directly access network license storage.
-	 *
-	 * @var License_Network_Storage
-	 */
-	private $network_storage;
-
 	protected function setUp(): void {
 		parent::setUp();
 
@@ -58,12 +55,56 @@ final class LicenseKeySingleSiteFetcherTest extends UplinkTestCase {
 			Sample_Plugin::class
 		);
 
+		$this->container->get( License_Manager::class )->disable_cache();
+
 		$this->fetcher         = $this->container->get( License_Key_Fetcher::class );
 		$this->single_storage  = $this->container->get( License_Single_Site_Storage::class );
-		$this->network_storage = $this->container->get( License_Network_Storage::class );
 	}
 
-	public function test_it_throws_exception_with_invalid_license_key_strategy(): void {
+	/**
+	 * Data Providers must return something, but we are just using them to switch
+	 * the config for each test.
+	 *
+	 * WARNING: Due to the way data Providers run, ensure "global" or whatever the default is
+	 * in Config::$license_strategy is the last item, otherwise it doesn't get reset back.
+	 *
+	 * @see Config::$license_strategy
+	 *
+	 * @return array<string[]>
+	 */
+	public function configDataProvider(): array {
+		$isolated = static function (): string {
+			Config::set_license_key_strategy( License_Strategy::ISOLATED );
+
+			return License_Strategy::ISOLATED;
+		};
+
+		$global = static function (): string {
+			Config::set_license_key_strategy( License_Strategy::GLOBAL );
+
+			return License_Strategy::GLOBAL;
+		};
+
+		return [
+			[
+				$isolated(),
+			],
+			[
+				$global(),
+			],
+		];
+	}
+
+	/**
+	 * @dataProvider configDataProvider
+	 */
+	public function test_it_throws_exception_with_invalid_license_key_strategy( string $config ): void {
+		// Ensure the data provider is working just once.
+		$this->assertThat( $config, $this->logicalOr(
+			$this->equalTo( License_Strategy::ISOLATED ),
+			$this->equalTo( License_Strategy::GLOBAL )
+		) );
+
 		$this->expectException( RuntimeException::class );
 		$this->expectExceptionMessage( 'Invalid config license strategy provided.' );
 
@@ -72,10 +113,16 @@ final class LicenseKeySingleSiteFetcherTest extends UplinkTestCase {
 		$this->fetcher->get_key( $this->slug );
 	}
 
+	/**
+	 * @dataProvider configDataProvider
+	 */
 	public function test_it_returns_null_with_unknown_resource(): void {
 		$this->assertNull( $this->fetcher->get_key( 'unknown-resource' ) );
 	}
 
+	/**
+	 * @dataProvider configDataProvider
+	 */
 	public function test_it_gets_single_site_license_key(): void {
 		$this->assertNull( $this->fetcher->get_key( $this->slug ) );
 
@@ -84,6 +131,9 @@ final class LicenseKeySingleSiteFetcherTest extends UplinkTestCase {
 		$this->assertSame( 'abcdef', $this->fetcher->get_key( $this->slug ) );
 	}
 
+	/**
+	 * @dataProvider configDataProvider
+	 */
 	public function test_it_gets_single_site_fallback_file_license_key(): void {
 		$slug = 'sample-with-license';
 

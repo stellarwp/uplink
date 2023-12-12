@@ -48,7 +48,7 @@ final class License_Key_Fetcher {
 		$resource = $this->resources->offsetGet( $slug );
 
 		if ( ! $resource ) {
-			return '';
+			return null;
 		}
 
 		return $this->factory->make( $resource )->get_key( $resource );

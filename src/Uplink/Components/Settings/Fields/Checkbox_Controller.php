@@ -15,7 +15,7 @@ final class Checkbox_Controller extends Controller {
 	/**
 	 * Render a WordPress settings checkbox field.
 	 *
-	 * @param  array{id?: string, label?: string, description?: string, default?: bool}  $args
+	 * @param  array{id?: string, label?: string, description?: string, default?: bool, data_attr?: array<string, mixed>, classes?: string[]}  $args
 	 *
 	 * @throws FileNotFoundException
 	 */
@@ -24,11 +24,14 @@ final class Checkbox_Controller extends Controller {
 		$label       = $args['label'] ?? '';
 		$description = $args['description'] ?? '';
 		$default     = $args['default'] ?? false;
+		$classes     = $args['classes'] ?? [ $id ];
 
 		echo $this->view->render( self::VIEW, [
 			'id'          => $id,
 			'label'       => $label,
 			'description' => $description,
+			'data_attr'   => $this->data_attr( $args['data_attr'] ?? [] ),
+			'classes'     => $this->classes( $classes ),
 			'value'       => $this->get_value( $id, $default ),
 		] );
 	}

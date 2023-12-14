@@ -24,7 +24,7 @@ final class Multisite_Subfolder {
 		}
 
 		if ( $this->is_subfolder_install() ) {
-			return Config::allows_network_subfolder_license();
+			return Config::supports_site_level_licenses_for_subfolder_multisite();
 		}
 
 		return $next( $is_multisite_license );

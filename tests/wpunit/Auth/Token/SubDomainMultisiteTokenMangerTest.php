@@ -24,7 +24,7 @@ final class SubDomainMultisiteTokenMangerTest extends UplinkTestCase {
 		parent::setUp();
 
 		Config::set_token_auth_prefix( 'kadence_' );
-		Config::set_network_subdomain_license( true );
+		Config::allow_site_level_licenses_for_subdomain_multisite( true );
 
 		// Run init again to reload the Token/Provider.
 		Uplink::init();

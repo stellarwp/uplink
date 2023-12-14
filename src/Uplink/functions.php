@@ -178,7 +178,7 @@ function get_resource( string $slug ) {
  * Compares the Uplink configuration to the current site this function is called on,
  * e.g. a sub-site to determine if the product supports multisite licenses.
  *
- * Not to be confused with Config::allows_network_licenses().
+ * Not to be confused with Config::supports_network_licenses().
  *
  * @param  string|Resource|Plugin|Service  $slug_or_resource The product/service slug or a Resource object.
  *

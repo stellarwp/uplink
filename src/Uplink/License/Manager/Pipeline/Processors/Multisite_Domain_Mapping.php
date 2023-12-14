@@ -26,7 +26,7 @@ final class Multisite_Domain_Mapping {
 
 		try {
 			if ( $this->is_unique_domain() ) {
-				return Config::allows_network_domain_mapping_license();
+				return Config::supports_site_level_licenses_for_mapped_domain_multisite();
 			}
 		} catch ( Throwable $e ) {
 			return false;

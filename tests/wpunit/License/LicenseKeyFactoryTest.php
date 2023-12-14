@@ -101,7 +101,7 @@ final class LicenseKeyFactoryTest extends UplinkTestCase {
 		$this->mock_activate_plugin( 'uplink/index.php', true );
 
 		Config::set_license_key_strategy( License_Strategy::ISOLATED );
-		Config::set_network_subfolder_license( true );
+		Config::allow_site_level_licenses_for_subfolder_multisite( true );
 
 		// Create a subsite.
 		$sub_site_id = wpmu_create_blog( 'wordpress.test', '/sub1', 'Test Subsite', 1 );
@@ -126,7 +126,7 @@ final class LicenseKeyFactoryTest extends UplinkTestCase {
 		$this->mock_activate_plugin( 'uplink/index.php', true );
 
 		Config::set_license_key_strategy( License_Strategy::ISOLATED );
-		Config::set_network_subdomain_license( true );
+		Config::allow_site_level_licenses_for_subdomain_multisite( true );
 
 		// Create a subsite.
 		$sub_site_id = wpmu_create_blog( 'temp.wordpress.test', '/', 'Test Subsite', 1 );
@@ -151,7 +151,7 @@ final class LicenseKeyFactoryTest extends UplinkTestCase {
 		$this->mock_activate_plugin( 'uplink/index.php', true );
 
 		Config::set_license_key_strategy( License_Strategy::ISOLATED );
-		Config::set_network_domain_mapping_license( true );
+		Config::allow_site_level_licenses_for_mapped_domain_multisite( true );
 
 		// Create a subsite.
 		$sub_site_id = wpmu_create_blog( 'wordpress.custom', '/', 'Test Subsite', 1 );

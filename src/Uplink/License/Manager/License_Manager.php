@@ -42,9 +42,9 @@ final class License_Manager {
 	 *
 	 * Out of the box, sub-sites act independently of the network.
 	 *
-	 * @see Config::set_network_subfolder_license()
-	 * @see Config::set_network_subdomain_license()
-	 * @see Config::set_network_domain_mapping_license()
+	 * @see Config::allow_site_level_licenses_for_subfolder_multisite()
+	 * @see Config::allow_site_level_licenses_for_subdomain_multisite()
+	 * @see Config::allow_site_level_licenses_for_mapped_domain_multisite()
 	 *
 	 * @param  Resource  $resource The current resource to check against.
 	 *

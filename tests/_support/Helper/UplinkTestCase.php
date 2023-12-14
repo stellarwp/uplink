@@ -60,9 +60,9 @@ class UplinkTestCase extends WPTestCase {
 
 		$this->container = Config::get_container();
 
-		$this->network_subfolder_license      = Config::allows_network_subfolder_license();
-		$this->network_subdomain_license      = Config::allows_network_subdomain_license();
-		$this->network_domain_mapping_license = Config::allows_network_domain_mapping_license();
+		$this->network_subfolder_license      = Config::supports_site_level_licenses_for_subfolder_multisite();
+		$this->network_subdomain_license      = Config::supports_site_level_licenses_for_subdomain_multisite();
+		$this->network_domain_mapping_license = Config::supports_site_level_licenses_for_mapped_domain_multisite();
 
 		// Capture default license key strategy.
 		$this->strategy = Config::get_license_key_strategy();
@@ -70,9 +70,9 @@ class UplinkTestCase extends WPTestCase {
 
 	protected function tearDown(): void {
 		// Reset back to default config, in case any tests changed them.
-		Config::set_network_subfolder_license( $this->network_subfolder_license );
-		Config::set_network_subdomain_license( $this->network_subdomain_license );
-		Config::set_network_domain_mapping_license( $this->network_domain_mapping_license );
+		Config::allow_site_level_licenses_for_subfolder_multisite( $this->network_subfolder_license );
+		Config::allow_site_level_licenses_for_subdomain_multisite( $this->network_subdomain_license );
+		Config::allow_site_level_licenses_for_mapped_domain_multisite( $this->network_domain_mapping_license );
 
 		// Reset license key strategy to the default.
 		Config::set_license_key_strategy( $this->strategy );

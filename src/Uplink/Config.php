@@ -37,21 +37,21 @@ class Config {
 	 *
 	 * @var bool
 	 */
-	protected static $network_subfolder_license = false;
+	protected static $supports_site_level_licenses_for_subfolder_multisite = false;
 
 	/**
 	 * Whether your plugin allows multisite subdomain licenses.
 	 *
 	 * @var bool
 	 */
-	protected static $network_subdomain_license = false;
+	protected static $supports_site_level_licenses_for_subdomain_multisite = false;
 
 	/**
 	 * Whether your plugin allows multisite domain mapping licenses.
 	 *
 	 * @var bool
 	 */
-	protected static $network_domain_mapping_license = false;
+	protected static $supports_site_level_licenses_for_mapped_domain_multisite = false;
 
 	/**
 	 * If true, enables a checkbox in the License Field so that you can use a local license key
@@ -59,7 +59,7 @@ class Config {
 	 *
 	 * @var bool
 	 */
-	protected static $has_site_level_override_for_multisite_license = false;
+	protected static $supports_site_level_override_for_multisite_license = false;
 
 	/**
 	 * The License Strategy to use:
@@ -225,22 +225,8 @@ class Config {
 	 *
 	 * @return void
 	 */
-	public static function set_network_subfolder_license( bool $allowed ): void {
-		self::$network_subfolder_license = $allowed;
-	}
-
-	/**
-	 * Whether your plugin allows multisite network subfolder licenses.
-	 *
-	 * @throws RuntimeException
-	 *
-	 * @return bool
-	 */
-	public static function allows_network_subfolder_license(): bool {
-		return (bool) apply_filters(
-			'stellarwp/uplink/' . Config::get_hook_prefix() . '/allows_network_subfolder_license',
-			self::$network_subfolder_license
-		);
+	public static function allow_site_level_licenses_for_subfolder_multisite( bool $allowed ): void {
+		self::$supports_site_level_licenses_for_subfolder_multisite = $allowed;
 	}
 
 	/**
@@ -250,22 +236,8 @@ class Config {
 	 *
 	 * @return void
 	 */
-	public static function set_network_subdomain_license( bool $allowed ): void {
-		self::$network_subdomain_license = $allowed;
-	}
-
-	/**
-	 * Whether your plugin allows multisite network subdomain licenses.
-	 *
-	 * @throws RuntimeException
-	 *
-	 * @return bool
-	 */
-	public static function allows_network_subdomain_license(): bool {
-		return (bool) apply_filters(
-			'stellarwp/uplink/' . Config::get_hook_prefix() . '/allows_network_subdomain_license',
-			self::$network_subdomain_license
-		);
+	public static function allow_site_level_licenses_for_subdomain_multisite( bool $allowed ): void {
+		self::$supports_site_level_licenses_for_subdomain_multisite = $allowed;
 	}
 
 	/**
@@ -275,8 +247,36 @@ class Config {
 	 *
 	 * @return void
 	 */
-	public static function set_network_domain_mapping_license( bool $allowed ): void {
-		self::$network_domain_mapping_license = $allowed;
+	public static function allow_site_level_licenses_for_mapped_domain_multisite( bool $allowed ): void {
+		self::$supports_site_level_licenses_for_mapped_domain_multisite = $allowed;
+	}
+
+	/**
+	 * Whether your plugin allows multisite network subfolder licenses.
+	 *
+	 * @throws RuntimeException
+	 *
+	 * @return bool
+	 */
+	public static function supports_site_level_licenses_for_subfolder_multisite(): bool {
+		return (bool) apply_filters(
+			'stellarwp/uplink/' . Config::get_hook_prefix() . '/supports_site_level_licenses_for_subfolder_multisite',
+			self::$supports_site_level_licenses_for_subfolder_multisite
+		);
+	}
+
+	/**
+	 * Whether your plugin allows multisite network subdomain licenses.
+	 *
+	 * @throws RuntimeException
+	 *
+	 * @return bool
+	 */
+	public static function supports_site_level_licenses_for_subdomain_multisite(): bool {
+		return (bool) apply_filters(
+			'stellarwp/uplink/' . Config::get_hook_prefix() . '/supports_site_level_licenses_for_subdomain_multisite',
+			self::$supports_site_level_licenses_for_subdomain_multisite
+		);
 	}
 
 	/**
@@ -286,11 +286,28 @@ class Config {
 	 *
 	 * @return bool
 	 */
-	public static function allows_network_domain_mapping_license(): bool {
+	public static function supports_site_level_licenses_for_mapped_domain_multisite(): bool {
 		return (bool) apply_filters(
-			'stellarwp/uplink/' . Config::get_hook_prefix() . '/allows_network_domain_mapping_license',
-			self::$network_domain_mapping_license
+			'stellarwp/uplink/' . Config::get_hook_prefix() . '/supports_site_level_licenses_for_mapped_domain_multisite',
+			self::$supports_site_level_licenses_for_mapped_domain_multisite
 		);
+	}
+
+	/**
+	 * Check if any of the network licencing options are enabled.
+	 *
+	 * @throws RuntimeException
+	 *
+	 * @return bool
+	 */
+	public static function supports_network_licenses(): bool {
+		$config = [
+			self::supports_site_level_licenses_for_subfolder_multisite(),
+			self::supports_site_level_licenses_for_subdomain_multisite(),
+			self::supports_site_level_licenses_for_mapped_domain_multisite(),
+		];
+
+		return in_array( true, $config, true );
 	}
 
 	/**
@@ -302,7 +319,7 @@ class Config {
 	 * @return void
 	 */
 	public static function allow_site_level_override_for_multisite_license( bool $allowed ): void {
-		self::$has_site_level_override_for_multisite_license = $allowed;
+		self::$supports_site_level_override_for_multisite_license = $allowed;
 	}
 
 	/**
@@ -310,28 +327,11 @@ class Config {
 	 *
 	 * @return bool
 	 */
-	public static function has_site_level_override_for_multisite_license(): bool {
+	public static function supports_site_level_override_for_multisite_license(): bool {
 		return (bool) apply_filters(
-			'stellarwp/uplink/' . Config::get_hook_prefix() . '/has_site_level_override_for_multisite_license',
-			self::$has_site_level_override_for_multisite_license
+			'stellarwp/uplink/' . Config::get_hook_prefix() . '/supports_site_level_override_for_multisite_license',
+			self::$supports_site_level_override_for_multisite_license
 		);
-	}
-
-	/**
-	 * Check if any of the network license options are enabled.
-	 *
-	 * @throws RuntimeException
-	 *
-	 * @return bool
-	 */
-	public static function allows_network_licenses(): bool {
-		$config = [
-			self::allows_network_subfolder_license(),
-			self::allows_network_subdomain_license(),
-			self::allows_network_domain_mapping_license(),
-		];
-
-		return in_array( true, $config, true );
 	}
 
 	/**

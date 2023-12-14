@@ -260,7 +260,7 @@ final class LicenseKeyMultisiteIsolatedFetcherTest extends UplinkTestCase {
 		$this->assertTrue( is_multisite() );
 		$this->assertNull( $this->fetcher->get_key( $this->slug ) );
 
-		Config::set_network_subfolder_license( true );
+		Config::allow_site_level_licenses_for_subfolder_multisite( true );
 
 		// Create a subsite.
 		$sub_site_id = wpmu_create_blog( 'wordpress.test', '/sub1', 'Test Subsite', 1 );
@@ -295,7 +295,7 @@ final class LicenseKeyMultisiteIsolatedFetcherTest extends UplinkTestCase {
 			Sample_Plugin_Helper::class
 		);
 
-		Config::set_network_subfolder_license( true );
+		Config::allow_site_level_licenses_for_subfolder_multisite( true );
 
 		// Create a subsite.
 		$sub_site_id = wpmu_create_blog( 'wordpress.test', '/sub1', 'Test Subsite', 1 );
@@ -323,7 +323,7 @@ final class LicenseKeyMultisiteIsolatedFetcherTest extends UplinkTestCase {
 		$this->assertNull( $this->fetcher->get_key( $this->slug ) );
 
 		// Only subdomains of the main site are licensed.
-		Config::set_network_subdomain_license( true );
+		Config::allow_site_level_licenses_for_subdomain_multisite( true );
 
 		// Create a subsite.
 		$sub_site_id = wpmu_create_blog( 'temp.wordpress.test', '/', 'Test Subsite', 1 );
@@ -348,7 +348,7 @@ final class LicenseKeyMultisiteIsolatedFetcherTest extends UplinkTestCase {
 		$this->assertNull( $this->fetcher->get_key( $this->slug ) );
 
 		// Only custom subsite domains are licensed.
-		Config::set_network_domain_mapping_license( true );
+		Config::allow_site_level_licenses_for_mapped_domain_multisite( true );
 
 		// Create a subsite.
 		$sub_site_id = wpmu_create_blog( 'wordpress.custom', '/', 'Test Subsite', 1 );
@@ -372,9 +372,9 @@ final class LicenseKeyMultisiteIsolatedFetcherTest extends UplinkTestCase {
 		$this->assertTrue( is_multisite() );
 		$this->assertNull( $this->fetcher->get_key( $this->slug ) );
 
-		Config::set_network_subfolder_license( true );
-		Config::set_network_subdomain_license( true );
-		Config::set_network_domain_mapping_license( true );
+		Config::allow_site_level_licenses_for_subfolder_multisite( true );
+		Config::allow_site_level_licenses_for_subdomain_multisite( true );
+		Config::allow_site_level_licenses_for_mapped_domain_multisite( true );
 
 		$sites = [
 			[
@@ -421,7 +421,7 @@ final class LicenseKeyMultisiteIsolatedFetcherTest extends UplinkTestCase {
 		$this->assertNull( $this->fetcher->get_key( $this->slug ) );
 
 		// Only subfolders are network licensed.
-		Config::set_network_subfolder_license( true );
+		Config::allow_site_level_licenses_for_subfolder_multisite( true );
 
 		// Create a subsite with a custom domain.
 		$sub_site_id = wpmu_create_blog( 'wordpress.custom', '/', 'Test Subsite', 1 );

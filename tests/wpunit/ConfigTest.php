@@ -55,21 +55,21 @@ final class ConfigTest extends UplinkTestCase {
 	}
 
 	public function test_it_detects_allowed_network_licenses_subfolder(): void {
-		$this->assertFalse( Config::allows_network_licenses() );
-		Config::set_network_subfolder_license( true );
-		$this->assertTrue( Config::allows_network_licenses() );
+		$this->assertFalse( Config::supports_network_licenses() );
+		Config::allow_site_level_licenses_for_subfolder_multisite( true );
+		$this->assertTrue( Config::supports_network_licenses() );
 	}
 
 	public function test_it_detects_allowed_network_licenses_subdomain(): void {
-		$this->assertFalse( Config::allows_network_licenses() );
-		Config::set_network_subdomain_license( true );
-		$this->assertTrue( Config::allows_network_licenses() );
+		$this->assertFalse( Config::supports_network_licenses() );
+		Config::allow_site_level_licenses_for_subdomain_multisite( true );
+		$this->assertTrue( Config::supports_network_licenses() );
 	}
 
 	public function test_it_detects_allowed_network_licenses_domain_mapping(): void {
-		$this->assertFalse( Config::allows_network_licenses() );
-		Config::set_network_domain_mapping_license( true );
-		$this->assertTrue( Config::allows_network_licenses() );
+		$this->assertFalse( Config::supports_network_licenses() );
+		Config::allow_site_level_licenses_for_mapped_domain_multisite( true );
+		$this->assertTrue( Config::supports_network_licenses() );
 	}
 
 }

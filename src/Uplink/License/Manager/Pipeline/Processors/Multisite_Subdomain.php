@@ -26,7 +26,7 @@ final class Multisite_Subdomain {
 
 		try {
 			if ( $this->is_subdomain() ) {
-				return Config::allows_network_subdomain_license();
+				return Config::supports_site_level_licenses_for_subdomain_multisite();
 			}
 		} catch ( Throwable $e ) {
 			return false;

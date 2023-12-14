@@ -19,7 +19,7 @@ final class Multisite_Main_Site {
 	 * @return bool
 	 */
 	public function __invoke( bool $is_multisite_license, Closure $next ): bool {
-		if ( is_main_site() && Config::allows_network_licenses() ) {
+		if ( is_main_site() && Config::supports_network_licenses() ) {
 			$is_multisite_license = true;
 		}
 

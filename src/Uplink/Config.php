@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace StellarWP\Uplink;
 
@@ -53,6 +53,13 @@ class Config {
 	 */
 	protected static $network_domain_mapping_license = false;
 
+	/**
+	 * If true, enables a checkbox in the License Field so that you can use a local license key
+	 * in place of the network key.
+	 *
+	 * @var bool
+	 */
+	protected static $has_site_level_override_for_multisite_license = false;
 
 	/**
 	 * The License Strategy to use:
@@ -287,6 +294,30 @@ class Config {
 	}
 
 	/**
+	 * Enables a checkbox in the License Field so that you can use a local license key in place of
+	 * the network key.
+	 *
+	 * @param  bool  $allowed
+	 *
+	 * @return void
+	 */
+	public static function allow_site_level_override_for_multisite_license( bool $allowed ): void {
+		self::$has_site_level_override_for_multisite_license = $allowed;
+	}
+
+	/**
+	 * If this instance allows site level license key overrides.
+	 *
+	 * @return bool
+	 */
+	public static function has_site_level_override_for_multisite_license(): bool {
+		return (bool) apply_filters(
+			'stellarwp/uplink/' . Config::get_hook_prefix() . '/has_site_level_override_for_multisite_license',
+			self::$has_site_level_override_for_multisite_license
+		);
+	}
+
+	/**
 	 * Check if any of the network license options are enabled.
 	 *
 	 * @throws RuntimeException
@@ -319,9 +350,9 @@ class Config {
 	/**
 	 * Get the configured license key strategy.
 	 *
-	 * @return string
-	 *
 	 * @see License_Strategy
+	 *
+	 * @return string
 	 */
 	public static function get_license_key_strategy(): string {
 		return self::$license_strategy;

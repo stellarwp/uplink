@@ -12,6 +12,7 @@ use StellarWP\Uplink\Auth\Auth_Url_Builder;
 use StellarWP\Uplink\Auth\Authorizer;
 use StellarWP\Uplink\Auth\Token\Token_Factory;
 use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
+use StellarWP\Uplink\Components\Controller;
 use StellarWP\Uplink\License\License_Key_Fetcher;
 use StellarWP\Uplink\License\Manager\License_Manager;
 use StellarWP\Uplink\License\Storage\License_File_Storage;
@@ -445,4 +446,21 @@ function get_license_field(): License_Field {
  */
 function get_auth_url( string $slug ): string {
 	return get_container()->get( Auth_Url::class )->get( $slug );
+}
+
+/**
+ * Renders a component.
+ *
+ * @param  class-string<Controller>|string  $controller  The controller's class name.
+ * @param  array<string, mixed>             $args        The arguments to pass to the controller's render method.
+ *
+ * @throws \RuntimeException
+ *
+ * @return void
+ */
+function render_component( string $controller, array $args ): void {
+	/** @var Controller $component */
+	$component = get_container()->get( $controller );
+
+	$component->render( $args );
 }

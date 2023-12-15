@@ -3,9 +3,12 @@
 namespace StellarWP\Uplink\Components\Settings\Fields;
 
 use StellarWP\Uplink\Components\Controller;
+use StellarWP\Uplink\Components\Settings\Traits\Get_Value_Trait;
 use StellarWP\Uplink\View\Exceptions\FileNotFoundException;
 
-final class Checkbox_Controller extends Controller {
+class Checkbox_Controller extends Controller {
+
+	use Get_Value_Trait;
 
 	/**
 	 * The view file, without ext, relative to the root views directory.
@@ -34,21 +37,6 @@ final class Checkbox_Controller extends Controller {
 			'classes'     => $this->classes( $classes ),
 			'value'       => $this->get_value( $id, $default ),
 		] );
-	}
-
-	/**
-	 * Get the value from the options table. This should automatically be stored by
-	 * WordPress via register_setting().
-	 *
-	 * @see register_setting()
-	 *
-	 * @param  string  $id  The ID that matches the $option_name in register_setting().
-	 * @param  bool    $default The default value if never saved before.
-	 *
-	 * @return bool
-	 */
-	private function get_value( string $id, bool $default ): bool {
-		return (bool) get_option( $id, $default );
 	}
 
 }

@@ -7,6 +7,7 @@ use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\License\Manager\License_Handler;
 use StellarWP\Uplink\License\Manager\Pipeline\Processors\Multisite_Domain_Mapping;
 use StellarWP\Uplink\License\Manager\Pipeline\Processors\Multisite_Main_Site;
+use StellarWP\Uplink\License\Manager\Pipeline\Processors\Multisite_Network_Admin;
 use StellarWP\Uplink\License\Manager\Pipeline\Processors\Multisite_Subdomain;
 use StellarWP\Uplink\License\Manager\Pipeline\Processors\Multisite_Subfolder;
 use StellarWP\Uplink\Pipeline\Pipeline;
@@ -30,6 +31,7 @@ final class Provider extends Abstract_Provider {
 	 */
 	private function register_license_handler(): void {
 		$pipeline = ( new Pipeline( $this->container ) )->through( [
+			Multisite_Network_Admin::class,
 			Multisite_Main_Site::class,
 			Multisite_Subfolder::class,
 			Multisite_Subdomain::class,

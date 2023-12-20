@@ -382,6 +382,8 @@ abstract class Resource {
 	/**
 	 * Whether the plugin is network activated and licensed or not.
 	 *
+	 * @TODO remove this once override logic is complete.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @return bool

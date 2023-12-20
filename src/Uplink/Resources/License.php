@@ -222,27 +222,27 @@ class License {
 	/**
 	 * Whether the plugin is network activated and licensed or not.
 	 *
-	 * @TODO remove this.
+	 * @TODO remove this once override logic is complete.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @return bool
 	 */
 	public function is_network_licensed() {
-		$is_network_licensed = false;
-
-		if ( ! is_network_admin() && $this->resource->is_network_activated() ) {
-			$network_key = $this->get_key( 'network' );
-			$local_key   = $this->get_key( 'local' );
-
-			// Check whether the network is licensed and NOT overridden by local license
-			// TODO: Need to account for this in the new system
-			if ( $network_key && ( empty( $local_key ) || $local_key === $network_key ) ) {
-				$is_network_licensed = true;
-			}
-		}
-
-		return $is_network_licensed;
+//		$is_network_licensed = false;
+//
+//		if ( ! is_network_admin() && $this->resource->is_network_activated() ) {
+//			$network_key = $this->get_key( 'network' );
+//			$local_key   = $this->get_key( 'local' );
+//
+//			// Check whether the network is licensed and NOT overridden by local license
+//			// TODO: Need to account for this in the new system
+//			if ( $network_key && ( empty( $local_key ) || $local_key === $network_key ) ) {
+//				$is_network_licensed = true;
+//			}
+//		}
+//
+//		return $is_network_licensed;
 	}
 
 	/**

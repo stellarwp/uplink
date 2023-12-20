@@ -6,7 +6,6 @@ use InvalidArgumentException;
 use RuntimeException;
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
-use StellarWP\Uplink\Enums\License_Strategy;
 use StellarWP\Uplink\Utils\Sanitize;
 
 class Config {
@@ -60,20 +59,6 @@ class Config {
 	 * @var bool
 	 */
 	protected static $supports_site_level_override_for_multisite_license = false;
-
-	/**
-	 * The License Strategy to use:
-	 *
-	 * global: Check network > check single site > fallback to file (if provided).
-	 * isolated:
-	 *  - if multisite network licensing is enabled: check network > fallback to file (if provided).
-	 *  - if single site licensing: check single site > fallback to file (if provided).
-	 *
-	 * @see License_Strategy
-	 *
-	 * @var string
-	 */
-	protected static $license_strategy = License_Strategy::GLOBAL;
 
 	/**
 	 * Get the container.
@@ -332,30 +317,6 @@ class Config {
 			'stellarwp/uplink/' . Config::get_hook_prefix() . '/supports_site_level_override_for_multisite_license',
 			self::$supports_site_level_override_for_multisite_license
 		);
-	}
-
-	/**
-	 * Set the current license strategy.
-	 *
-	 * @see License_Strategy
-	 *
-	 * @param  string  $strategy
-	 *
-	 * @return void
-	 */
-	public static function set_license_key_strategy( string $strategy ): void {
-		self::$license_strategy = $strategy;
-	}
-
-	/**
-	 * Get the configured license key strategy.
-	 *
-	 * @see License_Strategy
-	 *
-	 * @return string
-	 */
-	public static function get_license_key_strategy(): string {
-		return self::$license_strategy;
 	}
 
 }

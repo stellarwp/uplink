@@ -198,8 +198,6 @@ function validate_license( string $slug, string $license = '' ): ?Validation_Res
  * from the network, local site level or the file helper class which
  * respects the configured license key strategy.
  *
- * @see Config::set_license_key_strategy()
- *
  * @param  string  $slug  The plugin/service slug.
  *
  * @throws \RuntimeException

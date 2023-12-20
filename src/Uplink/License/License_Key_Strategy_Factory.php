@@ -7,7 +7,7 @@ use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Enums\License_Strategy;
 use StellarWP\Uplink\License\Contracts\License_Key_Fetching_Strategy;
-use StellarWP\Uplink\License\Manager\License_Manager;
+use StellarWP\Uplink\License\Manager\License_Handler;
 use StellarWP\Uplink\License\Strategies\Global_License_Key_Strategy;
 use StellarWP\Uplink\License\Strategies\Network_Only_License_Key_Strategy;
 use StellarWP\Uplink\License\Strategies\Single_Site_License_Key_Strategy;
@@ -21,17 +21,17 @@ final class License_Key_Strategy_Factory {
 	private $container;
 
 	/**
-	 * @var License_Manager
+	 * @var License_Handler
 	 */
 	private $license_manager;
 
 	/**
 	 * @param  ContainerInterface  $container
-	 * @param  License_Manager     $license_manager
+	 * @param  License_Handler     $license_manager
 	 */
 	public function __construct(
 		ContainerInterface $container,
-		License_Manager $license_manager
+		License_Handler $license_manager
 	) {
 		$this->container       = $container;
 		$this->license_manager = $license_manager;
@@ -53,7 +53,7 @@ final class License_Key_Strategy_Factory {
 				return $this->container->get( Global_License_Key_Strategy::class );
 
 			case License_Strategy::ISOLATED:
-				$network = $this->license_manager->allows_multisite_license( $resource );
+				$network = $this->license_manager->current_site_allows_network_licensing( $resource );
 				$class   = $network ? Network_Only_License_Key_Strategy::class : Single_Site_License_Key_Strategy::class;
 
 				return $this->container->get( $class );

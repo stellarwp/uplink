@@ -14,7 +14,7 @@ use StellarWP\Uplink\Auth\Token\Token_Factory;
 use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
 use StellarWP\Uplink\Components\Controller;
 use StellarWP\Uplink\License\License_Key_Fetcher;
-use StellarWP\Uplink\License\Manager\License_Manager;
+use StellarWP\Uplink\License\Manager\License_Handler;
 use StellarWP\Uplink\License\Storage\File_Storage;
 use StellarWP\Uplink\License\Storage\Network_Storage;
 use StellarWP\Uplink\License\Storage\Local_Storage;
@@ -194,7 +194,7 @@ function allows_multisite_license( $slug_or_resource ): bool {
 		return false;
 	}
 
-	return get_container()->get( License_Manager::class )->allows_multisite_license( $resource );
+	return get_container()->get( License_Handler::class )->current_site_allows_network_licensing( $resource );
 }
 
 /**

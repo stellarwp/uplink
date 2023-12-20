@@ -5,7 +5,7 @@ namespace StellarWP\Uplink\License;
 use RuntimeException;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\License\Contracts\License_Key_Fetching_Strategy;
-use StellarWP\Uplink\License\Manager\License_Manager;
+use StellarWP\Uplink\License\Manager\License_Handler;
 use StellarWP\Uplink\License\Manager\Pipeline\Processors\Multisite_Domain_Mapping;
 use StellarWP\Uplink\License\Manager\Pipeline\Processors\Multisite_Main_Site;
 use StellarWP\Uplink\License\Manager\Pipeline\Processors\Multisite_Subdomain;
@@ -44,9 +44,9 @@ final class Provider extends Abstract_Provider {
 		] );
 
 		$this->container->singleton(
-			License_Manager::class,
+			License_Handler::class,
 			static function () use ( $pipeline ) {
-				return new License_Manager( $pipeline );
+				return new License_Handler( $pipeline );
 			}
 		);
 	}

@@ -6,7 +6,7 @@ use RuntimeException;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Enums\License_Strategy;
 use StellarWP\Uplink\License\License_Key_Fetcher;
-use StellarWP\Uplink\License\Manager\License_Manager;
+use StellarWP\Uplink\License\Manager\License_Handler;
 use StellarWP\Uplink\License\Storage\Local_Storage;
 use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Resources\Resource;
@@ -55,7 +55,7 @@ final class LicenseKeySingleSiteFetcherTest extends UplinkTestCase {
 			Sample_Plugin::class
 		);
 
-		$this->container->get( License_Manager::class )->disable_cache();
+		$this->container->get( License_Handler::class )->disable_cache();
 
 		$this->fetcher         = $this->container->get( License_Key_Fetcher::class );
 		$this->single_storage  = $this->container->get( Local_Storage::class );

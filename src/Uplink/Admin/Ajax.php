@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\Admin;
 
-use StellarWP\Uplink\License\Manager\License_Manager;
+use StellarWP\Uplink\License\Manager\License_Handler;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Utils;
 
@@ -19,7 +19,7 @@ class Ajax {
 	protected $field;
 
 	/**
-	 * @var License_Manager
+	 * @var License_Handler
 	 */
 	protected $license_manager;
 
@@ -28,12 +28,12 @@ class Ajax {
 	 *
 	 * @param  Collection       $resources        The plugin/services collection.
 	 * @param  License_Field    $field            The license field.
-	 * @param  License_Manager  $license_manager  The license manager.
+	 * @param  License_Handler  $license_manager  The license manager.
 	 */
 	public function __construct(
 		Collection $resources,
 		License_Field $field,
-		License_Manager $license_manager
+		License_Handler $license_manager
 	) {
 		$this->resources       = $resources;
 		$this->field           = $field;
@@ -70,7 +70,7 @@ class Ajax {
 			] );
 		}
 
-		$network_validate = $this->license_manager->allows_multisite_license( $plugin );
+		$network_validate = $this->license_manager->current_site_allows_network_licensing( $plugin );
 		$results          = $plugin->validate_license( $submission['key'], $network_validate );
 		$message          = $network_validate ? $results->get_network_message()->get() : $results->get_message()->get();
 

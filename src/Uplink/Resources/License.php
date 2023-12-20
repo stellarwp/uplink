@@ -4,7 +4,7 @@ namespace StellarWP\Uplink\Resources;
 
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;
-use StellarWP\Uplink\License\Manager\License_Manager;
+use StellarWP\Uplink\License\Manager\License_Handler;
 use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Utils;
 
@@ -264,7 +264,7 @@ class License {
 	 * @return string|null
 	 */
 	protected function get_key_status(): ?string {
-		$network = $this->container->get( License_Manager::class )->allows_multisite_license( $this->resource );
+		$network = $this->container->get( License_Handler::class )->current_site_allows_network_licensing( $this->resource );
 		$func    = 'get_option';
 
 		if ( $network ) {
@@ -398,7 +398,7 @@ class License {
 	 */
 	public function set_key_status( $valid ): void {
 		$status  = Utils\Checks::is_truthy( $valid ) ? 'valid' : 'invalid';
-		$network = $this->container->get( License_Manager::class )->allows_multisite_license( $this->resource );
+		$network = $this->container->get( License_Handler::class )->current_site_allows_network_licensing( $this->resource );
 		$timeout = $this->check_period * HOUR_IN_SECONDS;
 		$func    = 'update_option';
 

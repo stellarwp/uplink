@@ -4,7 +4,6 @@ namespace StellarWP\Uplink\Resources;
 
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;
-use StellarWP\Uplink\License\Manager\License_Handler;
 use StellarWP\Uplink\License\Storage\Storage_Handler;
 use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Utils;
@@ -187,7 +186,7 @@ class License {
 	 * @return string|null
 	 */
 	protected function get_key_status(): ?string {
-		$network = $this->container->get( License_Handler::class )->current_site_allows_network_licensing( $this->resource );
+		$network = $this->resource->uses_network_licensing();
 		$func    = 'get_option';
 
 		if ( $network ) {
@@ -199,7 +198,7 @@ class License {
 		$key    = $this->get_key();
 
 		if ( null === $status && $key ) {
-			$this->resource->validate_license( $key, $network );
+			$this->resource->validate_license( $key );
 			$status = $func( $this->get_key_status_option_name(), 'invalid' );
 		}
 
@@ -308,7 +307,7 @@ class License {
 	 */
 	public function set_key_status( $valid ): void {
 		$status  = Utils\Checks::is_truthy( $valid ) ? 'valid' : 'invalid';
-		$network = $this->container->get( License_Handler::class )->current_site_allows_network_licensing( $this->resource );
+		$network = $this->resource->uses_network_licensing();
 		$timeout = $this->check_period * HOUR_IN_SECONDS;
 		$func    = 'update_option';
 

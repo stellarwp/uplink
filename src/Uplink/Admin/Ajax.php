@@ -2,7 +2,6 @@
 
 namespace StellarWP\Uplink\Admin;
 
-use StellarWP\Uplink\License\Manager\License_Handler;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Utils;
 
@@ -19,25 +18,17 @@ class Ajax {
 	protected $field;
 
 	/**
-	 * @var License_Handler
-	 */
-	protected $license_manager;
-
-	/**
 	 * Constructor.
 	 *
-	 * @param  Collection       $resources        The plugin/services collection.
-	 * @param  License_Field    $field            The license field.
-	 * @param  License_Handler  $license_manager  The license manager.
+	 * @param  Collection     $resources  The plugin/services collection.
+	 * @param  License_Field  $field      The license field.
 	 */
 	public function __construct(
 		Collection $resources,
-		License_Field $field,
-		License_Handler $license_manager
+		License_Field $field
 	) {
-		$this->resources       = $resources;
-		$this->field           = $field;
-		$this->license_manager = $license_manager;
+		$this->resources = $resources;
+		$this->field     = $field;
 	}
 
 	/**
@@ -70,9 +61,8 @@ class Ajax {
 			] );
 		}
 
-		$network_validate = $this->license_manager->current_site_allows_network_licensing( $plugin );
-		$results          = $plugin->validate_license( $submission['key'], $network_validate );
-		$message          = $network_validate ? $results->get_network_message()->get() : $results->get_message()->get();
+		$results = $plugin->validate_license( $submission['key'] );
+		$message = $plugin->uses_network_licensing() ? $results->get_network_message()->get() : $results->get_message()->get();
 
 		wp_send_json( [
 			'status'  => absint( $results->is_valid() ),

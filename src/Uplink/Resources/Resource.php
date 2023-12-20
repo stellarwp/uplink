@@ -7,6 +7,7 @@ use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\API;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Exceptions;
+use StellarWP\Uplink\License\Manager\License_Handler;
 use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Utils;
 
@@ -134,19 +135,18 @@ abstract class Resource {
 	 * @param string|null $license_class Class that holds the embedded license key.
 	 */
 	public function __construct( $slug, $name, $version, $path, $class, string $license_class = null ) {
-		$this->name          = $name;
-		$this->slug          = $slug;
-		$this->path          = $path;
-		$this->class         = $class;
-		$this->license_class = $license_class;
-		$this->version       = $version;
-		$this->container     = Config::get_container();
-		// TODO: finish implementing this once refactor is complete.
-		$this->uses_network_licensing = false;
+		$this->name                   = $name;
+		$this->slug                   = $slug;
+		$this->path                   = $path;
+		$this->class                  = $class;
+		$this->license_class          = $license_class;
+		$this->version                = $version;
+		$this->container              = Config::get_container();
+		$this->uses_network_licensing = $this->container->get( License_Handler::class )->current_site_allows_network_licensing( $this );
 	}
 
 	/**
-	 * @TODO finish implementing this once refactor is complete.
+	 * Whether the current site, in the current configuration is using network licensing.
 	 *
 	 * @return bool
 	 */

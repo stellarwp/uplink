@@ -9,7 +9,7 @@ use StellarWP\Uplink\Utils\Sanitize;
 /**
  * Manages license keys in a WordPress network.
  */
-final class License_Network_Storage implements Contracts\Storage {
+final class Network_Storage implements Contracts\Storage {
 
 	use Option_Name_Trait;
 

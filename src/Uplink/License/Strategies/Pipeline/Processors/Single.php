@@ -3,20 +3,20 @@
 namespace StellarWP\Uplink\License\Strategies\Pipeline\Processors;
 
 use Closure;
-use StellarWP\Uplink\License\Storage\License_Single_Site_Storage;
+use StellarWP\Uplink\License\Storage\Local_Storage;
 use StellarWP\Uplink\License\Strategies\Pipeline\License_Traveler;
 
 final class Single {
 
 	/**
-	 * @var License_Single_Site_Storage
+	 * @var Local_Storage
 	 */
 	private $storage;
 
 	/**
-	 * @param  License_Single_Site_Storage  $storage
+	 * @param  Local_Storage  $storage
 	 */
-	public function __construct( License_Single_Site_Storage $storage ) {
+	public function __construct( Local_Storage $storage ) {
 		$this->storage = $storage;
 	}
 

@@ -3,20 +3,20 @@
 namespace StellarWP\Uplink\License\Strategies\Pipeline\Processors;
 
 use Closure;
-use StellarWP\Uplink\License\Storage\License_Network_Storage;
+use StellarWP\Uplink\License\Storage\Network_Storage;
 use StellarWP\Uplink\License\Strategies\Pipeline\License_Traveler;
 
 final class Network {
 
 	/**
-	 * @var License_Network_Storage
+	 * @var Network_Storage
 	 */
 	private $storage;
 
 	/**
-	 * @param  License_Network_Storage  $storage
+	 * @param  Network_Storage  $storage
 	 */
-	public function __construct( License_Network_Storage $storage ) {
+	public function __construct( Network_Storage $storage ) {
 		$this->storage = $storage;
 	}
 

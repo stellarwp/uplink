@@ -114,6 +114,14 @@ abstract class Resource {
 	protected $home_url;
 
 	/**
+	 * Whether the current site and configuration is using network
+	 * licensing.
+	 *
+	 * @var bool
+	 */
+	protected $uses_network_licensing;
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 1.0.0
@@ -133,6 +141,17 @@ abstract class Resource {
 		$this->license_class = $license_class;
 		$this->version       = $version;
 		$this->container     = Config::get_container();
+		// TODO: finish implementing this once refactor is complete.
+		$this->uses_network_licensing = false;
+	}
+
+	/**
+	 * @TODO finish implementing this once refactor is complete.
+	 *
+	 * @return bool
+	 */
+	public function uses_network_licensing(): bool {
+		return $this->uses_network_licensing;
 	}
 
 	/**

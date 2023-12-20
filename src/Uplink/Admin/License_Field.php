@@ -3,7 +3,7 @@
 namespace StellarWP\Uplink\Admin;
 
 use StellarWP\Uplink\Config;
-use StellarWP\Uplink\License\Storage\License_Single_Site_Storage;
+use StellarWP\Uplink\License\Storage\Local_Storage;
 use StellarWP\Uplink\Resources\Plugin;
 use StellarWP\Uplink\Resources\Resource;
 use StellarWP\Uplink\Resources\Service;
@@ -52,7 +52,7 @@ class License_Field extends Field {
 	 */
 	public function register_settings(): void {
 		foreach ( $this->get_resources() as $resource ) {
-			$id = License_Single_Site_Storage::option_name( $resource );
+			$id = Local_Storage::option_name( $resource );
 
 			add_settings_section(
 				self::get_section_name( $resource ),

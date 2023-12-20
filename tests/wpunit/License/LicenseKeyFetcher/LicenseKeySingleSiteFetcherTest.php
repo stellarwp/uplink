@@ -7,7 +7,7 @@ use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Enums\License_Strategy;
 use StellarWP\Uplink\License\License_Key_Fetcher;
 use StellarWP\Uplink\License\Manager\License_Manager;
-use StellarWP\Uplink\License\Storage\License_Single_Site_Storage;
+use StellarWP\Uplink\License\Storage\Local_Storage;
 use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Resources\Resource;
 use StellarWP\Uplink\Tests\Sample_Plugin;
@@ -39,7 +39,7 @@ final class LicenseKeySingleSiteFetcherTest extends UplinkTestCase {
 	/**
 	 * Directly access single site license storage.
 	 *
-	 * @var License_Single_Site_Storage
+	 * @var Local_Storage
 	 */
 	private $single_storage;
 
@@ -58,7 +58,7 @@ final class LicenseKeySingleSiteFetcherTest extends UplinkTestCase {
 		$this->container->get( License_Manager::class )->disable_cache();
 
 		$this->fetcher         = $this->container->get( License_Key_Fetcher::class );
-		$this->single_storage  = $this->container->get( License_Single_Site_Storage::class );
+		$this->single_storage  = $this->container->get( Local_Storage::class );
 	}
 
 	/**

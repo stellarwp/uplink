@@ -15,9 +15,9 @@ use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
 use StellarWP\Uplink\Components\Controller;
 use StellarWP\Uplink\License\License_Key_Fetcher;
 use StellarWP\Uplink\License\Manager\License_Manager;
-use StellarWP\Uplink\License\Storage\License_File_Storage;
-use StellarWP\Uplink\License\Storage\License_Network_Storage;
-use StellarWP\Uplink\License\Storage\License_Single_Site_Storage;
+use StellarWP\Uplink\License\Storage\File_Storage;
+use StellarWP\Uplink\License\Storage\Network_Storage;
+use StellarWP\Uplink\License\Storage\Local_Storage;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Resources\Plugin;
 use StellarWP\Uplink\Resources\Resource;
@@ -244,10 +244,10 @@ function get_license_key( string $slug ): ?string {
  *
  * @throws \RuntimeException
  *
- * @return License_Network_Storage
+ * @return Network_Storage
  */
-function get_license_network_storage(): License_Network_Storage {
-	return get_container()->get( License_Network_Storage::class );
+function get_license_network_storage(): Network_Storage {
+	return get_container()->get( Network_Storage::class );
 }
 
 /**
@@ -257,10 +257,10 @@ function get_license_network_storage(): License_Network_Storage {
  *
  * @throws \RuntimeException
  *
- * @return License_Single_Site_Storage
+ * @return Local_Storage
  */
-function get_license_single_site_storage(): License_Single_Site_Storage {
-	return get_container()->get( License_Single_Site_Storage::class );
+function get_license_single_site_storage(): Local_Storage {
+	return get_container()->get( Local_Storage::class );
 }
 
 /**
@@ -318,7 +318,7 @@ function get_default_license_key( string $slug ): ?string {
 		return null;
 	}
 
-	return get_container()->get( License_File_Storage::class )->get( $resource );
+	return get_container()->get( File_Storage::class )->get( $resource );
 }
 
 /**

@@ -3,20 +3,20 @@
 namespace StellarWP\Uplink\License\Strategies\Pipeline\Processors;
 
 use Closure;
-use StellarWP\Uplink\License\Storage\License_File_Storage;
+use StellarWP\Uplink\License\Storage\File_Storage;
 use StellarWP\Uplink\License\Strategies\Pipeline\License_Traveler;
 
 final class File {
 
 	/**
-	 * @var License_File_Storage
+	 * @var File_Storage
 	 */
 	private $storage;
 
 	/**
-	 * @param  License_File_Storage  $storage
+	 * @param  File_Storage  $storage
 	 */
-	public function __construct( License_File_Storage $storage ) {
+	public function __construct( File_Storage $storage ) {
 		$this->storage = $storage;
 	}
 

@@ -9,7 +9,7 @@ use StellarWP\Uplink\Utils\Sanitize;
 /**
  * Manages license keys for the current site.
  */
-final class License_Single_Site_Storage implements Contracts\Storage {
+final class Local_Storage implements Contracts\Storage {
 
 	use Option_Name_Trait;
 

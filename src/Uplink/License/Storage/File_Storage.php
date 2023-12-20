@@ -9,7 +9,7 @@ use StellarWP\Uplink\Resources\Resource;
  * Manages licenses when included inside the plugin, via the
  * defined helper class.
  */
-final class License_File_Storage implements Contracts\Storage {
+final class File_Storage implements Contracts\Storage {
 
 	/**
 	 * @inheritDoc

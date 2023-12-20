@@ -187,7 +187,4 @@ the correct location.
 
 // Gets the local URL to disconnect a token (delete it locally).
 \StellarWP\Uplink\get_disconnect_url( 'my-plugin-slug' );
-
-// Checks if the current site (e.g. the sub-site on multisite) would support multisite licensing.
-\StellarWP\Uplink\allows_multisite_license( 'my-plugin-slug' );
 ```

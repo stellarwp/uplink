@@ -24,6 +24,7 @@ use StellarWP\Uplink\Utils;
  * @property-read string    $path The resource path.
  */
 abstract class Resource {
+
 	/**
 	 * Resource class.
 	 *
@@ -115,14 +116,6 @@ abstract class Resource {
 	protected $home_url;
 
 	/**
-	 * Whether the current site and configuration is using network
-	 * licensing.
-	 *
-	 * @var bool
-	 */
-	protected $uses_network_licensing;
-
-	/**
 	 * Constructor.
 	 *
 	 * @since 1.0.0
@@ -135,14 +128,13 @@ abstract class Resource {
 	 * @param string|null $license_class Class that holds the embedded license key.
 	 */
 	public function __construct( $slug, $name, $version, $path, $class, string $license_class = null ) {
-		$this->name                   = $name;
-		$this->slug                   = $slug;
-		$this->path                   = $path;
-		$this->class                  = $class;
-		$this->license_class          = $license_class;
-		$this->version                = $version;
-		$this->container              = Config::get_container();
-		$this->uses_network_licensing = $this->container->get( License_Handler::class )->current_site_allows_network_licensing( $this );
+		$this->name          = $name;
+		$this->slug          = $slug;
+		$this->path          = $path;
+		$this->class         = $class;
+		$this->license_class = $license_class;
+		$this->version       = $version;
+		$this->container     = Config::get_container();
 	}
 
 	/**
@@ -151,7 +143,7 @@ abstract class Resource {
 	 * @return bool
 	 */
 	public function uses_network_licensing(): bool {
-		return $this->uses_network_licensing;
+		return $this->container->get( License_Handler::class )->current_site_allows_network_licensing( $this );
 	}
 
 	/**
@@ -506,22 +498,19 @@ abstract class Resource {
 	 * @since 1.0.0
 	 *
 	 * @param string|null $key License key.
-	 * @param bool $do_network_validate Validate the key as a network key.
 	 *
 	 * @return API\Validation_Response
 	 */
-	public function validate_license( ?string $key = null, bool $do_network_validate = false ) {
+	public function validate_license( ?string $key = null ): API\Validation_Response {
 		/** @var API\Client */
 		$api = $this->container->get( API\Client::class );
-
-		$validation_type = $do_network_validate ? 'network' : 'local';
 
 		if ( empty( $key ) ) {
 			$key = $this->get_license_key();
 		}
 
 		if ( empty( $key ) ) {
-			$results = new API\Validation_Response( null, $validation_type, new stdClass(), $this );
+			$results = new API\Validation_Response( null, new stdClass(), $this );
 			$results->set_is_valid( false );
 			return $results;
 		}
@@ -535,7 +524,7 @@ abstract class Resource {
 			$result_type === 'new'
 			|| $has_replacement_key
 		) {
-			$this->get_license_object()->set_key( $results_key, $validation_type );
+			$this->get_license_object()->set_key( $results_key );
 		}
 
 		$this->get_license_object()->set_key_status( $results->is_valid() );

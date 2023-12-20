@@ -175,28 +175,6 @@ function get_resource( string $slug ) {
 }
 
 /**
- * Compares the Uplink configuration to the current site this function is called on,
- * e.g. a sub-site to determine if the product supports multisite licenses.
- *
- * Not to be confused with Config::supports_network_licenses().
- *
- * @param  string|Resource|Plugin|Service  $slug_or_resource The product/service slug or a Resource object.
- *
- * @throws \RuntimeException
- *
- * @return bool
- */
-function allows_multisite_license( $slug_or_resource ): bool {
-	$resource = $slug_or_resource instanceof Resource ? $slug_or_resource : get_resource( $slug_or_resource );
-
-	if ( ! $resource ) {
-		return false;
-	}
-
-	return $resource->uses_network_licensing();
-}
-
-/**
  * A multisite aware license validation check.
  *
  * @param  string  $slug The plugin/service slug to validate against.
@@ -213,10 +191,7 @@ function validate_license( string $slug, string $license = '' ): ?Validation_Res
 		return null;
 	}
 
-	$license = $license ?: get_license_key( $slug );
-	$network = allows_multisite_license( $resource );
-
-	return $resource->validate_license( $license, $network );
+	return $resource->validate_license( $license  );
 }
 
 /**
@@ -358,11 +333,10 @@ function set_license_key( string $slug, string $license ): bool {
 		return false;
 	}
 
-	$network = allows_multisite_license( $resource );
 	$result  = $resource->set_license_key( $license );
 
 	// Force update the key status.
-	$resource->validate_license( $license, $network );
+	$resource->validate_license( $license );
 
 	return $result;
 }

@@ -18,6 +18,7 @@ use StellarWP\Uplink\Utils;
  * @property-read ContainerInterface $container Container instance.
  */
 class Client {
+
 	/**
 	 * API base endpoint.
 	 *
@@ -187,16 +188,15 @@ class Client {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  Resource     $resource         Resource to validate.
-	 * @param  string|null  $key              License key.
-	 * @param  string       $validation_type  Validation type (local or network).
-	 * @param  bool         $force            Force the validation.
+	 * @param  Resource     $resource  Resource to validate.
+	 * @param  string|null  $key       License key.
+	 * @param  bool         $force     Force the validation.
 	 *
 	 * @throws \RuntimeException
 	 *
 	 * @return Validation_Response|mixed
 	 */
-	public function validate_license( Resource $resource, ?string $key = null, string $validation_type = 'local', bool $force = false ) {
+	public function validate_license( Resource $resource, ?string $key = null, bool $force = false ) {
 		/** @var Data */
 		$site_data = $this->container->get( Data::class );
 		$args      = $resource->get_validation_args();
@@ -235,7 +235,7 @@ class Client {
 			$results = null;
 		}
 
-		$results = new Validation_Response( $key, $validation_type, $results, $resource );
+		$results = new Validation_Response( $key, $results, $resource );
 
 		/**
 		 * Filter the license validation results.

@@ -99,15 +99,6 @@ class Validation_Response {
 	protected $result = 'success';
 
 	/**
-	 * Validation type.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var string
-	 */
-	protected $validation_type;
-
-	/**
 	 * Version from validation response.
 	 *
 	 * @since 1.0.0
@@ -121,16 +112,14 @@ class Validation_Response {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  string|null    $key              License key.
-	 * @param  string         $validation_type  Validation type (local or network).
-	 * @param  stdClass|null  $response         Validation response.
-	 * @param  Resource       $resource         Resource instance.
+	 * @param  string|null    $key       License key.
+	 * @param  stdClass|null  $response  Validation response.
+	 * @param  Resource       $resource  Resource instance.
 	 */
-	public function __construct( ?string $key, string $validation_type, ?stdClass $response, Resource $resource ) {
-		$this->key             = $key ?: '';
-		$this->validation_type = 'network' === $validation_type ? 'network' : 'local';
-		$this->response        = $response;
-		$this->resource        = $resource;
+	public function __construct( ?string $key, ?stdClass $response, Resource $resource ) {
+		$this->key      = $key ?: '';
+		$this->response = $response;
+		$this->resource = $resource;
 
 		if ( isset( $this->response->results ) ) {
 			$this->response = is_array( $this->response->results ) ? reset( $this->response->results ) : $this->response->results;

@@ -105,7 +105,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 				$response->api_upgrade = 0;
 				$response->api_expired = 0;
 
-				return new Validation_Response( '123456', is_multisite() ? 'network' : 'local', $response, $plugin );
+				return new Validation_Response( '123456', $response, $plugin );
 			},
 		] );
 
@@ -275,7 +275,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 				$response->api_upgrade = 0;
 				$response->api_expired = 1; // makes validation fail.
 
-				return new Validation_Response( '123456', is_multisite() ? 'network' : 'local', $response, $plugin );
+				return new Validation_Response( '123456', $response, $plugin );
 			},
 		] );
 
@@ -325,7 +325,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 				$response->api_upgrade = 0;
 				$response->api_expired = 0;
 
-				return new Validation_Response( '123456', 'network', $response, $plugin );
+				return new Validation_Response( '123456', $response, $plugin );
 			},
 		] );
 
@@ -385,7 +385,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 				$response->api_upgrade = 0;
 				$response->api_expired = 0;
 
-				return new Validation_Response( '123456', 'network', $response, $plugin );
+				return new Validation_Response( '123456', $response, $plugin );
 			},
 		] );
 

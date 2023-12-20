@@ -11,7 +11,7 @@ use StellarWP\Uplink\Tests\Sample_Plugin_Helper;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
 /**
- * Test both "isolated" and "global" strategies function in single site mode.
+ * Test license key fetching in single site mode.
  */
 final class LicenseKeySingleSiteFetcherTest extends UplinkTestCase {
 

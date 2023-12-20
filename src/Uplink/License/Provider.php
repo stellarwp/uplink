@@ -25,17 +25,17 @@ final class Provider extends Abstract_Provider {
 	 * @throws RuntimeException
 	 */
 	public function register(): void {
-		$this->register_license_manager();
+		$this->register_license_handler();
 		$this->register_license_strategies();
 	}
 
 	/**
-	 * Register the license manager and its pipeline to detect different
+	 * Register the license handler and its pipeline to detect different
 	 * multisite licenses.
 	 *
 	 * @return void
 	 */
-	private function register_license_manager(): void {
+	private function register_license_handler(): void {
 		$pipeline = ( new Pipeline( $this->container ) )->through( [
 			Multisite_Main_Site::class,
 			Multisite_Subfolder::class,

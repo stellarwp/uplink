@@ -13,7 +13,6 @@ use StellarWP\Uplink\Auth\Authorizer;
 use StellarWP\Uplink\Auth\Token\Token_Factory;
 use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
 use StellarWP\Uplink\Components\Controller;
-use StellarWP\Uplink\License\License_Key_Fetcher;
 use StellarWP\Uplink\License\Storage\File_Storage;
 use StellarWP\Uplink\License\Storage\Network_Storage;
 use StellarWP\Uplink\License\Storage\Local_Storage;
@@ -208,7 +207,13 @@ function validate_license( string $slug, string $license = '' ): ?Validation_Res
  * @return string|null
  */
 function get_license_key( string $slug ): ?string {
-	return get_container()->get( License_Key_Fetcher::class )->get_key( $slug );
+	$resource = get_resource( $slug );
+
+	if ( ! $resource ) {
+		return null;
+	}
+
+	return $resource->get_license_key();
 }
 
 /**

@@ -14,8 +14,8 @@ use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
 
 /**
- * The "isolated" licensing strategy takes into account Uplink configuring for each
- * multisite type as well as the current site being checked.
+ * Test different multisite licensing configurations and where the license key is stored
+ * and retrieved.
  *
  * Without any configuration, every subsite is treated as their own site, requiring
  * their own license key.

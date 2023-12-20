@@ -228,7 +228,7 @@ class License {
 	 *
 	 * @return bool
 	 */
-	public function is_network_licensed() {
+//	public function is_network_licensed() {
 //		$is_network_licensed = false;
 //
 //		if ( ! is_network_admin() && $this->resource->is_network_activated() ) {
@@ -243,7 +243,7 @@ class License {
 //		}
 //
 //		return $is_network_licensed;
-	}
+//	}
 
 	/**
 	 * Whether the plugin is validly licensed or not.

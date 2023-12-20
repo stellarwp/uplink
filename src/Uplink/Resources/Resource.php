@@ -380,19 +380,6 @@ abstract class Resource {
 	}
 
 	/**
-	 * Whether the plugin is network activated and licensed or not.
-	 *
-	 * @TODO remove this once override logic is complete.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return bool
-	 */
-	public function is_network_licensed(): bool {
-		return $this->get_license_object()->is_network_licensed();
-	}
-
-	/**
 	 * Register a resource and add it to the collection.
 	 *
 	 * @since 1.0.0

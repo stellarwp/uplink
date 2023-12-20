@@ -105,6 +105,8 @@ class License {
 	/**
 	 * Deletes the license key from the appropriate storage location.
 	 *
+	 * @TODO we should fire an action here to validate the key.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @return bool
@@ -281,6 +283,8 @@ class License {
 
 	/**
 	 * Sets the key in site options.
+	 *
+	 * @TODO we should fire an action here to validate the key.
 	 *
 	 * @since 1.0.0
 	 *

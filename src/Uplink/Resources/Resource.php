@@ -484,6 +484,8 @@ abstract class Resource {
 	/**
 	 * Validates the resource's license key.
 	 *
+	 * @TODO add an action here so this can fire when the key is deleted or modified.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @param string|null $key License key.

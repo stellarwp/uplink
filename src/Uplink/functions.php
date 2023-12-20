@@ -190,7 +190,7 @@ function validate_license( string $slug, string $license = '' ): ?Validation_Res
 		return null;
 	}
 
-	return $resource->validate_license( $license  );
+	return $resource->validate_license( $license );
 }
 
 /**
@@ -236,12 +236,14 @@ function get_license_network_storage(): Network_Storage {
  *
  * @return Local_Storage
  */
-function get_license_single_site_storage(): Local_Storage {
+function get_license_local_storage(): Local_Storage {
 	return get_container()->get( Local_Storage::class );
 }
 
 /**
  * Get the raw license key from the network, ignoring any Uplink/multisite configuration.
+ *
+ * @note You should avoid this function unless you're doing something REALLY custom.
  *
  * @param  string  $slug The plugin/service slug.
  *
@@ -263,20 +265,22 @@ function get_raw_network_license_key( string $slug ): ?string {
  * Get the raw license key from the current single site, ignoring any Uplink/multisite
  * configuration.
  *
+ * @note You should avoid this function unless you're doing something REALLY custom.
+ *
  * @param  string  $slug The plugin/service slug.
  *
  * @throws \RuntimeException
  *
  * @return string|null
  */
-function get_raw_single_site_license_key( string $slug ): ?string {
+function get_raw_local_license_key( string $slug ): ?string {
 	$resource = get_resource( $slug );
 
 	if ( ! $resource ) {
 		return null;
 	}
 
-	return get_license_single_site_storage()->get( $resource );
+	return get_license_local_storage()->get( $resource );
 }
 
 /**
@@ -336,9 +340,10 @@ function set_license_key( string $slug, string $license ): bool {
 		return false;
 	}
 
-	$result  = $resource->set_license_key( $license );
+	$result = $resource->set_license_key( $license );
 
 	// Force update the key status.
+	// TODO: we'll automate this via set_license_key
 	$resource->validate_license( $license );
 
 	return $result;

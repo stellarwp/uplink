@@ -360,7 +360,7 @@ function set_license_key( string $slug, string $license ): bool {
 	}
 
 	$network = allows_multisite_license( $resource );
-	$result  = $resource->set_license_key( $license, $network ? 'network' : 'local' );
+	$result  = $resource->set_license_key( $license );
 
 	// Force update the key status.
 	$resource->validate_license( $license, $network );
@@ -385,9 +385,7 @@ function delete_license_key( string $slug ): bool {
 		return false;
 	}
 
-	$network = allows_multisite_license( $resource );
-
-	return $network ? get_license_network_storage()->delete( $resource ) : get_license_single_site_storage()->delete( $resource );
+	return $resource->delete_license_key();
 }
 
 /**

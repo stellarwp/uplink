@@ -148,7 +148,7 @@ final class Connect_Controller {
 				return;
 			}
 
-			if ( ! $plugin->set_license_key( $license, $network ? 'network' : 'local' ) ) {
+			if ( ! $plugin->set_license_key( $license ) ) {
 				$this->notice->add( new Notice( Notice::ERROR,
 					__( 'Error storing license key.', '%TEXTDOMAIN%' ),
 				true

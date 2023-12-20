@@ -159,12 +159,10 @@ abstract class Resource {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $type The type of key to get (any, network, local, default).
-	 *
 	 * @return bool
 	 */
-	public function delete_license_key( $type = 'local' ): bool {
-		return $this->get_license_object()->delete_key( $type );
+	public function delete_license_key(): bool {
+		return $this->get_license_object()->delete_key();
 	}
 
 	/**
@@ -185,7 +183,7 @@ abstract class Resource {
 	 *
 	 * @return array<mixed>
 	 */
-	public function get_download_args() {
+	public function get_download_args(): array {
 		$args = [];
 
 		/** @var Data */
@@ -205,8 +203,8 @@ abstract class Resource {
 		$args['wp_version']        = $stats['versions']['wp'];
 
 		// the following is for install key inclusion (will apply later with PUE addons.)
-		$args['key'] = Utils\Sanitize::key( $this->get_license_object()->get_key() ?: '' );
-		$args['dk']  = Utils\Sanitize::key( $this->get_license_object()->get_key( 'default' ) ?: '' );
+		$args['key'] = Utils\Sanitize::key( $this->get_license_object()->get_key() );
+		$args['dk']  = Utils\Sanitize::key( $this->get_license_object()->get_default_key() );
 		$args['o']   = sanitize_text_field( $this->get_license_object()->get_key_origin_code() );
 
 		return $args;
@@ -246,12 +244,10 @@ abstract class Resource {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $type The type of key to get (any, network, local, default).
-	 *
 	 * @return string
 	 */
-	public function get_license_key( $type = 'any' ): string {
-		return $this->get_license_object()->get_key( $type );
+	public function get_license_key(): string {
+		return $this->get_license_object()->get_key();
 	}
 
 	/**
@@ -327,11 +323,11 @@ abstract class Resource {
 	 *
 	 * @return array<string,mixed>
 	 */
-	public function get_validation_args() {
+	public function get_validation_args(): array {
 		$args = [];
 
-		$args['key']            = Utils\Sanitize::key( $this->get_license_object()->get_key() ?: '' );
-		$args['default_key']    = Utils\Sanitize::key( $this->get_license_object()->get_key( 'default' ) ?: '' );
+		$args['key']            = Utils\Sanitize::key( $this->get_license_object()->get_key() );
+		$args['default_key']    = Utils\Sanitize::key( $this->get_license_object()->get_default_key() );
 		$args['license_origin'] = sanitize_text_field( $this->get_license_object()->get_key_origin_code() );
 		$args['plugin']         = sanitize_text_field( $this->get_slug() );
 		$args['version']        = sanitize_text_field( $this->get_installed_version() ?: '' );
@@ -473,12 +469,11 @@ abstract class Resource {
 	 * @since 1.0.0
 	 *
 	 * @param string $key License key.
-	 * @param string $type The type of key to get (any, network, local, default).
 	 *
 	 * @return bool
 	 */
-	public function set_license_key( $key, $type = 'local' ): bool {
-		return $this->get_license_object()->set_key( $key, $type );
+	public function set_license_key( string $key ): bool {
+		return $this->get_license_object()->set_key( $key );
 	}
 
 	/**
@@ -522,7 +517,7 @@ abstract class Resource {
 		$validation_type = $do_network_validate ? 'network' : 'local';
 
 		if ( empty( $key ) ) {
-			$key = $this->get_license_key( $validation_type );
+			$key = $this->get_license_key();
 		}
 
 		if ( empty( $key ) ) {
@@ -531,7 +526,7 @@ abstract class Resource {
 			return $results;
 		}
 
-		$results             = $api->validate_license( $this, $key, $validation_type );
+		$results             = $api->validate_license( $this, $key );
 		$results_key         = $results->get_key();
 		$result_type         = $results->get_result();
 		$has_replacement_key = $results->has_replacement_key();

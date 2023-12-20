@@ -406,7 +406,7 @@ class Validation_Response {
 	 * @return void
 	 */
 	private function parse(): void {
-		$this->current_key = $this->resource->get_license_key( $this->validation_type );
+		$this->current_key = $this->resource->get_license_key();
 		$this->expiration  = $this->response->expiration ?? __( 'unknown date', '%TEXTDOMAIN%' );
 
 		if ( ! empty( $this->response->api_inline_invalid_message ) ) {

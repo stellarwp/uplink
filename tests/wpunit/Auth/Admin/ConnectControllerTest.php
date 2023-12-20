@@ -139,7 +139,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		$this->assertSame( $token, $token_manager->get() );
-		$this->assertSame( $plugin->get_license_key( is_multisite() ? 'network' : 'local' ), $license );
+		$this->assertSame( $plugin->get_license_key(), $license );
 	}
 
 	public function test_it_does_not_store_with_an_invalid_nonce(): void {
@@ -261,7 +261,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		$this->assertSame( $token, $token_manager->get() );
-		$this->assertEmpty( $plugin->get_license_key( is_multisite() ? 'network' : 'local' ) );
+		$this->assertEmpty( $plugin->get_license_key() );
 	}
 
 	public function test_it_stores_token_but_not_license_without_a_valid_license(): void {
@@ -308,7 +308,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		$this->assertSame( $token, $token_manager->get() );
-		$this->assertEmpty( $plugin->get_license_key( is_multisite() ? 'network' : 'local' ) );
+		$this->assertEmpty( $plugin->get_license_key() );
 	}
 
 	/**
@@ -341,7 +341,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		// Mock our sample plugin is network activated, otherwise license key check fails.
 		$this->mock_activate_plugin( 'uplink/index.php', true );
 
-		$this->assertEmpty( $plugin->get_license_key( 'network' ) );
+		$this->assertEmpty( $plugin->get_license_key() );
 
 		$token_manager = $this->token_manager_factory->make( $plugin );
 
@@ -368,7 +368,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		$this->assertSame( $token, $token_manager->get() );
-		$this->assertSame( $plugin->get_license_key( 'network' ), $license );
+		$this->assertSame( $plugin->get_license_key(), $license );
 	}
 
 	/**
@@ -404,7 +404,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		// Mock our sample plugin is network activated, otherwise license key check fails.
 		$this->mock_activate_plugin( 'uplink/index.php', true );
 
-		$this->assertEmpty( $plugin->get_license_key( 'network' ) );
+		$this->assertEmpty( $plugin->get_license_key() );
 
 		$token_manager = $this->token_manager_factory->make( $plugin );
 
@@ -431,7 +431,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		$this->assertSame( $token, $token_manager->get() );
-		$this->assertSame( $plugin->get_license_key( 'network' ), $license );
+		$this->assertSame( $plugin->get_license_key(), $license );
 	}
 
 }

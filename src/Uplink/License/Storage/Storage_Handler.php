@@ -24,6 +24,13 @@ final class Storage_Handler implements Storage {
 	private $file;
 
 	/**
+	 * Whether the key was the original/default file based key.
+	 *
+	 * @var bool
+	 */
+	private $is_original_key = false;
+
+	/**
 	 * @param  Storage_Factory  $factory
 	 * @param  File_Storage     $file
 	 */
@@ -33,6 +40,15 @@ final class Storage_Handler implements Storage {
 	) {
 		$this->factory = $factory;
 		$this->file = $file;
+	}
+
+	/**
+	 * Whether the key was the original file based key.
+	 *
+	 * @return bool
+	 */
+	public function is_original(): bool {
+		return $this->is_original_key;
 	}
 
 	/**
@@ -59,10 +75,22 @@ final class Storage_Handler implements Storage {
 
 		// Fallback to the original file based storage key.
 		if ( ! $license_key ) {
-			$license_key = $this->file->get( $resource );
+			$this->is_original_key = true;
+			$license_key           = $this->get_from_file( $resource );
 		}
 
 		return $license_key;
+	}
+
+	/**
+	 * Get a license key from the packaged class that came with the plugin (if provided).
+	 *
+	 * @param  Resource  $resource
+	 *
+	 * @return string|null
+	 */
+	public function get_from_file( Resource $resource ): ?string {
+		return $this->file->get( $resource );
 	}
 
 	/**

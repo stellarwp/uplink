@@ -311,7 +311,7 @@ class License {
 	 *
 	 * @since TBD
 	 *
-	 * @param int $valid 0 for invalid, 1 or 2 for valid.
+	 * @param int|bool|string $valid 0 for invalid, 1 or 2 for valid.
 	 *
 	 * @return void
 	 */

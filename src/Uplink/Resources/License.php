@@ -181,33 +181,6 @@ class License {
 	}
 
 	/**
-	 * Get the license key status from an option.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string|null
-	 */
-	protected function get_key_status(): ?string {
-		$network = $this->resource->uses_network_licensing();
-		$func    = 'get_option';
-
-		if ( $network ) {
-			$func = 'get_site_option';
-		}
-
-		/** @var string|null */
-		$status = $func( $this->get_key_status_option_name(), 'invalid' );
-		$key    = $this->get_key();
-
-		if ( null === $status && $key ) {
-			$this->resource->validate_license( $key );
-			$status = $func( $this->get_key_status_option_name(), 'invalid' );
-		}
-
-		return $status;
-	}
-
-	/**
 	 * Get the option name for the license key status.
 	 *
 	 * @since 1.0.0
@@ -298,6 +271,33 @@ class License {
 		$this->key = $key;
 
 		return $this->storage->store( $this->resource, $key );
+	}
+
+	/**
+	 * Get the license key status from an option.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return string|null
+	 */
+	protected function get_key_status(): ?string {
+		$network = $this->resource->uses_network_licensing();
+		$func    = 'get_option';
+
+		if ( $network ) {
+			$func = 'get_site_option';
+		}
+
+		/** @var string|null */
+		$status = $func( $this->get_key_status_option_name(), 'invalid' );
+		$key    = $this->get_key();
+
+		if ( null === $status && $key ) {
+			$this->resource->validate_license( $key );
+			$status = $func( $this->get_key_status_option_name(), 'invalid' );
+		}
+
+		return $status;
 	}
 
 	/**

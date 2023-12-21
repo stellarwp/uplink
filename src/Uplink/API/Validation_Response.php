@@ -117,7 +117,7 @@ class Validation_Response {
 	 * @param  Resource       $resource  Resource instance.
 	 */
 	public function __construct( ?string $key, ?stdClass $response, Resource $resource ) {
-		$this->key      = $key ?: '';
+		$this->key      = (string) $key;
 		$this->response = $response;
 		$this->resource = $resource;
 

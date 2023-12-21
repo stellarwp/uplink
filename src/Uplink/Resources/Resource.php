@@ -493,9 +493,6 @@ abstract class Resource {
 	 * @return API\Validation_Response
 	 */
 	public function validate_license( ?string $key = null ): API\Validation_Response {
-		/** @var API\Client */
-		$api = $this->container->get( API\Client::class );
-
 		if ( empty( $key ) ) {
 			$key = $this->get_license_key();
 		}
@@ -503,8 +500,12 @@ abstract class Resource {
 		if ( empty( $key ) ) {
 			$results = new API\Validation_Response( null, new stdClass(), $this );
 			$results->set_is_valid( false );
+
 			return $results;
 		}
+
+		/** @var API\Client $api */
+		$api = $this->container->get( API\Client::class );
 
 		$results             = $api->validate_license( $this, $key );
 		$results_key         = $results->get_key();

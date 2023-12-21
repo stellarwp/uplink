@@ -103,6 +103,25 @@ class License {
 	}
 
 	/**
+	 * Sets the key in site options.
+	 *
+	 * @TODO we should fire an action here to validate the key.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $key License key.
+	 *
+	 * @return bool
+	 */
+	public function set_key( string $key ): bool {
+		$key = Utils\Sanitize::key( $key );
+
+		$this->key = $key;
+
+		return $this->storage->store( $this->resource, $key );
+	}
+
+	/**
 	 * Deletes the license key from the appropriate storage location.
 	 *
 	 * @TODO we should fire an action here to validate the key.
@@ -252,25 +271,6 @@ class License {
 	public function is_validation_expired(): bool {
 		$option_expiration = get_option( $this->get_key_status_option_name() . '_timeout', null );
 		return is_null( $option_expiration ) || ( time() > $option_expiration );
-	}
-
-	/**
-	 * Sets the key in site options.
-	 *
-	 * @TODO we should fire an action here to validate the key.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string $key License key.
-	 *
-	 * @return bool
-	 */
-	public function set_key( string $key ): bool {
-		$key = Utils\Sanitize::key( $key );
-
-		$this->key = $key;
-
-		return $this->storage->store( $this->resource, $key );
 	}
 
 	/**

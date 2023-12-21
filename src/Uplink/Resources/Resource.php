@@ -515,7 +515,7 @@ abstract class Resource {
 			$result_type === 'new'
 			|| $has_replacement_key
 		) {
-			$this->get_license_object()->set_key( $results_key );
+			$this->set_license_key( $results_key );
 		}
 
 		$this->get_license_object()->set_key_status( $results->is_valid() );

@@ -288,13 +288,19 @@ class License {
 			$func = 'get_site_option';
 		}
 
-		/** @var string|null */
-		$status = $func( $this->get_key_status_option_name(), 'invalid' );
+		/** @var string|null $status */
+		$status = $func( $this->get_key_status_option_name(), null );
 		$key    = $this->get_key();
 
+		// If no status has been set, run the update again.
 		if ( null === $status && $key ) {
 			$this->resource->validate_license( $key );
-			$status = $func( $this->get_key_status_option_name(), 'invalid' );
+			$status = $func( $this->get_key_status_option_name(), null );
+
+			// If it still failed, default to invalid.
+			if ( null === $status ) {
+				$status = 'invalid';
+			}
 		}
 
 		return $status;

@@ -28,11 +28,11 @@ class Plugins_Page {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $page
+	 * @param mixed $page
 	 *
 	 * @return void
 	 */
-	public function display_plugin_messages( string $page ): void {
+	public function display_plugin_messages( $page ): void {
 		if ( 'plugins.php' !== $page ) {
 			return;
 		}
@@ -133,11 +133,11 @@ class Plugins_Page {
 	/**
 	 * Add notices as JS variable
 	 *
-	 * @param string $page
+	 * @param mixed $page
 	 *
 	 * @return void
 	 */
-	public function store_admin_notices( string $page ): void {
+	public function store_admin_notices( $page ): void {
 		if ( 'plugins.php' !== $page ) {
 			return;
 		}

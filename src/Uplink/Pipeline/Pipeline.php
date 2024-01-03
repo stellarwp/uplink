@@ -223,7 +223,7 @@ final class Pipeline {
 	 *
 	 * @return ContainerInterface
 	 */
-	protected function getContainer(): ?ContainerInterface {
+	protected function getContainer(): ContainerInterface {
 		if ( ! $this->container ) {
 			throw new RuntimeException( 'A container instance has not been passed to the Pipeline.' );
 		}

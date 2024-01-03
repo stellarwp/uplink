@@ -55,7 +55,7 @@ final class ConfigTest extends UplinkTestCase {
 	}
 
 	public function test_it_gets_and_sets_auth_token_cache_expiration(): void {
-		$this->assertSame( 21600, Config::get_auth_cache_expiration() );
+		$this->assertSame( Config::DEFAULT_AUTH_CACHE, Config::get_auth_cache_expiration() );
 
 		Config::set_auth_cache_expiration( DAY_IN_SECONDS );
 

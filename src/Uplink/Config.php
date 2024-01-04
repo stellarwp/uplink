@@ -245,7 +245,7 @@ class Config {
 	 * @return void
 	 */
 	public static function allow_site_level_licenses_for_subfolder_multisite( bool $allowed ): void {
-		self::$supports_site_level_licenses_for_subfolder_multisite = $allowed;
+		static::$supports_site_level_licenses_for_subfolder_multisite = $allowed;
 	}
 
 	/**
@@ -256,7 +256,7 @@ class Config {
 	 * @return void
 	 */
 	public static function allow_site_level_licenses_for_subdomain_multisite( bool $allowed ): void {
-		self::$supports_site_level_licenses_for_subdomain_multisite = $allowed;
+		static::$supports_site_level_licenses_for_subdomain_multisite = $allowed;
 	}
 
 	/**
@@ -267,7 +267,7 @@ class Config {
 	 * @return void
 	 */
 	public static function allow_site_level_licenses_for_mapped_domain_multisite( bool $allowed ): void {
-		self::$supports_site_level_licenses_for_mapped_domain_multisite = $allowed;
+		static::$supports_site_level_licenses_for_mapped_domain_multisite = $allowed;
 	}
 
 	/**
@@ -280,7 +280,7 @@ class Config {
 	public static function supports_site_level_licenses_for_subfolder_multisite(): bool {
 		return (bool) apply_filters(
 			'stellarwp/uplink/' . Config::get_hook_prefix() . '/supports_site_level_licenses_for_subfolder_multisite',
-			self::$supports_site_level_licenses_for_subfolder_multisite
+			static::$supports_site_level_licenses_for_subfolder_multisite
 		);
 	}
 
@@ -294,7 +294,7 @@ class Config {
 	public static function supports_site_level_licenses_for_subdomain_multisite(): bool {
 		return (bool) apply_filters(
 			'stellarwp/uplink/' . Config::get_hook_prefix() . '/supports_site_level_licenses_for_subdomain_multisite',
-			self::$supports_site_level_licenses_for_subdomain_multisite
+			static::$supports_site_level_licenses_for_subdomain_multisite
 		);
 	}
 
@@ -308,7 +308,7 @@ class Config {
 	public static function supports_site_level_licenses_for_mapped_domain_multisite(): bool {
 		return (bool) apply_filters(
 			'stellarwp/uplink/' . Config::get_hook_prefix() . '/supports_site_level_licenses_for_mapped_domain_multisite',
-			self::$supports_site_level_licenses_for_mapped_domain_multisite
+			static::$supports_site_level_licenses_for_mapped_domain_multisite
 		);
 	}
 
@@ -321,9 +321,9 @@ class Config {
 	 */
 	public static function supports_network_licenses(): bool {
 		$config = [
-			self::supports_site_level_licenses_for_subfolder_multisite(),
-			self::supports_site_level_licenses_for_subdomain_multisite(),
-			self::supports_site_level_licenses_for_mapped_domain_multisite(),
+			static::supports_site_level_licenses_for_subfolder_multisite(),
+			static::supports_site_level_licenses_for_subdomain_multisite(),
+			static::supports_site_level_licenses_for_mapped_domain_multisite(),
 		];
 
 		return in_array( true, $config, true );
@@ -338,7 +338,7 @@ class Config {
 	 * @return void
 	 */
 	public static function allow_site_level_override_for_multisite_license( bool $allowed ): void {
-		self::$supports_site_level_override_for_multisite_license = $allowed;
+		static::$supports_site_level_override_for_multisite_license = $allowed;
 	}
 
 	/**
@@ -349,7 +349,7 @@ class Config {
 	public static function supports_site_level_override_for_multisite_license(): bool {
 		return (bool) apply_filters(
 			'stellarwp/uplink/' . Config::get_hook_prefix() . '/supports_site_level_override_for_multisite_license',
-			self::$supports_site_level_override_for_multisite_license
+			static::$supports_site_level_override_for_multisite_license
 		);
 	}
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace StellarWP\Uplink\Tests;
 
@@ -20,27 +20,6 @@ class UplinkTestCase extends WPTestCase {
 	 */
 	protected $container;
 
-	/**
-	 * Holds the original configuration value.
-	 *
-	 * @var bool
-	 */
-	protected $network_subfolder_license;
-
-	/**
-	 * Holds the original configuration value.
-	 *
-	 * @var bool
-	 */
-	protected $network_subdomain_license;
-
-	/**
-	 * Holds the original configuration value.
-	 *
-	 * @var bool
-	 */
-	protected $network_domain_mapping_license;
-
 	protected function setUp(): void {
 		// @phpstan-ignore-next-line
 		parent::setUp();
@@ -52,24 +31,19 @@ class UplinkTestCase extends WPTestCase {
 		Uplink::init();
 
 		$this->container = Config::get_container();
-
-		$this->network_subfolder_license      = Config::supports_site_level_licenses_for_subfolder_multisite();
-		$this->network_subdomain_license      = Config::supports_site_level_licenses_for_subdomain_multisite();
-		$this->network_domain_mapping_license = Config::supports_site_level_licenses_for_mapped_domain_multisite();
 	}
 
 	protected function tearDown(): void {
-		// Reset back to default config, in case any tests changed them.
-		Config::allow_site_level_licenses_for_subfolder_multisite( $this->network_subfolder_license );
-		Config::allow_site_level_licenses_for_subdomain_multisite( $this->network_subdomain_license );
-		Config::allow_site_level_licenses_for_mapped_domain_multisite( $this->network_domain_mapping_license );
+		Config::reset();
 
 		parent::tearDown();
 	}
 
 	/**
-	 * @param  string  $path  The path to the plugin file, e.g. my-plugin/my-plugin.php
-	 * @param  bool  $network_wide  Whether this should happen network wide.
+	 * Fake that WordPress has a plugin activated by manually inserting the records.
+	 *
+	 * @param  string  $path          The path to the plugin file, e.g. my-plugin/my-plugin.php
+	 * @param  bool    $network_wide  Whether this should happen network wide.
 	 *
 	 * @return void
 	 */
@@ -83,18 +57,14 @@ class UplinkTestCase extends WPTestCase {
 			$current[ $path ] = time();
 
 			update_site_option( 'active_sitewide_plugins', $current );
-		} else {
-			update_option(
-				'active_plugins',
-				array_merge(get_option('active_plugins', []), [$path])
-			);
+
+			return;
 		}
-	}
 
-	protected function tearDown(): void {
-		Config::reset();
-
-		parent::tearDown();
+		update_option(
+			'active_plugins',
+			array_merge( get_option( 'active_plugins', [] ), [ $path ] )
+		);
 	}
 
 }

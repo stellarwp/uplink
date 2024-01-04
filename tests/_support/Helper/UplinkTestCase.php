@@ -91,4 +91,10 @@ class UplinkTestCase extends WPTestCase {
 		}
 	}
 
+	protected function tearDown(): void {
+		Config::reset();
+
+		parent::tearDown();
+	}
+
 }

@@ -28,7 +28,7 @@ class Plugins_Page {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $page
+	 * @param string|null $page
 	 *
 	 * @return void
 	 */
@@ -133,7 +133,7 @@ class Plugins_Page {
 	/**
 	 * Add notices as JS variable
 	 *
-	 * @param string $page
+	 * @param string|null $page
 	 *
 	 * @return void
 	 */

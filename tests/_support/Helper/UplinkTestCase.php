@@ -32,4 +32,10 @@ class UplinkTestCase extends WPTestCase {
 		$this->container = Config::get_container();
 	}
 
+	protected function tearDown(): void {
+		Config::reset();
+
+		parent::tearDown();
+	}
+
 }

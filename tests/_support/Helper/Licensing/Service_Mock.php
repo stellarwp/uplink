@@ -55,6 +55,6 @@ class Service_Mock extends Http_API_Mock {
 	 * {@inheritdoc }
 	 */
 	protected function get_url(): string {
-		return 'https://pue.theeventscalendar.com/api/';
+		return 'https://licensing.stellarwp.com/api/';
 	}
 }

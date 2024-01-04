@@ -2,10 +2,10 @@
 
 namespace StellarWP\Uplink;
 
+use StellarWP\Uplink\API\V3\Auth\Contracts\Token_Authorizer;
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Admin\License_Field;
 use StellarWP\Uplink\API\V3\Auth\Contracts\Auth_Url;
-use StellarWP\Uplink\API\V3\Auth\Token_Authorizer;
 use StellarWP\Uplink\API\Validation_Response;
 use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
 use StellarWP\Uplink\Auth\Auth_Url_Builder;
@@ -76,7 +76,9 @@ function get_authorization_token( string $slug ): ?string {
 }
 
 /**
- * Manually check if a license is authorized.
+ * Check if a license is authorized.
+ *
+ * @note This response may be cached.
  *
  * @param  string  $license  The license key.
  * @param  string  $token  The stored token.
@@ -86,9 +88,9 @@ function get_authorization_token( string $slug ): ?string {
  */
 function is_authorized( string $license, string $token, string $domain ): bool {
 	try {
-		return get_container()
-			->get( Token_Authorizer::class )
-			->is_authorized( $license, $token, $domain );
+		return Config::get_container()
+		             ->get( Token_Authorizer::class )
+		             ->is_authorized( $license, $token, $domain );
 	} catch ( Throwable $e ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( "An Authorization error occurred: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );

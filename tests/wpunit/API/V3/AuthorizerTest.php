@@ -4,9 +4,27 @@ namespace StellarWP\Uplink\Tests\API\V3;
 
 use StellarWP\Uplink\API\V3\Auth\Token_Authorizer;
 use StellarWP\Uplink\API\V3\Contracts\Client_V3;
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Tests\UplinkTestCase;
+use StellarWP\Uplink\Uplink;
 
 final class AuthorizerTest extends UplinkTestCase {
+
+	protected function setUp(): void {
+		parent::setUp();
+
+		// Disable auth caching.
+		Config::set_auth_cache_expiration( -1 );
+
+		Uplink::init();
+	}
+
+	public function test_it_binds_the_correct_instance_when_auth_cache_is_disabled(): void {
+		$this->assertInstanceOf(
+			Token_Authorizer::class,
+			$this->container->get( \StellarWP\Uplink\API\V3\Auth\Contracts\Token_Authorizer::class )
+		);
+	}
 
 	public function test_it_authorizes_a_valid_token(): void {
 		$clientMock = $this->makeEmpty( Client_V3::class, [

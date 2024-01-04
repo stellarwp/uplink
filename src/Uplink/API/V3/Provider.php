@@ -4,6 +4,8 @@ namespace StellarWP\Uplink\API\V3;
 
 use StellarWP\Uplink\API\V3\Auth\Auth_Url_Cache_Decorator;
 use StellarWP\Uplink\API\V3\Auth\Contracts\Auth_Url;
+use StellarWP\Uplink\API\V3\Auth\Contracts\Token_Authorizer;
+use StellarWP\Uplink\API\V3\Auth\Token_Authorizer_Cache_Decorator;
 use StellarWP\Uplink\API\V3\Contracts\Client_V3;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
@@ -54,6 +56,36 @@ final class Provider extends Abstract_Provider {
 
 			return new Client( $api_root, $base_url, $request_args, new WP_Http() );
 		} );
+
+		$this->register_token_authorizer();
+	}
+
+	/**
+	 * Based on the developer's configuration, determine if we will enable Token Authorization caching.
+	 *
+	 * @return void
+	 */
+	private function register_token_authorizer(): void {
+		$expiration = Config::get_auth_cache_expiration();
+
+		if ( $expiration >= 0 ) {
+			$this->container->bind(
+				Token_Authorizer::class,
+				static function ( $c ) use ( $expiration ): Token_Authorizer {
+					return new Token_Authorizer_Cache_Decorator(
+						$c->get( Auth\Token_Authorizer::class ),
+						$expiration
+					);
+				}
+			);
+
+			return;
+		}
+
+		$this->container->bind(
+			Token_Authorizer::class,
+			Auth\Token_Authorizer::class
+		);
 	}
 
 }

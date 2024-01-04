@@ -12,6 +12,10 @@ class Config {
 
 	public const TOKEN_OPTION_NAME = 'uplink.token_prefix';
 
+	/**
+	 * The default authorization cache time in seconds (6 hours).
+	 */
+	public const DEFAULT_AUTH_CACHE = 21600;
 
 	/**
 	 * Container object.
@@ -30,6 +34,14 @@ class Config {
 	 * @var string
 	 */
 	protected static $hook_prefix = '';
+
+	/**
+	 * How long in seconds we cache successful authorization
+	 * token requests.
+	 *
+	 * @var int
+	 */
+	protected static $auth_cache_expiration = self::DEFAULT_AUTH_CACHE;
 
 	/**
 	 * Whether your plugin allows multisite network subfolder licenses.
@@ -132,7 +144,8 @@ class Config {
 	 * @return void
 	 */
 	public static function reset(): void {
-		static::$hook_prefix = '';
+		static::$hook_prefix           = '';
+		static::$auth_cache_expiration = self::DEFAULT_AUTH_CACHE;
 
 		if ( self::has_container() ) {
 			self::$container->singleton( self::TOKEN_OPTION_NAME, null );
@@ -201,6 +214,27 @@ class Config {
 		}
 
 		self::get_container()->singleton( self::TOKEN_OPTION_NAME, $key );
+	}
+
+	/**
+	 * Set the token authorization expiration.
+	 *
+	 * @param  int  $seconds  The time seconds the cache will exist for.
+	 *                        -1 = disabled, 0 = no expiration.
+	 *
+	 * @return void
+	 */
+	public static function set_auth_cache_expiration( int $seconds ): void {
+		static::$auth_cache_expiration = $seconds;
+	}
+
+	/**
+	 * Get the token authorization expiration.
+	 *
+	 * @return int
+	 */
+	public static function get_auth_cache_expiration(): int {
+		return static::$auth_cache_expiration;
 	}
 
 	/**

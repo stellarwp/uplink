@@ -45,6 +45,12 @@ add_action( 'plugins_loaded', function() {
 	 */
 	Config::set_token_auth_prefix( 'my_origin' );
 
+	// Optionally, change the default auth token caching.
+	Config::set_auth_cache_expiration( WEEK_IN_SECONDS );
+
+	// Or, disable it completely.
+	Config::set_auth_cache_expiration( -1 );
+
 	Uplink::init();
 }, 0 );
 ```

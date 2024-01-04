@@ -5,6 +5,7 @@ namespace StellarWP\Uplink\Tests\Licensing;
 use StellarWP\Uplink\Tests\Http_API\Http_API_Mock;
 
 class Service_Mock extends Http_API_Mock {
+
 	/**
 	 * Returns the body of a success response to the key validation request, in array format.
 	 *
@@ -50,11 +51,11 @@ class Service_Mock extends Http_API_Mock {
 		];
 	}
 
-
 	/**
 	 * {@inheritdoc }
 	 */
 	protected function get_url(): string {
 		return 'https://licensing.stellarwp.com/api/';
 	}
+
 }

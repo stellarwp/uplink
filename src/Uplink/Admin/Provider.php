@@ -134,7 +134,7 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	public function display_plugin_messages( $page ): void {
-		$this->container->get( Plugins_Page::class )->display_plugin_messages( $page );
+		$this->container->get( Plugins_Page::class )->display_plugin_messages( (string) $page );
 	}
 
 	/**
@@ -147,7 +147,7 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	public function store_admin_notices( $page ): void {
-		$this->container->get( Plugins_Page::class )->store_admin_notices( $page );
+		$this->container->get( Plugins_Page::class )->store_admin_notices( (string) $page );
 	}
 
 	/**

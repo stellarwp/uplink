@@ -35,7 +35,7 @@ class Validation_ResponseTest extends UplinkTestCase {
 
 	public function test_it_should_provide_valid_update_details(): void {
 
-		$result = new Validation_Response( 'aaa11', 'local', $this->get_dummy_valid_response(), $this->resource );
+		$result = new Validation_Response( 'aaa11', $this->get_dummy_valid_response(), $this->resource );
 		$update = $result->get_update_details();
 
 		$this->assertEquals( '', $update->id );
@@ -46,7 +46,7 @@ class Validation_ResponseTest extends UplinkTestCase {
 	}
 
 	public function test_it_should_provide_api_error_details_with_corresponding_message() {
-		$result = new Validation_Response( 'aaa11', 'local', $this->get_dummy_api_invalid_response(), $this->resource );
+		$result = new Validation_Response( 'aaa11', $this->get_dummy_api_invalid_response(), $this->resource );
 		$update = $result->get_update_details();
 
 		$this->assertEquals( '1.0.10', $update->new_version );

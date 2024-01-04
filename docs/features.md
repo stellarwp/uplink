@@ -89,6 +89,8 @@ On the _Plugins_ page in the WP Dashboard, any plugin that has an update availab
 
 ### Multisite Licenses
 
+TODO: Notes about stored license file?
+
 Out of the box, Uplink treats all sub-sites as their _own independent site_, storing license keys and authorization tokens
 in the options table of that sub-site.
 
@@ -97,15 +99,15 @@ multisite network across multiple situations.
 
 > 💡 To operate at the network level, your plugin **must be network activated** and the proper configuration options enabled.
 
-| Install Type               | Network Activated? | Clause | Uplink Config Option (default is false)             | License & Token Storage Location |
-|----------------------------|--------------------|--------|-----------------------------------------------------|----------------------------------|
-| Standard                   | –                  | –      | –                                                   | Site level                       |
-| Multisite (subfolders)     | Yes                | AND    | `Config::set_network_subfolder_license(true)`       | Network level                    |
-| Multisite (subfolders)     | No                 | OR     | `Config::set_network_subfolder_license(false)`      | Site Level                       |
-| Multisite (subdomains)     | Yes                | AND    | `Config::set_network_subdomain_license(true)`       | Network level                    |
-| Multisite (subdomains)     | No                 | OR     | `Config::set_network_subdomain_license(false)`      | Site Level                       |
-| Multisite (domain mapping) | Yes                | AND    | `Config::set_network_domain_mapping_license(true)`  | Network level                    |
-| Multisite (domain mapping) | No                 | OR     | `Config::set_network_domain_mapping_license(false)` | Site Level                       |
+| Install Type               | Network Activated? | Clause | Uplink Config Option (default is false)                                | License & Token Storage Location |
+|----------------------------|--------------------|--------|------------------------------------------------------------------------|----------------------------------|
+| Standard                   | –                  | –      | –                                                                      | Site level                       |
+| Multisite (subfolders)     | Yes                | AND    | `Config::allow_site_level_licenses_for_subfolder_multisite(true)`      | Network level                    |
+| Multisite (subfolders)     | No                 | OR     | `Config::allow_site_level_licenses_for_subfolder_multisite(false)`     | Site Level                       |
+| Multisite (subdomains)     | Yes                | AND    | `Config::allow_site_level_licenses_for_subdomain_multisite(true)`      | Network level                    |
+| Multisite (subdomains)     | No                 | OR     | `Config::allow_site_level_licenses_for_subdomain_multisite(false)`     | Site Level                       |
+| Multisite (domain mapping) | Yes                | AND    | `Config::allow_site_level_licenses_for_mapped_domain_multisite(true)`  | Network level                    |
+| Multisite (domain mapping) | No                 | OR     | `Config::allow_site_level_licenses_for_mapped_domain_multisite(false)` | Site Level                       |
 
 
 #### Examples
@@ -118,13 +120,13 @@ use StellarWP\Uplink\Uplink;
 // ...other config above
 
 // Allow a single network license for multisite subfolders.
-Config::set_network_subfolder_license( true );
+Config::allow_site_level_licenses_for_subfolder_multisite( true );
 
 // Allow a single network license for multisite using subdomains.
-Config::set_network_subdomain_license( true );
+Config::allow_site_level_licenses_for_subdomain_multisite( true );
 
 // Allow a single network license for custom domains/mapped domains.
-Config::set_network_domain_mapping_license( true );
+Config::allow_site_level_licenses_for_mapped_domain_multisite( true );
 
 Uplink::init();
 ```
@@ -140,17 +142,17 @@ add_action( 'init', static function(): void {
 	// Replace with a call to your own plugin's config/option to check whether it should be managed in the network.
 	$network_enabled = true;
 
-	add_filter( 'stellarwp/uplink/my-plugin-slug/allows_network_subfolder_license',
+	add_filter( 'stellarwp/uplink/my-plugin-slug/supports_site_level_licenses_for_subfolder_multisite',
 		static function () use ( $network_enabled ): bool {
 			return $network_enabled;
 		}, 10 );
 
-	add_filter( 'stellarwp/uplink/my-plugin-slug/allows_network_subdomain_license',
+	add_filter( 'stellarwp/uplink/my-plugin-slug/supports_site_level_licenses_for_subdomain_multisite',
 		static function () use ( $network_enabled ): bool {
 			return $network_enabled;
 		}, 10 );
 
-	add_filter( 'stellarwp/uplink/my-plugin-slug/allows_network_domain_mapping_license',
+	add_filter( 'stellarwp/uplink/my-plugin-slug/supports_site_level_licenses_for_mapped_domain_multisite',
 		static function () use ( $network_enabled ): bool {
 			return $network_enabled;
 		}, 10 );
@@ -185,7 +187,4 @@ the correct location.
 
 // Gets the local URL to disconnect a token (delete it locally).
 \StellarWP\Uplink\get_disconnect_url( 'my-plugin-slug' );
-
-// Checks if the current site (e.g. the sub-site on multisite) would support multisite licensing.
-\StellarWP\Uplink\allows_multisite_license( 'my-plugin-slug' );
 ```

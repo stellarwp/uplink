@@ -106,13 +106,13 @@ class Data {
 	 * @return string
 	 */
 	public function get_domain( bool $original = false ): string {
-		$cache_key                        = 'stellarwp_uplink_domain';
-		$domain                           = $this->container->has( $cache_key ) ? $this->container->get( $cache_key ) : null;
-		$allows_network_subfolder_license = Config::allows_network_subfolder_license();
+		$cache_key              = 'stellarwp_uplink_domain';
+		$domain                 = $this->container->has( $cache_key ) ? $this->container->get( $cache_key ) : null;
+		$supports_ms_subfolders = Config::supports_site_level_licenses_for_subfolder_multisite();
 
 		if ( is_multisite() ) {
 			// Ensure subsite also contains its path and don't cache.
-			if ( ! $allows_network_subfolder_license ) {
+			if ( ! $supports_ms_subfolders ) {
 				$domain = $this->get_domain_multisite_subsite_subfolder();
 			} elseif ( $domain === null ) {
 				$domain = $this->get_domain_multisite_option();
@@ -126,7 +126,7 @@ class Data {
 			 * This prevents the main site from refreshing the token on the Licensing server
 			 * when multisite is off or network licenses aren't enabled.
 			 */
-			if ( ! $original && Config::allows_network_licenses() ) {
+			if ( ! $original && Config::supports_network_licenses() ) {
 				$domain .= '/' . hash( 'crc32c', $domain );
 			}
 		} elseif ( $domain === null ) {
@@ -140,9 +140,9 @@ class Data {
 		 * @since 1.0.0
 		 *
 		 * @param  string  $domain  Domain.
-		 * @param  bool  $allows_network_subfolder_license  Whether network subfolder licenses are allowed.
+		 * @param  bool  $supports_ms_subfolders  Whether network subfolder licenses are allowed.
 		 */
-		$domain = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/get_domain', $domain, $allows_network_subfolder_license );
+		$domain = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/get_domain', $domain, $supports_ms_subfolders );
 
 		return sanitize_text_field( $domain );
 	}

@@ -54,22 +54,30 @@ final class ConfigTest extends UplinkTestCase {
 		Config::set_token_auth_prefix( 'fluffy_unicorn_rainbow_sunshine_happy_smile_peace_joy_love_puppy_harmony_giggles_dreams_celebrate_fantastic_wonderful_whimsical_serendipity_butterfly_magic_sparkle_sweetness_trust_' );
 	}
 
+	public function test_it_gets_and_sets_auth_token_cache_expiration(): void {
+		$this->assertSame( Config::DEFAULT_AUTH_CACHE, Config::get_auth_cache_expiration() );
+
+		Config::set_auth_cache_expiration( DAY_IN_SECONDS );
+
+		$this->assertSame( DAY_IN_SECONDS, Config::get_auth_cache_expiration() );
+	}
+
 	public function test_it_detects_allowed_network_licenses_subfolder(): void {
-		$this->assertFalse( Config::allows_network_licenses() );
-		Config::set_network_subfolder_license( true );
-		$this->assertTrue( Config::allows_network_licenses() );
+		$this->assertFalse( Config::supports_network_licenses() );
+		Config::allow_site_level_licenses_for_subfolder_multisite( true );
+		$this->assertTrue( Config::supports_network_licenses() );
 	}
 
 	public function test_it_detects_allowed_network_licenses_subdomain(): void {
-		$this->assertFalse( Config::allows_network_licenses() );
-		Config::set_network_subdomain_license( true );
-		$this->assertTrue( Config::allows_network_licenses() );
+		$this->assertFalse( Config::supports_network_licenses() );
+		Config::allow_site_level_licenses_for_subdomain_multisite( true );
+		$this->assertTrue( Config::supports_network_licenses() );
 	}
 
 	public function test_it_detects_allowed_network_licenses_domain_mapping(): void {
-		$this->assertFalse( Config::allows_network_licenses() );
-		Config::set_network_domain_mapping_license( true );
-		$this->assertTrue( Config::allows_network_licenses() );
+		$this->assertFalse( Config::supports_network_licenses() );
+		Config::allow_site_level_licenses_for_mapped_domain_multisite( true );
+		$this->assertTrue( Config::supports_network_licenses() );
 	}
 
 }

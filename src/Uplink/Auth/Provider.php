@@ -4,16 +4,10 @@ namespace StellarWP\Uplink\Auth;
 
 use StellarWP\Uplink\Auth\Admin\Connect_Controller;
 use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
-use StellarWP\Uplink\Auth\License\License_Manager;
-use StellarWP\Uplink\Auth\License\Pipeline\Processors\Multisite_Domain_Mapping;
-use StellarWP\Uplink\Auth\License\Pipeline\Processors\Multisite_Main_Site;
-use StellarWP\Uplink\Auth\License\Pipeline\Processors\Multisite_Subdomain;
-use StellarWP\Uplink\Auth\License\Pipeline\Processors\Multisite_Subfolder;
 use StellarWP\Uplink\Auth\Token\Managers\Network_Token_Manager;
 use StellarWP\Uplink\Auth\Token\Managers\Token_Manager;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
-use StellarWP\Uplink\Pipeline\Pipeline;
 
 final class Provider extends Abstract_Provider {
 
@@ -40,7 +34,6 @@ final class Provider extends Abstract_Provider {
 		);
 
 		$this->register_nonce();
-		$this->register_license_manager();
 		$this->register_auth_disconnect();
 		$this->register_auth_connect();
 	}
@@ -64,28 +57,6 @@ final class Provider extends Abstract_Provider {
 		$expiration = absint( $expiration );
 
 		$this->container->singleton( Nonce::class, new Nonce( $expiration ) );
-	}
-
-	/**
-	 * Register the license manager and its pipeline to detect different
-	 * mulitsite licenses.
-	 *
-	 * @return void
-	 */
-	private function register_license_manager(): void {
-		$pipeline = ( new Pipeline( $this->container ) )->through( [
-			Multisite_Main_Site::class,
-			Multisite_Subfolder::class,
-			Multisite_Subdomain::class,
-			Multisite_Domain_Mapping::class,
-		] );
-
-		$this->container->singleton(
-			License_Manager::class,
-			static function () use ( $pipeline ) {
-				return new License_Manager( $pipeline );
-			}
-		);
 	}
 
 	/**

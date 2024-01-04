@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace StellarWP\Uplink;
 
@@ -12,6 +12,17 @@ class Config {
 
 	public const TOKEN_OPTION_NAME = 'uplink.token_prefix';
 
+	/**
+	 * The default authorization cache time in seconds (6 hours).
+	 */
+	public const DEFAULT_AUTH_CACHE = 21600;
+
+	/**
+	 * The default state for all multisite licensing options.
+	 *
+	 * @var bool
+	 */
+	public const DEFAULT_MULTISITE_STATE = false;
 
 	/**
 	 * Container object.
@@ -32,25 +43,41 @@ class Config {
 	protected static $hook_prefix = '';
 
 	/**
+	 * How long in seconds we cache successful authorization
+	 * token requests.
+	 *
+	 * @var int
+	 */
+	protected static $auth_cache_expiration = self::DEFAULT_AUTH_CACHE;
+
+	/**
 	 * Whether your plugin allows multisite network subfolder licenses.
 	 *
 	 * @var bool
 	 */
-	protected static $network_subfolder_license = false;
+	protected static $supports_site_level_licenses_for_subfolder_multisite = self::DEFAULT_MULTISITE_STATE;
 
 	/**
 	 * Whether your plugin allows multisite subdomain licenses.
 	 *
 	 * @var bool
 	 */
-	protected static $network_subdomain_license = false;
+	protected static $supports_site_level_licenses_for_subdomain_multisite = self::DEFAULT_MULTISITE_STATE;
 
 	/**
 	 * Whether your plugin allows multisite domain mapping licenses.
 	 *
 	 * @var bool
 	 */
-	protected static $network_domain_mapping_license = false;
+	protected static $supports_site_level_licenses_for_mapped_domain_multisite = self::DEFAULT_MULTISITE_STATE;
+
+	/**
+	 * If true, enables a checkbox in the License Field so that you can use a local license key
+	 * in place of the network key.
+	 *
+	 * @var bool
+	 */
+	protected static $supports_site_level_override_for_multisite_license = self::DEFAULT_MULTISITE_STATE;
 
 	/**
 	 * Get the container.
@@ -124,7 +151,12 @@ class Config {
 	 * @return void
 	 */
 	public static function reset(): void {
-		static::$hook_prefix = '';
+		static::$hook_prefix                                              = '';
+		static::$auth_cache_expiration                                    = self::DEFAULT_AUTH_CACHE;
+		static::$supports_site_level_licenses_for_subfolder_multisite     = self::DEFAULT_MULTISITE_STATE;
+		static::$supports_site_level_licenses_for_subdomain_multisite     = self::DEFAULT_MULTISITE_STATE;
+		static::$supports_site_level_licenses_for_mapped_domain_multisite = self::DEFAULT_MULTISITE_STATE;
+		static::$supports_site_level_override_for_multisite_license       = self::DEFAULT_MULTISITE_STATE;
 
 		if ( self::has_container() ) {
 			self::$container->singleton( self::TOKEN_OPTION_NAME, null );
@@ -196,28 +228,35 @@ class Config {
 	}
 
 	/**
+	 * Set the token authorization expiration.
+	 *
+	 * @param  int  $seconds  The time seconds the cache will exist for.
+	 *                        -1 = disabled, 0 = no expiration.
+	 *
+	 * @return void
+	 */
+	public static function set_auth_cache_expiration( int $seconds ): void {
+		static::$auth_cache_expiration = $seconds;
+	}
+
+	/**
+	 * Get the token authorization expiration.
+	 *
+	 * @return int
+	 */
+	public static function get_auth_cache_expiration(): int {
+		return static::$auth_cache_expiration;
+	}
+
+	/**
 	 * Allow or disallow multisite subfolder licenses at the network level.
 	 *
 	 * @param  bool  $allowed
 	 *
 	 * @return void
 	 */
-	public static function set_network_subfolder_license( bool $allowed ): void {
-		self::$network_subfolder_license = $allowed;
-	}
-
-	/**
-	 * Whether your plugin allows multisite network subfolder licenses.
-	 *
-	 * @throws RuntimeException
-	 *
-	 * @return bool
-	 */
-	public static function allows_network_subfolder_license(): bool {
-		return (bool) apply_filters(
-			'stellarwp/uplink/' . Config::get_hook_prefix() . '/allows_network_subfolder_license',
-			self::$network_subfolder_license
-		);
+	public static function allow_site_level_licenses_for_subfolder_multisite( bool $allowed ): void {
+		static::$supports_site_level_licenses_for_subfolder_multisite = $allowed;
 	}
 
 	/**
@@ -227,22 +266,8 @@ class Config {
 	 *
 	 * @return void
 	 */
-	public static function set_network_subdomain_license( bool $allowed ): void {
-		self::$network_subdomain_license = $allowed;
-	}
-
-	/**
-	 * Whether your plugin allows multisite network subdomain licenses.
-	 *
-	 * @throws RuntimeException
-	 *
-	 * @return bool
-	 */
-	public static function allows_network_subdomain_license(): bool {
-		return (bool) apply_filters(
-			'stellarwp/uplink/' . Config::get_hook_prefix() . '/allows_network_subdomain_license',
-			self::$network_subdomain_license
-		);
+	public static function allow_site_level_licenses_for_subdomain_multisite( bool $allowed ): void {
+		static::$supports_site_level_licenses_for_subdomain_multisite = $allowed;
 	}
 
 	/**
@@ -252,8 +277,36 @@ class Config {
 	 *
 	 * @return void
 	 */
-	public static function set_network_domain_mapping_license( bool $allowed ): void {
-		self::$network_domain_mapping_license = $allowed;
+	public static function allow_site_level_licenses_for_mapped_domain_multisite( bool $allowed ): void {
+		static::$supports_site_level_licenses_for_mapped_domain_multisite = $allowed;
+	}
+
+	/**
+	 * Whether your plugin allows multisite network subfolder licenses.
+	 *
+	 * @throws RuntimeException
+	 *
+	 * @return bool
+	 */
+	public static function supports_site_level_licenses_for_subfolder_multisite(): bool {
+		return (bool) apply_filters(
+			'stellarwp/uplink/' . Config::get_hook_prefix() . '/supports_site_level_licenses_for_subfolder_multisite',
+			static::$supports_site_level_licenses_for_subfolder_multisite
+		);
+	}
+
+	/**
+	 * Whether your plugin allows multisite network subdomain licenses.
+	 *
+	 * @throws RuntimeException
+	 *
+	 * @return bool
+	 */
+	public static function supports_site_level_licenses_for_subdomain_multisite(): bool {
+		return (bool) apply_filters(
+			'stellarwp/uplink/' . Config::get_hook_prefix() . '/supports_site_level_licenses_for_subdomain_multisite',
+			static::$supports_site_level_licenses_for_subdomain_multisite
+		);
 	}
 
 	/**
@@ -263,28 +316,52 @@ class Config {
 	 *
 	 * @return bool
 	 */
-	public static function allows_network_domain_mapping_license(): bool {
+	public static function supports_site_level_licenses_for_mapped_domain_multisite(): bool {
 		return (bool) apply_filters(
-			'stellarwp/uplink/' . Config::get_hook_prefix() . '/allows_network_domain_mapping_license',
-			self::$network_domain_mapping_license
+			'stellarwp/uplink/' . Config::get_hook_prefix() . '/supports_site_level_licenses_for_mapped_domain_multisite',
+			static::$supports_site_level_licenses_for_mapped_domain_multisite
 		);
 	}
 
 	/**
-	 * Check if any of the network license options are enabled.
+	 * Check if any of the network licencing options are enabled.
 	 *
 	 * @throws RuntimeException
 	 *
 	 * @return bool
 	 */
-	public static function allows_network_licenses(): bool {
+	public static function supports_network_licenses(): bool {
 		$config = [
-			self::allows_network_subfolder_license(),
-			self::allows_network_subdomain_license(),
-			self::allows_network_domain_mapping_license(),
+			static::supports_site_level_licenses_for_subfolder_multisite(),
+			static::supports_site_level_licenses_for_subdomain_multisite(),
+			static::supports_site_level_licenses_for_mapped_domain_multisite(),
 		];
 
 		return in_array( true, $config, true );
+	}
+
+	/**
+	 * Enables a checkbox in the License Field so that you can use a local license key in place of
+	 * the network key.
+	 *
+	 * @param  bool  $allowed
+	 *
+	 * @return void
+	 */
+	public static function allow_site_level_override_for_multisite_license( bool $allowed ): void {
+		static::$supports_site_level_override_for_multisite_license = $allowed;
+	}
+
+	/**
+	 * If this instance allows site level license key overrides.
+	 *
+	 * @return bool
+	 */
+	public static function supports_site_level_override_for_multisite_license(): bool {
+		return (bool) apply_filters(
+			'stellarwp/uplink/' . Config::get_hook_prefix() . '/supports_site_level_override_for_multisite_license',
+			static::$supports_site_level_override_for_multisite_license
+		);
 	}
 
 }

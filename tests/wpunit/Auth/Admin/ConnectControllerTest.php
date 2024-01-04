@@ -105,7 +105,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 				$response->api_upgrade = 0;
 				$response->api_expired = 0;
 
-				return new Validation_Response( '123456', is_multisite() ? 'network' : 'local', $response, $plugin );
+				return new Validation_Response( '123456', $response, $plugin );
 			},
 		] );
 
@@ -139,7 +139,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		$this->assertSame( $token, $token_manager->get() );
-		$this->assertSame( $plugin->get_license_key( is_multisite() ? 'network' : 'local' ), $license );
+		$this->assertSame( $plugin->get_license_key(), $license );
 	}
 
 	public function test_it_does_not_store_with_an_invalid_nonce(): void {
@@ -261,7 +261,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		$this->assertSame( $token, $token_manager->get() );
-		$this->assertEmpty( $plugin->get_license_key( is_multisite() ? 'network' : 'local' ) );
+		$this->assertEmpty( $plugin->get_license_key() );
 	}
 
 	public function test_it_stores_token_but_not_license_without_a_valid_license(): void {
@@ -275,7 +275,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 				$response->api_upgrade = 0;
 				$response->api_expired = 1; // makes validation fail.
 
-				return new Validation_Response( '123456', is_multisite() ? 'network' : 'local', $response, $plugin );
+				return new Validation_Response( '123456', $response, $plugin );
 			},
 		] );
 
@@ -308,7 +308,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		$this->assertSame( $token, $token_manager->get() );
-		$this->assertEmpty( $plugin->get_license_key( is_multisite() ? 'network' : 'local' ) );
+		$this->assertEmpty( $plugin->get_license_key() );
 	}
 
 	/**
@@ -325,7 +325,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 				$response->api_upgrade = 0;
 				$response->api_expired = 0;
 
-				return new Validation_Response( '123456', 'network', $response, $plugin );
+				return new Validation_Response( '123456', $response, $plugin );
 			},
 		] );
 
@@ -341,7 +341,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		// Mock our sample plugin is network activated, otherwise license key check fails.
 		$this->mock_activate_plugin( 'uplink/index.php', true );
 
-		$this->assertEmpty( $plugin->get_license_key( 'network' ) );
+		$this->assertEmpty( $plugin->get_license_key() );
 
 		$token_manager = $this->token_manager_factory->make( $plugin );
 
@@ -368,7 +368,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		$this->assertSame( $token, $token_manager->get() );
-		$this->assertSame( $plugin->get_license_key( 'network' ), $license );
+		$this->assertSame( $plugin->get_license_key(), $license );
 	}
 
 	/**
@@ -385,7 +385,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 				$response->api_upgrade = 0;
 				$response->api_expired = 0;
 
-				return new Validation_Response( '123456', 'network', $response, $plugin );
+				return new Validation_Response( '123456', $response, $plugin );
 			},
 		] );
 
@@ -404,7 +404,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		// Mock our sample plugin is network activated, otherwise license key check fails.
 		$this->mock_activate_plugin( 'uplink/index.php', true );
 
-		$this->assertEmpty( $plugin->get_license_key( 'network' ) );
+		$this->assertEmpty( $plugin->get_license_key() );
 
 		$token_manager = $this->token_manager_factory->make( $plugin );
 
@@ -431,7 +431,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		$this->assertSame( $token, $token_manager->get() );
-		$this->assertSame( $plugin->get_license_key( 'network' ), $license );
+		$this->assertSame( $plugin->get_license_key(), $license );
 	}
 
 }

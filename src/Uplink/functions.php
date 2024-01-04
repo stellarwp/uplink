@@ -2,17 +2,20 @@
 
 namespace StellarWP\Uplink;
 
+use StellarWP\Uplink\API\V3\Auth\Contracts\Token_Authorizer;
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Admin\License_Field;
 use StellarWP\Uplink\API\V3\Auth\Contracts\Auth_Url;
-use StellarWP\Uplink\API\V3\Auth\Token_Authorizer;
 use StellarWP\Uplink\API\Validation_Response;
 use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
 use StellarWP\Uplink\Auth\Auth_Url_Builder;
 use StellarWP\Uplink\Auth\Authorizer;
-use StellarWP\Uplink\Auth\License\License_Manager;
 use StellarWP\Uplink\Auth\Token\Token_Factory;
 use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
+use StellarWP\Uplink\Components\Controller;
+use StellarWP\Uplink\License\Storage\File_Storage;
+use StellarWP\Uplink\License\Storage\Network_Storage;
+use StellarWP\Uplink\License\Storage\Local_Storage;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Resources\Plugin;
 use StellarWP\Uplink\Resources\Resource;
@@ -73,7 +76,9 @@ function get_authorization_token( string $slug ): ?string {
 }
 
 /**
- * Manually check if a license is authorized.
+ * Check if a license is authorized.
+ *
+ * @note This response may be cached.
  *
  * @param  string  $license  The license key.
  * @param  string  $token  The stored token.
@@ -83,9 +88,9 @@ function get_authorization_token( string $slug ): ?string {
  */
 function is_authorized( string $license, string $token, string $domain ): bool {
 	try {
-		return get_container()
-			->get( Token_Authorizer::class )
-			->is_authorized( $license, $token, $domain );
+		return Config::get_container()
+		             ->get( Token_Authorizer::class )
+		             ->is_authorized( $license, $token, $domain );
 	} catch ( Throwable $e ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( "An Authorization error occurred: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
@@ -147,7 +152,7 @@ function is_user_authorized(): bool {
 function build_auth_url( string $slug, string $domain = '' ): string {
 	try {
 		return get_container()->get( Auth_Url_Builder::class )
-		                              ->build( $slug, $domain );
+		                      ->build( $slug, $domain );
 	} catch ( Throwable $e ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( "Error building auth URL: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
@@ -171,28 +176,6 @@ function get_resource( string $slug ) {
 }
 
 /**
- * Compares the Uplink configuration to the current site this function is called on,
- * e.g. a sub-site to determine if the product supports multisite licenses.
- *
- * Not to be confused with Config::allows_network_licenses().
- *
- * @param  string|Resource|Plugin|Service  $slug_or_resource The product/service slug or a Resource object.
- *
- * @throws \RuntimeException
- *
- * @return bool
- */
-function allows_multisite_license( $slug_or_resource ): bool {
-	$resource = $slug_or_resource instanceof Resource ? $slug_or_resource : get_resource( $slug_or_resource );
-
-	if ( ! $resource ) {
-		return false;
-	}
-
-	return get_container()->get( License_Manager::class )->allows_multisite_license( $resource );
-}
-
-/**
  * A multisite aware license validation check.
  *
  * @param  string  $slug The plugin/service slug to validate against.
@@ -209,37 +192,141 @@ function validate_license( string $slug, string $license = '' ): ?Validation_Res
 		return null;
 	}
 
-	$license = $license ?: get_license_key( $slug );
-	$network = allows_multisite_license( $resource );
-
-	return $resource->validate_license( $license, $network );
+	return $resource->validate_license( $license );
 }
 
 /**
  * A multisite license aware way to get a resource's license key automatically
- * from the network or local site level.
+ * from the network, local site level or the file helper class which
+ * respects the configured license key strategy.
  *
  * @param  string  $slug  The plugin/service slug.
  *
  * @throws \RuntimeException
  *
- * @return string
+ * @return string|null
  */
-function get_license_key( string $slug ): string {
+function get_license_key( string $slug ): ?string {
 	$resource = get_resource( $slug );
 
 	if ( ! $resource ) {
-		return '';
+		return null;
 	}
 
-	$network = allows_multisite_license( $resource );
+	return $resource->get_license_key();
+}
 
-	return $resource->get_license_key( $network ? 'network' : 'local' );
+/**
+ * Get the underlying Network storage object to manipulate license keys directly.
+ * Prefer get_license_key() were possible, but if you need to manipulate the
+ * license keys without respecting Uplink Configuration/multisite, use this.
+ *
+ * @throws \RuntimeException
+ *
+ * @return Network_Storage
+ */
+function get_license_network_storage(): Network_Storage {
+	return get_container()->get( Network_Storage::class );
+}
+
+/**
+ * Get the underlying Single Site storage object to manipulate license keys directly.
+ * Prefer get_license_key() were possible, but if you need to manipulate the license
+ * keys without respecting Uplink Configuration/multisite, use this.
+ *
+ * @throws \RuntimeException
+ *
+ * @return Local_Storage
+ */
+function get_license_local_storage(): Local_Storage {
+	return get_container()->get( Local_Storage::class );
+}
+
+/**
+ * Get the raw license key from the network, ignoring any Uplink/multisite configuration.
+ *
+ * @note You should avoid this function unless you're doing something REALLY custom.
+ *
+ * @param  string  $slug The plugin/service slug.
+ *
+ * @throws \RuntimeException
+ *
+ * @return string|null
+ */
+function get_raw_network_license_key( string $slug ): ?string {
+	$resource = get_resource( $slug );
+
+	if ( ! $resource ) {
+		return null;
+	}
+
+	return get_license_network_storage()->get( $resource );
+}
+
+/**
+ * Get the raw license key from the current single site, ignoring any Uplink/multisite
+ * configuration.
+ *
+ * @note You should avoid this function unless you're doing something REALLY custom.
+ *
+ * @param  string  $slug The plugin/service slug.
+ *
+ * @throws \RuntimeException
+ *
+ * @return string|null
+ */
+function get_raw_local_license_key( string $slug ): ?string {
+	$resource = get_resource( $slug );
+
+	if ( ! $resource ) {
+		return null;
+	}
+
+	return get_license_local_storage()->get( $resource );
+}
+
+/**
+ * Get the embedded license key provided by the plugin's helper class.
+ *
+ * @param  string  $slug  The plugin/service slug.
+ *
+ * @throws \RuntimeException
+ *
+ * @return string|null
+ */
+function get_default_license_key( string $slug ): ?string {
+	$resource = get_resource( $slug );
+
+	if ( ! $resource ) {
+		return null;
+	}
+
+	return get_container()->get( File_Storage::class )->get( $resource );
+}
+
+/**
+ * Check if the current license key is the default key.
+ *
+ * @param  string  $slug The plugin/service slug.
+ *
+ * @throws \RuntimeException
+ *
+ * @return bool
+ */
+function is_default_license_key( string $slug ): bool {
+	$key      = get_license_key( $slug );
+	$file_key = get_default_license_key( $slug );
+
+	if ( $key === null && $file_key === null ) {
+		return false;
+	}
+
+	return $key === $file_key;
 }
 
 /**
  * A multisite license aware way to set a resource's license key automatically
- *  from the network or local site level.
+ * from the network or local site level.
  *
  * @param  string  $slug The plugin/service slug.
  * @param  string  $license The license key to store.
@@ -255,13 +342,33 @@ function set_license_key( string $slug, string $license ): bool {
 		return false;
 	}
 
-	$network = allows_multisite_license( $resource );
-	$result  = $resource->set_license_key( $license, $network ? 'network' : 'local' );
+	$result = $resource->set_license_key( $license );
 
 	// Force update the key status.
-	$resource->validate_license( $license, $network );
+	// TODO: we'll automate this via set_license_key
+	$resource->validate_license( $license );
 
 	return $result;
+}
+
+/**
+ * A multisite license aware way to delete a resource's license key automatically
+ * from the network or local site level which respects the configured license key strategy.
+ *
+ * @param  string  $slug The plugin/service slug.
+ *
+ * @throws \RuntimeException
+ *
+ * @return bool
+ */
+function delete_license_key( string $slug ): bool {
+	$resource = get_resource( $slug );
+
+	if ( ! $resource ) {
+		return false;
+	}
+
+	return $resource->delete_license_key();
 }
 
 /**
@@ -320,4 +427,21 @@ function get_license_field(): License_Field {
  */
 function get_auth_url( string $slug ): string {
 	return get_container()->get( Auth_Url::class )->get( $slug );
+}
+
+/**
+ * Renders a component.
+ *
+ * @param  class-string<Controller>|string  $controller  The controller's class name.
+ * @param  array<string, mixed>             $args        The arguments to pass to the controller's render method.
+ *
+ * @throws \RuntimeException
+ *
+ * @return void
+ */
+function render_component( string $controller, array $args ): void {
+	/** @var Controller $component */
+	$component = get_container()->get( $controller );
+
+	$component->render( $args );
 }

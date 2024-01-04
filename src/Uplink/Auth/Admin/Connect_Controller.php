@@ -3,12 +3,11 @@
 namespace StellarWP\Uplink\Auth\Admin;
 
 use StellarWP\Uplink\Auth\Authorizer;
-use StellarWP\Uplink\Auth\License\License_Manager;
 use StellarWP\Uplink\Auth\Nonce;
 use StellarWP\Uplink\Auth\Token\Connector;
 use StellarWP\Uplink\Auth\Token\Exceptions\InvalidTokenException;
-use StellarWP\Uplink\Notice\Notice_Handler;
 use StellarWP\Uplink\Notice\Notice;
+use StellarWP\Uplink\Notice\Notice_Handler;
 use StellarWP\Uplink\Resources\Collection;
 
 /**
@@ -38,11 +37,6 @@ final class Connect_Controller {
 	private $collection;
 
 	/**
-	 * @var License_Manager
-	 */
-	private $license_manager;
-
-	/**
 	 * @var Authorizer
 	 */
 	private $authorizer;
@@ -51,14 +45,12 @@ final class Connect_Controller {
 		Connector $connector,
 		Notice_Handler $notice,
 		Collection $collection,
-		License_Manager $license_manager,
 		Authorizer $authorizer
 	) {
-		$this->connector       = $connector;
-		$this->notice          = $notice;
-		$this->collection      = $collection;
-		$this->license_manager = $license_manager;
-		$this->authorizer      = $authorizer;
+		$this->connector  = $connector;
+		$this->notice     = $notice;
+		$this->collection = $collection;
+		$this->authorizer = $authorizer;
 	}
 
 	/**
@@ -136,8 +128,7 @@ final class Connect_Controller {
 
 		// Store or override an existing license.
 		if ( $license ) {
-			$network  = $this->license_manager->allows_multisite_license( $plugin );
-			$response = $plugin->validate_license( $license, $network );
+			$response = $plugin->validate_license( $license );
 
 			if ( ! $response->is_valid() ) {
 				$this->notice->add( new Notice( Notice::ERROR,
@@ -148,7 +139,7 @@ final class Connect_Controller {
 				return;
 			}
 
-			if ( ! $plugin->set_license_key( $license, $network ? 'network' : 'local' ) ) {
+			if ( ! $plugin->set_license_key( $license ) ) {
 				$this->notice->add( new Notice( Notice::ERROR,
 					__( 'Error storing license key.', '%TEXTDOMAIN%' ),
 				true

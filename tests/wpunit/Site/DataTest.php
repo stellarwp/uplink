@@ -75,10 +75,10 @@ class DataTest extends UplinkTestCase {
 	}
 
 	/**
-	 * If Config::allows_network_subfolder_license() is not enabled, subsites in subfolder
+	 * If Config::supports_site_level_licenses_for_subfolder_multisite() is not enabled, subsites in subfolder
 	 * mode must be unique, so include their subfolder path in the domain.
 	 *
-	 * @see Config::allows_network_subfolder_license()
+	 * @see Config::supports_site_level_licenses_for_subfolder_multisite()
 	 *
 	 * @env multisite
 	 */
@@ -116,7 +116,7 @@ class DataTest extends UplinkTestCase {
 	 * @env multisite
 	 */
 	public function test_it_returns_main_site_url_when_network_subfolders_are_allowed(): void {
-		Config::set_network_subfolder_license( true );
+		Config::allow_site_level_licenses_for_subfolder_multisite( true );
 		Uplink\Uplink::init();
 
 		$this->assertTrue( is_multisite() );
@@ -172,7 +172,7 @@ class DataTest extends UplinkTestCase {
 	 * @env multisite
 	 */
 	public function test_it_gets_main_domain_with_custom_subsite_domain_and_network_subfolders_enabled(): void {
-		Config::set_network_subfolder_license( true );
+		Config::allow_site_level_licenses_for_subfolder_multisite( true );
 		Uplink\Uplink::init();
 
 		$this->assertTrue( is_multisite() );
@@ -217,7 +217,7 @@ class DataTest extends UplinkTestCase {
 	 * @env multisite
 	 */
 	public function test_it_gets_main_domain_with_subdomain_and_network_subfolders_enabled(): void {
-		Config::set_network_subfolder_license( true );
+		Config::allow_site_level_licenses_for_subfolder_multisite( true );
 		Uplink\Uplink::init();
 
 		$this->assertTrue( is_multisite() );

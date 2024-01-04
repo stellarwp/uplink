@@ -48,4 +48,29 @@ abstract class Controller {
 		return implode( ' ', $classes );
 	}
 
+	/**
+	 * Format data attributes, escaped and ready for output in the view.
+	 *
+	 * @param  array<string, mixed>  $attributes An array of attributes indexed by their name.
+	 *
+	 * @return string
+	 */
+	protected function data_attr( array $attributes ): string {
+		if ( ! $attributes ) {
+			return '';
+		}
+
+		$formatted = [];
+
+		foreach ( $attributes as $name => $value ) {
+			$formatted[] = sprintf(
+				'data-%s="%s"',
+				esc_html( sanitize_html_class( $name ) ),
+				esc_attr( $value )
+			);
+		}
+
+		return implode( ' ', $formatted );
+	}
+
 }

@@ -24,7 +24,7 @@ final class CustomDomainMultisiteTokenMangerTest extends UplinkTestCase {
 		parent::setUp();
 
 		Config::set_token_auth_prefix( 'kadence_' );
-		Config::set_network_domain_mapping_license( true );
+		Config::allow_site_level_licenses_for_mapped_domain_multisite( true );
 
 		// Run init again to reload the Token/Provider.
 		Uplink::init();

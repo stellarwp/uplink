@@ -57,9 +57,8 @@ class Replacement_Key_Test extends UplinkTestCase {
 	 * @test
 	 */
 	public function should_not_update_license_key_if_replacement_key_not_provided(): void {
-		// Ensure there is no key set.
-		$this->resource->delete_license_key();
 		$validated_key = md5( microtime() );
+		$this->assertEmpty( $this->resource->get_license_key() );
 		$body = $this->service_mock->get_validate_key_success_body();
 		$mock_response = $this->service_mock->make_response( 200, $body, 'application/json' );
 		$this->service_mock->will_reply_to_request( 'POST', '/plugins/v2/license/validate', $mock_response );
@@ -76,16 +75,16 @@ class Replacement_Key_Test extends UplinkTestCase {
 	 * @test
 	 */
 	public function should_not_update_license_key_if_replacement_key_is_empty(): void {
-		// Ensure there is no key set.
-		$this->resource->delete_license_key();
 		$validated_key = md5( microtime() );
+		$this->assertEmpty( $this->resource->get_license_key() );
+
 		$body = $this->service_mock->get_validate_key_success_body();
 		// Add an empty replacement key to the response body.
 		$body['results'][0]['replacement_key'] = '';
 		$mock_response = $this->service_mock->make_response( 200, $body, 'application/json' );
 		$this->service_mock->will_reply_to_request( 'POST', '/plugins/v2/license/validate', $mock_response );
 
-		$result = $this->resource->validate_license( $validated_key );
+		$this->resource->validate_license( $validated_key );
 
 		$this->assertEquals( $validated_key, $this->resource->get_license_key() );
 	}
@@ -97,8 +96,7 @@ class Replacement_Key_Test extends UplinkTestCase {
 	 */
 	public function should_update_license_key_if_replacement_key_provided_and_key_not_previously_set(): void {
 		$validated_key = md5( microtime() );
-		// Ensure there is no key set.
-		$this->resource->delete_license_key();
+		$this->assertEmpty( $this->resource->get_license_key() );
 		// Set the response mock to provide a replacement key.
 		$replacement_key = '2222222222222222222222222222222222222222';
 		$body = $this->service_mock->get_validate_key_success_body();
@@ -107,7 +105,7 @@ class Replacement_Key_Test extends UplinkTestCase {
 		$mock_response = $this->service_mock->make_response( 200, $body, 'application/json' );
 		$this->service_mock->will_reply_to_request( 'POST', '/plugins/v2/license/validate', $mock_response );
 
-		$result = $this->resource->validate_license( $validated_key );
+		$this->resource->validate_license( $validated_key );
 
 		$this->assertEquals( $replacement_key, $this->resource->get_license_key() );
 	}
@@ -141,9 +139,7 @@ class Replacement_Key_Test extends UplinkTestCase {
 	 */
 	public function should_set_network_key_to_validated_key_when_not_previously_set_and_replacement_not_provided(): void {
 		$validated_key = md5( microtime() );
-		// Ensure there is no license key locally or network wide.
-		$this->resource->delete_license_key();
-		$this->resource->delete_license_key( 'network' );
+		$this->assertEmpty( $this->resource->get_license_key() );
 		$body = $this->service_mock->get_validate_key_success_body();
 		$mock_response = $this->service_mock->make_response( 200, $body, 'application/json' );
 		$this->service_mock->will_reply_to_request( 'POST', '/plugins/v2/license/validate', $mock_response );
@@ -158,9 +154,7 @@ class Replacement_Key_Test extends UplinkTestCase {
 	 */
 	public function should_set_network_key_to_validated_key_when_not_previously_set_and_replacement_key_empty(): void {
 		$validated_key = md5( microtime() );
-		// Ensure there is no license key locally or network wide.
-		$this->resource->delete_license_key();
-		$this->resource->delete_license_key( 'network' );
+		$this->assertEmpty( $this->resource->get_license_key() );
 		$body = $this->service_mock->get_validate_key_success_body();
 		// Add a replacement key to the response body.
 		$body['results'][0]['replacement_key'] = '';
@@ -177,9 +171,7 @@ class Replacement_Key_Test extends UplinkTestCase {
 	 */
 	public function should_set_network_key_to_provided_replacement_key_when_not_previously_set(): void {
 		$validated_key = md5( microtime() );
-		// Ensure there is no license key locally or network wide.
-		$this->resource->delete_license_key();
-		$this->resource->delete_license_key( 'network' );
+		$this->assertEmpty( $this->resource->get_license_key() );
 		$body = $this->service_mock->get_validate_key_success_body();
 		// Add a replacement key to the response body.
 		$replacement_key = '2222222222222222222222222222222222222222';
@@ -200,9 +192,8 @@ class Replacement_Key_Test extends UplinkTestCase {
 	 */
 	public function should_set_previously_set_network_key_to_replacement_key_if_provided() {
 		$validated_key = md5( microtime() );
-		// Ensure there is no license key locally or network wide.
-		$this->resource->delete_license_key();
-		$this->resource->delete_license_key( 'network' );
+		$this->assertEmpty( $this->resource->get_license_key() );
+
 		$body = $this->service_mock->get_validate_key_success_body();
 		// Add a replacement key to the response body.
 		$replacement_key = '2222222222222222222222222222222222222222';

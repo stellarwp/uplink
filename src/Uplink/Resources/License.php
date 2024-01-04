@@ -3,12 +3,13 @@
 namespace StellarWP\Uplink\Resources;
 
 use StellarWP\ContainerContract\ContainerInterface;
-use StellarWP\Uplink\Auth\License\License_Manager;
 use StellarWP\Uplink\Config;
+use StellarWP\Uplink\License\Storage\Storage_Handler;
 use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Utils;
 
 class License {
+
 	/**
 	 * How often to check for updates (in hours).
 	 *
@@ -61,15 +62,6 @@ class License {
 	protected $key_origin_code;
 
 	/**
-	 * Option prefix for the key.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var string
-	 */
-	public static $key_option_prefix = 'stellarwp_uplink_license_key_';
-
-	/**
 	 * Option prefix for the key status.
 	 *
 	 * @since 1.0.0
@@ -88,33 +80,58 @@ class License {
 	protected $resource;
 
 	/**
+	 * The storage handler.
+	 *
+	 * @var Storage_Handler
+	 */
+	protected $storage;
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Resource $resource The resource instance.
-	 * @param ContainerInterface|null $container Container instance.
+	 * @param  Resource                 $resource   The resource instance.
+	 * @param  ContainerInterface|null  $container  Container instance.
+	 *
+	 * @throws \RuntimeException
 	 */
 	public function __construct( Resource $resource, $container = null ) {
 		$this->resource  = $resource;
 		$this->container = $container ?: Config::get_container();
+		$this->storage   = $this->container->get( Storage_Handler::class );
 	}
 
 	/**
-	 * Deletes the key in site options.
+	 * Sets the key in site options.
+	 *
+	 * @TODO we should fire an action here to validate the key.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $type Type of key (network, local).
+	 * @param string $key License key.
 	 *
 	 * @return bool
 	 */
-	public function delete_key( string $type = 'local' ): bool {
-		if ( 'network' === $type && is_multisite() ) {
-			return delete_network_option( 0, $this->get_key_option_name() );
-		}
+	public function set_key( string $key ): bool {
+		$key = Utils\Sanitize::key( $key );
 
-		return delete_option( $this->get_key_option_name() );
+		$this->key = $key;
+
+		return $this->storage->store( $this->resource, $key );
+	}
+
+	/**
+	 * Deletes the license key from the appropriate storage location.
+	 *
+	 * @TODO we should fire an action here to validate the key.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return bool
+	 */
+	public function delete_key(): bool {
+		return $this->storage->delete( $this->resource );
 	}
 
 	/**
@@ -122,31 +139,13 @@ class License {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $type The type of key to get (any, network, local, default).
-	 *
 	 * @return string
 	 */
-	public function get_key( $type = 'any' ) {
-		if ( empty( $this->key ) && ( 'any' === $type || 'network' === $type ) ) {
-			$this->key = $this->get_key_from_network_option();
+	public function get_key(): string {
+		if ( empty( $this->key ) ) {
+			$this->key = $this->storage->get( $this->resource );
 
-			if ( ! empty( $this->key ) ) {
-				$this->key_origin = 'network_option';
-			}
-		}
-
-		if ( empty( $this->key ) && ( 'any' === $type || 'local' === $type ) ) {
-			$this->key = $this->get_key_from_option();
-
-			if ( ! empty( $this->key ) ) {
-				$this->key_origin = 'site_option';
-			}
-		}
-
-		if ( empty( $this->key ) && ( 'any' === $type || 'default' === $type ) ) {
-			$this->key = $this->get_key_from_license_file();
-
-			if ( ! empty( $this->key ) ) {
+			if ( $this->storage->is_original() ) {
 				$this->key_origin = 'file';
 			}
 		}
@@ -160,74 +159,18 @@ class License {
 		 */
 		$key = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_get_key', $this->key );
 
-		return $key ?: '';
+		return (string) $key;
 	}
 
 	/**
-	 * Get the license key from a class that holds the license key.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string|null
-	 */
-	protected function get_key_from_license_file() {
-		$license_class = $this->resource->get_license_class();
-		$key           = null;
-
-		if ( empty( $license_class ) ) {
-			return null;
-		}
-
-		if ( defined( $license_class . '::KEY' ) ) {
-			$key = $license_class::KEY;
-		} elseif ( defined( $license_class . '::DATA' ) ) {
-			$key = $license_class::DATA;
-		}
-
-		return $key;
-	}
-
-	/**
-	 * Get the license key from a network option.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string|null
-	 */
-	protected function get_key_from_network_option() {
-		if ( ! is_multisite() ) {
-			return null;
-		}
-
-		if ( ! $this->resource->is_network_activated() ) {
-			return null;
-		}
-
-		/** @var string|null */
-		return get_network_option( 0, $this->get_key_option_name(), null );
-	}
-
-	/**
-	 * Get the license key from an option.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string|null
-	 */
-	protected function get_key_from_option() {
-		/** @var string|null */
-		return get_option( $this->get_key_option_name(), null );
-	}
-
-	/**
-	 * Get the option name for the license key.
+	 * Get the license key from a class that holds the license key (aka the original key).
 	 *
 	 * @since 1.0.0
 	 *
 	 * @return string
 	 */
-	public function get_key_option_name(): string {
-		return static::$key_option_prefix . $this->resource->get_slug();
+	public function get_default_key(): ?string {
+		return (string) $this->storage->get_from_file( $this->resource );
 	}
 
 	/**
@@ -243,7 +186,7 @@ class License {
 		}
 
 		$key         = $this->get_key();
-		$default_key = $this->get_key( 'default' );
+		$default_key = $this->get_default_key();
 
 		if ( $key === $default_key ) {
 			$this->key_origin_code = 'o';
@@ -254,33 +197,6 @@ class License {
 		}
 
 		return $this->key_origin_code;
-	}
-
-	/**
-	 * Get the license key status from an option.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @return string|null
-	 */
-	protected function get_key_status(): ?string {
-		$network = $this->container->get( License_Manager::class )->allows_multisite_license( $this->resource );
-		$func    = 'get_option';
-
-		if ( $network ) {
-			$func = 'get_site_option';
-		}
-
-		/** @var string|null */
-		$status = $func( $this->get_key_status_option_name(), 'invalid' );
-		$key    = $this->get_key( $network ? 'network' : 'local' );
-
-		if ( null === $status && $key ) {
-			$this->resource->validate_license( $key, $network );
-			$status = $func( $this->get_key_status_option_name(), 'invalid' );
-		}
-
-		return $status;
 	}
 
 	/**
@@ -300,25 +216,28 @@ class License {
 	/**
 	 * Whether the plugin is network activated and licensed or not.
 	 *
+	 * @TODO remove this once override logic is complete.
+	 *
 	 * @since 1.0.0
 	 *
 	 * @return bool
 	 */
-	public function is_network_licensed() {
-		$is_network_licensed = false;
-
-		if ( ! is_network_admin() && $this->resource->is_network_activated() ) {
-			$network_key = $this->get_key( 'network' );
-			$local_key   = $this->get_key( 'local' );
-
-			// Check whether the network is licensed and NOT overridden by local license
-			if ( $network_key && ( empty( $local_key ) || $local_key === $network_key ) ) {
-				$is_network_licensed = true;
-			}
-		}
-
-		return $is_network_licensed;
-	}
+//	public function is_network_licensed() {
+//		$is_network_licensed = false;
+//
+//		if ( ! is_network_admin() && $this->resource->is_network_activated() ) {
+//			$network_key = $this->get_key( 'network' );
+//			$local_key   = $this->get_key( 'local' );
+//
+//			// Check whether the network is licensed and NOT overridden by local license
+//			// TODO: Need to account for this in the new system
+//			if ( $network_key && ( empty( $local_key ) || $local_key === $network_key ) ) {
+//				$is_network_licensed = true;
+//			}
+//		}
+//
+//		return $is_network_licensed;
+//	}
 
 	/**
 	 * Whether the plugin is validly licensed or not.
@@ -327,7 +246,7 @@ class License {
 	 *
 	 * @return bool
 	 */
-	public function is_valid() {
+	public function is_valid(): bool {
 		return 'valid' === $this->get_key_status();
 	}
 
@@ -349,41 +268,42 @@ class License {
 	 *
 	 * @return bool
 	 */
-	public function is_validation_expired() {
+	public function is_validation_expired(): bool {
 		$option_expiration = get_option( $this->get_key_status_option_name() . '_timeout', null );
 		return is_null( $option_expiration ) || ( time() > $option_expiration );
 	}
 
 	/**
-	 * Sets the key in site options.
+	 * Get the license key status from an option.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $key License key.
-	 * @param string $type Type of key (network, local).
-	 *
-	 * @return bool
+	 * @return string|null
 	 */
-	public function set_key( string $key, string $type = 'local' ): bool {
-		$key = Utils\Sanitize::key( $key );
+	protected function get_key_status(): ?string {
+		$network = $this->resource->uses_network_licensing();
+		$func    = 'get_option';
 
-		$this->key = $key;
+		if ( $network ) {
+			$func = 'get_site_option';
+		}
 
-		if ( 'network' === $type && is_multisite() && $this->resource->is_network_activated() ) {
-			// WordPress would otherwise return false if the keys already match.
-			if ( $this->get_key_from_network_option() === $key ) {
-				return true;
+		/** @var string|null $status */
+		$status = $func( $this->get_key_status_option_name(), null );
+		$key    = $this->get_key();
+
+		// If no status has been set, run the update again.
+		if ( null === $status && $key ) {
+			$this->resource->validate_license( $key );
+			$status = $func( $this->get_key_status_option_name(), null );
+
+			// If it still failed, default to invalid.
+			if ( null === $status ) {
+				$status = 'invalid';
 			}
-
-			return update_network_option( 0, $this->get_key_option_name(), $key );
 		}
 
-		// WordPress would otherwise return false if the keys already match.
-		if ( $this->get_key_from_option() === $key ) {
-			return true;
-		}
-
-		return update_option( $this->get_key_option_name(), $key );
+		return $status;
 	}
 
 	/**
@@ -391,13 +311,13 @@ class License {
 	 *
 	 * @since TBD
 	 *
-	 * @param int $valid 0 for invalid, 1 or 2 for valid.
+	 * @param int|bool|string $valid 0 for invalid, 1 or 2 for valid.
 	 *
 	 * @return void
 	 */
 	public function set_key_status( $valid ): void {
 		$status  = Utils\Checks::is_truthy( $valid ) ? 'valid' : 'invalid';
-		$network = $this->container->get( License_Manager::class )->allows_multisite_license( $this->resource );
+		$network = $this->resource->uses_network_licensing();
 		$timeout = $this->check_period * HOUR_IN_SECONDS;
 		$func    = 'update_option';
 
@@ -417,6 +337,6 @@ class License {
 	 * @return string
 	 */
 	public function __toString(): string {
-		return $this->get_key() ?: '';
+		return $this->get_key();
 	}
 }

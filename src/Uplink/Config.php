@@ -18,6 +18,13 @@ class Config {
 	public const DEFAULT_AUTH_CACHE = 21600;
 
 	/**
+	 * The default state for all multisite licensing options.
+	 *
+	 * @var bool
+	 */
+	public const DEFAULT_MULTISITE_STATE = false;
+
+	/**
 	 * Container object.
 	 *
 	 * @since 1.0.0
@@ -48,21 +55,21 @@ class Config {
 	 *
 	 * @var bool
 	 */
-	protected static $supports_site_level_licenses_for_subfolder_multisite = false;
+	protected static $supports_site_level_licenses_for_subfolder_multisite = self::DEFAULT_MULTISITE_STATE;
 
 	/**
 	 * Whether your plugin allows multisite subdomain licenses.
 	 *
 	 * @var bool
 	 */
-	protected static $supports_site_level_licenses_for_subdomain_multisite = false;
+	protected static $supports_site_level_licenses_for_subdomain_multisite = self::DEFAULT_MULTISITE_STATE;
 
 	/**
 	 * Whether your plugin allows multisite domain mapping licenses.
 	 *
 	 * @var bool
 	 */
-	protected static $supports_site_level_licenses_for_mapped_domain_multisite = false;
+	protected static $supports_site_level_licenses_for_mapped_domain_multisite = self::DEFAULT_MULTISITE_STATE;
 
 	/**
 	 * If true, enables a checkbox in the License Field so that you can use a local license key
@@ -70,7 +77,7 @@ class Config {
 	 *
 	 * @var bool
 	 */
-	protected static $supports_site_level_override_for_multisite_license = false;
+	protected static $supports_site_level_override_for_multisite_license = self::DEFAULT_MULTISITE_STATE;
 
 	/**
 	 * Get the container.
@@ -144,8 +151,12 @@ class Config {
 	 * @return void
 	 */
 	public static function reset(): void {
-		static::$hook_prefix           = '';
-		static::$auth_cache_expiration = self::DEFAULT_AUTH_CACHE;
+		static::$hook_prefix                                              = '';
+		static::$auth_cache_expiration                                    = self::DEFAULT_AUTH_CACHE;
+		static::$supports_site_level_licenses_for_subfolder_multisite     = self::DEFAULT_MULTISITE_STATE;
+		static::$supports_site_level_licenses_for_subdomain_multisite     = self::DEFAULT_MULTISITE_STATE;
+		static::$supports_site_level_licenses_for_mapped_domain_multisite = self::DEFAULT_MULTISITE_STATE;
+		static::$supports_site_level_override_for_multisite_license       = self::DEFAULT_MULTISITE_STATE;
 
 		if ( self::has_container() ) {
 			self::$container->singleton( self::TOKEN_OPTION_NAME, null );

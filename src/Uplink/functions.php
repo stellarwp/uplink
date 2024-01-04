@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink;
 
-use StellarWP\Uplink\API\V3\Auth\Token_Authorizer;
+use StellarWP\Uplink\API\V3\Auth\Contracts\Token_Authorizer;
 use StellarWP\Uplink\Auth\Auth_Url_Builder;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
@@ -48,7 +48,9 @@ function get_authorization_token(): ?string {
 }
 
 /**
- * Manually check if a license is authorized.
+ * Check if a license is authorized.
+ *
+ * @note This response may be cached.
  *
  * @param  string  $license  The license key.
  * @param  string  $token  The stored token.

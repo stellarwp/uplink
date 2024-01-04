@@ -12,7 +12,7 @@ use function StellarWP\Uplink\is_authorized;
 /**
  * Manages authorization.
  */
-final class Token_Authorizer {
+class Token_Authorizer implements Contracts\Token_Authorizer {
 
 	use With_Debugging;
 

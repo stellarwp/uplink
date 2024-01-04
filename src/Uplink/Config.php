@@ -18,6 +18,13 @@ class Config {
 	public const DEFAULT_AUTH_CACHE = 21600;
 
 	/**
+	 * The default state for all multisite licensing options.
+	 *
+	 * @var bool
+	 */
+	public const DEFAULT_MULTISITE_STATE = false;
+
+	/**
 	 * Container object.
 	 *
 	 * @since 1.0.0
@@ -48,21 +55,21 @@ class Config {
 	 *
 	 * @var bool
 	 */
-	protected static $network_subfolder_license = false;
+	protected static $network_subfolder_license = self::DEFAULT_MULTISITE_STATE;
 
 	/**
 	 * Whether your plugin allows multisite subdomain licenses.
 	 *
 	 * @var bool
 	 */
-	protected static $network_subdomain_license = false;
+	protected static $network_subdomain_license = self::DEFAULT_MULTISITE_STATE;
 
 	/**
 	 * Whether your plugin allows multisite domain mapping licenses.
 	 *
 	 * @var bool
 	 */
-	protected static $network_domain_mapping_license = false;
+	protected static $network_domain_mapping_license = self::DEFAULT_MULTISITE_STATE;
 
 	/**
 	 * Get the container.
@@ -136,8 +143,11 @@ class Config {
 	 * @return void
 	 */
 	public static function reset(): void {
-		static::$hook_prefix           = '';
-		static::$auth_cache_expiration = self::DEFAULT_AUTH_CACHE;
+		static::$hook_prefix                    = '';
+		static::$auth_cache_expiration          = self::DEFAULT_AUTH_CACHE;
+		static::$network_subfolder_license      = self::DEFAULT_MULTISITE_STATE;
+		static::$network_subdomain_license      = self::DEFAULT_MULTISITE_STATE;
+		static::$network_domain_mapping_license = self::DEFAULT_MULTISITE_STATE;
 
 		if ( self::has_container() ) {
 			self::$container->singleton( self::TOKEN_OPTION_NAME, null );

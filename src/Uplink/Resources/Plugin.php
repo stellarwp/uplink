@@ -66,6 +66,18 @@ class Plugin extends Resource {
 				if ( 'expired' === $results->get_result() ) {
 					$this->container->get( Notice::class )->add_notice( Notice::EXPIRED_KEY, $this->get_slug() );
 				}
+			} else {
+				/**
+				 * If the plugin is up to date, we need to add it to the `no_update` property so that enable auto updates can appear correctly in the UI.
+				 *
+				 * See this post for more information:
+				 * @link https://make.wordpress.org/core/2020/07/30/recommended-usage-of-the-updates-api-to-support-the-auto-updates-ui-for-plugins-and-themes-in-wordpress-5-5/
+				 */
+				/** @var \stdClass $transient */
+				if ( ! isset( $transient->no_update ) ) {
+					$transient->no_update = [];
+				}
+				$transient->no_update[ $this->get_path() ] = $results->get_update_details();
 			}
 
 			// In order to show relevant issues on plugins page parse response data and add it to transient

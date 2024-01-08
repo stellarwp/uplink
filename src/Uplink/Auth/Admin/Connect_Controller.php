@@ -83,6 +83,12 @@ final class Connect_Controller {
 		if ( ! $args ) {
 			return;
 		}
+		$slug   = $args[ self::SLUG ] ?? '';
+		$plugin = $this->collection->offsetGet( $slug );
+		// If the plugin is not found assume another instance is handling the request.
+		if ( ! $plugin ) {
+			return;
+		}
 
 		if ( ! $this->authorizer->can_auth() ) {
 			$this->notice->add( new Notice( Notice::ERROR,
@@ -96,18 +102,6 @@ final class Connect_Controller {
 		if ( ! Nonce::verify( $args[ self::NONCE ] ?? '' ) ) {
 			$this->notice->add( new Notice( Notice::ERROR,
 				__( 'Unable to save token data: nonce verification failed.', '%TEXTDOMAIN%' ),
-				true
-			) );
-
-			return;
-		}
-
-		$slug   = $args[ self::SLUG ] ?? '';
-		$plugin = $this->collection->offsetGet( $slug );
-
-		if ( ! $plugin ) {
-			$this->notice->add( new Notice( Notice::ERROR,
-				__( 'Plugin or Service slug not found.', '%TEXTDOMAIN%' ),
 				true
 			) );
 

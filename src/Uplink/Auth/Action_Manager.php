@@ -39,8 +39,8 @@ final class Action_Manager {
 		Collection $resources
 	) {
 		$this->disconnect_controller = $disconnect_controller;
-		$this->connect_controller = $connect_controller;
-		$this->resources = $resources;
+		$this->connect_controller    = $connect_controller;
+		$this->resources             = $resources;
 	}
 
 	/**

@@ -13,6 +13,8 @@ use StellarWP\Uplink\Resources\Resource;
  */
 final class Action_Manager {
 
+	public const ACTION = 'uplink_admin_action_%s';
+
 	/**
 	 * @var Disconnect_Controller
 	 */
@@ -51,7 +53,7 @@ final class Action_Manager {
 	 * @return string
 	 */
 	public function get_hook_name( Resource $resource ): string {
-		return sprintf( 'uplink_admin_action_%s', $resource->get_slug() );
+		return sprintf( self::ACTION, $resource->get_slug() );
 	}
 
 	/**
@@ -99,7 +101,7 @@ final class Action_Manager {
 		 * The dynamic portion of the hook name, `$action`, refers to
 		 * the action derived from the `GET` or `POST` request.
 		 */
-		do_action( "uplink_admin_action_$action" );
+		do_action( sprintf( self::ACTION, $action ) );
 	}
 
 }

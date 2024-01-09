@@ -4,6 +4,7 @@ namespace StellarWP\Uplink\Auth;
 
 use StellarWP\Uplink\Auth\Admin\Connect_Controller;
 use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Resources\Resource;
 
@@ -13,7 +14,7 @@ use StellarWP\Uplink\Resources\Resource;
  */
 final class Action_Manager {
 
-	public const ACTION = 'uplink_admin_action_%s';
+	public const ACTION = 'uplink_admin_action';
 
 	/**
 	 * @var Disconnect_Controller
@@ -48,12 +49,18 @@ final class Action_Manager {
 	/**
 	 * Get the resource's unique hook name.
 	 *
-	 * @param  Resource  $resource The resource.
+	 * @param  Resource  $resource  The resource.
+	 *
+	 * @throws \RuntimeException
 	 *
 	 * @return string
 	 */
 	public function get_hook_name( Resource $resource ): string {
-		return sprintf( self::ACTION, $resource->get_slug() );
+		return sprintf( 'stellarwp/uplink/%s/%s_%s',
+			Config::get_hook_prefix(),
+			self::ACTION,
+			$resource->get_slug()
+		);
 	}
 
 	/**
@@ -61,6 +68,8 @@ final class Action_Manager {
 	 * uniquely so as one plugin would not interfere with another.
 	 *
 	 * @action admin_init
+	 *
+	 * @throws \RuntimeException
 	 *
 	 * @return void
 	 */
@@ -86,6 +95,8 @@ final class Action_Manager {
 	 *
 	 * @action current_screen
 	 *
+	 * @throws \RuntimeException
+	 *
 	 * @return void
 	 */
 	public function do_action(): void {
@@ -101,7 +112,11 @@ final class Action_Manager {
 		 * The dynamic portion of the hook name, `$action`, refers to
 		 * the action derived from the `GET` or `POST` request.
 		 */
-		do_action( sprintf( self::ACTION, $action ) );
+		do_action( sprintf( 'stellarwp/uplink/%s/%s_%s',
+			Config::get_hook_prefix(),
+			self::ACTION,
+			$action
+		) );
 	}
 
 }

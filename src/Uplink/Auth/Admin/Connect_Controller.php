@@ -64,7 +64,7 @@ final class Connect_Controller {
 	/**
 	 * Store the token data passed back from the Origin site.
 	 *
-	 * @action uplink_admin_action_{$slug}
+	 * @action stellarwp/uplink/{$prefix}/uplink_admin_action_{$slug}
 	 *
 	 * @throws \RuntimeException
 	 */

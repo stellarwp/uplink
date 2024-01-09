@@ -59,7 +59,7 @@ final class Disconnect_Controller {
 	/**
 	 * Disconnect (delete) a token if the user is allowed to.
 	 *
-	 * @action uplink_admin_action_{$slug}
+	 * @action stellarwp/uplink/{$prefix}/uplink_admin_action_{$slug}
 	 *
 	 * @throws \RuntimeException
 	 *

@@ -59,7 +59,7 @@ final class Disconnect_Controller {
 	/**
 	 * Disconnect (delete) a token if the user is allowed to.
 	 *
-	 * @action admin_action_{Config::get_hook_prefix_underscored()}_{$slug}
+	 * @action admin_action_{$slug}
 	 *
 	 * @throws \RuntimeException
 	 *

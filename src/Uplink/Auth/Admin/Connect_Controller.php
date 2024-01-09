@@ -64,7 +64,7 @@ final class Connect_Controller {
 	/**
 	 * Store the token data passed back from the Origin site.
 	 *
-	 * @action admin_action_{Config::get_hook_prefix_underscored()}_{$slug}
+	 * @action admin_action_{$slug}
 	 *
 	 * @throws \RuntimeException
 	 */

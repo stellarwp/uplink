@@ -88,11 +88,11 @@ final class ConnectControllerTest extends UplinkTestCase {
 
 		$this->assertTrue( $screen->in_admin() );
 
-		// Fire off the admin_init action to register our admin_action_$hook_prefix_$slug actions.
+		// Fire off the admin_init action to register our admin_action_$slug actions.
 		do_action( 'admin_init' );
 
 		// Fire off the specification action tied to this slug.
-		do_action( sprintf( 'admin_action_%s_%s', Config::get_hook_prefix_underscored(), $this->slug ) );
+		do_action( sprintf( 'admin_action_%s', $this->slug ) );
 
 		$this->assertSame( $token, $token_manager->get() );
 	}
@@ -138,11 +138,11 @@ final class ConnectControllerTest extends UplinkTestCase {
 
 		$this->assertTrue( $screen->in_admin() );
 
-		// Fire off the admin_init action to register our admin_action_$hook_prefix_$slug actions.
+		// Fire off the admin_init action to register our admin_action_$slug actions.
 		do_action( 'admin_init' );
 
 		// Fire off the specification action tied to this slug.
-		do_action( sprintf( 'admin_action_%s_%s', Config::get_hook_prefix_underscored(), $this->slug ) );
+		do_action( sprintf( 'admin_action_%s', $this->slug ) );
 
 		$this->assertSame( $token, $token_manager->get() );
 		$this->assertSame( $plugin->get_license_key( is_multisite() ? 'network' : 'local' ), $license );
@@ -171,11 +171,11 @@ final class ConnectControllerTest extends UplinkTestCase {
 
 		$this->assertTrue( $screen->in_admin() );
 
-		// Fire off the admin_init action to register our admin_action_$hook_prefix_$slug actions.
+		// Fire off the admin_init action to register our admin_action_$slug actions.
 		do_action( 'admin_init' );
 
 		// Fire off the specification action tied to this slug.
-		do_action( sprintf( 'admin_action_%s_%s', Config::get_hook_prefix_underscored(), $this->slug ) );
+		do_action( sprintf( 'admin_action_%s', $this->slug ) );
 
 		$this->assertNull( $token_manager->get() );
 	}
@@ -204,11 +204,11 @@ final class ConnectControllerTest extends UplinkTestCase {
 
 		$this->assertTrue( $screen->in_admin() );
 
-		// Fire off the admin_init action to register our admin_action_$hook_prefix_$slug actions.
+		// Fire off the admin_init action to register our admin_action_$slug actions.
 		do_action( 'admin_init' );
 
 		// Fire off the specification action tied to this slug.
-		do_action( sprintf( 'admin_action_%s_%s', Config::get_hook_prefix_underscored(), $this->slug ) );
+		do_action( sprintf( 'admin_action_%s', $this->slug ) );
 
 		$this->assertNull( $token_manager->get() );
 	}
@@ -236,11 +236,11 @@ final class ConnectControllerTest extends UplinkTestCase {
 
 		$this->assertTrue( $screen->in_admin() );
 
-		// Fire off the admin_init action to register our admin_action_$hook_prefix_$slug actions.
+		// Fire off the admin_init action to register our admin_action_$slug actions.
 		do_action( 'admin_init' );
 
 		// Fire off the specification action tied to this slug.
-		do_action( sprintf( 'admin_action_%s_%s', Config::get_hook_prefix_underscored(), $this->slug ) );
+		do_action( sprintf( 'admin_action_%s', $this->slug ) );
 
 		$this->assertNull( $token_manager->get() );
 	}
@@ -272,11 +272,11 @@ final class ConnectControllerTest extends UplinkTestCase {
 
 		$this->assertTrue( $screen->in_admin() );
 
-		// Fire off the admin_init action to register our admin_action_$hook_prefix_$slug actions.
+		// Fire off the admin_init action to register our admin_action_$slug actions.
 		do_action( 'admin_init' );
 
 		// Fire off the specification action tied to this slug.
-		do_action( sprintf( 'admin_action_%s_%s', Config::get_hook_prefix_underscored(), $this->slug ) );
+		do_action( sprintf( 'admin_action_%s', $this->slug ) );
 
 		$this->assertSame( $token, $token_manager->get() );
 		$this->assertEmpty( $plugin->get_license_key( is_multisite() ? 'network' : 'local' ) );
@@ -322,11 +322,11 @@ final class ConnectControllerTest extends UplinkTestCase {
 
 		$this->assertTrue( $screen->in_admin() );
 
-		// Fire off the admin_init action to register our admin_action_$hook_prefix_$slug actions.
+		// Fire off the admin_init action to register our admin_action_$slug actions.
 		do_action( 'admin_init' );
 
 		// Fire off the specification action tied to this slug.
-		do_action( sprintf( 'admin_action_%s_%s', Config::get_hook_prefix_underscored(), $this->slug ) );
+		do_action( sprintf( 'admin_action_%s', $this->slug ) );
 
 		$this->assertSame( $token, $token_manager->get() );
 		$this->assertEmpty( $plugin->get_license_key( is_multisite() ? 'network' : 'local' ) );
@@ -385,11 +385,11 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$this->assertTrue( $screen->in_admin( 'network' ) );
 		$this->assertTrue( $screen->in_admin() );
 
-		// Fire off the admin_init action to register our admin_action_$hook_prefix_$slug actions.
+		// Fire off the admin_init action to register our admin_action_$slug actions.
 		do_action( 'admin_init' );
 
 		// Fire off the specification action tied to this slug.
-		do_action( sprintf( 'admin_action_%s_%s', Config::get_hook_prefix_underscored(), $this->slug ) );
+		do_action( sprintf( 'admin_action_%s', $this->slug ) );
 
 		$this->assertSame( $token, $token_manager->get() );
 		$this->assertSame( $plugin->get_license_key( 'network' ), $license );
@@ -451,11 +451,11 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$this->assertFalse( $screen->in_admin( 'network' ) );
 		$this->assertTrue( $screen->in_admin() );
 
-		// Fire off the admin_init action to register our admin_action_$hook_prefix_$slug actions.
+		// Fire off the admin_init action to register our admin_action_$slug actions.
 		do_action( 'admin_init' );
 
 		// Fire off the specification action tied to this slug.
-		do_action( sprintf( 'admin_action_%s_%s', Config::get_hook_prefix_underscored(), $this->slug ) );
+		do_action( sprintf( 'admin_action_%s', $this->slug ) );
 
 		$this->assertSame( $token, $token_manager->get() );
 		$this->assertSame( $plugin->get_license_key( 'network' ), $license );

@@ -98,20 +98,22 @@ final class Provider extends Abstract_Provider {
 		$this->container->singleton( Connect_Controller::class, Connect_Controller::class );
 
 		add_action( 'admin_init', function() {
-			$prefix = Config::get_hook_prefix_underscored();
-
 			// Register a unique hook for each resource slug, so they don't all fire off at once.
 			foreach ( $this->container->get( Collection::class ) as $resource ) {
-				$hook_name = sprintf( 'admin_action_%s_%s', $prefix, $resource->get_slug() );
+				$hook_name = sprintf( 'admin_action_%s', $resource->get_slug() );
 
 				add_action(
 					$hook_name,
-					[ $this->container->get( Disconnect_Controller::class ), 'maybe_disconnect' ]
+					[ $this->container->get( Disconnect_Controller::class ), 'maybe_disconnect' ],
+					1,
+					0
 				);
 
 				add_action(
 					$hook_name,
-					[ $this->container->get( Connect_Controller::class ), 'maybe_store_token_data' ]
+					[ $this->container->get( Connect_Controller::class ), 'maybe_store_token_data' ],
+					1,
+					0
 				);
 			}
 		} );

@@ -14,6 +14,7 @@ use StellarWP\Uplink\Auth\Token\Managers\Token_Manager;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\Pipeline\Pipeline;
+use StellarWP\Uplink\Resources\Collection;
 
 final class Provider extends Abstract_Provider {
 
@@ -41,8 +42,7 @@ final class Provider extends Abstract_Provider {
 
 		$this->register_nonce();
 		$this->register_license_manager();
-		$this->register_auth_disconnect();
-		$this->register_auth_connect();
+		$this->register_auth_connect_disconnect();
 	}
 
 	/**
@@ -89,25 +89,32 @@ final class Provider extends Abstract_Provider {
 	}
 
 	/**
-	 * Register auth disconnection definitions and hooks.
+	 * Register token auth connection/disconnection definitions and hooks.
 	 *
 	 * @return void
 	 */
-	private function register_auth_disconnect(): void {
+	private function register_auth_connect_disconnect(): void {
 		$this->container->singleton( Disconnect_Controller::class, Disconnect_Controller::class );
-
-		add_action( 'admin_init', [ $this->container->get( Disconnect_Controller::class ), 'maybe_disconnect' ], 9, 0 );
-	}
-
-	/**
-	 * Register auth connection definitions and hooks.
-	 *
-	 * @return void
-	 */
-	private function register_auth_connect(): void {
 		$this->container->singleton( Connect_Controller::class, Connect_Controller::class );
 
-		add_action( 'admin_init', [ $this->container->get( Connect_Controller::class ), 'maybe_store_token_data'], 9, 0 );
+		add_action( 'admin_init', function() {
+			$prefix = Config::get_hook_prefix_underscored();
+
+			// Register a unique hook for each resource slug, so they don't all fire off at once.
+			foreach ( $this->container->get( Collection::class ) as $resource ) {
+				$hook_name = sprintf( 'admin_action_%s_%s', $prefix, $resource->get_slug() );
+
+				add_action(
+					$hook_name,
+					[ $this->container->get( Disconnect_Controller::class ), 'maybe_disconnect' ]
+				);
+
+				add_action(
+					$hook_name,
+					[ $this->container->get( Connect_Controller::class ), 'maybe_store_token_data' ]
+				);
+			}
+		} );
 	}
 
 }

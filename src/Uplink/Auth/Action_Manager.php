@@ -14,7 +14,7 @@ use StellarWP\Uplink\Resources\Resource;
  */
 final class Action_Manager {
 
-	public const ACTION = 'uplink_admin_action';
+	public const ACTION = 'admin_action';
 
 	/**
 	 * @var Disconnect_Controller

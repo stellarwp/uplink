@@ -66,8 +66,8 @@ final class ActionManagerTest extends UplinkTestCase {
 		$plugin_1 = $this->container->get( Collection::class )->offsetGet( $this->slug_1 );
 		$plugin_2 = $this->container->get( Collection::class )->offsetGet( $this->slug_2 );
 
-		$this->assertSame( 'stellarwp/uplink/test/uplink_admin_action_sample-1', $this->action_manager->get_hook_name( $plugin_1 ) );
-		$this->assertSame( 'stellarwp/uplink/test/uplink_admin_action_sample-2', $this->action_manager->get_hook_name( $plugin_2 ) );
+		$this->assertSame( 'stellarwp/uplink/test/admin_action_sample-1', $this->action_manager->get_hook_name( $plugin_1 ) );
+		$this->assertSame( 'stellarwp/uplink/test/admin_action_sample-2', $this->action_manager->get_hook_name( $plugin_2 ) );
 	}
 
 	public function test_it_registers_and_fires_actions(): void {

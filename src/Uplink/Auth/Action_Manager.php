@@ -90,7 +90,7 @@ final class Action_Manager {
 	}
 
 	/**
-	 * When an `uplink_slug` query parameter is available, fire off the appropriaate
+	 * When an `uplink_slug` query parameter is available, fire off the appropriate
 	 * resource action.
 	 *
 	 * @action current_screen

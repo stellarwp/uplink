@@ -11,7 +11,6 @@ final class Disconnect_Controller {
 
 	public const ARG    = 'uplink_disconnect';
 	public const SLUG   = 'uplink_slug';
-	public const ACTION = 'action';
 
 	/**
 	 * @var Authorizer
@@ -54,14 +53,13 @@ final class Disconnect_Controller {
 		return wp_nonce_url( add_query_arg( [
 			self::ARG    => true,
 			self::SLUG   => $slug,
-			self::ACTION => $slug,
 		], get_admin_url( get_current_blog_id() ) ), self::ARG );
 	}
 
 	/**
 	 * Disconnect (delete) a token if the user is allowed to.
 	 *
-	 * @action admin_action_{$slug}
+	 * @action uplink_admin_action_{$slug}
 	 *
 	 * @throws \RuntimeException
 	 *

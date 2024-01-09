@@ -14,7 +14,6 @@ use StellarWP\Uplink\Auth\Token\Managers\Token_Manager;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\Pipeline\Pipeline;
-use StellarWP\Uplink\Resources\Collection;
 
 final class Provider extends Abstract_Provider {
 
@@ -96,27 +95,15 @@ final class Provider extends Abstract_Provider {
 	private function register_auth_connect_disconnect(): void {
 		$this->container->singleton( Disconnect_Controller::class, Disconnect_Controller::class );
 		$this->container->singleton( Connect_Controller::class, Connect_Controller::class );
+		$this->container->singleton( Action_Manager::class, Action_Manager::class );
 
-		add_action( 'admin_init', function() {
-			// Register a unique hook for each resource slug, so they don't all fire off at once.
-			foreach ( $this->container->get( Collection::class ) as $resource ) {
-				$hook_name = sprintf( 'admin_action_%s', $resource->get_slug() );
+		$action_manager = $this->container->get( Action_Manager::class );
 
-				add_action(
-					$hook_name,
-					[ $this->container->get( Disconnect_Controller::class ), 'maybe_disconnect' ],
-					1,
-					0
-				);
+		// Register a unique action for each resource slug.
+		add_action( 'admin_init', [ $action_manager, 'add_actions' ] );
 
-				add_action(
-					$hook_name,
-					[ $this->container->get( Connect_Controller::class ), 'maybe_store_token_data' ],
-					1,
-					0
-				);
-			}
-		} );
+		// Execute the above actions when an uplink_slug query variable and the current_screen hook is fired (which is run after admin_init).
+		add_action( 'current_screen', [ $action_manager, 'do_action' ], 10, 0 );
 	}
 
 }

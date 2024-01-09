@@ -5,6 +5,7 @@ namespace StellarWP\Uplink\Tests\Auth\Admin;
 use stdClass;
 use StellarWP\Uplink\API\Client;
 use StellarWP\Uplink\API\Validation_Response;
+use StellarWP\Uplink\Auth\Action_Manager;
 use StellarWP\Uplink\Auth\Admin\Connect_Controller;
 use StellarWP\Uplink\Auth\Nonce;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
@@ -92,7 +93,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		// Fire off the specification action tied to this slug.
-		do_action( sprintf( 'admin_action_%s', $this->slug ) );
+		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $plugin ) );
 
 		$this->assertSame( $token, $token_manager->get() );
 	}
@@ -142,7 +143,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		// Fire off the specification action tied to this slug.
-		do_action( sprintf( 'admin_action_%s', $this->slug ) );
+		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $plugin ) );
 
 		$this->assertSame( $token, $token_manager->get() );
 		$this->assertSame( $plugin->get_license_key( is_multisite() ? 'network' : 'local' ), $license );
@@ -175,7 +176,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		// Fire off the specification action tied to this slug.
-		do_action( sprintf( 'admin_action_%s', $this->slug ) );
+		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $plugin ) );
 
 		$this->assertNull( $token_manager->get() );
 	}
@@ -208,7 +209,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		// Fire off the specification action tied to this slug.
-		do_action( sprintf( 'admin_action_%s', $this->slug ) );
+		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $plugin ) );
 
 		$this->assertNull( $token_manager->get() );
 	}
@@ -240,7 +241,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		// Fire off the specification action tied to this slug.
-		do_action( sprintf( 'admin_action_%s', $this->slug ) );
+		do_action( sprintf( 'uplink_admin_action_%s', $this->slug ) );
 
 		$this->assertNull( $token_manager->get() );
 	}
@@ -276,7 +277,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		// Fire off the specification action tied to this slug.
-		do_action( sprintf( 'admin_action_%s', $this->slug ) );
+		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $plugin ) );
 
 		$this->assertSame( $token, $token_manager->get() );
 		$this->assertEmpty( $plugin->get_license_key( is_multisite() ? 'network' : 'local' ) );
@@ -326,7 +327,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		// Fire off the specification action tied to this slug.
-		do_action( sprintf( 'admin_action_%s', $this->slug ) );
+		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $plugin ) );
 
 		$this->assertSame( $token, $token_manager->get() );
 		$this->assertEmpty( $plugin->get_license_key( is_multisite() ? 'network' : 'local' ) );
@@ -389,7 +390,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		// Fire off the specification action tied to this slug.
-		do_action( sprintf( 'admin_action_%s', $this->slug ) );
+		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $plugin ) );
 
 		$this->assertSame( $token, $token_manager->get() );
 		$this->assertSame( $plugin->get_license_key( 'network' ), $license );
@@ -455,7 +456,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		// Fire off the specification action tied to this slug.
-		do_action( sprintf( 'admin_action_%s', $this->slug ) );
+		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $plugin ) );
 
 		$this->assertSame( $token, $token_manager->get() );
 		$this->assertSame( $plugin->get_license_key( 'network' ), $license );

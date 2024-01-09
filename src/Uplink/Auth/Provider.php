@@ -41,8 +41,7 @@ final class Provider extends Abstract_Provider {
 
 		$this->register_nonce();
 		$this->register_license_manager();
-		$this->register_auth_disconnect();
-		$this->register_auth_connect();
+		$this->register_auth_connect_disconnect();
 	}
 
 	/**
@@ -89,25 +88,22 @@ final class Provider extends Abstract_Provider {
 	}
 
 	/**
-	 * Register auth disconnection definitions and hooks.
+	 * Register token auth connection/disconnection definitions and hooks.
 	 *
 	 * @return void
 	 */
-	private function register_auth_disconnect(): void {
+	private function register_auth_connect_disconnect(): void {
 		$this->container->singleton( Disconnect_Controller::class, Disconnect_Controller::class );
-
-		add_action( 'admin_init', [ $this->container->get( Disconnect_Controller::class ), 'maybe_disconnect' ], 9, 0 );
-	}
-
-	/**
-	 * Register auth connection definitions and hooks.
-	 *
-	 * @return void
-	 */
-	private function register_auth_connect(): void {
 		$this->container->singleton( Connect_Controller::class, Connect_Controller::class );
+		$this->container->singleton( Action_Manager::class, Action_Manager::class );
 
-		add_action( 'admin_init', [ $this->container->get( Connect_Controller::class ), 'maybe_store_token_data'], 9, 0 );
+		$action_manager = $this->container->get( Action_Manager::class );
+
+		// Register a unique action for each resource slug.
+		add_action( 'admin_init', [ $action_manager, 'add_actions' ] );
+
+		// Execute the above actions when an uplink_slug query variable and the current_screen hook is fired (which is run after admin_init).
+		add_action( 'current_screen', [ $action_manager, 'do_action' ], 10, 0 );
 	}
 
 }

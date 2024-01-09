@@ -51,8 +51,8 @@ final class Disconnect_Controller {
 	 */
 	public function get_url( string $slug ): string {
 		return wp_nonce_url( add_query_arg( [
-			self::ARG    => true,
-			self::SLUG   => $slug,
+			self::ARG  => true,
+			self::SLUG => $slug,
 		], get_admin_url( get_current_blog_id() ) ), self::ARG );
 	}
 

@@ -241,7 +241,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		// Fire off the specification action tied to this slug.
-		do_action( sprintf( 'uplink_admin_action_%s', $this->slug ) );
+		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $plugin ) );
 
 		$this->assertNull( $token_manager->get() );
 	}

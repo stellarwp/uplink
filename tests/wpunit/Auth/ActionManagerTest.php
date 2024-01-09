@@ -83,9 +83,7 @@ final class ActionManagerTest extends UplinkTestCase {
 
 		foreach ( $collection as $resource ) {
 			$this->assertTrue( has_action( $this->action_manager->get_hook_name( $resource ) ) );
-		}
 
-		foreach ( $collection as $resource ) {
 			$_REQUEST[ Disconnect_Controller::SLUG ] = $resource->get_slug();
 
 			// Fire off current_screen, which runs our actions, normally this would run once, but we want to test them all.

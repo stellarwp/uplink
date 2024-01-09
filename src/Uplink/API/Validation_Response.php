@@ -275,7 +275,7 @@ class Validation_Response {
 		$update->url         = $this->response->homepage ?? '';
 		$update->tested      = $this->response->tested ?? '';
 		$update->requires    = $this->response->requires ?? '';
-		$update->package     = $this->response->download_url ? $this->response->download_url . '&key=' . urlencode( $this->get_key() ) : '';
+		$update->package     = ( $this->response->download_url ?? '' ) . ( $this->response->download_url ? '&key=' . urlencode( $this->get_key() ) : '' );
 
 		if ( ! empty( $this->response->upgrade_notice ) ) {
 			$update->upgrade_notice = $this->response->upgrade_notice;

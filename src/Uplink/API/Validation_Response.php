@@ -274,8 +274,19 @@ class Validation_Response {
 			return $this->handle_api_errors();
 		}
 
-		$update->id          = $this->response->id ?? '';
-		$update->plugin      = $this->response->plugin ?? '';
+		$id     = $this->response->id ?? '';
+		$plugin = $this->response->plugin ?? '';
+
+		if ( empty( $id ) ) {
+			$id = 'stellarwp/plugins/' . $this->response->slug;
+		}
+
+		if ( empty( $plugin ) ) {
+			$plugin = $this->resource->get_path();
+		}
+
+		$update->id          = $id;
+		$update->plugin      = $plugin;
 		$update->slug        = $this->response->slug ?? '';
 		$update->new_version = $this->response->version ?? '';
 		$update->url         = $this->response->homepage ?? '';

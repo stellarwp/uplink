@@ -276,9 +276,10 @@ class Validation_Response {
 
 		$id     = $this->response->id ?? '';
 		$plugin = $this->response->plugin ?? '';
+		$slug   = $this->response->slug ?? $this->resource->get_slug();
 
 		if ( empty( $id ) ) {
-			$id = 'stellarwp/plugins/' . $this->response->slug ?? $this->resource->get_slug();
+			$id = 'stellarwp/plugins/' . $slug;
 		}
 
 		if ( empty( $plugin ) ) {
@@ -287,7 +288,7 @@ class Validation_Response {
 
 		$update->id          = $id;
 		$update->plugin      = $plugin;
-		$update->slug        = $this->response->slug ?? '';
+		$update->slug        = $slug;
 		$update->new_version = $this->response->version ?? '';
 		$update->url         = $this->response->homepage ?? '';
 		$update->tested      = $this->response->tested ?? '';

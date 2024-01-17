@@ -54,7 +54,8 @@ class Plugin extends Resource {
 		$results        = $this->validate_license();
 		$status->update = $results->get_raw_response();
 
-		if ( null !== $status->update ) {
+		// Prevent an empty class from being saved in the $transient.
+		if ( isset( $status->update->version ) ) {
 			if ( version_compare( $this->get_version_from_response( $results ), $this->get_installed_version(), '>' ) ) {
 				/** @var \stdClass $transient */
 				if ( ! isset( $transient->response ) ) {
@@ -62,6 +63,19 @@ class Plugin extends Resource {
 				}
 
 				$transient->response[ $this->get_path() ] = $results->get_update_details();
+				// Stellar License never sends an ID, so we need to add it.
+				if ( empty( $transient->response[ $this->get_path() ]->id ) ) {
+					$transient->response[ $this->get_path() ]->id = 'stellarwp/plugins/' . $this->get_slug();
+				}
+				// Stellar License never sends a plugin, so we need to add it.
+				if ( empty( $transient->response[ $this->get_path() ]->plugin ) ) {
+					$transient->response[ $this->get_path() ]->plugin = $this->get_path();
+				}
+
+				// Clear the no_update property if it exists.
+				if ( isset( $transient->no_update[ $this->get_path() ] ) ) {
+					unset( $transient->no_update[ $this->get_path() ] );
+				}
 
 				if ( 'expired' === $results->get_result() ) {
 					$this->container->get( Notice::class )->add_notice( Notice::EXPIRED_KEY, $this->get_slug() );
@@ -78,6 +92,14 @@ class Plugin extends Resource {
 					$transient->no_update = [];
 				}
 				$transient->no_update[ $this->get_path() ] = $results->get_update_details();
+				// Stellar License never sends an ID, so we need to add it.
+				if ( empty( $transient->no_update[ $this->get_path() ]->id ) ) {
+					$transient->no_update[ $this->get_path() ]->id = 'stellarwp/plugins/' . $this->get_slug();
+				}
+				// Stellar License never sends a plugin, so we need to add it.
+				if ( empty( $transient->no_update[ $this->get_path() ]->plugin ) ) {
+					$transient->no_update[ $this->get_path() ]->plugin = $this->get_path();
+				}
 			}
 
 			// In order to show relevant issues on plugins page parse response data and add it to transient

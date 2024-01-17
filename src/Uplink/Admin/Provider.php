@@ -181,14 +181,18 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string       $source        File source location.
-	 * @param mixed        $remote_source Remote file source location.
-	 * @param \WP_Upgrader $upgrader      WP_Upgrader instance.
-	 * @param array        $extras        Extra arguments passed to hooked filters.
+	 * @param string|\WP_Error $source        File source location or a WP_Error.
+	 * @param mixed            $remote_source Remote file source location.
+	 * @param \WP_Upgrader     $upgrader      WP_Upgrader instance.
+	 * @param array            $extras        Extra arguments passed to hooked filters.
 	 *
 	 * @return string|\WP_Error
 	 */
 	public function filter_upgrader_source_selection_for_update_prevention( $source, $remote_source, $upgrader, $extras ) {
+		if ( is_wp_error( $source ) ) {
+			return $source;
+		}
+
 		return $this->container->get( Update_Prevention::class )->filter_upgrader_source_selection( $source, $remote_source, $upgrader, $extras );
 	}
 }

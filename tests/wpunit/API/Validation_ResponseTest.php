@@ -38,7 +38,7 @@ class Validation_ResponseTest extends UplinkTestCase {
 		$result = new Validation_Response( 'aaa11', 'local', $this->get_dummy_valid_response(), $this->resource );
 		$update = $result->get_update_details();
 
-		$this->assertEquals( '', $update->id );
+		$this->assertEquals( 'stellarwp/plugins/sample', $update->id );
 		$this->assertEquals( '', $update->plugin );
 		$this->assertEquals( 'sample', $update->slug );
 		$this->assertEquals( '1.0.10', $update->new_version );

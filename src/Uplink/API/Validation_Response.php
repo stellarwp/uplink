@@ -276,10 +276,13 @@ class Validation_Response {
 
 		$id     = $this->response->id ?? '';
 		$plugin = $this->response->plugin ?? '';
-		$slug   = $this->response->slug ?? $this->resource->get_slug();
+		$slug   = $this->response->slug ?? '';
 
 		if ( empty( $id ) ) {
-			$id = 'stellarwp/plugins/' . $slug;
+			$id = sprintf(
+				'stellarwp/plugins/%s',
+				empty( $slug ) ? $this->resource->get_slug() : $slug
+			);
 		}
 
 		if ( empty( $plugin ) ) {

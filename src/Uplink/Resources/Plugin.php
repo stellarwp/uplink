@@ -44,6 +44,11 @@ class Plugin extends Resource {
 			return $transient;
 		}
 
+		// Allow .org plugins to opt out of update checks.
+		if ( apply_filters( 'stellarwp/uplink/' . $this->get_slug() . '/prevent_update_check', false ) ) {
+			return $transient;
+		}
+
 		$status                  = $this->get_update_status( $force_fetch );
 		$status->last_check      = time();
 		$status->checked_version = $this->get_installed_version();
@@ -67,6 +72,10 @@ class Plugin extends Resource {
 					$this->container->get( Notice::class )->add_notice( Notice::EXPIRED_KEY, $this->get_slug() );
 				}
 			} else {
+				// Clean up any stale update info.
+				if ( isset( $transient->response[ $this->get_path() ] ) ) {
+					unset( $transient->response[ $this->get_path() ] );
+				}
 				/**
 				 * If the plugin is up to date, we need to add it to the `no_update` property so that enable auto updates can appear correctly in the UI.
 				 *

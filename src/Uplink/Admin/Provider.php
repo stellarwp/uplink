@@ -190,11 +190,7 @@ class Provider extends Abstract_Provider {
 	 */
 	public function filter_upgrader_source_selection_for_update_prevention( $source, $remote_source, $upgrader, $extras ) {
 		if ( is_wp_error( $source ) ) {
-			return new \WP_Error(
-				'stellarwp-uplink-updater-failed-prevention',
-				esc_html__( 'Your update failed due to an unknown error.', '%TEXTDOMAIN%' ),
-				[]
-			);
+			return source;
 		}
 
 		return $this->container->get( Update_Prevention::class )->filter_upgrader_source_selection( $source, $remote_source, $upgrader, $extras );

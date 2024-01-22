@@ -276,7 +276,7 @@ if ( ! $token || ! $license_key || ! $domain ) {
 	return; // or, log/show errors.
 }
 
-$is_authorized = \StellarWP\Uplink\is_authorized( $license_key, $token, $domain );
+$is_authorized = \StellarWP\Uplink\is_authorized( $license_key, 'my-plugin-slug', $token, $domain );
 
 echo $is_authorized ? esc_html__( 'authorized' ) : esc_html__( 'not authorized' );
 ```

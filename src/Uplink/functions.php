@@ -116,7 +116,7 @@ function is_authorized_by_resource( string $slug ): bool {
 			return false;
 		}
 
-		return is_authorized( $license, $token, $domain );
+		return is_authorized( $license, $slug, $token, $domain );
 	} catch ( Throwable $e ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( "An Authorization error occurred: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );

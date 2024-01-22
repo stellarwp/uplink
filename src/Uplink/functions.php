@@ -78,16 +78,17 @@ function get_authorization_token( string $slug ): ?string {
  * @note This response may be cached.
  *
  * @param  string  $license  The license key.
- * @param  string  $token  The stored token.
- * @param  string  $domain  The user's license domain.
+ * @param  string  $slug     The plugin/service slug.
+ * @param  string  $token    The stored token.
+ * @param  string  $domain   The user's license domain.
  *
  * @return bool
  */
-function is_authorized( string $license, string $token, string $domain ): bool {
+function is_authorized( string $license, string $slug, string $token, string $domain ): bool {
 	try {
 		return get_container()
 			->get( Token_Authorizer::class )
-			->is_authorized( $license, $token, $domain );
+			->is_authorized( $license, $slug, $token, $domain );
 	} catch ( Throwable $e ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( "An Authorization error occurred: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );

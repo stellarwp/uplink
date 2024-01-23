@@ -40,7 +40,7 @@ final class AuthorizerTest extends UplinkTestCase {
 
 		$this->container->bind( Client_V3::class, $clientMock );
 
-		$authorizer = $this->container->get( Token_Authorizer::class )->is_authorized( '1234', 'dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840', 'test.com' );
+		$authorizer = $this->container->get( Token_Authorizer::class )->is_authorized( '1234', 'kadence-blocks-pro', 'dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840', 'test.com' );
 
 		$this->assertTrue( $authorizer );
 	}
@@ -59,7 +59,7 @@ final class AuthorizerTest extends UplinkTestCase {
 
 		$this->container->bind( Client_V3::class, $clientMock );
 
-		$authorizer = $this->container->get( Token_Authorizer::class )->is_authorized( 'invalid-license-key', 'dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840', 'test.com' );
+		$authorizer = $this->container->get( Token_Authorizer::class )->is_authorized( 'invalid-license-key', 'kadence-blocks-pro', 'dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840', 'test.com' );
 
 		$this->assertFalse( $authorizer );
 	}
@@ -78,7 +78,7 @@ final class AuthorizerTest extends UplinkTestCase {
 
 		$this->container->bind( Client_V3::class, $clientMock );
 
-		$authorizer = $this->container->get( Token_Authorizer::class )->is_authorized( '1234', 'invalid', 'test.com' );
+		$authorizer = $this->container->get( Token_Authorizer::class )->is_authorized( '1234', 'kadence-blocks-pro', 'invalid', 'test.com' );
 
 		$this->assertFalse( $authorizer );
 	}

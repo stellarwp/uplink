@@ -49,20 +49,21 @@ final class Token_Authorizer_Cache_Decorator implements Contracts\Token_Authoriz
 	 * @see Token_Authorizer
 	 *
 	 * @param  string  $license  The license key.
+	 * @param  string  $slug     The plugin/service slug.
 	 * @param  string  $token    The stored token.
 	 * @param  string  $domain   The user's domain.
 	 *
 	 * @return bool
 	 */
-	public function is_authorized( string $license, string $token, string $domain ): bool {
-		$transient     = $this->build_transient( [ $license, $token, $domain ] );
+	public function is_authorized( string $license, string $slug, string $token, string $domain ): bool {
+		$transient     = $this->build_transient( [ $token ] );
 		$is_authorized = get_transient( $transient );
 
 		if ( $is_authorized === true ) {
 			return true;
 		}
 
-		$is_authorized = $this->authorizer->is_authorized( $license, $token, $domain );
+		$is_authorized = $this->authorizer->is_authorized( $license, $slug, $token, $domain );
 
 		// Only cache successful responses.
 		if ( $is_authorized ) {
@@ -75,12 +76,23 @@ final class Token_Authorizer_Cache_Decorator implements Contracts\Token_Authoriz
 	/**
 	 * Build a transient key.
 	 *
-	 * @param  array<int, string>  ...$args
+	 * @param  array<int, string>  $args
 	 *
 	 * @return string
 	 */
-	public function build_transient( array ...$args ): string {
-		return self::TRANSIENT_PREFIX . hash( 'sha256', json_encode( $args ) );
+	public function build_transient( array $args ): string {
+		return self::TRANSIENT_PREFIX . $this->build_transient_no_prefix( $args );
+	}
+
+	/**
+	 * Build a transient key without the prefix.
+	 *
+	 * @param  array  $args
+	 *
+	 * @return string
+	 */
+	public function build_transient_no_prefix( array $args ): string {
+		return hash( 'sha256', json_encode( $args ) );
 	}
 
 }

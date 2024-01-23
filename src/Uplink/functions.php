@@ -78,16 +78,17 @@ function get_authorization_token( string $slug ): ?string {
  * @note This response may be cached.
  *
  * @param  string  $license  The license key.
- * @param  string  $token  The stored token.
- * @param  string  $domain  The user's license domain.
+ * @param  string  $slug     The plugin/service slug.
+ * @param  string  $token    The stored token.
+ * @param  string  $domain   The user's license domain.
  *
  * @return bool
  */
-function is_authorized( string $license, string $token, string $domain ): bool {
+function is_authorized( string $license, string $slug, string $token, string $domain ): bool {
 	try {
 		return get_container()
 			->get( Token_Authorizer::class )
-			->is_authorized( $license, $token, $domain );
+			->is_authorized( $license, $slug, $token, $domain );
 	} catch ( Throwable $e ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( "An Authorization error occurred: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
@@ -115,7 +116,7 @@ function is_authorized_by_resource( string $slug ): bool {
 			return false;
 		}
 
-		return is_authorized( $license, $token, $domain );
+		return is_authorized( $license, $slug, $token, $domain );
 	} catch ( Throwable $e ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( "An Authorization error occurred: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
@@ -297,7 +298,13 @@ function get_license_domain(): string {
  * @return string
  */
 function get_disconnect_url( string $slug ): string {
-	return get_container()->get( Disconnect_Controller::class )->get_url( $slug );
+	$resource = get_resource( $slug );
+
+	if ( ! $resource ) {
+		return '';
+	}
+
+	return get_container()->get( Disconnect_Controller::class )->get_url( $resource );
 }
 
 /**

@@ -116,7 +116,7 @@ final class Authorize_Button_Controller extends Controller {
 			$authenticated = true;
 			$target        = '_self';
 			$link_text     = __( 'Disconnect', '%TEXTDOMAIN%' );
-			$url           = $this->disconnect_controller->get_url( $slug );
+			$url           = $this->disconnect_controller->get_url( $plugin );
 			$classes[1]    = 'authorized';
 		}
 

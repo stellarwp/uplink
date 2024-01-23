@@ -31,16 +31,26 @@ final class Disconnector {
 	/**
 	 * Delete a token if the current user is allowed to.
 	 *
-	 * @param  string  $slug  The plugin or service slug.
+	 * @param  string  $slug       The plugin or service slug.
+	 * @param  string  $cache_key  The token cache key.
+	 *
+	 * @return bool
 	 */
-	public function disconnect( string $slug ): bool {
+	public function disconnect( string $slug, string $cache_key ): bool {
 		$plugin = $this->resources->offsetGet( $slug );
 
 		if ( ! $plugin ) {
 			return false;
 		}
 
-		return $this->token_manager_factory->make( $plugin )->delete();
+		$result = $this->token_manager_factory->make( $plugin )->delete();
+
+		if ( $result ) {
+			// Delete the authorization cache.
+			delete_transient( $cache_key );
+		}
+
+		return $result;
 	}
 
 }

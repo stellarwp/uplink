@@ -298,7 +298,13 @@ function get_license_domain(): string {
  * @return string
  */
 function get_disconnect_url( string $slug ): string {
-	return get_container()->get( Disconnect_Controller::class )->get_url( $slug );
+	$resource = get_resource( $slug );
+
+	if ( ! $resource ) {
+		return '';
+	}
+
+	return get_container()->get( Disconnect_Controller::class )->get_url( $resource );
 }
 
 /**

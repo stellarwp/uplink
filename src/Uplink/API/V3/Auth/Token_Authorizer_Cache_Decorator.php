@@ -56,7 +56,7 @@ final class Token_Authorizer_Cache_Decorator implements Contracts\Token_Authoriz
 	 * @return bool
 	 */
 	public function is_authorized( string $license, string $slug, string $token, string $domain ): bool {
-		$transient     = $this->build_transient( [ $license, $slug, $token, $domain ] );
+		$transient     = $this->build_transient( [ $license, $token, $domain ] );
 		$is_authorized = get_transient( $transient );
 
 		if ( $is_authorized === true ) {

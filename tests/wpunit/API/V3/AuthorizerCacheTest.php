@@ -25,7 +25,7 @@ final class AuthorizerCacheTest extends UplinkTestCase {
 		$this->container->bind( \StellarWP\Uplink\API\V3\Auth\Token_Authorizer::class, $authorizer_mock );
 
 		$decorator = $this->container->get( Token_Authorizer::class );
-		$transient = $decorator->build_transient( [ '1234', 'dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840', 'test.com' ] );
+		$transient = $decorator->build_transient( [ 'dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840' ] );
 
 		// No cache should exist.
 		$this->assertFalse( get_transient( $transient ) );
@@ -49,7 +49,7 @@ final class AuthorizerCacheTest extends UplinkTestCase {
 		$this->container->bind( \StellarWP\Uplink\API\V3\Auth\Token_Authorizer::class, $authorizer_mock );
 
 		$decorator = $this->container->get( Token_Authorizer::class );
-		$transient = $decorator->build_transient( [ '1234', 'dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840', 'test.com' ] );
+		$transient = $decorator->build_transient( [ 'dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840' ] );
 
 		// No cache should exist.
 		$this->assertFalse( get_transient( $transient ) );

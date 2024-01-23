@@ -76,12 +76,23 @@ final class Token_Authorizer_Cache_Decorator implements Contracts\Token_Authoriz
 	/**
 	 * Build a transient key.
 	 *
-	 * @param  array<int, string>  ...$args
+	 * @param  array<int, string>  $args
 	 *
 	 * @return string
 	 */
-	public function build_transient( array ...$args ): string {
-		return self::TRANSIENT_PREFIX . hash( 'sha256', json_encode( $args ) );
+	public function build_transient( array $args ): string {
+		return self::TRANSIENT_PREFIX . $this->build_transient_no_prefix( $args );
+	}
+
+	/**
+	 * Build a transient key without the prefix.
+	 *
+	 * @param  array  $args
+	 *
+	 * @return string
+	 */
+	public function build_transient_no_prefix( array $args ): string {
+		return hash( 'sha256', json_encode( $args ) );
 	}
 
 }

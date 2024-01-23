@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Auth\Token;
 
+use StellarWP\Uplink\API\V3\Auth\Token_Authorizer_Cache_Decorator;
 use StellarWP\Uplink\Resources\Collection;
 
 final class Disconnector {
@@ -47,7 +48,7 @@ final class Disconnector {
 
 		if ( $result ) {
 			// Delete the authorization cache.
-			delete_transient( $cache_key );
+			delete_transient( Token_Authorizer_Cache_Decorator::TRANSIENT_PREFIX . $cache_key );
 		}
 
 		return $result;

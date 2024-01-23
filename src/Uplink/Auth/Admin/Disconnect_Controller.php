@@ -76,7 +76,7 @@ final class Disconnect_Controller {
 			return '';
 		}
 
-		$cache_key = $this->cache->build_transient( [ $token ] );
+		$cache_key = $this->cache->build_transient_no_prefix( [ $token ] );
 
 		return wp_nonce_url( add_query_arg( [
 			self::ARG       => true,

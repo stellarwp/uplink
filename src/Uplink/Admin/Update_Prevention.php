@@ -50,14 +50,14 @@ class Update_Prevention {
 	 *
 	 * @since  4.9.12
 	 *
-	 * @param string       $source        File source location.
-	 * @param mixed        $remote_source Remote file source location.
-	 * @param WP_Upgrader  $upgrader      WP_Upgrader instance.
-	 * @param array<mixed> $extras         Extra arguments passed to hooked filters.
+	 * @param string|WP_Error $source        File source location.
+	 * @param mixed           $remote_source Remote file source location.
+	 * @param WP_Upgrader     $upgrader      WP_Upgrader instance.
+	 * @param array<mixed>    $extras         Extra arguments passed to hooked filters.
 	 *
 	 * @return string|WP_Error
 	 */
-	public function filter_upgrader_source_selection( string $source, $remote_source, WP_Upgrader $upgrader, array $extras ) {
+	public function filter_upgrader_source_selection( $source, $remote_source, WP_Upgrader $upgrader, array $extras ) {
 		if ( ! isset( $extras['plugin'] ) ) {
 			return $source;
 		}

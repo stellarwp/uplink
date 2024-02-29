@@ -89,7 +89,9 @@ jobs:
       - name: Install specific WordPress version ${{ matrix.wordpress }}
         run: |
             ${SLIC_BIN} wp core download --version=${{ matrix.wordpress }} --force
-            ${SLIC_BIN} wp core version
+
+      - name: Show WordPress version
+        run: ${SLIC_BIN} wp core version
 
       - name: Update installed WordPress themes
         run: ${SLIC_BIN} wp theme update --all

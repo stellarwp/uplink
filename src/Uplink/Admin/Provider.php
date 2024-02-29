@@ -150,11 +150,11 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param bool         $reply      Whether to bail without returning the package.
-	 *                                 Default false.
-	 * @param string       $package    The package file name or URL.
-	 * @param \WP_Upgrader $upgrader   The WP_Upgrader instance.
-	 * @param array        $hook_extra Extra arguments passed to hooked filters.
+	 * @param  bool|\WP_Error  $reply       Whether to bail without returning the package.
+	 *                                      Default false.
+	 * @param  string          $package     The package file name or URL.
+	 * @param  \WP_Upgrader    $upgrader    The WP_Upgrader instance.
+	 * @param  array           $hook_extra  Extra arguments passed to hooked filters.
 	 *
 	 * @return mixed
 	 */

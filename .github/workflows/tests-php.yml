@@ -19,12 +19,7 @@ jobs:
           - '8.1'
           - '8.2'
 
-        suite:
-          - wpunit --env singlesite
-          - wpunit --env multisite
-          - muwpunit
-
-    name: WP ${{ matrix.wordpress }} / PHP ${{ matrix.php }} / ${{ matrix.suite }}
+    name: WP ${{ matrix.wordpress }} / PHP ${{ matrix.php }}
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
@@ -106,5 +101,11 @@ jobs:
           ${SLIC_BIN} composer validate
           ${SLIC_BIN} composer install
 
-      - name: Run suite tests
-        run: ${SLIC_BIN} run ${{ matrix.suite }} --ext DotReporter
+      - name: Run muwpunit tests
+        run: ${SLIC_BIN} run muwpunit --ext DotReporter
+
+      - name: Run wpunit tests (singlesite)
+        run: ${SLIC_BIN} run wpunit --env singlesite --ext DotReporter
+
+      - name: Run wpunit tests (multisite)
+        run: ${SLIC_BIN} run wpunit --env multisite --ext DotReporter

@@ -59,12 +59,6 @@ final class ConnectControllerTest extends UplinkTestCase {
 		);
 	}
 
-	protected function tearDown(): void {
-		$GLOBALS['current_screen'] = null;
-
-		parent::tearDown();
-	}
-
 	public function test_it_stores_basic_token_data(): void {
 		global $_GET;
 
@@ -84,13 +78,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$_GET[ Connect_Controller::SLUG ]  = $this->slug;
 
 		// Mock we're an admin inside the dashboard.
-		$screen = WP_Screen::get( 'dashboard' );
-		$GLOBALS['current_screen'] = $screen;
-
-		$this->assertTrue( $screen->in_admin() );
-
-		// Fire off the admin_init action to register our admin_action_$slug actions.
-		do_action( 'admin_init' );
+		$this->admin_init();
 
 		// Fire off the specification action tied to this slug.
 		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $plugin ) );
@@ -134,13 +122,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$_GET[ Connect_Controller::SLUG ]    = $this->slug;
 
 		// Mock we're an admin inside the dashboard.
-		$screen = WP_Screen::get( 'dashboard' );
-		$GLOBALS['current_screen'] = $screen;
-
-		$this->assertTrue( $screen->in_admin() );
-
-		// Fire off the admin_init action to register our admin_action_$slug actions.
-		do_action( 'admin_init' );
+		$this->admin_init();
 
 		// Fire off the specification action tied to this slug.
 		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $plugin ) );
@@ -167,13 +149,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$_GET[ Connect_Controller::SLUG ]  = $this->slug;
 
 		// Mock we're an admin inside the dashboard.
-		$screen = WP_Screen::get( 'dashboard' );
-		$GLOBALS['current_screen'] = $screen;
-
-		$this->assertTrue( $screen->in_admin() );
-
-		// Fire off the admin_init action to register our admin_action_$slug actions.
-		do_action( 'admin_init' );
+		$this->admin_init();
 
 		// Fire off the specification action tied to this slug.
 		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $plugin ) );
@@ -200,13 +176,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$_GET[ Connect_Controller::SLUG ]  = $this->slug;
 
 		// Mock we're an admin inside the dashboard.
-		$screen = WP_Screen::get( 'dashboard' );
-		$GLOBALS['current_screen'] = $screen;
-
-		$this->assertTrue( $screen->in_admin() );
-
-		// Fire off the admin_init action to register our admin_action_$slug actions.
-		do_action( 'admin_init' );
+		$this->admin_init();
 
 		// Fire off the specification action tied to this slug.
 		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $plugin ) );
@@ -232,13 +202,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$_GET[ Connect_Controller::NONCE ] = $nonce;
 
 		// Mock we're an admin inside the dashboard.
-		$screen = WP_Screen::get( 'dashboard' );
-		$GLOBALS['current_screen'] = $screen;
-
-		$this->assertTrue( $screen->in_admin() );
-
-		// Fire off the admin_init action to register our admin_action_$slug actions.
-		do_action( 'admin_init' );
+		$this->admin_init();
 
 		// Fire off the specification action tied to this slug.
 		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $plugin ) );
@@ -268,13 +232,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$_GET[ Connect_Controller::SLUG ]    = $this->slug;
 
 		// Mock we're an admin inside the dashboard.
-		$screen = WP_Screen::get( 'dashboard' );
-		$GLOBALS['current_screen'] = $screen;
-
-		$this->assertTrue( $screen->in_admin() );
-
-		// Fire off the admin_init action to register our admin_action_$slug actions.
-		do_action( 'admin_init' );
+		$this->admin_init();
 
 		// Fire off the specification action tied to this slug.
 		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $plugin ) );
@@ -318,13 +276,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$_GET[ Connect_Controller::SLUG ]    = $this->slug;
 
 		// Mock we're an admin inside the dashboard.
-		$screen = WP_Screen::get( 'dashboard' );
-		$GLOBALS['current_screen'] = $screen;
-
-		$this->assertTrue( $screen->in_admin() );
-
-		// Fire off the admin_init action to register our admin_action_$slug actions.
-		do_action( 'admin_init' );
+		$this->admin_init();
 
 		// Fire off the specification action tied to this slug.
 		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $plugin ) );
@@ -380,14 +332,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$_GET[ Connect_Controller::SLUG ]    = $this->slug;
 
 		// Mock we're an admin inside the NETWORK dashboard.
-		$screen = WP_Screen::get( 'dashboard-network' );
-		$GLOBALS['current_screen'] = $screen;
-
-		$this->assertTrue( $screen->in_admin( 'network' ) );
-		$this->assertTrue( $screen->in_admin() );
-
-		// Fire off the admin_init action to register our admin_action_$slug actions.
-		do_action( 'admin_init' );
+		$this->admin_init( true );
 
 		// Fire off the specification action tied to this slug.
 		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $plugin ) );
@@ -446,14 +391,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$_GET[ Connect_Controller::SLUG ]    = $this->slug;
 
 		// Mock we're in the subsite admin.
-		$screen = WP_Screen::get( 'dashboard' );
-		$GLOBALS['current_screen'] = $screen;
-
-		$this->assertFalse( $screen->in_admin( 'network' ) );
-		$this->assertTrue( $screen->in_admin() );
-
-		// Fire off the admin_init action to register our admin_action_$slug actions.
-		do_action( 'admin_init' );
+		$this->admin_init();
 
 		// Fire off the specification action tied to this slug.
 		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $plugin ) );

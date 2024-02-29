@@ -7,6 +7,7 @@ use RuntimeException;
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Uplink;
+use WP_Screen;
 
 /**
  * @mixin \Codeception\Test\Unit
@@ -36,6 +37,9 @@ class UplinkTestCase extends WPTestCase {
 	protected function tearDown(): void {
 		Config::reset();
 
+		// Reset any current screen implementations.
+		$GLOBALS['current_screen'] = null;
+
 		parent::tearDown();
 	}
 
@@ -61,6 +65,27 @@ class UplinkTestCase extends WPTestCase {
 				array_merge(get_option('active_plugins', []), [$path])
 			);
 		}
+	}
+
+	/**
+	 * Mock we're inside the wp-admin dashboard and fire off the admin_init hook.
+	 *
+	 * @param  bool  $network  Whether we're in the network dashboard.
+	 *
+	 * @return void
+	 */
+	protected function admin_init( bool $network = false ): void {
+		$screen                    = WP_Screen::get( $network ? 'dashboard-network' : 'dashboard' );
+		$GLOBALS['current_screen'] = $screen;
+
+		if ( $network ) {
+			$this->assertTrue( $screen->in_admin( 'network' ) );
+		}
+
+		$this->assertTrue( $screen->in_admin() );
+
+		// Fire off admin_init to run any of our events hooked into this action.
+		do_action( 'admin_init' );
 	}
 
 }

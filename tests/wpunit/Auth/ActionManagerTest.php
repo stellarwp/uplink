@@ -78,8 +78,8 @@ final class ActionManagerTest extends UplinkTestCase {
 			$this->assertSame( 0, did_action( $this->action_manager->get_hook_name( $resource ) ) );
 		}
 
-		// Fire off admin_init, which registers our custom resource actions.
-		do_action( 'admin_init' );
+		// Mock we're an admin inside the dashboard.
+		$this->admin_init();
 
 		foreach ( $collection as $resource ) {
 			$this->assertTrue( has_action( $this->action_manager->get_hook_name( $resource ) ) );

@@ -17,7 +17,7 @@ modules:
             domain: %WP_DOMAIN%
             adminEmail: admin@tribe.localhost
             title: 'StellarWP Uplink Tests'
-            theme: twentytwenty
+            theme: twentytwentythree
             multisite: false
 
 env:

@@ -61,25 +61,19 @@ class Plugin extends Resource {
 
 		// Prevent an empty class from being saved in the $transient.
 		if ( isset( $status->update->version ) ) {
+			$product_path = $this->get_path();
+
 			if ( version_compare( $this->get_version_from_response( $results ), $this->get_installed_version(), '>' ) ) {
 				/** @var \stdClass $transient */
 				if ( ! isset( $transient->response ) ) {
 					$transient->response = [];
 				}
 
-				$transient->response[ $this->get_path() ] = $results->get_update_details();
-				// Stellar License never sends an ID, so we need to add it.
-				if ( empty( $transient->response[ $this->get_path() ]->id ) ) {
-					$transient->response[ $this->get_path() ]->id = 'stellarwp/plugins/' . $this->get_slug();
-				}
-				// Stellar License never sends a plugin, so we need to add it.
-				if ( empty( $transient->response[ $this->get_path() ]->plugin ) ) {
-					$transient->response[ $this->get_path() ]->plugin = $this->get_path();
-				}
+				$transient->response[ $product_path ] = $results->get_update_details();
 
 				// Clear the no_update property if it exists.
-				if ( isset( $transient->no_update[ $this->get_path() ] ) ) {
-					unset( $transient->no_update[ $this->get_path() ] );
+				if ( isset( $transient->no_update[ $product_path ] ) ) {
+					unset( $transient->no_update[ $product_path ] );
 				}
 
 				if ( 'expired' === $results->get_result() ) {
@@ -87,9 +81,10 @@ class Plugin extends Resource {
 				}
 			} else {
 				// Clean up any stale update info.
-				if ( isset( $transient->response[ $this->get_path() ] ) ) {
-					unset( $transient->response[ $this->get_path() ] );
+				if ( isset( $transient->response[ $product_path ] ) ) {
+					unset( $transient->response[ $product_path ] );
 				}
+
 				/**
 				 * If the plugin is up to date, we need to add it to the `no_update` property so that enable auto updates can appear correctly in the UI.
 				 *
@@ -100,15 +95,8 @@ class Plugin extends Resource {
 				if ( ! isset( $transient->no_update ) ) {
 					$transient->no_update = [];
 				}
-				$transient->no_update[ $this->get_path() ] = $results->get_update_details();
-				// Stellar License never sends an ID, so we need to add it.
-				if ( empty( $transient->no_update[ $this->get_path() ]->id ) ) {
-					$transient->no_update[ $this->get_path() ]->id = 'stellarwp/plugins/' . $this->get_slug();
-				}
-				// Stellar License never sends a plugin, so we need to add it.
-				if ( empty( $transient->no_update[ $this->get_path() ]->plugin ) ) {
-					$transient->no_update[ $this->get_path() ]->plugin = $this->get_path();
-				}
+
+				$transient->no_update[ $product_path ] = $results->get_update_details();
 			}
 
 			// In order to show relevant issues on plugins page parse response data and add it to transient
@@ -117,7 +105,7 @@ class Plugin extends Resource {
 				if ( ! isset( $transient->response ) ) {
 					$transient->response = [];
 				}
-				$transient->response[ $this->get_path() ] = $results->handle_api_errors();
+				$transient->response[ $product_path ] = $results->handle_api_errors();
 			}
 
 		}

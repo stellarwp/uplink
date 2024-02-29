@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1000
           submodules: recursive
@@ -20,7 +20,7 @@ jobs:
       # Checkout slic
       # ------------------------------------------------------------------------------
       - name: Checkout slic
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: stellarwp/slic
           ref: main
@@ -32,11 +32,11 @@ jobs:
       - name: Get Composer Cache Directory
         id: get-composer-cache-dir
         run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - uses: actions/cache@v3
+          echo "DIR=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v4
         id: composer-cache
         with:
-          path: ${{ steps.get-composer-cache-dir.outputs.dir }}
+          path: ${{ steps.get-composer-cache-dir.outputs.DIR }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-composer-
@@ -65,6 +65,7 @@ jobs:
           ${SLIC_BIN} build-subdir off
           ${SLIC_BIN} xdebug off
           ${SLIC_BIN} debug on
+          ${SLIC_BIN} composer-cache set ${{ steps.get-composer-cache-dir.outputs.DIR }}
           ${SLIC_BIN} info
           ${SLIC_BIN} config
       - name: Show WordPress version

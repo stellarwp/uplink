@@ -68,9 +68,9 @@ jobs:
           ${SLIC_BIN} info
           ${SLIC_BIN} config
       - name: Show WordPress version
-        run: slic wp core version
+        run: ${SLIC_BIN} wp core version
       - name: Show WordPress themes
-        run: slic wp theme list
+        run: ${SLIC_BIN} wp theme list
       - name: Set up StellarWP Uplink
         run: |
           ${SLIC_BIN} use uplink

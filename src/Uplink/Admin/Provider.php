@@ -152,11 +152,11 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @param  bool|\WP_Error  $reply       Whether to bail without returning the package.
 	 *                                      Default false.
-	 * @param  string          $package     The package file name or URL.
+	 * @param  string|null     $package     The package file name or URL.
 	 * @param  \WP_Upgrader    $upgrader    The WP_Upgrader instance.
 	 * @param  array           $hook_extra  Extra arguments passed to hooked filters.
 	 *
-	 * @return mixed
+	 * @return string|bool|\WP_Error
 	 */
 	public function filter_upgrader_pre_download( $reply, $package, $upgrader, $hook_extra ) {
 		return $this->container->get( Package_Handler::class )->filter_upgrader_pre_download( $reply, $package, $upgrader, $hook_extra );

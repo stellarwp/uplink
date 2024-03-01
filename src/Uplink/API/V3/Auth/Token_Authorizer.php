@@ -28,17 +28,19 @@ class Token_Authorizer implements Contracts\Token_Authorizer {
 	/**
 	 * Manually check if a license is authorized.
 	 *
-	 * @see is_authorized()
-	 *
 	 * @param  string  $license  The license key.
-	 * @param  string  $token  The stored token.
-	 * @param  string  $domain  The user's domain.
+	 * @param  string  $slug     The plugin/service slug.
+	 * @param  string  $token    The stored token.
+	 * @param  string  $domain   The user's domain.
 	 *
 	 * @return bool
+	 *
+	 * @see is_authorized()
 	 */
-	public function is_authorized( string $license, string $token, string $domain ): bool {
+	public function is_authorized( string $license, string $slug, string $token, string $domain ): bool {
 		$response = $this->client->get( 'tokens/auth', [
 			'license' => $license,
+			'slug'    => $slug,
 			'token'   => $token,
 			'domain'  => $domain,
 		] );

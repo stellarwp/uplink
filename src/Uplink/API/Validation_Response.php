@@ -1,14 +1,13 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace StellarWP\Uplink\API;
 
 use stdClass;
-use StellarWP\ContainerContract\ContainerInterface;
-use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Messages;
 use StellarWP\Uplink\Resources\Resource;
 
 class Validation_Response {
+
 	/**
 	 * Validation response message.
 	 *
@@ -17,15 +16,6 @@ class Validation_Response {
 	 * @var string
 	 */
 	protected $api_response_message;
-
-	/**
-	 * ContainerInterface instance.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @var ContainerInterface
-	 */
-	protected $container;
 
 	/**
 	 * Current resource key.
@@ -95,7 +85,7 @@ class Validation_Response {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @var stdClass
+	 * @var stdClass|null
 	 */
 	protected $response;
 
@@ -131,23 +121,20 @@ class Validation_Response {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string|null             $key             License key.
-	 * @param string                  $validation_type Validation type (local or network).
-	 * @param stdClass|null           $response        Validation response.
-	 * @param Resource                $resource        Resource instance.
-	 * @param ContainerInterface|null $container       Container instance.
+	 * @param  string|null    $key              License key.
+	 * @param  string         $validation_type  Validation type (local or network).
+	 * @param  stdClass|null  $response         Validation response.
+	 * @param  Resource       $resource         Resource instance.
 	 */
-	public function __construct( $key, string $validation_type, $response, Resource $resource, $container = null ) {
+	public function __construct( ?string $key, string $validation_type, ?stdClass $response, Resource $resource ) {
 		$this->key             = $key ?: '';
 		$this->validation_type = 'network' === $validation_type ? 'network' : 'local';
 		$this->response        = $response;
+		$this->resource        = $resource;
 
 		if ( isset( $this->response->results ) ) {
 			$this->response = is_array( $this->response->results ) ? reset( $this->response->results ) : $this->response->results;
 		}
-
-		$this->resource        = $resource;
-		$this->container       = $container ?: Config::get_container();
 
 		$this->parse();
 	}
@@ -212,6 +199,13 @@ class Validation_Response {
 	 * @return Messages\Message_Abstract
 	 */
 	public function get_network_message() {
+		$referer = wp_get_referer();
+
+		// If this request came from the network admin, show regular messaging.
+		if ( $referer && wp_doing_ajax() && str_contains( $referer, network_admin_url() ) ) {
+			return $this->get_message();
+		}
+
 		if ( $this->is_valid() ) {
 			return new Messages\Network_Licensed();
 		}
@@ -230,7 +224,7 @@ class Validation_Response {
 	 *
 	 * @return stdClass
 	 */
-	public function get_raw_response() {
+	public function get_raw_response(): ?stdClass {
 		return $this->response;
 	}
 
@@ -267,7 +261,7 @@ class Validation_Response {
 	 *
 	 * @return stdClass
 	 */
-	public function get_update_details() {
+	public function get_update_details(): stdClass {
 		$update = new stdClass;
 
 		if ( ! empty( $this->response->api_invalid ) ) {
@@ -296,7 +290,7 @@ class Validation_Response {
 		$update->url         = $this->response->homepage ?? '';
 		$update->tested      = $this->response->tested ?? '';
 		$update->requires    = $this->response->requires ?? '';
-		$update->package     = $this->response->download_url ? $this->response->download_url . '&key=' . urlencode( $this->get_key() ) : '';
+		$update->package     = ! empty( $this->response->download_url ) ? $this->response->download_url . '&key=' . urlencode( $this->get_key() ) : '';
 
 		if ( ! empty( $this->response->upgrade_notice ) ) {
 			$update->upgrade_notice = $this->response->upgrade_notice;
@@ -415,7 +409,7 @@ class Validation_Response {
 	 *
 	 * @return void
 	 */
-	public function set_is_valid( bool $is_valid ) {
+	public function set_is_valid( bool $is_valid ): void {
 		$this->is_valid = $is_valid;
 	}
 
@@ -426,9 +420,9 @@ class Validation_Response {
 	 *
 	 * @return void
 	 */
-	private function parse() {
+	private function parse(): void {
 		$this->current_key = $this->resource->get_license_key( $this->validation_type );
-		$this->expiration  = isset( $this->response->expiration ) ? $this->response->expiration : __( 'unknown date', '%TEXTDOMAIN%' );
+		$this->expiration  = $this->response->expiration ?? __( 'unknown date', '%TEXTDOMAIN%' );
 
 		if ( ! empty( $this->response->api_inline_invalid_message ) ) {
 			$this->api_response_message = wp_kses( $this->response->api_inline_invalid_message, 'post' );
@@ -478,9 +472,9 @@ class Validation_Response {
 	/**
 	 * Transform plugin info into the format used by the native WordPress.org API
 	 *
-	 * @return object
+	 * @return StdClass
 	 */
-	public function to_wp_format() {
+	public function to_wp_format(): stdClass {
 		$info = new StdClass;
 
 		// The custom update API is built so that many fields have the same name and format
@@ -511,7 +505,7 @@ class Validation_Response {
 		}
 
 		//Other fields need to be renamed and/or transformed.
-		$info->download_link = isset( $this->response->download_url ) ? $this->response->download_url : '';
+		$info->download_link = $this->response->download_url ?? '';
 
 		if ( ! empty( $this->author_homepage ) && ! empty( $this->response->author ) ) {
 			$info->author = sprintf( '<a href="%s">%s</a>', esc_url( $this->author_homepage ), $this->response->author );

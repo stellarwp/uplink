@@ -70,4 +70,30 @@ class Checks {
 		return 0 === strncmp( $haystack, $needle, strlen( $needle ) );
 	}
 
+	/**
+	 * String Ends With PHP80 polyfill.
+	 *
+	 * @param  string  $haystack The string to search in.
+	 * @param  string  $needle The substring to search for in the haystack.
+	 *
+	 * @return bool Returns true if haystack ends with needle, false otherwise.
+	 */
+	public static function str_ends_with(string $haystack, string $needle): bool  {
+		if ( function_exists( 'str_ends_with' ) ) {
+			return str_ends_with( $haystack, $needle );
+		}
+
+		if ( '' === $needle || $needle === $haystack ) {
+			return true;
+		}
+
+		if ( '' === $haystack ) {
+			return false;
+		}
+
+		$needleLength = strlen( $needle );
+
+		return $needleLength <= strlen( $haystack ) && 0 === substr_compare( $haystack, $needle, - $needleLength );
+	}
+
 }

@@ -1,22 +1,21 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace wpunit;
 
+use StellarWP\Uplink\Resources\Resource;
 use StellarWP\Uplink\Tests\Licensing\Service_Mock;
-use StellarWP\Uplink\API\Validation_Response;
 use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Resources\Plugin;
 use StellarWP\Uplink\Tests\UplinkTestCase;
-use StellarWP\Uplink\Uplink;
 
-class Replacement_Key_Test extends UplinkTestCase {
+final class Replacement_Key_Test extends UplinkTestCase {
 	/**
 	 * @var Service_Mock
 	 */
 	private $service_mock;
 
 	/**
-	 * @var Plugin
+	 * @var Plugin|Resource
 	 */
 	private $resource;
 

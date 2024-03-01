@@ -3,7 +3,11 @@
 namespace StellarWP\Uplink\Tests\Auth\Token;
 
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
+use StellarWP\Uplink\Auth\Token\Token_Factory;
 use StellarWP\Uplink\Config;
+use StellarWP\Uplink\Register;
+use StellarWP\Uplink\Resources\Collection;
+use StellarWP\Uplink\Tests\Sample_Plugin;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Uplink;
 
@@ -22,7 +26,20 @@ final class SingleSiteTokenMangerTest extends UplinkTestCase {
 		// Run init again to reload the Token/Provider.
 		Uplink::init();
 
-		$this->token_manager = $this->container->get( Token_Manager::class );
+		$slug = 'sample';
+
+		// Register the sample plugin as a developer would in their plugin.
+		Register::plugin(
+			$slug,
+			'Lib Sample',
+			'1.0.10',
+			'uplink/index.php',
+			Sample_Plugin::class
+		);
+
+		$plugin              = $this->container->get( Collection::class )->offsetGet( $slug );
+		$this->token_manager = $this->container->get( Token_Factory::class )
+		                                       ->make( $plugin );
 	}
 
 	/**

@@ -3,7 +3,12 @@
 namespace StellarWP\Uplink\Tests\Auth\Token;
 
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
+use StellarWP\Uplink\Auth\Token\Managers\Network_Token_Manager;
+use StellarWP\Uplink\Auth\Token\Token_Factory;
 use StellarWP\Uplink\Config;
+use StellarWP\Uplink\Register;
+use StellarWP\Uplink\Resources\Collection;
+use StellarWP\Uplink\Tests\Sample_Plugin;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Uplink;
 use WP_Error;
@@ -19,9 +24,23 @@ final class SubfolderMultisiteTokenMangerTest extends UplinkTestCase {
 		parent::setUp();
 
 		Config::set_token_auth_prefix( 'kadence_' );
+		Config::set_network_subfolder_license( true );
 
 		// Run init again to reload the Token/Provider.
 		Uplink::init();
+
+		$slug = 'sample';
+
+		// Register the sample plugin as a developer would in their plugin.
+		Register::plugin(
+			$slug,
+			'Lib Sample',
+			'1.0.10',
+			'uplink/index.php',
+			Sample_Plugin::class
+		);
+
+		$this->mock_activate_plugin( 'uplink/index.php', true );
 
 		// Main test domain is wordpress.test, create a subfolder sub-site.
 		$sub_site_id = wpmu_create_blog( 'wordpress.test', '/sub1', 'Test Subsite', 1 );
@@ -31,7 +50,12 @@ final class SubfolderMultisiteTokenMangerTest extends UplinkTestCase {
 
 		switch_to_blog( $sub_site_id );
 
-		$this->token_manager = $this->container->get( Token_Manager::class );
+		$plugin = $this->container->get( Collection::class )->offsetGet( $slug );
+
+		$this->token_manager = $this->container->get( Token_Factory::class )
+		                                       ->make( $plugin );
+
+		$this->assertInstanceOf( Network_Token_Manager::class, $this->token_manager );
 	}
 
 	/**

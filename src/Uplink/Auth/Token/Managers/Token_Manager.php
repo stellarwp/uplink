@@ -1,16 +1,16 @@
 <?php declare( strict_types=1 );
 
-namespace StellarWP\Uplink\Auth\Token;
+namespace StellarWP\Uplink\Auth\Token\Managers;
 
 use InvalidArgumentException;
+use StellarWP\Uplink\Auth\Token\Contracts;
 
 /**
- * Manages storing authorization tokens in a network.
+ * Manages storing authorization tokens on a single site.
  *
- * @note All *_network_option() functions will fall back to
- * single site functions if multisite is not enabled.
+ * Used even on multisite if a plugin is not network activated.
  */
-final class Token_Manager implements Contracts\Token_Manager {
+class Token_Manager implements Contracts\Token_Manager {
 
 	/**
 	 * The option name to store the token in wp_options table.
@@ -73,7 +73,7 @@ final class Token_Manager implements Contracts\Token_Manager {
 			return true;
 		}
 
-		return update_network_option( get_current_network_id(), $this->option_name, $token );
+		return update_option( $this->option_name, $token );
 	}
 
 	/**
@@ -82,7 +82,7 @@ final class Token_Manager implements Contracts\Token_Manager {
 	 * @return string|null
 	 */
 	public function get(): ?string {
-		return get_network_option( get_current_network_id(), $this->option_name, null );
+		return get_option( $this->option_name, null );
 	}
 
 	/**
@@ -96,7 +96,7 @@ final class Token_Manager implements Contracts\Token_Manager {
 			return true;
 		}
 
-		return delete_network_option( get_current_network_id(), $this->option_name );
+		return delete_option( $this->option_name );
 	}
 
 }

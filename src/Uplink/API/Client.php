@@ -187,14 +187,16 @@ class Client {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Resource    $resource        Resource to validate.
-	 * @param string|null $key             License key.
-	 * @param string      $validation_type Validation type (local or network).
-	 * @param bool        $force           Force the validation.
+	 * @param  Resource     $resource         Resource to validate.
+	 * @param  string|null  $key              License key.
+	 * @param  string       $validation_type  Validation type (local or network).
+	 * @param  bool         $force            Force the validation.
+	 *
+	 * @throws \RuntimeException
 	 *
 	 * @return mixed
 	 */
-	public function validate_license( Resource $resource, string $key = null, string $validation_type = 'local', bool $force = false ) {
+	public function validate_license( Resource $resource, ?string $key = null, string $validation_type = 'local', bool $force = false ) {
 		/** @var Data */
 		$site_data = $this->container->get( Data::class );
 		$args      = $resource->get_validation_args();

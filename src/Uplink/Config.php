@@ -10,12 +10,19 @@ use StellarWP\Uplink\Utils\Sanitize;
 
 class Config {
 
-	public const TOKEN_OPTION_NAME  = 'uplink.token_prefix';
+	public const TOKEN_OPTION_NAME = 'uplink.token_prefix';
 
 	/**
 	 * The default authorization cache time in seconds (6 hours).
 	 */
 	public const DEFAULT_AUTH_CACHE = 21600;
+
+	/**
+	 * The default state for all multisite licensing options.
+	 *
+	 * @var bool
+	 */
+	public const DEFAULT_MULTISITE_STATE = false;
 
 	/**
 	 * Container object.
@@ -42,6 +49,27 @@ class Config {
 	 * @var int
 	 */
 	protected static $auth_cache_expiration = self::DEFAULT_AUTH_CACHE;
+
+	/**
+	 * Whether your plugin allows multisite network subfolder licenses.
+	 *
+	 * @var bool
+	 */
+	protected static $network_subfolder_license = self::DEFAULT_MULTISITE_STATE;
+
+	/**
+	 * Whether your plugin allows multisite subdomain licenses.
+	 *
+	 * @var bool
+	 */
+	protected static $network_subdomain_license = self::DEFAULT_MULTISITE_STATE;
+
+	/**
+	 * Whether your plugin allows multisite domain mapping licenses.
+	 *
+	 * @var bool
+	 */
+	protected static $network_domain_mapping_license = self::DEFAULT_MULTISITE_STATE;
 
 	/**
 	 * Get the container.
@@ -115,8 +143,11 @@ class Config {
 	 * @return void
 	 */
 	public static function reset(): void {
-		static::$hook_prefix           = '';
-		static::$auth_cache_expiration = self::DEFAULT_AUTH_CACHE;
+		static::$hook_prefix                    = '';
+		static::$auth_cache_expiration          = self::DEFAULT_AUTH_CACHE;
+		static::$network_subfolder_license      = self::DEFAULT_MULTISITE_STATE;
+		static::$network_subdomain_license      = self::DEFAULT_MULTISITE_STATE;
+		static::$network_domain_mapping_license = self::DEFAULT_MULTISITE_STATE;
 
 		if ( self::has_container() ) {
 			self::$container->singleton( self::TOKEN_OPTION_NAME, null );
@@ -206,6 +237,98 @@ class Config {
 	 */
 	public static function get_auth_cache_expiration(): int {
 		return static::$auth_cache_expiration;
+	}
+
+	/**
+	 * Allow or disallow multisite subfolder licenses at the network level.
+	 *
+	 * @param  bool  $allowed
+	 *
+	 * @return void
+	 */
+	public static function set_network_subfolder_license( bool $allowed ): void {
+		self::$network_subfolder_license = $allowed;
+	}
+
+	/**
+	 * Whether your plugin allows multisite network subfolder licenses.
+	 *
+	 * @throws RuntimeException
+	 *
+	 * @return bool
+	 */
+	public static function allows_network_subfolder_license(): bool {
+		return (bool) apply_filters(
+			'stellarwp/uplink/' . Config::get_hook_prefix() . '/allows_network_subfolder_license',
+			self::$network_subfolder_license
+		);
+	}
+
+	/**
+	 * Allow or disallow multisite subdomain licenses at the network level.
+	 *
+	 * @param  bool  $allowed
+	 *
+	 * @return void
+	 */
+	public static function set_network_subdomain_license( bool $allowed ): void {
+		self::$network_subdomain_license = $allowed;
+	}
+
+	/**
+	 * Whether your plugin allows multisite network subdomain licenses.
+	 *
+	 * @throws RuntimeException
+	 *
+	 * @return bool
+	 */
+	public static function allows_network_subdomain_license(): bool {
+		return (bool) apply_filters(
+			'stellarwp/uplink/' . Config::get_hook_prefix() . '/allows_network_subdomain_license',
+			self::$network_subdomain_license
+		);
+	}
+
+	/**
+	 * Allow or disallow multisite domain mapping licenses at the network level.
+	 *
+	 * @param  bool  $allowed
+	 *
+	 * @return void
+	 */
+	public static function set_network_domain_mapping_license( bool $allowed ): void {
+		self::$network_domain_mapping_license = $allowed;
+	}
+
+	/**
+	 * Whether your plugin allows multisite network domain mapping licenses.
+	 *
+	 * @throws RuntimeException
+	 *
+	 * @return bool
+	 */
+	public static function allows_network_domain_mapping_license(): bool {
+		return (bool) apply_filters(
+			'stellarwp/uplink/' . Config::get_hook_prefix() . '/allows_network_domain_mapping_license',
+			self::$network_domain_mapping_license
+		);
+	}
+
+	/**
+	 * Check if any of the network license options are enabled.
+	 *
+	 * @throws RuntimeException
+	 *
+	 * @return bool
+	 */
+	public static function allows_network_licenses(): bool {
+		$config = [
+			self::allows_network_subfolder_license(),
+			self::allows_network_subdomain_license(),
+			self::allows_network_domain_mapping_license(),
+		];
+
+		return in_array( true, $config, true );
 	}
 
 }

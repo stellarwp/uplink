@@ -35,7 +35,7 @@ final class Package_HandlerTest extends UplinkTestCase {
 		$this->assertWPError( $filtered );
 	}
 
-	public function test_it_return_WP_Error_if_the_package_is_null() {
+	public function test_it_returns_WP_Error_if_the_package_is_null() {
 		$upgrader = $this->prophesize( WP_Upgrader::class );
 
 		$sut      = new Package_Handler();

@@ -7,6 +7,7 @@ use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Resources;
 use WP_Error;
 use WP_Upgrader;
+use WP_Filesystem_Base;
 
 class Package_Handler {
 

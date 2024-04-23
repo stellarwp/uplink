@@ -16,6 +16,11 @@ class Package_Handler {
 	public $upgrader;
 
 	/**
+	 * @var WP_Filesystem_Base
+	 */
+	public $filesystem;
+
+	/**
 	 * Filters the package download step to store the downloaded file with a shorter file name.
 	 *
 	 * @param  bool|WP_Error  $reply        Whether to bail without returning the package.

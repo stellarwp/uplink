@@ -17,7 +17,7 @@ class Package_Handler {
 	public $upgrader;
 
 	/**
-	 * @var WP_Filesystem_Base
+	 * @var WP_Filesystem_Base|null
 	 */
 	public $filesystem;
 

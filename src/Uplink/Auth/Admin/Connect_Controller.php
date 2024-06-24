@@ -94,6 +94,21 @@ final class Connect_Controller {
 		}
 
 		if ( ! Nonce::verify( $args[ self::NONCE ] ?? '' ) ) {
+			if ( ! function_exists( 'is_plugin_active' ) ) {
+				require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+			}
+
+			// The Litespeed plugin allows completely disabling transients for some reason...
+			if ( is_plugin_active( 'litespeed-cache/litespeed-cache.php' ) ) {
+				$this->notice->add( new Notice( Notice::ERROR,
+					sprintf(
+						__( 'The Litespeed plugin was detected, ensure "Store Transients" is set to ON and try again. See the <a href="%s" target="_blank">Litespeed documentation</a> for more information.', '%TEXTDOMAIN%' ),
+						esc_url( 'https://docs.litespeedtech.com/lscache/lscwp/cache/#store-transients' )
+					),
+					true
+				) );
+			}
+
 			$this->notice->add( new Notice( Notice::ERROR,
 				__( 'Unable to save token data: nonce verification failed.', '%TEXTDOMAIN%' ),
 				true

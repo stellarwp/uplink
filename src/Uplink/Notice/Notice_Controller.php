@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink\Notice;
 
 use StellarWP\Uplink\Components\Controller;
+use StellarWP\Uplink\View\Exceptions\FileNotFoundException;
 
 /**
  * Renders a notice.
@@ -22,6 +23,8 @@ final class Notice_Controller extends Controller {
 	 *
 	 * @param  array{type?: string, message?: string, dismissible?: bool, alt?: bool, large?: bool}  $args The notice.
 	 *
+	 * @throws FileNotFoundException If the view is not found.
+	 *
 	 * @return void
 	 */
 	public function render( array $args = [] ): void {
@@ -34,8 +37,27 @@ final class Notice_Controller extends Controller {
 		];
 
 		echo $this->view->render( self::VIEW, [
-			'message' => $args['message'],
-			'classes' => $this->classes( $classes )
+			'message'           => $args['message'],
+			'classes'           => $this->classes( $classes ),
+			'allowed_tags'      => [
+				'a'      => [
+					'href',
+					'title',
+					'target',
+					'rel',
+				],
+				'br'     => [],
+				'code'   => [],
+				'em'     => [],
+				'pre'    => [],
+				'span'   => [],
+				'strong' => [],
+			],
+			'allowed_protocols' => [
+				'http',
+				'https',
+				'mailto',
+			],
 		] );
 	}
 

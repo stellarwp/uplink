@@ -83,7 +83,7 @@ final class Notice_Handler {
 	 * @return bool
 	 */
 	private function clear(): bool {
-		return delete_transient( self::TRANSIENT );
+		return (bool) delete_transient( self::TRANSIENT );
 	}
 
 }

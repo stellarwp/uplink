@@ -41,10 +41,10 @@ final class Notice_Controller extends Controller {
 			'classes'           => $this->classes( $classes ),
 			'allowed_tags'      => [
 				'a'      => [
-					'href',
-					'title',
-					'target',
-					'rel',
+					'href'   => [],
+					'title'  => [],
+					'target' => [],
+					'rel'    => [],
 				],
 				'br'     => [],
 				'code'   => [],

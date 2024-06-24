@@ -74,7 +74,7 @@ final class Notice_Handler {
 	 * @return bool
 	 */
 	private function save(): bool {
-		return set_transient( self::TRANSIENT, $this->notices, 300 );
+		return (bool) set_transient( self::TRANSIENT, $this->notices, 300 );
 	}
 
 	/**

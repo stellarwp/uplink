@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Admin;
 
+use StellarWP\Uplink\Auth\License\License_Manager;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Resources\Plugin;
 use StellarWP\Uplink\Resources\Resource;
@@ -18,6 +19,13 @@ class License_Field extends Field {
 	protected $path = '/admin-views/fields/settings.php';
 
 	/**
+	 * The license manager.
+	 *
+	 * @var License_Manager
+	 */
+	private $license_manager;
+
+	/**
 	 * The script and style handle when registering assets for this field.
 	 *
 	 * @var string
@@ -25,10 +33,15 @@ class License_Field extends Field {
 	private $handle;
 
 	/**
-	 * Constructor. Initializes handle.
+	 * Constructor.
+	 *
+	 * @param  License_Manager  $license_manager
+	 *
+	 * @throws \RuntimeException
 	 */
-	public function __construct() {
-		$this->handle = sprintf( 'stellarwp-uplink-license-admin-%s', Config::get_hook_prefix() );
+	public function __construct( License_Manager $license_manager ) {
+		$this->license_manager = $license_manager;
+		$this->handle          = sprintf( 'stellarwp-uplink-license-admin-%s', Config::get_hook_prefix() );
 	}
 
 	/**
@@ -59,6 +72,8 @@ class License_Field extends Field {
 				$resource->get_license_object()->get_key_option_name()
 			);
 
+			$network = $this->license_manager->allows_multisite_license( $resource );
+
 			add_settings_field(
 				$resource->get_license_object()->get_key_option_name(),
 				__( 'License Key', '%TEXTDOMAIN%' ),
@@ -70,7 +85,7 @@ class License_Field extends Field {
 					'label_for'    => $resource->get_license_object()->get_key_option_name(),
 					'type'         => 'text',
 					'path'         => $resource->get_path(),
-					'value'        => $resource->get_license_key(),
+					'value'        => $resource->get_license_key( $network ? 'network' : 'local' ),
 					'placeholder'  => __( 'License Number', '%TEXTDOMAIN%' ),
 					'html'         => $this->get_field_html( $resource ),
 					'html_classes' => 'stellarwp-uplink-license-key-field',

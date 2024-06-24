@@ -2,42 +2,56 @@
 
 namespace StellarWP\Uplink\Auth\Token;
 
-use StellarWP\Uplink\Auth\Authorizer;
-use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
+use StellarWP\Uplink\API\V3\Auth\Token_Authorizer_Cache_Decorator;
+use StellarWP\Uplink\Resources\Collection;
 
 final class Disconnector {
 
 	/**
-	 * @var Authorizer
+	 * @var Token_Factory
 	 */
-	private $authorizer;
+	private $token_manager_factory;
 
 	/**
-	 * @var Token_Manager
+	 * @var Collection
 	 */
-	private $token_manager;
+	private $resources;
 
 	/**
-	 * @param  Authorizer  $authorizer  Determines if the current user can perform actions.
-	 * @param  Token_Manager  $token_manager The Token Manager.
+	 * @param  Token_Factory  $token_manager_factory  The Token Manager Factory.
+	 * @param  Collection  $resources  The resources collection.
 	 */
 	public function __construct(
-		Authorizer $authorizer,
-		Token_Manager $token_manager
+		Token_Factory $token_manager_factory,
+		Collection $resources
 	) {
-		$this->authorizer    = $authorizer;
-		$this->token_manager = $token_manager;
+		$this->token_manager_factory = $token_manager_factory;
+		$this->resources             = $resources;
 	}
 
 	/**
 	 * Delete a token if the current user is allowed to.
+	 *
+	 * @param  string  $slug       The plugin or service slug.
+	 * @param  string  $cache_key  The token cache key.
+	 *
+	 * @return bool
 	 */
-	public function disconnect(): bool {
-		if ( ! $this->authorizer->can_auth() ) {
+	public function disconnect( string $slug, string $cache_key ): bool {
+		$plugin = $this->resources->offsetGet( $slug );
+
+		if ( ! $plugin ) {
 			return false;
 		}
 
-		return $this->token_manager->delete();
+		$result = $this->token_manager_factory->make( $plugin )->delete();
+
+		if ( $result ) {
+			// Delete the authorization cache.
+			delete_transient( Token_Authorizer_Cache_Decorator::TRANSIENT_PREFIX . $cache_key );
+		}
+
+		return $result;
 	}
 
 }

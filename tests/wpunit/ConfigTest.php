@@ -62,4 +62,22 @@ final class ConfigTest extends UplinkTestCase {
 		$this->assertSame( DAY_IN_SECONDS, Config::get_auth_cache_expiration() );
 	}
 
+	public function test_it_detects_allowed_network_licenses_subfolder(): void {
+		$this->assertFalse( Config::allows_network_licenses() );
+		Config::set_network_subfolder_license( true );
+		$this->assertTrue( Config::allows_network_licenses() );
+	}
+
+	public function test_it_detects_allowed_network_licenses_subdomain(): void {
+		$this->assertFalse( Config::allows_network_licenses() );
+		Config::set_network_subdomain_license( true );
+		$this->assertTrue( Config::allows_network_licenses() );
+	}
+
+	public function test_it_detects_allowed_network_licenses_domain_mapping(): void {
+		$this->assertFalse( Config::allows_network_licenses() );
+		Config::set_network_domain_mapping_license( true );
+		$this->assertTrue( Config::allows_network_licenses() );
+	}
+
 }

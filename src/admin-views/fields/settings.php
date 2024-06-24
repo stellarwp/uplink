@@ -16,6 +16,7 @@ if ( empty( $plugin ) ) {
 $field          = Config::get_container()->get( License_Field::class );
 $group          = $field->get_group_name( sanitize_title( $plugin->get_slug() ) );
 $action_postfix = Config::get_hook_prefix_underscored();
+$form_action    = is_multisite() && is_network_admin() ? network_admin_url( 'settings.php' ) : 'options.php';
 
 ?>
 <?php if ( $show_title ) : ?>
@@ -25,7 +26,7 @@ $action_postfix = Config::get_hook_prefix_underscored();
 <div class="stellarwp-uplink" data-js="stellarwp-uplink">
 	<div class="stellarwp-uplink__settings">
 		<?php do_action( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_field_before_form', $plugin->get_slug() ) ?>
-		<form method="post" action="options.php">
+		<form method="post" action="<?php echo esc_url( $form_action ) ?>">
 			<?php settings_fields( $group ); ?>
 			<?php do_action( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_field_before_field', $plugin->get_slug() ) ?>
 			<?php if ( $show_title ) : ?>

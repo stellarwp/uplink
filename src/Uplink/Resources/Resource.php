@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Resources;
 
+use stdClass;
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\API;
 use StellarWP\Uplink\Config;
@@ -173,7 +174,7 @@ abstract class Resource {
 
 		$args['plugin']            = sanitize_text_field( $this->get_slug() );
 		$args['installed_version'] = sanitize_text_field( $this->get_installed_version() ?: '' );
-		$args['domain']            = sanitize_text_field( $data->get_domain() );
+		$args['domain']            = sanitize_text_field( $data->get_domain( true ) );
 
 		// get general stats
 		/** @var array<string,array<mixed>> */
@@ -495,18 +496,18 @@ abstract class Resource {
 	 *
 	 * @return API\Validation_Response
 	 */
-	public function validate_license( $key = null, $do_network_validate = false ) {
+	public function validate_license( ?string $key = null, bool $do_network_validate = false ) {
 		/** @var API\Client */
 		$api = $this->container->get( API\Client::class );
-
-		if ( empty( $key ) ) {
-			$key = $this->get_license_key();
-		}
 
 		$validation_type = $do_network_validate ? 'network' : 'local';
 
 		if ( empty( $key ) ) {
-			$results = new API\Validation_Response( null, $validation_type, new \stdClass(), $this );
+			$key = $this->get_license_key( $validation_type );
+		}
+
+		if ( empty( $key ) ) {
+			$results = new API\Validation_Response( null, $validation_type, new stdClass(), $this );
 			$results->set_is_valid( false );
 			return $results;
 		}
@@ -520,7 +521,7 @@ abstract class Resource {
 			$result_type === 'new'
 			|| $has_replacement_key
 		) {
-			$this->get_license_object()->set_key( $results_key );
+			$this->get_license_object()->set_key( $results_key, $validation_type );
 		}
 
 		$this->get_license_object()->set_key_status( $results->is_valid() );

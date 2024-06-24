@@ -2,32 +2,21 @@
 
 namespace StellarWP\Uplink\Auth\Token;
 
-use StellarWP\Uplink\Auth\Authorizer;
-use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Auth\Token\Exceptions\InvalidTokenException;
+use StellarWP\Uplink\Resources\Resource;
 
 final class Connector {
 
 	/**
-	 * @var Authorizer
+	 * @var Token_Factory
 	 */
-	private $authorizer;
+	private $token_manager_factory;
 
 	/**
-	 * @var Token_Manager
+	 * @param  Token_Factory  $token_manager_factory  The Token Manager Factory.
 	 */
-	private $token_manager;
-
-	/**
-	 * @param  Authorizer  $authorizer  Determines if the current user can perform actions.
-	 * @param  Token_Manager  $token_manager The Token Manager.
-	 */
-	public function __construct(
-		Authorizer $authorizer,
-		Token_Manager $token_manager
-	) {
-		$this->authorizer    = $authorizer;
-		$this->token_manager = $token_manager;
+	public function __construct( Token_Factory $token_manager_factory ) {
+		$this->token_manager_factory = $token_manager_factory;
 	}
 
 	/**
@@ -35,16 +24,14 @@ final class Connector {
 	 *
 	 * @throws InvalidTokenException
 	 */
-	public function connect( string $token ): bool {
-		if ( ! $this->authorizer->can_auth() ) {
-			return false;
-		}
+	public function connect( string $token, Resource $resource ): bool {
+		$token_manager = $this->token_manager_factory->make( $resource );
 
-		if ( ! $this->token_manager->validate( $token ) ) {
+		if ( ! $token_manager->validate( $token ) ) {
 			throw new InvalidTokenException( 'Invalid token format' );
 		}
 
-		return $this->token_manager->store( $token );
+		return $token_manager->store( $token );
 	}
 
 }

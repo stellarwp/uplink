@@ -155,7 +155,7 @@ class License_Field extends Field {
 	 *
 	 * @return void
 	 */
-	protected function enqueue_assets(): void {
+	public function enqueue_assets(): void {
 		wp_enqueue_script( $this->handle );
 		wp_enqueue_style( $this->handle );
 	}

@@ -2,10 +2,13 @@
 
 namespace StellarWP\Uplink\Admin\Fields;
 
+use StellarWP\Uplink\Admin\License_Field;
 use StellarWP\Uplink\Uplink;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Resources\Resource;
+// Use function statement is problematic with Strauss.
+use StellarWP\Uplink as UplinkNamespace;
 
 class Field {
 	public const STELLARWP_UPLINK_GROUP = 'stellarwp_uplink_group';
@@ -125,25 +128,15 @@ class Field {
 	/**
 	 * Gets the nonce action.
 	 *
-	 * @param string $group_modifier
-	 *
 	 * @return string
 	 */
-	public function get_nonce_action( string $group_suffix = '' ) : string {
-		if ( empty( $group_suffix ) ) {
-			$group_suffix = sanitize_title( $this->get_slug() );
-		}
-
-		$nonce_action = sprintf( '%s_%s', self::STELLARWP_UPLINK_GROUP, $group_suffix );
-
+	public function get_nonce_action() : string {
 		/**
 		 * Filters the nonce action.
 		 *
-		 * @param string $nonce_action
 		 * @param string $group The Settings group.
-		 * @param string $group_suffix The group suffix.
 		 */
-		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/license_field_group_name', $nonce_action, self::STELLARWP_UPLINK_GROUP, $group_suffix );
+		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/license_field_group_name', Config::get_hook_prefix_underscored() );
 	}
 
 	/**
@@ -153,9 +146,9 @@ class Field {
 	 */
 	public function get_nonce_field(): string {
 		$nonce_name   = "stellarwp-uplink-license-key-nonce__" . $this->get_slug();
-		$nonce_action = $this->get_settings_group_name();
+		$nonce_action = Config::get_container()->get( License_Field::class )->get_group_name();
 
-		return '<input type="hidden" class="wp-nonce" name="' . esc_attr( $nonce_name ) . '" value="' . wp_create_nonce( $nonce_action ) . '" />';
+		return '<input type="hidden" class="wp-nonce-fluent" name="' . esc_attr( $nonce_name ) . '" value="' . wp_create_nonce( $nonce_action ) . '" />';
 	}
 
 	/**
@@ -195,11 +188,28 @@ class Field {
 	}
 
 	/**
+	 * Gets the field classes.
+	 *
+	 * @return string
+	 */
+	public function get_classes(): string {
+		return 'stellarwp-uplink-license-key-field';
+	}
+
+	/**
 	 * Renders the field.
 	 *
 	 * @return string
 	 */
 	public function render(): string {
+		if ( $this->resource->is_using_oauth() ) {
+			ob_start();
+			UplinkNamespace\render_authorize_button( $this->get_slug() );
+			return ob_get_clean();
+		}
+		$field = $this;
+		$group = Config::get_container()->get( License_Field::class )->get_group_name( $this->get_slug() );
+		Config::get_container()->get( License_Field::class )->enqueue_assets();
 		ob_start();
 		include Config::get_container()->get( Uplink::UPLINK_ADMIN_VIEWS_PATH ) . '/fields/field.php';
 		$html = ob_get_clean();
@@ -218,7 +228,7 @@ class Field {
 	 *
 	 * @param string $field_id Field ID.
 	 *
-	 * @return string
+	 * @return self
 	 */
 	public function set_field_id( string $field_id ): self {
 		$this->field_id = $field_id;
@@ -231,7 +241,7 @@ class Field {
 	 *
 	 * @param string $field_name Field name.
 	 *
-	 * @return string
+	 * @return self
 	 */
 	public function set_field_name( string $field_name ): self {
 		$this->field_name = $field_name;
@@ -244,7 +254,7 @@ class Field {
 	 *
 	 * @param string $label Field label.
 	 *
-	 * @return string
+	 * @return self
 	 */
 	public function set_label( string $label ): self {
 		$this->label = $label;

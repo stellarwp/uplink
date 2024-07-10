@@ -104,4 +104,13 @@ class Form {
 
 		return $this;
 	}
+
+	/**
+	 * Whether to show the button.
+	 *
+	 * @return bool
+	 */
+	public function should_show_button(): bool {
+		return $this->show_button;
+	}
 }

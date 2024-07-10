@@ -113,9 +113,19 @@ abstract class Resource {
 	protected $home_url;
 
 	/**
+	 * Is the plugin using OAuth?
+	 *
+	 * @since TBD
+	 *
+	 * @var bool
+	 */
+	protected $is_oauth = false;
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 1.0.0
+	 * @since TBD Added oAuth parameter.
 	 *
 	 * @param string $slug Resource slug.
 	 * @param string $name Resource name.
@@ -123,8 +133,9 @@ abstract class Resource {
 	 * @param string $path Resource path to bootstrap file.
 	 * @param string $class Resource class.
 	 * @param string|null $license_class Class that holds the embedded license key.
+	 * @param bool $is_oauth Is the plugin using OAuth?
 	 */
-	public function __construct( $slug, $name, $version, $path, $class, string $license_class = null ) {
+	public function __construct( $slug, $name, $version, $path, $class, string $license_class = null, bool $is_oauth = false) {
 		$this->name          = $name;
 		$this->slug          = $slug;
 		$this->path          = $path;
@@ -132,6 +143,7 @@ abstract class Resource {
 		$this->license_class = $license_class;
 		$this->version       = $version;
 		$this->container     = Config::get_container();
+		$this->is_oauth      = $is_oauth;
 	}
 
 	/**
@@ -145,6 +157,17 @@ abstract class Resource {
 	 */
 	public function delete_license_key( $type = 'local' ): bool {
 		return $this->get_license_object()->delete_key( $type );
+	}
+
+	/**
+	 * Get if the plugin is using oAuth.
+	 *
+	 * @since TBD
+	 *
+	 * @return bool
+	 */
+	public function is_using_oauth(): bool {
+		return $this->is_oauth;
 	}
 
 	/**
@@ -402,6 +425,7 @@ abstract class Resource {
 	 * Register a resource and add it to the collection.
 	 *
 	 * @since 1.0.0
+	 * @since TBD Added oAuth parameter.
 	 *
 	 * @param string $resource_class Resource class.
 	 * @param string $slug Resource slug.
@@ -410,12 +434,13 @@ abstract class Resource {
 	 * @param string $path Resource path to bootstrap file.
 	 * @param string $class Resource class.
 	 * @param string|null $license_class Class that holds the embedded license key.
+	 * @param bool $is_oauth Is the plugin using OAuth?
 	 *
 	 * @return Resource
 	 */
-	public static function register_resource( $resource_class, $slug, $name, $version, $path, $class, string $license_class = null ) {
+	public static function register_resource( $resource_class, $slug, $name, $version, $path, $class, string $license_class = null, bool $is_oauth = false ) {
 		/** @var Resource */
-		$resource   = new $resource_class( $slug, $name, $version, $path, $class, $license_class );
+		$resource = new $resource_class( $slug, $name, $version, $path, $class, $license_class, $is_oauth );
 
 		/** @var Collection */
 		$collection = Config::get_container()->get( Collection::class );

@@ -122,6 +122,8 @@ class FieldTest extends UplinkTestCase {
 
 			// Update the license key to a known value.
 			update_option( $option_name, $license_key );
+			$option_value = get_option($option_name);
+			$this->assertEquals($option_value,$license_key);
 
 			$field_name = 'field-' . $slug;
 			$field->set_field_name( $field_name );

@@ -35,15 +35,11 @@ class FieldTest extends UplinkTestCase {
 		$resources = $this->get_test_resources();
 
 		foreach ( $resources as $resource ) {
-			yield [ $resource ];
+			yield $resource['slug'] => [ $resource ];
 		}
 	}
 
-	/**
-	 * @test
-	 * @dataProvider resourceProvider
-	 */
-	public function it_should_get_fields_with_slug( $resource ) {
+	public function setup_container_get_slug( $resource ) {
 		$collection = Config::get_container()->get( Collection::class );
 
 		Register::{$resource['type']}(
@@ -54,7 +50,15 @@ class FieldTest extends UplinkTestCase {
 			$resource['class'],
 		);
 
-		$current_resource = $collection->get( $resource['slug'] );
+		return $collection->get( $resource['slug'] );
+	}
+
+	/**
+	 * @test
+	 * @dataProvider resourceProvider
+	 */
+	public function it_should_get_fields_with_slug( $resource ) {
+		$current_resource = $this->setup_container_get_slug( $resource );
 		$slug             = $current_resource->get_slug();
 		$field            = new Field( $slug );
 		$license_key      = 'license_key' . $slug;
@@ -85,16 +89,7 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_set_and_get_field_id( $resource ) {
-		$collection = Config::get_container()->get( Collection::class );
-		Register::{$resource['type']}(
-			$resource['slug'],
-			$resource['name'],
-			$resource['version'],
-			$resource['path'],
-			$resource['class'],
-		);
-
-		$current_resource = $collection->get( $resource['slug'] );
+		$current_resource = $this->setup_container_get_slug( $resource );
 		$slug             = $current_resource->get_slug();
 		$field            = new Field( $slug );
 
@@ -109,16 +104,7 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_set_and_get_field_label( $resource ) {
-		$collection = Config::get_container()->get( Collection::class );
-		Register::{$resource['type']}(
-			$resource['slug'],
-			$resource['name'],
-			$resource['version'],
-			$resource['path'],
-			$resource['class'],
-		);
-
-		$current_resource = $collection->get( $resource['slug'] );
+		$current_resource = $this->setup_container_get_slug( $resource );
 		$slug             = $current_resource->get_slug();
 		$field            = new Field( $slug );
 
@@ -133,16 +119,7 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_get_placeholder( $resource ) {
-		$collection = Config::get_container()->get( Collection::class );
-		Register::{$resource['type']}(
-			$resource['slug'],
-			$resource['name'],
-			$resource['version'],
-			$resource['path'],
-			$resource['class'],
-		);
-
-		$current_resource = $collection->get( $resource['slug'] );
+		$current_resource = $this->setup_container_get_slug( $resource );
 		$slug             = $current_resource->get_slug();
 		$field            = new Field( $slug );
 
@@ -155,16 +132,7 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_get_nonce_action_and_field( $resource ) {
-		$collection = Config::get_container()->get( Collection::class );
-		Register::{$resource['type']}(
-			$resource['slug'],
-			$resource['name'],
-			$resource['version'],
-			$resource['path'],
-			$resource['class'],
-		);
-
-		$current_resource = $collection->get( $resource['slug'] );
+		$current_resource = $this->setup_container_get_slug( $resource );
 		$slug             = $current_resource->get_slug();
 		$field            = new Field( $slug );
 
@@ -189,16 +157,7 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_show_and_hide_label_and_heading( $resource ) {
-		$collection = Config::get_container()->get( Collection::class );
-		Register::{$resource['type']}(
-			$resource['slug'],
-			$resource['name'],
-			$resource['version'],
-			$resource['path'],
-			$resource['class'],
-		);
-
-		$current_resource = $collection->get( $resource['slug'] );
+		$current_resource = $this->setup_container_get_slug( $resource );
 		$slug             = $current_resource->get_slug();
 		$field            = new Field( $slug );
 
@@ -219,17 +178,8 @@ class FieldTest extends UplinkTestCase {
 	 * @test
 	 * @dataProvider resourceProvider
 	 */
-	public function it_should_render_correct_html($resource) {
-		$collection = Config::get_container()->get( Collection::class );
-		Register::{$resource['type']}(
-			$resource['slug'],
-			$resource['name'],
-			$resource['version'],
-			$resource['path'],
-			$resource['class'],
-		);
-
-		$current_resource = $collection->get( $resource['slug'] );
+	public function it_should_render_correct_html( $resource ) {
+		$current_resource = $this->setup_container_get_slug( $resource );
 		$slug             = $current_resource->get_slug();
 		$field            = new Field( $slug );
 
@@ -243,16 +193,7 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_handle_empty_field_name( $resource ) {
-		$collection = Config::get_container()->get( Collection::class );
-		Register::{$resource['type']}(
-			$resource['slug'],
-			$resource['name'],
-			$resource['version'],
-			$resource['path'],
-			$resource['class'],
-		);
-
-		$current_resource = $collection->get( $resource['slug'] );
+		$current_resource = $this->setup_container_get_slug( $resource );
 		$slug             = $current_resource->get_slug();
 		$field            = new Field( $slug );
 
@@ -265,16 +206,7 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_handle_empty_field_id( $resource ) {
-		$collection = Config::get_container()->get( Collection::class );
-		Register::{$resource['type']}(
-			$resource['slug'],
-			$resource['name'],
-			$resource['version'],
-			$resource['path'],
-			$resource['class'],
-		);
-
-		$current_resource = $collection->get( $resource['slug'] );
+		$current_resource = $this->setup_container_get_slug( $resource );
 		$slug             = $current_resource->get_slug();
 		$field            = new Field( $slug );
 
@@ -286,16 +218,7 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_handle_empty_label( $resource ) {
-		$collection = Config::get_container()->get( Collection::class );
-		Register::{$resource['type']}(
-			$resource['slug'],
-			$resource['name'],
-			$resource['version'],
-			$resource['path'],
-			$resource['class'],
-		);
-
-		$current_resource = $collection->get( $resource['slug'] );
+		$current_resource = $this->setup_container_get_slug( $resource );
 		$slug             = $current_resource->get_slug();
 		$field            = new Field( $slug );
 

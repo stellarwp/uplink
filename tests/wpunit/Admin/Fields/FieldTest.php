@@ -23,7 +23,6 @@ class FieldTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		$this->collection = $this->container->get( Uplink_Resources\Collection::class );
-		$this->root       = dirname( __DIR__, 3 );
 		$resources        = $this->get_resources();
 		foreach ( $resources as $resource ) {
 			call_user_func(
@@ -41,11 +40,12 @@ class FieldTest extends UplinkTestCase {
 	 * Resources.
 	 */
 	public function get_resources(): array {
+		$root =  dirname( __DIR__, 3 );;
 		return [
 			[
 				'slug'          => 'plugin-1',
 				'name'          => 'Plugin 1',
-				'path'          => $this->root . '/plugin.php',
+				'path'          => $root . '/plugin.php',
 				'class'         => Uplink::class,
 				'license_class' => Uplink::class,
 				'version'       => '1.0.0',
@@ -54,7 +54,7 @@ class FieldTest extends UplinkTestCase {
 			[
 				'slug'          => 'plugin-2',
 				'name'          => 'Plugin 2',
-				'path'          => $this->root . '/plugin.php',
+				'path'          => $root . '/plugin.php',
 				'class'         => Uplink::class,
 				'license_class' => Uplink::class,
 				'version'       => '2.0.0',
@@ -63,7 +63,7 @@ class FieldTest extends UplinkTestCase {
 			[
 				'slug'          => 'service-1',
 				'name'          => 'Service 1',
-				'path'          => $this->root . '/service1.php',
+				'path'          => $root . '/service1.php',
 				'class'         => Uplink::class,
 				'license_class' => Uplink::class,
 				'version'       => '3.0.0',
@@ -72,13 +72,30 @@ class FieldTest extends UplinkTestCase {
 			[
 				'slug'          => 'service-2',
 				'name'          => 'Service 2',
-				'path'          => $this->root . '/service2.php',
+				'path'          => $root . '/service2.php',
 				'class'         => Uplink::class,
 				'license_class' => Uplink::class,
 				'version'       => '4.0.0',
 				'type'          => 'service',
 			],
 		];
+	}
+
+	public function create_collection(){
+		$plugins   = array_slice( $this->get_resources(), 0, 2 );
+		$resources = [];
+
+		foreach ( $plugins as $slug => $plugin ) {
+			$resources[ $slug ] = new Uplink_Resources\Plugin(
+				$plugin['slug'],
+				$plugin['name'],
+				$plugin['version'],
+				$plugin['path'],
+				$plugin['class']
+			);
+		}
+
+		return new Uplink_Resources\Collection( new ArrayIterator( $resources ) );
 	}
 
 	/**
@@ -95,20 +112,7 @@ class FieldTest extends UplinkTestCase {
 	 * @test
 	 */
 	public function it_should_get_fields_with_slug() {
-		$plugins   = array_slice( $this->get_resources(), 0, 2 );
-		$resources = [];
-
-		foreach ( $plugins as $slug => $plugin ) {
-			$resources[ $slug ] = new Uplink_Resources\Plugin(
-				$plugin['slug'],
-				$plugin['name'],
-				$plugin['version'],
-				$plugin['path'],
-				$plugin['class']
-			);
-		}
-
-		$collection = new Uplink_Resources\Collection( new ArrayIterator( $resources ) );
+		$collection = $this->create_collection();
 
 		foreach ( $collection as $resource ) {
 			$slug        = $resource->get_slug();

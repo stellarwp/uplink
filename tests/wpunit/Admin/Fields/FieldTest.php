@@ -81,7 +81,6 @@ class FieldTest extends UplinkTestCase {
 		$this->assertStringContainsString( 'A valid license key is required for support and updates', $field->get_key_status_html() );
 		$this->assertEquals( 'License key', $field->get_placeholder() );
 		$this->assertEquals( 'stellarwp-uplink-license-key-field', $field->get_classes() );
-
 	}
 
 	/**
@@ -89,9 +88,7 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_set_and_get_field_id( $resource ) {
-		$current_resource = $this->setup_container_get_slug( $resource );
-		$slug             = $current_resource->get_slug();
-		$field            = new Field( $slug );
+		$field = new Field( $this->setup_container_get_slug( $resource )->get_slug() );
 
 		$field_id = 'custom-field-id';
 		$field->set_field_id( $field_id );
@@ -104,9 +101,7 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_set_and_get_field_label( $resource ) {
-		$current_resource = $this->setup_container_get_slug( $resource );
-		$slug             = $current_resource->get_slug();
-		$field            = new Field( $slug );
+		$field = new Field( $this->setup_container_get_slug( $resource )->get_slug() );
 
 		$label = 'Custom Label';
 		$field->set_label( $label );
@@ -119,12 +114,9 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_get_placeholder( $resource ) {
-		$current_resource = $this->setup_container_get_slug( $resource );
-		$slug             = $current_resource->get_slug();
-		$field            = new Field( $slug );
+		$field = new Field( $this->setup_container_get_slug( $resource )->get_slug() );
 
 		$this->assertEquals( 'License key', $field->get_placeholder() );
-
 	}
 
 	/**
@@ -132,9 +124,7 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_get_nonce_action_and_field( $resource ) {
-		$current_resource = $this->setup_container_get_slug( $resource );
-		$slug             = $current_resource->get_slug();
-		$field            = new Field( $slug );
+		$field = new Field( $this->setup_container_get_slug( $resource )->get_slug() );
 
 		$nonce_action = Config::get_container()->get( License_Field::class )->get_group_name();
 		$nonce_field  = $field->get_nonce_field();
@@ -144,12 +134,11 @@ class FieldTest extends UplinkTestCase {
 		$nonce_value = $matches[1];
 
 		$this->assertNotEmpty( $nonce_action, 'Nonce action should not be empty.' );
-		$this->assertStringContainsString( 'stellarwp-uplink-license-key-nonce__' . $slug, $nonce_field, 'Nonce field should contain the correct action slug.' );
+		$this->assertStringContainsString( 'stellarwp-uplink-license-key-nonce__' . $field->get_slug(), $nonce_field, 'Nonce field should contain the correct action slug.' );
 
 		// Validate the nonce
 		$is_valid_nonce = wp_verify_nonce( $nonce_value, $nonce_action );
 		$this->assertContains( $is_valid_nonce, [ 1, 2 ], 'Nonce should be valid.' );
-
 	}
 
 	/**
@@ -157,9 +146,7 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_show_and_hide_label_and_heading( $resource ) {
-		$current_resource = $this->setup_container_get_slug( $resource );
-		$slug             = $current_resource->get_slug();
-		$field            = new Field( $slug );
+		$field = new Field( $this->setup_container_get_slug( $resource )->get_slug() );
 
 		$field->show_label( true );
 		$this->assertTrue( $field->should_show_label() );
@@ -179,13 +166,11 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_render_correct_html( $resource ) {
-		$current_resource = $this->setup_container_get_slug( $resource );
-		$slug             = $current_resource->get_slug();
-		$field            = new Field( $slug );
+		$field = new Field( $this->setup_container_get_slug( $resource )->get_slug() );
 
 		$html = $field->render();
 		$this->assertStringContainsString( 'stellarwp-uplink-license-key-field', $html );
-		$this->assertStringContainsString( $slug, $html );
+		$this->assertStringContainsString( $field->get_slug(), $html );
 	}
 
 	/**
@@ -193,12 +178,9 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_handle_empty_field_name( $resource ) {
-		$current_resource = $this->setup_container_get_slug( $resource );
-		$slug             = $current_resource->get_slug();
-		$field            = new Field( $slug );
+		$field = new Field( $this->setup_container_get_slug( $resource )->get_slug() );
 
 		$this->assertEmpty( $field->get_field_name(), 'Field name should be empty by default' );
-
 	}
 
 	/**
@@ -206,9 +188,7 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_handle_empty_field_id( $resource ) {
-		$current_resource = $this->setup_container_get_slug( $resource );
-		$slug             = $current_resource->get_slug();
-		$field            = new Field( $slug );
+		$field = new Field( $this->setup_container_get_slug( $resource )->get_slug() );
 
 		$this->assertNotEmpty( $field->get_field_id(), 'Field ID should not be empty even if not set' );
 	}
@@ -218,9 +198,7 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_handle_empty_label( $resource ) {
-		$current_resource = $this->setup_container_get_slug( $resource );
-		$slug             = $current_resource->get_slug();
-		$field            = new Field( $slug );
+		$field = new Field( $this->setup_container_get_slug( $resource )->get_slug() );
 
 		$this->assertEmpty( $field->get_label(), 'Label should be empty by default' );
 	}

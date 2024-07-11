@@ -2,10 +2,12 @@
 
 namespace StellarWP\Uplink\Admin\Fields;
 
+use ArrayIterator;
 use InvalidArgumentException;
 use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Uplink;
+use StellarWP\Uplink\Resources as Uplink_Resources;
 
 class FieldTest extends UplinkTestCase {
 
@@ -18,6 +20,7 @@ class FieldTest extends UplinkTestCase {
 
 	protected function setUp(): void {
 		parent::setUp();
+		$this->collection = $this->container->get( Uplink_Resources\Collection::class );
 		$this->root       = dirname( __DIR__, 3 );
 		$resources        = $this->get_resources();
 		foreach ( $resources as $resource ) {
@@ -90,24 +93,42 @@ class FieldTest extends UplinkTestCase {
 	 * @test
 	 */
 	public function it_should_get_fields_with_slug() {
-		foreach ( $this->get_resources() as $resource ) {
-			$slug  = $resource['slug'];
+		$plugins   = array_slice( $this->get_resources(), 0, 2 );
+		$resources = [];
+
+		foreach ( $plugins as $slug => $plugin ) {
+			$resources[ $slug ] = new Uplink_Resources\Plugin( $plugin['slug'],
+															   $plugin['name'],
+															   $plugin['version'],
+															   $plugin['path'],
+															   $plugin['class'] );
+		}
+
+		$collection = new Uplink_Resources\Collection( new ArrayIterator( $resources ) );
+
+		foreach ( $collection as $resource ) {
+			$slug  = $resource->get_slug();
 			$field = new Field( $slug );
+			$license_key = 'license_key'.$slug;
+			$option_name = $resource->get_license_object()->get_key_option_name();
+
+			// Update the license key to a known value.
+			update_option( $option_name, $license_key );
 
 			$field_name = 'field-' . $slug;
 			$field->set_field_name( $field_name );
 
 			// Add assertions to verify the field properties and methods
 			$this->assertEquals( $slug, $field->get_slug() );
-			$this->assertEquals( $resource['path'], $field->get_product() );
+			$this->assertEquals( $resource->get_path(), $field->get_product() );
 			$this->assertEquals( $field_name, $field->get_field_name() );
 			$this->assertEquals( 'stellarwp_uplink_license_key_' . $slug, $field->get_field_id() );
-			//In this setup we don't have a license key yet, so we can't check it.
-			//$this->assertNotEmpty( $field->get_field_value(), 'Field value should not be empty' );
+			$this->assertEquals($license_key, $field->get_field_value(), 'Field value should be equal to the license key' );
 			$this->assertStringContainsString( 'A valid license key is required for support and updates', $field->get_key_status_html() );
 			$this->assertEquals( 'License key', $field->get_placeholder() );
 			$this->assertEquals( 'stellarwp-uplink-license-key-field', $field->get_classes() );
-		}
+
+			}
 	}
 
 	/**

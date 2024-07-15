@@ -9,17 +9,12 @@ use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Tests\TestUtils;
+use tad\Codeception\SnapshotAssertions\SnapshotAssertions;
 
 class FieldTest extends UplinkTestCase {
 
 	use TestUtils;
-
-	/**
-	 * The root directory for plugin/services paths.
-	 *
-	 * @var string
-	 */
-	private string $root;
+	use SnapshotAssertions;
 
 	/**
 	 * @test
@@ -82,6 +77,30 @@ class FieldTest extends UplinkTestCase {
 		$this->assertEquals( 'License key', $field->get_placeholder() );
 		$this->assertEquals( 'stellarwp-uplink-license-key-field', $field->get_classes() );
 	}
+
+	/**
+	 * @test
+	 * @dataProvider resourceProvider
+	 */
+	public function it_should_render_fields_correctly( $resource ) {
+		$current_resource = $this->setup_container_get_slug( $resource );
+		$slug             = $current_resource->get_slug();
+		$field            = new Field( $slug );
+		$license_key      = 'license_key' . $slug;
+		$option_name      = $current_resource->get_license_object()->get_key_option_name();
+
+		// Update the license key to a known value.
+		update_option( $option_name, $license_key );
+		$option_value = get_option( $option_name );
+		$this->assertEquals( $option_value, $license_key );
+
+		$field_name = 'field-' . $slug;
+		$field->set_field_name( $field_name );
+
+		$test = $field->render();
+		$this->assertMatchesHtmlSnapshot( $test );
+	}
+
 
 	/**
 	 * @test

@@ -67,6 +67,7 @@ class Form {
 	 * @return string
 	 */
 	public function render(): string {
+		$form = $this;
 		ob_start();
 		include Config::get_container()->get( Uplink::UPLINK_ADMIN_VIEWS_PATH ) . '/fields/form.php';
 		$html = ob_get_clean();

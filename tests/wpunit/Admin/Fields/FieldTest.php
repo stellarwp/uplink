@@ -10,11 +10,13 @@ use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Tests\TestUtils;
 use tad\Codeception\SnapshotAssertions\SnapshotAssertions;
+use StellarWP\Uplink\Tests\Traits\With_Uopz;
 
 class FieldTest extends UplinkTestCase {
 
 	use TestUtils;
 	use SnapshotAssertions;
+	use With_Uopz;
 
 	/**
 	 * @test
@@ -88,6 +90,7 @@ class FieldTest extends UplinkTestCase {
 		$field            = new Field( $slug );
 		$license_key      = 'license_key' . $slug;
 		$option_name      = $current_resource->get_license_object()->get_key_option_name();
+		$this->set_fn_return( 'wp_create_nonce', '123456789', false );
 
 		// Update the license key to a known value.
 		update_option( $option_name, $license_key );

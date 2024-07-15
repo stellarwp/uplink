@@ -92,10 +92,9 @@ class FormTest extends UplinkTestCase {
 
 		// Render the form and assert the HTML snapshot
 		$form_html = $form->render();
-		codecept_debug($form_html);
 
 		// Assert the HTML snapshot
-		$this->assertMatchesHtmlSnapshot($form_html);
+		$this->assertMatchesHtmlSnapshot( $form_html );
 	}
 
 	/**

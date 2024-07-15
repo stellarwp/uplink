@@ -202,14 +202,18 @@ class Field {
 	 * @return string
 	 */
 	public function render(): string {
+		Config::get_container()->get( License_Field::class )->enqueue_assets();
+
 		if ( $this->resource->is_using_oauth() ) {
 			ob_start();
 			UplinkNamespace\render_authorize_button( $this->get_slug() );
 			return ob_get_clean();
 		}
+
+		// Variables used inside the template.
 		$field = $this;
 		$group = Config::get_container()->get( License_Field::class )->get_group_name( $this->get_slug() );
-		Config::get_container()->get( License_Field::class )->enqueue_assets();
+
 		ob_start();
 		include Config::get_container()->get( Uplink::UPLINK_ADMIN_VIEWS_PATH ) . '/fields/field.php';
 		$html = ob_get_clean();

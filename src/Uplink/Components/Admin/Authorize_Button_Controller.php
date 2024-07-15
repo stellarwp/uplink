@@ -81,6 +81,7 @@ final class Authorize_Button_Controller extends Controller {
 		$target        = '_blank';
 		$link_text     = __( 'Connect', '%TEXTDOMAIN%' );
 		$classes       = [
+			'button',
 			'uplink-authorize',
 			'not-authorized',
 		];
@@ -94,7 +95,7 @@ final class Authorize_Button_Controller extends Controller {
 			$target        = '_self';
 			$link_text     = __( 'Disconnect', '%TEXTDOMAIN%' );
 			$url           = wp_nonce_url( add_query_arg( [ Disconnect_Controller::ARG => true ], get_admin_url( get_current_blog_id() ) ), Disconnect_Controller::ARG );
-			$classes[1]    = 'authorized';
+			$classes[2]    = 'authorized';
 		}
 
 		$hook_prefix = Config::get_hook_prefix();

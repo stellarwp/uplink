@@ -35,14 +35,16 @@ interface Token_Manager {
 	 *
 	 * @return bool
 	 */
-	public function store( string $token ): bool;
+	public function store( string $token, string $slug = '' ): bool;
 
 	/**
 	 * Retrieves the stored token.
 	 *
-	 * @return string|null
+	 * @param string $slug The Product slug to retrieve the token for.
+	 *
+	 * @return mixed
 	 */
-	public function get(): ?string;
+	public function get( string $slug = '' ): mixed;
 
 	/**
 	 * Deletes the token from the database.

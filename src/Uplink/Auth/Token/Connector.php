@@ -35,7 +35,7 @@ final class Connector {
 	 *
 	 * @throws InvalidTokenException
 	 */
-	public function connect( string $token ): bool {
+	public function connect( string $token, string $slug = '' ): bool {
 		if ( ! $this->authorizer->can_auth() ) {
 			return false;
 		}
@@ -44,7 +44,7 @@ final class Connector {
 			throw new InvalidTokenException( 'Invalid token format' );
 		}
 
-		return $this->token_manager->store( $token );
+		return $this->token_manager->store( $token, $slug );
 	}
 
 }

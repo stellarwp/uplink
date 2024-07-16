@@ -76,8 +76,11 @@ final class Connect_Controller {
 			return;
 		}
 
+		$license = $args[ self::LICENSE ] ?? '';
+		$slug    = $args[ self::SLUG ] ?? '';
+
 		try {
-			if ( ! $this->connector->connect( $args[ self::TOKEN ] ?? '' ) ) {
+			if ( ! $this->connector->connect( $args[ self::TOKEN ] ?? '', $slug ) ) {
 				$this->notice->add( new Notice( Notice::ERROR,
 					__( 'Error storing token.', '%TEXTDOMAIN%' ),
 					true
@@ -93,9 +96,6 @@ final class Connect_Controller {
 
 			return;
 		}
-
-		$license = $args[ self::LICENSE ] ?? '';
-		$slug    = $args[ self::SLUG ] ?? '';
 
 		// Store or override an existing license.
 		if ( $license && $slug ) {

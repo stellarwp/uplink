@@ -90,11 +90,11 @@ final class Authorize_Button_Controller extends Controller {
 			$target    = '_self';
 			$link_text = __( 'Contact your network administrator to connect', '%TEXTDOMAIN%' );
 			$url       = get_admin_url( get_current_blog_id(), 'network/' );
-		} elseif ( $this->token_manager->get() ) {
+		} elseif ( $this->token_manager->get( $slug ) ) {
 			$authenticated = true;
 			$target        = '_self';
 			$link_text     = __( 'Disconnect', '%TEXTDOMAIN%' );
-			$url           = wp_nonce_url( add_query_arg( [ Disconnect_Controller::ARG => true ], get_admin_url( get_current_blog_id() ) ), Disconnect_Controller::ARG );
+			$url           = wp_nonce_url( add_query_arg( [ Disconnect_Controller::ARG => true, Disconnect_Controller::SLUG => $slug ], get_admin_url( get_current_blog_id() ) ), Disconnect_Controller::ARG );
 			$classes[2]    = 'authorized';
 		}
 

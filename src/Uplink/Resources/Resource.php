@@ -4,6 +4,7 @@ namespace StellarWP\Uplink\Resources;
 
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\API;
+use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Exceptions;
 use StellarWP\Uplink\Site\Data;
@@ -213,6 +214,38 @@ abstract class Resource {
 		$args['o']   = sanitize_text_field( $this->get_license_object()->get_key_origin_code() );
 
 		return $args;
+	}
+
+	/**
+	 * Get the Resource's oAuth token.
+	 *
+	 * @since TBD
+	 *
+	 * @return string
+	 */
+	public function get_token() {
+		if ( ! $this->is_using_oauth() ) {
+			return false;
+		}
+
+		return $this->container->get( Token_Manager::class )->get( $this->get_slug() );
+	}
+
+	/**
+	 * Store the Resource's oAuth token.
+	 *
+	 * @since TBD
+	 *
+	 * @param string $token The token to store.
+	 *
+	 * @return bool
+	 */
+	public function store_token( $token ) {
+		if ( ! $this->is_using_oauth() ) {
+			return false;
+		}
+
+		return $this->container->get( Token_Manager::class )->store( $token, $this->get_slug() );
 	}
 
 	/**

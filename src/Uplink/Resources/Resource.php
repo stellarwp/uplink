@@ -221,9 +221,9 @@ abstract class Resource {
 	 *
 	 * @since TBD
 	 *
-	 * @return string
+	 * @return ?string
 	 */
-	public function get_token() {
+	public function get_token(): ?string {
 		if ( ! $this->is_using_oauth() ) {
 			return false;
 		}

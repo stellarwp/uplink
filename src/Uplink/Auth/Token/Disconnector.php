@@ -31,13 +31,19 @@ final class Disconnector {
 
 	/**
 	 * Delete a token if the current user is allowed to.
+	 *
+	 * @since TBD Added $slug param.
+	 *
+	 * @param  string  $slug  The Product slug to disconnect the token for.
+	 *
+	 * @return bool
 	 */
-	public function disconnect(): bool {
+	public function disconnect( string $slug = '' ): bool {
 		if ( ! $this->authorizer->can_auth() ) {
 			return false;
 		}
 
-		return $this->token_manager->delete();
+		return $this->token_manager->delete( $slug );
 	}
 
 }

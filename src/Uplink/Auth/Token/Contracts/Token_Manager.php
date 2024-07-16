@@ -42,9 +42,9 @@ interface Token_Manager {
 	 *
 	 * @param string $slug The Product slug to retrieve the token for.
 	 *
-	 * @return mixed
+	 * @return string
 	 */
-	public function get( string $slug = '' ): mixed;
+	public function get( string $slug = '' ): ?string;
 
 	/**
 	 * Deletes the token from the database.

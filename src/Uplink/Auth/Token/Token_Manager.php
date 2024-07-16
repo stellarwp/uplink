@@ -82,7 +82,7 @@ final class Token_Manager implements Contracts\Token_Manager {
 			return true;
 		}
 
-		$data = $this->get();
+		$data = $this->get_all();
 
 		if ( ! is_array( $data ) ) {
 			$data = [];
@@ -102,21 +102,25 @@ final class Token_Manager implements Contracts\Token_Manager {
 	 *
 	 * @return string|null
 	 */
-	public function get( string $slug = '' ): mixed {
+	public function get( string $slug = '' ): ?string {
 		$slug = $this->validate_slug( $slug );
 
-		if ( ! $slug ) {
-			return get_network_option( get_current_network_id(), $this->option_name, null );
-		}
-
 		$value = get_network_option( get_current_network_id(), $this->option_name, null );
+
+		if ( ! $slug ) {
+			return is_string( $value ) ? $value : ( array_values( $value )[0] ?? null );
+		}
 
 		if ( is_string( $value ) ) {
 			// Still using old structure, lets return whatever we found.
 			return $value;
 		}
 
-		return $value[ $slug ] ?? $value;
+		return $value[ $slug ] ?? '';
+	}
+
+	public function get_all() {
+		return get_network_option( get_current_network_id(), $this->option_name, [] );
 	}
 
 	/**
@@ -125,7 +129,7 @@ final class Token_Manager implements Contracts\Token_Manager {
 	 * @return bool
 	 */
 	public function delete( string $slug = '' ): bool {
-		$current_value = $this->get();
+		$current_value = $this->get_all();
 		// Already doesn't exist, WordPress would normally return false.
 		if ( $current_value === null ) {
 			return true;

@@ -73,7 +73,7 @@ final class AuthorizerTest extends UplinkTestCase {
 		// Store a token while on the main site.
 		$this->assertTrue( $token_manager->store( '695be4b3-ad6e-4863-9287-3052f597b1f6' ) );
 
-		$this->assertSame( $token, get_network_option( get_current_network_id(), $token_manager->option_name() ) );
+		$this->assertSame( $token, array_values( get_network_option( get_current_network_id(), $token_manager->option_name() ) )['0'] );
 		$this->assertEmpty( get_option( $token_manager->option_name() ) );
 
 		// Main test domain is wordpress.test, create a sub domain.

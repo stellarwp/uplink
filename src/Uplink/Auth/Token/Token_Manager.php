@@ -156,6 +156,6 @@ final class Token_Manager implements Contracts\Token_Manager {
 	 * @return string
 	 */
 	protected function validate_slug( string $slug = '' ): string {
-		return Config::get_container()->get( Collection::class )->offsetExists( $slug ) ? $slug : '';
+		return $slug && Config::get_container()->get( Collection::class )->offsetExists( $slug ) ? $slug : '';
 	}
 }

@@ -51,6 +51,5 @@ interface Token_Manager {
 	 *
 	 * @return bool
 	 */
-	public function delete(): bool;
-
+	public function delete( string $slug = '' ): bool;
 }

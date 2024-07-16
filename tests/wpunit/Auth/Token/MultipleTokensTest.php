@@ -6,6 +6,7 @@ use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Resources\Collection;
+use StellarWP\Uplink\Tests\Container;
 use StellarWP\Uplink\Tests\TestUtils;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Uplink;
@@ -23,7 +24,13 @@ final class MultipleTokensTest extends UplinkTestCase {
 	 * @before
 	 */
 	protected function multiple_tokens_setup(): void {
-		parent::setUp();
+		$container = new Container();
+		Config::set_container( $container );
+		Config::set_hook_prefix( 'test' );
+
+		Uplink::init();
+
+		$this->container = Config::get_container();
 
 		Config::set_token_auth_prefix('custom_');
 

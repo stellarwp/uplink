@@ -107,6 +107,10 @@ final class Token_Manager implements Contracts\Token_Manager {
 
 		$value = get_network_option( get_current_network_id(), $this->option_name, null );
 
+		if ( ! $value ) {
+			return null;
+		}
+
 		if ( ! $slug ) {
 			return is_string( $value ) ? $value : ( array_values( $value )[0] ?? null );
 		}
@@ -119,6 +123,13 @@ final class Token_Manager implements Contracts\Token_Manager {
 		return $value[ $slug ] ?? '';
 	}
 
+	/**
+	 * Get all the tokens.
+	 *
+	 * @since TBD
+	 *
+	 * @return null|string|array
+	 */
 	public function get_all() {
 		return get_network_option( get_current_network_id(), $this->option_name, [] );
 	}

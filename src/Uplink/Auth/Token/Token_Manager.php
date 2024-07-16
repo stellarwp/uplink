@@ -120,7 +120,7 @@ final class Token_Manager implements Contracts\Token_Manager {
 			return $value;
 		}
 
-		return $value[ $slug ] ?? '';
+		return $value[ $slug ] ?? null;
 	}
 
 	/**

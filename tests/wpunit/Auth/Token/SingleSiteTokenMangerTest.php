@@ -39,7 +39,7 @@ final class SingleSiteTokenMangerTest extends UplinkTestCase {
 
 		$this->assertSame( $token, $this->token_manager->get() );
 
-		$this->assertSame( $token, get_option( $this->token_manager->option_name() ) );
+		$this->assertSame( $token, array_values( get_option( $this->token_manager->option_name() ) )['0'] );
 
 	}
 

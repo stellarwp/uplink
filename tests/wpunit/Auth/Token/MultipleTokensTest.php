@@ -19,7 +19,10 @@ final class MultipleTokensTest extends UplinkTestCase {
 	 */
 	private $token_manager;
 
-	protected function setUp(): void {
+	/**
+	 * @before
+	 */
+	protected function multiple_tokens_setup(): void {
 		parent::setUp();
 
 		Config::set_token_auth_prefix('custom_');
@@ -55,7 +58,7 @@ final class MultipleTokensTest extends UplinkTestCase {
 	 *
 	 * @return array
 	 */
-	private function getTokenSlugPairs(): array {
+	private function get_token_slug_pairs(): array {
 		$resources = $this->get_test_resources();
 		$tokens = [];
 		$dynamicTokenPrefix = 'dynamic-token-value_';
@@ -71,8 +74,8 @@ final class MultipleTokensTest extends UplinkTestCase {
 	/**
 	 * @test
 	 */
-	public function register_multiple_tokens(): void {
-		$tokens = $this->getTokenSlugPairs();
+	public function it_should_register_multiple_tokens(): void {
+		$tokens = $this->get_token_slug_pairs();
 
 		foreach ($tokens as $slug => $token) {
 			$this->assertTrue($this->token_manager->store($token, $slug));
@@ -92,8 +95,8 @@ final class MultipleTokensTest extends UplinkTestCase {
 	/**
 	 * @test
 	 */
-	public function test_it_deletes_multiple_tokens(): void {
-		$tokens = $this->getTokenSlugPairs();
+	public function it_deletes_multiple_tokens(): void {
+		$tokens = $this->get_token_slug_pairs();
 
 		foreach ($tokens as $slug => $token) {
 			$this->assertTrue($this->token_manager->store($token, $slug));
@@ -113,7 +116,7 @@ final class MultipleTokensTest extends UplinkTestCase {
 	/**
 	 * @test
 	 */
-	public function test_it_does_not_store_empty_tokens(): void {
+	public function it_does_not_store_empty_tokens(): void {
 		$resources = $this->get_test_resources();
 
 		foreach ($resources as $resource) {
@@ -126,7 +129,7 @@ final class MultipleTokensTest extends UplinkTestCase {
 	/**
 	 * @test
 	 */
-	public function test_backward_compatibility_with_single_and_multiple_tokens(): void {
+	public function it_should_have_backwards_compatibility_with_single_and_multiple_tokens(): void {
 		$collection = Config::get_container()->get(Collection::class);
 
 		Register::{'plugin'}(
@@ -151,7 +154,7 @@ final class MultipleTokensTest extends UplinkTestCase {
 		$this->assertSame($expected_tokens, $all_tokens);
 
 		// Step 2: Store multiple tokens and verify
-		$tokens = $this->getTokenSlugPairs();
+		$tokens = $this->get_token_slug_pairs();
 
 		foreach ($tokens as $slug => $token) {
 			$this->assertTrue($this->token_manager->store($token, $slug));

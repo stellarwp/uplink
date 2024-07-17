@@ -47,6 +47,15 @@ interface Token_Manager {
 	public function get( string $slug = '' ): ?string;
 
 	/**
+	 * Retrieve all store tokens, indexed by their slug.
+	 *
+	 * @since TBD
+	 *
+	 * @return array<string, string>|array{}
+	 */
+	public function get_all(): ?array;
+
+	/**
 	 * Deletes the token from the database.
 	 *
 	 * @return bool

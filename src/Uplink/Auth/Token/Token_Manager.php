@@ -24,9 +24,18 @@ final class Token_Manager implements Contracts\Token_Manager {
 	protected $option_name;
 
 	/**
+	 * Resources collection
+	 *
+	 * @since TBD
+	 *
+	 * @var Collection
+	 */
+	protected $collection;
+
+	/**
 	 * @param  string  $option_name  The option name as set via Config::set_token_auth_prefix().
 	 */
-	public function __construct( string $option_name ) {
+	public function __construct( string $option_name, Collection $collection ) {
 		if ( ! $option_name ) {
 			throw new InvalidArgumentException(
 				__( 'You must set a token prefix with StellarWP\Uplink\Config::set_token_auth_prefix() before using the token manager.', '%TEXTDOMAIN%' )
@@ -34,6 +43,7 @@ final class Token_Manager implements Contracts\Token_Manager {
 		}
 
 		$this->option_name = $option_name;
+		$this->collection  = $collection;
 	}
 
 	/**
@@ -73,6 +83,8 @@ final class Token_Manager implements Contracts\Token_Manager {
 			return false;
 		}
 
+		codecept_debug( $slug );
+
 		$slug = $this->validate_slug( $slug );
 
 		$current_value = $this->get( $slug );
@@ -82,15 +94,14 @@ final class Token_Manager implements Contracts\Token_Manager {
 			return true;
 		}
 
-		$data = $this->get_all();
+		$values = $this->get_all();
 
-		if ( ! is_array( $data ) ) {
-			$data = [];
-		}
+		$values[ $slug ] = $token;
 
-		$data[ $slug ] = $token;
+		codecept_debug( $values );
+		codecept_debug( $slug );
 
-		return update_network_option( get_current_network_id(), $this->option_name, $data );
+		return update_network_option( get_current_network_id(), $this->option_name, $values );
 	}
 
 	/**
@@ -105,22 +116,17 @@ final class Token_Manager implements Contracts\Token_Manager {
 	public function get( string $slug = '' ): ?string {
 		$slug = $this->validate_slug( $slug );
 
-		$value = get_network_option( get_current_network_id(), $this->option_name, null );
+		$values = $this->get_all();
 
-		if ( ! $value ) {
+		if ( ! $values ) {
 			return null;
 		}
 
 		if ( ! $slug ) {
-			return is_string( $value ) ? $value : ( array_values( $value )[0] ?? null );
+			return array_values( $values )[0] ?? null;
 		}
 
-		if ( is_string( $value ) ) {
-			// Still using old structure, lets return whatever we found.
-			return $value;
-		}
-
-		return $value[ $slug ] ?? null;
+		return $values[ $slug ] ?? null;
 	}
 
 	/**
@@ -128,10 +134,10 @@ final class Token_Manager implements Contracts\Token_Manager {
 	 *
 	 * @since TBD
 	 *
-	 * @return null|string|array
+	 * @return array<string, string>|array{}
 	 */
-	public function get_all() {
-		return get_network_option( get_current_network_id(), $this->option_name, [] );
+	public function get_all(): ?array {
+		return (array) get_network_option( get_current_network_id(), $this->option_name, [] );
 	}
 
 	/**
@@ -142,7 +148,7 @@ final class Token_Manager implements Contracts\Token_Manager {
 	public function delete( string $slug = '' ): bool {
 		$current_value = $this->get_all();
 		// Already doesn't exist, WordPress would normally return false.
-		if ( $current_value === null ) {
+		if ( ! $current_value ) {
 			return true;
 		}
 
@@ -171,6 +177,6 @@ final class Token_Manager implements Contracts\Token_Manager {
 	 * @return string
 	 */
 	protected function validate_slug( string $slug = '' ): string {
-		return $slug && Config::get_container()->get( Collection::class )->offsetExists( $slug ) ? $slug : '';
+		return $slug && $this->collection->offsetExists( $slug ) ? $slug : '';
 	}
 }

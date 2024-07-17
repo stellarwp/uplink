@@ -11,6 +11,7 @@ use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\Pipeline\Pipeline;
+use StellarWP\Uplink\Resources\Collection;
 
 final class Provider extends Abstract_Provider {
 
@@ -25,7 +26,7 @@ final class Provider extends Abstract_Provider {
 		$this->container->bind(
 			Token_Manager::class,
 			static function ( $c ) {
-				return new Token\Token_Manager( $c->get( Config::TOKEN_OPTION_NAME ) );
+				return new Token\Token_Manager( $c->get( Config::TOKEN_OPTION_NAME ), $c->get( Collection::class ) );
 			}
 		);
 

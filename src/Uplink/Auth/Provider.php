@@ -23,10 +23,10 @@ final class Provider extends Abstract_Provider {
 			return;
 		}
 
-		$this->container->bind(
+		$this->container->singleton(
 			Token_Manager::class,
 			static function ( $c ) {
-				return new Token\Token_Manager( $c->get( Config::TOKEN_OPTION_NAME ), $c->get( Collection::class ) );
+				return new Token\Token_Manager( $c->get( Config::TOKEN_OPTION_NAME ) );
 			}
 		);
 

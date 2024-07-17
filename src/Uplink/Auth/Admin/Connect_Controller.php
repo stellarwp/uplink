@@ -76,11 +76,20 @@ final class Connect_Controller {
 			return;
 		}
 
-		$license = $args[ self::LICENSE ] ?? '';
 		$slug    = $args[ self::SLUG ] ?? '';
+		$plugin  = $this->collection->offsetGet( $slug );
+
+		if ( ! $plugin ) {
+			$this->notice->add( new Notice( Notice::ERROR,
+				__( 'Plugin or Service slug not found.', '%TEXTDOMAIN%' ),
+				true
+			) );
+
+			return;
+		}
 
 		try {
-			if ( ! $this->connector->connect( $args[ self::TOKEN ] ?? '', $slug ) ) {
+			if ( ! $this->connector->connect( $args[ self::TOKEN ] ?? '', $plugin ) ) {
 				$this->notice->add( new Notice( Notice::ERROR,
 					__( 'Error storing token.', '%TEXTDOMAIN%' ),
 					true
@@ -98,18 +107,9 @@ final class Connect_Controller {
 		}
 
 		// Store or override an existing license.
-		if ( $license && $slug ) {
-			if ( ! $this->collection->offsetExists( $slug ) ) {
-				$this->notice->add( new Notice( Notice::ERROR,
-					__( 'Plugin or Service slug not found.', '%TEXTDOMAIN%' ),
-					true
-				) );
+		$license = $args[ self::LICENSE ] ?? '';
 
-				return;
-			}
-
-			$plugin = $this->collection->offsetGet( $slug );
-
+		if ( $license ) {
 			if ( ! $plugin->set_license_key( $license, 'network' ) ) {
 				$this->notice->add( new Notice( Notice::ERROR,
 					__( 'Error storing license key.', '%TEXTDOMAIN%' ),

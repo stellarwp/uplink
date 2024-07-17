@@ -5,7 +5,7 @@ namespace StellarWP\Uplink\Tests;
 use StellarWP\Uplink\Uplink;
 
 trait TestUtils {
-	protected string $base;
+	protected $base;
 
 	/**
 	 * Resources.

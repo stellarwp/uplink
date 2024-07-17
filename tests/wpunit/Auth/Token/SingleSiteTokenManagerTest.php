@@ -8,9 +8,8 @@ use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Tests\Sample_Plugin;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Uplink;
-use WP_Error;
 
-final class SubfolderMultisiteTokenMangerTest extends UplinkTestCase {
+final class SingleSiteTokenManagerTest extends UplinkTestCase {
 
 	/***
 	 * @var Token_Manager
@@ -37,12 +36,6 @@ final class SubfolderMultisiteTokenMangerTest extends UplinkTestCase {
 		// Run init again to reload the Token/Provider.
 		Uplink::init();
 
-		// Main test domain is wordpress.test, create a subfolder sub-site.
-		$sub_site_id = wpmu_create_blog( 'wordpress.test', '/sub1', 'Test Subsite', 1 );
-
-		$this->assertNotInstanceOf( WP_Error::class, $sub_site_id );
-		$this->assertGreaterThan( 1, $sub_site_id );
-
 		// Register the sample plugin as a developer would in their plugin.
 		$this->plugin = Register::plugin(
 			$this->slug,
@@ -52,31 +45,30 @@ final class SubfolderMultisiteTokenMangerTest extends UplinkTestCase {
 			Sample_Plugin::class
 		);
 
-		switch_to_blog( $sub_site_id );
 
 		$this->token_manager = $this->container->get( Token_Manager::class );
 	}
 
 	/**
-	 * @env multisite
+	 * @env singlesite
 	 */
-	public function test_it_stores_and_retrieves_a_token_from_the_network(): void {
-		$this->assertTrue( is_multisite() );
+	public function test_it_stores_and_retrieves_a_token(): void {
+		$this->assertFalse( is_multisite() );
 
 		$this->assertNull( $this->token_manager->get( $this->plugin ) );
 
-		$token = 'cd4b77be-985f-4737-89b7-eaa13b335fe8';
+		$token = 'b0679a2e-b36d-41ca-8121-f43267751938';
 
 		$this->assertTrue( $this->token_manager->store( $token, $this->plugin ) );
 
 		$this->assertSame( $token, $this->token_manager->get( $this->plugin ) );
 
-		$this->assertSame( $token, get_network_option( get_current_network_id(), $this->token_manager->option_name() )[ $this->slug ] );
-		$this->assertEmpty( get_option( $this->token_manager->option_name() ) );
+		$this->assertSame( $token, get_option( $this->token_manager->option_name() )[ $this->slug ] );
+
 	}
 
 	/**
-	 * @env multisite
+	 * @env singlesite
 	 */
 	public function test_it_deletes_a_token(): void {
 		$this->assertNull( $this->token_manager->get( $this->plugin ) );
@@ -87,13 +79,13 @@ final class SubfolderMultisiteTokenMangerTest extends UplinkTestCase {
 
 		$this->assertSame( $token, $this->token_manager->get( $this->plugin ) );
 
-		$this->assertTrue( $this->token_manager->delete( $this->slug ) );
+		$this->token_manager->delete( $this->slug );
 
 		$this->assertNull( $this->token_manager->get( $this->plugin ) );
 	}
 
 	/**
-	 * @env multisite
+	 * @env singlesite
 	 */
 	public function test_it_does_not_store_an_empty_token(): void {
 		$this->assertNull( $this->token_manager->get( $this->plugin ) );
@@ -104,7 +96,7 @@ final class SubfolderMultisiteTokenMangerTest extends UplinkTestCase {
 	}
 
 	/**
-	 * @env multisite
+	 * @env singlesite
 	 */
 	public function test_it_fetches_and_deletes_a_legacy_token(): void {
 		$this->assertNull( $this->token_manager->get( $this->plugin ) );
@@ -112,7 +104,7 @@ final class SubfolderMultisiteTokenMangerTest extends UplinkTestCase {
 		$token = 'b5aad022-71ca-4b29-85c2-70da5c8a5779';
 
 		// Manually store a legacy string token.
-		$this->assertTrue( update_network_option( get_current_network_id(), $this->token_manager->option_name(), $token ) );
+		$this->assertTrue( update_option( $this->token_manager->option_name(), $token ) );
 
 		$this->assertTrue( $this->token_manager->store( $token, $this->plugin ) );
 

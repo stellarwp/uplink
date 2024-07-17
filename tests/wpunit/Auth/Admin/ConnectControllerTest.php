@@ -203,7 +203,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$this->assertEmpty( $plugin->get_license_key() );
 	}
 
-	public function test_it_stores_token_but_not_license_with_a_slug_that_does_not_exist(): void {
+	public function test_it_does_not_stores_token_or_license_with_a_slug_that_does_not_exist(): void {
 		global $_GET;
 
 		wp_set_current_user( 1 );
@@ -232,7 +232,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		// Fire off the action the Connect_Controller is running under.
 		do_action( 'admin_init' );
 
-		$this->assertSame( $token, $this->token_manager->get() );
+		$this->assertNull( $this->token_manager->get() );
 		$this->assertEmpty( $plugin->get_license_key() );
 	}
 

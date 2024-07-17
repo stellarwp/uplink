@@ -126,7 +126,7 @@ final class Token_Manager implements Contracts\Token_Manager {
 		}
 
 		if ( ! $validated_slug ) {
-			return array_values( $values )[0] ?? null;
+			return array_values( $values )[0];
 		}
 
 		return $values[ $validated_slug ] ?? null;
@@ -139,7 +139,7 @@ final class Token_Manager implements Contracts\Token_Manager {
 	 *
 	 * @return array<string, string>|array{}
 	 */
-	public function get_all(): ?array {
+	public function get_all(): array {
 		return (array) get_network_option( get_current_network_id(), $this->option_name, [] );
 	}
 
@@ -186,7 +186,7 @@ final class Token_Manager implements Contracts\Token_Manager {
 	 *
 	 * @param  string  $slug
 	 *
-	 * @return string.
+	 * @return string|int The slug if valid, 0 if not.
 	 */
 	protected function validate_slug( string $slug = '' ) {
 		return $slug && $this->collection->offsetExists( $slug ) ? $slug : 0;

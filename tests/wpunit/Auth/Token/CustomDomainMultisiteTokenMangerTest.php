@@ -48,7 +48,7 @@ final class CustomDomainMultisiteTokenMangerTest extends UplinkTestCase {
 
 		$this->assertSame( $token, $this->token_manager->get() );
 
-		$this->assertSame( $token, array_values( get_network_option( get_current_network_id(), $this->token_manager->option_name() ) )['0'] );
+		$this->assertSame( $token, array_values( get_network_option( get_current_network_id(), $this->token_manager->option_name() ) )[0] );
 		$this->assertEmpty( get_option( $this->token_manager->option_name() ) );
 	}
 

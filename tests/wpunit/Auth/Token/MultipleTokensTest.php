@@ -20,6 +20,24 @@ final class MultipleTokensTest extends UplinkTestCase {
 	 */
 	private $token_manager;
 
+
+	/**
+	 * @var Collection
+	 */
+	private $collection;
+
+	protected function setUp(): void {
+		parent::setUp();
+
+		Config::set_token_auth_prefix( 'custom_' );
+
+		// Run init again to reload the Token/Provider.
+		Uplink::init();
+
+		$this->collection    = $this->container->get( Collection::class );
+		$this->token_manager = $this->container->get( Token_Manager::class );
+	}
+
 	/**
 	 * @before
 	 */
@@ -48,8 +66,6 @@ final class MultipleTokensTest extends UplinkTestCase {
 	 * @return mixed
 	 */
 	public function setup_container_get_slug( array $resource ) {
-		$collection = Config::get_container()->get( Collection::class );
-
 		Register::{$resource['type']}(
 			$resource['slug'],
 			$resource['name'],
@@ -58,7 +74,7 @@ final class MultipleTokensTest extends UplinkTestCase {
 			$resource['class']
 		);
 
-		return $collection->get( $resource['slug'] );
+		return $this->collection->get( $resource['slug'] );
 	}
 
 	/**
@@ -138,8 +154,6 @@ final class MultipleTokensTest extends UplinkTestCase {
 	 * @test
 	 */
 	public function it_should_have_backwards_compatibility_with_single_and_multiple_tokens(): void {
-		$collection = Config::get_container()->get( Collection::class );
-
 		Register::{'plugin'}(
 			'single-plugin-1',
 			'Single Plugin',
@@ -240,5 +254,68 @@ final class MultipleTokensTest extends UplinkTestCase {
 
 		// Confirm that the stored token is the same as the one grabbed directly from the DB.
 		$this->assertSame( $stored_new_token, array_values( $db_new_token )[0] );
+	}
+
+	/**
+	 * @test
+	 */
+	public function it_should_delete_single_tokens() {
+		// Ensure no token is stored initially
+		$this->assertNull($this->token_manager->get());
+
+		$token = 'cd4b77be-985f-4737-89b7-eaa13b335fe8';
+
+		// Force the store of the token as a string to mimic the original logic.
+		update_network_option(get_current_network_id(), $this->token_manager->option_name(), $token);
+
+		// Retrieve the stored token and verify
+		$stored_token = $this->token_manager->get();
+
+		// Confirm that we receive a string back.
+		$this->assertIsString($stored_token);
+		$this->assertSame($token, $stored_token);
+
+		// Delete the token and verify deletion
+		$this->assertTrue($this->token_manager->delete());
+		$this->assertNull($this->token_manager->get());
+	}
+
+	/**
+	 * @test
+	 */
+	public function it_should_not_delete_if_no_slug_and_null_or_array() {
+		// Ensure no token is stored initially
+		$this->assertNull($this->token_manager->get());
+
+		// There is no value to delete, expect false.
+		$this->assertTrue($this->token_manager->delete());
+
+		// Ensure no token is stored initially
+		$this->assertNull($this->token_manager->get());
+
+		// Force the store of the token as an array.
+		$token = ['0' => 'abc123'];
+		update_network_option(get_current_network_id(), $this->token_manager->option_name(), $token);
+
+		// Try to delete the token and expect true since it will clear the array.
+		$this->assertTrue($this->token_manager->delete());
+		$this->assertNull($this->token_manager->get());
+	}
+
+	/**
+	 * @test
+	 */
+	public function it_should_do_nothing_when_nonexistent_slug() {
+		$fake_slug = 'fake_slug';
+
+		// Attempt to store a token with a nonexistent slug and verify it fails
+		$this->assertFalse($this->token_manager->store('fake-token', $fake_slug));
+		$this->assertNull($this->token_manager->get($fake_slug));
+
+		// Attempt to delete a token with a nonexistent slug.
+		$this->assertTrue($this->token_manager->delete($fake_slug));
+
+		// Verify that no tokens are stored
+		$this->assertCount(0, $this->token_manager->get_all());
 	}
 }

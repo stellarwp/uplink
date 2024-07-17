@@ -83,9 +83,11 @@ final class Token_Manager implements Contracts\Token_Manager {
 			return false;
 		}
 
-		codecept_debug( $slug );
+		$validated_slug = $this->validate_slug( $slug );
 
-		$slug = $this->validate_slug( $slug );
+		if ( $slug && ! $validated_slug ) {
+			return false;
+		}
 
 		$current_value = $this->get( $slug );
 
@@ -97,9 +99,6 @@ final class Token_Manager implements Contracts\Token_Manager {
 		$values = $this->get_all();
 
 		$values[ $slug ] = $token;
-
-		codecept_debug( $values );
-		codecept_debug( $slug );
 
 		return update_network_option( get_current_network_id(), $this->option_name, $values );
 	}

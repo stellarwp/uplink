@@ -89,7 +89,7 @@ final class Token_Manager implements Contracts\Token_Manager {
 			return false;
 		}
 
-		$current_value = $this->get( $slug );
+		$current_value = $this->get( is_string( $validated_slug ) ? $validated_slug : '' );
 
 		// WordPress would otherwise return false if the items match.
 		if ( $token === $current_value ) {
@@ -98,7 +98,7 @@ final class Token_Manager implements Contracts\Token_Manager {
 
 		$values = $this->get_all();
 
-		$values[ $slug ] = $token;
+		$values[ $validated_slug ] = $token;
 
 		return update_network_option( get_current_network_id(), $this->option_name, $values );
 	}
@@ -113,7 +113,11 @@ final class Token_Manager implements Contracts\Token_Manager {
 	 * @return string|null
 	 */
 	public function get( string $slug = '' ): ?string {
-		$slug = $this->validate_slug( $slug );
+		$validated_slug = $this->validate_slug( $slug );
+
+		if ( $slug && ! $validated_slug ) {
+			return null;
+		}
 
 		$values = $this->get_all();
 
@@ -121,11 +125,11 @@ final class Token_Manager implements Contracts\Token_Manager {
 			return null;
 		}
 
-		if ( ! $slug ) {
+		if ( ! $validated_slug ) {
 			return array_values( $values )[0] ?? null;
 		}
 
-		return $values[ $slug ] ?? null;
+		return $values[ $validated_slug ] ?? null;
 	}
 
 	/**
@@ -151,17 +155,26 @@ final class Token_Manager implements Contracts\Token_Manager {
 			return true;
 		}
 
-		$slug = $this->validate_slug( $slug );
+		$validated_slug = $this->validate_slug( $slug );
 
-		if ( ! $slug ) {
-			return delete_network_option( get_current_network_id(), $this->option_name );
+		if ( $slug && ! $validated_slug ) {
+			return false;
 		}
 
-		if ( empty( $current_value[ $slug ] ) ) {
+		if ( ! $validated_slug ) {
+			if ( ! isset( $current_value[ $validated_slug ] ) ) {
+				return true;
+			}
+
+			unset( $current_value[ $validated_slug ] );
+			return update_network_option( get_current_network_id(), $this->option_name, $current_value );
+		}
+
+		if ( empty( $current_value[ $validated_slug ] ) ) {
 			return true;
 		}
 
-		unset( $current_value[ $slug ] );
+		unset( $current_value[ $validated_slug ] );
 
 		return update_network_option( get_current_network_id(), $this->option_name, $current_value );
 	}
@@ -173,9 +186,9 @@ final class Token_Manager implements Contracts\Token_Manager {
 	 *
 	 * @param  string  $slug
 	 *
-	 * @return string
+	 * @return string.
 	 */
-	protected function validate_slug( string $slug = '' ): string {
-		return $slug && $this->collection->offsetExists( $slug ) ? $slug : '';
+	protected function validate_slug( string $slug = '' ) {
+		return $slug && $this->collection->offsetExists( $slug ) ? $slug : 0;
 	}
 }

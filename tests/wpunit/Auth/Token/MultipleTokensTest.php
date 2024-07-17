@@ -20,6 +20,24 @@ final class MultipleTokensTest extends UplinkTestCase {
 	 */
 	private $token_manager;
 
+
+	/**
+	 * @var Collection
+	 */
+	private $collection;
+
+	protected function setUp(): void {
+		parent::setUp();
+
+		Config::set_token_auth_prefix( 'custom_' );
+
+		// Run init again to reload the Token/Provider.
+		Uplink::init();
+
+		$this->collection    = $this->container->get( Collection::class );
+		$this->token_manager = $this->container->get( Token_Manager::class );
+	}
+
 	/**
 	 * @before
 	 */
@@ -48,8 +66,6 @@ final class MultipleTokensTest extends UplinkTestCase {
 	 * @return mixed
 	 */
 	public function setup_container_get_slug( array $resource ) {
-		$collection = Config::get_container()->get( Collection::class );
-
 		Register::{$resource['type']}(
 			$resource['slug'],
 			$resource['name'],
@@ -58,7 +74,7 @@ final class MultipleTokensTest extends UplinkTestCase {
 			$resource['class']
 		);
 
-		return $collection->get( $resource['slug'] );
+		return $this->collection->get( $resource['slug'] );
 	}
 
 	/**
@@ -138,8 +154,6 @@ final class MultipleTokensTest extends UplinkTestCase {
 	 * @test
 	 */
 	public function it_should_have_backwards_compatibility_with_single_and_multiple_tokens(): void {
-		$collection = Config::get_container()->get( Collection::class );
-
 		Register::{'plugin'}(
 			'single-plugin-1',
 			'Single Plugin',

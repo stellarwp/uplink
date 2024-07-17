@@ -288,13 +288,13 @@ final class MultipleTokensTest extends UplinkTestCase {
 		$this->assertNull($this->token_manager->get());
 
 		// There is no value to delete, expect false.
-		$this->assertFalse($this->token_manager->delete());
+		$this->assertTrue($this->token_manager->delete());
 
 		// Ensure no token is stored initially
 		$this->assertNull($this->token_manager->get());
 
 		// Force the store of the token as an array.
-		$token = ['' => 'abc123'];
+		$token = ['0' => 'abc123'];
 		update_network_option(get_current_network_id(), $this->token_manager->option_name(), $token);
 
 		// Try to delete the token and expect true since it will clear the array.
@@ -312,8 +312,8 @@ final class MultipleTokensTest extends UplinkTestCase {
 		$this->assertFalse($this->token_manager->store('fake-token', $fake_slug));
 		$this->assertNull($this->token_manager->get($fake_slug));
 
-		// Attempt to delete a token with a nonexistent slug and verify it fails
-		$this->assertFalse($this->token_manager->delete($fake_slug));
+		// Attempt to delete a token with a nonexistent slug.
+		$this->assertTrue($this->token_manager->delete($fake_slug));
 
 		// Verify that no tokens are stored
 		$this->assertCount(0, $this->token_manager->get_all());

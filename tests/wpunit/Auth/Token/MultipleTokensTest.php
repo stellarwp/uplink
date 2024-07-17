@@ -199,4 +199,45 @@ final class MultipleTokensTest extends UplinkTestCase {
 		$all_tokens = $this->token_manager->get_all();
 		$this->assertSame($expected_tokens, $all_tokens);
 	}
+
+	/**
+	 * @test
+	 */
+	public function backwards_compatibility_with_original_token() {
+		// Ensure no token is stored initially
+		$this->assertNull($this->token_manager->get());
+
+		$token = 'cd4b77be-985f-4737-89b7-eaa13b335fe8';
+
+		// Force the store of the token as a string to mimic the original logic.
+		update_option($this->token_manager->option_name(), $token);
+
+		// Retrieve the stored token and verify
+		$stored_token = $this->token_manager->get();
+
+		// Confirm that we receive a string back.
+		$this->assertIsString($stored_token);
+
+		// Confirm at this point that the token from the DB is a string.
+		$db_token = get_option($this->token_manager->option_name());
+		$this->assertIsString($db_token);
+
+		// Confirm that the stored token is the same as the one grabbed directly from the DB.
+		$this->assertSame($stored_token, $db_token);
+
+		// Let's update the key by using the token_manager to make sure it converts to an array.
+		$new_token = 'af4b77be-985f-4537-89b7-eaa13b335fe8';
+		$this->assertTrue($this->token_manager->store($new_token));
+
+		// Retrieve the new stored token and verify
+		$stored_new_token = $this->token_manager->get();
+
+		// Confirm that the stored token in the DB is now an array.
+		$db_new_token = get_option($this->token_manager->option_name());
+		$this->assertIsArray($db_new_token);
+		$this->assertCount(1, $db_new_token);
+
+		// Confirm that the stored token is the same as the one grabbed directly from the DB.
+		$this->assertSame($stored_new_token, array_values($db_new_token)[0]);
+	}
 }

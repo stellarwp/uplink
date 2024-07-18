@@ -48,9 +48,9 @@ class Config {
 	/**
 	 * The storage driver FQCN to use.
 	 *
-	 * @var class-string<Storage>
+	 * @var class-string<Storage>|null
 	 */
-	protected static $storage_driver = '';
+	protected static $storage_driver = null;
 
 	/**
 	 * Get the container.

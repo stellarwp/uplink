@@ -141,6 +141,51 @@ function get_resource( string $slug ) {
 	return get_container()->get( Collection::class )->offsetGet( $slug );
 }
 
+/**
+ * Get a resource's license key.
+ *
+ * @param  string  $slug  The plugin/service slug.
+ * @param  string  $type  The type of key to get (any, network, local, default).
+ *
+ * @throws \RuntimeException
+ *
+ * @return string
+ */
+function get_license_key( string $slug, string $type = 'any' ): string {
+	$resource = get_resource( $slug );
+
+	if ( ! $resource ) {
+		return '';
+	}
+
+	return $resource->get_license_key( $type );
+}
+
+/**
+ * Set a resource's license key.
+ *
+ * @param  string  $slug The plugin/service slug.
+ * @param  string  $license The license key to store.
+ * @param  string  $type  The type of key to set (any, network, local, default).
+ *
+ * @throws \RuntimeException
+ *
+ * @return bool
+ */
+function set_license_key( string $slug, string $license, string $type = 'local' ): bool {
+	$resource = get_resource( $slug );
+
+	if ( ! $resource ) {
+		return false;
+	}
+
+	$result = $resource->set_license_key( $license, $type );
+
+	// Force update the key status.
+	$resource->validate_license( $license, $type === 'network' );
+
+	return $result;
+}
 
 /**
  * Get the disconnect token URL.

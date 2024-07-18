@@ -7,6 +7,7 @@ use StellarWP\Uplink\Auth\Admin\Connect_Controller;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
+use StellarWP\Uplink\Storage\Contracts\Storage;
 
 final class Provider extends Abstract_Provider {
 
@@ -47,7 +48,9 @@ final class Provider extends Abstract_Provider {
 		$expiration = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/auth/nonce_expiration', 2100 );
 		$expiration = absint( $expiration );
 
-		$this->container->singleton( Nonce::class, new Nonce( $expiration ) );
+		$this->container->singleton( Nonce::class, static function( $c ) use ( $expiration ) {
+			return new Nonce( $c->get( Storage::class ), $expiration );
+		} );
 	}
 
 	/**

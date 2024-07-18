@@ -29,6 +29,7 @@ class Uplink {
 		$container->singleton( self::UPLINK_ADMIN_VIEWS_PATH, dirname( __DIR__ ) . '/admin-views' );
 		$container->singleton( self::UPLINK_ASSETS_URI, dirname( plugin_dir_url( __FILE__ ) ) . '/assets' );
 		$container->bind( ContainerInterface::class, $container );
+		$container->singleton( Storage\Provider::class, Storage\Provider::class );
 		$container->singleton( View\Provider::class, View\Provider::class );
 		$container->singleton( API\Client::class, API\Client::class );
 		$container->singleton( API\V3\Provider::class, API\V3\Provider::class );
@@ -39,6 +40,7 @@ class Uplink {
 		$container->singleton( Auth\Provider::class, Auth\Provider::class );
 
 		if ( static::is_enabled() ) {
+			$container->get( Storage\Provider::class )->register();
 			$container->get( View\Provider::class )->register();
 			$container->get( API\V3\Provider::class )->register();
 			$container->get( Notice\Provider::class )->register();

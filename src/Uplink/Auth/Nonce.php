@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink\Auth;
 
 use StellarWP\Uplink\Config;
+use StellarWP\Uplink\Storage\Contracts\Storage;
 
 final class Nonce {
 
@@ -10,6 +11,11 @@ final class Nonce {
 	 * The suffix for the transient name to store the nonce.
 	 */
 	public const NONCE_SUFFIX = '_uplink_nonce';
+
+	/**
+	 * @var Storage
+	 */
+	private $storage;
 
 	/**
 	 * How long a nonce is valid for in seconds.
@@ -21,7 +27,8 @@ final class Nonce {
 	/**
 	 * @param  int  $expiration  How long the nonce is valid for in seconds.
 	 */
-	public function __construct( int $expiration = 2100 ) {
+	public function __construct( Storage $storage, int $expiration = 2100 ) {
+		$this->storage    = $storage;
 		$this->expiration = $expiration;
 	}
 
@@ -32,12 +39,12 @@ final class Nonce {
 	 *
 	 * @return bool
 	 */
-	public static function verify( string $nonce ): bool {
+	public function verify( string $nonce ): bool {
 		if ( ! $nonce ) {
 			return false;
 		}
 
-		return $nonce === get_transient( Config::get_hook_prefix_underscored() . self::NONCE_SUFFIX );
+		return $nonce === $this->storage->get( ( Config::get_hook_prefix_underscored() . self::NONCE_SUFFIX ) );
 	}
 
 	/**
@@ -46,7 +53,7 @@ final class Nonce {
 	 * @return string
 	 */
 	public function create(): string {
-		$existing = get_transient( $this->key() );
+		$existing = $this->storage->get( $this->key() );
 
 		if ( $existing ) {
 			return $existing;
@@ -54,7 +61,7 @@ final class Nonce {
 
 		$nonce = wp_generate_password( 16, false );
 
-		set_transient( $this->key(), $nonce, $this->expiration );
+		$this->storage->set( $this->key(), $nonce, $this->expiration );
 
 		return $nonce;
 	}

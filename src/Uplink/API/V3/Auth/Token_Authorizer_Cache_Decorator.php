@@ -4,6 +4,7 @@ namespace StellarWP\Uplink\API\V3\Auth;
 
 use StellarWP\Uplink\API\V3\Provider;
 use StellarWP\Uplink\Config;
+use StellarWP\Uplink\Storage\Contracts\Storage;
 
 /**
  * Token Authorizer Cache Decorator.
@@ -18,6 +19,11 @@ final class Token_Authorizer_Cache_Decorator implements Contracts\Token_Authoriz
 	 * @var Token_Authorizer
 	 */
 	private $authorizer;
+
+	/**
+	 * @var Storage
+	 */
+	private $storage;
 
 	/**
 	 * The cache expiration in seconds.
@@ -35,9 +41,11 @@ final class Token_Authorizer_Cache_Decorator implements Contracts\Token_Authoriz
 	 */
 	public function __construct(
 		Token_Authorizer $authorizer,
+		Storage $storage,
 		int $expiration = 21600
 	) {
 		$this->authorizer = $authorizer;
+		$this->storage    = $storage;
 		$this->expiration = $expiration;
 	}
 
@@ -57,7 +65,7 @@ final class Token_Authorizer_Cache_Decorator implements Contracts\Token_Authoriz
 	 */
 	public function is_authorized( string $license, string $slug, string $token, string $domain ): bool {
 		$transient     = $this->build_transient( [ $license, $token, $domain ] );
-		$is_authorized = get_transient( $transient );
+		$is_authorized = $this->storage->get( $transient );
 
 		if ( $is_authorized === true ) {
 			return true;
@@ -67,7 +75,7 @@ final class Token_Authorizer_Cache_Decorator implements Contracts\Token_Authoriz
 
 		// Only cache successful responses.
 		if ( $is_authorized ) {
-			set_transient( $transient, true, $this->expiration );
+			$this->storage->set( $transient, true, $this->expiration );
 		}
 
 		return $is_authorized;

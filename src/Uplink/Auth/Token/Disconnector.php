@@ -5,6 +5,7 @@ namespace StellarWP\Uplink\Auth\Token;
 use StellarWP\Uplink\API\V3\Auth\Token_Authorizer_Cache_Decorator;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Resources\Collection;
+use StellarWP\Uplink\Storage\Contracts\Storage;
 
 final class Disconnector {
 
@@ -19,14 +20,21 @@ final class Disconnector {
 	private $resources;
 
 	/**
+	 * @var Storage
+	 */
+	private $storage;
+
+	/**
 	 * @param  Token_Manager  $token_manager  The Token Manager.
 	 */
 	public function __construct(
 		Token_Manager $token_manager,
-		Collection $resources
+		Collection $resources,
+		Storage $storage
 	) {
 		$this->token_manager = $token_manager;
 		$this->resources     = $resources;
+		$this->storage       = $storage;
 	}
 
 	/**
@@ -48,7 +56,7 @@ final class Disconnector {
 
 		if ( $result ) {
 			// Delete the authorization cache.
-			delete_transient( Token_Authorizer_Cache_Decorator::TRANSIENT_PREFIX . $cache_key );
+			$this->storage->delete( Token_Authorizer_Cache_Decorator::TRANSIENT_PREFIX . $cache_key );
 		}
 
 		return $result;

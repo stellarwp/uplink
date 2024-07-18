@@ -2,6 +2,8 @@
 
 namespace StellarWP\Uplink\Notice;
 
+use StellarWP\Uplink\Storage\Contracts\Storage;
+
 /**
  * An improved admin notice system for general messages.
  *
@@ -9,7 +11,7 @@ namespace StellarWP\Uplink\Notice;
  */
 final class Notice_Handler {
 
-	public const TRANSIENT = 'stellarwp_uplink_notices';
+	public const STORAGE_KEY = 'stellarwp_uplink_notices';
 
 	/**
 	 * Handles rendering notices.
@@ -19,13 +21,22 @@ final class Notice_Handler {
 	private $controller;
 
 	/**
+	 * @var Storage
+	 */
+	private $storage;
+
+	/**
 	 * @var Notice[]
 	 */
 	private $notices;
 
-	public function __construct( Notice_Controller $controller ) {
-		$this->notices    = $this->all();
+	public function __construct(
+		Notice_Controller $controller,
+		Storage $storage
+	) {
 		$this->controller = $controller;
+		$this->storage    = $storage;
+		$this->notices    = $this->all();
 	}
 
 	/**
@@ -65,7 +76,7 @@ final class Notice_Handler {
 	 * @return Notice[]
 	 */
 	private function all(): array {
-		return array_filter( (array) get_transient( self::TRANSIENT ) );
+		return array_filter( (array) $this->storage->get( self::STORAGE_KEY ) );
 	}
 
 	/**
@@ -74,7 +85,7 @@ final class Notice_Handler {
 	 * @return bool
 	 */
 	private function save(): bool {
-		return (bool) set_transient( self::TRANSIENT, $this->notices, 300 );
+		return $this->storage->set( self::STORAGE_KEY, $this->notices, 300 );
 	}
 
 	/**
@@ -83,7 +94,7 @@ final class Notice_Handler {
 	 * @return bool
 	 */
 	private function clear(): bool {
-		return (bool) delete_transient( self::TRANSIENT );
+		return $this->storage->delete( self::STORAGE_KEY );
 	}
 
 }

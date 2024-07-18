@@ -41,17 +41,23 @@ final class Connect_Controller {
 	 */
 	private $authorizer;
 
+	/**
+	 * @var Nonce
+	 */
+	private $nonce;
 
 	public function __construct(
 		Connector $connector,
 		Notice_Handler $notice,
 		Collection $collection,
-		Authorizer $authorizer
+		Authorizer $authorizer,
+		Nonce $nonce
 	) {
 		$this->connector  = $connector;
 		$this->notice     = $notice;
 		$this->collection = $collection;
 		$this->authorizer = $authorizer;
+		$this->nonce      = $nonce;
 	}
 
 	/**
@@ -87,7 +93,7 @@ final class Connect_Controller {
 		}
 
 
-		if ( ! Nonce::verify( $args[ self::NONCE ] ?? '' ) ) {
+		if ( ! $this->nonce->verify( $args[ self::NONCE ] ?? '' ) ) {
 			if ( ! function_exists( 'is_plugin_active' ) ) {
 				require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 			}

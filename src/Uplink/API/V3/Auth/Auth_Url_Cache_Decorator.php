@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink\API\V3\Auth;
 
 use InvalidArgumentException;
+use StellarWP\Uplink\Storage\Contracts\Storage;
 
 /**
  * Auth URL cache decorator.
@@ -17,6 +18,11 @@ final class Auth_Url_Cache_Decorator implements Contracts\Auth_Url {
 	private $auth_url;
 
 	/**
+	 * @var Storage
+	 */
+	private $storage;
+
+	/**
 	 * The cache expiration in seconds.
 	 *
 	 * @var int
@@ -27,8 +33,9 @@ final class Auth_Url_Cache_Decorator implements Contracts\Auth_Url {
 	 * @param  Auth_Url  $auth_url  Remotely fetch the Origin's Auth URL.
 	 * @param  int  $expiration  The cache expiration in seconds.
 	 */
-	public function __construct( Auth_Url $auth_url, int $expiration = DAY_IN_SECONDS ) {
+	public function __construct( Auth_Url $auth_url, Storage $storage, int $expiration = DAY_IN_SECONDS ) {
 		$this->auth_url   = $auth_url;
+		$this->storage    = $storage;
 		$this->expiration = $expiration;
 	}
 
@@ -48,16 +55,16 @@ final class Auth_Url_Cache_Decorator implements Contracts\Auth_Url {
 
 		$transient = $this->build_transient( $slug );
 
-		$url = get_transient( $transient );
+		$url = $this->storage->get( $transient );
 
-		if ( $url !== false ) {
+		if ( $url !== null ) {
 			return $url;
 		}
 
 		$url = $this->auth_url->get( $slug );
 
 		// We'll cache empty auth URLs to prevent further remote requests.
-		set_transient( $transient, $url, $this->expiration );
+		$this->storage->set( $transient, $url, $this->expiration );
 
 		return $url;
 	}

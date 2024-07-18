@@ -224,11 +224,7 @@ abstract class Resource {
 	 * @return ?string
 	 */
 	public function get_token(): ?string {
-		if ( ! $this->is_using_oauth() ) {
-			return null;
-		}
-
-		return $this->container->get( Token_Manager::class )->get( $this->get_slug() );
+		return $this->container->get( Token_Manager::class )->get( $this );
 	}
 
 	/**
@@ -240,12 +236,8 @@ abstract class Resource {
 	 *
 	 * @return bool
 	 */
-	public function store_token( $token ) {
-		if ( ! $this->is_using_oauth() ) {
-			return false;
-		}
-
-		return $this->container->get( Token_Manager::class )->store( $token, $this->get_slug() );
+	public function store_token( string $token ): bool {
+		return $this->container->get( Token_Manager::class )->store( $token, $this );
 	}
 
 	/**

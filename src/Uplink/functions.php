@@ -61,11 +61,7 @@ function render_authorize_button( string $slug, string $domain = '' ): void {
 function get_authorization_token( string $slug ): ?string {
 	$resource = get_resource( $slug );
 
-	if ( ! $resource ) {
-		return null;
-	}
-
-	return get_container()->get( Token_Manager::class )->get( $resource );
+	return $resource ? $resource->get_token() : null;
 }
 
 /**

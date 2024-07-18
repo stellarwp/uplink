@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Tests\Auth\Admin;
 
+use StellarWP\Uplink\Auth\Action_Manager;
 use StellarWP\Uplink\Auth\Admin\Connect_Controller;
 use StellarWP\Uplink\Auth\Nonce;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
@@ -77,6 +78,9 @@ final class ConnectControllerTest extends UplinkTestCase {
 		// Mock we're an admin inside the dashboard.
 		$this->admin_init();
 
+		// Fire off the specification action tied to this slug.
+		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $this->plugin ) );
+
 		$this->assertSame( $token, $this->token_manager->get( $this->plugin ) );
 	}
 
@@ -101,6 +105,9 @@ final class ConnectControllerTest extends UplinkTestCase {
 
 		// Mock we're an admin inside the dashboard.
 		$this->admin_init();
+
+		// Fire off the specification action tied to this slug.
+		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $this->plugin ) );
 
 		$this->assertSame( $token, $this->token_manager->get( $this->plugin ) );
 		$this->assertSame( $this->plugin->get_license_key(), $license );
@@ -144,6 +151,9 @@ final class ConnectControllerTest extends UplinkTestCase {
 		// Mock we're an admin inside the dashboard.
 		$this->admin_init();
 
+		// Fire off the specification action tied to this slug.
+		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $this->plugin ) );
+
 		$this->assertNull( $this->token_manager->get( $this->plugin ) );
 	}
 
@@ -168,6 +178,9 @@ final class ConnectControllerTest extends UplinkTestCase {
 
 		// Mock we're an admin inside the dashboard.
 		$this->admin_init();
+
+		// Fire off the specification action tied to this slug.
+		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $this->plugin ) );
 
 		$this->assertNull( $this->token_manager->get( $this->plugin ) );
 		$this->assertEmpty( $this->plugin->get_license_key() );
@@ -199,6 +212,9 @@ final class ConnectControllerTest extends UplinkTestCase {
 
 		// Fire off the action the Connect_Controller is running under.
 		do_action( 'admin_init' );
+
+		// Fire off the specification action tied to this slug.
+		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $this->plugin ) );
 
 		$this->assertSame( $token, $this->token_manager->get( $this->plugin ) );
 		$this->assertEmpty( $this->plugin->get_license_key() );
@@ -238,6 +254,9 @@ final class ConnectControllerTest extends UplinkTestCase {
 		// Mock we're an admin inside the NETWORK dashboard.
 		$this->admin_init( true );
 
+		// Fire off the specification action tied to this slug.
+		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $this->plugin ) );
+
 		$this->assertSame( $token, $this->token_manager->get( $this->plugin ) );
 		$this->assertSame( $this->plugin->get_license_key( 'network' ), $license );
 	}
@@ -245,7 +264,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 	/**
 	 * @env multisite
 	 */
-	public function test_it_does_not_store_token_data_on_a_subsite(): void {
+	public function test_it_stores_token_data_on_subfolder_subsite(): void {
 		global $_GET;
 
 		// Create a subsite.
@@ -259,11 +278,10 @@ final class ConnectControllerTest extends UplinkTestCase {
 		wp_set_current_user( 1 );
 
 		// Mock our sample plugin is network activated, otherwise license key check fails.
-		$this->assertTrue( update_site_option( 'active_sitewide_plugins', [
-			'uplink/index.php' => time(),
-		] ) );
+		$this->mock_activate_plugin( 'uplink/index.php', true );
 
 		$this->assertEmpty( $this->plugin->get_license_key( 'network' ) );
+
 		$this->assertNull( $this->token_manager->get( $this->plugin ) );
 
 		$nonce   = ( $this->container->get( Nonce::class ) )->create();
@@ -276,11 +294,14 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$_GET[ Connect_Controller::LICENSE ] = $license;
 		$_GET[ Connect_Controller::SLUG ]    = $this->slug;
 
-		// Mock we're an admin inside the NETWORK dashboard.
-		$this->admin_init( true );
+		// Mock we're in the subsite admin.
+		$this->admin_init();
 
-		$this->assertNull( $this->token_manager->get( $this->plugin ) );
-		$this->assertEmpty( $this->plugin->get_license_key( 'all' ) );
+		// Fire off the specification action tied to this slug.
+		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $this->plugin ) );
+
+		$this->assertSame( $token, $this->token_manager->get( $this->plugin ) );
+		$this->assertSame( $this->plugin->get_license_key( 'network' ), $license );
 	}
 
 }

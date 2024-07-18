@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Auth\Admin;
 
+use StellarWP\Uplink\Auth\Authorizer;
 use StellarWP\Uplink\Auth\Nonce;
 use StellarWP\Uplink\Auth\Token\Connector;
 use StellarWP\Uplink\Auth\Token\Exceptions\InvalidTokenException;
@@ -35,24 +36,33 @@ final class Connect_Controller {
 	 */
 	private $collection;
 
+	/**
+	 * @var Authorizer
+	 */
+	private $authorizer;
 
-	public function __construct( Connector $connector, Notice_Handler $notice, Collection $collection ) {
+
+	public function __construct(
+		Connector $connector,
+		Notice_Handler $notice,
+		Collection $collection,
+		Authorizer $authorizer
+	) {
 		$this->connector  = $connector;
 		$this->notice     = $notice;
 		$this->collection = $collection;
+		$this->authorizer = $authorizer;
 	}
 
 	/**
 	 * Store the token data passed back from the Origin site.
 	 *
-	 * @action admin_init
+	 * @action stellarwp/uplink/{$prefix}/admin_action_{$slug}
+	 *
+	 * @throws \RuntimeException
 	 */
 	public function maybe_store_token_data(): void {
 		if ( ! is_admin() || wp_doing_ajax() ) {
-			return;
-		}
-
-		if ( ! is_user_logged_in() ) {
 			return;
 		}
 
@@ -67,7 +77,32 @@ final class Connect_Controller {
 			return;
 		}
 
+		if ( ! $this->authorizer->can_auth() ) {
+			$this->notice->add( new Notice( Notice::ERROR,
+				__( 'Sorry, you do not have permission to connect a token.', '%TEXTDOMAIN%' ),
+				true
+			) );
+
+			return;
+		}
+
+
 		if ( ! Nonce::verify( $args[ self::NONCE ] ?? '' ) ) {
+			if ( ! function_exists( 'is_plugin_active' ) ) {
+				require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+			}
+
+			// The Litespeed plugin allows completely disabling transients for some reason...
+			if ( is_plugin_active( 'litespeed-cache/litespeed-cache.php' ) ) {
+				$this->notice->add( new Notice( Notice::ERROR,
+					sprintf(
+						__( 'The Litespeed plugin was detected, ensure "Store Transients" is set to ON and try again. See the <a href="%s" target="_blank">Litespeed documentation</a> for more information.', '%TEXTDOMAIN%' ),
+						esc_url( 'https://docs.litespeedtech.com/lscache/lscwp/cache/#store-transients' )
+					),
+					true
+				) );
+			}
+
 			$this->notice->add( new Notice( Notice::ERROR,
 				__( 'Unable to save token data: nonce verification failed.', '%TEXTDOMAIN%' ),
 				true

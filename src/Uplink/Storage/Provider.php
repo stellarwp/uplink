@@ -19,9 +19,8 @@ final class Provider extends Abstract_Provider {
 			return new Option_Storage( $option_name );
 		} );
 
-		// TODO: allow developers to configure this.
 		$this->container->singleton( Storage::class, static function( $c ): Storage {
-			return $c->get( Option_Storage::class );
+			return $c->get( Config::get_storage_driver() );
 		} );
 	}
 

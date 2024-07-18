@@ -44,7 +44,7 @@ final class Nonce {
 			return false;
 		}
 
-		return $nonce === $this->storage->get( ( Config::get_hook_prefix_underscored() . self::NONCE_SUFFIX ) );
+		return $nonce === $this->storage->get( Config::get_hook_prefix_underscored() . self::NONCE_SUFFIX );
 	}
 
 	/**

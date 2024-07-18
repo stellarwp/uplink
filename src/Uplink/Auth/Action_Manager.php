@@ -106,18 +106,18 @@ final class Action_Manager {
 			return;
 		}
 
-		$action = $_REQUEST[ Disconnect_Controller::SLUG ];
+		$slug = $_REQUEST[ Disconnect_Controller::SLUG ];
 
 		/**
 		 * Fires when an 'uplink_slug' request variable is sent.
 		 *
-		 * The dynamic portion of the hook name, `$action`, refers to
+		 * The dynamic portion of the hook name, `$slug`, refers to
 		 * the action derived from the `GET` or `POST` request.
 		 */
 		do_action( sprintf( 'stellarwp/uplink/%s/%s_%s',
 			Config::get_hook_prefix(),
 			self::ACTION,
-			$action
+			$slug
 		) );
 	}
 

@@ -13,6 +13,7 @@ use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Resources\Plugin;
 use StellarWP\Uplink\Resources\Service;
+use StellarWP\Uplink\Site\Data;
 use Throwable;
 
 /**
@@ -171,4 +172,15 @@ function get_disconnect_url( string $slug ): string {
  */
 function get_auth_url( string $slug ): string {
 	return get_container()->get( Auth_Url::class )->get( $slug );
+}
+
+/**
+ * Get the current site's license domain, multisite friendly.
+ *
+ * @throws \RuntimeException
+ *
+ * @return string
+ */
+function get_license_domain(): string {
+	return get_container()->get( Data::class )->get_domain();
 }

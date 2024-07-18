@@ -5,6 +5,7 @@ namespace StellarWP\Uplink\Tests\Auth\Token;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Register;
+use StellarWP\Uplink\Resources\Resource;
 use StellarWP\Uplink\Tests\Sample_Plugin;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Uplink;

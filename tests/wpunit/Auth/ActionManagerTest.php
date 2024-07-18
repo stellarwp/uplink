@@ -83,8 +83,8 @@ final class ActionManagerTest extends UplinkTestCase {
 
 			$_REQUEST[ Disconnect_Controller::SLUG ] = $resource->get_slug();
 
-			// Fire off current_screen, which runs our actions, normally this would run once, but we want to test them all.
-			do_action( 'current_screen', null );
+			// Fire off admin_init again, which runs our actions, normally this would run once, but we want to test them all.
+			do_action( 'admin_init' );
 
 			$this->assertSame( 1, did_action( $this->action_manager->get_hook_name( $resource->get_slug() ) ) );
 		}

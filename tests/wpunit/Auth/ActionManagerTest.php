@@ -63,33 +63,30 @@ final class ActionManagerTest extends UplinkTestCase {
 	}
 
 	public function test_it_gets_the_correct_hook_name(): void {
-		$plugin_1 = $this->container->get( Collection::class )->offsetGet( $this->slug_1 );
-		$plugin_2 = $this->container->get( Collection::class )->offsetGet( $this->slug_2 );
-
-		$this->assertSame( 'stellarwp/uplink/test/admin_action_sample-1', $this->action_manager->get_hook_name( $plugin_1 ) );
-		$this->assertSame( 'stellarwp/uplink/test/admin_action_sample-2', $this->action_manager->get_hook_name( $plugin_2 ) );
+		$this->assertSame( 'stellarwp/uplink/test/admin_action_sample-1', $this->action_manager->get_hook_name( $this->slug_1 ) );
+		$this->assertSame( 'stellarwp/uplink/test/admin_action_sample-2', $this->action_manager->get_hook_name( $this->slug_2 ) );
 	}
 
 	public function test_it_registers_and_fires_actions(): void {
 		$collection = $this->container->get( Collection::class );
 
 		foreach ( $collection as $resource ) {
-			$this->assertFalse( has_action( $this->action_manager->get_hook_name( $resource ) ) );
-			$this->assertSame( 0, did_action( $this->action_manager->get_hook_name( $resource ) ) );
+			$this->assertFalse( has_action( $this->action_manager->get_hook_name( $resource->get_slug() ) ) );
+			$this->assertSame( 0, did_action( $this->action_manager->get_hook_name( $resource->get_slug() ) ) );
 		}
 
 		// Mock we're an admin inside the dashboard.
 		$this->admin_init();
 
 		foreach ( $collection as $resource ) {
-			$this->assertTrue( has_action( $this->action_manager->get_hook_name( $resource ) ) );
+			$this->assertTrue( has_action( $this->action_manager->get_hook_name( $resource->get_slug() ) ) );
 
 			$_REQUEST[ Disconnect_Controller::SLUG ] = $resource->get_slug();
 
 			// Fire off current_screen, which runs our actions, normally this would run once, but we want to test them all.
 			do_action( 'current_screen', null );
 
-			$this->assertSame( 1, did_action( $this->action_manager->get_hook_name( $resource ) ) );
+			$this->assertSame( 1, did_action( $this->action_manager->get_hook_name( $resource->get_slug() ) ) );
 		}
 	}
 

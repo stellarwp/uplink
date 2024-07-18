@@ -79,7 +79,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$this->admin_init();
 
 		// Fire off the specification action tied to this slug.
-		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $this->plugin ) );
+		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $this->slug ) );
 
 		$this->assertSame( $token, $this->token_manager->get( $this->plugin ) );
 	}
@@ -107,7 +107,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$this->admin_init();
 
 		// Fire off the specification action tied to this slug.
-		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $this->plugin ) );
+		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $this->slug ) );
 
 		$this->assertSame( $token, $this->token_manager->get( $this->plugin ) );
 		$this->assertSame( $this->plugin->get_license_key(), $license );
@@ -152,7 +152,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$this->admin_init();
 
 		// Fire off the specification action tied to this slug.
-		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $this->plugin ) );
+		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $this->slug ) );
 
 		$this->assertNull( $this->token_manager->get( $this->plugin ) );
 	}
@@ -180,7 +180,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$this->admin_init();
 
 		// Fire off the specification action tied to this slug.
-		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $this->plugin ) );
+		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $this->slug ) );
 
 		$this->assertNull( $this->token_manager->get( $this->plugin ) );
 		$this->assertEmpty( $this->plugin->get_license_key() );
@@ -214,7 +214,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		do_action( 'admin_init' );
 
 		// Fire off the specification action tied to this slug.
-		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $this->plugin ) );
+		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $this->slug ) );
 
 		$this->assertSame( $token, $this->token_manager->get( $this->plugin ) );
 		$this->assertEmpty( $this->plugin->get_license_key() );
@@ -255,7 +255,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$this->admin_init( true );
 
 		// Fire off the specification action tied to this slug.
-		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $this->plugin ) );
+		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $this->slug ) );
 
 		$this->assertSame( $token, $this->token_manager->get( $this->plugin ) );
 		$this->assertSame( $this->plugin->get_license_key( 'network' ), $license );
@@ -298,7 +298,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$this->admin_init();
 
 		// Fire off the specification action tied to this slug.
-		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $this->plugin ) );
+		do_action( $this->container->get( Action_Manager::class )->get_hook_name( $this->slug ) );
 
 		$this->assertSame( $token, $this->token_manager->get( $this->plugin ) );
 		$this->assertSame( $this->plugin->get_license_key( 'network' ), $license );

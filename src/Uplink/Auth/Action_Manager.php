@@ -49,7 +49,7 @@ final class Action_Manager {
 	/**
 	 * Get the resource's unique hook name.
 	 *
-	 * @param  Resource  $resource  The resource.
+	 * @param  string  $slug The plugin/service slug.
 	 *
 	 * @example stellarwp/uplink/my_hook_prefix/admin_action_my_plugin_slug
 	 *
@@ -57,11 +57,11 @@ final class Action_Manager {
 	 *
 	 * @return string
 	 */
-	public function get_hook_name( Resource $resource ): string {
+	public function get_hook_name( string $slug ): string {
 		return sprintf( 'stellarwp/uplink/%s/%s_%s',
 			Config::get_hook_prefix(),
 			self::ACTION,
-			$resource->get_slug()
+			$slug
 		);
 	}
 
@@ -77,7 +77,7 @@ final class Action_Manager {
 	 */
 	public function add_actions(): void {
 		foreach ( $this->resources as $resource ) {
-			$hook_name = $this->get_hook_name( $resource );
+			$hook_name = $this->get_hook_name( $resource->get_slug() );
 
 			add_action(
 				$hook_name,
@@ -113,12 +113,10 @@ final class Action_Manager {
 		 *
 		 * The dynamic portion of the hook name, `$slug`, refers to
 		 * the action derived from the `GET` or `POST` request.
+		 *
+		 * @example stellarwp/uplink/my_hook_prefix/admin_action_my_plugin_slug
 		 */
-		do_action( sprintf( 'stellarwp/uplink/%s/%s_%s',
-			Config::get_hook_prefix(),
-			self::ACTION,
-			$slug
-		) );
+		do_action( $this->get_hook_name( $slug ) );
 	}
 
 }

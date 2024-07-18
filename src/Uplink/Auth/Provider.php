@@ -63,10 +63,10 @@ final class Provider extends Abstract_Provider {
 		$action_manager = $this->container->get( Action_Manager::class );
 
 		// Register a unique action for each resource slug.
-		add_action( 'admin_init', [ $action_manager, 'add_actions' ] );
+		add_action( 'admin_init', [ $action_manager, 'add_actions' ], 1 );
 
-		// Execute the above actions when an uplink_slug query variable and the current_screen hook is fired (which is run after admin_init).
-		add_action( 'current_screen', [ $action_manager, 'do_action' ], 10, 0 );
+		// Execute the above actions when an uplink_slug query variable.
+		add_action( 'admin_init', [ $action_manager, 'do_action' ], 9 );
 	}
 
 }

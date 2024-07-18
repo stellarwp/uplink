@@ -66,7 +66,7 @@ final class Provider extends Abstract_Provider {
 		add_action( 'admin_init', [ $action_manager, 'add_actions' ] );
 
 		// Execute the above actions when an uplink_slug query variable.
-		add_action( 'admin_init', [ $action_manager, 'do_action' ] );
+		add_action( 'admin_init', [ $action_manager, 'do_action' ], 15 );
 	}
 
 }

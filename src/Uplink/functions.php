@@ -4,7 +4,9 @@ namespace StellarWP\Uplink;
 
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\API\V3\Auth\Contracts\Token_Authorizer;
+use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
 use StellarWP\Uplink\Auth\Auth_Url_Builder;
+use StellarWP\Uplink\Auth\Authorizer;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
 use StellarWP\Uplink\Resources\Collection;
@@ -91,6 +93,19 @@ function is_authorized( string $license, string $slug, string $token, string $do
 }
 
 /**
+ * If the current user is allowed to perform token authorization.
+ *
+ * Without being filtered, this just runs a is_super_admin() check.
+ *
+ * @throws \RuntimeException
+ *
+ * @return bool
+ */
+function is_user_authorized(): bool {
+	return get_container()->get( Authorizer::class )->can_auth();
+}
+
+/**
  * Build a brand's authorization URL, with the uplink_callback base64 query variable.
  *
  * @param  string  $slug  The Product slug to render the button for.
@@ -122,4 +137,24 @@ function build_auth_url( string $slug, string $domain = '' ): string {
  */
 function get_resource( string $slug ) {
 	return get_container()->get( Collection::class )->offsetGet( $slug );
+}
+
+
+/**
+ * Get the disconnect token URL.
+ *
+ * @param  string  $slug The plugin/service slug.
+ *
+ * @throws \RuntimeException
+ *
+ * @return string
+ */
+function get_disconnect_url( string $slug ): string {
+	$resource = get_resource( $slug );
+
+	if ( ! $resource ) {
+		return '';
+	}
+
+	return get_container()->get( Disconnect_Controller::class )->get_url( $resource );
 }

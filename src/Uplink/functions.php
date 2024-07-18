@@ -2,11 +2,26 @@
 
 namespace StellarWP\Uplink;
 
+use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\API\V3\Auth\Contracts\Token_Authorizer;
 use StellarWP\Uplink\Auth\Auth_Url_Builder;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
+use StellarWP\Uplink\Resources\Collection;
+use StellarWP\Uplink\Resources\Plugin;
+use StellarWP\Uplink\Resources\Service;
 use Throwable;
+
+/**
+ * Get the uplink container.
+ *
+ * @throws \RuntimeException
+ *
+ * @return ContainerInterface
+ */
+function get_container(): ContainerInterface {
+	return Config::get_container();
+}
 
 /**
  * Displays the token authorization button, which allows admins to
@@ -18,7 +33,7 @@ use Throwable;
  */
 function render_authorize_button( string $slug, string $domain = '' ): void {
 	try {
-		Config::get_container()->get( Authorize_Button_Controller::class )
+		get_container()->get( Authorize_Button_Controller::class )
 			->render( [
 				'slug'   => $slug,
 				'domain' => $domain,
@@ -31,20 +46,22 @@ function render_authorize_button( string $slug, string $domain = '' ): void {
 }
 
 /**
- * Get the stored authorization token.
+ * Get the stored authorization token, automatically detects multisite.
+ *
+ * @param  string  $slug  The plugin/service slug to use to determine if we use network/single site token storage.
+ *
+ * @throws \RuntimeException
  *
  * @return string|null
  */
-function get_authorization_token(): ?string {
-	try {
-		return Config::get_container()->get( Token_Manager::class )->get();
-	} catch ( Throwable $e ) {
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( "Error occurred when fetching token: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
-		}
+function get_authorization_token( string $slug ): ?string {
+	$resource = get_resource( $slug );
 
+	if ( ! $resource ) {
 		return null;
 	}
+
+	return get_container()->get( Token_Manager::class )->get( $resource );
 }
 
 /**
@@ -53,16 +70,17 @@ function get_authorization_token(): ?string {
  * @note This response may be cached.
  *
  * @param  string  $license  The license key.
- * @param  string  $token  The stored token.
- * @param  string  $domain  The user's domain.
+ * @param  string  $slug     The plugin/service slug.
+ * @param  string  $token    The stored token.
+ * @param  string  $domain   The user's license domain.
  *
  * @return bool
  */
-function is_authorized( string $license, string $token, string $domain ): bool {
+function is_authorized( string $license, string $slug, string $token, string $domain ): bool {
 	try {
-		return Config::get_container()
-		             ->get( Token_Authorizer::class )
-		             ->is_authorized( $license, $token, $domain );
+		return get_container()
+			->get( Token_Authorizer::class )
+			->is_authorized( $license, $slug, $token, $domain );
 	} catch ( Throwable $e ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( "An Authorization error occurred: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
@@ -91,4 +109,17 @@ function build_auth_url( string $slug, string $domain = '' ): string {
 
 		return '';
 	}
+}
+
+/**
+ * Get a resource (plugin/service) from the collection.
+ *
+ * @param  string  $slug  The resource slug to find.
+ *
+ * @throws \RuntimeException
+ *
+ * @return Resource|Plugin|Service|null
+ */
+function get_resource( string $slug ) {
+	return get_container()->get( Collection::class )->offsetGet( $slug );
 }

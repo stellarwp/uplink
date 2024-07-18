@@ -142,7 +142,7 @@ final class MultipleTokensTest extends UplinkTestCase {
 	/**
 	 * @test
 	 */
-	public function it_can_deletes_the_legacy_token(): void {
+	public function it_can_delete_the_legacy_token(): void {
 		$slug   = 'single-plugin-1';
 		$plugin = Register::{'plugin'}(
 			$slug,

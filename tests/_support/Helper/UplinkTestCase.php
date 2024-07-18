@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\Tests;
 
-use lucatume\WPBrowser\TestCase\WPTestCase;
+use Codeception\TestCase\WPTestCase;
 use RuntimeException;
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;

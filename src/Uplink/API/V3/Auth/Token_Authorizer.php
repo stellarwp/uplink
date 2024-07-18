@@ -29,6 +29,7 @@ class Token_Authorizer implements Contracts\Token_Authorizer {
 	 * Manually check if a license is authorized.
 	 *
 	 * @see is_authorized()
+	 * @see Token_Authorizer_Cache_Decorator
 	 *
 	 * @param  string  $license  The license key.
 	 * @param  string  $slug     The plugin/service slug.

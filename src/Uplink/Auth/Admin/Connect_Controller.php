@@ -79,7 +79,7 @@ final class Connect_Controller {
 
 		if ( ! $this->authorizer->can_auth() ) {
 			$this->notice->add( new Notice( Notice::ERROR,
-				__( 'Sorry, you do not have permission to connect a token.', '%TEXTDOMAIN%' ),
+				__( 'Sorry, you do not have permission to connect this site.', '%TEXTDOMAIN%' ),
 				true
 			) );
 

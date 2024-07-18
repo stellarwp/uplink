@@ -127,7 +127,10 @@ final class StorageDriverTest extends UplinkTestCase {
 	/**
 	 * @dataProvider storageProvider
 	 *
-	 * @env singlesite Some bug here where WP_INSTALLING is defined when using --env multisite
+	 * Some bug here where WP_INSTALLING is defined when using --env multisite
+	 * causing it to use local object cache.
+	 *
+	 * @env singlesite
 	 */
 	public function test_it_expires_values( Storage $storage ): void {
 		$key    = 'uplink_test_key';

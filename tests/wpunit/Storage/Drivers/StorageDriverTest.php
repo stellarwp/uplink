@@ -17,12 +17,6 @@ final class StorageDriverTest extends UplinkTestCase {
 	 */
 	private $expire = 10;
 
-	protected function setUp(): void {
-		parent::setUp();
-
-		wp_cache_delete( 'alloptions' );
-	}
-
 	protected function tearDown(): void {
 		parent::tearDown();
 

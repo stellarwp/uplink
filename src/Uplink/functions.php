@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink;
 
 use StellarWP\ContainerContract\ContainerInterface;
+use StellarWP\Uplink\API\V3\Auth\Contracts\Auth_Url;
 use StellarWP\Uplink\API\V3\Auth\Contracts\Token_Authorizer;
 use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
 use StellarWP\Uplink\Auth\Auth_Url_Builder;
@@ -157,4 +158,17 @@ function get_disconnect_url( string $slug ): string {
 	}
 
 	return get_container()->get( Disconnect_Controller::class )->get_url( $resource );
+}
+
+/**
+ * Retrieve an Origin's auth url, if it exists.
+ *
+ * @param  string  $slug The product/service slug.
+ *
+ * @throws \RuntimeException
+ *
+ * @return string
+ */
+function get_auth_url( string $slug ): string {
+	return get_container()->get( Auth_Url::class )->get( $slug );
 }

@@ -157,7 +157,8 @@ class License {
 		 *
 		 * @param string|null $key The license key.
 		 */
-		$key = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_get_key', $this->key );
+		$key = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_get_key', $this->key, $this->resource );
+		$key = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/' . $this->resource->get_slug() . '/license_get_key', $key, $this->resource );
 
 		return $key ?: '';
 	}

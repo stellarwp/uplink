@@ -3,6 +3,7 @@
 namespace wpunit\Admin;
 
 use StellarWP\Uplink\Admin\Ajax;
+use StellarWP\Uplink\Admin\Group;
 use StellarWP\Uplink\Admin\License_Field;
 use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Tests\UplinkTestCase;
@@ -36,7 +37,7 @@ class AjaxText extends UplinkTestCase {
 			$handler->validate_license(),
 			'Should return invalid request message if nonce or key is missing is empty'
 		);
-		$_POST['_wpnonce'] = wp_create_nonce( License_Field::get_group_name() );
+		$_POST['_wpnonce'] = wp_create_nonce( $this->container->get( Group::class )->get_group_name() );
 		$_POST['key']	   = 'sample';
 		$_POST['plugin']   = 'sample/index.php';
 

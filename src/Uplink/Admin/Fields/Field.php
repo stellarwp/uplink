@@ -2,18 +2,15 @@
 
 namespace StellarWP\Uplink\Admin\Fields;
 
-use StellarWP\Uplink\Admin\License_Field;
-use StellarWP\Uplink\Uplink;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\View\Contracts\View;
 use StellarWP\Uplink\Resources\Resource;
-use StellarWP\Uplink\Components\Controller;
 // Use function statement is problematic with Strauss.
 use StellarWP\Uplink as UplinkNamespace;
+use StellarWP\Uplink\Admin\Assets;
+use StellarWP\Uplink\Admin\Group;
 
-class Field extends Controller{
-	public const STELLARWP_UPLINK_GROUP = 'stellarwp_uplink_group';
-
+class Field {
 	/**
 	 * @var Resource
 	 */
@@ -55,14 +52,42 @@ class Field extends Controller{
 	protected const VIEW = 'admin/fields/field';
 
 	/**
+	 * @var View
+	 */
+	protected $view;
+
+	/**
+	 * @var Assets
+	 */
+	protected $assets;
+
+	/**
+	 * @var Group
+	 */
+	protected $group;
+
+	/**
 	 * Constructor!
 	 *
 	 * @param  View  $view  The View Engine to render views.
-	 * @param  Resource  $resource  The resource.
 	 */
-	public function __construct( View $view, Resource $resource ) {
-		$this->view = $view;
+	public function __construct( View $view, Assets $assets, Group $group ) {
+		$this->view   = $view;
+		$this->assets = $assets;
+		$this->group  = $group;
+	}
+
+	/**
+	 * Sets the resource.
+	 *
+	 * @param  Resource  $resource  The resource.
+	 *
+	 * @return self
+	 */
+	public function set_resource( Resource $resource ): self {
 		$this->resource = $resource;
+
+		return $this;
 	}
 
 	/**
@@ -102,9 +127,7 @@ class Field extends Controller{
 	 * @return string
 	 */
 	public function get_key_status_html(): string {
-		ob_start();
-		include Config::get_container()->get( Uplink::UPLINK_ADMIN_VIEWS_PATH ) . '/fields/key-status.php';
-		$html = ob_get_clean();
+		$html = $this->view->render( 'admin/fields/key-status' );
 
 		/**
 		 * Filters the key status HTML.
@@ -145,7 +168,7 @@ class Field extends Controller{
 	 */
 	public function get_nonce_field(): string {
 		$nonce_name   = "stellarwp-uplink-license-key-nonce__" . $this->get_slug();
-		$nonce_action = Config::get_container()->get( License_Field::class )->get_group_name();
+		$nonce_action = $this->group->get_group_name();
 
 		return '<input type="hidden" class="wp-nonce-fluent" name="' . esc_attr( $nonce_name ) . '" value="' . wp_create_nonce( $nonce_action ) . '" />';
 	}
@@ -192,7 +215,7 @@ class Field extends Controller{
 	 * @return string
 	 */
 	public function get_classes(): string {
-		return $this->classes( ['stellarwp-uplink-license-key-field' ] );
+		return 'stellarwp-uplink-license-key-field';
 	}
 
 	/**
@@ -210,7 +233,7 @@ class Field extends Controller{
 	 * @return string
 	 */
 	public function get_render_html(): string {
-		Config::get_container()->get( License_Field::class )->enqueue_assets();
+		$this->assets->enqueue_assets();
 
 		if ( $this->resource->is_using_oauth() ) {
 			ob_start();
@@ -218,13 +241,9 @@ class Field extends Controller{
 			return ob_get_clean();
 		}
 
-		// Variables used inside the template.
-		$field = $this;
-		$group = Config::get_container()->get( License_Field::class )->get_group_name( $this->get_slug() );
-
 		$args = [
-			'field' => $field,
-			'group' => $group,
+			'field' => $this,
+			'group' => $this->group->get_group_name( $this->get_slug() ),
 		];
 
 		$html = $this->view->render( self::VIEW, $args );

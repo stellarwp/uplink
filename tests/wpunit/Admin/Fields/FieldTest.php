@@ -2,8 +2,7 @@
 
 namespace StellarWP\Uplink\Admin\Fields;
 
-use InvalidArgumentException;
-use StellarWP\Uplink\Admin\License_Field;
+use StellarWP\Uplink\Admin\Group;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Resources\Collection;
@@ -151,7 +150,7 @@ class FieldTest extends UplinkTestCase {
 	public function it_should_get_nonce_action_and_field( $resource ) {
 		$field = new Field( $this->view, $this->setup_container_get_slug( $resource ) );
 
-		$nonce_action = Config::get_container()->get( License_Field::class )->get_group_name();
+		$nonce_action = $this->container->get( Group::class )->get_group_name();
 		$nonce_field  = $field->get_nonce_field();
 
 		// Extract the nonce value from the nonce field

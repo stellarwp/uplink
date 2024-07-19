@@ -7,6 +7,7 @@
  */
 
 use StellarWP\Uplink\Admin\License_Field;
+use StellarWP\Uplink\Admin\Group;
 use StellarWP\Uplink\Config;
 
 if ( empty( $plugin ) ) {
@@ -14,7 +15,7 @@ if ( empty( $plugin ) ) {
 }
 
 $field          = Config::get_container()->get( License_Field::class );
-$group          = $field->get_group_name( sanitize_title( $plugin->get_slug() ) );
+$group          = Config::get_container()->get( Group::class )->get_group_name( sanitize_title( $plugin->get_slug() ) );
 $action_postfix = Config::get_hook_prefix_underscored();
 
 ?>

@@ -48,9 +48,9 @@ class Config {
 	/**
 	 * The storage driver FQCN to use.
 	 *
-	 * @var class-string<Storage>|null
+	 * @var class-string<Storage>
 	 */
-	protected static $storage_driver = null;
+	protected static $storage_driver = Option_Storage::class;
 
 	/**
 	 * Get the container.

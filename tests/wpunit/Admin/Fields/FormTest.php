@@ -163,7 +163,6 @@ class FormTest extends UplinkTestCase {
 		$this->assertCount( $expected_field_count, $form_fields, "Form should contain $expected_field_count fields" );
 	}
 
-
 	/**
 	 * @test
 	 */

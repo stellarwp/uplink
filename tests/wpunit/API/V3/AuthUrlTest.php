@@ -6,9 +6,21 @@ use StellarWP\Uplink\API\V3\Auth\Auth_Url;
 use StellarWP\Uplink\API\V3\Auth\Auth_Url_Cache_Decorator;
 use StellarWP\Uplink\API\V3\Contracts\Client_V3;
 use StellarWP\Uplink\Auth\Auth_Url_Builder;
+use StellarWP\Uplink\Storage\Contracts\Storage;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
 final class AuthUrlTest extends UplinkTestCase {
+
+	/**
+	 * @var Storage
+	 */
+	private $storage;
+
+	protected function setUp(): void {
+		parent::setUp();
+
+		$this->storage = $this->container->get( Storage::class );
+	}
 
 	public function test_the_cache_decorator_is_enabled(): void {
 		$auth_url = $this->container->get( \StellarWP\Uplink\API\V3\Auth\Contracts\Auth_Url::class );
@@ -97,7 +109,7 @@ final class AuthUrlTest extends UplinkTestCase {
 		$auth_url = $this->container->get( Auth_Url_Cache_Decorator::class )->get( 'kadence-blocks-pro' );
 
 		$this->assertSame( 'https://www.kadencewp.com/account-auth/', $auth_url );
-		$this->assertSame( 'https://www.kadencewp.com/account-auth/', get_transient( Auth_Url_Cache_Decorator::TRANSIENT_PREFIX . 'kadence_blocks_pro' ) );
+		$this->assertSame( 'https://www.kadencewp.com/account-auth/', $this->storage->get( Auth_Url_Cache_Decorator::TRANSIENT_PREFIX . 'kadence_blocks_pro' ) );
 	}
 
 	public function test_it_caches_an_empty_auth_url(): void {
@@ -117,7 +129,7 @@ final class AuthUrlTest extends UplinkTestCase {
 		$auth_url = $this->container->get( Auth_Url_Cache_Decorator::class )->get( 'kadence-blocks-pro' );
 
 		$this->assertSame( '', $auth_url );
-		$this->assertSame( '', get_transient( Auth_Url_Cache_Decorator::TRANSIENT_PREFIX . 'kadence_blocks_pro' ) );
+		$this->assertSame( '', $this->storage->get( Auth_Url_Cache_Decorator::TRANSIENT_PREFIX . 'kadence_blocks_pro' ) );
 	}
 
 }

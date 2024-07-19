@@ -6,9 +6,11 @@ use StellarWP\Uplink\Auth\Authorizer;
 use StellarWP\Uplink\Auth\Nonce;
 use StellarWP\Uplink\Auth\Token\Connector;
 use StellarWP\Uplink\Auth\Token\Exceptions\InvalidTokenException;
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Notice\Notice_Handler;
 use StellarWP\Uplink\Notice\Notice;
 use StellarWP\Uplink\Resources\Collection;
+use StellarWP\Uplink\Storage\Drivers\Transient_Storage;
 
 /**
  * Handles storing token data after successfully redirecting
@@ -41,17 +43,23 @@ final class Connect_Controller {
 	 */
 	private $authorizer;
 
+	/**
+	 * @var Nonce
+	 */
+	private $nonce;
 
 	public function __construct(
 		Connector $connector,
 		Notice_Handler $notice,
 		Collection $collection,
-		Authorizer $authorizer
+		Authorizer $authorizer,
+		Nonce $nonce
 	) {
 		$this->connector  = $connector;
 		$this->notice     = $notice;
 		$this->collection = $collection;
 		$this->authorizer = $authorizer;
+		$this->nonce      = $nonce;
 	}
 
 	/**
@@ -87,13 +95,13 @@ final class Connect_Controller {
 		}
 
 
-		if ( ! Nonce::verify( $args[ self::NONCE ] ?? '' ) ) {
+		if ( ! $this->nonce->verify( $args[ self::NONCE ] ?? '' ) ) {
 			if ( ! function_exists( 'is_plugin_active' ) ) {
 				require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 			}
 
 			// The Litespeed plugin allows completely disabling transients for some reason...
-			if ( is_plugin_active( 'litespeed-cache/litespeed-cache.php' ) ) {
+			if ( Config::get_storage_driver() === Transient_Storage::class && is_plugin_active( 'litespeed-cache/litespeed-cache.php' ) ) {
 				$this->notice->add( new Notice( Notice::ERROR,
 					sprintf(
 						__( 'The Litespeed plugin was detected, ensure "Store Transients" is set to ON and try again. See the <a href="%s" target="_blank">Litespeed documentation</a> for more information.', '%TEXTDOMAIN%' ),

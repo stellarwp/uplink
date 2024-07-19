@@ -4,9 +4,21 @@ namespace StellarWP\Uplink\Tests\API\V3;
 
 use StellarWP\Uplink\API\V3\Auth\Contracts\Token_Authorizer;
 use StellarWP\Uplink\API\V3\Auth\Token_Authorizer_Cache_Decorator;
+use StellarWP\Uplink\Storage\Contracts\Storage;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
 final class AuthorizerCacheTest extends UplinkTestCase {
+
+	/**
+	 * @var Storage
+	 */
+	private $storage;
+
+	protected function setUp(): void {
+		parent::setUp();
+
+		$this->storage = $this->container->get( Storage::class );
+	}
 
 	public function test_it_binds_the_correct_instance_when_auth_cache_is_enabled(): void {
 		$this->assertInstanceOf(
@@ -28,14 +40,14 @@ final class AuthorizerCacheTest extends UplinkTestCase {
 		$transient = $decorator->build_transient( [ '1234', 'dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840', 'test.com' ] );
 
 		// No cache should exist.
-		$this->assertFalse( get_transient( $transient ) );
+		$this->assertNull( $this->storage->get( $transient ) );
 
 		$authorized = $decorator->is_authorized( '1234', 'kadence-blocks-pro','dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840', 'test.com' );
 
 		$this->assertTrue( $authorized );
 
 		// Cache should now be present.
-		$this->assertTrue( get_transient( $transient ) );
+		$this->assertTrue( $this->storage->get( $transient ) );
 		$this->assertTrue( $decorator->is_authorized( '1234', 'kadence-blocks-pro','dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840', 'test.com' ) );
 	}
 
@@ -52,14 +64,14 @@ final class AuthorizerCacheTest extends UplinkTestCase {
 		$transient = $decorator->build_transient( [ '1234', 'dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840', 'test.com' ] );
 
 		// No cache should exist.
-		$this->assertFalse( get_transient( $transient ) );
+		$this->assertNull( $this->storage->get( $transient ) );
 
 		$authorized = $decorator->is_authorized( '1234', 'kadence-blocks-pro','dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840', 'test.com' );
 
 		$this->assertFalse( $authorized );
 
 		// Cache should still be empty, unfortunately the default is "false" for transients, so this isn't the best test.
-		$this->assertFalse( get_transient( $transient ) );
+		$this->assertNull( $this->storage->get( $transient ) );
 	}
 
 }

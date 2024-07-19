@@ -6,6 +6,8 @@ use InvalidArgumentException;
 use RuntimeException;
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
+use StellarWP\Uplink\Storage\Contracts\Storage;
+use StellarWP\Uplink\Storage\Drivers\Option_Storage;
 use StellarWP\Uplink\Utils\Sanitize;
 
 class Config {
@@ -42,6 +44,13 @@ class Config {
 	 * @var int
 	 */
 	protected static $auth_cache_expiration = self::DEFAULT_AUTH_CACHE;
+
+	/**
+	 * The storage driver FQCN to use.
+	 *
+	 * @var class-string<Storage>
+	 */
+	protected static $storage_driver = Option_Storage::class;
 
 	/**
 	 * Get the container.
@@ -206,6 +215,28 @@ class Config {
 	 */
 	public static function get_auth_cache_expiration(): int {
 		return static::$auth_cache_expiration;
+	}
+
+	/**
+	 * Set the underlying storage driver.
+	 *
+	 * @param  class-string<Storage>  $class_name The FQCN to a storage driver.
+	 *
+	 * @return void
+	 */
+	public static function set_storage_driver( string $class_name ): void {
+		static::$storage_driver = $class_name;
+	}
+
+	/**
+	 * Get the underlying storage driver.
+	 *
+	 * @return class-string<Storage>
+	 */
+	public static function get_storage_driver(): string {
+		$driver = static::$storage_driver;
+
+		return $driver ?: Option_Storage::class;
 	}
 
 }

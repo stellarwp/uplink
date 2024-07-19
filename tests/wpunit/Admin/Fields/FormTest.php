@@ -10,6 +10,7 @@ use StellarWP\Uplink\Tests\TestUtils;
 use tad\Codeception\SnapshotAssertions\SnapshotAssertions;
 use StellarWP\Uplink\Tests\Traits\With_Uopz;
 use StellarWP\Uplink\View\WordPress_View;
+use StellarWP\Uplink as UplinkNamespace;
 
 class FormTest extends UplinkTestCase {
 
@@ -59,7 +60,7 @@ class FormTest extends UplinkTestCase {
 		$current_resource = $this->setup_container_get_slug( $resource );
 		$slug             = $current_resource->get_slug();
 
-		$field = new Field( $this->view, $current_resource );
+		$field = UplinkNamespace\get_field( $current_resource );
 		$field->set_field_name( 'field-' . $slug );
 		$field->show_label( true );
 
@@ -91,7 +92,7 @@ class FormTest extends UplinkTestCase {
 		$current_resource = $this->setup_container_get_slug( $resource );
 		$slug             = $current_resource->get_slug();
 
-		$field = new Field( $this->view, $current_resource );
+		$field = UplinkNamespace\get_field( $current_resource );
 		$field->set_field_name( 'field-' . $slug );
 
 		$form = new Form( $this->view );
@@ -145,7 +146,7 @@ class FormTest extends UplinkTestCase {
 		foreach ( $resources as $resource ) {
 			$current_resource = $this->setup_container_get_slug( $resource );
 			$slug             = $current_resource->get_slug();
-			$field            = new Field( $this->view, $current_resource );
+			$field            = UplinkNamespace\get_field( $current_resource );
 			$field->set_field_name( 'field-' . $slug );
 			$form->add_field( $field );
 
@@ -174,7 +175,7 @@ class FormTest extends UplinkTestCase {
 		foreach ( $resources as $resource ) {
 			$current_resource = $this->setup_container_get_slug( $resource );
 			$slug             = $current_resource->get_slug();
-			$field            = new Field( $this->view, $current_resource );
+			$field            = UplinkNamespace\get_field( $current_resource );
 			$field->set_field_name( 'field-' . $slug );
 			$form->add_field( $field );
 

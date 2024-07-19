@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink;
 
 use StellarWP\ContainerContract\ContainerInterface;
+use StellarWP\Uplink\Admin\Fields\Field;
 use StellarWP\Uplink\API\V3\Auth\Contracts\Auth_Url;
 use StellarWP\Uplink\API\V3\Auth\Contracts\Token_Authorizer;
 use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
@@ -13,6 +14,7 @@ use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Resources\Plugin;
 use StellarWP\Uplink\Resources\Service;
+use StellarWP\Uplink\Resources\Resource;
 use StellarWP\Uplink\Site\Data;
 use Throwable;
 
@@ -224,4 +226,17 @@ function get_auth_url( string $slug ): string {
  */
 function get_license_domain(): string {
 	return get_container()->get( Data::class )->get_domain();
+}
+
+/**
+ * Get the field object for a resource.
+ *
+ * @param  Resource  $resource  The resource to get the field for.
+ *
+ * @throws \RuntimeException
+ *
+ * @return Field
+ */
+function get_field( Resource $resource ): Field {
+	return get_container()->get( Field::class )->set_resource( $resource );
 }

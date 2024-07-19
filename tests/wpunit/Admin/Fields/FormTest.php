@@ -9,12 +9,25 @@ use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Tests\TestUtils;
 use tad\Codeception\SnapshotAssertions\SnapshotAssertions;
 use StellarWP\Uplink\Tests\Traits\With_Uopz;
+use StellarWP\Uplink\View\WordPress_View;
 
 class FormTest extends UplinkTestCase {
 
 	use TestUtils;
 	use SnapshotAssertions;
 	use With_Uopz;
+
+	protected $view;
+
+	protected $collection;
+
+	public function setUp(): void {
+		parent::setUp();
+
+		$this->view = $this->container->get( WordPress_View::class );
+
+		$this->collection = $this->container->get( Collection::class );
+	}
 
 	public function setup_container_get_slug( $resource ) {
 		$collection = Config::get_container()->get( Collection::class );
@@ -46,11 +59,11 @@ class FormTest extends UplinkTestCase {
 		$current_resource = $this->setup_container_get_slug( $resource );
 		$slug             = $current_resource->get_slug();
 
-		$field = new Field( $slug );
+		$field = new Field( $this->view, $current_resource );
 		$field->set_field_name( 'field-' . $slug );
 		$field->show_label( true );
 
-		$form = new Form();
+		$form = new Form( $this->view );
 		$form->add_field( $field );
 
 		$fields = $form->get_fields();
@@ -64,7 +77,7 @@ class FormTest extends UplinkTestCase {
 	 */
 	public function it_should_set_and_get_button_text( $resource ) {
 		$button_text = 'Submit';
-		$form        = new Form();
+		$form        = new Form( $this->view );
 		$form->set_button_text( $button_text );
 
 		$this->assertEquals( $button_text, $form->get_button_text() );
@@ -78,10 +91,10 @@ class FormTest extends UplinkTestCase {
 		$current_resource = $this->setup_container_get_slug( $resource );
 		$slug             = $current_resource->get_slug();
 
-		$field = new Field( $slug );
+		$field = new Field( $this->view, $current_resource );
 		$field->set_field_name( 'field-' . $slug );
 
-		$form = new Form();
+		$form = new Form( $this->view );
 		$form->add_field( $field );
 
 		$license_key = 'license_key' . $slug;
@@ -94,7 +107,7 @@ class FormTest extends UplinkTestCase {
 		$this->assertEquals( $option_value, $license_key );
 
 		// Render the form and assert the HTML snapshot
-		$form_html = $form->render();
+		$form_html = $form->get_render_html();
 
 		// Assert the HTML snapshot
 		$this->assertMatchesHtmlSnapshot( $form_html );
@@ -105,7 +118,7 @@ class FormTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_get_button_text( $resource ) {
-		$form = new Form();
+		$form = new Form( $this->view );
 		$this->assertEquals( 'Save Changes', $form->get_button_text() );
 	}
 
@@ -114,7 +127,7 @@ class FormTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_show_and_hide_button( $resource ) {
-		$form = new Form();
+		$form = new Form( $this->view );
 		$this->assertTrue( $form->should_show_button() );
 
 		$form->show_button( false );
@@ -126,13 +139,13 @@ class FormTest extends UplinkTestCase {
 	 */
 	public function it_should_add_multiple_fields_to_form() {
 		$resources            = $this->get_test_resources();
-		$form                 = new Form();
+		$form                 = new Form( $this->view );
 		$expected_field_count = count( $resources );
 
 		foreach ( $resources as $resource ) {
 			$current_resource = $this->setup_container_get_slug( $resource );
 			$slug             = $current_resource->get_slug();
-			$field            = new Field( $slug );
+			$field            = new Field( $this->view, $current_resource );
 			$field->set_field_name( 'field-' . $slug );
 			$form->add_field( $field );
 
@@ -155,13 +168,13 @@ class FormTest extends UplinkTestCase {
 	 */
 	public function it_should_render_form_with_multiple_fields() {
 		$resources            = $this->get_test_resources();
-		$form                 = new Form();
+		$form                 = new Form( $this->view );
 		$expected_field_count = count( $resources );
 
 		foreach ( $resources as $resource ) {
 			$current_resource = $this->setup_container_get_slug( $resource );
 			$slug             = $current_resource->get_slug();
-			$field            = new Field( $slug );
+			$field            = new Field( $this->view, $current_resource );
 			$field->set_field_name( 'field-' . $slug );
 			$form->add_field( $field );
 
@@ -176,7 +189,7 @@ class FormTest extends UplinkTestCase {
 		$this->set_fn_return( 'wp_create_nonce', '123456789', false );
 
 		// Render the form and assert the HTML snapshot
-		$form_html = $form->render();
+		$form_html = $form->get_render_html();
 
 		// Assert the HTML snapshot
 		$this->assertMatchesHtmlSnapshot( $form_html );

@@ -16,10 +16,12 @@ interface View {
 	 *
 	 * @param  mixed[]  $args  Arguments to be extracted and passed to the view.
 	 *
+	 * @param  bool  $is_admin  Whether to load the view from the admin directory.
+	 *
 	 * @throws FileNotFoundException If the view file cannot be found.
 	 *
 	 * @return string
 	 */
-	public function render( string $name, array $args = [] ): string;
+	public function render( string $name, array $args = [], bool $is_admin = false ): string;
 
 }

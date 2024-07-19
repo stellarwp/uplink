@@ -5,12 +5,13 @@ namespace StellarWP\Uplink\Admin\Fields;
 use StellarWP\Uplink\Admin\License_Field;
 use StellarWP\Uplink\Uplink;
 use StellarWP\Uplink\Config;
-use StellarWP\Uplink\Resources\Collection;
+use StellarWP\Uplink\View\Contracts\View;
 use StellarWP\Uplink\Resources\Resource;
+use StellarWP\Uplink\Components\Controller;
 // Use function statement is problematic with Strauss.
 use StellarWP\Uplink as UplinkNamespace;
 
-class Field {
+class Field extends Controller{
 	public const STELLARWP_UPLINK_GROUP = 'stellarwp_uplink_group';
 
 	/**
@@ -49,20 +50,18 @@ class Field {
 	protected bool $show_heading = false;
 
 	/**
+	 * @var string
+	 */
+	protected const VIEW = 'fields/field';
+
+	/**
 	 * Constructor!
 	 *
-	 * @param string $slug Field slug.
+	 * @param  View  $view  The View Engine to render views.
+	 * @param  Resource  $resource  The resource.
 	 */
-	public function __construct( string $slug ) {
-		$this->slug = $slug;
-
-		$collection = Config::get_container()->get( Collection::class );
-		$resource   = $collection->get( $slug );
-
-		if ( ! $resource instanceof Resource ) {
-			throw new \InvalidArgumentException( sprintf( 'Resource with slug "%s" does not exist.', $slug ) );
-		}
-
+	public function __construct( View $view, Resource $resource ) {
+		$this->view = $view;
 		$this->resource = $resource;
 	}
 
@@ -184,7 +183,7 @@ class Field {
 	 * @return string
 	 */
 	public function get_slug(): string {
-		return $this->slug;
+		return $this->resource->get_slug();
 	}
 
 	/**
@@ -193,15 +192,24 @@ class Field {
 	 * @return string
 	 */
 	public function get_classes(): string {
-		return 'stellarwp-uplink-license-key-field';
+		return $this->classes( ['stellarwp-uplink-license-key-field' ] );
 	}
 
 	/**
 	 * Renders the field.
 	 *
+	 * @return void
+	 */
+	public function render( array $args = [] ): void {
+		echo $this->get_render_html();
+	}
+
+	/**
+	 * Returns the field.
+	 *
 	 * @return string
 	 */
-	public function render(): string {
+	public function get_render_html(): string {
 		Config::get_container()->get( License_Field::class )->enqueue_assets();
 
 		if ( $this->resource->is_using_oauth() ) {
@@ -214,9 +222,12 @@ class Field {
 		$field = $this;
 		$group = Config::get_container()->get( License_Field::class )->get_group_name( $this->get_slug() );
 
-		ob_start();
-		include Config::get_container()->get( Uplink::UPLINK_ADMIN_VIEWS_PATH ) . '/fields/field.php';
-		$html = ob_get_clean();
+		$args = [
+			'field' => $field,
+			'group' => $group,
+		];
+
+		$html = $this->view->render( self::VIEW, $args, true );
 
 		/**
 		 * Filters the field HTML.

@@ -21,6 +21,15 @@ final class WordPress_View implements Contracts\View {
 	private $directory;
 
 	/**
+	 * The server path to the admin-views folder.
+	 *
+	 * @var string
+	 *
+	 * @example /app/views/
+	 */
+	private $admin_directory;
+
+	/**
 	 * The file extension of view files.
 	 *
 	 * @var string
@@ -32,10 +41,12 @@ final class WordPress_View implements Contracts\View {
 	/**
 	 * @param  string  $directory The server path to the views folder.
 	 * @param  string  $extension The file extension of view files.
+	 * @param  string  $admin_directory The server path to the admin-views folder.
 	 */
-	public function __construct( string $directory, string $extension = '.php' ) {
-		$this->directory = trailingslashit( realpath( $directory ) );
-		$this->extension = $extension;
+	public function __construct( string $directory, string $extension = '.php', string $admin_directory = '' ) {
+		$this->directory       = trailingslashit( realpath( $directory ) );
+		$this->admin_directory = trailingslashit( realpath( $admin_directory ) );
+		$this->extension       = $extension;
 	}
 
 	/**
@@ -48,12 +59,14 @@ final class WordPress_View implements Contracts\View {
 	 *
 	 * @param  mixed[]  $args  Arguments to be extracted and passed to the view.
 	 *
+	 * @param  bool  $is_admin  Whether to load the view from the admin directory.
+	 *
 	 * @throws FileNotFoundException If the view file cannot be found.
 	 *
 	 * @return string
 	 */
-	public function render( string $name, array $args = [] ): string {
-		$file = $this->get_path( $name );
+	public function render( string $name, array $args = [], bool $is_admin = false ): string {
+		$file = $this->get_path( $name, $is_admin );
 
 		try {
 			$level = ob_get_level();
@@ -77,12 +90,14 @@ final class WordPress_View implements Contracts\View {
 	 *
 	 * @param  string  $name  The relative view path/name, e.g. `admin/notice`.
 	 *
+	 * @param  bool  $is_admin  Whether to load the view from the admin directory.
+	 *
 	 * @throws FileNotFoundException If the view file cannot be found.
 	 *
 	 * @return string The absolute path to the view file.
 	 */
-	private function get_path( string $name ): string {
-		$file = $this->directory . $name . $this->extension;
+	private function get_path( string $name, bool $is_admin = false ): string {
+		$file = ( $is_admin ? $this->admin_directory : $this->directory ) . $name . $this->extension;
 		$path = realpath( $file );
 
 		if( $path === false ) {

@@ -4,8 +4,9 @@ namespace StellarWP\Uplink\Admin\Fields;
 
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Uplink;
+use StellarWP\Uplink\Components\Controller;
 
-class Form {
+class Form extends Controller{
 	/**
 	 * @var array<string, Field>
 	 */
@@ -25,6 +26,11 @@ class Form {
 	 * @var string
 	 */
 	protected string $button_text = '';
+
+	/**
+	 * @var string
+	 */
+	protected const VIEW = 'fields/form';
 
 	/**
 	 * Adds a field to the form.
@@ -64,13 +70,20 @@ class Form {
 	/**
 	 * Renders the form.
 	 *
+	 * @return void
+	 */
+	public function render( array $args = [] ): void {
+		echo $this->get_render_html();
+	}
+
+	/**
+	 * Renders the form.
+	 *
 	 * @return string
 	 */
-	public function render(): string {
-		$form = $this;
-		ob_start();
-		include Config::get_container()->get( Uplink::UPLINK_ADMIN_VIEWS_PATH ) . '/fields/form.php';
-		$html = ob_get_clean();
+	public function get_render_html(): string {
+		$args = [ 'form' => $this ];
+		$html = $this->view->render( self::VIEW, $args, true );
 
 		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/license_form_html', $html );
 	}

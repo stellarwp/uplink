@@ -11,6 +11,7 @@ use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Tests\TestUtils;
 use tad\Codeception\SnapshotAssertions\SnapshotAssertions;
 use StellarWP\Uplink\Tests\Traits\With_Uopz;
+use StellarWP\Uplink\View\WordPress_View;
 
 class FieldTest extends UplinkTestCase {
 
@@ -18,14 +19,16 @@ class FieldTest extends UplinkTestCase {
 	use SnapshotAssertions;
 	use With_Uopz;
 
-	/**
-	 * @test
-	 */
-	public function it_should_fail_with_invalid_slug() {
-		$slug = 'Invalid Slug';
-		$this->expectException( InvalidArgumentException::class );
-		$this->expectExceptionMessage( sprintf( 'Resource with slug "%s" does not exist.', $slug ) );
-		new Field( $slug );
+	protected $view;
+
+	protected $collection;
+
+	public function setUp(): void {
+		parent::setUp();
+
+		$this->view = $this->container->get( WordPress_View::class );
+
+		$this->collection = $this->container->get( Collection::class );
 	}
 
 	public function resourceProvider() {
@@ -57,7 +60,7 @@ class FieldTest extends UplinkTestCase {
 	public function it_should_get_fields_with_slug( $resource ) {
 		$current_resource = $this->setup_container_get_slug( $resource );
 		$slug             = $current_resource->get_slug();
-		$field            = new Field( $slug );
+		$field            = new Field( $this->view, $current_resource );
 		$license_key      = 'license_key' . $slug;
 		$option_name      = $current_resource->get_license_object()->get_key_option_name();
 
@@ -87,7 +90,7 @@ class FieldTest extends UplinkTestCase {
 	public function it_should_render_fields_correctly( $resource ) {
 		$current_resource = $this->setup_container_get_slug( $resource );
 		$slug             = $current_resource->get_slug();
-		$field            = new Field( $slug );
+		$field            = new Field( $this->view, $current_resource );
 		$license_key      = 'license_key' . $slug;
 		$option_name      = $current_resource->get_license_object()->get_key_option_name();
 		$this->set_fn_return( 'wp_create_nonce', '123456789', false );
@@ -100,7 +103,7 @@ class FieldTest extends UplinkTestCase {
 		$field_name = 'field-' . $slug;
 		$field->set_field_name( $field_name );
 
-		$test = $field->render();
+		$test = $field->get_render_html();
 		$this->assertMatchesHtmlSnapshot( $test );
 	}
 
@@ -110,7 +113,7 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_set_and_get_field_id( $resource ) {
-		$field = new Field( $this->setup_container_get_slug( $resource )->get_slug() );
+		$field = new Field( $this->view, $this->setup_container_get_slug( $resource ) );
 
 		$field_id = 'custom-field-id';
 		$field->set_field_id( $field_id );
@@ -123,7 +126,7 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_set_and_get_field_label( $resource ) {
-		$field = new Field( $this->setup_container_get_slug( $resource )->get_slug() );
+		$field = new Field( $this->view, $this->setup_container_get_slug( $resource ) );
 
 		$label = 'Custom Label';
 		$field->set_label( $label );
@@ -136,7 +139,7 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_get_placeholder( $resource ) {
-		$field = new Field( $this->setup_container_get_slug( $resource )->get_slug() );
+		$field = new Field( $this->view, $this->setup_container_get_slug( $resource ) );
 
 		$this->assertEquals( 'License key', $field->get_placeholder() );
 	}
@@ -146,7 +149,7 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_get_nonce_action_and_field( $resource ) {
-		$field = new Field( $this->setup_container_get_slug( $resource )->get_slug() );
+		$field = new Field( $this->view, $this->setup_container_get_slug( $resource ) );
 
 		$nonce_action = Config::get_container()->get( License_Field::class )->get_group_name();
 		$nonce_field  = $field->get_nonce_field();
@@ -168,7 +171,7 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_show_and_hide_label_and_heading( $resource ) {
-		$field = new Field( $this->setup_container_get_slug( $resource )->get_slug() );
+		$field = new Field( $this->view, $this->setup_container_get_slug( $resource ) );
 
 		$field->show_label( true );
 		$this->assertTrue( $field->should_show_label() );
@@ -188,9 +191,9 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_render_correct_html( $resource ) {
-		$field = new Field( $this->setup_container_get_slug( $resource )->get_slug() );
+		$field = new Field( $this->view, $this->setup_container_get_slug( $resource ) );
 
-		$html = $field->render();
+		$html = $field->get_render_html();
 		$this->assertStringContainsString( 'stellarwp-uplink-license-key-field', $html );
 		$this->assertStringContainsString( $field->get_slug(), $html );
 	}
@@ -200,7 +203,7 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_handle_empty_field_name( $resource ) {
-		$field = new Field( $this->setup_container_get_slug( $resource )->get_slug() );
+		$field = new Field( $this->view, $this->setup_container_get_slug( $resource ) );
 
 		$this->assertEmpty( $field->get_field_name(), 'Field name should be empty by default' );
 	}
@@ -210,7 +213,7 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_handle_empty_field_id( $resource ) {
-		$field = new Field( $this->setup_container_get_slug( $resource )->get_slug() );
+		$field = new Field( $this->view, $this->setup_container_get_slug( $resource ) );
 
 		$this->assertNotEmpty( $field->get_field_id(), 'Field ID should not be empty even if not set' );
 	}
@@ -220,7 +223,7 @@ class FieldTest extends UplinkTestCase {
 	 * @dataProvider resourceProvider
 	 */
 	public function it_should_handle_empty_label( $resource ) {
-		$field = new Field( $this->setup_container_get_slug( $resource )->get_slug() );
+		$field = new Field( $this->view, $this->setup_container_get_slug( $resource ) );
 
 		$this->assertEmpty( $field->get_label(), 'Label should be empty by default' );
 	}

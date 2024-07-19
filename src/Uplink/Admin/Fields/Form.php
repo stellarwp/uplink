@@ -30,7 +30,7 @@ class Form extends Controller{
 	/**
 	 * @var string
 	 */
-	protected const VIEW = 'fields/form';
+	protected const VIEW = 'admin/fields/form';
 
 	/**
 	 * Adds a field to the form.
@@ -83,7 +83,7 @@ class Form extends Controller{
 	 */
 	public function get_render_html(): string {
 		$args = [ 'form' => $this ];
-		$html = $this->view->render( self::VIEW, $args, true );
+		$html = $this->view->render( self::VIEW, $args );
 
 		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/license_form_html', $html );
 	}

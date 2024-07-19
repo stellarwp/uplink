@@ -52,7 +52,7 @@ class Field extends Controller{
 	/**
 	 * @var string
 	 */
-	protected const VIEW = 'fields/field';
+	protected const VIEW = 'admin/fields/field';
 
 	/**
 	 * Constructor!
@@ -227,7 +227,7 @@ class Field extends Controller{
 			'group' => $group,
 		];
 
-		$html = $this->view->render( self::VIEW, $args, true );
+		$html = $this->view->render( self::VIEW, $args );
 
 		/**
 		 * Filters the field HTML.

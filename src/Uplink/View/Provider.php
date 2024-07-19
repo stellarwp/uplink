@@ -13,7 +13,7 @@ final class Provider extends Abstract_Provider {
 	public function register() {
 		$this->container->singleton(
 			WordPress_View::class,
-			new WordPress_View( __DIR__ . '/../../views', '.php', __DIR__ . '/../../admin-views' )
+			new WordPress_View( __DIR__ . '/../../views', '.php' )
 		);
 
 		$this->container->bind( View::class, $this->container->get( WordPress_View::class ) );

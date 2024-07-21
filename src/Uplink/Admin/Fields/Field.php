@@ -228,7 +228,7 @@ class Field {
 	}
 
 	/**
-	 * Returns the field.
+	 * Returns the rendered field HTML.
 	 *
 	 * @return string
 	 */

@@ -238,7 +238,7 @@ class Field {
 		if ( $this->resource->is_using_oauth() ) {
 			ob_start();
 			UplinkNamespace\render_authorize_button( $this->get_slug() );
-			return ob_get_clean();
+			return (string) ob_get_clean();
 		}
 
 		$args = [

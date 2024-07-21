@@ -82,7 +82,7 @@ class Field {
 	 *
 	 * @param  Resource  $resource  The resource.
 	 *
-	 * @return self
+	 * @return static
 	 */
 	public function set_resource( Resource $resource ): self {
 		$this->resource = $resource;

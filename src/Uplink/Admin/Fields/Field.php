@@ -170,7 +170,7 @@ class Field {
 		$nonce_name   = "stellarwp-uplink-license-key-nonce__" . $this->get_slug();
 		$nonce_action = $this->group->get_name();
 
-		return '<input type="hidden" class="wp-nonce-fluent" name="' . esc_attr( $nonce_name ) . '" value="' . wp_create_nonce( $nonce_action ) . '" />';
+		return '<input type="hidden" class="wp-nonce-fluent" name="' . esc_attr( $nonce_name ) . '" value="' . esc_attr( wp_create_nonce( $nonce_action ) ) . '" />';
 	}
 
 	/**

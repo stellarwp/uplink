@@ -178,7 +178,7 @@ To render a single product's license key, use the following:
 ```php
 use StellarWP\Uplink as UplinkNamespace;
 
-$field    = UplinkNamespace\get_field( 'my-test-plugin' );
+$field = UplinkNamespace\get_field( 'my-test-plugin' );
 
 $field->render();
 // or echo $field->get_render_html();

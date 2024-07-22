@@ -92,11 +92,12 @@ src/Uplink/Helper.php
 The file should match the following - keeping the `KEY` constant set to a blank string, or, if you want a default license key, set it to that.:
 
 ```php
-<?php
+<?php declare( strict_types=1 );
+
 namespace Whatever\Namespace\Uplink;
 
-class Helper {
-	const KEY = '';
+final class Helper {
+	public const KEY = '';
 }
 ```
 
@@ -256,15 +257,15 @@ You can also pass in a custom license domain, which can be fetched on the Uplink
 This connects to the licensing server to check in real time if the license is authorized. Use sparingly.
 
 ```php
-$container     = \StellarWP\Uplink\Config::get_container();
-$token_manager = $container->get( \StellarWP\Uplink\Auth\Token\Contracts\Token_Manager::class );
-$token         = $token_manager->get();
+$token       = \StellarWP\Uplink\get_authorization_token( 'my-plugin-slug' );
+$license_key = \StellarWP\Uplink\get_license_key( 'my-plugin-slug' );
+$domain      = \StellarWP\Uplink\get_license_domain();
 
-if ( ! $token ) {
-	return;
+if ( ! $token || ! $license_key || ! $domain ) {
+	return; // or, log/show errors.
 }
 
-$is_authorized = \StellarWP\Uplink\is_authorized( 'customer_license_key', $token, 'customer_domain' );
+$is_authorized = \StellarWP\Uplink\is_authorized( $license_key, 'my-plugin-slug', $token, $domain );
 
 echo $is_authorized ? esc_html__( 'authorized' ) : esc_html__( 'not authorized' );
 ```
@@ -274,13 +275,7 @@ echo $is_authorized ? esc_html__( 'authorized' ) : esc_html__( 'not authorized' 
 If for some reason you need to fetch your `auth_url` manually, you can do so by:
 
 ```php
-$container        = \StellarWP\Uplink\Config::get_container();
-$auth_url_manager = $container->get( \StellarWP\Uplink\API\V3\Auth\Contracts\Auth_Url::class );
-
-// Pass your product or service slug.
-$auth_url = $auth_url_manager->get( 'kadence-blocks-pro' );
-
-echo $auth_url;
+echo esc_url( \StellarWP\Uplink\get_auth_url( 'my-plugin-slug' ) );
 ```
 
 > 💡 Auth URL connections are cached for one day using transients.

@@ -4,6 +4,7 @@ namespace StellarWP\Uplink\API\V3\Auth;
 
 use StellarWP\Uplink\API\V3\Provider;
 use StellarWP\Uplink\Config;
+use StellarWP\Uplink\Storage\Contracts\Storage;
 
 /**
  * Token Authorizer Cache Decorator.
@@ -18,6 +19,11 @@ final class Token_Authorizer_Cache_Decorator implements Contracts\Token_Authoriz
 	 * @var Token_Authorizer
 	 */
 	private $authorizer;
+
+	/**
+	 * @var Storage
+	 */
+	private $storage;
 
 	/**
 	 * The cache expiration in seconds.
@@ -35,9 +41,11 @@ final class Token_Authorizer_Cache_Decorator implements Contracts\Token_Authoriz
 	 */
 	public function __construct(
 		Token_Authorizer $authorizer,
+		Storage $storage,
 		int $expiration = 21600
 	) {
 		$this->authorizer = $authorizer;
+		$this->storage    = $storage;
 		$this->expiration = $expiration;
 	}
 
@@ -49,24 +57,25 @@ final class Token_Authorizer_Cache_Decorator implements Contracts\Token_Authoriz
 	 * @see Token_Authorizer
 	 *
 	 * @param  string  $license  The license key.
+	 * @param  string  $slug     The plugin/service slug.
 	 * @param  string  $token    The stored token.
 	 * @param  string  $domain   The user's domain.
 	 *
 	 * @return bool
 	 */
-	public function is_authorized( string $license, string $token, string $domain ): bool {
+	public function is_authorized( string $license, string $slug, string $token, string $domain ): bool {
 		$transient     = $this->build_transient( [ $license, $token, $domain ] );
-		$is_authorized = get_transient( $transient );
+		$is_authorized = $this->storage->get( $transient );
 
 		if ( $is_authorized === true ) {
 			return true;
 		}
 
-		$is_authorized = $this->authorizer->is_authorized( $license, $token, $domain );
+		$is_authorized = $this->authorizer->is_authorized( $license, $slug, $token, $domain );
 
 		// Only cache successful responses.
 		if ( $is_authorized ) {
-			set_transient( $transient, true, $this->expiration );
+			$this->storage->set( $transient, true, $this->expiration );
 		}
 
 		return $is_authorized;
@@ -75,12 +84,23 @@ final class Token_Authorizer_Cache_Decorator implements Contracts\Token_Authoriz
 	/**
 	 * Build a transient key.
 	 *
-	 * @param  array<int, string>  ...$args
+	 * @param  array<int, string>  $args
 	 *
 	 * @return string
 	 */
-	public function build_transient( array ...$args ): string {
-		return self::TRANSIENT_PREFIX . hash( 'sha256', json_encode( $args ) );
+	public function build_transient( array $args ): string {
+		return self::TRANSIENT_PREFIX . $this->build_transient_no_prefix( $args );
+	}
+
+	/**
+	 * Build a transient key without the prefix.
+	 *
+	 * @param  array  $args
+	 *
+	 * @return string
+	 */
+	public function build_transient_no_prefix( array $args ): string {
+		return hash( 'sha256', json_encode( $args ) );
 	}
 
 }

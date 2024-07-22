@@ -5,6 +5,8 @@ namespace StellarWP\Uplink\Tests;
 use InvalidArgumentException;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Config;
+use StellarWP\Uplink\Storage\Drivers\Option_Storage;
+use StellarWP\Uplink\Storage\Drivers\Transient_Storage;
 
 final class ConfigTest extends UplinkTestCase {
 
@@ -60,6 +62,16 @@ final class ConfigTest extends UplinkTestCase {
 		Config::set_auth_cache_expiration( DAY_IN_SECONDS );
 
 		$this->assertSame( DAY_IN_SECONDS, Config::get_auth_cache_expiration() );
+	}
+
+	public function test_it_gets_default_storage_driver(): void {
+		$this->assertSame( Option_Storage::class, Config::get_storage_driver() );
+	}
+
+	public function test_it_gets_and_sets_storage_driver(): void {
+		Config::set_storage_driver( Transient_Storage::class );
+
+		$this->assertSame( Transient_Storage::class, Config::get_storage_driver() );
 	}
 
 }

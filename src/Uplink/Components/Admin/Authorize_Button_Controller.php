@@ -9,6 +9,7 @@ use StellarWP\Uplink\Auth\Authorizer;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Components\Controller;
 use StellarWP\Uplink\Config;
+use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\View\Contracts\View;
 
 final class Authorize_Button_Controller extends Controller {
@@ -34,6 +35,16 @@ final class Authorize_Button_Controller extends Controller {
 	private $url_builder;
 
 	/**
+	 * @var Collection
+	 */
+	private $resources;
+
+	/**
+	 * @var Disconnect_Controller
+	 */
+	private $disconnect_controller;
+
+	/**
 	 * @param  View  $view  The View Engine to render views.
 	 * @param  Authorizer  $authorizer  Determines if the current user can perform actions.
 	 * @param  Token_Manager  $token_manager  The Token Manager.
@@ -43,13 +54,17 @@ final class Authorize_Button_Controller extends Controller {
 		View $view,
 		Authorizer $authorizer,
 		Token_Manager $token_manager,
-		Auth_Url_Builder $url_builder
+		Auth_Url_Builder $url_builder,
+		Collection $resources,
+		Disconnect_Controller $disconnect_controller,
 	) {
 		parent::__construct( $view );
 
-		$this->authorizer    = $authorizer;
-		$this->token_manager = $token_manager;
-		$this->url_builder   = $url_builder;
+		$this->authorizer            = $authorizer;
+		$this->token_manager         = $token_manager;
+		$this->url_builder           = $url_builder;
+		$this->resources             = $resources;
+		$this->disconnect_controller = $disconnect_controller;
 	}
 
 	/**
@@ -77,6 +92,12 @@ final class Authorize_Button_Controller extends Controller {
 			return;
 		}
 
+		$plugin = $this->resources->offsetGet( $slug );
+
+		if ( ! $plugin ) {
+			return;
+		}
+
 		$authenticated = false;
 		$target        = '_blank';
 		$link_text     = __( 'Connect', '%TEXTDOMAIN%' );
@@ -90,11 +111,11 @@ final class Authorize_Button_Controller extends Controller {
 			$target    = '_self';
 			$link_text = __( 'Contact your network administrator to connect', '%TEXTDOMAIN%' );
 			$url       = get_admin_url( get_current_blog_id(), 'network/' );
-		} elseif ( $this->token_manager->get() ) {
+		} elseif ( $this->token_manager->get( $plugin ) ) {
 			$authenticated = true;
 			$target        = '_self';
 			$link_text     = __( 'Disconnect', '%TEXTDOMAIN%' );
-			$url           = wp_nonce_url( add_query_arg( [ Disconnect_Controller::ARG => true ], get_admin_url( get_current_blog_id() ) ), Disconnect_Controller::ARG );
+			$url           = $this->disconnect_controller->get_url( $plugin );
 			$classes[2]    = 'authorized';
 		}
 

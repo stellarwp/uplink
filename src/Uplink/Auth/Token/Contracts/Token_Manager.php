@@ -2,6 +2,8 @@
 
 namespace StellarWP\Uplink\Auth\Token\Contracts;
 
+use StellarWP\Uplink\Resources\Resource;
+
 interface Token_Manager {
 
 	/**
@@ -31,24 +33,41 @@ interface Token_Manager {
 	/**
 	 * Stores the token in the database.
 	 *
-	 * @param  string  $token
+	 * @param  string    $token
+	 * @param  Resource  $plugin
 	 *
 	 * @return bool
 	 */
-	public function store( string $token ): bool;
+	public function store( string $token, Resource $plugin ): bool;
 
 	/**
 	 * Retrieves the stored token.
 	 *
-	 * @return string|null
+	 * @note This will return a single legacy token if one exists in the database.
+	 *
+	 * @param  Resource  $plugin
+	 *
+	 * @return string
 	 */
-	public function get(): ?string;
+	public function get( Resource $plugin ): ?string;
+
+	/**
+	 * Retrieve all store tokens, indexed by their slug.
+	 *
+	 * @since TBD
+	 *
+	 * @note If a legacy token previously existed, it will be indexed by the key `legacy`.
+	 *
+	 * @return array<string, string>
+	 */
+	public function get_all(): ?array;
 
 	/**
 	 * Deletes the token from the database.
 	 *
+	 * @param  string  $slug
+	 *
 	 * @return bool
 	 */
-	public function delete(): bool;
-
+	public function delete( string $slug = '' ): bool;
 }

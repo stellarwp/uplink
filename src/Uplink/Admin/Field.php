@@ -108,7 +108,7 @@ abstract class Field {
 	 * @return string
 	 */
 	public function add_nonce_field() : string {
-		return '<input type="hidden" value="' . wp_create_nonce( $this->group->get_name() ) . '" class="wp-nonce" />';
+		return '<input type="hidden" value="' . esc_attr( wp_create_nonce( $this->group->get_name() )  ). '" class="wp-nonce" />';
 	}
 
 	/**

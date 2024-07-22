@@ -121,7 +121,8 @@ Register::plugin(
 	$plugin_version,
 	$plugin_path,
 	$plugin_class,
-	$license_class // This is optional.
+	$license_class, // This is optional.
+	false // Whether this is an oAuth plugin. Default false.
 );
 ```
 
@@ -143,7 +144,9 @@ Register::service(
 	$service_name,
 	$service_version,
 	$plugin_path,
-	$plugin_class
+	$plugin_class,
+	null,
+	false
 );
 ```
 
@@ -154,27 +157,34 @@ In order to render license key form just add the following to your settings page
 > ⚠️ This will render license key fields for all of your registered plugins/services in the same Uplink/Container instance.
 
 ```php
-use StellarWP\Uplink\Config;
+use StellarWP\Uplink as UplinkNamespace;
 
-$fields = Config::get_container()->get( License_Field::class );
+$form = UplinkNamespace\get_form();
+$plugins = UplinkNamespace\get_plugins();
 
-// Do one of the following:
-$fields->render();               // Render the fields, titles, and submit button.
-$fields->render( false );        // Render the fields without the titles.
-$fields->render( false, false ); // Render the fields without the titles or submit buttons.
+foreach ( $plugins as $plugin ) {
+	$field = UplinkNamespace\get_field( $plugin->get_slug() );
+	// Tha name property of the input field.
+	$field->set_field_name( 'field-' . $slug );
+	$form->add_field( $field );
+}
+
+$form->render();
+// or echo $form->get_render_html();
 ```
 
 To render a single product's license key, use the following:
 
 ```php
-use StellarWP\Uplink\Config;
+use StellarWP\Uplink as UplinkNamespace;
 
-$fields = Config::get_container()->get( License_Field::class );
+$resource = UplinkNamespace\get_resource( 'my-test-plugin' );
+$field    = UplinkNamespace\get_field( $resource->get_slug() );
 
-// Do one of the following:
-$fields->render_single( 'my-plugin' );               // Render the fields, titles, and submit button.
-$fields->render_single( 'my-plugin', false );        // Render the fields without the titles.
-$fields->render_single( 'my-plugin', false, false ); // Render the fields without the titles or submit buttons.
+$field->render();
+// or echo $field->get_render_html();
+
+
 ```
 
 ### Example: Register settings page and render license fields
@@ -196,13 +206,23 @@ add_action( 'admin_menu', function () {
 
 Add lines below to your settings page. This will render license key form with titles and a submit button
 ```php
-use StellarWP\Uplink\Config;
+use StellarWP\Uplink as UplinkNamespace;
 
 function render_settings_page() {
     // ...
+	$form = UplinkNamespace\get_form();
+	$plugins = UplinkNamespace\get_plugins();
 
-    $fields = Config::get_container()->get( License_Field::class );
-    $fields->render(); // or $fields->render_single( 'my-plugin' ); to render a single plugin
+	foreach ( $plugins as $plugin ) {
+		$field = UplinkNamespace\get_field( $plugin->get_slug() );
+		// Tha name property of the input field.
+		$field->set_field_name( 'field-' . $slug );
+		$form->add_field( $field );
+	}
+
+	$form->show_button( true, __( 'Submit', 'text-domain' ) );
+
+	$form->render();
 
     //....
 }

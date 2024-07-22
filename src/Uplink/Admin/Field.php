@@ -6,9 +6,6 @@ use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Resources\Collection;
 
 abstract class Field {
-
-	public const STELLARWP_UPLINK_GROUP = 'stellarwp_uplink_group';
-
 	/**
 	 * Path to page template
 	 *
@@ -17,6 +14,11 @@ abstract class Field {
 	 * @var string
 	 */
 	protected $path = '';
+
+	/**
+	 * @var Group
+	 */
+	protected $group;
 
 	/**
 	 * @since 1.0.0
@@ -36,6 +38,10 @@ abstract class Field {
 	 * @return void
 	 */
 	abstract public function render( bool $show_title = true, bool $show_button = true ): void;
+
+	public function __construct( Group $group ) {
+		$this->group = $group;
+	}
 
 	/**
 	 * @param array<string> $args
@@ -64,17 +70,6 @@ abstract class Field {
 		}
 
 		return $args['html'];
-	}
-
-	/**
-	 * @param string $group_modifier
-	 *
-	 * @return string
-	 */
-	public function get_group_name( string $group_modifier = '' ) : string {
-		$group_name = sprintf( '%s_%s', self::STELLARWP_UPLINK_GROUP, $group_modifier );
-
-		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/license_field_group_name', $group_name, self::STELLARWP_UPLINK_GROUP, $group_modifier );
 	}
 
 	/**
@@ -113,7 +108,7 @@ abstract class Field {
 	 * @return string
 	 */
 	public function add_nonce_field() : string {
-		return '<input type="hidden" value="' . wp_create_nonce( self::get_group_name() ) . '" class="wp-nonce" />';
+		return '<input type="hidden" value="' . wp_create_nonce( $this->group->get_name() ) . '" class="wp-nonce" />';
 	}
 
 	/**

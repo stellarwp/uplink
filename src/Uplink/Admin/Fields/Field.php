@@ -7,7 +7,7 @@ use StellarWP\Uplink\View\Contracts\View;
 use StellarWP\Uplink\Resources\Resource;
 // Use function statement is problematic with Strauss.
 use StellarWP\Uplink as UplinkNamespace;
-use StellarWP\Uplink\Admin\Assets;
+use StellarWP\Uplink\Admin\Asset_Manager;
 use StellarWP\Uplink\Admin\Group;
 
 class Field {
@@ -57,9 +57,9 @@ class Field {
 	protected $view;
 
 	/**
-	 * @var Assets
+	 * @var Asset_Manager
 	 */
-	protected $assets;
+	protected $asset_manager;
 
 	/**
 	 * @var Group
@@ -71,10 +71,10 @@ class Field {
 	 *
 	 * @param  View  $view  The View Engine to render views.
 	 */
-	public function __construct( View $view, Assets $assets, Group $group ) {
-		$this->view   = $view;
-		$this->assets = $assets;
-		$this->group  = $group;
+	public function __construct( View $view, Asset_Manager $asset_manager, Group $group ) {
+		$this->view          = $view;
+		$this->asset_manager = $asset_manager;
+		$this->group         = $group;
 	}
 
 	/**
@@ -233,7 +233,7 @@ class Field {
 	 * @return string
 	 */
 	public function get_render_html(): string {
-		$this->assets->enqueue_assets();
+		$this->asset_manager->enqueue_assets();
 
 		if ( $this->resource->is_using_oauth() ) {
 			ob_start();

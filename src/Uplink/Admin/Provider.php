@@ -22,8 +22,8 @@ class Provider extends Abstract_Provider {
 		$this->container->singleton( Package_Handler::class, Package_Handler::class );
 		$this->container->singleton( Update_Prevention::class, Update_Prevention::class );
 		$this->container->singleton( Group::class, Group::class );
-		$this->container->singleton( Assets::class, static function ( $c ) {
-			return new Assets( $c->get( Uplink::UPLINK_ASSETS_URI ) );
+		$this->container->singleton( Asset_Manager::class, static function ( $c ) {
+			return new Asset_Manager( $c->get( Uplink::UPLINK_ASSETS_URI ) );
 		} );
 
 		$this->register_hooks();
@@ -114,7 +114,7 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	public function register_assets(): void {
-		$this->container->get( Assets::class )->register_assets();
+		$this->container->get( Asset_Manager::class )->register_assets();
 	}
 
 	/**

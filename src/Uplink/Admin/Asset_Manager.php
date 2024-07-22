@@ -4,7 +4,7 @@ namespace StellarWP\Uplink\Admin;
 
 use StellarWP\Uplink\Config;
 
-class Assets {
+class Asset_Manager {
 	/**
 	 * @var string
 	 */

@@ -185,6 +185,7 @@ class FormTest extends UplinkTestCase {
 			$this->assertInstanceOf( Field::class, $fields[ $slug ], "Field should be an instance of Field class" );
 		}
 
+		$this->assertEquals( $expected_field_count, count( $form->get_fields() ) );
 		// Mock the wp_create_nonce function
 		$this->set_fn_return( 'wp_create_nonce', '123456789', false );
 

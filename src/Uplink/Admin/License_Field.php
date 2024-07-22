@@ -17,19 +17,19 @@ class License_Field extends Field {
 	protected $path = '/admin-views/fields/settings.php';
 
 	/**
-	 * @var Assets
+	 * @var Asset_Manager
 	 */
-	protected $assets;
+	protected $asset_manager;
 
 	/**
 	 * License_Field constructor.
 	 *
-	 * @param Group $group
-	 * @param Assets $assets
+	 * @param Group         $group
+	 * @param Asset_Manager $asset_manager
 	 */
-	public function __construct( Group $group, Assets $assets ) {
+	public function __construct( Group $group, Asset_Manager $asset_manager ) {
 		parent::__construct( $group );
-		$this->assets = $assets;
+		$this->asset_manager = $asset_manager;
 	}
 
 	/**
@@ -118,7 +118,7 @@ class License_Field extends Field {
 	 * @return void
 	 */
 	public function render_single( string $plugin_slug, bool $show_title = true, bool $show_button = true ): void {
-		$this->assets->enqueue_assets();
+		$this->asset_manager->enqueue_assets();
 
 		$resource = $this->get_resources()->offsetGet( $plugin_slug );
 

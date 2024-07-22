@@ -43,5 +43,4 @@ class Asset_Manager {
 		wp_enqueue_script( $this->handle );
 		wp_enqueue_style( $this->handle );
 	}
-
 }

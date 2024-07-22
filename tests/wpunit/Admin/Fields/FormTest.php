@@ -168,7 +168,7 @@ class FormTest extends UplinkTestCase {
 	 */
 	public function it_should_render_form_with_multiple_fields() {
 		$resources            = $this->get_test_resources();
-		$form                 = new Form( $this->view );
+		$form                 = UplinkNamespace\get_form();
 		$expected_field_count = count( $resources );
 
 		foreach ( $resources as $resource ) {

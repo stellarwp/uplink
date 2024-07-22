@@ -7,6 +7,11 @@ use StellarWP\Uplink\Resources\Plugin;
 use StellarWP\Uplink\Resources\Resource;
 use StellarWP\Uplink\Resources\Service;
 
+/**
+ * Class License_Field
+ *
+ * @deprecated TBD Use the Fields\Field and Fields\Form classes instead.
+ */
 class License_Field extends Field {
 
 	public const LICENSE_FIELD_ID = 'stellarwp_uplink_license';

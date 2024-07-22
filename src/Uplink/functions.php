@@ -4,12 +4,12 @@ namespace StellarWP\Uplink;
 
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Admin\Fields\Field;
+use StellarWP\Uplink\Admin\Fields\Form;
 use StellarWP\Uplink\API\V3\Auth\Contracts\Auth_Url;
 use StellarWP\Uplink\API\V3\Auth\Contracts\Token_Authorizer;
 use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
 use StellarWP\Uplink\Auth\Auth_Url_Builder;
 use StellarWP\Uplink\Auth\Authorizer;
-use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Resources\Plugin;
@@ -246,4 +246,26 @@ function get_field( string $slug ): Field {
 	}
 
 	return get_container()->get( Field::class )->set_resource( $resource );
+}
+
+/**
+ * Get the form object for all plugins.
+ *
+ * @throws RuntimeException
+ *
+ * @return Form
+ */
+function get_form(): Form {
+	return get_container()->get( Form::class );
+}
+
+/**
+ * Get all plugins.
+ *
+ * @throws RuntimeException
+ *
+ * @return Collection
+ */
+function get_plugins(): Collection {
+	return get_container()->get( Collection::class )->get_plugins();
 }

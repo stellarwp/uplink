@@ -52,11 +52,11 @@ class License_Field extends Field {
 				self::get_section_name( $resource ),
 				'',
 				[ $this, 'description' ], // @phpstan-ignore-line
-				$this->group->get_group_name( sanitize_title( $resource->get_slug() ) )
+				$this->group->get_name( sanitize_title( $resource->get_slug() ) )
 			);
 
 			register_setting(
-				$this->group->get_group_name( sanitize_title( $resource->get_slug() ) ),
+				$this->group->get_name( sanitize_title( $resource->get_slug() ) ),
 				$resource->get_license_object()->get_key_option_name()
 			);
 
@@ -64,7 +64,7 @@ class License_Field extends Field {
 				$resource->get_license_object()->get_key_option_name(),
 				__( 'License Key', '%TEXTDOMAIN%' ),
 				[ $this, 'field_html' ],
-				$this->group->get_group_name( sanitize_title( $resource->get_slug() ) ),
+				$this->group->get_name( sanitize_title( $resource->get_slug() ) ),
 				self::get_section_name( $resource ),
 				[
 					'id'           => $resource->get_license_object()->get_key_option_name(),

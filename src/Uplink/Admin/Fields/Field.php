@@ -168,7 +168,7 @@ class Field {
 	 */
 	public function get_nonce_field(): string {
 		$nonce_name   = "stellarwp-uplink-license-key-nonce__" . $this->get_slug();
-		$nonce_action = $this->group->get_group_name();
+		$nonce_action = $this->group->get_name();
 
 		return '<input type="hidden" class="wp-nonce-fluent" name="' . esc_attr( $nonce_name ) . '" value="' . wp_create_nonce( $nonce_action ) . '" />';
 	}
@@ -243,7 +243,7 @@ class Field {
 
 		$args = [
 			'field' => $this,
-			'group' => $this->group->get_group_name( $this->get_slug() ),
+			'group' => $this->group->get_name( $this->get_slug() ),
 		];
 
 		$html = $this->view->render( self::VIEW, $args );

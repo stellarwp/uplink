@@ -137,7 +137,7 @@ class FieldTest extends UplinkTestCase {
 	public function it_should_get_nonce_action_and_field( $resource ) {
 		$field = $this->container->get( Field::class )->set_resource( $this->setup_container_get_slug( $resource ) );
 
-		$nonce_action = $this->container->get( Group::class )->get_group_name();
+		$nonce_action = $this->container->get( Group::class )->get_name();
 		$nonce_field  = $field->get_nonce_field();
 
 		// Extract the nonce value from the nonce field

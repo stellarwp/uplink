@@ -37,7 +37,7 @@ class AjaxText extends UplinkTestCase {
 			$handler->validate_license(),
 			'Should return invalid request message if nonce or key is missing is empty'
 		);
-		$_POST['_wpnonce'] = wp_create_nonce( $this->container->get( Group::class )->get_group_name() );
+		$_POST['_wpnonce'] = wp_create_nonce( $this->container->get( Group::class )->get_name() );
 		$_POST['key']	   = 'sample';
 		$_POST['plugin']   = 'sample/index.php';
 

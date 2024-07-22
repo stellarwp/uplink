@@ -17,6 +17,7 @@ use StellarWP\Uplink\Resources\Service;
 use StellarWP\Uplink\Resources\Resource;
 use StellarWP\Uplink\Site\Data;
 use Throwable;
+use RuntimeException;
 
 /**
  * Get the uplink container.
@@ -229,14 +230,20 @@ function get_license_domain(): string {
 }
 
 /**
- * Get the field object for a resource.
+ * Get the field object for a resource's slug.
  *
- * @param  Resource  $resource  The resource to get the field for.
+ * @param  string  $slug  The resource's slug to get the field for.
  *
- * @throws \RuntimeException
+ * @throws RuntimeException
  *
  * @return Field
  */
-function get_field( Resource $resource ): Field {
+function get_field( string $slug ): Field {
+	$resource = get_container()->get( Collection::class )->offsetGet( $slug );
+
+	if ( ! $resource ) {
+		throw new RuntimeException( "Resource not found for slug: {$slug}" );
+	}
+
 	return get_container()->get( Field::class )->set_resource( $resource );
 }

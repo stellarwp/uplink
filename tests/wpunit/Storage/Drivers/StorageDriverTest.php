@@ -140,4 +140,26 @@ final class StorageDriverTest extends UplinkTestCase {
 		$this->assertNull( $storage->get( $key ) );
 	}
 
+	/**
+	 * @dataProvider storageProvider
+	 *
+	 * Some bug here where WP_INSTALLING is defined when using --env multisite
+	 * causing it to use local object cache.
+	 *
+	 * @env singlesite
+	 */
+	public function test_it_zero_expiration_does_not_expire( Storage $storage ): void {
+		$key    = 'uplink_test_key';
+		$value  = 'not_expired';
+		$expire = 0;
+
+		$this->assertTrue( $storage->set( $key, $value, $expire ) );
+
+		codecept_debug( 'Sleeping for 2 seconds...' );
+
+		sleep( 2 );
+
+		$this->assertSame( $value, $storage->get( $key ) );
+	}
+
 }

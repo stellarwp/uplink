@@ -56,7 +56,7 @@ final class Authorize_Button_Controller extends Controller {
 		Token_Manager $token_manager,
 		Auth_Url_Builder $url_builder,
 		Collection $resources,
-		Disconnect_Controller $disconnect_controller,
+		Disconnect_Controller $disconnect_controller
 	) {
 		parent::__construct( $view );
 

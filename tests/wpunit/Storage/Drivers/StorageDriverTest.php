@@ -148,7 +148,7 @@ final class StorageDriverTest extends UplinkTestCase {
 	 *
 	 * @env singlesite
 	 */
-	public function test_it_zero_expiration_does_not_expire( Storage $storage ): void {
+	public function test_zero_expiration_does_not_expire( Storage $storage ): void {
 		$key    = 'uplink_test_key';
 		$value  = 'not_expired';
 		$expire = 0;

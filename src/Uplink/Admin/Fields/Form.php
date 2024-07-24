@@ -85,6 +85,13 @@ class Form extends Controller{
 		$args = [ 'form' => $this ];
 		$html = $this->view->render( self::VIEW, $args );
 
+		/**
+		 * Filters the form HTML.
+		 *
+		 * @since TBD
+		 *
+		 * @param string $html The form HTML.
+		 */
 		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/license_form_html', $html );
 	}
 

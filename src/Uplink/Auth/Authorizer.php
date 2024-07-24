@@ -17,6 +17,13 @@ final class Authorizer {
 	 * @return bool
 	 */
 	public function can_auth(): bool {
+		/**
+		 * Filters if the current user can perform an action.
+		 *
+		 * @since TBD
+		 *
+		 * @param bool $can_auth Whether the current user can perform an action.
+		 */
 		return (bool) apply_filters(
 			'stellarwp/uplink/' . Config::get_hook_prefix() . '/auth/can_auth',
 			is_super_admin()

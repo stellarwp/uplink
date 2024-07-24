@@ -8,7 +8,14 @@ use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Admin\Fields\Field;
 ?>
 
-<?php do_action( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_field_before_field', $field->get_slug() ); ?>
+<?php
+/**
+ * Fires before the field.
+ *
+ * @since TBD
+ */
+do_action( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_field_before_field', $field->get_slug() );
+?>
 <?php if ( $field->should_show_label() ) : ?>
 	<table class="form-table" role="presentation">
 		<tr class="stellarwp-uplink-license-key-field">
@@ -45,5 +52,10 @@ use StellarWP\Uplink\Admin\Fields\Field;
 		</tr>
 	</table>
 <?php endif; ?>
-<?php do_action( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_field_after_field', $field->get_slug() ); ?>
 <?php
+/**
+ * Fires after the field.
+ *
+ * @since TBD
+ */
+do_action( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_field_after_field', $field->get_slug() );

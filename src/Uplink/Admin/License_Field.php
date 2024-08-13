@@ -10,7 +10,7 @@ use StellarWP\Uplink\Resources\Service;
 /**
  * Class License_Field
  *
- * @deprecated TBD Use the Fields\Field and Fields\Form classes instead.
+ * @deprecated 2.0.0 Use the Fields\Field and Fields\Form classes instead.
  */
 class License_Field extends Field {
 

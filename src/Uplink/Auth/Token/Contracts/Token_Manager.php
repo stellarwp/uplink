@@ -54,7 +54,7 @@ interface Token_Manager {
 	/**
 	 * Retrieve all store tokens, indexed by their slug.
 	 *
-	 * @since TBD
+	 * @since 2.0.0
 	 *
 	 * @note If a legacy token previously existed, it will be indexed by the key `legacy`.
 	 *

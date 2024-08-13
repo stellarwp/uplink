@@ -20,7 +20,7 @@ final class Authorizer {
 		/**
 		 * Filters if the current user can perform an action.
 		 *
-		 * @since TBD
+		 * @since 2.0.0
 		 *
 		 * @param bool $can_auth Whether the current user can perform an action.
 		 */

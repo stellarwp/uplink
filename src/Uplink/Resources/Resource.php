@@ -116,7 +116,7 @@ abstract class Resource {
 	/**
 	 * Is the plugin using OAuth?
 	 *
-	 * @since TBD
+	 * @since 2.0.0
 	 *
 	 * @var bool
 	 */
@@ -126,7 +126,7 @@ abstract class Resource {
 	 * Constructor.
 	 *
 	 * @since 1.0.0
-	 * @since TBD Added oAuth parameter.
+	 * @since 2.0.0 Added oAuth parameter.
 	 *
 	 * @param string $slug Resource slug.
 	 * @param string $name Resource name.
@@ -163,7 +163,7 @@ abstract class Resource {
 	/**
 	 * Get if the plugin is using oAuth.
 	 *
-	 * @since TBD
+	 * @since 2.0.0
 	 *
 	 * @return bool
 	 */
@@ -219,7 +219,7 @@ abstract class Resource {
 	/**
 	 * Get the Resource's oAuth token.
 	 *
-	 * @since TBD
+	 * @since 2.0.0
 	 *
 	 * @return ?string
 	 */
@@ -230,7 +230,7 @@ abstract class Resource {
 	/**
 	 * Store the Resource's oAuth token.
 	 *
-	 * @since TBD
+	 * @since 2.0.0
 	 *
 	 * @param string $token The token to store.
 	 *
@@ -450,7 +450,7 @@ abstract class Resource {
 	 * Register a resource and add it to the collection.
 	 *
 	 * @since 1.0.0
-	 * @since TBD Added oAuth parameter.
+	 * @since 2.0.0 Added oAuth parameter.
 	 *
 	 * @param string $resource_class Resource class.
 	 * @param string $slug Resource slug.

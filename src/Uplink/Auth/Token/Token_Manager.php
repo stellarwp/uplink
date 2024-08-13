@@ -66,7 +66,7 @@ final class Token_Manager implements Contracts\Token_Manager {
 	/**
 	 * Store the token.
 	 *
-	 * @since TBD Added $plugin param.
+	 * @since 2.0.0 Added $plugin param.
 	 *
 	 * @param  string    $token   The token to store.
 	 * @param  Resource  $plugin  The Product to store the token for.
@@ -93,7 +93,7 @@ final class Token_Manager implements Contracts\Token_Manager {
 	/**
 	 * Get the token.
 	 *
-	 * @since TBD Added $plugin param.
+	 * @since 2.0.0 Added $plugin param.
 	 *
 	 * @note  This will fallback to the legacy token, if it exists.
 	 *
@@ -112,7 +112,7 @@ final class Token_Manager implements Contracts\Token_Manager {
 	 *
 	 * @note Legacy tokens are stored as a string, and will be returned with the `legacy` slug.
 	 *
-	 * @since TBD
+	 * @since 2.0.0
 	 *
 	 * @return array<string, string>
 	 */

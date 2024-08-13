@@ -20,7 +20,7 @@ $action_postfix = Config::get_hook_prefix_underscored();
 		/**
 		 * Fires before the form.
 		 *
-		 * @since TBD
+		 * @since 2.0.0
 		 */
 		do_action( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_field_before_form' );
 		?>
@@ -36,7 +36,7 @@ $action_postfix = Config::get_hook_prefix_underscored();
 		/**
 		 * Fires after the form.
 		 *
-		 * @since TBD
+		 * @since 2.0.0
 		 */
 		do_action( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_field_after_form' );
 		?>

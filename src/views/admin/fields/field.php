@@ -12,7 +12,7 @@ use StellarWP\Uplink\Admin\Fields\Field;
 /**
  * Fires before the field.
  *
- * @since TBD
+ * @since 2.0.0
  */
 do_action( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_field_before_field', $field->get_slug() );
 ?>
@@ -56,6 +56,6 @@ do_action( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_field_befo
 /**
  * Fires after the field.
  *
- * @since TBD
+ * @since 2.0.0
  */
 do_action( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_field_after_field', $field->get_slug() );

@@ -27,7 +27,7 @@ class Asset_Manager {
 		/**
 		 * Filters the JS source for the admin.
 		 *
-		 * @since TBD
+		 * @since 2.0.0
 		 *
 		 * @param string $js_src The JS source.
 		 */
@@ -41,7 +41,7 @@ class Asset_Manager {
 		/**
 		 * Filters the CSS source for the admin.
 		 *
-		 * @since TBD
+		 * @since 2.0.0
 		 *
 		 * @param string $css_src The CSS source.
 		 */

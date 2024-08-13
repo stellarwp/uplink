@@ -165,7 +165,7 @@ class License {
 		 *
 		 * Accepts the resource's slug dynamically.
 		 *
-		 * @since TBD
+		 * @since 2.0.0
 		 *
 		 * @param string|null $key The license key.
 		 * @param Resource $resource The resource instance.
@@ -393,7 +393,7 @@ class License {
 	/**
 	 * Sets the key status based on the key validation check results.
 	 *
-	 * @since TBD
+	 * @since 2.0.0
 	 *
 	 * @param int $valid 0 for invalid, 1 or 2 for valid.
 	 *

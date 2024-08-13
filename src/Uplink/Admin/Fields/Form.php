@@ -88,7 +88,7 @@ class Form extends Controller{
 		/**
 		 * Filters the form HTML.
 		 *
-		 * @since TBD
+		 * @since 2.0.0
 		 *
 		 * @param string $html The form HTML.
 		 */

@@ -10,7 +10,7 @@ class Register {
 	 * Register a plugin resource.
 	 *
 	 * @since 1.0.0
-	 * @since TBD Added oAuth parameter.
+	 * @since 2.0.0 Added oAuth parameter.
 	 *
 	 * @param string $slug Resource slug.
 	 * @param string $name Resource name.
@@ -30,7 +30,7 @@ class Register {
 	 * Register a service resource.
 	 *
 	 * @since 1.0.0
-	 * @since TBD Added oAuth parameter.
+	 * @since 2.0.0 Added oAuth parameter.
 	 *
 	 * @param string $slug Resource slug.
 	 * @param string $name Resource name.

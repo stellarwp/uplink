@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\Auth;
 
-use StellarWP\Uplink\Pipeline\Pipeline;
+use StellarWP\Uplink\Config;
 
 /**
  * Determines if the current site will allow the user to use the authorize button.
@@ -10,27 +10,24 @@ use StellarWP\Uplink\Pipeline\Pipeline;
 final class Authorizer {
 
 	/**
-	 * @var Pipeline
-	 */
-	private $pipeline;
-
-	/**
-	 * @param  Pipeline  $pipeline  The populated pipeline of a set of rules to authorize a user.
-	 */
-	public function __construct( Pipeline $pipeline ) {
-		$this->pipeline = $pipeline;
-	}
-
-	/**
-	 * Runs the pipeline which executes a series of checks to determine if
-	 * the user can use the authorize button on the current site.
+	 * Checks if the current user can perform an action.
 	 *
-	 * @see Provider::register_authorizer()
+	 * @throws \RuntimeException
 	 *
 	 * @return bool
 	 */
 	public function can_auth(): bool {
-		return $this->pipeline->send( true )->thenReturn();
+		/**
+		 * Filters if the current user can perform an action.
+		 *
+		 * @since TBD
+		 *
+		 * @param bool $can_auth Whether the current user can perform an action.
+		 */
+		return (bool) apply_filters(
+			'stellarwp/uplink/' . Config::get_hook_prefix() . '/auth/can_auth',
+			is_super_admin()
+		);
 	}
 
 }

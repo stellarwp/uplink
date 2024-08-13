@@ -2,13 +2,24 @@
 
 namespace StellarWP\Uplink\Auth\Admin;
 
+use StellarWP\Uplink\API\V3\Auth\Token_Authorizer_Cache_Decorator;
+use StellarWP\Uplink\Auth\Authorizer;
+use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Auth\Token\Disconnector;
 use StellarWP\Uplink\Notice\Notice_Handler;
 use StellarWP\Uplink\Notice\Notice;
+use StellarWP\Uplink\Resources\Resource;
 
 final class Disconnect_Controller {
 
-	public const ARG = 'uplink_disconnect';
+	public const ARG       = 'uplink_disconnect';
+	public const SLUG      = 'uplink_slug';
+	public const CACHE_KEY = 'uplink_cache';
+
+	/**
+	 * @var Authorizer
+	 */
+	private $authorizer;
 
 	/**
 	 * @var Disconnector
@@ -21,23 +32,70 @@ final class Disconnect_Controller {
 	private $notice;
 
 	/**
-	 * @param  Disconnector  $disconnect  Disconnects a Token, if the user has the capability.
-	 * @param  Notice_Handler  $notice  Handles storing and displaying notices.
+	 * @var Token_Manager
 	 */
-	public function __construct( Disconnector $disconnect, Notice_Handler $notice ) {
-		$this->disconnect = $disconnect;
-		$this->notice     = $notice;
+	private $token_manager;
+
+	/**
+	 * @var Token_Authorizer_Cache_Decorator
+	 */
+	private $cache;
+
+	/**
+	 * @param  Authorizer                        $authorizer     The authorizer.
+	 * @param  Disconnector                      $disconnect     Disconnects a Token, if the user has the capability.
+	 * @param  Token_Manager                     $token_manager  Manages token storage.
+	 * @param  Notice_Handler                    $notice         Handles storing and displaying notices.
+	 * @param  Token_Authorizer_Cache_Decorator  $cache          The token cache.
+	 */
+	public function __construct(
+		Authorizer $authorizer,
+		Disconnector $disconnect,
+		Notice_Handler $notice,
+		Token_Manager $token_manager,
+		Token_Authorizer_Cache_Decorator $cache
+	) {
+		$this->authorizer    = $authorizer;
+		$this->disconnect    = $disconnect;
+		$this->notice        = $notice;
+		$this->token_manager = $token_manager;
+		$this->cache         = $cache;
+	}
+
+	/**
+	 * Get the disconnect URL to render.
+	 *
+	 * @param  Resource  $plugin  The plugin/service.
+	 *
+	 * @return string
+	 */
+	public function get_url( Resource $plugin ): string {
+		$token = $this->token_manager->get( $plugin );
+
+		if ( ! $token ) {
+			return '';
+		}
+
+		$cache_key = $this->cache->build_transient_no_prefix( [ $token ] );
+
+		return wp_nonce_url( add_query_arg( [
+			self::ARG       => true,
+			self::SLUG      => $plugin->get_slug(),
+			self::CACHE_KEY => $cache_key,
+		], get_admin_url( get_current_blog_id() ) ), self::ARG );
 	}
 
 	/**
 	 * Disconnect (delete) a token if the user is allowed to.
 	 *
-	 * @action admin_init
+	 * @action stellarwp/uplink/{$prefix}/admin_action_{$slug}
+	 *
+	 * @throws \RuntimeException
 	 *
 	 * @return void
 	 */
 	public function maybe_disconnect(): void {
-		if ( empty( $_GET[ self::ARG ] ) || empty( $_GET['_wpnonce'] ) ) {
+		if ( empty( $_GET[ self::ARG ] ) || empty( $_GET['_wpnonce'] ) || empty( $_GET[ self::SLUG ] ) || empty( $_GET[ self::CACHE_KEY ] ) ) {
 			return;
 		}
 
@@ -46,7 +104,7 @@ final class Disconnect_Controller {
 		}
 
 		if ( wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), self::ARG ) ) {
-			if ( $this->disconnect->disconnect() ) {
+			if ( $this->authorizer->can_auth() && $this->disconnect->disconnect( $_GET[ self::SLUG ], $_GET[ self::CACHE_KEY ] ) ) {
 				$this->notice->add(
 					new Notice( Notice::SUCCESS,
 						__( 'Token disconnected.', '%TEXTDOMAIN%' ),

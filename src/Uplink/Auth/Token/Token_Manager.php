@@ -3,6 +3,8 @@
 namespace StellarWP\Uplink\Auth\Token;
 
 use InvalidArgumentException;
+use StellarWP\Uplink\Config;
+use StellarWP\Uplink\Resources\Resource;
 
 /**
  * Manages storing authorization tokens in a network.
@@ -11,6 +13,11 @@ use InvalidArgumentException;
  * single site functions if multisite is not enabled.
  */
 final class Token_Manager implements Contracts\Token_Manager {
+
+	/**
+	 * The index used in get_all() for any legacy token.
+	 */
+	public const LEGACY_INDEX = 'legacy';
 
 	/**
 	 * The option name to store the token in wp_options table.
@@ -59,44 +66,94 @@ final class Token_Manager implements Contracts\Token_Manager {
 	/**
 	 * Store the token.
 	 *
-	 * @param  string  $token
+	 * @since TBD Added $plugin param.
+	 *
+	 * @param  string    $token   The token to store.
+	 * @param  Resource  $plugin  The Product to store the token for.
 	 *
 	 * @return bool
 	 */
-	public function store( string $token ): bool {
+	public function store( string $token, Resource $plugin ): bool {
 		if ( ! $token ) {
 			return false;
 		}
 
+		$current = $tokens = $this->get_all();
+
+		$tokens[ $plugin->get_slug() ] = $token;
+
 		// WordPress would otherwise return false if the items match.
-		if ( $token === $this->get() ) {
+		if ( $tokens === $current ) {
 			return true;
 		}
 
-		return update_network_option( get_current_network_id(), $this->option_name, $token );
+		return update_network_option( get_current_network_id(), $this->option_name, $tokens );
 	}
 
 	/**
 	 * Get the token.
 	 *
+	 * @since TBD Added $plugin param.
+	 *
+	 * @note  This will fallback to the legacy token, if it exists.
+	 *
+	 * @param  Resource  $plugin  The Product to retrieve the token for.
+	 *
 	 * @return string|null
 	 */
-	public function get(): ?string {
-		return get_network_option( get_current_network_id(), $this->option_name, null );
+	public function get( Resource $plugin ): ?string {
+		$tokens = $this->get_all();
+
+		return $tokens[ $plugin->get_slug() ] ?? $tokens[ self::LEGACY_INDEX ] ?? null;
+	}
+
+	/**
+	 * Get all the tokens, indexed by their slug.
+	 *
+	 * @note Legacy tokens are stored as a string, and will be returned with the `legacy` slug.
+	 *
+	 * @since TBD
+	 *
+	 * @return array<string, string>
+	 */
+	public function get_all(): array {
+		$tokens = (array) get_network_option( get_current_network_id(), $this->option_name, [] );
+
+		// Index the legacy token by `legacy`.
+		if ( array_key_exists( 0, $tokens ) ) {
+			$tokens[ self::LEGACY_INDEX ] = $tokens[0];
+			unset( $tokens[0] );
+		}
+
+		return $tokens;
 	}
 
 	/**
 	 * Revoke the token.
 	 *
+	 * @param  string  $slug The Product to retrieve the token for.
+	 *
 	 * @return bool
 	 */
-	public function delete(): bool {
-		// Already doesn't exist, WordPress would normally return false.
-		if ( $this->get() === null ) {
+	public function delete( string $slug = '' ): bool {
+		$current = $tokens = $this->get_all();
+
+		// We'll always delete the legacy token.
+		if ( isset( $tokens[ self::LEGACY_INDEX ] ) ) {
+			unset( $tokens[ self::LEGACY_INDEX ] );
+		}
+
+		// Delete the specified token if it exists.
+		if ( isset( $tokens[ $slug ] ) ) {
+			unset( $tokens[ $slug ] );
+		}
+
+		// No change, return true, otherwise WordPress would return false here.
+		if ( $tokens === $current ) {
 			return true;
 		}
 
-		return delete_network_option( get_current_network_id(), $this->option_name );
+		return update_network_option( get_current_network_id(), $this->option_name, $tokens );
 	}
 
 }

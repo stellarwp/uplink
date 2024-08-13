@@ -26,8 +26,8 @@ final class NonceTest extends UplinkTestCase {
 
 		$this->assertNotEmpty( $nonce );
 		$this->assertSame( 16, strlen( $nonce ) );
-		$this->assertFalse( Nonce::verify( '') );
-		$this->assertTrue( Nonce::verify( $nonce ) );
+		$this->assertFalse( $this->nonce->verify( '') );
+		$this->assertTrue( $this->nonce->verify( $nonce ) );
 	}
 
 	public function test_it_creates_a_nonce_url(): void {
@@ -47,8 +47,8 @@ final class NonceTest extends UplinkTestCase {
 
 		$this->assertNotEmpty( $nonce );
 		$this->assertSame( 16, strlen( $nonce ) );
-		$this->assertFalse( Nonce::verify( '') );
-		$this->assertTrue( Nonce::verify( $nonce ) );
+		$this->assertFalse( $this->nonce->verify( '') );
+		$this->assertTrue( $this->nonce->verify( $nonce ) );
 	}
 
 	public function test_it_creates_a_nonce_url_with_extra_query_arguments(): void {
@@ -69,8 +69,8 @@ final class NonceTest extends UplinkTestCase {
 
 		$this->assertNotEmpty( $nonce );
 		$this->assertSame( 16, strlen( $nonce ) );
-		$this->assertFalse( Nonce::verify( '' ) );
-		$this->assertTrue( Nonce::verify( $nonce ) );
+		$this->assertFalse( $this->nonce->verify( '' ) );
+		$this->assertTrue( $this->nonce->verify( $nonce ) );
 	}
 
 }

@@ -14,8 +14,14 @@ class Ajax {
 	 */
 	protected $container;
 
-	public function __construct() {
+	/**
+	 * @var Group
+	 */
+	protected $group;
+
+	public function __construct( Group $group ) {
 		$this->container = Config::get_container();
+		$this->group     = $group;
 	}
 
 	/**
@@ -29,7 +35,7 @@ class Ajax {
 			'key'      => Utils\Sanitize::key( wp_unslash( $_POST['key'] ?? '' ) ),
 		];
 
-		if ( empty( $submission['key'] ) || ! wp_verify_nonce( $submission['_wpnonce'], $this->container->get( License_Field::class )->get_group_name() ) ) {
+		if ( empty( $submission['key'] ) || ! wp_verify_nonce( $submission['_wpnonce'], $this->group->get_name() ) ) {
 			wp_send_json_error( [
 				'status'  => 0,
 				'message' => __( 'Invalid request: nonce field is expired. Please try again.', '%TEXTDOMAIN%' ),

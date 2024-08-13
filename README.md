@@ -92,11 +92,12 @@ src/Uplink/Helper.php
 The file should match the following - keeping the `KEY` constant set to a blank string, or, if you want a default license key, set it to that.:
 
 ```php
-<?php
+<?php declare( strict_types=1 );
+
 namespace Whatever\Namespace\Uplink;
 
-class Helper {
-	const KEY = '';
+final class Helper {
+	public const KEY = '';
 }
 ```
 
@@ -120,7 +121,8 @@ Register::plugin(
 	$plugin_version,
 	$plugin_path,
 	$plugin_class,
-	$license_class // This is optional.
+	$license_class, // This is optional.
+	false // Whether this is an oAuth plugin. Default false.
 );
 ```
 
@@ -142,7 +144,9 @@ Register::service(
 	$service_name,
 	$service_version,
 	$plugin_path,
-	$plugin_class
+	$plugin_class,
+	null,
+	false
 );
 ```
 
@@ -153,27 +157,33 @@ In order to render license key form just add the following to your settings page
 > ⚠️ This will render license key fields for all of your registered plugins/services in the same Uplink/Container instance.
 
 ```php
-use StellarWP\Uplink\Config;
+use StellarWP\Uplink as UplinkNamespace;
 
-$fields = Config::get_container()->get( License_Field::class );
+$form = UplinkNamespace\get_form();
+$plugins = UplinkNamespace\get_plugins();
 
-// Do one of the following:
-$fields->render();               // Render the fields, titles, and submit button.
-$fields->render( false );        // Render the fields without the titles.
-$fields->render( false, false ); // Render the fields without the titles or submit buttons.
+foreach ( $plugins as $plugin ) {
+	$field = UplinkNamespace\get_field( $plugin->get_slug() );
+	// Tha name property of the input field.
+	$field->set_field_name( 'field-' . $slug );
+	$form->add_field( $field );
+}
+
+$form->render();
+// or echo $form->get_render_html();
 ```
 
 To render a single product's license key, use the following:
 
 ```php
-use StellarWP\Uplink\Config;
+use StellarWP\Uplink as UplinkNamespace;
 
-$fields = Config::get_container()->get( License_Field::class );
+$field = UplinkNamespace\get_field( 'my-test-plugin' );
 
-// Do one of the following:
-$fields->render_single( 'my-plugin' );               // Render the fields, titles, and submit button.
-$fields->render_single( 'my-plugin', false );        // Render the fields without the titles.
-$fields->render_single( 'my-plugin', false, false ); // Render the fields without the titles or submit buttons.
+$field->render();
+// or echo $field->get_render_html();
+
+
 ```
 
 ### Example: Register settings page and render license fields
@@ -195,13 +205,23 @@ add_action( 'admin_menu', function () {
 
 Add lines below to your settings page. This will render license key form with titles and a submit button
 ```php
-use StellarWP\Uplink\Config;
+use StellarWP\Uplink as UplinkNamespace;
 
 function render_settings_page() {
     // ...
+	$form = UplinkNamespace\get_form();
+	$plugins = UplinkNamespace\get_plugins();
 
-    $fields = Config::get_container()->get( License_Field::class );
-    $fields->render(); // or $fields->render_single( 'my-plugin' ); to render a single plugin
+	foreach ( $plugins as $plugin ) {
+		$field = UplinkNamespace\get_field( $plugin->get_slug() );
+		// Tha name property of the input field.
+		$field->set_field_name( 'field-' . $slug );
+		$form->add_field( $field );
+	}
+
+	$form->show_button( true, __( 'Submit', 'text-domain' ) );
+
+	$form->render();
 
     //....
 }
@@ -256,15 +276,15 @@ You can also pass in a custom license domain, which can be fetched on the Uplink
 This connects to the licensing server to check in real time if the license is authorized. Use sparingly.
 
 ```php
-$container     = \StellarWP\Uplink\Config::get_container();
-$token_manager = $container->get( \StellarWP\Uplink\Auth\Token\Contracts\Token_Manager::class );
-$token         = $token_manager->get();
+$token       = \StellarWP\Uplink\get_authorization_token( 'my-plugin-slug' );
+$license_key = \StellarWP\Uplink\get_license_key( 'my-plugin-slug' );
+$domain      = \StellarWP\Uplink\get_license_domain();
 
-if ( ! $token ) {
-	return;
+if ( ! $token || ! $license_key || ! $domain ) {
+	return; // or, log/show errors.
 }
 
-$is_authorized = \StellarWP\Uplink\is_authorized( 'customer_license_key', $token, 'customer_domain' );
+$is_authorized = \StellarWP\Uplink\is_authorized( $license_key, 'my-plugin-slug', $token, $domain );
 
 echo $is_authorized ? esc_html__( 'authorized' ) : esc_html__( 'not authorized' );
 ```
@@ -274,13 +294,7 @@ echo $is_authorized ? esc_html__( 'authorized' ) : esc_html__( 'not authorized' 
 If for some reason you need to fetch your `auth_url` manually, you can do so by:
 
 ```php
-$container        = \StellarWP\Uplink\Config::get_container();
-$auth_url_manager = $container->get( \StellarWP\Uplink\API\V3\Auth\Contracts\Auth_Url::class );
-
-// Pass your product or service slug.
-$auth_url = $auth_url_manager->get( 'kadence-blocks-pro' );
-
-echo $auth_url;
+echo esc_url( \StellarWP\Uplink\get_auth_url( 'my-plugin-slug' ) );
 ```
 
 > 💡 Auth URL connections are cached for one day using transients.

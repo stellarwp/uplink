@@ -37,11 +37,13 @@
 		let licenseKey = field.val().trim();
 		field.val( licenseKey );
 
+		const nonceField = $($el).find('.wp-nonce-fluent') || $($el).find('.wp-nonce');
+
 		const data = {
 			action: window[`stellarwp_config_${action}`]['action'],
 			slug: slug,
 			key: licenseKey,
-			_wpnonce: $($el).find('.wp-nonce').val()
+			_wpnonce: nonceField.val()
 		};
 
 		$.post(ajaxurl, data, function (response) {

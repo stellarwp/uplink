@@ -61,6 +61,16 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	}
 
 	/**
+	 * Alias of offsetGet().
+	 *
+	 * @return Resource|null
+	 */
+	#[\ReturnTypeWillChange]
+	public function get( $offset ): ?Resource {
+		return $this->offsetGet( $offset );
+	}
+
+	/**
 	 * Gets the resource with the given path.
 	 *
 	 * @since 1.0.0

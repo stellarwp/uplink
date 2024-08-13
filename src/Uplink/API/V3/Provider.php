@@ -9,6 +9,7 @@ use StellarWP\Uplink\API\V3\Auth\Token_Authorizer_Cache_Decorator;
 use StellarWP\Uplink\API\V3\Contracts\Client_V3;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
+use StellarWP\Uplink\Storage\Contracts\Storage;
 use WP_Http;
 
 final class Provider extends Abstract_Provider {
@@ -74,6 +75,7 @@ final class Provider extends Abstract_Provider {
 				static function ( $c ) use ( $expiration ): Token_Authorizer {
 					return new Token_Authorizer_Cache_Decorator(
 						$c->get( Auth\Token_Authorizer::class ),
+						$c->get( Storage::class ),
 						$expiration
 					);
 				}

@@ -3,3 +3,5 @@ repo/
 vendor/
 .idea/
 /composer.lock
+
+local-scripts/

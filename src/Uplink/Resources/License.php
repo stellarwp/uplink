@@ -156,8 +156,21 @@ class License {
 		 * @since 1.0.0
 		 *
 		 * @param string|null $key The license key.
+		 * @param Resource $resource The resource instance.
 		 */
-		$key = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_get_key', $this->key );
+		$key = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_get_key', $this->key, $this->resource );
+
+		/**
+		 * Filter the license key.
+		 *
+		 * Accepts the resource's slug dynamically.
+		 *
+		 * @since TBD
+		 *
+		 * @param string|null $key The license key.
+		 * @param Resource $resource The resource instance.
+		 */
+		$key = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/' . $this->resource->get_slug() . '/license_get_key', $key, $this->resource );
 
 		return $key ?: '';
 	}

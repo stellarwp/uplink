@@ -6,8 +6,12 @@ use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Resources\Plugin;
 use StellarWP\Uplink\Resources\Resource;
 use StellarWP\Uplink\Resources\Service;
-use StellarWP\Uplink\Uplink;
 
+/**
+ * Class License_Field
+ *
+ * @deprecated TBD Use the Fields\Field and Fields\Form classes instead.
+ */
 class License_Field extends Field {
 
 	public const LICENSE_FIELD_ID = 'stellarwp_uplink_license';
@@ -18,17 +22,19 @@ class License_Field extends Field {
 	protected $path = '/admin-views/fields/settings.php';
 
 	/**
-	 * The script and style handle when registering assets for this field.
-	 *
-	 * @var string
+	 * @var Asset_Manager
 	 */
-	private $handle;
+	protected $asset_manager;
 
 	/**
-	 * Constructor. Initializes handle.
+	 * License_Field constructor.
+	 *
+	 * @param Group         $group
+	 * @param Asset_Manager $asset_manager
 	 */
-	public function __construct() {
-		$this->handle = sprintf( 'stellarwp-uplink-license-admin-%s', Config::get_hook_prefix() );
+	public function __construct( Group $group, Asset_Manager $asset_manager ) {
+		parent::__construct( $group );
+		$this->asset_manager = $asset_manager;
 	}
 
 	/**
@@ -51,11 +57,11 @@ class License_Field extends Field {
 				self::get_section_name( $resource ),
 				'',
 				[ $this, 'description' ], // @phpstan-ignore-line
-				$this->get_group_name( sanitize_title( $resource->get_slug() ) )
+				$this->group->get_name( sanitize_title( $resource->get_slug() ) )
 			);
 
 			register_setting(
-				$this->get_group_name( sanitize_title( $resource->get_slug() ) ),
+				$this->group->get_name( sanitize_title( $resource->get_slug() ) ),
 				$resource->get_license_object()->get_key_option_name()
 			);
 
@@ -63,7 +69,7 @@ class License_Field extends Field {
 				$resource->get_license_object()->get_key_option_name(),
 				__( 'License Key', '%TEXTDOMAIN%' ),
 				[ $this, 'field_html' ],
-				$this->get_group_name( sanitize_title( $resource->get_slug() ) ),
+				$this->group->get_name( sanitize_title( $resource->get_slug() ) ),
 				self::get_section_name( $resource ),
 				[
 					'id'           => $resource->get_license_object()->get_key_option_name(),
@@ -117,7 +123,7 @@ class License_Field extends Field {
 	 * @return void
 	 */
 	public function render_single( string $plugin_slug, bool $show_title = true, bool $show_button = true ): void {
-		$this->enqueue_assets();
+		$this->asset_manager->enqueue_assets();
 
 		$resource = $this->get_resources()->offsetGet( $plugin_slug );
 
@@ -131,33 +137,4 @@ class License_Field extends Field {
 			'show_button' => $show_button,
 		] );
 	}
-
-
-	/**
-	 * @since 1.0.0
-	 *
-	 * @return void
-	 */
-	public function register_assets(): void {
-		$path   = Config::get_container()->get( Uplink::UPLINK_ASSETS_URI );
-		$js_src = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/admin_js_source', $path . '/js/key-admin.js' );
-		wp_register_script( $this->handle, $js_src, [ 'jquery' ], '1.0.0', true );
-
-		$action_postfix = Config::get_hook_prefix_underscored();
-		wp_localize_script( $this->handle, sprintf( 'stellarwp_config_%s', $action_postfix ), [ 'action' => sprintf( 'pue-validate-key-uplink-%s', $action_postfix ) ] );
-
-		$css_src = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/admin_css_source', $path . '/css/main.css' );
-		wp_register_style( $this->handle, $css_src );
-	}
-
-	/**
-	 * Enqueue the registered scripts and styles, only when rendering fields.
-	 *
-	 * @return void
-	 */
-	protected function enqueue_assets(): void {
-		wp_enqueue_script( $this->handle );
-		wp_enqueue_style( $this->handle );
-	}
-
 }

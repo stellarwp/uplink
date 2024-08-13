@@ -2,12 +2,15 @@
 
 namespace StellarWP\Uplink\Auth\Admin;
 
+use StellarWP\Uplink\Auth\Authorizer;
 use StellarWP\Uplink\Auth\Nonce;
 use StellarWP\Uplink\Auth\Token\Connector;
 use StellarWP\Uplink\Auth\Token\Exceptions\InvalidTokenException;
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Notice\Notice_Handler;
 use StellarWP\Uplink\Notice\Notice;
 use StellarWP\Uplink\Resources\Collection;
+use StellarWP\Uplink\Storage\Drivers\Transient_Storage;
 
 /**
  * Handles storing token data after successfully redirecting
@@ -35,24 +38,39 @@ final class Connect_Controller {
 	 */
 	private $collection;
 
+	/**
+	 * @var Authorizer
+	 */
+	private $authorizer;
 
-	public function __construct( Connector $connector, Notice_Handler $notice, Collection $collection ) {
+	/**
+	 * @var Nonce
+	 */
+	private $nonce;
+
+	public function __construct(
+		Connector $connector,
+		Notice_Handler $notice,
+		Collection $collection,
+		Authorizer $authorizer,
+		Nonce $nonce
+	) {
 		$this->connector  = $connector;
 		$this->notice     = $notice;
 		$this->collection = $collection;
+		$this->authorizer = $authorizer;
+		$this->nonce      = $nonce;
 	}
 
 	/**
 	 * Store the token data passed back from the Origin site.
 	 *
-	 * @action admin_init
+	 * @action stellarwp/uplink/{$prefix}/admin_action_{$slug}
+	 *
+	 * @throws \RuntimeException
 	 */
 	public function maybe_store_token_data(): void {
 		if ( ! is_admin() || wp_doing_ajax() ) {
-			return;
-		}
-
-		if ( ! is_user_logged_in() ) {
 			return;
 		}
 
@@ -67,7 +85,32 @@ final class Connect_Controller {
 			return;
 		}
 
-		if ( ! Nonce::verify( $args[ self::NONCE ] ?? '' ) ) {
+		if ( ! $this->authorizer->can_auth() ) {
+			$this->notice->add( new Notice( Notice::ERROR,
+				__( 'Sorry, you do not have permission to connect this site.', '%TEXTDOMAIN%' ),
+				true
+			) );
+
+			return;
+		}
+
+
+		if ( ! $this->nonce->verify( $args[ self::NONCE ] ?? '' ) ) {
+			if ( ! function_exists( 'is_plugin_active' ) ) {
+				require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+			}
+
+			// The Litespeed plugin allows completely disabling transients for some reason...
+			if ( Config::get_storage_driver() === Transient_Storage::class && is_plugin_active( 'litespeed-cache/litespeed-cache.php' ) ) {
+				$this->notice->add( new Notice( Notice::ERROR,
+					sprintf(
+						__( 'The Litespeed plugin was detected, ensure "Store Transients" is set to ON and try again. See the <a href="%s" target="_blank">Litespeed documentation</a> for more information.', '%TEXTDOMAIN%' ),
+						esc_url( 'https://docs.litespeedtech.com/lscache/lscwp/cache/#store-transients' )
+					),
+					true
+				) );
+			}
+
 			$this->notice->add( new Notice( Notice::ERROR,
 				__( 'Unable to save token data: nonce verification failed.', '%TEXTDOMAIN%' ),
 				true
@@ -76,8 +119,20 @@ final class Connect_Controller {
 			return;
 		}
 
+		$slug    = $args[ self::SLUG ] ?? '';
+		$plugin  = $this->collection->offsetGet( $slug );
+
+		if ( ! $plugin ) {
+			$this->notice->add( new Notice( Notice::ERROR,
+				__( 'Plugin or Service slug not found.', '%TEXTDOMAIN%' ),
+				true
+			) );
+
+			return;
+		}
+
 		try {
-			if ( ! $this->connector->connect( $args[ self::TOKEN ] ?? '' ) ) {
+			if ( ! $this->connector->connect( $args[ self::TOKEN ] ?? '', $plugin ) ) {
 				$this->notice->add( new Notice( Notice::ERROR,
 					__( 'Error storing token.', '%TEXTDOMAIN%' ),
 					true
@@ -94,22 +149,10 @@ final class Connect_Controller {
 			return;
 		}
 
-		$license = $args[ self::LICENSE ] ?? '';
-		$slug    = $args[ self::SLUG ] ?? '';
-
 		// Store or override an existing license.
-		if ( $license && $slug ) {
-			if ( ! $this->collection->offsetExists( $slug ) ) {
-				$this->notice->add( new Notice( Notice::ERROR,
-					__( 'Plugin or Service slug not found.', '%TEXTDOMAIN%' ),
-					true
-				) );
+		$license = $args[ self::LICENSE ] ?? '';
 
-				return;
-			}
-
-			$plugin = $this->collection->offsetGet( $slug );
-
+		if ( $license ) {
 			if ( ! $plugin->set_license_key( $license, 'network' ) ) {
 				$this->notice->add( new Notice( Notice::ERROR,
 					__( 'Error storing license key.', '%TEXTDOMAIN%' ),

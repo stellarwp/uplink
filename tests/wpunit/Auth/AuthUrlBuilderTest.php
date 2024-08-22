@@ -43,7 +43,7 @@ final class AuthUrlBuilderTest extends UplinkTestCase {
 	}
 
 	public function test_it_builds_url_with_license(): void {
-		$url = $this->auth_url_builder->build( 'the-events-calendar', 'theeventscalendar.com', 'some-license-key' );
+		$url = $this->auth_url_builder->set_license('some-license-key')->build( 'the-events-calendar', 'theeventscalendar.com' );
 
 		$callback = base64_encode( 'http://wordpress.test/wp-admin/index.php?uplink_domain=theeventscalendar.com&uplink_slug=the-events-calendar&uplink_license=some-license-key&_uplink_nonce=abcd1234' );
 		$expected = 'https://theeventscalendar.com/account-auth?uplink_callback=' . rawurlencode( $callback );
@@ -52,7 +52,7 @@ final class AuthUrlBuilderTest extends UplinkTestCase {
 	}
 
 	public function test_it_builds_url_with_empty_license(): void {
-		$url = $this->auth_url_builder->build( 'the-events-calendar', 'theeventscalendar.com', '' );
+		$url = $this->auth_url_builder->set_license('')->build( 'the-events-calendar', 'theeventscalendar.com' );
 
 		$callback = base64_encode( 'http://wordpress.test/wp-admin/index.php?uplink_domain=theeventscalendar.com&uplink_slug=the-events-calendar&_uplink_nonce=abcd1234' );
 		$expected = 'https://theeventscalendar.com/account-auth?uplink_callback=' . rawurlencode( $callback );

@@ -17,6 +17,11 @@ final class Auth_Url_Builder {
 	private $auth_url_manager;
 
 	/**
+	 * @var string
+	 */
+	private $license_key;
+
+	/**
 	 * @param  Nonce  $nonce  The Nonce creator.
 	 * @param  Auth_Url  $auth_url_manager  The auth URL manager.
 	 */
@@ -35,11 +40,10 @@ final class Auth_Url_Builder {
 	 *
 	 * @param  string  $slug  The product/service slug.
 	 * @param  string  $domain  An optional domain associated with a license key to pass along.
-	 * @param  string  $license  An optional license key to pass along.
 	 *
 	 * @return string
 	 */
-	public function build( string $slug, string $domain = '', string $license = '' ): string {
+	public function build( string $slug, string $domain = '' ): string {
 		global $pagenow;
 
 		if ( empty( $pagenow ) ) {
@@ -56,8 +60,12 @@ final class Auth_Url_Builder {
 		$args = [
 			'uplink_domain'  => $domain,
 			'uplink_slug'    => $slug,
-			'uplink_license' => $license,
 		];
+
+		// Optionally include a license key if set.
+		if ( ! empty( $this->license_key ) ) {
+			$args['uplink_license'] = $this->license_key;
+		}
 
 		$url = add_query_arg(
 			array_filter( array_merge( $_GET, $args ) ),
@@ -70,5 +78,18 @@ final class Auth_Url_Builder {
 				'uplink_callback' => base64_encode( $this->nonce->create_url( $url ) ),
 			] )
 		);
+	}
+
+	/**
+	 * Optionally set a license key to provide in uplink_callback query arg.
+	 *
+	 * @param string $key The license key to pass in the auth url.
+	 *
+	 * @return self
+	 */
+	public function set_license( string $key ): self {
+		$this->license_key = $key;
+
+		return $this;
 	}
 }

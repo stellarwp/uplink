@@ -35,10 +35,11 @@ final class Auth_Url_Builder {
 	 *
 	 * @param  string  $slug  The product/service slug.
 	 * @param  string  $domain  An optional domain associated with a license key to pass along.
+	 * @param  string  $license  An optional license key to pass along.
 	 *
 	 * @return string
 	 */
-	public function build( string $slug, string $domain = '' ): string {
+	public function build( string $slug, string $domain = '', string $license = '' ): string {
 		global $pagenow;
 
 		if ( empty( $pagenow ) ) {
@@ -53,8 +54,9 @@ final class Auth_Url_Builder {
 
 		// Query arguments to combine with $_GET and add to the authorization URL.
 		$args = [
-			'uplink_domain' => $domain,
-			'uplink_slug'   => $slug,
+			'uplink_domain'  => $domain,
+			'uplink_slug'    => $slug,
+			'uplink_license' => $license,
 		];
 
 		$url = add_query_arg(
@@ -69,5 +71,4 @@ final class Auth_Url_Builder {
 			] )
 		);
 	}
-
 }

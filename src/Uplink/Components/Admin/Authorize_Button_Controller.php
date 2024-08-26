@@ -79,14 +79,15 @@ final class Authorize_Button_Controller extends Controller {
 	public function render( array $args = [] ): void {
 		global $pagenow;
 
-		$slug   = $args['slug'] ?? '';
-		$domain = $args['domain'] ?? '';
+		$slug    = $args['slug'] ?? '';
+		$domain  = $args['domain'] ?? '';
+		$license = $args['license'] ?? '';
 
 		if ( empty ( $slug ) ) {
 			throw new InvalidArgumentException( __( 'The Product slug cannot be empty', '%TEXTDOMAIN%' ) );
 		}
 
-		$url = $this->url_builder->build( $slug, $domain );
+		$url = $this->url_builder->set_license( $license )->build( $slug, $domain );
 
 		if ( ! $url ) {
 			return;

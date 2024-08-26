@@ -58,8 +58,8 @@ final class Auth_Url_Builder {
 
 		// Query arguments to combine with $_GET and add to the authorization URL.
 		$args = [
-			'uplink_domain'  => $domain,
-			'uplink_slug'    => $slug,
+			'uplink_domain' => $domain,
+			'uplink_slug'   => $slug,
 		];
 
 		// Optionally include a license key if set.

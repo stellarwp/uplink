@@ -70,7 +70,7 @@ final class Authorize_Button_Controller extends Controller {
 	/**
 	 * Renders the authorize-button view.
 	 *
-	 * @param  array{slug?: string, domain?: string} $args The Product slug and license domain.
+	 * @param  array{slug?: string, domain?: string, license?: string} $args The Product slug and license domain.
 	 *
 	 * @see src/views/admin/authorize-button.php
 	 *

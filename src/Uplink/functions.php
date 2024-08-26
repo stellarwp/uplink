@@ -38,12 +38,13 @@ function get_container(): ContainerInterface {
  * @param string $slug The Product slug to render the button for.
  * @param string $domain An optional domain associated with a license key to pass along.
  */
-function render_authorize_button( string $slug, string $domain = '' ): void {
+function render_authorize_button( string $slug, string $domain = '', string $license = '' ): void {
 	try {
 		get_container()->get( Authorize_Button_Controller::class )
 			->render( [
-				'slug'   => $slug,
-				'domain' => $domain,
+				'slug'    => $slug,
+				'domain'  => $domain,
+				'license' => $license,
 			] );
 	} catch ( Throwable $e ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {

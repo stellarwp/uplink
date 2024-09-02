@@ -223,13 +223,13 @@ $body",
 	/**
 	 * Hooked on the `pre_http_request` filter to prefill the mocked HTTP responses.
 	 *
-	 * @param bool                $preempt     Whether to preempt an HTTP request's return value. Default `false`.
+	 * @param bool|array|WP_Error $preempt     Whether to preempt an HTTP request's return value. Default `false`.
 	 * @param array<string,mixed> $parsed_args The HTTP request arguments.
 	 * @param string              $url         The full request URL.
 	 *
 	 * @return false|mixed Either the mocked response or `false` to let the request go through.
 	 */
-	public function mock_http_response( bool $preempt, array $parsed_args, string $url ) {
+	public function mock_http_response( $preempt, array $parsed_args, string $url ) {
 		$uri = '/' . ltrim( str_replace( $this->get_url(), '', $url ), '/' );
 		$method = $parsed_args['method'] ?? 'GET';
 		$key = "$method $uri";

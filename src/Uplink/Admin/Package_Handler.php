@@ -7,6 +7,7 @@ use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Resources;
 use WP_Error;
 use WP_Upgrader;
+use WP_Filesystem_Base;
 
 class Package_Handler {
 
@@ -14,6 +15,11 @@ class Package_Handler {
 	 * @var WP_Upgrader
 	 */
 	public $upgrader;
+
+	/**
+	 * @var WP_Filesystem_Base|null
+	 */
+	public $filesystem;
 
 	/**
 	 * Filters the package download step to store the downloaded file with a shorter file name.

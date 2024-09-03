@@ -198,7 +198,7 @@ abstract class Resource {
 	 * @return bool Whether the resource requires a license key for OAuth.
 	 */
 	public function oauth_requires_license_key(): bool {
-		return $this->oauth & self::OAUTH_REQUIRES_LICENSE_KEY;
+		return (bool) ( $this->oauth & self::OAUTH_REQUIRES_LICENSE_KEY );
 	}
 
 	/**

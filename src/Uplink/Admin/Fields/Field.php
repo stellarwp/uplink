@@ -235,16 +235,22 @@ class Field {
 	public function get_render_html(): string {
 		$this->asset_manager->enqueue_assets();
 
-		if ( $this->resource->is_using_oauth() ) {
-			ob_start();
-			UplinkNamespace\render_authorize_button( $this->get_slug() );
-			return (string) ob_get_clean();
-		}
-
 		$args = [
 			'field' => $this,
 			'group' => $this->group->get_name( $this->get_slug() ),
 		];
+
+		if ( $this->resource->is_using_oauth() ) {
+			ob_start();
+
+			if ( $this->resource->oauth_requires_license_key() ) {
+				echo $this->view->render( self::VIEW, $args );
+			}
+
+			UplinkNamespace\render_authorize_button( $this->get_slug() );
+
+			return (string) ob_get_clean();
+		}
 
 		$html = $this->view->render( self::VIEW, $args );
 

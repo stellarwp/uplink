@@ -491,8 +491,8 @@ abstract class Resource {
 	 * @param string      $path           Resource path to bootstrap file.
 	 * @param string      $class          Resource class.
 	 * @param string|null $license_class  Class that holds the embedded license key.
-	 * @param bool|int $oauth            Either a boolean or an integer representing whether the resource uses OAuth,
-	 *                                   and if so, the OAuth options.
+	 * @param bool|int    $oauth          Either a boolean or an integer representing whether the resource uses OAuth,
+	 *                                    and if so, the OAuth options.
 	 *
 	 * @return Resource
 	 */

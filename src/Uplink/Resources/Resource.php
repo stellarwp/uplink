@@ -279,6 +279,7 @@ abstract class Resource {
 	 */
 	public function get_installed_version(): string {
 		if ( ! function_exists( 'get_plugin_data' ) ) {
+			// @phpstan-ignore-next-line The file will exist in a WordPress installation.
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
@@ -443,6 +444,7 @@ abstract class Resource {
 		}
 
 		if( ! function_exists( 'get_plugin_data' ) ) {
+			// @phpstan-ignore-next-line The file will exist in a WordPress installation.
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 

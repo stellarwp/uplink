@@ -97,6 +97,7 @@ final class Connect_Controller {
 
 		if ( ! $this->nonce->verify( $args[ self::NONCE ] ?? '' ) ) {
 			if ( ! function_exists( 'is_plugin_active' ) ) {
+				// @phpstan-ignore-next-line The file will exist in a WordPress installation.
 				require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 			}
 

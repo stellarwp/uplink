@@ -249,10 +249,10 @@ class Field {
 
 			UplinkNamespace\render_authorize_button( $this->get_slug() );
 
-			return (string) ob_get_clean();
+			$html = (string) ob_get_clean();
+		} else {
+			$html = $this->view->render( self::VIEW, $args );
 		}
-
-		$html = $this->view->render( self::VIEW, $args );
 
 		/**
 		 * Filters the field HTML.
@@ -260,7 +260,11 @@ class Field {
 		 * @param string $html The HTML.
 		 * @param string $slug The plugin slug.
 		 */
-		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/license_field_html', $html, $this->get_slug() );
+		return apply_filters(
+			'stellarwp/uplink/' . Config::get_hook_prefix() . '/license_field_html',
+			$html,
+			$this->get_slug()
+		);
 	}
 
 	/**

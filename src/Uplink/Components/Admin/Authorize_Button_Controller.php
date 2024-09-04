@@ -137,6 +137,20 @@ final class Authorize_Button_Controller extends Controller {
 		);
 
 		/**
+		 * Filter the link text for the slug.
+		 *
+		 * @param  string  $link_text  The current link text.
+		 * @param  bool  $authenticated  Whether they are authenticated.
+		 * @param  string|null  $pagenow  The value of WordPress's pagenow.
+		 */
+		$link_text = apply_filters(
+			"stellarwp/uplink/$hook_prefix/$slug/view/authorize_button/link_text",
+			$link_text,
+			$authenticated,
+			$pagenow
+		);
+
+		/**
 		 * Filter the hyperlink url.
 		 *
 		 * @param  string  $url  The current hyperlink url.

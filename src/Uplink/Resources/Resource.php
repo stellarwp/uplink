@@ -24,6 +24,24 @@ use StellarWP\Uplink\Utils;
  */
 abstract class Resource {
 	/**
+	 * Whether the resource requires OAuth.
+	 *
+	 * @since TBD
+	 *
+	 * @var int
+	 */
+	const OAUTH_REQUIRED = 1;
+
+	/**
+	 * Whether the resource requires a license key for OAuth.
+	 *
+	 * @since TBD
+	 *
+	 * @var int
+	 */
+	const OAUTH_REQUIRES_LICENSE_KEY = 2;
+
+	/**
 	 * Resource class.
 	 *
 	 * @since 1.0.0
@@ -117,10 +135,11 @@ abstract class Resource {
 	 * Is the plugin using OAuth?
 	 *
 	 * @since 2.0.0
+	 * @since TBD Changed to int.
 	 *
-	 * @var bool
+	 * @var int
 	 */
-	protected $is_oauth = false;
+	protected $oauth = 0;
 
 	/**
 	 * Constructor.
@@ -128,15 +147,15 @@ abstract class Resource {
 	 * @since 1.0.0
 	 * @since 2.0.0 Added oAuth parameter.
 	 *
-	 * @param string $slug Resource slug.
-	 * @param string $name Resource name.
-	 * @param string $version Resource version.
-	 * @param string $path Resource path to bootstrap file.
-	 * @param string $class Resource class.
+	 * @param string      $slug          Resource slug.
+	 * @param string      $name          Resource name.
+	 * @param string      $version       Resource version.
+	 * @param string      $path          Resource path to bootstrap file.
+	 * @param string      $class         Resource class.
 	 * @param string|null $license_class Class that holds the embedded license key.
-	 * @param bool $is_oauth Is the plugin using OAuth?
+	 * @param bool|int    $oauth         Whether the resource uses OAuth, and if so, the OAuth options.
 	 */
-	public function __construct( $slug, $name, $version, $path, $class, string $license_class = null, bool $is_oauth = false) {
+	public function __construct( $slug, $name, $version, $path, $class, string $license_class = null, $oauth = false) {
 		$this->name          = $name;
 		$this->slug          = $slug;
 		$this->path          = $path;
@@ -144,7 +163,7 @@ abstract class Resource {
 		$this->license_class = $license_class;
 		$this->version       = $version;
 		$this->container     = Config::get_container();
-		$this->is_oauth      = $is_oauth;
+		$this->oauth         = (int) $oauth;
 	}
 
 	/**
@@ -161,14 +180,25 @@ abstract class Resource {
 	}
 
 	/**
-	 * Get if the plugin is using oAuth.
+	 * Returns whether the plugin is using oAuth.
 	 *
 	 * @since 2.0.0
 	 *
 	 * @return bool
 	 */
 	public function is_using_oauth(): bool {
-		return $this->is_oauth;
+		return (bool) $this->oauth;
+	}
+
+	/**
+	 * Returns whether the resource requires a license key for OAuth.
+	 *
+	 * @since TBD
+	 *
+	 * @return bool Whether the resource requires a license key for OAuth.
+	 */
+	public function oauth_requires_license_key(): bool {
+		return (bool) ( $this->oauth & self::OAUTH_REQUIRES_LICENSE_KEY );
 	}
 
 	/**
@@ -249,6 +279,7 @@ abstract class Resource {
 	 */
 	public function get_installed_version(): string {
 		if ( ! function_exists( 'get_plugin_data' ) ) {
+			// @phpstan-ignore-next-line The file will exist in a WordPress installation.
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
@@ -413,6 +444,7 @@ abstract class Resource {
 		}
 
 		if( ! function_exists( 'get_plugin_data' ) ) {
+			// @phpstan-ignore-next-line The file will exist in a WordPress installation.
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
@@ -435,16 +467,18 @@ abstract class Resource {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $name Resource name.
-	 * @param string $slug Resource slug.
-	 * @param string $path Resource path to bootstrap file.
-	 * @param string $version Resource version.
-	 * @param string $class Resource class.
+	 * @param string      $name          Resource name.
+	 * @param string      $slug          Resource slug.
+	 * @param string      $path          Resource path to bootstrap file.
+	 * @param string      $version       Resource version.
+	 * @param string      $class         Resource class.
 	 * @param string|null $license_class Class that holds the embedded license key.
+	 * @param bool|int $oauth            Either a boolean or an integer representing whether the resource uses OAuth,
+	 *                                   and if so, the OAuth options.
 	 *
 	 * @return Resource
 	 */
-	abstract public static function register( $name, $slug, $path, $class, $version, string $license_class = null );
+	abstract public static function register( $name, $slug, $path, $class, $version, string $license_class = null, $oauth = false );
 
 	/**
 	 * Register a resource and add it to the collection.
@@ -452,20 +486,21 @@ abstract class Resource {
 	 * @since 1.0.0
 	 * @since 2.0.0 Added oAuth parameter.
 	 *
-	 * @param string $resource_class Resource class.
-	 * @param string $slug Resource slug.
-	 * @param string $name Resource name.
-	 * @param string $version Resource version.
-	 * @param string $path Resource path to bootstrap file.
-	 * @param string $class Resource class.
-	 * @param string|null $license_class Class that holds the embedded license key.
-	 * @param bool $is_oauth Is the plugin using OAuth?
+	 * @param string      $resource_class Resource class.
+	 * @param string      $slug           Resource slug.
+	 * @param string      $name           Resource name.
+	 * @param string      $version        Resource version.
+	 * @param string      $path           Resource path to bootstrap file.
+	 * @param string      $class          Resource class.
+	 * @param string|null $license_class  Class that holds the embedded license key.
+	 * @param bool|int    $oauth          Either a boolean or an integer representing whether the resource uses OAuth,
+	 *                                    and if so, the OAuth options.
 	 *
 	 * @return Resource
 	 */
-	public static function register_resource( $resource_class, $slug, $name, $version, $path, $class, string $license_class = null, bool $is_oauth = false ) {
+	public static function register_resource( $resource_class, $slug, $name, $version, $path, $class, string $license_class = null, $oauth = false ) {
 		/** @var Resource */
-		$resource = new $resource_class( $slug, $name, $version, $path, $class, $license_class, $is_oauth );
+		$resource = new $resource_class( $slug, $name, $version, $path, $class, $license_class, $oauth );
 
 		/** @var Collection */
 		$collection = Config::get_container()->get( Collection::class );

@@ -13,6 +13,8 @@ use StellarWP\Uplink\Admin\Fields\Field;
  * Fires before the field.
  *
  * @since 2.0.0
+ *
+ * @param string $slug The slug of the field.
  */
 do_action( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_field_before_field', $field->get_slug() );
 ?>
@@ -35,6 +37,18 @@ do_action( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_field_befo
 					>
 						<fieldset class="stellarwp-uplink__settings-group">
 							<?php settings_fields( $group ); ?>
+
+							<?php
+							/**
+							 * Fires before the license key input is printed on the page.
+							 *
+							 * @since TBD
+							 *
+							 * @param string $slug The slug of the field.
+							 */
+							do_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/license_field_before_input', $field->get_slug() );
+							?>
+
 							<input
 								type="text"
 								name="<?php echo esc_attr( $field->get_field_name() ); ?>"

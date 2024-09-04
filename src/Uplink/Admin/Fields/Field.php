@@ -235,18 +235,24 @@ class Field {
 	public function get_render_html(): string {
 		$this->asset_manager->enqueue_assets();
 
-		if ( $this->resource->is_using_oauth() ) {
-			ob_start();
-			UplinkNamespace\render_authorize_button( $this->get_slug() );
-			return (string) ob_get_clean();
-		}
-
 		$args = [
 			'field' => $this,
 			'group' => $this->group->get_name( $this->get_slug() ),
 		];
 
-		$html = $this->view->render( self::VIEW, $args );
+		if ( $this->resource->is_using_oauth() ) {
+			ob_start();
+
+			if ( $this->resource->oauth_requires_license_key() ) {
+				echo $this->view->render( self::VIEW, $args );
+			}
+
+			UplinkNamespace\render_authorize_button( $this->get_slug() );
+
+			$html = (string) ob_get_clean();
+		} else {
+			$html = $this->view->render( self::VIEW, $args );
+		}
 
 		/**
 		 * Filters the field HTML.
@@ -254,7 +260,11 @@ class Field {
 		 * @param string $html The HTML.
 		 * @param string $slug The plugin slug.
 		 */
-		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/license_field_html', $html, $this->get_slug() );
+		return apply_filters(
+			'stellarwp/uplink/' . Config::get_hook_prefix() . '/license_field_html',
+			$html,
+			$this->get_slug()
+		);
 	}
 
 	/**

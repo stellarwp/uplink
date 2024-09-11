@@ -3,9 +3,11 @@
 		$( '.stellarwp-uplink-license-key-field' ).each( function() {
 			var $el = $( this );
 			var $field = $el.find( 'input[type="text"]' );
+			var $oauth = $el.parent().next( '.uplink-authorize-container' );
 
 			if ( '' === $field.val().trim() ) {
 				$el.find( '.license-test-results' ).hide();
+				$oauth.hide();
 			}
 
 			obj.validateKey( $el );
@@ -21,9 +23,11 @@
 		const field          = $el.find( 'input[type="text"]' )
 		const action         = $el.data( 'action' );
 		const slug           = $el.data( 'plugin-slug' );
+		const $oauth         = $el.find( 'a.uplink-authorize');
 		let $validityMessage = $el.find( '.key-validity' );
 
 		if ( '' === field.val().trim() ) {
+			$oauth.hide();
 			return;
 		}
 
@@ -53,9 +57,11 @@
 			switch (response.status) {
 				case 1:
 					$validityMessage.addClass('valid-key').removeClass('invalid-key');
+					$oauth.show();
 					break;
 				case 2:
 					$validityMessage.addClass('valid-key service-msg');
+					$oauth.show();
 					break;
 				default:
 					$validityMessage.addClass('invalid-key').removeClass('valid-key');

@@ -1,11 +1,13 @@
 <?php declare( strict_types=1 );
 /**
  * @var Field $field The Field object.
+ * @var Resource $resource The Field resource.
  * @var string $group The group name.
  */
 
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Admin\Fields\Field;
+use StellarWP\Uplink\Resources\Resource;
 ?>
 
 <?php
@@ -60,6 +62,9 @@ do_action( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_field_befo
 						</fieldset>
 						<?php echo $field->get_nonce_field(); ?>
 					</div>
+					<?php if ( $resource->is_using_oauth() ) : ?>
+						<?php \StellarWP\Uplink\render_authorize_button( $resource->slug, $resource->get_home_url(), $resource->license_key); ?>
+					<?php endif; ?>
 				</div>
 <?php if ( $field->should_show_label() ) : ?>
 			</td>

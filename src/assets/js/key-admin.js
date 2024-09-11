@@ -23,7 +23,7 @@
 		const field          = $el.find( 'input[type="text"]' )
 		const action         = $el.data( 'action' );
 		const slug           = $el.data( 'plugin-slug' );
-		const $oauth         = $el.find( 'a.uplink-authorize');
+		const $oauth         = $el.parent().next( '.uplink-authorize-container' ).find( 'a.uplink-authorize');
 		let $validityMessage = $el.find( '.key-validity' );
 
 		if ( '' === field.val().trim() ) {

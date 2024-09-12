@@ -62,22 +62,22 @@ do_action( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_field_befo
 							<?php echo $field->get_key_status_html(); ?>
 						</fieldset>
 						<?php echo $field->get_nonce_field(); ?>
-					</div>
-					<?php if ( $resource->is_using_oauth() ) : ?>
-						<?php
-						try {
-							Config::get_container()->get( Authorize_Button_Controller::class )->render( [
-								'slug' => $field->get_slug(),
-								'domain' => get_site_url(),
-								'license' => $resource->license_key,
-							] );
-						} catch ( Throwable $e ) {
-							if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-								error_log( "Unable to render authorize button: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
+						<?php if ( $resource->is_using_oauth() ) : ?>
+							<?php
+							try {
+								Config::get_container()->get( Authorize_Button_Controller::class )->render( [
+									'slug' => $field->get_slug(),
+									'domain' => get_site_url(),
+									'license' => $resource->license_key,
+								] );
+							} catch ( Throwable $e ) {
+								if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+									error_log( "Unable to render authorize button: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
+								}
 							}
-						}
-						?>
-					<?php endif; ?>
+							?>
+						<?php endif; ?>
+					</div>
 				</div>
 <?php if ( $field->should_show_label() ) : ?>
 			</td>

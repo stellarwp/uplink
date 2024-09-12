@@ -1,13 +1,21 @@
 ( function( $, obj ) {
 	obj.init = function() {
+
+		$('a.uplink-authorize').on( 'click', function (e) {
+			if ( $( this ).attr('disabled') === 'disabled' ) {
+				e.preventDefault();
+			}
+		} );
+
 		$( '.stellarwp-uplink-license-key-field' ).each( function() {
 			var $el = $( this );
+			var slug = $el.data( 'plugin-slug' );
 			var $field = $el.find( 'input[type="text"]' );
-			var $oauth = $el.parent().next( '.uplink-authorize-container' );
+			var $oauth = $el.find( `a[data-plugin-slug="${slug}"]`);
 
 			if ( '' === $field.val().trim() ) {
 				$el.find( '.license-test-results' ).hide();
-				$oauth.hide();
+				obj.disableAuthorizeButton( $oauth );
 			}
 
 			obj.validateKey( $el );
@@ -19,15 +27,25 @@
 		} );
 	};
 
+	obj.disableAuthorizeButton = function( $button ) {
+		$button.attr( 'aria-disabled', 'true' );
+		$button.attr( 'disabled', 'disabled' );
+	}
+
+	obj.enableAuthorizeButton = function( $button ) {
+		$button.removeAttr( 'aria-disabled' );
+		$button.removeAttr( 'disabled' );
+	}
+
 	obj.validateKey = function( $el ) {
 		const field          = $el.find( 'input[type="text"]' )
 		const action         = $el.data( 'action' );
 		const slug           = $el.data( 'plugin-slug' );
-		const $oauth         = $el.parent().next( '.uplink-authorize-container' ).find( 'a.uplink-authorize');
+		const $oauth         = $el.find( `a[data-plugin-slug="${slug}"]`);
 		let $validityMessage = $el.find( '.key-validity' );
 
 		if ( '' === field.val().trim() ) {
-			$oauth.hide();
+			obj.disableAuthorizeButton( $oauth );
 			return;
 		}
 
@@ -53,23 +71,26 @@
 		$.post(ajaxurl, data, function (response) {
 			$validityMessage.show();
 			$validityMessage.html(response.message);
+			$oauth.attr( 'href', response.auth_url );
 
 			switch (response.status) {
 				case 1:
 					$validityMessage.addClass('valid-key').removeClass('invalid-key');
-					$oauth.show();
+					obj.enableAuthorizeButton( $oauth );
 					break;
 				case 2:
 					$validityMessage.addClass('valid-key service-msg');
-					$oauth.show();
+					obj.enableAuthorizeButton( $oauth );
 					break;
 				default:
 					$validityMessage.addClass('invalid-key').removeClass('valid-key');
+					obj.disableAuthorizeButton( $oauth );
 					break;
 			}
 		}).fail(function(error) {
 			$validityMessage.show();
 			$validityMessage.html(error.message);
+			obj.disableAuthorizeButton( $oauth );
 		}).always(function() {
 			$($el).find('.ajax-loading-license').hide();
 		});

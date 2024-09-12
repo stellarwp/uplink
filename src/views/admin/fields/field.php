@@ -8,7 +8,7 @@
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Admin\Fields\Field;
 use StellarWP\Uplink\Resources\Resource;
-use function StellarWP\Uplink\render_authorize_button;
+use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
 ?>
 
 <?php
@@ -64,7 +64,19 @@ do_action( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_field_befo
 						<?php echo $field->get_nonce_field(); ?>
 					</div>
 					<?php if ( $resource->is_using_oauth() ) : ?>
-						<?php render_authorize_button( $resource->slug, get_site_url(), $resource->license_key ?? '' ); ?>
+						<?php
+						try {
+							Config::get_container()->get( Authorize_Button_Controller::class )->render( [
+								'slug' => $field->get_slug(),
+								'domain' => get_site_url(),
+								'license' => $resource->license_key,
+							] );
+						} catch ( Throwable $e ) {
+							if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+								error_log( "Unable to render authorize button: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
+							}
+						}
+						?>
 					<?php endif; ?>
 				</div>
 <?php if ( $field->should_show_label() ) : ?>

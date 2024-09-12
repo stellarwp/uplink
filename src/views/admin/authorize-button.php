@@ -10,12 +10,13 @@
  * @var string $target The link target.
  * @var string $tag The HTML tag to use for the wrapper.
  * @var string $classes The CSS classes for the hyperlink.
+ * @var string $slug The slug of the product the authorize button is for.
  */
 
 defined( 'ABSPATH' ) || exit;
 ?>
 
-<<?php echo esc_html( $tag ) ?> class="uplink-authorize-container">
+<<?php echo esc_html( $tag ) ?> class="uplink-authorize-container" data-slug="<?php echo esc_attr( $slug ); ?>">
 	<a href="<?php echo esc_url( $url ) ?>"
 	   target="<?php echo $target ? esc_attr( $target ) : '' ?>"
 	   <?php echo $classes ? sprintf( 'class="%s"', esc_attr( $classes ) ) : '' ?>

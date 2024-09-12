@@ -16,10 +16,11 @@
 defined( 'ABSPATH' ) || exit;
 ?>
 
-<<?php echo esc_html( $tag ) ?> class="uplink-authorize-container" data-plugin-slug="<?php echo esc_attr( $slug ); ?>">
+<<?php echo esc_html( $tag ) ?> class="uplink-authorize-container">
 	<a href="<?php echo esc_url( $url ) ?>"
 	   target="<?php echo $target ? esc_attr( $target ) : '' ?>"
 	   <?php echo $classes ? sprintf( 'class="%s"', esc_attr( $classes ) ) : '' ?>
+	   data-plugin-slug="<?php echo esc_attr( $slug ); ?>"
 	>
 		<?php echo esc_html( $link_text ) ?>
 	</a>

@@ -68,7 +68,7 @@ do_action( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_field_befo
 								Config::get_container()->get( Authorize_Button_Controller::class )->render( [
 									'slug' => $field->get_slug(),
 									'domain' => get_site_url(),
-									'license' => $resource->license_key,
+									'license' => $resource->license_key ?? '',
 								] );
 							} catch ( Throwable $e ) {
 								if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {

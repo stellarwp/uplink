@@ -266,7 +266,7 @@ class FieldTest extends UplinkTestCase {
 		update_option( 'test_storage', [
 			'stellarwp_auth_url_service_oauth_with_license_key_field_1' => [
 				'expiration' => 0,
-				'value'      => 'https://licensing.stellarwp.com/account-auth?uplink_domain=&uplink_slug=service-oauth-with-license-key-field-1&_uplink_nonce=535281edcd',
+				'value'      => 'https://licensing.stellarwp.com/account-auth',
 			]
 		] );
 		$collection = $this->container->get( Collection::class );

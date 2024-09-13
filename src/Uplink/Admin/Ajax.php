@@ -58,9 +58,10 @@ class Ajax {
 
 		$results  = $plugin->validate_license( $submission['key'] );
 		$message  = is_plugin_active_for_network( $plugin->get_path() ) ? $results->get_network_message()->get() : $results->get_message()->get();
-		$auth_url = Config::get_container()->get( Auth_Url_Builder::class )
-		                                   ->set_license( $submission['key'] )
-		                                   ->build( $submission['slug'], get_site_url() );
+		$auth_url = Config::get_container()
+			->get( Auth_Url_Builder::class )
+			->set_license( $submission['key'] )
+			->build( $submission['slug'], get_site_url() );
 
 		wp_send_json( [
 			'status'  => absint( $results->is_valid() ),

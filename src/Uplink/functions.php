@@ -120,8 +120,8 @@ function is_user_authorized(): bool {
 function build_auth_url( string $slug, string $domain = '', string $license = ''): string {
 	try {
 		return Config::get_container()->get( Auth_Url_Builder::class )
-		                              ->set_license( $license )
-		                              ->build( $slug, $domain, $license );
+			->set_license( $license )
+			->build( $slug, $domain, $license );
 	} catch ( Throwable $e ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( "Error building auth URL: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );

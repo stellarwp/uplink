@@ -10,6 +10,7 @@
  * @var string $target The link target.
  * @var string $tag The HTML tag to use for the wrapper.
  * @var string $classes The CSS classes for the hyperlink.
+ * @var string $slug The slug of the product the authorize button is for.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -19,6 +20,7 @@ defined( 'ABSPATH' ) || exit;
 	<a href="<?php echo esc_url( $url ) ?>"
 	   target="<?php echo $target ? esc_attr( $target ) : '' ?>"
 	   <?php echo $classes ? sprintf( 'class="%s"', esc_attr( $classes ) ) : '' ?>
+	   data-plugin-slug="<?php echo esc_attr( $slug ); ?>"
 	>
 		<?php echo esc_html( $link_text ) ?>
 	</a>

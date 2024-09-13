@@ -1,22 +1,29 @@
 .license-test-results {
-    margin-top: 10px;
+	margin-top: 10px;
 }
 
 .key-validity {
-    display: inline-block;
+	display: inline-block;
 }
 
 .valid-key {
-    color: green;
+	color: green;
 }
 
 .invalid-key {
-    color: red;
+	color: red;
+}
+
+.uplink-authorize-container {
+	display: inline-block;
 }
 
 .uplink-authorize {
-	margin-bottom: 16px !important;
 	transition: border-color 300ms ease-in-out;
+}
+
+.uplink-authorize.button {
+	vertical-align: initial;
 }
 
 .uplink-authorize.not-authorized {

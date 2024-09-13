@@ -212,6 +212,7 @@ final class Authorize_Button_Controller extends Controller {
 			'target'    => $target,
 			'tag'       => $tag,
 			'classes'   => $this->classes( $classes ),
+			'slug'      => $slug,
 		] );
 	}
 

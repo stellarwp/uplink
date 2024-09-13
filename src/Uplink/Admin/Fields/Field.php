@@ -237,22 +237,11 @@ class Field {
 
 		$args = [
 			'field' => $this,
+			'resource' => $this->resource,
 			'group' => $this->group->get_name( $this->get_slug() ),
 		];
 
-		if ( $this->resource->is_using_oauth() ) {
-			ob_start();
-
-			if ( $this->resource->oauth_requires_license_key() ) {
-				echo $this->view->render( self::VIEW, $args );
-			}
-
-			UplinkNamespace\render_authorize_button( $this->get_slug() );
-
-			$html = (string) ob_get_clean();
-		} else {
-			$html = $this->view->render( self::VIEW, $args );
-		}
+		$html = $this->view->render( self::VIEW, $args );
 
 		/**
 		 * Filters the field HTML.

@@ -113,13 +113,15 @@ function is_user_authorized(): bool {
  *
  * @param  string  $slug  The Product slug to render the button for.
  * @param  string  $domain  An optional domain associated with a license key to pass along.
+ * @param  string  $license  An optional license key to pass along.
  *
  * @return string
  */
-function build_auth_url( string $slug, string $domain = '' ): string {
+function build_auth_url( string $slug, string $domain = '', string $license = ''): string {
 	try {
 		return Config::get_container()->get( Auth_Url_Builder::class )
-		                              ->build( $slug, $domain );
+			->set_license( $license )
+			->build( $slug, $domain, $license );
 	} catch ( Throwable $e ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( "Error building auth URL: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );

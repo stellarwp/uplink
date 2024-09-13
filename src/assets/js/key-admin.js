@@ -71,16 +71,21 @@
 		$.post(ajaxurl, data, function (response) {
 			$validityMessage.show();
 			$validityMessage.html(response.message);
-			$oauth.attr( 'href', response.auth_url );
 
 			switch (response.status) {
 				case 1:
 					$validityMessage.addClass('valid-key').removeClass('invalid-key');
 					obj.enableAuthorizeButton( $oauth );
+					if ( $oauth.hasClass( 'not-authorized' ) ) {
+						$oauth.attr( 'href', response.auth_url );
+					}
 					break;
 				case 2:
 					$validityMessage.addClass('valid-key service-msg');
 					obj.enableAuthorizeButton( $oauth );
+					if ( $oauth.hasClass( 'not-authorized' ) ) {
+						$oauth.attr( 'href', response.auth_url );
+					}
 					break;
 				default:
 					$validityMessage.addClass('invalid-key').removeClass('valid-key');

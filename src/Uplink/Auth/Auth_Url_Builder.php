@@ -50,7 +50,7 @@ final class Auth_Url_Builder {
 			return '';
 		}
 
-		$callback_url = $pagenow;
+		$callback_url = admin_url( $pagenow );
 
 		// If building the URL in an ajax context, use the referring URL.
 		if ( wp_parse_url( $pagenow, PHP_URL_PATH ) === 'admin-ajax.php' ) {
@@ -76,7 +76,7 @@ final class Auth_Url_Builder {
 
 		$url = add_query_arg(
 			array_filter( array_merge( $_GET, $args ) ),
-			admin_url( $callback_url )
+			$callback_url
 		);
 
 		return sprintf( '%s?%s',

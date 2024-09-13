@@ -45,7 +45,7 @@ do_action( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_field_befo
 				/**
 				 * Fires before the license key input is printed on the page.
 				 *
-				 * @since TBD
+				 * @since 2.2.0
 				 *
 				 * @param string $slug The slug of the field.
 				 */

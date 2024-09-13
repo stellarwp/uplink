@@ -26,7 +26,7 @@ abstract class Resource {
 	/**
 	 * Whether the resource requires OAuth.
 	 *
-	 * @since TBD
+	 * @since 2.2.0
 	 *
 	 * @var int
 	 */
@@ -35,7 +35,7 @@ abstract class Resource {
 	/**
 	 * Whether the resource requires a license key for OAuth.
 	 *
-	 * @since TBD
+	 * @since 2.2.0
 	 *
 	 * @var int
 	 */
@@ -135,7 +135,7 @@ abstract class Resource {
 	 * Is the plugin using OAuth?
 	 *
 	 * @since 2.0.0
-	 * @since TBD Changed to int.
+	 * @since 2.2.0 Changed to int.
 	 *
 	 * @var int
 	 */
@@ -193,7 +193,7 @@ abstract class Resource {
 	/**
 	 * Returns whether the resource requires a license key for OAuth.
 	 *
-	 * @since TBD
+	 * @since 2.2.0
 	 *
 	 * @return bool Whether the resource requires a license key for OAuth.
 	 */

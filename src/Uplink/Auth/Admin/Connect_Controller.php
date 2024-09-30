@@ -170,5 +170,14 @@ final class Connect_Controller {
 				true
 			)
 		);
+
+		/**
+		 * Fires after a plugin has been connected.
+		 *
+		 * @since 2.2.1
+		 *
+		 * @param \StellarWP\Uplink\Resources\Resource $plugin The plugin that was connected.
+		 */
+		do_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/' . $slug . '/connected', $plugin );
 	}
 }

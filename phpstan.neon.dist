@@ -15,7 +15,6 @@ parameters:
 	level: 5
 	inferPrivatePropertyTypeFromConstructor: true
 	reportUnmatchedIgnoredErrors: false
-	checkGenericClassInNonGenericObjectType: false
 
 	# Paths to be analyzed.
 	paths:
@@ -26,3 +25,4 @@ parameters:
 		- '#^Function add_query_arg invoked with [123] parameters?, 0 required\.$#'
 		# Uses func_get_args()
 		- '#^Function apply_filters(_ref_array)? invoked with [34567] parameters, 2 required\.$#'
+		- '#Path in require_once\(\).+is not a file or it does not exist#'

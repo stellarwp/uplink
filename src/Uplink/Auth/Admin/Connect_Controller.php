@@ -95,7 +95,7 @@ final class Connect_Controller {
 
 		if ( ! Nonce::verify( $args[ self::NONCE ] ?? '' ) ) {
 			if ( ! function_exists( 'is_plugin_active' ) ) {
-				require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+				require_once ABSPATH . 'wp-admin/includes/plugin.php';
 			}
 
 			// The Litespeed plugin allows completely disabling transients for some reason...

@@ -52,25 +52,25 @@ class Expired_Key extends Message_Abstract {
 		
 		$message_content = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/messages/expired_key', $message_content );
 		
-		$allowed_html = array(
-			'a' => array(
-				'href' => array(),
-				'title' => array(),
-				'class' => array()
-			),
-			'br' => array(),
-			'em' => array(),
-			'strong' => array(),
-			'div' => array(
-				'class' => array()
-			),
-			'p' => array(
-				'class' => array()
-			),
-			'span' => array(
-				'class' => array()
-			),
-		);
+		$allowed_html = [
+			'a' => [
+				'href' => [],
+				'title' => [],
+				'class' => []
+			],
+			'br' => [],
+			'em' => [],
+			'strong' => [],
+			'div' => [
+				'class' => []
+			],
+			'p' => [
+				'class' => []
+			],
+			'span' => [
+				'class' => []
+			],
+		];
 
 		$message = '<div class="notice notice-warning">';
 		$message .= wp_kses( $message_content, $allowed_html );

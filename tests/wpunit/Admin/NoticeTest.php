@@ -4,6 +4,7 @@ namespace wpunit\Admin;
 
 use StellarWP\Uplink\Admin\Notice;
 use StellarWP\Uplink\Tests\UplinkTestCase;
+use StellarWP\Uplink\Config;
 
 class NoticeTest extends UplinkTestCase {
 
@@ -20,6 +21,16 @@ class NoticeTest extends UplinkTestCase {
 		$notice->add_notice( Notice::EXPIRED_KEY, 'uplink' );
 
 		$this->expectOutputString( '<div class="notice notice-warning"><p>Your license is expired</p></div>' );
+
+		$notice->setup_notices();
+	}
+
+	public function test_it_should_display_notice_with_link() {
+		Config::set_hook_prefix( 'events-calendar-pro' );
+		$notice = new Notice();
+		$notice->add_notice( Notice::EXPIRED_KEY, 'uplink' );
+
+		$this->expectOutputString( '<p>Your license is expired <a href="https://evnt.is/195y" target="_blank" class="button button-primary">Renew Your License Now <span class="screen-reader-text">(opens in a new window)</span></a></p>' );
 
 		$notice->setup_notices();
 	}

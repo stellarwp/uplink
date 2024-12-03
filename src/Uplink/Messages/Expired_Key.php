@@ -37,7 +37,7 @@ class Expired_Key extends Message_Abstract {
 		
 		if ( ! empty( $message_link ) ) {
 			$message_content = sprintf(
-				'<p>%s <a href="%s" target="_blank" class="button button-primary">%s<span class="screen-reader-text">%s</span></a></p>',
+				'<p>%s <a href="%s" target="_blank" class="button button-primary">%s <span class="screen-reader-text">%s</span></a></p>',
 				esc_html( $notice_text ),
 				esc_url( $message_link ),
 				esc_html( $renew_label ),

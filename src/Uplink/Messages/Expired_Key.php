@@ -56,6 +56,7 @@ class Expired_Key extends Message_Abstract {
 			'a' => [
 				'href' => [],
 				'title' => [],
+				'target' => [],
 				'class' => []
 			],
 			'br' => [],

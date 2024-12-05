@@ -166,7 +166,7 @@ final class DisconnectControllerTest extends UplinkTestCase {
 		// Mock these were passed via the query string.
 		$_GET[ Disconnect_Controller::ARG ]       = 1;
 		$_GET[ Disconnect_Controller::CACHE_KEY ] = 'nada';
-		$_GET[ Disconnect_Controller::SLUG ]      = 'a-plugin-slug-that-does-not-exist';
+		$_GET[ Disconnect_Controller::SLUG ]      = $this->slug;
 		$_GET['_wpnonce']                         = wp_create_nonce( Disconnect_Controller::ARG );
 
 		// Mock we're an admin inside the NETWORK dashboard.
@@ -206,7 +206,7 @@ final class DisconnectControllerTest extends UplinkTestCase {
 		// Mock these were passed via the query string.
 		$_GET[ Disconnect_Controller::ARG ]       = 1;
 		$_GET[ Disconnect_Controller::CACHE_KEY ] = 'nada';
-		$_GET[ Disconnect_Controller::SLUG ]      = 'a-plugin-slug-that-does-not-exist';
+		$_GET[ Disconnect_Controller::SLUG ]      = $this->slug;
 		$_GET['_wpnonce']                         = wp_create_nonce( Disconnect_Controller::ARG );
 
 		// Mock we're in the subsite admin.

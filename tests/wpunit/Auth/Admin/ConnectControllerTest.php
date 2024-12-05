@@ -83,6 +83,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 
 		$this->assertSame( $token, $this->token_manager->get( $this->plugin ) );
 		$this->assertEquals( 1, did_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/' . $this->slug . '/connected' ) );
+		$this->assertEquals( 1, did_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/connected' ) );
 	}
 
 	public function test_it_sets_additional_license_key(): void {
@@ -113,6 +114,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$this->assertSame( $token, $this->token_manager->get( $this->plugin ) );
 		$this->assertSame( $this->plugin->get_license_key(), $license );
 		$this->assertEquals( 1, did_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/' . $this->slug . '/connected' ) );
+		$this->assertEquals( 1, did_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/connected' ) );
 	}
 
 	public function test_it_does_not_store_with_an_invalid_nonce(): void {
@@ -134,6 +136,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 
 		$this->assertNull( $this->token_manager->get( $this->plugin ) );
 		$this->assertEmpty( did_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/' . $this->slug . '/connected' ) );
+		$this->assertEmpty( did_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/connected' ) );
 	}
 
 	public function test_it_does_not_store_an_invalid_token(): void {
@@ -159,6 +162,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 
 		$this->assertNull( $this->token_manager->get( $this->plugin ) );
 		$this->assertEmpty( did_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/' . $this->slug . '/connected' ) );
+		$this->assertEmpty( did_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/connected' ) );
 	}
 
 	public function test_it_does_not_stores_token_or_license_with_a_slug_that_does_not_exist(): void {
@@ -224,6 +228,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$this->assertSame( $token, $this->token_manager->get( $this->plugin ) );
 		$this->assertEmpty( $this->plugin->get_license_key() );
 		$this->assertEquals( 1, did_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/' . $this->slug . '/connected' ) );
+		$this->assertEquals( 1, did_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/connected' ) );
 	}
 
 	/**
@@ -266,6 +271,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$this->assertSame( $token, $this->token_manager->get( $this->plugin ) );
 		$this->assertSame( $this->plugin->get_license_key( 'network' ), $license );
 		$this->assertEquals( 1, did_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/' . $this->slug . '/connected' ) );
+		$this->assertEquals( 1, did_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/connected' ) );
 	}
 
 	/**
@@ -310,6 +316,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$this->assertSame( $token, $this->token_manager->get( $this->plugin ) );
 		$this->assertSame( $this->plugin->get_license_key( 'network' ), $license );
 		$this->assertEquals( 1, did_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/' . $this->slug . '/connected' ) );
+		$this->assertEquals( 1, did_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/connected' ) );
 	}
 
 }

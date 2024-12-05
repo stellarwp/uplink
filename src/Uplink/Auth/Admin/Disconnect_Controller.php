@@ -9,6 +9,7 @@ use StellarWP\Uplink\Auth\Token\Disconnector;
 use StellarWP\Uplink\Notice\Notice_Handler;
 use StellarWP\Uplink\Notice\Notice;
 use StellarWP\Uplink\Resources\Resource;
+use StellarWP\Uplink\Config;
 
 final class Disconnect_Controller {
 
@@ -111,6 +112,24 @@ final class Disconnect_Controller {
 						true
 					)
 				);
+
+				/**
+				 * Fires after a plugin has been disconnected.
+				 *
+				 * @since 2.2.2
+				 *
+				 * @param string $slug The plugin slug that was disconnected.
+				 */
+				do_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/' . $_GET[ self::SLUG ] . '/disconnected', $_GET[ self::SLUG ] );
+
+				/**
+				 * Fires after a plugin has been disconnected.
+				 *
+				 * @since 2.2.2
+				 *
+				 * @param string $slug The plugin slug that was disconnected.
+				 */
+				do_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/disconnected', $_GET[ self::SLUG ] );
 			} else {
 				$this->notice->add(
 					new Notice( Notice::ERROR,

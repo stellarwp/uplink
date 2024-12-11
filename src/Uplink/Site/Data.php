@@ -154,11 +154,8 @@ class Data {
 	 */
 	protected function get_domain_multisite_option(): string {
 		/** @var string */
-		$site_url = get_site_option( 'siteurl', '' );
-		// Fallback to get_site_url function if the network site url is empty which is possible.
-		if ( empty( $site_url ) ) {
-			$site_url = get_site_url();
-		}
+		$site_url = get_site_option( 'siteurl', '' ) ?: get_site_url(); // Fallback to get_site_url function if the network site url is empty which is possible.
+
 		/** @var array<string> */
 		$site_url = wp_parse_url( $site_url );
 		if ( ! $site_url || ! isset( $site_url['host'] ) ) {

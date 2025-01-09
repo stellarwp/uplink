@@ -186,18 +186,28 @@ class Client {
 	 * Validates the license.
 	 *
 	 * @since 1.0.0
+	 * @since 2.3.0 Added support for validation license using a plan/product slug in addition to a Resource object.
 	 *
-	 * @param Resource    $resource        Resource to validate.
-	 * @param string|null $key             License key.
-	 * @param string      $validation_type Validation type (local or network).
-	 * @param bool        $force           Force the validation.
+	 * @param Resource|string $resource        Resource or plan/product slug to validate.
+	 * @param string|null     $key             License key.
+	 * @param string          $validation_type Validation type (local or network).
+	 * @param bool            $force           Force the validation.
 	 *
 	 * @return mixed
 	 */
-	public function validate_license( Resource $resource, string $key = null, string $validation_type = 'local', bool $force = false ) {
+	public function validate_license( $resource, string $key = null, string $validation_type = 'local', bool $force = false ) {
 		/** @var Data */
-		$site_data = $this->container->get( Data::class );
-		$args      = $resource->get_validation_args();
+		$site_data            = $this->container->get( Data::class );
+		$is_network_activated = false;
+
+		$args = [];
+
+		if ( $resource instanceof Resource ) {
+			$args                 = $resource->get_validation_args();
+			$is_network_activated = $resource->is_network_activated();
+		} else {
+			$args['plugin'] = $resource;
+		}
 
 		if ( ! empty( $key ) ) {
 			$args['key'] = Utils\Sanitize::key( $key );
@@ -206,7 +216,7 @@ class Client {
 		$args['domain'] = $site_data->get_domain();
 		$args['stats']  = $site_data->get_stats();
 
-		$args['stats']['network']['network_activated'] = $resource->is_network_activated();
+		$args['stats']['network']['network_activated'] = $is_network_activated;
 
 		/**
 		 * Filter the license validation arguments.

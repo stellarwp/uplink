@@ -5,6 +5,7 @@ namespace StellarWP\Uplink\Tests\API\V3;
 use StellarWP\Uplink\API\V3\Auth\Contracts\Token_Authorizer;
 use StellarWP\Uplink\API\V3\Auth\Token_Authorizer_Cache_Decorator;
 use StellarWP\Uplink\Tests\UplinkTestCase;
+use WP_Error;
 
 final class AuthorizerCacheTest extends UplinkTestCase {
 
@@ -25,7 +26,7 @@ final class AuthorizerCacheTest extends UplinkTestCase {
 		$this->container->bind( \StellarWP\Uplink\API\V3\Auth\Token_Authorizer::class, $authorizer_mock );
 
 		$decorator = $this->container->get( Token_Authorizer::class );
-		$transient = $decorator->build_transient( [ 'dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840' ] );
+		$transient = $decorator->build_transient( [ 'dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840', '1234', 'kadence-blocks-pro', 'test.com' ] );
 
 		// No cache should exist.
 		$this->assertFalse( get_transient( $transient ) );
@@ -49,7 +50,7 @@ final class AuthorizerCacheTest extends UplinkTestCase {
 		$this->container->bind( \StellarWP\Uplink\API\V3\Auth\Token_Authorizer::class, $authorizer_mock );
 
 		$decorator = $this->container->get( Token_Authorizer::class );
-		$transient = $decorator->build_transient( [ 'dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840' ] );
+		$transient = $decorator->build_transient( [ 'dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840', '1234', 'kadence-blocks-pro', 'test.com' ] );
 
 		// No cache should exist.
 		$this->assertFalse( get_transient( $transient ) );
@@ -73,7 +74,7 @@ final class AuthorizerCacheTest extends UplinkTestCase {
 		$this->container->bind( \StellarWP\Uplink\API\V3\Auth\Token_Authorizer::class, $authorizer_mock );
 
 		$decorator = $this->container->get( Token_Authorizer::class );
-		$transient = $decorator->build_transient( [ 'dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840' ] );
+		$transient = $decorator->build_transient( [ 'dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840', '1234', 'kadence-blocks-pro', 'test.com' ] );
 
 		// No cache should exist.
 		$this->assertFalse( get_transient( $transient ) );

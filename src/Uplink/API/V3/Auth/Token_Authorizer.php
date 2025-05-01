@@ -33,11 +33,11 @@ class Token_Authorizer implements Contracts\Token_Authorizer {
 	 * @param  string  $token    The stored token.
 	 * @param  string  $domain   The user's domain.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 *
 	 * @see is_authorized()
 	 */
-	public function is_authorized( string $license, string $slug, string $token, string $domain ): bool {
+	public function is_authorized( string $license, string $slug, string $token, string $domain ) {
 		$response = $this->client->get( 'tokens/auth', [
 			'license' => $license,
 			'slug'    => $slug,
@@ -56,7 +56,7 @@ class Token_Authorizer implements Contracts\Token_Authorizer {
 				) );
 			}
 
-			return false;
+			return $response;
 		}
 
 		return $response['response']['code'] === WP_Http::OK;

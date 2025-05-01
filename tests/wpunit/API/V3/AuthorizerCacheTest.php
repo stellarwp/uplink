@@ -60,7 +60,7 @@ final class AuthorizerCacheTest extends UplinkTestCase {
 		$this->assertFalse( $authorized );
 
 		// Cache should now be present.
-		$this->assertTrue( ( 'false' === get_transient( $transient ) ) );
+		$this->assertSame( 0, get_transient( $transient ) );
 		$this->assertFalse( $decorator->is_authorized( '1234', 'kadence-blocks-pro', 'dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840', 'test.com' ) );
 	}
 

@@ -15,8 +15,8 @@ interface Token_Authorizer {
 	 * @param  string  $token    The stored token.
 	 * @param  string  $domain   The user's domain.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
-	public function is_authorized( string $license, string $slug, string $token, string $domain ): bool;
+	public function is_authorized( string $license, string $slug, string $token, string $domain );
 
 }

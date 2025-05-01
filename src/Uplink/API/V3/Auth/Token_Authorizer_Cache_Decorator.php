@@ -59,15 +59,23 @@ final class Token_Authorizer_Cache_Decorator implements Contracts\Token_Authoriz
 		$transient     = $this->build_transient( [ $token ] );
 		$is_authorized = get_transient( $transient );
 
-		if ( $is_authorized === true ) {
+		if ( $is_authorized === 'true' ) {
 			return true;
+		} else if ( $is_authorized === 'false' ) {
+			return false;
 		}
 
 		$is_authorized = $this->authorizer->is_authorized( $license, $slug, $token, $domain );
+		if ( is_wp_error( $is_authorized ) ) {
+			// Do not cache errors.
+			return false;
+		}
 
-		// Only cache successful responses.
+		// Cache the response.
 		if ( $is_authorized ) {
-			set_transient( $transient, true, $this->expiration );
+			set_transient( $transient, 'true', $this->expiration );
+		} else {
+			set_transient( $transient, 'false', $this->expiration );
 		}
 
 		return $is_authorized;

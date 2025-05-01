@@ -1,6 +1,7 @@
 <?php declare( strict_types=1 );
 
 namespace StellarWP\Uplink\API\V3\Auth\Contracts;
+use WP_Error;
 
 interface Token_Authorizer {
 

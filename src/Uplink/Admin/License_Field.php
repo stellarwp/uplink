@@ -85,7 +85,7 @@ class License_Field extends Field {
 					'label_for'    => $resource->get_license_object()->get_key_option_name(),
 					'type'         => 'text',
 					'path'         => $resource->get_path(),
-					'value'        => $resource->get_license_key( $network ? 'network' : 'local' ),
+					'value'        => $resource->get_license_key( $network ? 'network' : 'any' ),
 					'placeholder'  => __( 'License Number', '%TEXTDOMAIN%' ),
 					'html'         => $this->get_field_html( $resource ),
 					'html_classes' => 'stellarwp-uplink-license-key-field',

@@ -59,9 +59,10 @@ final class Token_Authorizer_Cache_Decorator implements Contracts\Token_Authoriz
 		$transient = $this->build_transient( [ $token, $license, $slug, $domain ] );
 		$cached    = get_transient( $transient );
 	
-		if ( is_int( $cached ) ) {
-			// 1 = authorized, 0 = not authorized
-			return (bool) $cached;
+		if ( $cached === 'authorized' ) {
+			return true;
+		} else if ( $cached === 'not_authorized' ) {
+			return false;
 		}
 	
 		$is_authorized = $this->authorizer->is_authorized( $license, $slug, $token, $domain );
@@ -71,7 +72,7 @@ final class Token_Authorizer_Cache_Decorator implements Contracts\Token_Authoriz
 			return false;
 		}
 	
-		set_transient( $transient, $is_authorized ? 1 : 0, $this->expiration );
+		set_transient( $transient, $is_authorized ? 'authorized' : 'not_authorized', $this->expiration );
 	
 		return $is_authorized;
 	}

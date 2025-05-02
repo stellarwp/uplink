@@ -13,6 +13,8 @@ use StellarWP\Uplink\Config;
 final class Token_Authorizer_Cache_Decorator implements Contracts\Token_Authorizer {
 
 	public const TRANSIENT_PREFIX = 'stellarwp_auth_';
+	public const AUTHORIZED = 'authorized';
+	public const NOT_AUTHORIZED = 'not_authorized';
 
 	/**
 	 * @var Token_Authorizer
@@ -58,22 +60,22 @@ final class Token_Authorizer_Cache_Decorator implements Contracts\Token_Authoriz
 	public function is_authorized( string $license, string $slug, string $token, string $domain ): bool {
 		$transient = $this->build_transient( [ $token, $license, $slug, $domain ] );
 		$cached    = get_transient( $transient );
-	
-		if ( $cached === 'authorized' ) {
+
+		if ( $cached === self::AUTHORIZED ) {
 			return true;
-		} else if ( $cached === 'not_authorized' ) {
+		} elseif ( $cached === self::NOT_AUTHORIZED ) {
 			return false;
 		}
-	
+
 		$is_authorized = $this->authorizer->is_authorized( $license, $slug, $token, $domain );
-	
+
 		if ( is_wp_error( $is_authorized ) ) {
 			// Don't cache errors.
 			return false;
 		}
-	
-		set_transient( $transient, $is_authorized ? 'authorized' : 'not_authorized', $this->expiration );
-	
+
+		set_transient( $transient, $is_authorized ? self::AUTHORIZED : self::NOT_AUTHORIZED, $this->expiration );
+
 		return $is_authorized;
 	}
 

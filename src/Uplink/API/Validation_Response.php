@@ -520,6 +520,8 @@ class Validation_Response {
 		} else {
 			$info->sections = [ 'description' => '' ];
 		}
+		$slug   = $info->slug ?? 'unknown';
+		$info = apply_filters('stellarwp/uplink/' . $slug . '/to_wp_format', $info);
 		return $info;
 	}
 

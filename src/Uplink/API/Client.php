@@ -164,7 +164,7 @@ class Client {
 		 */
 		$request_args = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/api_request_args', $request_args, $endpoint, $args );
 
-		$url = $this->base_url . $this->api_root . $endpoint;
+		$url = $this->get_api_base_url() . $this->api_root . $endpoint;
 
 		$response      = wp_remote_get( $url, $request_args );
 		$response_body = wp_remote_retrieve_body( $response );

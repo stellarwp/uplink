@@ -22,7 +22,7 @@ jobs:
     name: "Tests: WP ${{ matrix.wordpress }} / PHP ${{ matrix.php }}"
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1000
           submodules: recursive
@@ -30,27 +30,12 @@ jobs:
       # Checkout slic
       # ------------------------------------------------------------------------------
       - name: Checkout slic
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: stellarwp/slic
           ref: main
           path: slic
           fetch-depth: 1
-      # ------------------------------------------------------------------------------
-      # Prepare our composer cache directory
-      # ------------------------------------------------------------------------------
-      - name: Get Composer Cache Directory
-        id: get-composer-cache-dir
-        run: |
-          echo "DIR=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-
-      - uses: actions/cache@v4
-        id: composer-cache
-        with:
-          path: ${{ steps.get-composer-cache-dir.outputs.DIR }}
-          key: ${{ matrix.php }}-composer-${{ hashFiles('**/composer.json') }}
-          restore-keys: |
-            ${{ matrix.php }}-composer-
 
       # ------------------------------------------------------------------------------
       # Initialize slic
@@ -82,13 +67,23 @@ jobs:
           ${SLIC_BIN} xdebug off
           ${SLIC_BIN} debug on
           ${SLIC_BIN} php-version set ${{ matrix.php }} --skip-rebuild
-          ${SLIC_BIN} composer-cache set ${{ steps.get-composer-cache-dir.outputs.DIR }}
+
+      - name: Set up StellarWP Uplink (Sets PHP version for containers)
+        run: |
+          ${SLIC_BIN} use uplink
+          ${SLIC_BIN} composer set-version 2
+          ${SLIC_BIN} composer validate
+          ${SLIC_BIN} composer install
+
+      - name: Show slic info / config
+        run: |
           ${SLIC_BIN} info
           ${SLIC_BIN} config
 
       - name: Install specific WordPress version ${{ matrix.wordpress }}
         run: |
-            ${SLIC_BIN} wp core download --version=${{ matrix.wordpress }} --force
+          ${SLIC_BIN} wp core download --version=${{ matrix.wordpress }} --force
+          ${SLIC_BIN} wp core update-db
 
       - name: Show WordPress version
         run: ${SLIC_BIN} wp core version
@@ -96,12 +91,8 @@ jobs:
       - name: Update installed WordPress themes
         run: ${SLIC_BIN} wp theme update --all
 
-      - name: Set up StellarWP Uplink
-        run: |
-          ${SLIC_BIN} use uplink
-          ${SLIC_BIN} composer set-version 2
-          ${SLIC_BIN} composer validate
-          ${SLIC_BIN} composer install
+      - name: Build codeception
+        run: ${SLIC_BIN} cc build
 
       - name: Run muwpunit tests
         run: ${SLIC_BIN} run muwpunit --ext DotReporter

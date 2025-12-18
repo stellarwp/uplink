@@ -41,23 +41,13 @@
         }
     },
     "require-dev": {
-        "codeception/module-asserts": "^1.0",
-        "codeception/module-cli": "^1.0",
-        "codeception/module-db": "^1.0",
-        "codeception/module-filesystem": "^1.0",
-        "codeception/module-phpbrowser": "^1.0",
-        "codeception/module-rest": "^1.0",
-        "codeception/module-webdriver": "^1.0",
-        "codeception/util-universalframework": "^1.0",
-        "lucatume/codeception-snapshot-assertions": "^0.4.0",
+        "lucatume/codeception-snapshot-assertions": "*",
         "lucatume/di52": "^3.0",
-        "lucatume/wp-browser": "^3.0.14",
-        "phpspec/prophecy": "^1.0",
-        "phpspec/prophecy-phpunit": "^1.0|^2.0",
-        "phpunit/phpunit": "^6.0|^7.0|^8.0|^9.0",
-        "symfony/event-dispatcher-contracts": "^2.5.1",
-        "symfony/string": "^5.4",
-        "szepeviktor/phpstan-wordpress": "^1.1"
+        "lucatume/wp-browser": "*",
+        "phpspec/prophecy": "*",
+        "phpspec/prophecy-phpunit": "*",
+        "phpunit/phpunit": "*",
+        "szepeviktor/phpstan-wordpress": ">=1.0"
     },
     "scripts": {
       "test:analysis": [

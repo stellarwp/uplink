@@ -30,7 +30,7 @@ class NoticeTest extends UplinkTestCase {
 		$notice = new Notice();
 		$notice->add_notice( Notice::EXPIRED_KEY, 'uplink' );
 
-		$this->expectOutputString( '<div class="notice notice-warning"><p>Your license is expired <a href="https://evnt.is/195y" target="_blank" class="button button-primary">Renew Your License Now <span class="screen-reader-text">(opens in a new window)</span></a></p></div>' );
+		$this->expectOutputString( '<div class="notice notice-warning"><p>Your license is expired <a href="https://evnt.is/195y" target="_blank" class="button button-primary" rel="noopener nofollow">Renew Your License Now <span class="screen-reader-text">(opens in a new window)</span></a></p></div>' );
 
 		$notice->setup_notices();
 	}

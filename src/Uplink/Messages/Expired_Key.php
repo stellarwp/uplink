@@ -37,7 +37,7 @@ class Expired_Key extends Message_Abstract {
 
 		if ( filter_var( $message_link, FILTER_VALIDATE_URL ) !== false ) {
 			$message_content = sprintf(
-				'<p>%s <a href="%s" target="_blank" class="button button-primary">%s <span class="screen-reader-text">%s</span></a></p>',
+				'<p>%s <a href="%s" target="_blank" class="button button-primary" rel="noopener nofollow">%s <span class="screen-reader-text">%s</span></a></p>',
 				esc_html( $notice_text ),
 				esc_url( $message_link ),
 				esc_html( $renew_label ),
@@ -53,23 +53,24 @@ class Expired_Key extends Message_Abstract {
 		$message_content = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/messages/expired_key', $message_content );
 
 		$allowed_html = [
-			'a' => [
-				'href' => [],
-				'title' => [],
+			'a'      => [
+				'href'   => [],
+				'title'  => [],
 				'target' => [],
-				'class' => []
+				'class'  => [],
+				'rel'    => [],
 			],
-			'br' => [],
-			'em' => [],
+			'br'     => [],
+			'em'     => [],
 			'strong' => [],
-			'div' => [
-				'class' => []
+			'div'    => [
+				'class' => [],
 			],
-			'p' => [
-				'class' => []
+			'p'      => [
+				'class' => [],
 			],
-			'span' => [
-				'class' => []
+			'span'   => [
+				'class' => [],
 			],
 		];
 

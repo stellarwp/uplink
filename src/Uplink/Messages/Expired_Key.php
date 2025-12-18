@@ -30,12 +30,12 @@ class Expired_Key extends Message_Abstract {
 			],
 			true ) ? 'https://evnt.is/195y' : '';
 
-		$message_link        = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/messages/expired_key_link', $default_link );
+		$message_link        = (string) apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/messages/expired_key_link', $default_link );
 		$renew_label         = __( 'Renew Your License Now', '%TEXTDOMAIN%' );
 		$opens_in_new_window = __( '(opens in a new window)', '%TEXTDOMAIN%' );
 		$notice_text         = __( 'Your license is expired', '%TEXTDOMAIN%' );
-		
-		if ( ! empty( $message_link ) ) {
+
+		if ( filter_var( $message_link, FILTER_VALIDATE_URL ) !== false ) {
 			$message_content = sprintf(
 				'<p>%s <a href="%s" target="_blank" class="button button-primary">%s <span class="screen-reader-text">%s</span></a></p>',
 				esc_html( $notice_text ),
@@ -49,9 +49,9 @@ class Expired_Key extends Message_Abstract {
 				esc_html( $notice_text )
 			);
 		}
-		
+
 		$message_content = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/messages/expired_key', $message_content );
-		
+
 		$allowed_html = [
 			'a' => [
 				'href' => [],

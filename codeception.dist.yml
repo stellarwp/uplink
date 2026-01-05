@@ -2,7 +2,7 @@ actor: Tester
 bootstrap: _bootstrap.php
 paths:
     tests: tests
-    log: tests/_output
+    output: tests/_output
     data: tests/_data
     helpers: tests/_support
     wp_root: "%WP_ROOT_FOLDER%"
@@ -11,4 +11,4 @@ settings:
     memory_limit: 1024M
 params:
   # read dynamic configuration parameters from the .env file
-  - .env.testing
+  - .env.testing.slic

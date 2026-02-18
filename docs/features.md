@@ -19,7 +19,6 @@ The goals of this library are to provide a simple way to register one or more pl
 
 Registration of plugins and services should happen programmatically and the intended API is documented in this repository's [README](/README.md).
 
-
 ### License keys & validation
 
 The Uplink library should communicate with the Stellar Licensing system at specific moments. Those moments are:
@@ -72,18 +71,46 @@ The Stellar Licensing service has the capability of embedding license keys withi
 
 You can see an example of this in the wild within the [Events Calendar Pro plugin](https://github.com/the-events-calendar/events-pro/blob/master/src/Tribe/PUE/Helper.php).
 
-
 #### UI for entering keys
 
 Uplink should provide a UI for entering license keys. Ideally, Uplink should have a way to render license key fields, notifications, enqueue relevent styles & JS, etc within an administrative page as dictated by the plugin. For example, The Events Calendar needs to be able to choose to have the license keys fields/notices for Events Calendar Pro, Filter Bar, Virtual Events, etc (which are all add-ons of TEC) rendered on the _Events > Settings > Licenses_ page in the dashboard. Whereas Restrict Content Pro should be able to have _its_ license key fields rendered on a different Dashboard page.
 
 When a license field is rendered, manipulated, or saved, a validation request should be triggered (see the diagram above).
 
-
 ##### Site & Network-level
 
 When a plugin that includes the Uplink library is activated at the network level, License keys should be able to be entered at both the network and the site level.
 
+### API Configuration Constants
+
+Uplink provides PHP constants that allow you to override the default API base URL and root paths used to communicate with the Stellar Licensing system. These are useful for development, testing, or pointing to a custom licensing server.
+
+#### `STELLARWP_UPLINK_API_BASE_URL`
+
+Overrides the base URL for **both** the V2 and V3 API clients. The default base URL is `https://licensing.stellarwp.com`. A trailing slash is automatically stripped.
+
+```php
+// In wp-config.php or an mu-plugin:
+define( 'STELLARWP_UPLINK_API_BASE_URL', 'https://my-custom-licensing-server.example.com' );
+```
+
+#### `STELLARWP_UPLINK_API_ROOT`
+
+Overrides the V2 API root path. The default is `/api/plugins/v2/`. A trailing slash is automatically appended.
+
+```php
+define( 'STELLARWP_UPLINK_API_ROOT', '/api/plugins/v2-custom/' );
+```
+
+#### `STELLARWP_UPLINK_V3_API_ROOT`
+
+Overrides the V3 API root path. The default is `/api/stellarwp/v3/`.
+
+```php
+define( 'STELLARWP_UPLINK_V3_API_ROOT', '/api/stellarwp/v3-custom/' );
+```
+
+> **Note:** In addition to these constants, the V3 client exposes WordPress filters (`stellarwp/uplink/{hook_prefix}/v3/client/base_url` and `stellarwp/uplink/{hook_prefix}/v3/client/api_root`) that allow runtime overrides.
 
 ### Product updates
 

@@ -23,7 +23,7 @@ do_action( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_field_befo
 ?>
 <?php if ( $field->should_show_label() ) : ?>
 	<table class="form-table" role="presentation">
-	<tr class="stellarwp-uplink-license-key-field">
+	<tr class="stellarwp-uplink-license-key-field-row">
 	<th scope="row">
 		<label for="<?php echo esc_attr( $field->get_field_id() ); ?>"><?php echo esc_html( $field->get_label() ); ?></label>
 	</th>

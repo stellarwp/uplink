@@ -326,6 +326,22 @@ The following Query Variables are available for reference:
 
 > ⚠️ `uplink_slug` MUST be supplied if `uplink_license` is!
 
+## Changelog
+
+This project uses [@stellarwp/changelogger](https://github.com/stellarwp/changelogger) to manage its changelog. All notable changes are tracked via changelog entry files in the `changelog/` directory.
+
+To add a new changelog entry:
+
+```bash
+bunx @stellarwp/changelogger add
+```
+
+To compile changelog entries into `changelog.txt`:
+
+```bash
+bunx @stellarwp/changelogger write --overwrite-version <version>
+```
+
 ## Additional documentation
 
 - [Features](/docs/features.md) — Overview of library features, license key validation flow, embedded keys, UI rendering, and API configuration constants.

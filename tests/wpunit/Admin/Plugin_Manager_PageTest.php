@@ -24,7 +24,7 @@ class Plugin_Manager_PageTest extends UplinkTestCase {
 			'manager-test',
 			'Manager Test Plugin',
 			'1.5.0',
-			'manager-test/manager-test.php',
+			'uplink/tests/plugin.php',
 			Uplink::class
 		);
 	}

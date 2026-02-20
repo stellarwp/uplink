@@ -7,6 +7,7 @@ use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Uplink;
+use StellarWP\Uplink\Tests\Sample_Plugin;
 
 class CrossInstanceHooksTest extends UplinkTestCase {
 
@@ -17,8 +18,8 @@ class CrossInstanceHooksTest extends UplinkTestCase {
 			'cross-test',
 			'Cross Test Plugin',
 			'1.0.0',
-			'cross-test/cross-test.php',
-			Uplink::class
+			'uplink/tests/plugin.php',
+			Sample_Plugin::class
 		);
 	}
 

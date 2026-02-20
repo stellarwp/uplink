@@ -89,6 +89,8 @@ StellarWP Uplink plugins are downloaded with an embedded license key so that use
 # The class file should be in this path:
 src/Uplink/Helper.php
 ```
+> [!NOTE]  
+> While the default is `src/Uplink/Helper.php`, the licensing server supports embedding the license in [any file path defined on the server](https://github.com/stellarwp/licensing/blob/e8b0fe1c32065fde198e9d10b9de5c04eda45a9d/src/Licensing/Tables/Products.php#L53).
 
 The file should match the following - keeping the `KEY` constant set to a blank string, or, if you want a default license key, set it to that.:
 

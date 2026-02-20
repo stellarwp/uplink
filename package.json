@@ -1,0 +1,19 @@
+{
+  "name": "uplink",
+  "private": true,
+  "devDependencies": {
+    "@stellarwp/changelogger": "^0.10.0"
+  },
+  "changelogger": {
+    "changesDir": "changelog",
+    "linkTemplate": "https://github.com/stellarwp/uplink/compare/${old}...${new}",
+    "ordering": ["type", "content"],
+    "versioning": "semver",
+    "files": [
+      {
+        "path": "changelog.txt",
+        "strategy": "stellarwp-changelog"
+      }
+    ]
+  }
+}

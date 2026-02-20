@@ -244,7 +244,7 @@ class License {
 		/**
 		 * Filters the option name for the license key.
 		 *
-		 * @since TBD
+		 * @since 3.0.0
 		 *
 		 * @param string   $option_name The option name.
 		 * @param Resource $resource    The resource instance.

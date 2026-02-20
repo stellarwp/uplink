@@ -7,18 +7,6 @@ use StellarWP\Uplink\Uplink;
 class Plugin_Manager_Page {
 
 	/**
-	 * Whether this instance should render the unified plugin manager page.
-	 *
-	 * Determined at admin_menu time by comparing this instance's Uplink version
-	 * against the highest version reported by all active instances.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var bool
-	 */
-	private $should_render = false;
-
-	/**
 	 * Evaluates whether this Uplink instance is the highest version and should
 	 * own rendering of the unified plugin manager page.
 	 *
@@ -54,8 +42,6 @@ class Plugin_Manager_Page {
 		if ( ! $this->should_render() ) {
 			return;
 		}
-
-		$this->should_render = true;
 
 		do_action( 'stellarwp/uplink/unified_ui_registered' );
 

@@ -48,7 +48,6 @@ class Provider extends Abstract_Provider {
 		$action = sprintf( 'wp_ajax_pue-validate-key-uplink-%s', Config::get_hook_prefix_underscored() );
 		add_action($action, [ $this, 'ajax_validate_license' ], 10, 0 );
 		add_action( 'admin_init', [ $this, 'admin_init' ], 10, 0 );
-		add_action( 'admin_init', [ $this, 'handle_unified_submission' ], 10, 0 );
 		add_action( 'admin_menu', [ $this, 'register_unified_plugin_manager_page' ], 20, 0 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'display_plugin_messages' ], 1, 1 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'register_assets' ], 10, 0 );
@@ -66,17 +65,6 @@ class Provider extends Abstract_Provider {
 	 */
 	public function register_unified_plugin_manager_page(): void {
 		$this->container->get( Plugin_Manager_Page::class )->maybe_register_page();
-	}
-
-	/**
-	 * Handles form submissions from the unified plugin manager page.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return void
-	 */
-	public function handle_unified_submission(): void {
-		$this->container->get( Plugin_Manager_Page::class )->handle_submission();
 	}
 
 	/**

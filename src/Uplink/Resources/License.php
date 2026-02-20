@@ -239,7 +239,19 @@ class License {
 	 * @return string
 	 */
 	public function get_key_option_name(): string {
-		return static::$key_option_prefix . $this->resource->get_slug();
+		$option_name = static::$key_option_prefix . $this->resource->get_slug();
+
+		/**
+		 * Filters the option name for the license key.
+		 *
+		 * @since TBD
+		 *
+		 * @param string   $option_name The option name.
+		 * @param Resource $resource    The resource instance.
+		 *
+		 * @return string
+		 */
+		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/license_get_key_option_name', $option_name, $this->resource );
 	}
 
 	/**

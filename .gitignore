@@ -3,5 +3,6 @@ repo/
 vendor/
 .idea/
 /composer.lock
+node_modules/
 
 local-scripts/

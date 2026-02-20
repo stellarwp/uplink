@@ -1,17 +1,6 @@
 {
   "name": "uplink",
-  "version": "2.3.1",
-  "description": "Client library for interacting with the StellarWP PUE licensing system",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/stellarwp/uplink.git"
-  },
-  "author": "StellarWP",
-  "license": "GPL-3.0",
-  "bugs": {
-    "url": "https://github.com/stellarwp/uplink/issues"
-  },
-  "homepage": "https://github.com/stellarwp/uplink#readme",
+  "private": true,
   "devDependencies": {
     "@stellarwp/changelogger": "^0.10.0"
   },

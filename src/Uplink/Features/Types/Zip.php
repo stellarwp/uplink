@@ -52,7 +52,7 @@ final class Zip extends Feature {
 	}
 
 	/**
-	 * Get the plugin file path relative to the plugins directory.
+	 * Gets the plugin file path relative to the plugins directory.
 	 *
 	 * @since TBD
 	 *

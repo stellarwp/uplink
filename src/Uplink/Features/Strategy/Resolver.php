@@ -49,7 +49,7 @@ class Resolver {
 	}
 
 	/**
-	 * Register a strategy class for a feature type.
+	 * Registers a strategy class for a feature type.
 	 *
 	 * @since TBD
 	 *
@@ -63,7 +63,7 @@ class Resolver {
 	}
 
 	/**
-	 * Resolve the correct strategy for a given feature.
+	 * Resolves the correct strategy for a given feature.
 	 *
 	 * The internal map is filtered through 'stellarwp/uplink/feature_strategy_map'
 	 * before lookup, allowing consumers to add custom strategies.

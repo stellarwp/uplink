@@ -68,7 +68,7 @@ abstract class Feature {
 	}
 
 	/**
-	 * Create a Feature instance from an associative array.
+	 * Creates a Feature instance from an associative array.
 	 *
 	 * @since TBD
 	 *
@@ -80,7 +80,7 @@ abstract class Feature {
 
 
 	/**
-	 * Get the feature slug.
+	 * Gets the feature slug.
 	 *
 	 * @since TBD
 	 *
@@ -91,7 +91,7 @@ abstract class Feature {
 	}
 
 	/**
-	 * Get the feature display name.
+	 * Gets the feature display name.
 	 *
 	 * @since TBD
 	 *
@@ -102,7 +102,7 @@ abstract class Feature {
 	}
 
 	/**
-	 * Get the feature description.
+	 * Gets the feature description.
 	 *
 	 * @since TBD
 	 *
@@ -113,7 +113,7 @@ abstract class Feature {
 	}
 
 	/**
-	 * Get the feature type identifier.
+	 * Gets the feature type identifier.
 	 *
 	 * @since TBD
 	 *

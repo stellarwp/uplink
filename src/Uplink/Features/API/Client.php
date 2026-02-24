@@ -46,7 +46,7 @@ class Client {
 	];
 
 	/**
-	 * Get the feature collection, using the transient cache when available.
+	 * Gets the feature collection, using the transient cache when available.
 	 *
 	 * @since TBD
 	 *
@@ -63,7 +63,7 @@ class Client {
 	}
 
 	/**
-	 * Delete the transient cache and re-fetch from the API.
+	 * Deletes the transient cache and re-fetches from the API.
 	 *
 	 * @since TBD
 	 *
@@ -76,7 +76,7 @@ class Client {
 	}
 
 	/**
-	 * Fetch features from the Commerce Portal API and cache the result.
+	 * Fetches features from the Commerce Portal API and caches the result.
 	 *
 	 * @since TBD
 	 *
@@ -93,7 +93,7 @@ class Client {
 	}
 
 	/**
-	 * Perform the HTTP request to the Commerce Portal API.
+	 * Performs the HTTP request to the Commerce Portal API.
 	 *
 	 * @since TBD
 	 *
@@ -106,7 +106,7 @@ class Client {
 	}
 
 	/**
-	 * Hydrate Feature objects from the API response using a type-to-class map.
+	 * Hydrates Feature objects from the API response using a type-to-class map.
 	 *
 	 * @since TBD
 	 *

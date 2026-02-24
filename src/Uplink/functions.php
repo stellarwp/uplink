@@ -276,8 +276,7 @@ function get_plugins(): Collection {
 }
 
 /**
- * Check if a feature is available in the catalog AND enabled/active.
- *
+ * Checks if a feature is available in the catalog AND enabled/active.
  * Returns false if the feature is not in the catalog at all.
  *
  * @since TBD
@@ -299,7 +298,7 @@ function is_feature_enabled( string $slug ): bool {
 }
 
 /**
- * Check if a feature is available in the catalog, regardless of enabled state.
+ * Checks if a feature is available in the catalog, regardless of enabled state.
  *
  * @since TBD
  *

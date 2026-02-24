@@ -50,7 +50,7 @@ class Manager {
 	}
 
 	/**
-	 * Enable a feature by slug.
+	 * Enables a feature by slug.
 	 *
 	 * Fires 'stellarwp/uplink/feature_enabling' and 'stellarwp/uplink/{slug}/feature_enabling'
 	 * before the operation, and the corresponding 'feature_enabled' actions after success.
@@ -114,7 +114,7 @@ class Manager {
 	}
 
 	/**
-	 * Disable a feature by slug.
+	 * Disables a feature by slug.
 	 *
 	 * Fires 'stellarwp/uplink/feature_disabling' and 'stellarwp/uplink/{slug}/feature_disabling'
 	 * before the operation, and the corresponding 'feature_disabled' actions after success.
@@ -178,7 +178,7 @@ class Manager {
 	}
 
 	/**
-	 * Check whether a feature is in the catalog AND currently enabled/active.
+	 * Checks whether a feature is in the catalog AND currently enabled/active.
 	 *
 	 * Returns false if the feature is not in the catalog.
 	 *
@@ -201,7 +201,7 @@ class Manager {
 	}
 
 	/**
-	 * Check whether a feature exists in the cached catalog.
+	 * Checks whether a feature exists in the cached catalog.
 	 *
 	 * @since TBD
 	 *
@@ -214,7 +214,7 @@ class Manager {
 	}
 
 	/**
-	 * Get the feature collection from the catalog.
+	 * Gets the feature collection from the catalog.
 	 *
 	 * @since TBD
 	 *
@@ -225,7 +225,7 @@ class Manager {
 	}
 
 	/**
-	 * Look up a feature by slug from the cached catalog.
+	 * Looks up a feature by slug from the cached catalog.
 	 *
 	 * @since TBD
 	 *

@@ -143,7 +143,7 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	}
 
 	/**
-	 * Remove a feature from the collection.
+	 * Removes a feature from the collection.
 	 *
 	 * @since TBD
 	 *

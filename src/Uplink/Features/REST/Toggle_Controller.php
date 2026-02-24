@@ -59,7 +59,7 @@ class Toggle_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Register the routes.
+	 * Registers the routes.
 	 *
 	 * @since TBD
 	 *
@@ -99,7 +99,7 @@ class Toggle_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Enable a feature.
+	 * Enables a feature.
 	 *
 	 * @since TBD
 	 *
@@ -118,7 +118,7 @@ class Toggle_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Disable a feature.
+	 * Disables a feature.
 	 *
 	 * @since TBD
 	 *
@@ -137,7 +137,7 @@ class Toggle_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Get the schema for a single feature toggle response.
+	 * Gets the schema for a single feature toggle response.
 	 *
 	 * @since TBD
 	 *
@@ -172,7 +172,7 @@ class Toggle_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Get the slug argument definition.
+	 * Gets the slug argument definition.
 	 *
 	 * @since TBD
 	 *

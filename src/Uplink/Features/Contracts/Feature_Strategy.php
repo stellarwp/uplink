@@ -13,7 +13,7 @@ use StellarWP\Uplink\Features\Types\Feature;
 interface Feature_Strategy {
 
 	/**
-	 * Enable a feature.
+	 * Enables a feature.
 	 *
 	 * @since TBD
 	 *
@@ -24,7 +24,7 @@ interface Feature_Strategy {
 	public function enable( Feature $feature ): bool;
 
 	/**
-	 * Disable a feature.
+	 * Disables a feature.
 	 *
 	 * @since TBD
 	 *
@@ -35,7 +35,7 @@ interface Feature_Strategy {
 	public function disable( Feature $feature ): bool;
 
 	/**
-	 * Check whether a feature is currently active.
+	 * Checks whether a feature is currently active.
 	 *
 	 * Implementations should check live state rather than a cached flag.
 	 * If the live state differs from any stored flag, the stored flag

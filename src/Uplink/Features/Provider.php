@@ -45,7 +45,7 @@ class Provider extends Abstract_Provider {
 	}
 
 	/**
-	 * Register the default feature type strategies.
+	 * Registers the default feature type strategies.
 	 *
 	 * Strategy implementations are not yet created, so this is a
 	 * placeholder for when Zip_Strategy and Built_In_Strategy are added.
@@ -62,7 +62,7 @@ class Provider extends Abstract_Provider {
 	}
 
 	/**
-	 * Register WordPress hooks for the Features subsystem.
+	 * Registers WordPress hooks for the Features subsystem.
 	 *
 	 * @since TBD
 	 *
@@ -73,7 +73,7 @@ class Provider extends Abstract_Provider {
 	}
 
 	/**
-	 * Register REST API routes.
+	 * Registers REST API routes.
 	 *
 	 * @since TBD
 	 *

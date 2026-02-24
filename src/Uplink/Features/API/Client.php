@@ -45,7 +45,7 @@ class Client {
 	 *
 	 * @since TBD
 	 *
-	 * @param string                    $type          The feature type identifier (e.g. 'zip', 'built_in').
+	 * @param string                $type          The feature type identifier (e.g. 'zip', 'built_in').
 	 * @param class-string<Feature> $feature_class The Feature subclass FQCN.
 	 *
 	 * @return void

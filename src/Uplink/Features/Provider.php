@@ -7,6 +7,8 @@ use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\Features\API\Client;
 use StellarWP\Uplink\Features\REST\Toggle_Controller;
 use StellarWP\Uplink\Features\Strategy\Resolver;
+use StellarWP\Uplink\Features\Types\Built_In;
+use StellarWP\Uplink\Features\Types\Zip;
 
 /**
  * Registers the Features subsystem in the DI container and hooks.
@@ -40,8 +42,22 @@ class Provider extends Abstract_Provider {
 			);
 		} );
 
+		$this->register_default_types();
 		$this->register_default_strategies();
 		$this->register_hooks();
+	}
+
+	/**
+	 * Registers the default feature type to class mappings.
+	 *
+	 * @since TBD
+	 *
+	 * @return void
+	 */
+	private function register_default_types(): void {
+		$client = $this->container->get( Client::class );
+		$client->register_type( 'zip', Zip::class );
+		$client->register_type( 'built_in', Built_In::class );
 	}
 
 	/**

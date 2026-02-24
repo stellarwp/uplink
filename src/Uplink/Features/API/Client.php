@@ -3,9 +3,7 @@
 namespace StellarWP\Uplink\Features\API;
 
 use StellarWP\Uplink\Features\Collection;
-use StellarWP\Uplink\Features\Types\Built_In;
 use StellarWP\Uplink\Features\Types\Feature;
-use StellarWP\Uplink\Features\Types\Zip;
 
 /**
  * Fetches the feature catalog from the Commerce Portal API and
@@ -34,16 +32,27 @@ class Client {
 	private const DEFAULT_CACHE_DURATION = 43200;
 
 	/**
-	 * Default type-to-class map for hydrating Feature objects.
+	 * Map of feature type strings to Feature subclass names.
 	 *
 	 * @since TBD
 	 *
 	 * @var array<string, class-string<Feature>>
 	 */
-	private const DEFAULT_TYPE_MAP = [
-		'zip'      => Zip::class,
-		'built_in' => Built_In::class,
-	];
+	private array $type_map = [];
+
+	/**
+	 * Registers a Feature subclass for a given type string.
+	 *
+	 * @since TBD
+	 *
+	 * @param string                    $type          The feature type identifier (e.g. 'zip', 'built_in').
+	 * @param class-string<Feature> $feature_class The Feature subclass FQCN.
+	 *
+	 * @return void
+	 */
+	public function register_type( string $type, string $feature_class ): void {
+		$this->type_map[ $type ] = $feature_class;
+	}
 
 	/**
 	 * Gets the feature collection, using the transient cache when available.
@@ -122,7 +131,7 @@ class Client {
 		 *
 		 * @param array<string, class-string<Feature>> $type_map The current type map.
 		 */
-		$type_map = apply_filters( 'stellarwp/uplink/feature_type_map', self::DEFAULT_TYPE_MAP );
+		$type_map = apply_filters( 'stellarwp/uplink/feature_type_map', $this->type_map );
 
 		$collection = new Collection();
 

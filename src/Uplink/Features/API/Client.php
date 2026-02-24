@@ -1,0 +1,149 @@
+<?php declare( strict_types=1 );
+
+namespace StellarWP\Uplink\Features\API;
+
+use StellarWP\Uplink\Features\Collection;
+use StellarWP\Uplink\Features\Types\Built_In;
+use StellarWP\Uplink\Features\Types\Feature;
+use StellarWP\Uplink\Features\Types\Zip;
+
+/**
+ * Fetches the feature catalog from the Commerce Portal API and
+ * caches the result as a WordPress transient.
+ *
+ * @since TBD
+ */
+class Client {
+
+	/**
+	 * Transient key for the cached feature catalog.
+	 *
+	 * @since TBD
+	 *
+	 * @var string
+	 */
+	private const TRANSIENT_KEY = 'stellarwp_uplink_feature_catalog';
+
+	/**
+	 * Default cache duration in seconds (12 hours).
+	 *
+	 * @since TBD
+	 *
+	 * @var int
+	 */
+	private const DEFAULT_CACHE_DURATION = 43200;
+
+	/**
+	 * Default type-to-class map for hydrating Feature objects.
+	 *
+	 * @since TBD
+	 *
+	 * @var array<string, class-string<Feature>>
+	 */
+	private const DEFAULT_TYPE_MAP = [
+		'zip'      => Zip::class,
+		'built_in' => Built_In::class,
+	];
+
+	/**
+	 * Get the feature collection, using the transient cache when available.
+	 *
+	 * @since TBD
+	 *
+	 * @return Collection
+	 */
+	public function get_features(): Collection {
+		$cached = get_transient( self::TRANSIENT_KEY );
+
+		if ( $cached instanceof Collection ) {
+			return $cached;
+		}
+
+		return $this->fetch_features();
+	}
+
+	/**
+	 * Delete the transient cache and re-fetch from the API.
+	 *
+	 * @since TBD
+	 *
+	 * @return Collection
+	 */
+	public function refresh(): Collection {
+		delete_transient( self::TRANSIENT_KEY );
+
+		return $this->fetch_features();
+	}
+
+	/**
+	 * Fetch features from the Commerce Portal API and cache the result.
+	 *
+	 * @since TBD
+	 *
+	 * @return Collection
+	 */
+	private function fetch_features(): Collection {
+		$response = $this->request();
+
+		$collection = $this->hydrate( $response );
+
+		set_transient( self::TRANSIENT_KEY, $collection, self::DEFAULT_CACHE_DURATION );
+
+		return $collection;
+	}
+
+	/**
+	 * Perform the HTTP request to the Commerce Portal API.
+	 *
+	 * @since TBD
+	 *
+	 * @return array<int, array<string, mixed>> The decoded response entries.
+	 */
+	private function request(): array {
+		// TODO: Implement the actual API request to Commerce Portal.
+		// Should send site domain + license keys and return the feature catalog.
+		return [];
+	}
+
+	/**
+	 * Hydrate Feature objects from the API response using a type-to-class map.
+	 *
+	 * @since TBD
+	 *
+	 * @param array<int, array<string, mixed>> $response The API response entries.
+	 *
+	 * @return Collection
+	 */
+	private function hydrate( array $response ): Collection {
+		/**
+		 * Filters the feature type to class map used during hydration.
+		 *
+		 * @since TBD
+		 *
+		 * @param array<string, class-string<Feature>> $type_map The current type map.
+		 */
+		$type_map = apply_filters( 'stellarwp/uplink/feature_type_map', self::DEFAULT_TYPE_MAP );
+
+		$collection = new Collection();
+
+		foreach ( $response as $entry ) {
+			$type  = $entry['type'] ?? null;
+			$class = $type_map[ $type ] ?? null;
+
+			if ( $class === null ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( sprintf(
+						"Uplink: Unknown feature type '%s' for slug '%s'",
+						$type ?? '(null)',
+						$entry['slug'] ?? '(unknown)'
+					) );
+				}
+				continue;
+			}
+
+			$collection->add( $class::from_array( $entry ) );
+		}
+
+		return $collection;
+	}
+}

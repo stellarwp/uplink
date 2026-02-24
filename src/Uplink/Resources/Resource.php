@@ -78,7 +78,7 @@ abstract class Resource {
 	protected $license;
 
 	/**
-	 * License class.
+	 * Class with a KEY/DATA constant, or path to a PHP file that returns the key.
 	 *
 	 * @since 1.0.0
 	 *
@@ -152,7 +152,7 @@ abstract class Resource {
 	 * @param string      $version       Resource version.
 	 * @param string      $path          Resource path to bootstrap file.
 	 * @param string      $class         Resource class.
-	 * @param string|null $license_class Class that holds the embedded license key.
+	 * @param string|null $license_class Class with a KEY/DATA constant, or path to a PHP file that returns the key.
 	 * @param bool|int    $oauth         Whether the resource uses OAuth, and if so, the OAuth options.
 	 */
 	public function __construct( $slug, $name, $version, $path, $class, string $license_class = null, $oauth = false) {
@@ -472,7 +472,7 @@ abstract class Resource {
 	 * @param string      $path          Resource path to bootstrap file.
 	 * @param string      $version       Resource version.
 	 * @param string      $class         Resource class.
-	 * @param string|null $license_class Class that holds the embedded license key.
+	 * @param string|null $license_class Class with a KEY/DATA constant, or path to a PHP file that returns the key.
 	 * @param bool|int $oauth            Either a boolean or an integer representing whether the resource uses OAuth,
 	 *                                   and if so, the OAuth options.
 	 *
@@ -492,7 +492,7 @@ abstract class Resource {
 	 * @param string      $version        Resource version.
 	 * @param string      $path           Resource path to bootstrap file.
 	 * @param string      $class          Resource class.
-	 * @param string|null $license_class  Class that holds the embedded license key.
+	 * @param string|null $license_class  Class with a KEY/DATA constant, or path to a PHP file that returns the key.
 	 * @param bool|int    $oauth          Either a boolean or an integer representing whether the resource uses OAuth,
 	 *                                    and if so, the OAuth options.
 	 *

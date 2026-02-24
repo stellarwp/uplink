@@ -4,7 +4,7 @@ namespace StellarWP\Uplink\Tests\Features;
 
 use StellarWP\Uplink\Features\API\Client;
 use StellarWP\Uplink\Features\Collection;
-use StellarWP\Uplink\Features\Contracts\Feature_Strategy;
+use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Types\Feature;
@@ -29,7 +29,7 @@ final class ManagerTest extends UplinkTestCase {
 	/**
 	 * The mocked feature strategy.
 	 *
-	 * @var Feature_Strategy
+	 * @var Strategy
 	 */
 	private $mock_strategy;
 
@@ -48,7 +48,7 @@ final class ManagerTest extends UplinkTestCase {
 			'get_features' => $this->collection,
 		] );
 
-		$this->mock_strategy = $this->makeEmpty( Feature_Strategy::class, [
+		$this->mock_strategy = $this->makeEmpty( Strategy::class, [
 			'enable'    => true,
 			'disable'   => true,
 			'is_active' => true,
@@ -229,7 +229,7 @@ final class ManagerTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_enable_does_not_fire_enabled_action_on_failure(): void {
-		$strategy = $this->makeEmpty( Feature_Strategy::class, [
+		$strategy = $this->makeEmpty( Strategy::class, [
 			'enable' => false,
 		] );
 
@@ -261,7 +261,7 @@ final class ManagerTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_disable_does_not_fire_disabled_action_on_failure(): void {
-		$strategy = $this->makeEmpty( Feature_Strategy::class, [
+		$strategy = $this->makeEmpty( Strategy::class, [
 			'disable' => false,
 		] );
 

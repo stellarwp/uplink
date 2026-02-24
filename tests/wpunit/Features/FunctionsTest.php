@@ -4,7 +4,7 @@ namespace StellarWP\Uplink\Tests\Features;
 
 use StellarWP\Uplink\Features\API\Client;
 use StellarWP\Uplink\Features\Collection;
-use StellarWP\Uplink\Features\Contracts\Feature_Strategy;
+use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Types\Feature;
@@ -25,7 +25,7 @@ final class FunctionsTest extends UplinkTestCase {
 		$collection = new Collection();
 		$collection->add( $this->makeEmpty( Feature::class, [ 'get_slug' => 'test-feature' ] ) );
 
-		$mock_strategy = $this->makeEmpty( Feature_Strategy::class, [
+		$mock_strategy = $this->makeEmpty( Strategy::class, [
 			'enable'    => true,
 			'disable'   => true,
 			'is_active' => true,

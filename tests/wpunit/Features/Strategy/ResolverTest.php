@@ -3,7 +3,7 @@
 namespace StellarWP\Uplink\Tests\Features\Strategy;
 
 use InvalidArgumentException;
-use StellarWP\Uplink\Features\Contracts\Feature_Strategy;
+use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Tests\UplinkTestCase;
@@ -34,7 +34,7 @@ final class ResolverTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_resolves_registered_strategy(): void {
-		$mock_strategy = $this->makeEmpty( Feature_Strategy::class );
+		$mock_strategy = $this->makeEmpty( Strategy::class );
 
 		$this->container->bind( get_class( $mock_strategy ), static function () use ( $mock_strategy ) {
 			return $mock_strategy;
@@ -68,7 +68,7 @@ final class ResolverTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_strategy_map_is_filterable(): void {
-		$mock_strategy = $this->makeEmpty( Feature_Strategy::class );
+		$mock_strategy = $this->makeEmpty( Strategy::class );
 
 		$this->container->bind( get_class( $mock_strategy ), static function () use ( $mock_strategy ) {
 			return $mock_strategy;

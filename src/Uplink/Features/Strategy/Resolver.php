@@ -4,11 +4,11 @@ namespace StellarWP\Uplink\Features\Strategy;
 
 use InvalidArgumentException;
 use StellarWP\ContainerContract\ContainerInterface;
-use StellarWP\Uplink\Features\Contracts\Feature_Strategy;
+use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Types\Feature;
 
 /**
- * Maps feature type strings to Feature_Strategy implementations.
+ * Maps feature type strings to Strategy implementations.
  *
  * New types can be added via register() or by filtering the
  * 'stellarwp/uplink/feature_strategy_map' hook.
@@ -31,7 +31,7 @@ class Resolver {
 	 *
 	 * @since TBD
 	 *
-	 * @var array<string, class-string<Feature_Strategy>>
+	 * @var array<string, class-string<Strategy>>
 	 */
 	private array $map = [];
 
@@ -54,7 +54,7 @@ class Resolver {
 	 * @since TBD
 	 *
 	 * @param string                       $type           The feature type identifier (e.g. 'zip', 'built_in').
-	 * @param class-string<Feature_Strategy> $strategy_class The strategy FQCN.
+	 * @param class-string<Strategy> $strategy_class The strategy FQCN.
 	 *
 	 * @return void
 	 */
@@ -74,15 +74,15 @@ class Resolver {
 	 *
 	 * @throws InvalidArgumentException If no strategy is registered for the feature's type.
 	 *
-	 * @return Feature_Strategy
+	 * @return Strategy
 	 */
-	public function resolve( Feature $feature ): Feature_Strategy {
+	public function resolve( Feature $feature ): Strategy {
 		/**
 		 * Filters the feature type to strategy class map.
 		 *
 		 * @since TBD
 		 *
-		 * @param array<string, class-string<Feature_Strategy>> $map The current type map.
+		 * @param array<string, class-string<Strategy>> $map The current type map.
 		 */
 		$map = apply_filters( 'stellarwp/uplink/feature_strategy_map', $this->map );
 

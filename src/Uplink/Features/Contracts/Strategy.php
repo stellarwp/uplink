@@ -10,7 +10,7 @@ use StellarWP\Uplink\Features\Types\Feature;
  *
  * @since TBD
  */
-interface Feature_Strategy {
+interface Strategy {
 
 	/**
 	 * Enables a feature.

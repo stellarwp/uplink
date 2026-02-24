@@ -4,6 +4,7 @@ namespace StellarWP\Uplink\Admin;
 
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
+use StellarWP\Uplink\Features\REST\Loopback_Plugin_Activator;
 use StellarWP\Uplink\Uplink;
 
 class Provider extends Abstract_Provider {
@@ -47,6 +48,7 @@ class Provider extends Abstract_Provider {
 
 		$action = sprintf( 'wp_ajax_pue-validate-key-uplink-%s', Config::get_hook_prefix_underscored() );
 		add_action($action, [ $this, 'ajax_validate_license' ], 10, 0 );
+		add_action( 'rest_api_init', [ Loopback_Plugin_Activator::class, 'register_rest_route' ], 10, 0 );
 		add_action( 'admin_init', [ $this, 'admin_init' ], 10, 0 );
 		add_action( 'admin_menu', [ $this, 'register_unified_plugin_manager_page' ], 20, 0 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'display_plugin_messages' ], 1, 1 );

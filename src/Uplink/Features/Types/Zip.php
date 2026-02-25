@@ -20,7 +20,7 @@ final class Zip extends Feature {
 	 *
 	 * @var string
 	 */
-	protected string $plugin_file;
+	protected $plugin_file;
 
 	/**
 	 * Direct download URL for the plugin ZIP.
@@ -32,7 +32,7 @@ final class Zip extends Feature {
 	 *
 	 * @var string
 	 */
-	protected string $download_url;
+	protected $download_url;
 
 	/**
 	 * Expected plugin authors for ownership verification.
@@ -45,7 +45,7 @@ final class Zip extends Feature {
 	 *
 	 * @var string[]
 	 */
-	protected array $authors;
+	protected $authors;
 
 	/**
 	 * Constructor for a Feature delivered as a standalone WordPress plugin ZIP.

@@ -149,7 +149,7 @@ final class Feature_CollectionTest extends UplinkTestCase {
 	public function test_filter_by_group(): void {
 		$collection = $this->build_collection();
 
-		$filtered = $collection->filter( group: 'TEC' );
+		$filtered = $collection->filter( 'TEC' );
 
 		$this->assertInstanceOf( Feature_Collection::class, $filtered );
 		$this->assertSame( 2, $filtered->count() );
@@ -166,7 +166,7 @@ final class Feature_CollectionTest extends UplinkTestCase {
 	public function test_filter_by_tier(): void {
 		$collection = $this->build_collection();
 
-		$filtered = $collection->filter( tier: 'Tier 1' );
+		$filtered = $collection->filter( null, 'Tier 1' );
 
 		$this->assertSame( 2, $filtered->count() );
 		$this->assertNotNull( $filtered->get( 'tec-feature-1' ) );
@@ -181,7 +181,7 @@ final class Feature_CollectionTest extends UplinkTestCase {
 	public function test_filter_by_available_true(): void {
 		$collection = $this->build_collection();
 
-		$filtered = $collection->filter( available: true );
+		$filtered = $collection->filter( null, null, true );
 
 		$this->assertSame( 2, $filtered->count() );
 		$this->assertNotNull( $filtered->get( 'tec-feature-1' ) );
@@ -196,7 +196,7 @@ final class Feature_CollectionTest extends UplinkTestCase {
 	public function test_filter_by_available_false(): void {
 		$collection = $this->build_collection();
 
-		$filtered = $collection->filter( available: false );
+		$filtered = $collection->filter( null, null, false );
 
 		$this->assertSame( 1, $filtered->count() );
 		$this->assertNotNull( $filtered->get( 'tec-feature-2' ) );
@@ -210,7 +210,7 @@ final class Feature_CollectionTest extends UplinkTestCase {
 	public function test_filter_by_type(): void {
 		$collection = $this->build_collection();
 
-		$filtered = $collection->filter( type: 'zip' );
+		$filtered = $collection->filter( null, null, null, 'zip' );
 
 		$this->assertSame( 1, $filtered->count() );
 		$this->assertNotNull( $filtered->get( 'ld-feature-1' ) );
@@ -224,7 +224,7 @@ final class Feature_CollectionTest extends UplinkTestCase {
 	public function test_filter_by_multiple_criteria(): void {
 		$collection = $this->build_collection();
 
-		$filtered = $collection->filter( group: 'TEC', available: true );
+		$filtered = $collection->filter( 'TEC', null, true );
 
 		$this->assertSame( 1, $filtered->count() );
 		$this->assertNotNull( $filtered->get( 'tec-feature-1' ) );
@@ -251,7 +251,7 @@ final class Feature_CollectionTest extends UplinkTestCase {
 	public function test_filter_with_no_matches_returns_empty(): void {
 		$collection = $this->build_collection();
 
-		$filtered = $collection->filter( group: 'Nonexistent' );
+		$filtered = $collection->filter( 'Nonexistent' );
 
 		$this->assertSame( 0, $filtered->count() );
 	}
@@ -264,7 +264,7 @@ final class Feature_CollectionTest extends UplinkTestCase {
 	public function test_filter_does_not_modify_original(): void {
 		$collection = $this->build_collection();
 
-		$collection->filter( group: 'TEC' );
+		$collection->filter( 'TEC' );
 
 		$this->assertSame( 3, $collection->count() );
 	}

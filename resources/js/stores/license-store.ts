@@ -4,6 +4,7 @@
  * @package StellarWP\Uplink
  */
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { __ } from '@wordpress/i18n';
 import { findLicense } from '@/data/licenses';
 import { PRODUCTS } from '@/data/products';
@@ -52,7 +53,9 @@ interface LicenseStoreState {
 // Store
 // ---------------------------------------------------------------------------
 
-export const useLicenseStore = create<LicenseStoreState>( ( set, get ) => ( {
+export const useLicenseStore = create<LicenseStoreState>()(
+    persist(
+        ( set, get ) => ( {
     activeLicenses: [],
     featureStates: [],
     productEnabled: {},
@@ -200,4 +203,14 @@ export const useLicenseStore = create<LicenseStoreState>( ( set, get ) => ( {
     hasLegacyLicense: () => {
         return get().activeLicenses.some( ( l ) => l.type === 'legacy' );
     },
-} ) );
+        } ),
+        {
+            name: 'stellarwp-uplink-licenses',
+            partialize: ( state ) => ( {
+                activeLicenses: state.activeLicenses,
+                featureStates:  state.featureStates,
+                productEnabled: state.productEnabled,
+            } ),
+        }
+    )
+);

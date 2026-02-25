@@ -4,10 +4,11 @@
  * @package StellarWP\Uplink
  */
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { __ } from '@wordpress/i18n';
 import { findLicense } from '@/data/licenses';
 import { PRODUCTS } from '@/data/products';
+import { licenseStorage } from '@/stores/license-storage';
 import type { License, FeatureState, TierSlug } from '@/types/api';
 
 // ---------------------------------------------------------------------------
@@ -205,8 +206,9 @@ export const useLicenseStore = create<LicenseStoreState>()(
     },
         } ),
         {
-            name: 'stellarwp-uplink-licenses',
-            partialize: ( state ) => ( {
+            name:    'stellarwp-uplink-licenses',
+            storage: createJSONStorage( () => licenseStorage ),
+            partialize: ( state ): Pick<LicenseStoreState, 'activeLicenses' | 'featureStates' | 'productEnabled'> => ( {
                 activeLicenses: state.activeLicenses,
                 featureStates:  state.featureStates,
                 productEnabled: state.productEnabled,

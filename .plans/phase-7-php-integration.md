@@ -5,27 +5,56 @@
 
 ## Summary
 
-Wire the React build output into WordPress by modifying `Plugin_Manager_Page.php` only. Asset registration and enqueuing are handled entirely within that class using the hook suffix returned by `add_menu_page()` — no other PHP files are changed. The existing jQuery-based assets (`key-admin.js`, `main.css`) are left completely untouched. After this phase, navigating to the **LW Software** admin menu item renders the React application.
+Wire the React build output into WordPress by modifying `Feature_Manager_Page.php` only (renamed from `Plugin_Manager_Page.php`). Asset registration and enqueuing are handled entirely within that class using the hook suffix returned by `add_menu_page()` — no other PHP files are changed. The existing jQuery-based assets (`key-admin.js`, `main.css`) are left completely untouched. After this phase, navigating to the **LW Software** admin menu item renders the React application.
 
 ## Files Modified
 
 | File | What changes |
 |---|---|
-| `src/Uplink/Admin/Plugin_Manager_Page.php` | Add `$page_hook` property; update `add_menu_page()` titles/slug + capture return value; add `maybe_enqueue_assets()` + private `enqueue_assets()` methods; replace `render()` body |
+| `src/Uplink/Admin/Plugin_Manager_Page.php` → `Feature_Manager_Page.php` | **Rename file and class** (`Plugin_Manager_Page` → `Feature_Manager_Page`); update docblocks; add `$page_hook` property; update `add_menu_page()` titles/slug + capture return value; add `maybe_enqueue_assets()` + private `enqueue_assets()` methods; replace `render()` body |
+| `src/Uplink/Admin/Provider.php` | Update all references from `Plugin_Manager_Page` to `Feature_Manager_Page`; update docblock |
 
 ## Files That Must NOT Be Modified
 
 - `src/Uplink/Admin/Asset_Manager.php`
-- `src/Uplink/Admin/Provider.php`
 - `src/assets/js/key-admin.js`
 - `src/assets/css/main.css`
 - All other PHP files
 
 ---
 
-## `src/Uplink/Admin/Plugin_Manager_Page.php`
+## `src/Uplink/Admin/Feature_Manager_Page.php`
 
-Four changes in total, all within the same file.
+Five changes in total (including the file/class rename), all within the same file.
+
+### Change 0: Rename file and class
+
+1. Rename `src/Uplink/Admin/Plugin_Manager_Page.php` → `src/Uplink/Admin/Feature_Manager_Page.php`
+2. Inside the file, rename the class declaration and add a class-level docblock:
+
+```php
+// Before:
+class Plugin_Manager_Page {
+
+// After:
+/**
+ * Manages the unified feature manager admin page.
+ *
+ * @since TBD
+ *
+ * @package StellarWP\Uplink
+ */
+class Feature_Manager_Page {
+```
+
+3. Update all `@since 3.0.0` tags inside the class to `@since TBD` — the class is being introduced as `Feature_Manager_Page` for the first time and its version is not yet decided.
+4. Update docblocks that say "unified plugin manager page" → "unified feature manager page".
+5. In `src/Uplink/Admin/Provider.php`, update every reference:
+   - `@since 3.0.0 added Plugin_Manager_Page` → `@since TBD added Feature_Manager_Page`
+   - `Plugin_Manager_Page::class` → `Feature_Manager_Page::class` (two occurrences)
+   - Docblock for `register_unified_plugin_manager_page()`: "unified plugin manager page" → "unified feature manager page"
+
+---
 
 ### Change A: Add `$page_hook` property
 
@@ -36,7 +65,7 @@ Add a private property to store the hook suffix returned by `add_menu_page()`. P
  * Hook suffix returned by add_menu_page().
  * Empty string until the page is registered.
  *
- * @since 3.0.0
+ * @since TBD
  *
  * @var string
  */
@@ -92,13 +121,13 @@ Add this public method after `maybe_register_page()`. It is the `admin_enqueue_s
 
 ```php
 /**
- * Enqueues the React Plugin Manager UI assets only on the lws-plugin-manager page.
+ * Enqueues the React Feature Manager UI assets only on the lws-plugin-manager page.
  *
  * Called on admin_enqueue_scripts. The hook suffix is compared against
  * $this->page_hook — the value returned by add_menu_page() — to ensure
  * the React bundle is loaded only on this specific admin page.
  *
- * @since 3.0.0
+ * @since TBD
  *
  * @param string $hook_suffix Current admin page hook suffix.
  *
@@ -121,7 +150,7 @@ Add this private method after `maybe_enqueue_assets()`. It registers and enqueue
 
 ```php
 /**
- * Registers and enqueues the React Plugin Manager UI JS and CSS.
+ * Registers and enqueues the React Feature Manager UI JS and CSS.
  *
  * Loads from build-dev/ when WP_DEBUG is true (source maps included),
  * from build/ otherwise (minified, no source maps).
@@ -132,7 +161,7 @@ Add this private method after `maybe_enqueue_assets()`. It registers and enqueue
  *   dirname(dirname(__DIR__))             → src
  *   dirname(dirname(dirname(__DIR__)))    → plugin root (uplink/)
  *
- * @since 3.0.0
+ * @since TBD
  *
  * @return void
  */
@@ -194,7 +223,7 @@ Replace with:
 
 ```php
 /**
- * Renders the unified plugin manager page.
+ * Renders the unified feature manager page.
  *
  * Outputs the React application mount point. The React bundle
  * (index.js + index.css) is registered and enqueued by enqueue_assets(),
@@ -203,7 +232,7 @@ Replace with:
  * The .uplink-ui class activates CSS scoping for Tailwind styles,
  * preventing conflicts with WordPress Admin global styles.
  *
- * @since 3.0.0
+ * @since TBD
  *
  * @return void
  */
@@ -243,9 +272,10 @@ This string is what `add_menu_page()` returns. Storing it in `$this->page_hook` 
 
 ## Decisions
 
-- **Self-contained enqueue logic:** Asset registration and enqueuing live entirely in `Plugin_Manager_Page`. No changes are needed to `Asset_Manager.php` or `Provider.php`.
+- **Self-contained enqueue logic:** Asset registration and enqueuing live entirely in `Feature_Manager_Page`. No changes are needed to `Asset_Manager.php` or `Provider.php`.
 - **Hook registered inside `maybe_register_page()`:** The `admin_enqueue_scripts` action is only registered if this Uplink instance wins the version election and registers the page. On sites where `should_render()` returns `false`, the hook never fires.
 - **`$this->page_hook` comparison:** Using the actual return value of `add_menu_page()` is more reliable than hardcoding `'toplevel_page_lws-plugin-manager'`. If the slug ever changes, the comparison stays correct automatically.
+- **Class renamed:** `Plugin_Manager_Page` → `Feature_Manager_Page` (file: `Feature_Manager_Page.php`). The menu slug `lws-plugin-manager` is intentionally kept unchanged to preserve any existing bookmarks or external references to the admin URL.
 - **`wp-element` dependency:** The script is registered with `['wp-element']` — WordPress Core provides React and ReactDOM as `window.wp.element`. `@wordpress/scripts` configures webpack to externalize React to this global, so no duplicate copy of React is bundled.
 - **`null` version:** Passing `null` to `wp_register_script/style` omits the `?ver=` query string. Cache busting for `index.js`/`index.css` is handled at the deployment level.
 - **`uplinkData` localized object:** `restUrl` and `nonce` are passed via `wp_localize_script()`. The TypeScript `Window` augmentation in `resources/js/types/global.d.ts` types `window.uplinkData` for safe consumption in the app.
@@ -263,7 +293,7 @@ This string is what `add_menu_page()` returns. Storing it in `$this->page_hook` 
      <div id="uplink-root" class="uplink-ui">
        <div class="min-h-screen p-8">
          <h1 class="text-2xl font-bold text-foreground">Liquid Web Software</h1>
-         <p class="mt-2 text-muted-foreground">Plugin Manager UI — coming soon.</p>
+         <p class="mt-2 text-muted-foreground">Feature Manager UI — coming soon.</p>
        </div>
      </div>
    </div>

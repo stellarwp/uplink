@@ -64,7 +64,7 @@ bun install
 - `@wordpress/element` is **not** listed as a dependency — `@wordpress/scripts` externalizes it to `window.wp.element` automatically via webpack. Listing it would create a duplicate React instance.
 - `radix-ui` v1 umbrella package is used instead of individual `@radix-ui/*` packages — provides all Radix primitives in a single install without managing multiple package versions.
 - `typescript` goes in `devDependencies` — only used for `tsc --noEmit` at build time.
-- `@wordpress/i18n` is included via `@wordpress/scripts` externals and does not need to be listed separately.
+- `@wordpress/i18n` is included via `@wordpress/scripts` externals and does not need to be listed separately. Import it as `import { __, sprintf } from '@wordpress/i18n'` — use `'%TEXTDOMAIN%'` as the text domain in all `__()` calls to match the PHP convention used throughout this codebase.
 
 ## Verification
 

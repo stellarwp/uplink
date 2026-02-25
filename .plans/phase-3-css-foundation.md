@@ -75,9 +75,9 @@ Create the global CSS file that bootstraps Tailwind v4, defines the full shadcn/
 }
 
 /*
- * CSS scoping: all plugin base styles are scoped under .uplink-ui.
+ * CSS scoping: all feature manager styles are scoped under .uplink-ui.
  *
- * The PHP Plugin_Manager_Page::render() outputs:
+ * The PHP Feature_Manager_Page::render() outputs:
  *   <div class="wrap">
  *     <div id="uplink-root" class="uplink-ui"></div>
  *   </div>

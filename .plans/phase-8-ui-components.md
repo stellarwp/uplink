@@ -9,10 +9,10 @@ Implement the full License Manager Dashboard UI using strict atomic design. The 
 
 ---
 
-## Plugin License States
+## Feature License States
 
 ```typescript
-type PluginLicenseState = 'active' | 'inactive' | 'not_included'
+type FeatureLicenseState = 'active' | 'inactive' | 'not_included'
 ```
 
 | State | Visual | Toggle | Action cell |
@@ -32,7 +32,7 @@ Before implementing, verify the following icon names against `node_modules/@word
 | Used in | Icon name | Verify |
 |---|---|---|
 | `data/brands.ts` | `heart`, `calendar`, `plugins`, `brush` | Check exact exports |
-| `molecules/PluginInfo.tsx` | `lock` | Should exist |
+| `molecules/FeatureInfo.tsx` | `lock` | Should exist |
 | `molecules/LicenseStatusMessage.tsx` | `check`, `warning` | `warning` may be `alert` |
 | `organisms/MasterLicenseForm.tsx` | `shield` | May not exist; check `protect` or `lock` |
 
@@ -45,17 +45,17 @@ resources/js/
   components/
     atoms/
       BrandIcon.tsx
-      PluginToggle.tsx
+      FeatureToggle.tsx
       StatusBadge.tsx
       UpsellAction.tsx
     molecules/
       LicenseStatusMessage.tsx
-      PluginInfo.tsx
-      PluginRow.tsx
+      FeatureInfo.tsx
+      FeatureRow.tsx
     organisms/
       BrandSection.tsx
       MasterLicenseForm.tsx
-      PluginTable.tsx
+      FeatureTable.tsx
     templates/
       LicenseDashboard.tsx
     ui/
@@ -66,7 +66,7 @@ resources/js/
       switch.tsx       ← Phase 5 (shadcn)
   data/
     brands.ts          ← NEW: brand config (icon + color, non-serializable)
-    mock-plugins.json
+    mock-features.json
   lib/
     utils.ts
   types/
@@ -100,6 +100,9 @@ import {
 } from '@wordpress/icons';
 import type { JSX } from '@wordpress/element';
 
+/**
+ * @since TBD
+ */
 export interface BrandConfig {
     /** @wordpress/icons icon element */
     icon: JSX.Element;
@@ -116,6 +119,8 @@ export interface BrandConfig {
  * Icons are the closest available match in @wordpress/icons.
  * Verify all names before implementing (see Icon Name Verification table above).
  * When designs are approved, swap icons in this single file — no component changes needed.
+ *
+ * @since TBD
  */
 export const BRAND_CONFIGS: Record<string, BrandConfig> = {
     givewp: {
@@ -146,33 +151,37 @@ export const BRAND_CONFIGS: Record<string, BrandConfig> = {
 Renders the status pill badge for a plugin row. Handles all three license states.
 
 ```typescript
+import { __ } from '@wordpress/i18n';
 import { cn } from '@/lib/utils';
-import type { PluginLicenseState } from '@/types/api';
+import type { FeatureLicenseState } from '@/types/api';
 
 interface StatusBadgeProps {
-    state: PluginLicenseState;
+    state: FeatureLicenseState;
 }
 
 const STATE_CONFIG: Record<
-    PluginLicenseState,
+    FeatureLicenseState,
     { label: string; badgeClass: string; dotClass?: string }
 > = {
     active: {
-        label: 'Active',
+        label: __( 'Active', '%TEXTDOMAIN%' ),
         badgeClass: 'bg-green-100 text-green-700',
         dotClass: 'bg-green-500',
     },
     inactive: {
-        label: 'Inactive',
+        label: __( 'Inactive', '%TEXTDOMAIN%' ),
         badgeClass: 'bg-slate-100 text-slate-600',
         dotClass: 'bg-slate-400',
     },
     not_included: {
-        label: 'Not Included',
+        label: __( 'Not Included', '%TEXTDOMAIN%' ),
         badgeClass: 'bg-amber-50 text-amber-600',
     },
 };
 
+/**
+ * @since TBD
+ */
 export function StatusBadge( { state }: StatusBadgeProps ) {
     const { label, badgeClass, dotClass } = STATE_CONFIG[ state ];
 
@@ -194,20 +203,24 @@ export function StatusBadge( { state }: StatusBadgeProps ) {
 
 ---
 
-### `resources/js/components/atoms/PluginToggle.tsx`
+### `resources/js/components/atoms/FeatureToggle.tsx`
 
-Wraps the shadcn `Switch` component. Disabled when the plugin is `not_included`.
+Wraps the shadcn `Switch` component. Disabled when the feature is `not_included`.
 
 ```typescript
+import { __ } from '@wordpress/i18n';
 import { Switch } from '@/components/ui/switch';
-import type { PluginLicenseState } from '@/types/api';
+import type { FeatureLicenseState } from '@/types/api';
 
-interface PluginToggleProps {
-    state: PluginLicenseState;
+interface FeatureToggleProps {
+    state: FeatureLicenseState;
     onToggle: ( checked: boolean ) => void;
 }
 
-export function PluginToggle( { state, onToggle }: PluginToggleProps ) {
+/**
+ * @since TBD
+ */
+export function FeatureToggle( { state, onToggle }: FeatureToggleProps ) {
     const isLocked = state === 'not_included';
     const isChecked = state === 'active';
 
@@ -218,10 +231,10 @@ export function PluginToggle( { state, onToggle }: PluginToggleProps ) {
             disabled={ isLocked }
             aria-label={
                 isLocked
-                    ? 'Plugin not included in your plan'
+                    ? __( 'Feature not included in your plan', '%TEXTDOMAIN%' )
                     : isChecked
-                      ? 'Deactivate plugin'
-                      : 'Activate plugin'
+                      ? __( 'Deactivate feature', '%TEXTDOMAIN%' )
+                      : __( 'Activate feature', '%TEXTDOMAIN%' )
             }
         />
     );
@@ -232,24 +245,29 @@ export function PluginToggle( { state, onToggle }: PluginToggleProps ) {
 
 ### `resources/js/components/atoms/UpsellAction.tsx`
 
-The "Buy Now" button shown in the Action column for `not_included` plugins.
+The "Buy Now" button shown in the Action column for `not_included` features.
 
 ```typescript
+import { __, sprintf } from '@wordpress/i18n';
+
 interface UpsellActionProps {
-    pluginName: string;
+    featureName: string;
     upgradeUrl: string;
 }
 
-export function UpsellAction( { pluginName, upgradeUrl }: UpsellActionProps ) {
+/**
+ * @since TBD
+ */
+export function UpsellAction( { featureName, upgradeUrl }: UpsellActionProps ) {
     return (
         <a
             href={ upgradeUrl }
             target="_blank"
             rel="noopener noreferrer"
             className="bg-primary/10 hover:bg-primary/20 text-primary px-3 py-1.5 rounded text-xs font-semibold transition-colors"
-            aria-label={ `Buy license for ${ pluginName }` }
+            aria-label={ sprintf( __( 'Buy license for %s', '%TEXTDOMAIN%' ), featureName ) }
         >
-            Buy Now
+            { __( 'Buy Now', '%TEXTDOMAIN%' ) }
         </a>
     );
 }
@@ -273,6 +291,9 @@ interface BrandIconProps {
     colorClass: string;
 }
 
+/**
+ * @since TBD
+ */
 export function BrandIcon( { icon, colorClass }: BrandIconProps ) {
     return (
         <div
@@ -291,22 +312,25 @@ export function BrandIcon( { icon, colorClass }: BrandIconProps ) {
 
 ## Step 3: Molecules
 
-### `resources/js/components/molecules/PluginInfo.tsx`
+### `resources/js/components/molecules/FeatureInfo.tsx`
 
-Plugin name + description cell. Shows a lock icon and muted colors when the plugin is `not_included`.
+Feature name + description cell. Shows a lock icon and muted colors when the feature is `not_included`.
 
 ```typescript
 import { Icon, lock } from '@wordpress/icons';
 import { cn } from '@/lib/utils';
-import type { PluginLicenseState } from '@/types/api';
+import type { FeatureLicenseState } from '@/types/api';
 
-interface PluginInfoProps {
+interface FeatureInfoProps {
     name: string;
     description: string;
-    state: PluginLicenseState;
+    state: FeatureLicenseState;
 }
 
-export function PluginInfo( { name, description, state }: PluginInfoProps ) {
+/**
+ * @since TBD
+ */
+export function FeatureInfo( { name, description, state }: FeatureInfoProps ) {
     const isLocked = state === 'not_included';
 
     return (
@@ -343,25 +367,28 @@ export function PluginInfo( { name, description, state }: PluginInfoProps ) {
 
 ---
 
-### `resources/js/components/molecules/PluginRow.tsx`
+### `resources/js/components/molecules/FeatureRow.tsx`
 
-A single table row. Composes `PluginInfo`, `StatusBadge`, `PluginToggle`, and `UpsellAction` based on the plugin's `licenseState`.
+A single table row. Composes `FeatureInfo`, `StatusBadge`, `FeatureToggle`, and `UpsellAction` based on the feature's `licenseState`.
 
 ```typescript
 import { cn } from '@/lib/utils';
-import { PluginInfo } from '@/components/molecules/PluginInfo';
+import { FeatureInfo } from '@/components/molecules/FeatureInfo';
 import { StatusBadge } from '@/components/atoms/StatusBadge';
-import { PluginToggle } from '@/components/atoms/PluginToggle';
+import { FeatureToggle } from '@/components/atoms/FeatureToggle';
 import { UpsellAction } from '@/components/atoms/UpsellAction';
-import type { Plugin } from '@/types/api';
+import type { Feature } from '@/types/api';
 
-interface PluginRowProps {
-    plugin: Plugin;
+interface FeatureRowProps {
+    feature: Feature;
     onToggle: ( slug: string, checked: boolean ) => void;
 }
 
-export function PluginRow( { plugin, onToggle }: PluginRowProps ) {
-    const isLocked = plugin.licenseState === 'not_included';
+/**
+ * @since TBD
+ */
+export function FeatureRow( { feature, onToggle }: FeatureRowProps ) {
+    const isLocked = feature.licenseState === 'not_included';
 
     return (
         <tr
@@ -373,31 +400,31 @@ export function PluginRow( { plugin, onToggle }: PluginRowProps ) {
             ) }
         >
             <td className="px-6 py-4">
-                <PluginInfo
-                    name={ plugin.name }
-                    description={ plugin.description }
-                    state={ plugin.licenseState }
+                <FeatureInfo
+                    name={ feature.name }
+                    description={ feature.description }
+                    state={ feature.licenseState }
                 />
             </td>
 
             <td className="px-6 py-4 text-sm text-slate-600">
-                { isLocked || ! plugin.version ? '–' : `v${ plugin.version }` }
+                { isLocked || ! feature.version ? '–' : `v${ feature.version }` }
             </td>
 
             <td className="px-6 py-4">
-                <StatusBadge state={ plugin.licenseState } />
+                <StatusBadge state={ feature.licenseState } />
             </td>
 
             <td className="px-6 py-4 text-right">
                 { isLocked ? (
                     <UpsellAction
-                        pluginName={ plugin.name }
-                        upgradeUrl={ plugin.upgradeUrl ?? '#' }
+                        featureName={ feature.name }
+                        upgradeUrl={ feature.upgradeUrl ?? '#' }
                     />
                 ) : (
-                    <PluginToggle
-                        state={ plugin.licenseState }
-                        onToggle={ ( checked ) => onToggle( plugin.slug, checked ) }
+                    <FeatureToggle
+                        state={ feature.licenseState }
+                        onToggle={ ( checked ) => onToggle( feature.slug, checked ) }
                     />
                 ) }
             </td>
@@ -406,7 +433,7 @@ export function PluginRow( { plugin, onToggle }: PluginRowProps ) {
 }
 ```
 
-> The version cell renders `–` when `plugin.version` is empty — covers both `not_included` plugins and `inactive` plugins not yet installed (`downloadUrl` present).
+> The version cell renders `–` when `feature.version` is empty — covers both `not_included` features and `inactive` features not yet installed (`downloadUrl` present).
 
 ---
 
@@ -418,6 +445,7 @@ The status line shown below the license form inputs (success/error/idle).
 import { Icon, check, warning } from '@wordpress/icons';
 import { cn } from '@/lib/utils';
 
+/** @since TBD */
 export type LicenseMessageType = 'success' | 'error' | 'idle';
 
 interface LicenseStatusMessageProps {
@@ -425,6 +453,9 @@ interface LicenseStatusMessageProps {
     message: string;
 }
 
+/**
+ * @since TBD
+ */
 export function LicenseStatusMessage( { type, message }: LicenseStatusMessageProps ) {
     if ( type === 'idle' ) {
         return null;
@@ -457,6 +488,7 @@ export function LicenseStatusMessage( { type, message }: LicenseStatusMessagePro
 The license key card with inputs, Activate/Deactivate buttons, and the status message below. Uses shadcn `Card` for the card-styled container.
 
 ```typescript
+import { __, sprintf } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
 import { Icon, shield } from '@wordpress/icons';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -472,6 +504,9 @@ interface MasterLicenseFormProps {
     onDeactivate: () => void;
 }
 
+/**
+ * @since TBD
+ */
 export function MasterLicenseForm( {
     license,
     onActivate,
@@ -489,11 +524,11 @@ export function MasterLicenseForm( {
 
     const statusMessage =
         license.status === 'active'
-            ? `Master license active. Expires on ${ license.expires }.`
+            ? sprintf( __( 'Master license active. Expires on %s.', '%TEXTDOMAIN%' ), license.expires )
             : license.status === 'expired'
-              ? 'Your license has expired. Please renew to continue receiving updates.'
+              ? __( 'Your license has expired. Please renew to continue receiving updates.', '%TEXTDOMAIN%' )
               : license.status === 'invalid'
-                ? 'License key is invalid. Please check the key and try again.'
+                ? __( 'License key is invalid. Please check the key and try again.', '%TEXTDOMAIN%' )
                 : '';
 
     return (
@@ -501,13 +536,15 @@ export function MasterLicenseForm( {
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
                     <Icon icon={ shield } size={ 20 } className="text-primary" />
-                    Master License Key
+                    { __( 'Master License Key', '%TEXTDOMAIN%' ) }
                 </CardTitle>
             </CardHeader>
             <CardContent>
                 <div className="flex flex-col md:flex-row items-end gap-4">
                     <div className="flex flex-col w-full md:flex-1 gap-1.5">
-                        <Label htmlFor="license-key">License Key</Label>
+                        <Label htmlFor="license-key">
+                            { __( 'License Key', '%TEXTDOMAIN%' ) }
+                        </Label>
                         <Input
                             id="license-key"
                             placeholder="XXXX-XXXX-XXXX-XXXX"
@@ -517,7 +554,9 @@ export function MasterLicenseForm( {
                     </div>
 
                     <div className="flex flex-col w-full md:flex-1 gap-1.5">
-                        <Label htmlFor="license-email">Registered Email</Label>
+                        <Label htmlFor="license-email">
+                            { __( 'Registered Email', '%TEXTDOMAIN%' ) }
+                        </Label>
                         <Input
                             id="license-email"
                             type="email"
@@ -529,10 +568,10 @@ export function MasterLicenseForm( {
 
                     <div className="flex gap-2 w-full md:w-auto shrink-0">
                         <Button onClick={ () => onActivate( key, email ) }>
-                            Activate
+                            { __( 'Activate', '%TEXTDOMAIN%' ) }
                         </Button>
                         <Button variant="outline" onClick={ onDeactivate }>
-                            Deactivate
+                            { __( 'Deactivate', '%TEXTDOMAIN%' ) }
                         </Button>
                     </div>
                 </div>
@@ -546,45 +585,49 @@ export function MasterLicenseForm( {
 
 ---
 
-### `resources/js/components/organisms/PluginTable.tsx`
+### `resources/js/components/organisms/FeatureTable.tsx`
 
-The plugin table. Uses shadcn `Card` with `overflow-hidden p-0` to get the card styling (border, rounded corners, shadow) while letting the table fill the full width without inner padding.
+The feature table. Uses shadcn `Card` with `overflow-hidden p-0` to get the card styling (border, rounded corners, shadow) while letting the table fill the full width without inner padding.
 
 ```typescript
+import { __ } from '@wordpress/i18n';
 import { Card } from '@/components/ui/card';
-import { PluginRow } from '@/components/molecules/PluginRow';
-import type { Plugin } from '@/types/api';
+import { FeatureRow } from '@/components/molecules/FeatureRow';
+import type { Feature } from '@/types/api';
 
-interface PluginTableProps {
-    plugins: Plugin[];
+interface FeatureTableProps {
+    features: Feature[];
     onToggle: ( slug: string, checked: boolean ) => void;
 }
 
-export function PluginTable( { plugins, onToggle }: PluginTableProps ) {
+/**
+ * @since TBD
+ */
+export function FeatureTable( { features, onToggle }: FeatureTableProps ) {
     return (
         <Card className="overflow-hidden p-0">
             <table className="w-full text-left text-sm">
                 <thead className="bg-slate-50 border-b border-slate-200">
                     <tr>
                         <th className="px-6 py-3 font-medium text-slate-600">
-                            Plugin Name
+                            { __( 'Feature', '%TEXTDOMAIN%' ) }
                         </th>
                         <th className="px-6 py-3 font-medium text-slate-600 w-32">
-                            Version
+                            { __( 'Version', '%TEXTDOMAIN%' ) }
                         </th>
                         <th className="px-6 py-3 font-medium text-slate-600 w-40">
-                            Status
+                            { __( 'Status', '%TEXTDOMAIN%' ) }
                         </th>
                         <th className="px-6 py-3 font-medium text-slate-600 text-right w-32">
-                            Action
+                            { __( 'Action', '%TEXTDOMAIN%' ) }
                         </th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200">
-                    { plugins.map( ( plugin ) => (
-                        <PluginRow
-                            key={ plugin.slug }
-                            plugin={ plugin }
+                    { features.map( ( feature ) => (
+                        <FeatureRow
+                            key={ feature.slug }
+                            feature={ feature }
                             onToggle={ onToggle }
                         />
                     ) ) }
@@ -604,8 +647,9 @@ export function PluginTable( { plugins, onToggle }: PluginTableProps ) {
 Brand header (icon + name + tagline + active count) above a `PluginTable`. Uses `BRAND_CONFIGS` to resolve the icon and color for a brand slug.
 
 ```typescript
+import { __, sprintf } from '@wordpress/i18n';
 import { BrandIcon } from '@/components/atoms/BrandIcon';
-import { PluginTable } from '@/components/organisms/PluginTable';
+import { FeatureTable } from '@/components/organisms/FeatureTable';
 import { BRAND_CONFIGS } from '@/data/brands';
 import type { Brand } from '@/types/api';
 
@@ -614,9 +658,12 @@ interface BrandSectionProps {
     onToggle: ( slug: string, checked: boolean ) => void;
 }
 
+/**
+ * @since TBD
+ */
 export function BrandSection( { brand, onToggle }: BrandSectionProps ) {
     const config = BRAND_CONFIGS[ brand.slug ];
-    const activeCount = brand.plugins.filter(
+    const activeCount = brand.features.filter(
         ( p ) => p.licenseState === 'active'
     ).length;
 
@@ -639,11 +686,11 @@ export function BrandSection( { brand, onToggle }: BrandSectionProps ) {
                 </div>
 
                 <span className="bg-slate-100 text-slate-600 text-xs px-2 py-1 rounded shrink-0">
-                    { activeCount } Active
+                    { sprintf( __( '%d Active', '%TEXTDOMAIN%' ), activeCount ) }
                 </span>
             </div>
 
-            <PluginTable plugins={ brand.plugins } onToggle={ onToggle } />
+            <FeatureTable features={ brand.features } onToggle={ onToggle } />
         </div>
     );
 }
@@ -658,19 +705,23 @@ export function BrandSection( { brand, onToggle }: BrandSectionProps ) {
 Composes the page header, `MasterLicenseForm`, and the list of `BrandSection` components. Owns the top-level event handlers (stubs for now, wired to the REST API in a future phase).
 
 ```typescript
+import { __ } from '@wordpress/i18n';
 import { MasterLicenseForm } from '@/components/organisms/MasterLicenseForm';
 import { BrandSection } from '@/components/organisms/BrandSection';
 import type { DashboardData } from '@/types/api';
-import mockData from '@/data/mock-plugins.json';
+import mockData from '@/data/mock-features.json';
 
+/**
+ * @since TBD
+ */
 export function LicenseDashboard() {
     // TODO: Replace with useQuery hook when REST API is ready.
     const data = mockData as DashboardData;
 
     function handleToggle( slug: string, checked: boolean ) {
         // TODO: POST /wp-json/uplink/v1/plugins/{slug}/toggle
-        // If the plugin has a downloadUrl, the REST API installs it first, then activates.
-        console.log( 'Toggle plugin:', slug, checked );
+        // If the feature has a downloadUrl, the REST API installs it first, then activates.
+        console.log( 'Toggle feature:', slug, checked );
     }
 
     function handleActivate( key: string, email: string ) {
@@ -688,12 +739,10 @@ export function LicenseDashboard() {
             {/* Page Header */}
             <div className="flex flex-col gap-2">
                 <h1 className="text-3xl font-light text-slate-800">
-                    License Management
+                    { __( 'License Management', '%TEXTDOMAIN%' ) }
                 </h1>
                 <p className="text-slate-600 text-base max-w-3xl">
-                    Manage your premium plugin licenses across all brands.
-                    Enter your master license key below to unlock features for
-                    GiveWP, The Events Calendar, LearnDash, and Kadence.
+                    { __( 'Manage your premium feature licenses across all brands. Enter your master license key below to unlock features for GiveWP, The Events Calendar, LearnDash, and Kadence.', '%TEXTDOMAIN%' ) }
                 </p>
             </div>
 
@@ -741,10 +790,10 @@ export const App: FC = () => {
 - **`@wordpress/icons` for icons** — zero bundle cost (externalized), no install needed. Brand icon mappings are isolated to `data/brands.ts` so a future icon library swap touches one file only.
 - **`BrandConfig` in `data/brands.ts` (not in JSON)** — JSX elements cannot be serialized to JSON. Brand slugs in the mock data JSON map to configs in the TypeScript constants file at render time.
 - **shadcn `Card` for card-styled containers** — `MasterLicenseForm` uses `Card`/`CardHeader`/`CardContent`. `PluginTable` uses `Card` with `overflow-hidden p-0` to get card styling (border, shadow, rounded corners) without inner padding. `tailwind-merge` inside `cn()` correctly resolves the `p-0` override of Card's default `py-6`.
-- **`PluginToggle` derives `checked` from `state`** — the toggle does not manage its own boolean state. `checked` is always derived from `licenseState` (`active` = true, anything else = false). This keeps the toggle purely controlled by the data layer.
+- **`FeatureToggle` derives `checked` from `state`** — the toggle does not manage its own boolean state. `checked` is always derived from `licenseState` (`active` = true, anything else = false). This keeps the toggle purely controlled by the data layer.
 - **`LicenseStatusMessage` returns `null` when `idle`** — avoids rendering an empty element. The parent `MasterLicenseForm` does not need to conditionally include it.
-- **`onToggle` callback signature is `(slug, checked)`** — the slug is passed up so the parent (`LicenseDashboard`) can identify which plugin to update when the REST API is wired. The REST API determines whether to install (using `downloadUrl`) or just activate based on the plugin's server-side state.
-- **Version cell renders `–` for empty `version`** — covers both `not_included` plugins and `inactive` plugins not yet installed (`downloadUrl` present). The expression `isLocked || ! plugin.version` handles both cases.
+- **`onToggle` callback signature is `(slug, checked)`** — the slug is passed up so the parent (`LicenseDashboard`) can identify which feature to update when the REST API is wired. The REST API determines whether to install (using `downloadUrl`) or just activate based on the feature's server-side state.
+- **Version cell renders `–` for empty `version`** — covers both `not_included` features and `inactive` features not yet installed (`downloadUrl` present). The expression `isLocked || ! feature.version` handles both cases.
 - **`upgradeUrl` defaults to `'#'` in `UpsellAction`** — prevents broken `href` attributes while mock data is in use. Real URLs come from the REST API.
 
 ---
@@ -762,10 +811,10 @@ In WordPress Admin → **LW Software**:
 2. Master License Form renders as a Card: two inputs pre-filled from mock data, Activate + Deactivate buttons, green status message
 3. Four brand sections render in order: GiveWP → The Events Calendar → LearnDash → Kadence WP
 4. Each brand shows its colored icon square, name, tagline, and active count badge
-5. Active plugins: green badge, blue toggle (on), version shown
-6. Inactive plugins (installed, no `downloadUrl`): gray badge, gray toggle (off), version shown
-7. Inactive plugins (not installed, `downloadUrl` present): gray badge, gray toggle (off), version shows `–`
-8. `not_included` plugins: amber "Not Included" badge, lock icon, dimmed text, "Buy Now" link, no toggle, version shows `–`
-9. Each plugin table renders inside a Card with rounded corners and border
+5. Active features: green badge, blue toggle (on), version shown
+6. Inactive features (installed, no `downloadUrl`): gray badge, gray toggle (off), version shown
+7. Inactive features (not installed, `downloadUrl` present): gray badge, gray toggle (off), version shows `–`
+8. `not_included` features: amber "Not Included" badge, lock icon, dimmed text, "Buy Now" link, no toggle, version shows `–`
+9. Each feature table renders inside a Card with rounded corners and border
 10. Clicking a toggle logs to the browser console (REST API not yet wired)
 11. Clicking "Buy Now" opens `#` (placeholder URL)

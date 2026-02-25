@@ -10,7 +10,7 @@ class Provider extends Abstract_Provider {
 	/**
 	 * Register the service provider.
 	 *
-     * @since 3.0.0 added Plugin_Manager_Page
+     * @since TBD added Feature_Manager_Page
 	 * @since 1.0.0
 	 *
 	 * @return void
@@ -23,7 +23,7 @@ class Provider extends Abstract_Provider {
 		$this->container->singleton( Package_Handler::class, Package_Handler::class );
 		$this->container->singleton( Update_Prevention::class, Update_Prevention::class );
 		$this->container->singleton( Group::class, Group::class );
-		$this->container->singleton( Plugin_Manager_Page::class, Plugin_Manager_Page::class );
+		$this->container->singleton( Feature_Manager_Page::class, Feature_Manager_Page::class );
 		$this->container->singleton( Asset_Manager::class, static function ( $c ) {
 			return new Asset_Manager( $c->get( Uplink::UPLINK_ASSETS_URI ) );
 		} );
@@ -56,15 +56,15 @@ class Provider extends Abstract_Provider {
 	}
 
 	/**
-	 * Registers the unified plugin manager page if this instance
+	 * Registers the unified feature manager page if this instance
 	 * has the highest Uplink version among all active instances.
 	 *
-	 * @since 3.0.0
+	 * @since TBD
 	 *
 	 * @return void
 	 */
 	public function register_unified_plugin_manager_page(): void {
-		$this->container->get( Plugin_Manager_Page::class )->maybe_register_page();
+		$this->container->get( Feature_Manager_Page::class )->maybe_register_page();
 	}
 
 	/**

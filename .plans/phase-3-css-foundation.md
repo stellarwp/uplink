@@ -1,0 +1,117 @@
+# Phase 3: CSS Foundation
+
+**Status:** Pending
+**Ticket:** SCON-26
+
+## Summary
+
+Create the global CSS file that bootstraps Tailwind v4, defines the full shadcn/ui zinc color palette using OKLCH color space, and scopes all plugin styles under the `.uplink-ui` wrapper class to prevent conflicts with WordPress Admin styles.
+
+## Files Created
+
+- `resources/css/globals.css` — Tailwind v4 import, CSS design tokens, `.uplink-ui` scope
+
+## `resources/css/globals.css`
+
+```css
+@import "tailwindcss";
+
+/*
+ * Map Tailwind v4 color utilities to CSS variables.
+ * @theme inline is the Tailwind v4 mechanism for declaring design tokens
+ * that map to utility classes (e.g. bg-primary, text-foreground).
+ * Without this block, color utilities like bg-primary would not resolve.
+ */
+@theme inline {
+    --color-background:           var(--background);
+    --color-foreground:           var(--foreground);
+    --color-card:                 var(--card);
+    --color-card-foreground:      var(--card-foreground);
+    --color-popover:              var(--popover);
+    --color-popover-foreground:   var(--popover-foreground);
+    --color-primary:              var(--primary);
+    --color-primary-foreground:   var(--primary-foreground);
+    --color-secondary:            var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted:                var(--muted);
+    --color-muted-foreground:     var(--muted-foreground);
+    --color-accent:               var(--accent);
+    --color-accent-foreground:    var(--accent-foreground);
+    --color-destructive:          var(--destructive);
+    --color-border:               var(--border);
+    --color-input:                var(--input);
+    --color-ring:                 var(--ring);
+    --radius-sm:  calc(var(--radius) - 4px);
+    --radius-md:  calc(var(--radius) - 2px);
+    --radius-lg:  var(--radius);
+    --radius-xl:  calc(var(--radius) + 4px);
+}
+
+/*
+ * Light mode — zinc palette in OKLCH color space.
+ * OKLCH is perceptually uniform and produces better results than HSL
+ * when generating tints/shades and dark mode variants.
+ */
+:root {
+    --background:           oklch(1 0 0);
+    --foreground:           oklch(0.141 0.005 285.823);
+    --card:                 oklch(1 0 0);
+    --card-foreground:      oklch(0.141 0.005 285.823);
+    --popover:              oklch(1 0 0);
+    --popover-foreground:   oklch(0.141 0.005 285.823);
+    --primary:              oklch(0.141 0.005 285.823);
+    --primary-foreground:   oklch(0.985 0 0);
+    --secondary:            oklch(0.967 0.001 286.375);
+    --secondary-foreground: oklch(0.141 0.005 285.823);
+    --muted:                oklch(0.967 0.001 286.375);
+    --muted-foreground:     oklch(0.552 0.016 285.938);
+    --accent:               oklch(0.967 0.001 286.375);
+    --accent-foreground:    oklch(0.141 0.005 285.823);
+    --destructive:          oklch(0.577 0.245 27.325);
+    --border:               oklch(0.92 0.004 286.32);
+    --input:                oklch(0.92 0.004 286.32);
+    --ring:                 oklch(0.141 0.005 285.823);
+    --radius:               0.5rem;
+}
+
+/*
+ * CSS scoping: all plugin base styles are scoped under .uplink-ui.
+ *
+ * The PHP Plugin_Manager_Page::render() outputs:
+ *   <div class="wrap">
+ *     <div id="uplink-root" class="uplink-ui"></div>
+ *   </div>
+ *
+ * This means:
+ * - Tailwind's box-sizing and border resets only apply inside #uplink-root
+ * - WordPress Admin body/font styles cannot leak into the React app
+ * - The React app's bg-background / text-foreground cannot leak into WP Admin
+ */
+.uplink-ui {
+    @layer base {
+        *,
+        *::before,
+        *::after {
+            @apply border-border box-border;
+        }
+
+        & {
+            @apply bg-background text-foreground;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.5;
+        }
+    }
+}
+```
+
+## Decisions
+
+- **Tailwind v4** uses `@import "tailwindcss"` instead of `@tailwind base/components/utilities` directives. There is no `tailwind.config.js` — all configuration lives in CSS.
+- **OKLCH color space** produces more perceptually consistent colors than HSL. The zinc palette values are sourced from the shadcn/ui zinc theme.
+- **`.uplink-ui` scoping** prevents Tailwind's global resets (especially `box-sizing` and `border-color`) from breaking WP Admin's own UI outside the plugin page.
+- **Dark mode is intentionally omitted** from this initial phase. WP Admin has its own dark mode system; dark mode support for the React app can be added in a later phase if needed.
+- **No sidebar color tokens** — the Plugin Manager page has no sidebar component, so the sidebar color set used by some admin UIs is omitted to keep the token surface minimal.
+
+## Note on shadcn CLI Interaction
+
+When Phase 5 runs `bunx --bun shadcn@latest add button`, the CLI may inject additional CSS variable declarations into this file. After running the CLI, review the diff and remove any variables that are already declared above.

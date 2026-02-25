@@ -264,7 +264,7 @@ class Manager {
 	 *
 	 * @return Feature|null
 	 */
-	private function get_feature( string $slug ): ?Feature {
+	public function get_feature( string $slug ): ?Feature {
 		$features = $this->client->get_features();
 
 		if ( is_wp_error( $features ) ) {

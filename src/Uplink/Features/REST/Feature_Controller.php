@@ -201,15 +201,24 @@ class Feature_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function enable( WP_REST_Request $request ) {
-		$slug   = $request->get_param( 'slug' );
+		$slug    = $request->get_param( 'slug' );
+		$feature = $this->manager->get_feature( $slug );
+
+		if ( ! $feature ) {
+			return new WP_Error(
+				Error_Code::FEATURE_NOT_FOUND,
+				sprintf( 'Feature "%s" not found.', $slug ),
+				[ 'status' => 404 ]
+			);
+		}
+
 		$result = $this->manager->enable( $slug );
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
 
-		return new WP_REST_Response( [
-			'slug'    => $slug,
+		return new WP_REST_Response( $feature->to_array() + [
 			'enabled' => true,
 		] );
 	}
@@ -224,15 +233,24 @@ class Feature_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function disable( WP_REST_Request $request ) {
-		$slug   = $request->get_param( 'slug' );
+		$slug    = $request->get_param( 'slug' );
+		$feature = $this->manager->get_feature( $slug );
+
+		if ( ! $feature ) {
+			return new WP_Error(
+				Error_Code::FEATURE_NOT_FOUND,
+				sprintf( 'Feature "%s" not found.', $slug ),
+				[ 'status' => 404 ]
+			);
+		}
+
 		$result = $this->manager->disable( $slug );
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
 
-		return new WP_REST_Response( [
-			'slug'    => $slug,
+		return new WP_REST_Response( $feature->to_array() + [
 			'enabled' => false,
 		] );
 	}

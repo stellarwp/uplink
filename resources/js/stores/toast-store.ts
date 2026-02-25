@@ -1,6 +1,8 @@
 /**
  * Zustand store for toast notifications.
+ * Replaced by `context/toast-context.tsx` (React Context + useState) when Zustand is removed.
  *
+ * @see .plans/rest-api-react-query-migration.md for the full migration checklist.
  * @package StellarWP\Uplink
  */
 import { create } from 'zustand';

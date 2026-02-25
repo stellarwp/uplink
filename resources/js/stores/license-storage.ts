@@ -1,13 +1,8 @@
 /**
  * Storage adapter for the Zustand persist middleware.
+ * Deleted when the persist middleware is removed from license-store.ts.
  *
- * Wraps localStorage so the persist middleware can be swapped for the REST API
- * without touching the store. This file exists only while the mock persistence
- * layer is in use.
- *
- * @TODO (step 6): Delete this entire file once the `persist` middleware has been
- *                 removed from `stores/license-store.ts`. No other file imports it.
- *
+ * @see .plans/rest-api-react-query-migration.md for the full migration checklist.
  * @package StellarWP\Uplink
  */
 export const licenseStorage = {

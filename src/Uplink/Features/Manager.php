@@ -80,22 +80,22 @@ class Manager {
 		 *
 		 * @since 3.0.0
 		 *
-		 * @param Feature $feature The feature being enabled.
+		 * @param array<string, mixed> $feature The feature being enabled.
 		 *
 		 * @return void
 		 */
-		do_action( 'stellarwp/uplink/feature_enabling', $feature );
+		do_action( 'stellarwp/uplink/feature_enabling', $feature->to_array() );
 
 		/**
 		 * Fires before a specific feature is enabled.
 		 *
 		 * @since 3.0.0
 		 *
-		 * @param Feature $feature The feature being enabled.
+		 * @param array<string, mixed> $feature The feature being enabled.
 		 *
 		 * @return void
 		 */
-		do_action( "stellarwp/uplink/{$slug}/feature_enabling", $feature );
+		do_action( "stellarwp/uplink/{$slug}/feature_enabling", $feature->to_array() );
 
 		$result = $strategy->enable( $feature );
 
@@ -108,22 +108,22 @@ class Manager {
 		 *
 		 * @since 3.0.0
 		 *
-		 * @param Feature $feature The feature that was enabled.
+		 * @param array<string, mixed> $feature The feature that was enabled.
 		 *
 		 * @return void
 		 */
-		do_action( 'stellarwp/uplink/feature_enabled', $feature );
+		do_action( 'stellarwp/uplink/feature_enabled', $feature->to_array() );
 
 		/**
 		 * Fires after a specific feature has been successfully enabled.
 		 *
 		 * @since 3.0.0
 		 *
-		 * @param Feature $feature The feature that was enabled.
+		 * @param array<string, mixed> $feature The feature that was enabled.
 		 *
 		 * @return void
 		 */
-		do_action( "stellarwp/uplink/{$slug}/feature_enabled", $feature );
+		do_action( "stellarwp/uplink/{$slug}/feature_enabled", $feature->to_array() );
 
 		return true;
 	}
@@ -157,22 +157,22 @@ class Manager {
 		 *
 		 * @since 3.0.0
 		 *
-		 * @param Feature $feature The feature being disabled.
+		 * @param array<string, mixed> $feature The feature being disabled.
 		 *
 		 * @return void
 		 */
-		do_action( 'stellarwp/uplink/feature_disabling', $feature );
+		do_action( 'stellarwp/uplink/feature_disabling', $feature->to_array() );
 
 		/**
 		 * Fires before a specific feature is disabled.
 		 *
 		 * @since 3.0.0
 		 *
-		 * @param Feature $feature The feature being disabled.
+		 * @param array<string, mixed> $feature The feature being disabled.
 		 *
 		 * @return void
 		 */
-		do_action( "stellarwp/uplink/{$slug}/feature_disabling", $feature );
+		do_action( "stellarwp/uplink/{$slug}/feature_disabling", $feature->to_array() );
 
 		$result = $strategy->disable( $feature );
 
@@ -185,22 +185,22 @@ class Manager {
 		 *
 		 * @since 3.0.0
 		 *
-		 * @param Feature $feature The feature that was disabled.
+		 * @param array<string, mixed> $feature The feature that was disabled.
 		 *
 		 * @return void
 		 */
-		do_action( 'stellarwp/uplink/feature_disabled', $feature );
+		do_action( 'stellarwp/uplink/feature_disabled', $feature->to_array() );
 
 		/**
 		 * Fires after a specific feature has been successfully disabled.
 		 *
 		 * @since 3.0.0
 		 *
-		 * @param Feature $feature The feature that was disabled.
+		 * @param array<string, mixed> $feature The feature that was disabled.
 		 *
 		 * @return void
 		 */
-		do_action( "stellarwp/uplink/{$slug}/feature_disabled", $feature );
+		do_action( "stellarwp/uplink/{$slug}/feature_disabled", $feature->to_array() );
 
 		return true;
 	}

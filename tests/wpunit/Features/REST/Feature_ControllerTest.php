@@ -495,6 +495,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$schema     = $controller->get_item_schema();
 
 		$this->assertArrayHasKey( 'properties', $schema );
+		$this->assertTrue( $schema['additionalProperties'], 'Schema should allow additional properties for type-specific fields.' );
 
 		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation', 'enabled' ];
 
@@ -506,17 +507,22 @@ final class Feature_ControllerTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Tests that the toggle schema contains only slug and enabled.
+	 * Tests that the toggle routes use the same item schema.
 	 *
 	 * @return void
 	 */
-	public function test_toggle_schema_has_expected_properties(): void {
+	public function test_toggle_schema_matches_item_schema(): void {
 		$controller = new Feature_Controller( $this->manager );
-		$schema     = $controller->get_public_toggle_schema();
+		$schema     = $controller->get_public_item_schema();
 
 		$this->assertArrayHasKey( 'properties', $schema );
-		$this->assertArrayHasKey( 'slug', $schema['properties'] );
-		$this->assertArrayHasKey( 'enabled', $schema['properties'] );
-		$this->assertCount( 2, $schema['properties'] );
+
+		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation', 'enabled' ];
+
+		foreach ( $expected as $property ) {
+			$this->assertArrayHasKey( $property, $schema['properties'], "Missing schema property: {$property}" );
+		}
+
+		$this->assertCount( count( $expected ), $schema['properties'] );
 	}
 }

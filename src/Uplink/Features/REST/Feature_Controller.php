@@ -102,7 +102,7 @@ class Feature_Controller extends WP_REST_Controller {
 				'permission_callback' => [ $this, 'check_permissions' ],
 				'args'                => $this->get_slug_args(),
 			],
-			'schema' => [ $this, 'get_public_toggle_schema' ],
+			'schema' => [ $this, 'get_public_item_schema' ],
 		] );
 
 		register_rest_route( $this->namespace, '/' . $this->rest_base . '/(?P<slug>[a-zA-Z0-9_-]+)/disable', [
@@ -112,7 +112,7 @@ class Feature_Controller extends WP_REST_Controller {
 				'permission_callback' => [ $this, 'check_permissions' ],
 				'args'                => $this->get_slug_args(),
 			],
-			'schema' => [ $this, 'get_public_toggle_schema' ],
+			'schema' => [ $this, 'get_public_item_schema' ],
 		] );
 	}
 
@@ -268,10 +268,11 @@ class Feature_Controller extends WP_REST_Controller {
 		}
 
 		$this->schema = [
-			'$schema'    => 'http://json-schema.org/draft-04/schema#',
-			'title'      => 'feature',
-			'type'       => 'object',
-			'properties' => [
+			'$schema'              => 'http://json-schema.org/draft-04/schema#',
+			'title'                => 'feature',
+			'type'                 => 'object',
+			'additionalProperties' => true,
+			'properties'           => [
 				'slug'          => [
 					'description' => __( 'The feature slug.', '%TEXTDOMAIN%' ),
 					'type'        => 'string',
@@ -331,35 +332,6 @@ class Feature_Controller extends WP_REST_Controller {
 		];
 
 		return $this->add_additional_fields_schema( $this->schema );
-	}
-
-	/**
-	 * Gets the public schema for toggle responses.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return array<string, mixed>
-	 */
-	public function get_public_toggle_schema(): array {
-		return [
-			'$schema'    => 'http://json-schema.org/draft-04/schema#',
-			'title'      => 'feature-toggle',
-			'type'       => 'object',
-			'properties' => [
-				'slug'    => [
-					'description' => __( 'The feature slug.', '%TEXTDOMAIN%' ),
-					'type'        => 'string',
-					'readonly'    => true,
-					'context'     => [ 'view' ],
-				],
-				'enabled' => [
-					'description' => __( 'Whether the feature is currently enabled.', '%TEXTDOMAIN%' ),
-					'type'        => 'boolean',
-					'readonly'    => true,
-					'context'     => [ 'view' ],
-				],
-			],
-		];
 	}
 
 	/**

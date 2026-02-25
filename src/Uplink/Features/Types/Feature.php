@@ -122,6 +122,14 @@ abstract class Feature {
 	 */
 	abstract public static function from_array( array $data );
 
+	/**
+	 * Converts the feature to an associative array.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return array<string, mixed>
+	 */
+	abstract public function to_array(): array;
 
 	/**
 	 * Gets the feature slug.

@@ -42,4 +42,19 @@ final class Built_In extends Feature {
 			$data['documentation'] ?? ''
 		);
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function to_array(): array {
+		return [
+			'slug' => $this->get_slug(),
+			'group' => $this->get_group(),
+			'tier' => $this->get_tier(),
+			'name' => $this->get_name(),
+			'description' => $this->get_description(),
+			'is_available' => $this->is_available(),
+			'documentation' => $this->get_documentation(),
+		];
+	}
 }

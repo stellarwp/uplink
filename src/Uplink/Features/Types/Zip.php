@@ -60,6 +60,22 @@ final class Zip extends Feature {
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	public function to_array(): array {
+		return [
+			'slug' => $this->get_slug(),
+			'group' => $this->get_group(),
+			'tier' => $this->get_tier(),
+			'name' => $this->get_name(),
+			'description' => $this->get_description(),
+			'plugin_file' => $this->get_plugin_file(),
+			'is_available' => $this->is_available(),
+			'documentation' => $this->get_documentation(),
+		];
+	}
+
+	/**
 	 * Gets the plugin file path relative to the plugins directory.
 	 *
 	 * @since 3.0.0

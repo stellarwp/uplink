@@ -54,8 +54,10 @@ class License {
 	 *     m = manual
 	 *     e = embedded
 	 *     o = original
+	 *     f = filtered
 	 *
 	 * @since 1.0.0
+	 * @since TBD Added 'f' for filtered.
 	 *
 	 * @var string
 	 */
@@ -322,16 +324,17 @@ class License {
 			return $this->key_origin_code;
 		}
 
-		$key         = $this->get_key();
-		$default_key = $this->get_key( 'default' );
+		// Ensure key has been loaded so key_origin is set.
+		$this->get_key();
 
-		if ( $key === $default_key ) {
-			$this->key_origin_code = 'o';
-		} elseif ( 'file' === $this->key_origin ) {
-			$this->key_origin_code = 'e';
-		} else {
-			$this->key_origin_code = 'm';
-		}
+		$origin_map = [
+			'filter'         => 'f',
+			'file'           => 'e',
+			'network_option' => 'm',
+			'site_option'    => 'm',
+		];
+
+		$this->key_origin_code = $origin_map[ $this->key_origin ] ?? 'o';
 
 		return $this->key_origin_code;
 	}

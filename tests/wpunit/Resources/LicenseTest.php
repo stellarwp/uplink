@@ -375,6 +375,90 @@ final class LicenseTest extends UplinkTestCase {
 	}
 
 	/**
+	 * Tests that get_key_origin_code() returns 'f' when the key is changed by the global filter.
+	 *
+	 * @return void
+	 */
+	public function test_get_key_origin_code_returns_f_when_key_is_filtered(): void {
+		$filtered_key = 'filtered-origin-code-key-12345';
+
+		add_filter( 'stellarwp/uplink/test/license_get_key', function () use ( $filtered_key ) {
+			return $filtered_key;
+		} );
+
+		$license = $this->resource->get_license_object();
+		$license->get_key();
+
+		$this->assertSame( 'f', $license->get_key_origin_code() );
+	}
+
+	/**
+	 * Tests that get_key_origin_code() returns 'f' when the key is changed by the slug-specific filter.
+	 *
+	 * @return void
+	 */
+	public function test_get_key_origin_code_returns_f_when_key_is_filtered_by_slug_specific_filter(): void {
+		$filtered_key = 'slug-filtered-origin-code-key-12345';
+
+		add_filter( 'stellarwp/uplink/test/sample/license_get_key', function () use ( $filtered_key ) {
+			return $filtered_key;
+		} );
+
+		$license = $this->resource->get_license_object();
+		$license->get_key();
+
+		$this->assertSame( 'f', $license->get_key_origin_code() );
+	}
+
+	/**
+	 * Tests that get_key_origin_code() returns 'm' when the key is set via a site option.
+	 *
+	 * @return void
+	 */
+	public function test_get_key_origin_code_returns_m_when_key_is_from_site_option(): void {
+		$this->resource->set_license_key( 'manual-license-key-12345' );
+
+		// Create a fresh License so get_key() discovers the key from the option.
+		$license = new License( $this->resource );
+		$license->get_key();
+
+		$this->assertSame( 'm', $license->get_key_origin_code() );
+	}
+
+	/**
+	 * Tests that get_key_origin_code() returns 'e' when the key comes from a license file.
+	 *
+	 * @return void
+	 */
+	public function test_get_key_origin_code_returns_e_when_key_is_from_file(): void {
+		$resource = Register::plugin(
+			'origin-code-file',
+			'Origin Code File Plugin',
+			'1.0.0',
+			'uplink/index.php',
+			Sample_Plugin::class,
+			License_With_Data_Constant::class
+		);
+
+		$license = $resource->get_license_object();
+		$license->get_key();
+
+		$this->assertSame( 'e', $license->get_key_origin_code() );
+	}
+
+	/**
+	 * Tests that get_key_origin_code() returns 'o' when no key source is found.
+	 *
+	 * @return void
+	 */
+	public function test_get_key_origin_code_returns_o_when_no_key_exists(): void {
+		$license = $this->resource->get_license_object();
+		$license->get_key();
+
+		$this->assertSame( 'o', $license->get_key_origin_code() );
+	}
+
+	/**
 	 * Gets the protected key_origin property via reflection.
 	 *
 	 * @param License $license The license instance.

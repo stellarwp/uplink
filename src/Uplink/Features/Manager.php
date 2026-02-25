@@ -80,6 +80,8 @@ class Manager {
 		 * @since TBD
 		 *
 		 * @param Feature $feature The feature being enabled.
+		 *
+		 * @return void
 		 */
 		do_action( 'stellarwp/uplink/feature_enabling', $feature );
 
@@ -89,6 +91,8 @@ class Manager {
 		 * @since TBD
 		 *
 		 * @param Feature $feature The feature being enabled.
+		 *
+		 * @return void
 		 */
 		do_action( "stellarwp/uplink/{$slug}/feature_enabling", $feature );
 
@@ -104,6 +108,8 @@ class Manager {
 		 * @since TBD
 		 *
 		 * @param Feature $feature The feature that was enabled.
+		 *
+		 * @return void
 		 */
 		do_action( 'stellarwp/uplink/feature_enabled', $feature );
 
@@ -113,6 +119,8 @@ class Manager {
 		 * @since TBD
 		 *
 		 * @param Feature $feature The feature that was enabled.
+		 *
+		 * @return void
 		 */
 		do_action( "stellarwp/uplink/{$slug}/feature_enabled", $feature );
 
@@ -149,6 +157,8 @@ class Manager {
 		 * @since TBD
 		 *
 		 * @param Feature $feature The feature being disabled.
+		 *
+		 * @return void
 		 */
 		do_action( 'stellarwp/uplink/feature_disabling', $feature );
 
@@ -158,6 +168,8 @@ class Manager {
 		 * @since TBD
 		 *
 		 * @param Feature $feature The feature being disabled.
+		 *
+		 * @return void
 		 */
 		do_action( "stellarwp/uplink/{$slug}/feature_disabling", $feature );
 
@@ -173,6 +185,8 @@ class Manager {
 		 * @since TBD
 		 *
 		 * @param Feature $feature The feature that was disabled.
+		 *
+		 * @return void
 		 */
 		do_action( 'stellarwp/uplink/feature_disabled', $feature );
 
@@ -182,6 +196,8 @@ class Manager {
 		 * @since TBD
 		 *
 		 * @param Feature $feature The feature that was disabled.
+		 *
+		 * @return void
 		 */
 		do_action( "stellarwp/uplink/{$slug}/feature_disabled", $feature );
 

@@ -53,7 +53,7 @@ class Resolver {
 	 *
 	 * @since TBD
 	 *
-	 * @param string                       $type           The feature type identifier (e.g. 'zip', 'built_in').
+	 * @param string                 $type           The feature type identifier (e.g. 'zip', 'built_in').
 	 * @param class-string<Strategy> $strategy_class The strategy FQCN.
 	 *
 	 * @return void
@@ -83,6 +83,8 @@ class Resolver {
 		 * @since TBD
 		 *
 		 * @param array<string, class-string<Strategy>> $map The current type map.
+		 *
+		 * @return array<string, class-string<Strategy>> The filtered type map.
 		 */
 		$map = apply_filters( 'stellarwp/uplink/feature_strategy_map', $this->map );
 

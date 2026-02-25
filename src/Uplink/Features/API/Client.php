@@ -130,6 +130,8 @@ class Client {
 		 * @since TBD
 		 *
 		 * @param array<string, class-string<Feature>> $type_map The current type map.
+		 *
+		 * @return array<string, class-string<Feature>> The filtered type map.
 		 */
 		$type_map = apply_filters( 'stellarwp/uplink/feature_type_map', $this->type_map );
 

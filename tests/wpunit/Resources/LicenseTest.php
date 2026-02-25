@@ -84,6 +84,38 @@ final class LicenseTest extends UplinkTestCase {
 	}
 
 	/**
+	 * Creates a simple license file that returns the license key.
+	 *
+	 * @param string $filename     The file name relative to the plugin directory.
+	 * @param string $license_key  The license key to embed.
+	 */
+	private function create_simple_license_file( string $filename, string $license_key ): void {
+		$this->create_license_file_with_content(
+			$filename,
+			"<?php return '" . addslashes( $license_key ) . "';"
+		);
+	}
+
+	/**
+	 * Creates a simple license file with arbitrary PHP content.
+	 *
+	 * @param string $filename The file name relative to the plugin directory.
+	 * @param string $content  The PHP file content.
+	 */
+	private function create_license_file_with_content( string $filename, string $content ): void {
+		$file = $this->plugin_dir . '/' . $filename;
+		$dir  = dirname( $file );
+
+		if ( $dir !== $this->plugin_dir && ! is_dir( $dir ) ) {
+			mkdir( $dir, 0755, true );
+			$this->temp_dirs[] = $dir;
+		}
+
+		file_put_contents( $file, $content );
+		$this->temp_files[] = $file;
+	}
+
+	/**
 	 * @test
 	 */
 	public function it_should_get_key_from_class_data_constant(): void {
@@ -252,38 +284,6 @@ final class LicenseTest extends UplinkTestCase {
 
 		// With no site option set, the file key should be returned.
 		$this->assertSame( $file_key, $resource->get_license_key() );
-	}
-
-	/**
-	 * Creates a simple license file that returns the license key.
-	 *
-	 * @param string $filename     The file name relative to the plugin directory.
-	 * @param string $license_key  The license key to embed.
-	 */
-	private function create_simple_license_file( string $filename, string $license_key ): void {
-		$this->create_license_file_with_content(
-			$filename,
-			"<?php return '" . addslashes( $license_key ) . "';"
-		);
-	}
-
-	/**
-	 * Creates a simple license file with arbitrary PHP content.
-	 *
-	 * @param string $filename The file name relative to the plugin directory.
-	 * @param string $content  The PHP file content.
-	 */
-	private function create_license_file_with_content( string $filename, string $content ): void {
-		$file = $this->plugin_dir . '/' . $filename;
-		$dir  = dirname( $file );
-
-		if ( $dir !== $this->plugin_dir && ! is_dir( $dir ) ) {
-			mkdir( $dir, 0755, true );
-			$this->temp_dirs[] = $dir;
-		}
-
-		file_put_contents( $file, $content );
-		$this->temp_files[] = $file;
 	}
 
 	/**

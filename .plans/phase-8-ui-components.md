@@ -1,6 +1,6 @@
 # Phase 8: UI Components — License Manager Dashboard
 
-**Status:** Pending
+**Status:** Complete
 **Ticket:** SCON-26
 
 ## Summary
@@ -644,10 +644,12 @@ export function FeatureTable( { features, onToggle }: FeatureTableProps ) {
 
 ### `resources/js/components/organisms/BrandSection.tsx`
 
-Brand header (icon + name + tagline + active count) above a `PluginTable`. Uses `BRAND_CONFIGS` to resolve the icon and color for a brand slug.
+Brand header (icon + name + tagline + active count) above a `FeatureTable`. Uses `BRAND_CONFIGS` to resolve the icon and color for a brand slug. The header is a `<button>` that toggles the `isExpanded` state, collapsing or revealing the feature table. The chevron icon flips between `chevronUp` and `chevronDown` to reflect the current state.
 
 ```typescript
 import { __, sprintf } from '@wordpress/i18n';
+import { useState } from 'react';
+import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import { BrandIcon } from '@/components/atoms/BrandIcon';
 import { FeatureTable } from '@/components/organisms/FeatureTable';
 import { BRAND_CONFIGS } from '@/data/brands';
@@ -662,14 +664,20 @@ interface BrandSectionProps {
  * @since TBD
  */
 export function BrandSection( { brand, onToggle }: BrandSectionProps ) {
+    const [ isExpanded, setIsExpanded ] = useState( true );
     const config = BRAND_CONFIGS[ brand.slug ];
     const activeCount = brand.features.filter(
-        ( p ) => p.licenseState === 'active'
+        ( f ) => f.licenseState === 'active'
     ).length;
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+            <button
+                type="button"
+                onClick={ () => setIsExpanded( ( prev ) => ! prev ) }
+                className="flex items-center justify-between border-b border-slate-200 pb-2 w-full text-left cursor-pointer"
+                aria-expanded={ isExpanded }
+            >
                 <div className="flex items-center gap-3">
                     { config && (
                         <BrandIcon
@@ -685,16 +693,27 @@ export function BrandSection( { brand, onToggle }: BrandSectionProps ) {
                     </div>
                 </div>
 
-                <span className="bg-slate-100 text-slate-600 text-xs px-2 py-1 rounded shrink-0">
-                    { sprintf( __( '%d Active', '%TEXTDOMAIN%' ), activeCount ) }
-                </span>
-            </div>
+                <div className="flex items-center gap-2 shrink-0">
+                    <span className="bg-slate-100 text-slate-600 text-xs px-2 py-1 rounded">
+                        { sprintf( __( '%d Active', '%TEXTDOMAIN%' ), activeCount ) }
+                    </span>
+                    <Icon
+                        icon={ isExpanded ? chevronUp : chevronDown }
+                        size={ 20 }
+                        className="text-slate-400"
+                    />
+                </div>
+            </button>
 
-            <FeatureTable features={ brand.features } onToggle={ onToggle } />
+            { isExpanded && (
+                <FeatureTable features={ brand.features } onToggle={ onToggle } />
+            ) }
         </div>
     );
 }
 ```
+
+> The active count badge reflects the current reactive state — when a toggle is clicked and `licenseState` changes in the parent, the count updates automatically because it is computed from `brand.features` on each render.
 
 ---
 
@@ -702,26 +721,41 @@ export function BrandSection( { brand, onToggle }: BrandSectionProps ) {
 
 ### `resources/js/components/templates/LicenseDashboard.tsx`
 
-Composes the page header, `MasterLicenseForm`, and the list of `BrandSection` components. Owns the top-level event handlers (stubs for now, wired to the REST API in a future phase).
+Composes the page header, `MasterLicenseForm`, and the list of `BrandSection` components. Owns all top-level state and event handlers.
+
+**Toggle state management**: The `brands` array is held in `useState`. `handleToggle` performs an optimistic update — it maps over all brands and features, finds the matching slug, and flips its `licenseState` between `'active'` and `'inactive'`. Because `BrandSection` derives `activeCount` directly from `brand.features`, the badge count updates automatically without any extra wiring. License state is separated from the mock JSON at module scope (`initialData`) so the `useState` initializer only runs once.
 
 ```typescript
 import { __ } from '@wordpress/i18n';
+import { useState } from 'react';
 import { MasterLicenseForm } from '@/components/organisms/MasterLicenseForm';
 import { BrandSection } from '@/components/organisms/BrandSection';
-import type { DashboardData } from '@/types/api';
+import type { Brand, DashboardData } from '@/types/api';
 import mockData from '@/data/mock-features.json';
+
+const initialData = mockData as DashboardData;
 
 /**
  * @since TBD
  */
 export function LicenseDashboard() {
     // TODO: Replace with useQuery hook when REST API is ready.
-    const data = mockData as DashboardData;
+    const [ brands, setBrands ] = useState<Brand[]>( initialData.brands );
 
     function handleToggle( slug: string, checked: boolean ) {
-        // TODO: POST /wp-json/uplink/v1/plugins/{slug}/toggle
+        // TODO: Replace optimistic update with REST API call.
+        // POST /wp-json/uplink/v1/features/{slug}/toggle
         // If the feature has a downloadUrl, the REST API installs it first, then activates.
-        console.log( 'Toggle feature:', slug, checked );
+        setBrands( ( prev ) =>
+            prev.map( ( brand ) => ( {
+                ...brand,
+                features: brand.features.map( ( feature ) =>
+                    feature.slug === slug
+                        ? { ...feature, licenseState: checked ? 'active' : 'inactive' }
+                        : feature
+                ),
+            } ) )
+        );
     }
 
     function handleActivate( key: string, email: string ) {
@@ -748,14 +782,14 @@ export function LicenseDashboard() {
 
             {/* Master License Form */}
             <MasterLicenseForm
-                license={ data.license }
+                license={ initialData.license }
                 onActivate={ handleActivate }
                 onDeactivate={ handleDeactivate }
             />
 
             {/* Brand Sections */}
             <div className="grid grid-cols-1 gap-8">
-                { data.brands.map( ( brand ) => (
+                { brands.map( ( brand ) => (
                     <BrandSection
                         key={ brand.slug }
                         brand={ brand }
@@ -795,6 +829,8 @@ export const App: FC = () => {
 - **`onToggle` callback signature is `(slug, checked)`** — the slug is passed up so the parent (`LicenseDashboard`) can identify which feature to update when the REST API is wired. The REST API determines whether to install (using `downloadUrl`) or just activate based on the feature's server-side state.
 - **Version cell renders `–` for empty `version`** — covers both `not_included` features and `inactive` features not yet installed (`downloadUrl` present). The expression `isLocked || ! feature.version` handles both cases.
 - **`upgradeUrl` defaults to `'#'` in `UpsellAction`** — prevents broken `href` attributes while mock data is in use. Real URLs come from the REST API.
+- **`BrandSection` is collapsible** — the header row is a `<button>` with `aria-expanded`. `isExpanded` defaults to `true` so all sections are open on first render. The `activeCount` badge is always visible in the header so users can see the summary even when collapsed.
+- **Toggle state is owned by `LicenseDashboard`** — `brands` is held in `useState` so toggling a feature re-renders the affected `BrandSection` and its `activeCount` badge without extra props or context. `initialData` is extracted at module scope so the `useState` initializer runs only once. The REST API call replaces the optimistic `setBrands` update in a future phase.
 
 ---
 
@@ -810,11 +846,14 @@ In WordPress Admin → **LW Software**:
 1. Page header renders: "License Management" heading + description
 2. Master License Form renders as a Card: two inputs pre-filled from mock data, Activate + Deactivate buttons, green status message
 3. Four brand sections render in order: GiveWP → The Events Calendar → LearnDash → Kadence WP
-4. Each brand shows its colored icon square, name, tagline, and active count badge
+4. Each brand shows its colored icon square, name, tagline, active count badge, and a chevron icon
 5. Active features: green badge, blue toggle (on), version shown
 6. Inactive features (installed, no `downloadUrl`): gray badge, gray toggle (off), version shown
 7. Inactive features (not installed, `downloadUrl` present): gray badge, gray toggle (off), version shows `–`
 8. `not_included` features: amber "Not Included" badge, lock icon, dimmed text, "Buy Now" link, no toggle, version shows `–`
 9. Each feature table renders inside a Card with rounded corners and border
-10. Clicking a toggle logs to the browser console (REST API not yet wired)
-11. Clicking "Buy Now" opens `#` (placeholder URL)
+10. Clicking an active toggle turns it off: badge changes to "Inactive" (gray), toggle turns gray, active count decrements
+11. Clicking an inactive toggle turns it on: badge changes to "Active" (green), toggle turns blue, active count increments
+12. Clicking "Buy Now" opens `#` (placeholder URL)
+13. Clicking a brand section header collapses the feature table; clicking again expands it; chevron reflects the state
+14. Active count badge remains visible in the header even when the section is collapsed

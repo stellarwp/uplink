@@ -1,20 +1,33 @@
 import { __ } from '@wordpress/i18n';
+import { useState } from 'react';
 import { MasterLicenseForm } from '@/components/organisms/MasterLicenseForm';
 import { BrandSection } from '@/components/organisms/BrandSection';
-import type { DashboardData } from '@/types/api';
+import type { Brand, DashboardData } from '@/types/api';
 import mockData from '@/data/mock-features.json';
+
+const initialData = mockData as DashboardData;
 
 /**
  * @since TBD
  */
 export function LicenseDashboard() {
     // TODO: Replace with useQuery hook when REST API is ready.
-    const data = mockData as DashboardData;
+    const [ brands, setBrands ] = useState<Brand[]>( initialData.brands );
 
     function handleToggle( slug: string, checked: boolean ) {
-        // TODO: POST /wp-json/uplink/v1/features/{slug}/toggle
+        // TODO: Replace optimistic update with REST API call.
+        // POST /wp-json/uplink/v1/features/{slug}/toggle
         // If the feature has a downloadUrl, the REST API installs it first, then activates.
-        console.log( 'Toggle feature:', slug, checked );
+        setBrands( ( prev ) =>
+            prev.map( ( brand ) => ( {
+                ...brand,
+                features: brand.features.map( ( feature ) =>
+                    feature.slug === slug
+                        ? { ...feature, licenseState: checked ? 'active' : 'inactive' }
+                        : feature
+                ),
+            } ) )
+        );
     }
 
     function handleActivate( key: string, email: string ) {
@@ -41,14 +54,14 @@ export function LicenseDashboard() {
 
             {/* Master License Form */}
             <MasterLicenseForm
-                license={ data.license }
+                license={ initialData.license }
                 onActivate={ handleActivate }
                 onDeactivate={ handleDeactivate }
             />
 
             {/* Brand Sections */}
             <div className="grid grid-cols-1 gap-8">
-                { data.brands.map( ( brand ) => (
+                { brands.map( ( brand ) => (
                     <BrandSection
                         key={ brand.slug }
                         brand={ brand }

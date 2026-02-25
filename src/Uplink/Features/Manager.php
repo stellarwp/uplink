@@ -208,16 +208,23 @@ class Manager {
 	/**
 	 * Checks whether a feature is in the catalog AND currently enabled/active.
 	 *
-	 * Returns false if the feature is not in the catalog.
-	 *
 	 * @since 3.0.0
 	 *
 	 * @param string $slug The feature slug.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
-	public function is_enabled( string $slug ): bool {
-		$feature = $this->get_feature( $slug );
+	public function is_enabled( string $slug ) {
+		$features = $this->client->get_features();
+
+		if ( is_wp_error( $features ) ) {
+			return new WP_Error(
+				Error_Code::FEATURE_CHECK_FAILED,
+				$features->get_error_message()
+			);
+		}
+
+		$feature = $features->get( $slug );
 
 		if ( ! $feature ) {
 			return false;
@@ -235,10 +242,19 @@ class Manager {
 	 *
 	 * @param string $slug The feature slug.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
-	public function is_available( string $slug ): bool {
-		return $this->get_feature( $slug ) !== null;
+	public function is_available( string $slug ) {
+		$features = $this->client->get_features();
+
+		if ( is_wp_error( $features ) ) {
+			return new WP_Error(
+				Error_Code::FEATURE_CHECK_FAILED,
+				$features->get_error_message()
+			);
+		}
+
+		return $features->get( $slug ) !== null;
 	}
 
 	/**

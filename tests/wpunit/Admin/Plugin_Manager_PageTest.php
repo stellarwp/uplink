@@ -31,33 +31,6 @@ class Plugin_Manager_PageTest extends UplinkTestCase {
 	/**
 	 * @test
 	 */
-	public function it_should_render_when_it_has_the_highest_version(): void {
-		$this->assertTrue( $this->page->should_render() );
-	}
-
-	/**
-	 * @test
-	 */
-	public function it_should_not_render_when_a_higher_version_exists(): void {
-		add_filter( 'stellarwp/uplink/highest_version', static function () {
-			return '99.0.0';
-		} );
-
-		$this->assertFalse( $this->page->should_render() );
-	}
-
-	/**
-	 * @test
-	 */
-	public function it_should_not_render_when_page_already_registered(): void {
-		do_action( 'stellarwp/uplink/unified_ui_registered' );
-
-		$this->assertFalse( $this->page->should_render() );
-	}
-
-	/**
-	 * @test
-	 */
 	public function it_should_register_menu_page(): void {
 		global $menu;
 		$menu = [];

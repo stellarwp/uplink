@@ -19,7 +19,7 @@ final class Zip extends Feature {
 	 *
 	 * @var string
 	 */
-	protected $plugin_file;
+	protected string $plugin_file;
 
 	/**
 	 * Constructor for a Feature delivered as a standalone WordPress plugin ZIP.

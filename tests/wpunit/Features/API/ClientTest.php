@@ -14,7 +14,7 @@ final class ClientTest extends UplinkTestCase {
 	 *
 	 * @var Client
 	 */
-	private $client;
+	private Client $client;
 
 	/**
 	 * Sets up the API client and clears the transient before each test.

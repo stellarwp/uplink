@@ -52,7 +52,9 @@ class Feature_Manager_Page {
 5. In `src/Uplink/Admin/Provider.php`, update every reference:
    - `@since 3.0.0 added Plugin_Manager_Page` → `@since TBD added Feature_Manager_Page`
    - `Plugin_Manager_Page::class` → `Feature_Manager_Page::class` (two occurrences)
-   - Docblock for `register_unified_plugin_manager_page()`: "unified plugin manager page" → "unified feature manager page"
+   - Method `register_unified_plugin_manager_page()` → `register_unified_feature_manager_page()`
+   - `add_action( 'admin_menu', [ $this, 'register_unified_plugin_manager_page' ] )` → `register_unified_feature_manager_page`
+   - Docblock for the method: "unified plugin manager page" → "unified feature manager page"
 
 ---
 

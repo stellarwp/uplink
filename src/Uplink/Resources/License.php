@@ -42,7 +42,7 @@ class License {
 	 *     filter
 	 *
 	 * @since 1.0.0
-	 * @since TBD Added 'filter' for filtered.
+	 * @since 3.0.0 Added 'filter' for filtered.
 	 *
 	 * @var string
 	 */
@@ -57,7 +57,7 @@ class License {
 	 *     f = filtered
 	 *
 	 * @since 1.0.0
-	 * @since TBD Added 'f' for filtered.
+	 * @since 3.0.0 Added 'f' for filtered.
 	 *
 	 * @var string
 	 */

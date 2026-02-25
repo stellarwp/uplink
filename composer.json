@@ -41,6 +41,7 @@
         }
     },
     "require-dev": {
+        "dealerdirect/phpcodesniffer-composer-installer": "^1",
         "dpanta94/phpstan-containers": "^0",
         "lucatume/codeception-snapshot-assertions": "*",
         "lucatume/di52": "^3",

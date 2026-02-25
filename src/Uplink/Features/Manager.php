@@ -5,6 +5,7 @@ namespace StellarWP\Uplink\Features;
 use StellarWP\Uplink\Features\API\Client;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Types\Feature;
+use WP_Error;
 
 /**
  * Central orchestrator for enabling, disabling, and querying features.
@@ -59,13 +60,16 @@ class Manager {
 	 *
 	 * @param string $slug The feature slug.
 	 *
-	 * @return bool Whether the feature was successfully enabled.
+	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
-	public function enable( string $slug ): bool {
+	public function enable( string $slug ) {
 		$feature = $this->get_feature( $slug );
 
 		if ( ! $feature ) {
-			return false;
+			return new WP_Error(
+				'feature_not_found',
+				sprintf( 'Feature "%s" not found in the catalog.', $slug )
+			);
 		}
 
 		$strategy = $this->resolver->resolve( $feature );
@@ -90,27 +94,29 @@ class Manager {
 
 		$result = $strategy->enable( $feature );
 
-		if ( $result ) {
-			/**
-			 * Fires after a feature has been successfully enabled.
-			 *
-			 * @since TBD
-			 *
-			 * @param Feature $feature The feature that was enabled.
-			 */
-			do_action( 'stellarwp/uplink/feature_enabled', $feature );
-
-			/**
-			 * Fires after a specific feature has been successfully enabled.
-			 *
-			 * @since TBD
-			 *
-			 * @param Feature $feature The feature that was enabled.
-			 */
-			do_action( "stellarwp/uplink/{$slug}/feature_enabled", $feature );
+		if ( is_wp_error( $result ) ) {
+			return $result;
 		}
 
-		return $result;
+		/**
+		 * Fires after a feature has been successfully enabled.
+		 *
+		 * @since TBD
+		 *
+		 * @param Feature $feature The feature that was enabled.
+		 */
+		do_action( 'stellarwp/uplink/feature_enabled', $feature );
+
+		/**
+		 * Fires after a specific feature has been successfully enabled.
+		 *
+		 * @since TBD
+		 *
+		 * @param Feature $feature The feature that was enabled.
+		 */
+		do_action( "stellarwp/uplink/{$slug}/feature_enabled", $feature );
+
+		return true;
 	}
 
 	/**
@@ -123,13 +129,16 @@ class Manager {
 	 *
 	 * @param string $slug The feature slug.
 	 *
-	 * @return bool Whether the feature was successfully disabled.
+	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
-	public function disable( string $slug ): bool {
+	public function disable( string $slug ) {
 		$feature = $this->get_feature( $slug );
 
 		if ( ! $feature ) {
-			return false;
+			return new WP_Error(
+				'feature_not_found',
+				sprintf( 'Feature "%s" not found in the catalog.', $slug )
+			);
 		}
 
 		$strategy = $this->resolver->resolve( $feature );
@@ -154,27 +163,29 @@ class Manager {
 
 		$result = $strategy->disable( $feature );
 
-		if ( $result ) {
-			/**
-			 * Fires after a feature has been successfully disabled.
-			 *
-			 * @since TBD
-			 *
-			 * @param Feature $feature The feature that was disabled.
-			 */
-			do_action( 'stellarwp/uplink/feature_disabled', $feature );
-
-			/**
-			 * Fires after a specific feature has been successfully disabled.
-			 *
-			 * @since TBD
-			 *
-			 * @param Feature $feature The feature that was disabled.
-			 */
-			do_action( "stellarwp/uplink/{$slug}/feature_disabled", $feature );
+		if ( is_wp_error( $result ) ) {
+			return $result;
 		}
 
-		return $result;
+		/**
+		 * Fires after a feature has been successfully disabled.
+		 *
+		 * @since TBD
+		 *
+		 * @param Feature $feature The feature that was disabled.
+		 */
+		do_action( 'stellarwp/uplink/feature_disabled', $feature );
+
+		/**
+		 * Fires after a specific feature has been successfully disabled.
+		 *
+		 * @since TBD
+		 *
+		 * @param Feature $feature The feature that was disabled.
+		 */
+		do_action( "stellarwp/uplink/{$slug}/feature_disabled", $feature );
+
+		return true;
 	}
 
 	/**

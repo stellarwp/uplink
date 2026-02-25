@@ -9,6 +9,7 @@ use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Tests\UplinkTestCase;
+use WP_Error;
 
 final class ManagerTest extends UplinkTestCase {
 
@@ -73,14 +74,15 @@ final class ManagerTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Tests enabling an unknown feature returns false.
+	 * Tests enabling an unknown feature returns a WP_Error.
 	 *
 	 * @return void
 	 */
-	public function test_it_returns_false_when_enabling_unknown_feature(): void {
+	public function test_it_returns_wp_error_when_enabling_unknown_feature(): void {
 		$result = $this->manager->enable( 'nonexistent' );
 
-		$this->assertFalse( $result );
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'feature_not_found', $result->get_error_code() );
 	}
 
 	/**
@@ -95,14 +97,15 @@ final class ManagerTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Tests disabling an unknown feature returns false.
+	 * Tests disabling an unknown feature returns a WP_Error.
 	 *
 	 * @return void
 	 */
-	public function test_it_returns_false_when_disabling_unknown_feature(): void {
+	public function test_it_returns_wp_error_when_disabling_unknown_feature(): void {
 		$result = $this->manager->disable( 'nonexistent' );
 
-		$this->assertFalse( $result );
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'feature_not_found', $result->get_error_code() );
 	}
 
 	/**
@@ -229,8 +232,10 @@ final class ManagerTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_enable_does_not_fire_enabled_action_on_failure(): void {
+		$error = new WP_Error( 'enable_failed', 'Could not enable feature.' );
+
 		$strategy = $this->makeEmpty( Strategy::class, [
-			'enable' => false,
+			'enable' => $error,
 		] );
 
 		$resolver = $this->makeEmpty( Resolver::class, [
@@ -251,7 +256,7 @@ final class ManagerTest extends UplinkTestCase {
 
 		$result = $manager->enable( 'test-feature' );
 
-		$this->assertFalse( $result );
+		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertFalse( $enabled_fired, 'feature_enabled should not fire when enable fails.' );
 	}
 
@@ -261,8 +266,10 @@ final class ManagerTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_disable_does_not_fire_disabled_action_on_failure(): void {
+		$error = new WP_Error( 'disable_failed', 'Could not disable feature.' );
+
 		$strategy = $this->makeEmpty( Strategy::class, [
-			'disable' => false,
+			'disable' => $error,
 		] );
 
 		$resolver = $this->makeEmpty( Resolver::class, [
@@ -283,7 +290,7 @@ final class ManagerTest extends UplinkTestCase {
 
 		$result = $manager->disable( 'test-feature' );
 
-		$this->assertFalse( $result );
+		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertFalse( $disabled_fired, 'feature_disabled should not fire when disable fails.' );
 	}
 }

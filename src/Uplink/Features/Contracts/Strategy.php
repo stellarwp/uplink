@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink\Features\Contracts;
 
 use StellarWP\Uplink\Features\Types\Feature;
+use WP_Error;
 
 /**
  * Strategy interface for enabling, disabling, and checking
@@ -19,9 +20,9 @@ interface Strategy {
 	 *
 	 * @param Feature $feature The feature to enable.
 	 *
-	 * @return bool Whether the feature was successfully enabled.
+	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
-	public function enable( Feature $feature ): bool;
+	public function enable( Feature $feature );
 
 	/**
 	 * Disables a feature.
@@ -30,9 +31,9 @@ interface Strategy {
 	 *
 	 * @param Feature $feature The feature to disable.
 	 *
-	 * @return bool Whether the feature was successfully disabled.
+	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
-	public function disable( Feature $feature ): bool;
+	public function disable( Feature $feature );
 
 	/**
 	 * Checks whether a feature is currently active.

@@ -105,15 +105,20 @@ class Toggle_Controller extends WP_REST_Controller {
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 *
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
-	public function enable( WP_REST_Request $request ): WP_REST_Response {
+	public function enable( WP_REST_Request $request ) {
 		$slug   = $request->get_param( 'slug' );
 		$result = $this->manager->enable( $slug );
 
+		// TODO: Not sure how we want to handle errors here, doing it like this for now.
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
 		return new WP_REST_Response( [
 			'slug'    => $slug,
-			'enabled' => $result,
+			'enabled' => true,
 		] );
 	}
 
@@ -124,15 +129,20 @@ class Toggle_Controller extends WP_REST_Controller {
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 *
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
-	public function disable( WP_REST_Request $request ): WP_REST_Response {
+	public function disable( WP_REST_Request $request ) {
 		$slug   = $request->get_param( 'slug' );
 		$result = $this->manager->disable( $slug );
 
+		// TODO: Not sure how we want to handle errors here, doing it like this for now.
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
 		return new WP_REST_Response( [
 			'slug'    => $slug,
-			'enabled' => ! $result,
+			'enabled' => false,
 		] );
 	}
 

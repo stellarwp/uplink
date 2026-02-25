@@ -4,7 +4,7 @@ namespace StellarWP\Uplink\Tests\Features;
 
 use StellarWP\Uplink\Features\API\Client;
 use StellarWP\Uplink\Features\Manager;
-use StellarWP\Uplink\Features\REST\Toggle_Controller;
+use StellarWP\Uplink\Features\REST\Feature_Controller;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
@@ -38,12 +38,12 @@ final class ProviderTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Tests that the Toggle Controller is registered as a singleton in the container.
+	 * Tests that the Feature Controller is registered as a singleton in the container.
 	 *
 	 * @return void
 	 */
-	public function test_it_registers_toggle_controller(): void {
-		$this->assertInstanceOf( Toggle_Controller::class, $this->container->get( Toggle_Controller::class ) );
+	public function test_it_registers_feature_controller(): void {
+		$this->assertInstanceOf( Feature_Controller::class, $this->container->get( Feature_Controller::class ) );
 	}
 
 	/**

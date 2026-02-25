@@ -43,6 +43,24 @@ final class FeatureTest extends UplinkTestCase {
 					$data['documentation'] ?? ''
 				);
 			}
+
+			/**
+			 * Converts the feature to an associative array.
+			 *
+			 * @return array<string, mixed>
+			 */
+			public function to_array(): array {
+				return [
+					'slug'          => $this->get_slug(),
+					'group'         => $this->get_group(),
+					'tier'          => $this->get_tier(),
+					'name'          => $this->get_name(),
+					'description'   => $this->get_description(),
+					'type'          => $this->get_type(),
+					'is_available'  => $this->is_available(),
+					'documentation' => $this->get_documentation(),
+				];
+			}
 		};
 	}
 
@@ -116,6 +134,26 @@ final class FeatureTest extends UplinkTestCase {
 	 */
 	public function test_get_documentation(): void {
 		$this->assertSame( 'https://example.com/docs', $this->feature->get_documentation() );
+	}
+
+	/**
+	 * Tests that to_array returns the expected associative array.
+	 *
+	 * @return void
+	 */
+	public function test_to_array(): void {
+		$result = $this->feature->to_array();
+
+		$this->assertSame( [
+			'slug'          => 'test-feature',
+			'group'         => 'TEC',
+			'tier'          => 'Tier 1',
+			'name'          => 'Test Feature',
+			'description'   => 'A test feature.',
+			'type'          => 'test-type',
+			'is_available'  => true,
+			'documentation' => 'https://example.com/docs',
+		], $result );
 	}
 
 	/**

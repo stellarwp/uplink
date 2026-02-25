@@ -37,6 +37,48 @@ final class ZipTest extends UplinkTestCase {
 	}
 
 	/**
+	 * Tests that to_array returns the expected associative array.
+	 *
+	 * @return void
+	 */
+	public function test_to_array(): void {
+		$feature = new Zip( 'test-feature', 'LearnDash', 'Tier 2', 'Test Feature', 'Test feature description.', 'test-feature/test-feature.php', true, 'https://example.com/docs' );
+
+		$this->assertSame( [
+			'slug'          => 'test-feature',
+			'group'         => 'LearnDash',
+			'tier'          => 'Tier 2',
+			'name'          => 'Test Feature',
+			'description'   => 'Test feature description.',
+			'plugin_file'   => 'test-feature/test-feature.php',
+			'is_available'  => true,
+			'documentation' => 'https://example.com/docs',
+		], $feature->to_array() );
+	}
+
+	/**
+	 * Tests that to_array round-trips through from_array.
+	 *
+	 * @return void
+	 */
+	public function test_to_array_round_trips_through_from_array(): void {
+		$data = [
+			'slug'          => 'test-feature',
+			'group'         => 'LearnDash',
+			'tier'          => 'Tier 2',
+			'name'          => 'Test Feature',
+			'description'   => 'Test feature description.',
+			'plugin_file'   => 'test-feature/test-feature.php',
+			'is_available'  => true,
+			'documentation' => 'https://example.com/docs',
+		];
+
+		$feature = Zip::from_array( $data );
+
+		$this->assertSame( $data, $feature->to_array() );
+	}
+
+	/**
 	 * Tests that the description defaults to an empty string when omitted from the array.
 	 *
 	 * @return void

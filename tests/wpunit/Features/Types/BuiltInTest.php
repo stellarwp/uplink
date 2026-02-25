@@ -35,6 +35,46 @@ final class BuiltInTest extends UplinkTestCase {
 	}
 
 	/**
+	 * Tests that to_array returns the expected associative array.
+	 *
+	 * @return void
+	 */
+	public function test_to_array(): void {
+		$feature = new Built_In( 'test-feature', 'TEC', 'Tier 1', 'Test Feature', 'Test feature description.', true, 'https://example.com/docs' );
+
+		$this->assertSame( [
+			'slug'          => 'test-feature',
+			'group'         => 'TEC',
+			'tier'          => 'Tier 1',
+			'name'          => 'Test Feature',
+			'description'   => 'Test feature description.',
+			'is_available'  => true,
+			'documentation' => 'https://example.com/docs',
+		], $feature->to_array() );
+	}
+
+	/**
+	 * Tests that to_array round-trips through from_array.
+	 *
+	 * @return void
+	 */
+	public function test_to_array_round_trips_through_from_array(): void {
+		$data = [
+			'slug'          => 'test-feature',
+			'group'         => 'TEC',
+			'tier'          => 'Tier 1',
+			'name'          => 'Test Feature',
+			'description'   => 'Test feature description.',
+			'is_available'  => true,
+			'documentation' => 'https://example.com/docs',
+		];
+
+		$feature = Built_In::from_array( $data );
+
+		$this->assertSame( $data, $feature->to_array() );
+	}
+
+	/**
 	 * Tests that the description defaults to an empty string when omitted from the array.
 	 *
 	 * @return void

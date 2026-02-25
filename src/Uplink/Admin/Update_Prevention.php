@@ -86,7 +86,7 @@ class Update_Prevention {
 		 *
 		 * @since  4.9.12
 		 *
-		 * @param bool        $should_revent        Flag false to skip the prevention.
+		 * @param bool        $should_prevent       Flag false to skip the prevention.
 		 * @param string      $plugin               Plugin core file path
 		 * @param array       $incompatible_plugins Which plugins were incompatible with new version of the plugin.
 		 * @param string      $source               File source location.

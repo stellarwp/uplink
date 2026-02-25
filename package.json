@@ -1,19 +1,37 @@
 {
   "name": "uplink",
   "private": true,
+  "scripts": {
+    "build":      "BUILD_MODE=prod NODE_ENV=production wp-scripts build",
+    "build:dev":  "BUILD_MODE=dev NODE_ENV=development wp-scripts build",
+    "build:prod": "BUILD_MODE=prod NODE_ENV=production wp-scripts build",
+    "start":      "BUILD_MODE=dev NODE_ENV=development wp-scripts start",
+    "typecheck":  "tsc --noEmit",
+    "format":     "wp-scripts format",
+    "lint:js":    "wp-scripts lint-js",
+    "lint:css":   "wp-scripts lint-style"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.90.10",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "radix-ui": "^1.4.3",
+    "tailwind-merge": "^2.6.0"
+  },
   "devDependencies": {
-    "@stellarwp/changelogger": "^0.10.0"
+    "@stellarwp/changelogger": "^0.10.0",
+    "@tailwindcss/postcss": "^4.1.17",
+    "@wordpress/scripts": "^31.1.0",
+    "autoprefixer": "^10.4.22",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.17",
+    "typescript": "^5.9.3"
   },
   "changelogger": {
     "changesDir": "changelog",
     "linkTemplate": "https://github.com/stellarwp/uplink/compare/${old}...${new}",
     "ordering": ["type", "content"],
     "versioning": "semver",
-    "files": [
-      {
-        "path": "changelog.txt",
-        "strategy": "stellarwp-changelog"
-      }
-    ]
+    "files": [{ "path": "changelog.txt", "strategy": "stellarwp-changelog" }]
   }
 }

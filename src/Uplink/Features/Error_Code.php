@@ -20,4 +20,13 @@ class Error_Code {
 	 * @var string
 	 */
 	public const FEATURE_NOT_FOUND = 'stellarwp-uplink-feature-not-found';
+
+	/**
+	 * A feature check failed due to an unexpected error.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const FEATURE_CHECK_FAILED = 'stellarwp-uplink-feature-check-failed';
 }

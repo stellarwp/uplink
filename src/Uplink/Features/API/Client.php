@@ -124,22 +124,11 @@ class Client {
 	 * @return Collection
 	 */
 	private function hydrate( array $response ): Collection {
-		/**
-		 * Filters the feature type to class map used during hydration.
-		 *
-		 * @since TBD
-		 *
-		 * @param array<string, class-string<Feature>> $type_map The current type map.
-		 *
-		 * @return array<string, class-string<Feature>> The filtered type map.
-		 */
-		$type_map = apply_filters( 'stellarwp/uplink/feature_type_map', $this->type_map );
-
 		$collection = new Collection();
 
 		foreach ( $response as $entry ) {
 			$type  = $entry['type'] ?? null;
-			$class = $type_map[ $type ] ?? null;
+			$class = $this->type_map[ $type ] ?? null;
 
 			if ( $class === null ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {

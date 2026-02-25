@@ -8,7 +8,6 @@
  */
 import { __, sprintf } from '@wordpress/i18n';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { BrandIcon } from '@/components/atoms/BrandIcon';
 import { FeatureRow } from '@/components/molecules/FeatureRow';
@@ -39,12 +38,13 @@ export function ProductSection( { product, onAddLicense }: ProductSectionProps )
     const tierName =
         product.tiers.find( ( t ) => t.slug === tier )?.name ?? '';
 
-    const handleProductToggle = ( checked: boolean ) => {
-        toggleProduct( product.slug, checked );
-        const msg = checked
-            ? sprintf( __( '%s enabled', '%TEXTDOMAIN%' ), product.name )
-            : sprintf( __( '%s disabled', '%TEXTDOMAIN%' ), product.name );
-        addToast( msg, checked ? 'success' : 'default' );
+    const handleProductToggle = () => {
+        const next = ! isEnabled;
+        toggleProduct( product.slug, next );
+        const msg = next
+            ? sprintf( __( '%s activated', '%TEXTDOMAIN%' ), product.name )
+            : sprintf( __( '%s deactivated', '%TEXTDOMAIN%' ), product.name );
+        addToast( msg, next ? 'success' : 'default' );
     };
 
     // Features are visible only when the product is licensed and enabled.
@@ -87,15 +87,16 @@ export function ProductSection( { product, onAddLicense }: ProductSectionProps )
                 </div>
 
                 { license ? (
-                    <Switch
-                        checked={ isEnabled }
-                        onCheckedChange={ handleProductToggle }
-                        aria-label={
-                            isEnabled
-                                ? sprintf( __( 'Disable %s', '%TEXTDOMAIN%' ), product.name )
-                                : sprintf( __( 'Enable %s', '%TEXTDOMAIN%' ), product.name )
+                    <Button
+                        size="sm"
+                        variant={ isEnabled ? 'outline' : 'default' }
+                        onClick={ handleProductToggle }
+                    >
+                        { isEnabled
+                            ? sprintf( __( 'Deactivate %s', '%TEXTDOMAIN%' ), product.name )
+                            : sprintf( __( 'Activate %s', '%TEXTDOMAIN%' ), product.name )
                         }
-                    />
+                    </Button>
                 ) : (
                     <Button size="sm" onClick={ onAddLicense }>
                         { __( 'Add License', '%TEXTDOMAIN%' ) }
@@ -120,7 +121,7 @@ export function ProductSection( { product, onAddLicense }: ProductSectionProps )
                 <p className="px-4 py-6 text-sm text-muted-foreground text-center">
                     { ! license
                         ? sprintf( __( 'Add a license to unlock %s features.', '%TEXTDOMAIN%' ), product.name )
-                        : sprintf( __( '%s is disabled. Enable it to manage features.', '%TEXTDOMAIN%' ), product.name )
+                        : sprintf( __( '%s is deactivated. Activate it to manage features.', '%TEXTDOMAIN%' ), product.name )
                     }
                 </p>
             ) }

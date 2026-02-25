@@ -115,7 +115,7 @@ class Client {
 	 *
 	 * @return array<int, array<string, mixed>>|WP_Error The decoded response entries or an error.
 	 */
-	private function request() {
+	private function request() { // @phpstan-ignore-line return.unusedType -- Remove once the API request is implemented.
 		// TODO: Implement the actual API request to Commerce Portal.
 		// Should send site domain + license keys and return the feature catalog.
 		return [];

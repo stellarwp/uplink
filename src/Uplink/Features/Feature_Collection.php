@@ -9,6 +9,8 @@ use StellarWP\Uplink\Utils\Collection;
  * A collection of Feature objects, keyed by slug.
  *
  * @since 3.0.0
+ *
+ * @extends Collection<Feature>
  */
 class Feature_Collection extends Collection {
 

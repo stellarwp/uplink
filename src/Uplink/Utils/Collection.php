@@ -11,6 +11,11 @@ use Iterator;
  * A generic keyed collection.
  *
  * @since 3.0.0
+ *
+ * @template TValue
+ *
+ * @implements ArrayAccess<string, TValue>
+ * @implements Iterator<string, TValue>
  */
 class Collection implements ArrayAccess, Iterator, Countable {
 
@@ -19,7 +24,7 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @var array<string, mixed>
+	 * @var array<string, TValue>
 	 */
 	protected array $items;
 
@@ -28,7 +33,7 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @var Iterator<string, mixed>|null
+	 * @var Iterator<string, TValue>|null
 	 */
 	private ?Iterator $iterator = null;
 
@@ -37,7 +42,7 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Iterator<string, mixed>|array<string, mixed> $items An array or iterator of items.
+	 * @param Iterator<string, TValue>|array<string, TValue> $items An array or iterator of items.
 	 *
 	 * @return void
 	 */
@@ -53,7 +58,7 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	/**
 	 * @since 3.0.0
 	 *
-	 * @return mixed
+	 * @return TValue|false
 	 */
 	#[\ReturnTypeWillChange]
 	public function current() {
@@ -67,7 +72,7 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @param string $offset The item key.
 	 *
-	 * @return mixed|null
+	 * @return TValue|null
 	 */
 	public function get( $offset ) {
 		return $this->offsetGet( $offset );
@@ -100,7 +105,7 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	/**
 	 * @since 3.0.0
 	 *
-	 * @return mixed|null
+	 * @return TValue|null
 	 */
 	#[\ReturnTypeWillChange]
 	public function offsetGet( $offset ) {
@@ -160,7 +165,7 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @return Iterator<string, mixed>
+	 * @return Iterator<string, TValue>
 	 */
 	public function getIterator(): Iterator {
 		if ( isset( $this->iterator ) ) {

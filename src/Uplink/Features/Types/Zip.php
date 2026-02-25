@@ -2,6 +2,8 @@
 
 namespace StellarWP\Uplink\Features\Types;
 
+use StellarWP\Uplink\Utils\Cast;
+
 /**
  * A Feature delivered as a standalone WordPress plugin ZIP.
  *
@@ -13,67 +15,35 @@ namespace StellarWP\Uplink\Features\Types;
 final class Zip extends Feature {
 
 	/**
-	 * The plugin file path relative to the plugins directory.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var string
-	 */
-	protected string $plugin_file;
-
-	/**
 	 * Constructor for a Feature delivered as a standalone WordPress plugin ZIP.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $slug          The feature slug.
-	 * @param string $group         The product group (e.g. 'LearnDash', 'TEC').
-	 * @param string $tier          The feature tier (e.g. 'Tier 1', 'Tier 2').
-	 * @param string $name          The feature display name.
-	 * @param string $description   The feature description.
-	 * @param string $plugin_file   The plugin file path (e.g. 'my-plugin/my-plugin.php').
-	 * @param bool   $is_available  Whether the feature is available.
-	 * @param string $documentation_url The URL to the feature documentation.
+	 * @param array<string, mixed> $attributes The feature attributes.
 	 *
 	 * @return void
 	 */
-	public function __construct( string $slug, string $group, string $tier, string $name, string $description, string $plugin_file, bool $is_available, string $documentation_url = '' ) {
-		parent::__construct( $slug, $group, $tier, $name, $description, 'zip', $is_available, $documentation_url );
+	public function __construct( array $attributes ) {
+		$attributes['type'] = 'zip';
 
-		$this->plugin_file = $plugin_file;
+		parent::__construct( $attributes );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public static function from_array( array $data ) {
-		return new self(
-			$data['slug'],
-			$data['group'],
-			$data['tier'],
-			$data['name'],
-			$data['description'] ?? '',
-			$data['plugin_file'],
-			$data['is_available'],
-			$data['documentation_url'] ?? ''
-		);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function to_array(): array {
-		return [
-			'slug' => $this->get_slug(),
-			'group' => $this->get_group(),
-			'tier' => $this->get_tier(),
-			'name' => $this->get_name(),
-			'description' => $this->get_description(),
-			'type' => $this->get_type(),
-			'plugin_file' => $this->get_plugin_file(),
-			'is_available' => $this->is_available(),
-			'documentation_url' => $this->get_documentation_url(),
-		];
+		return new self( [
+			'slug'              => $data['slug'],
+			'group'             => $data['group'],
+			'tier'              => $data['tier'],
+			'name'              => $data['name'],
+			'description'       => $data['description'] ?? '',
+			'type'              => 'zip',
+			'plugin_file'       => $data['plugin_file'],
+			'is_available'      => $data['is_available'],
+			'documentation_url' => $data['documentation_url'] ?? '',
+		] );
 	}
 
 	/**
@@ -84,6 +54,6 @@ final class Zip extends Feature {
 	 * @return string
 	 */
 	public function get_plugin_file(): string {
-		return $this->plugin_file;
+		return Cast::to_string( $this->attributes['plugin_file'] ?? '' );
 	}
 }

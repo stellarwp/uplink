@@ -22,7 +22,16 @@ final class FeatureTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->feature = new class( 'test-feature', 'TEC', 'Tier 1', 'Test Feature', 'A test feature.', 'test-type', true, 'https://example.com/docs' ) extends Feature {
+		$this->feature = new class( [
+			'slug'              => 'test-feature',
+			'group'             => 'TEC',
+			'tier'              => 'Tier 1',
+			'name'              => 'Test Feature',
+			'description'       => 'A test feature.',
+			'type'              => 'test-type',
+			'is_available'      => true,
+			'documentation_url' => 'https://example.com/docs',
+		] ) extends Feature {
 
 			/**
 			 * Creates a Feature instance from an associative array.
@@ -32,34 +41,16 @@ final class FeatureTest extends UplinkTestCase {
 			 * @return static
 			 */
 			public static function from_array( array $data ) {
-				return new self(
-					$data['slug'],
-					$data['group'],
-					$data['tier'],
-					$data['name'],
-					$data['description'] ?? '',
-					$data['type'] ?? 'test-type',
-					$data['is_available'],
-					$data['documentation_url'] ?? ''
-				);
-			}
-
-			/**
-			 * Converts the feature to an associative array.
-			 *
-			 * @return array<string, mixed>
-			 */
-			public function to_array(): array {
-				return [
-					'slug'          => $this->get_slug(),
-					'group'         => $this->get_group(),
-					'tier'          => $this->get_tier(),
-					'name'          => $this->get_name(),
-					'description'   => $this->get_description(),
-					'type'          => $this->get_type(),
-					'is_available'  => $this->is_available(),
-					'documentation_url' => $this->get_documentation_url(),
-				];
+				return new self( [
+					'slug'              => $data['slug'],
+					'group'             => $data['group'],
+					'tier'              => $data['tier'],
+					'name'              => $data['name'],
+					'description'       => $data['description'] ?? '',
+					'type'              => $data['type'] ?? 'test-type',
+					'is_available'      => $data['is_available'],
+					'documentation_url' => $data['documentation_url'] ?? '',
+				] );
 			}
 		};
 	}
@@ -145,13 +136,13 @@ final class FeatureTest extends UplinkTestCase {
 		$result = $this->feature->to_array();
 
 		$this->assertSame( [
-			'slug'          => 'test-feature',
-			'group'         => 'TEC',
-			'tier'          => 'Tier 1',
-			'name'          => 'Test Feature',
-			'description'   => 'A test feature.',
-			'type'          => 'test-type',
-			'is_available'  => true,
+			'slug'              => 'test-feature',
+			'group'             => 'TEC',
+			'tier'              => 'Tier 1',
+			'name'              => 'Test Feature',
+			'description'       => 'A test feature.',
+			'type'              => 'test-type',
+			'is_available'      => true,
 			'documentation_url' => 'https://example.com/docs',
 		], $result );
 	}
@@ -163,13 +154,13 @@ final class FeatureTest extends UplinkTestCase {
 	 */
 	public function test_from_array(): void {
 		$feature = $this->feature::from_array( [
-			'slug'          => 'from-array-feature',
-			'group'         => 'LearnDash',
-			'tier'          => 'Tier 2',
-			'name'          => 'From Array',
-			'description'   => 'Hydrated from array.',
-			'type'          => 'custom-type',
-			'is_available'  => false,
+			'slug'              => 'from-array-feature',
+			'group'             => 'LearnDash',
+			'tier'              => 'Tier 2',
+			'name'              => 'From Array',
+			'description'       => 'Hydrated from array.',
+			'type'              => 'custom-type',
+			'is_available'      => false,
 			'documentation_url' => 'https://example.com/learn-more',
 		] );
 

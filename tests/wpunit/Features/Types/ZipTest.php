@@ -14,13 +14,13 @@ final class ZipTest extends UplinkTestCase {
 	 */
 	public function test_it_creates_from_array(): void {
 		$feature = Zip::from_array( [
-			'slug'          => 'test-feature',
-			'group'         => 'LearnDash',
-			'tier'          => 'Tier 2',
-			'name'          => 'Test Feature',
-			'description'   => 'Test feature description.',
-			'plugin_file'   => 'test-feature/test-feature.php',
-			'is_available'  => true,
+			'slug'              => 'test-feature',
+			'group'             => 'LearnDash',
+			'tier'              => 'Tier 2',
+			'name'              => 'Test Feature',
+			'description'       => 'Test feature description.',
+			'plugin_file'       => 'test-feature/test-feature.php',
+			'is_available'      => true,
 			'documentation_url' => 'https://example.com/docs',
 		] );
 
@@ -42,18 +42,27 @@ final class ZipTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_to_array(): void {
-		$feature = new Zip( 'test-feature', 'LearnDash', 'Tier 2', 'Test Feature', 'Test feature description.', 'test-feature/test-feature.php', true, 'https://example.com/docs' );
+		$feature = new Zip( [
+			'slug'              => 'test-feature',
+			'group'             => 'LearnDash',
+			'tier'              => 'Tier 2',
+			'name'              => 'Test Feature',
+			'description'       => 'Test feature description.',
+			'plugin_file'       => 'test-feature/test-feature.php',
+			'is_available'      => true,
+			'documentation_url' => 'https://example.com/docs',
+		] );
 
 		$this->assertSame( [
-			'slug'          => 'test-feature',
-			'group'         => 'LearnDash',
-			'tier'          => 'Tier 2',
-			'name'          => 'Test Feature',
-			'description'   => 'Test feature description.',
-			'type'          => 'zip',
-			'plugin_file'   => 'test-feature/test-feature.php',
-			'is_available'  => true,
+			'slug'              => 'test-feature',
+			'group'             => 'LearnDash',
+			'tier'              => 'Tier 2',
+			'name'              => 'Test Feature',
+			'description'       => 'Test feature description.',
+			'plugin_file'       => 'test-feature/test-feature.php',
+			'is_available'      => true,
 			'documentation_url' => 'https://example.com/docs',
+			'type'              => 'zip',
 		], $feature->to_array() );
 	}
 
@@ -64,14 +73,14 @@ final class ZipTest extends UplinkTestCase {
 	 */
 	public function test_to_array_round_trips_through_from_array(): void {
 		$data = [
-			'slug'          => 'test-feature',
-			'group'         => 'LearnDash',
-			'tier'          => 'Tier 2',
-			'name'          => 'Test Feature',
-			'description'   => 'Test feature description.',
-			'type'          => 'zip',
-			'plugin_file'   => 'test-feature/test-feature.php',
-			'is_available'  => true,
+			'slug'              => 'test-feature',
+			'group'             => 'LearnDash',
+			'tier'              => 'Tier 2',
+			'name'              => 'Test Feature',
+			'description'       => 'Test feature description.',
+			'type'              => 'zip',
+			'plugin_file'       => 'test-feature/test-feature.php',
+			'is_available'      => true,
 			'documentation_url' => 'https://example.com/docs',
 		];
 
@@ -104,7 +113,15 @@ final class ZipTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_always_has_zip_type(): void {
-		$feature = new Zip( 'test-feature', 'LearnDash', 'Tier 2', 'Test Feature', 'Test feature description.', 'test-feature/test-feature.php', true );
+		$feature = new Zip( [
+			'slug'         => 'test-feature',
+			'group'        => 'LearnDash',
+			'tier'         => 'Tier 2',
+			'name'         => 'Test Feature',
+			'description'  => 'Test feature description.',
+			'plugin_file'  => 'test-feature/test-feature.php',
+			'is_available' => true,
+		] );
 
 		$this->assertSame( 'zip', $feature->get_type() );
 	}

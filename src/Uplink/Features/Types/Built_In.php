@@ -5,14 +5,14 @@ namespace StellarWP\Uplink\Features\Types;
 /**
  * A Feature built in to an existing plugin, gated by a DB option flag.
  *
- * @since TBD
+ * @since 3.0.0
  */
 final class Built_In extends Feature {
 
 	/**
 	 * Constructor for a Feature built in to an existing plugin.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @param string $slug          The feature slug.
 	 * @param string $group         The product group (e.g. 'LearnDash', 'TEC').

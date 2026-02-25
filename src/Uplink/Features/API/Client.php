@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\Features\API;
 
-use StellarWP\Uplink\Features\Collection;
+use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Types\Feature;
 use WP_Error;
 
@@ -10,14 +10,14 @@ use WP_Error;
  * Fetches the feature catalog from the Commerce Portal API and
  * caches the result as a WordPress transient.
  *
- * @since TBD
+ * @since 3.0.0
  */
 class Client {
 
 	/**
 	 * Transient key for the cached feature catalog.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @var string
 	 */
@@ -26,7 +26,7 @@ class Client {
 	/**
 	 * Default cache duration in seconds (12 hours).
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @var int
 	 */
@@ -35,7 +35,7 @@ class Client {
 	/**
 	 * Map of feature type strings to Feature subclass names.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @var array<string, class-string<Feature>>
 	 */
@@ -44,7 +44,7 @@ class Client {
 	/**
 	 * Registers a Feature subclass for a given type string.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @param string                $type          The feature type identifier (e.g. 'zip', 'built_in').
 	 * @param class-string<Feature> $feature_class The Feature subclass FQCN.
@@ -58,14 +58,14 @@ class Client {
 	/**
 	 * Gets the feature collection, using the transient cache when available.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
-	 * @return Collection|WP_Error
+	 * @return Feature_Collection|WP_Error
 	 */
 	public function get_features() {
 		$cached = get_transient( self::TRANSIENT_KEY );
 
-		if ( $cached instanceof Collection || is_wp_error( $cached ) ) {
+		if ( $cached instanceof Feature_Collection || is_wp_error( $cached ) ) {
 			return $cached;
 		}
 
@@ -75,9 +75,9 @@ class Client {
 	/**
 	 * Deletes the transient cache and re-fetches from the API.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
-	 * @return Collection|WP_Error
+	 * @return Feature_Collection|WP_Error
 	 */
 	public function refresh() {
 		delete_transient( self::TRANSIENT_KEY );
@@ -88,9 +88,9 @@ class Client {
 	/**
 	 * Fetches features from the Commerce Portal API and caches the result.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
-	 * @return Collection|WP_Error
+	 * @return Feature_Collection|WP_Error
 	 */
 	private function fetch_features() {
 		$response = $this->request();
@@ -111,7 +111,7 @@ class Client {
 	/**
 	 * Performs the HTTP request to the Commerce Portal API.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return array<int, array<string, mixed>>|WP_Error The decoded response entries or an error.
 	 */
@@ -124,14 +124,14 @@ class Client {
 	/**
 	 * Hydrates Feature objects from the API response using a type-to-class map.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @param array<int, array<string, mixed>> $response The API response entries.
 	 *
-	 * @return Collection
+	 * @return Feature_Collection
 	 */
-	private function hydrate( array $response ): Collection {
-		$collection = new Collection();
+	private function hydrate( array $response ): Feature_Collection {
+		$collection = new Feature_Collection();
 
 		foreach ( $response as $entry ) {
 			$type  = $entry['type'] ?? null;

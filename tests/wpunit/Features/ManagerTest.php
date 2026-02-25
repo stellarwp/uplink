@@ -3,7 +3,7 @@
 namespace StellarWP\Uplink\Tests\Features;
 
 use StellarWP\Uplink\Features\API\Client;
-use StellarWP\Uplink\Features\Collection;
+use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Features\Strategy\Resolver;
@@ -23,9 +23,9 @@ final class ManagerTest extends UplinkTestCase {
 	/**
 	 * The feature collection used by the manager.
 	 *
-	 * @var Collection
+	 * @var Feature_Collection
 	 */
-	private Collection $collection;
+	private Feature_Collection $collection;
 
 	/**
 	 * The mocked feature strategy.
@@ -42,7 +42,7 @@ final class ManagerTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->collection = new Collection();
+		$this->collection = new Feature_Collection();
 		$this->collection->add( $this->makeEmpty( Feature::class, [ 'get_slug' => 'test-feature' ] ) );
 
 		$catalog = $this->makeEmpty( Client::class, [
@@ -152,7 +152,7 @@ final class ManagerTest extends UplinkTestCase {
 	public function test_get_features_returns_collection(): void {
 		$features = $this->manager->get_features();
 
-		$this->assertInstanceOf( Collection::class, $features );
+		$this->assertInstanceOf( Feature_Collection::class, $features );
 		$this->assertSame( 1, $features->count() );
 	}
 

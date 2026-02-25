@@ -9,14 +9,14 @@ use WP_Error;
  * Strategy interface for enabling, disabling, and checking
  * the active state of a Feature.
  *
- * @since TBD
+ * @since 3.0.0
  */
 interface Strategy {
 
 	/**
 	 * Enables a feature.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @param Feature $feature The feature to enable.
 	 *
@@ -27,7 +27,7 @@ interface Strategy {
 	/**
 	 * Disables a feature.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @param Feature $feature The feature to disable.
 	 *
@@ -42,7 +42,7 @@ interface Strategy {
 	 * If the live state differs from any stored flag, the stored flag
 	 * should be updated to match (self-healing).
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @param Feature $feature The feature to check.
 	 *

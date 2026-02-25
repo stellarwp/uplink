@@ -3,7 +3,7 @@
 namespace StellarWP\Uplink\Tests\Features\API;
 
 use StellarWP\Uplink\Features\API\Client;
-use StellarWP\Uplink\Features\Collection;
+use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
@@ -41,14 +41,14 @@ final class ClientTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Tests get_features returns a Collection instance.
+	 * Tests get_features returns a Feature_Collection instance.
 	 *
 	 * @return void
 	 */
 	public function test_it_returns_a_collection(): void {
 		$features = $this->client->get_features();
 
-		$this->assertInstanceOf( Collection::class, $features );
+		$this->assertInstanceOf( Feature_Collection::class, $features );
 	}
 
 	/**
@@ -61,7 +61,7 @@ final class ClientTest extends UplinkTestCase {
 
 		$cached = get_transient( 'stellarwp_uplink_feature_catalog' );
 
-		$this->assertInstanceOf( Collection::class, $cached );
+		$this->assertInstanceOf( Feature_Collection::class, $cached );
 	}
 
 	/**
@@ -72,15 +72,15 @@ final class ClientTest extends UplinkTestCase {
 	public function test_refresh_clears_transient(): void {
 		$this->client->get_features();
 
-		$this->assertInstanceOf( Collection::class, get_transient( 'stellarwp_uplink_feature_catalog' ) );
+		$this->assertInstanceOf( Feature_Collection::class, get_transient( 'stellarwp_uplink_feature_catalog' ) );
 
 		$this->client->refresh();
 
 		/**
 		 * After refresh, a new transient is set immediately from the re-fetch.
-		 * Verify it's still a Collection (was re-fetched, not stale).
+		 * Verify it's still a Feature_Collection (was re-fetched, not stale).
 		 */
-		$this->assertInstanceOf( Collection::class, get_transient( 'stellarwp_uplink_feature_catalog' ) );
+		$this->assertInstanceOf( Feature_Collection::class, get_transient( 'stellarwp_uplink_feature_catalog' ) );
 	}
 
 	/**
@@ -89,7 +89,7 @@ final class ClientTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_returns_cached_collection(): void {
-		$collection = new Collection();
+		$collection = new Feature_Collection();
 		$collection->add( $this->makeEmpty( Feature::class, [ 'get_slug' => 'cached-feature' ] ) );
 
 		set_transient( 'stellarwp_uplink_feature_catalog', $collection );

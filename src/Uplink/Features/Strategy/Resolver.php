@@ -13,14 +13,14 @@ use StellarWP\Uplink\Features\Types\Feature;
  * New types can be added via register() or by filtering the
  * 'stellarwp/uplink/feature_strategy_map' hook.
  *
- * @since TBD
+ * @since 3.0.0
  */
 class Resolver {
 
 	/**
 	 * The DI container.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @var ContainerInterface
 	 */
@@ -29,7 +29,7 @@ class Resolver {
 	/**
 	 * Map of feature type strings to strategy class names.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @var array<string, class-string<Strategy>>
 	 */
@@ -38,7 +38,7 @@ class Resolver {
 	/**
 	 * Constructor for the feature type to strategy map resolver.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @param ContainerInterface $container The DI container.
 	 *
@@ -51,7 +51,7 @@ class Resolver {
 	/**
 	 * Registers a strategy class for a feature type.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @param string                 $type           The feature type identifier (e.g. 'zip', 'built_in').
 	 * @param class-string<Strategy> $strategy_class The strategy FQCN.
@@ -68,7 +68,7 @@ class Resolver {
 	 * The internal map is filtered through 'stellarwp/uplink/feature_strategy_map'
 	 * before lookup, allowing consumers to add custom strategies.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @param Feature $feature The feature to resolve a strategy for.
 	 *
@@ -80,7 +80,7 @@ class Resolver {
 		/**
 		 * Filters the feature type to strategy class map.
 		 *
-		 * @since TBD
+		 * @since 3.0.0
 		 *
 		 * @param array<string, class-string<Strategy>> $map The current type map.
 		 *

@@ -8,14 +8,14 @@ namespace StellarWP\Uplink\Features\Types;
  * The download URL is resolved at install time through the existing
  * plugins_api filter, not stored on the object.
  *
- * @since TBD
+ * @since 3.0.0
  */
 final class Zip extends Feature {
 
 	/**
 	 * The plugin file path relative to the plugins directory.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @var string
 	 */
@@ -24,7 +24,7 @@ final class Zip extends Feature {
 	/**
 	 * Constructor for a Feature delivered as a standalone WordPress plugin ZIP.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @param string $slug          The feature slug.
 	 * @param string $group         The product group (e.g. 'LearnDash', 'TEC').
@@ -62,7 +62,7 @@ final class Zip extends Feature {
 	/**
 	 * Gets the plugin file path relative to the plugins directory.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return string
 	 */

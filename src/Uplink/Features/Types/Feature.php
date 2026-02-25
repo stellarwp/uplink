@@ -8,14 +8,14 @@ namespace StellarWP\Uplink\Features\Types;
  * Features are immutable value objects hydrated from the Commerce Portal API.
  * Each subclass implements from_array() to handle type-specific fields.
  *
- * @since TBD
+ * @since 3.0.0
  */
 abstract class Feature {
 
 	/**
 	 * The feature slug.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @var string
 	 */
@@ -24,7 +24,7 @@ abstract class Feature {
 	/**
 	 * The product group the feature belongs to (e.g. 'LearnDash', 'TEC').
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @var string
 	 */
@@ -33,7 +33,7 @@ abstract class Feature {
 	/**
 	 * The feature tier (e.g. 'Tier 1', 'Tier 2').
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @var string
 	 */
@@ -42,7 +42,7 @@ abstract class Feature {
 	/**
 	 * The feature display name.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @var string
 	 */
@@ -51,7 +51,7 @@ abstract class Feature {
 	/**
 	 * The feature description.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @var string
 	 */
@@ -60,7 +60,7 @@ abstract class Feature {
 	/**
 	 * The feature type identifier (e.g. 'zip', 'built_in').
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @var string
 	 */
@@ -69,7 +69,7 @@ abstract class Feature {
 	/**
 	 * Whether the feature is available for the current site.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @var bool
 	 */
@@ -78,7 +78,7 @@ abstract class Feature {
 	/**
 	 * The URL linking to the feature documentation or learn-more page.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @var string
 	 */
@@ -87,7 +87,7 @@ abstract class Feature {
 	/**
 	 * Constructor for a Feature object.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @param string $slug          The feature slug.
 	 * @param string $group         The product group (e.g. 'LearnDash', 'TEC').
@@ -114,7 +114,7 @@ abstract class Feature {
 	/**
 	 * Creates a Feature instance from an associative array.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @param array<string, mixed> $data The feature data from the API response.
 	 *
@@ -126,7 +126,7 @@ abstract class Feature {
 	/**
 	 * Gets the feature slug.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return string
 	 */
@@ -137,7 +137,7 @@ abstract class Feature {
 	/**
 	 * Gets the product group the feature belongs to.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return string
 	 */
@@ -148,7 +148,7 @@ abstract class Feature {
 	/**
 	 * Gets the feature tier.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return string
 	 */
@@ -159,7 +159,7 @@ abstract class Feature {
 	/**
 	 * Gets the feature display name.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return string
 	 */
@@ -170,7 +170,7 @@ abstract class Feature {
 	/**
 	 * Gets the feature description.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return string
 	 */
@@ -181,7 +181,7 @@ abstract class Feature {
 	/**
 	 * Gets the feature type identifier.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return string
 	 */
@@ -192,7 +192,7 @@ abstract class Feature {
 	/**
 	 * Checks whether the feature is available for the current site.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return bool
 	 */
@@ -203,7 +203,7 @@ abstract class Feature {
 	/**
 	 * Gets the URL to the feature documentation or learn-more page.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return string
 	 */

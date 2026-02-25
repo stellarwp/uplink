@@ -14,14 +14,14 @@ use WP_REST_Server;
  *
  * Restricted to logged-in Administrators (manage_options capability).
  *
- * @since TBD
+ * @since 3.0.0
  */
 class Toggle_Controller extends WP_REST_Controller {
 
 	/**
 	 * The REST API namespace.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @var string
 	 */
@@ -30,7 +30,7 @@ class Toggle_Controller extends WP_REST_Controller {
 	/**
 	 * The REST API route base.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @var string
 	 */
@@ -39,7 +39,7 @@ class Toggle_Controller extends WP_REST_Controller {
 	/**
 	 * The feature manager instance.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @var Manager
 	 */
@@ -48,7 +48,7 @@ class Toggle_Controller extends WP_REST_Controller {
 	/**
 	 * Constructor for the feature toggle REST API controller.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @param Manager $manager The feature manager.
 	 *
@@ -61,7 +61,7 @@ class Toggle_Controller extends WP_REST_Controller {
 	/**
 	 * Registers the routes.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return void
 	 */
@@ -90,7 +90,7 @@ class Toggle_Controller extends WP_REST_Controller {
 	/**
 	 * Permission callback: require manage_options capability.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return bool
 	 */
@@ -101,7 +101,7 @@ class Toggle_Controller extends WP_REST_Controller {
 	/**
 	 * Enables a feature.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 *
@@ -125,7 +125,7 @@ class Toggle_Controller extends WP_REST_Controller {
 	/**
 	 * Disables a feature.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 *
@@ -149,7 +149,7 @@ class Toggle_Controller extends WP_REST_Controller {
 	/**
 	 * Gets the schema for a single feature toggle response.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return array<string, mixed>
 	 */
@@ -184,7 +184,7 @@ class Toggle_Controller extends WP_REST_Controller {
 	/**
 	 * Gets the slug argument definition.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return array<string, array<string, mixed>>
 	 */

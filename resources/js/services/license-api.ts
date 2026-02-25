@@ -6,13 +6,19 @@
  * marked "API:" are the real implementation; the lines marked "Mock:" are the
  * temporary stand-in.
  *
- * Migration checklist (do these steps when the REST API is ready):
- *  1. `bun add @wordpress/api-fetch`
- *  2. Uncomment every "API:" line and delete every "Mock:" block.
- *  3. Remove the `persist` middleware from `stores/license-store.ts`.
- *  4. Add an `initialize()` action to `license-store.ts` that calls `fetchState()`.
- *  5. Call `useLicenseStore.getState().initialize()` from `App.tsx` on mount.
- *  6. Delete `stores/license-storage.ts` (no longer needed).
+ * @todo 1. Run: bun add @wordpress/api-fetch
+ * @todo 2. In every function below: uncomment the "API:" lines, delete the "Mock:" blocks.
+ * @todo 3. Remove the `persist` middleware from `stores/license-store.ts` (see TODOs there).
+ * @todo 4. Add an `initialize()` action to `stores/license-store.ts` that calls `fetchState()`
+ *          (see TODO in that file for the exact implementation).
+ * @todo 5. Call `useLicenseStore.getState().initialize()` from `App.tsx` on mount
+ *          (see TODO in that file for the exact implementation).
+ * @todo 6. Delete `stores/license-storage.ts` — no longer needed once persist is removed.
+ * @todo 7. Remove the `current: LicenseState` parameter from `activateLicense` and
+ *          `deactivateLicense` — the server derives state from the site token, not the client.
+ *          Update callers in `stores/license-store.ts` accordingly.
+ * @todo 8. Delete the "Mock persistence helpers" section below (STORAGE_KEY, emptyState,
+ *          readMockStorage) — no longer needed once the API is active.
  *
  * @package StellarWP\Uplink
  */
@@ -50,17 +56,18 @@ export interface ActivateSuccess {
 }
 
 // ---------------------------------------------------------------------------
-// Mock persistence helpers — deleted when the REST API is active.
+// Mock persistence helpers
+// @TODO (step 8): Delete this entire section once the REST API is active.
 // ---------------------------------------------------------------------------
 
 /** Key used by the Zustand persist middleware; read here for initialisation. */
-const STORAGE_KEY = 'stellarwp-uplink-licenses';
+const STORAGE_KEY = 'stellarwp-uplink-licenses'; // @TODO (step 8): Delete.
 
-function emptyState(): LicenseState {
+function emptyState(): LicenseState { // @TODO (step 8): Delete.
     return { activeLicenses: [], featureStates: [], productEnabled: {} };
 }
 
-function readMockStorage(): LicenseState {
+function readMockStorage(): LicenseState { // @TODO (step 8): Delete.
     try {
         const raw = localStorage.getItem( STORAGE_KEY );
         if ( ! raw ) return emptyState();
@@ -82,8 +89,9 @@ function readMockStorage(): LicenseState {
  * Returns the full license + feature state persisted for this site.
  * Used to hydrate the store on mount once the `persist` middleware is removed.
  *
- * @todo Step 4 of migration checklist — add `initialize()` to the store that
- *       calls this, then invoke it from App.tsx.
+ * @todo (step 2): Uncomment the "API:" line and delete the "Mock:" block below.
+ * @todo (step 4): This function is called by the `initialize()` action you will
+ *                 add to `stores/license-store.ts`.
  */
 export async function fetchState(): Promise<LicenseState> {
     // API: return apiFetch<LicenseState>({ path: '/uplink/v1/state' });
@@ -91,6 +99,7 @@ export async function fetchState(): Promise<LicenseState> {
     // Mock: the Zustand persist middleware already hydrates the store from
     // localStorage on mount, so this path is only reached once persist is
     // removed. Read the same key persist writes so data is never lost.
+    // @TODO (step 2): Delete the four lines below.
     return readMockStorage();
 }
 
@@ -102,10 +111,14 @@ export async function fetchState(): Promise<LicenseState> {
  * the shape the store needs to merge into its local state.
  *
  * Returns `{ error }` on failure so callers never need to catch.
+ *
+ * @todo (step 2): Uncomment the "API:" block and delete the "Mock:" block below.
+ * @todo (step 7): Remove the `current` parameter — the server derives state
+ *                 server-side. Update the caller in `stores/license-store.ts`.
  */
 export async function activateLicense(
     key: string,
-    current: LicenseState,
+    current: LicenseState, // @TODO (step 7): Remove — server derives state from site token.
 ): Promise<ActivateSuccess | { error: string }> {
     // API: return apiFetch<ActivateSuccess>({
     // API:     path:   '/uplink/v1/licenses',
@@ -114,6 +127,7 @@ export async function activateLicense(
     // API: });
 
     // Mock: simulate network round-trip + validate against fixture data.
+    // @TODO (step 2): Delete everything from here to the end of the function.
     await new Promise<void>( ( resolve ) => setTimeout( resolve, 1200 ) );
 
     const license = findLicense( key );
@@ -157,15 +171,20 @@ export async function activateLicense(
  * all coverage are pruned.
  *
  * Returns `{ error }` on failure so callers never need to catch.
+ *
+ * @todo (step 2): Uncomment the "API:" lines and delete the "Mock:" block below.
+ * @todo (step 7): Remove the `current` parameter — the server derives the
+ *                 resulting state. Update the caller in `stores/license-store.ts`.
  */
 export async function deactivateLicense(
     key: string,
-    current: LicenseState,
+    current: LicenseState, // @TODO (step 7): Remove — server derives state from site token.
 ): Promise<LicenseState | { error: string }> {
     // API: await apiFetch({ path: `/uplink/v1/licenses/${ encodeURIComponent( key ) }`, method: 'DELETE' });
     // API: return fetchState(); // re-fetch authoritative state from the server
 
     // Mock: derive the post-removal state locally.
+    // @TODO (step 2): Delete everything from here to the end of the function.
     const license = current.activeLicenses.find( ( l ) => l.key === key );
     if ( ! license ) {
         return { error: __( 'License not found.', '%TEXTDOMAIN%' ) };
@@ -191,10 +210,14 @@ export async function deactivateLicense(
  * Persists a product's enabled / disabled state server-side.
  * In mock mode the Zustand persist middleware writes to localStorage
  * automatically whenever the store changes — nothing extra needed here.
+ *
+ * @todo (step 2): Uncomment the "API:" block and delete the mock comment below.
+ * @todo (step 2): Rename parameters — remove the leading underscore from `_slug`
+ *                 and `_enabled` once the apiFetch call uses them.
  */
 export async function updateProductStatus(
-    _slug: string,
-    _enabled: boolean,
+    _slug: string,    // @TODO (step 2): Rename to `slug` once apiFetch call is active.
+    _enabled: boolean, // @TODO (step 2): Rename to `enabled` once apiFetch call is active.
 ): Promise<void> {
     // API: await apiFetch({
     // API:     path:   `/uplink/v1/products/${ encodeURIComponent( _slug ) }/status`,
@@ -203,6 +226,7 @@ export async function updateProductStatus(
     // API: });
 
     // Mock: persisted automatically by Zustand persist middleware.
+    // @TODO (step 2): Delete this comment once the apiFetch call is active.
 }
 
 /**
@@ -211,11 +235,15 @@ export async function updateProductStatus(
  * Persists a feature's enabled / disabled state server-side.
  * In mock mode the Zustand persist middleware writes to localStorage
  * automatically whenever the store changes — nothing extra needed here.
+ *
+ * @todo (step 2): Uncomment the "API:" block and delete the mock comment below.
+ * @todo (step 2): Rename parameters — remove the leading underscore from
+ *                 `_featureId`, `_productSlug`, and `_enabled`.
  */
 export async function updateFeatureStatus(
-    _featureId: number,
-    _productSlug: string,
-    _enabled: boolean,
+    _featureId: number,   // @TODO (step 2): Rename to `featureId` once apiFetch call is active.
+    _productSlug: string, // @TODO (step 2): Rename to `productSlug` once apiFetch call is active.
+    _enabled: boolean,    // @TODO (step 2): Rename to `enabled` once apiFetch call is active.
 ): Promise<void> {
     // API: await apiFetch({
     // API:     path:   `/uplink/v1/features/${ _featureId }/${ encodeURIComponent( _productSlug ) }/status`,
@@ -224,4 +252,5 @@ export async function updateFeatureStatus(
     // API: });
 
     // Mock: persisted automatically by Zustand persist middleware.
+    // @TODO (step 2): Delete this comment once the apiFetch call is active.
 }

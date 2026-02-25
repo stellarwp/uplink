@@ -1,24 +1,14 @@
 /**
- * Storage adapter for the license store.
+ * Storage adapter for the Zustand persist middleware.
  *
- * Currently backed by localStorage as a temporary persistence layer.
+ * Wraps localStorage so the persist middleware can be swapped for the REST API
+ * without touching the store. This file exists only while the mock persistence
+ * layer is in use.
  *
- * To migrate to the REST API, replace the three methods below with
- * fetch calls to the uplink/v1 endpoints. The persist middleware
- * supports async (Promise-returning) implementations, so no changes
- * to the store itself are required.
+ * @TODO (step 6): Delete this entire file once the `persist` middleware has been
+ *                 removed from `stores/license-store.ts`. No other file imports it.
  *
- * @see https://docs.pmnd.rs/zustand/integrations/persisting-store-data#custom-storage
  * @package StellarWP\Uplink
- */
-/**
- * @todo Replace with REST API calls once the persistence layer is ready.
- *       getItem    → GET    /wp-json/uplink/v1/licenses
- *       setItem    → POST   /wp-json/uplink/v1/licenses
- *       removeItem → DELETE /wp-json/uplink/v1/licenses
- *
- * The methods are async-compatible (may return Promises), so an API-backed
- * implementation requires no changes to the store.
  */
 export const licenseStorage = {
     getItem:    ( name: string ) => localStorage.getItem( name ),

@@ -47,9 +47,8 @@ export function ProductSection( { product, onAddLicense }: ProductSectionProps )
         addToast( msg, checked ? 'success' : 'default' );
     };
 
-    // Features are always visible unless the user has a license AND has disabled
-    // the product. When unlicensed, every feature renders in a not-licensed state.
-    const showFeatures = license ? isEnabled : true;
+    // Features are visible only when the product is licensed and enabled.
+    const showFeatures = !! license && isEnabled;
 
     return (
         <div className="rounded-lg border border-border bg-background overflow-hidden">
@@ -119,10 +118,10 @@ export function ProductSection( { product, onAddLicense }: ProductSectionProps )
 
             { ! showFeatures && (
                 <p className="px-4 py-6 text-sm text-muted-foreground text-center">
-                    { sprintf(
-                        __( '%s is disabled. Enable it to manage features.', '%TEXTDOMAIN%' ),
-                        product.name
-                    ) }
+                    { ! license
+                        ? sprintf( __( 'Add a license to unlock %s features.', '%TEXTDOMAIN%' ), product.name )
+                        : sprintf( __( '%s is disabled. Enable it to manage features.', '%TEXTDOMAIN%' ), product.name )
+                    }
                 </p>
             ) }
         </div>

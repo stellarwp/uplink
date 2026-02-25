@@ -39,8 +39,10 @@ class License {
 	 *     network_option
 	 *     site_option
 	 *     file
+	 *     filter
 	 *
 	 * @since 1.0.0
+	 * @since TBD Added 'filter' for filtered.
 	 *
 	 * @var string
 	 */
@@ -158,7 +160,7 @@ class License {
 		 * @param string|null $key The license key.
 		 * @param Resource $resource The resource instance.
 		 */
-		$key = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_get_key', $this->key, $this->resource );
+		$filtered_key = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_get_key', $this->key, $this->resource );
 
 		/**
 		 * Filter the license key.
@@ -170,9 +172,17 @@ class License {
 		 * @param string|null $key The license key.
 		 * @param Resource $resource The resource instance.
 		 */
-		$key = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/' . $this->resource->get_slug() . '/license_get_key', $key, $this->resource );
+		$filtered_key = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/' . $this->resource->get_slug() . '/license_get_key', $filtered_key, $this->resource );
 
-		return $key ?: '';
+		if ( $filtered_key !== $this->key ) {
+			$this->key = $filtered_key;
+
+			if ( ! empty( $this->key ) ) {
+				$this->key_origin = 'filter';
+			}
+		}
+
+		return $this->key ?: '';
 	}
 
 	/**

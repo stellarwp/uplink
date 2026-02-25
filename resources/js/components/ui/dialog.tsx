@@ -64,7 +64,7 @@ export function Dialog( { open, onClose, children, maxWidth = 'max-w-lg' }: Dial
             {/* Panel */}
             <div
                 className={ cn(
-                    'relative z-10 w-full rounded-lg bg-background shadow-xl',
+                    'relative z-10 w-full rounded-lg bg-background shadow-xl overflow-y-auto max-h-[90vh]',
                     maxWidth
                 ) }
                 onClick={ ( e ) => e.stopPropagation() }

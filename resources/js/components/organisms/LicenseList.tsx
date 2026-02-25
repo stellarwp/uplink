@@ -2,7 +2,7 @@
  * Licenses tab content.
  *
  * Lists all activated licenses as LicenseCards.
- * Includes an "Add License" dialog with LicenseKeyInput.
+ * Includes an "Activate a License" dialog with LicenseKeyInput.
  *
  * @package StellarWP\Uplink
  */
@@ -15,8 +15,6 @@ import { Dialog, DialogHeader, DialogContent } from '@/components/ui/dialog';
 import { LicenseCard } from '@/components/molecules/LicenseCard';
 import { LicenseKeyInput } from '@/components/molecules/LicenseKeyInput';
 import { useLicenseStore } from '@/stores/license-store';
-import { MOCK_LICENSES } from '@/data/licenses';
-import { PRODUCTS } from '@/data/products';
 
 interface LicenseListProps {
     /** When true, immediately opens the Add License dialog */
@@ -32,7 +30,6 @@ export function LicenseList( { openAddDialog = false, onAddDialogClose }: Licens
     const [ addOpen, setAddOpen ] = useState( false );
     const [ prefillKey, setPrefillKey ] = useState( '' );
 
-    // Respond to external open request (e.g. from AppShell / MyProductsTab)
     useEffect( () => {
         if ( openAddDialog ) {
             setAddOpen( true );
@@ -87,11 +84,11 @@ export function LicenseList( { openAddDialog = false, onAddDialogClose }: Licens
                 </Card>
             ) }
 
-            {/* Add License dialog */}
+            {/* Activate a License dialog */}
             <Dialog open={ addOpen } onClose={ handleClose }>
                 <DialogHeader
-                    title={ __( 'Add License', '%TEXTDOMAIN%' ) }
-                    description={ __( 'Enter your license key to activate it on this site.', '%TEXTDOMAIN%' ) }
+                    title={ __( 'Activate a License', '%TEXTDOMAIN%' ) }
+                    description={ __( 'Enter your license key to unlock products and features. New customers receive a unified key; legacy customers can use their existing per-product keys.', '%TEXTDOMAIN%' ) }
                     onClose={ handleClose }
                 />
                 <DialogContent>
@@ -99,41 +96,85 @@ export function LicenseList( { openAddDialog = false, onAddDialogClose }: Licens
 
                     { /* Dev-only: test key cheat-sheet with click-to-fill */ }
                     { process.env.NODE_ENV !== 'production' && (
-                        <details className="mt-4 rounded border border-dashed border-amber-300 bg-amber-50 p-3 text-xs">
-                            <summary className="cursor-pointer font-medium text-amber-700 select-none">
-                                { __( 'Dev: test license keys (click to fill)', '%TEXTDOMAIN%' ) }
-                            </summary>
-                            <table className="mt-2 w-full border-collapse text-amber-900">
-                                <thead>
-                                    <tr className="border-b border-amber-200">
-                                        <th className="py-1 pr-3 text-left font-medium">{ __( 'Key', '%TEXTDOMAIN%' ) }</th>
-                                        <th className="py-1 pr-3 text-left font-medium">{ __( 'Tier', '%TEXTDOMAIN%' ) }</th>
-                                        <th className="py-1 text-left font-medium">{ __( 'Products', '%TEXTDOMAIN%' ) }</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    { MOCK_LICENSES.map( ( l ) => (
-                                        <tr
-                                            key={ l.key }
-                                            className="border-b border-amber-100 last:border-0 cursor-pointer hover:bg-amber-100 transition-colors"
-                                            onClick={ () => setPrefillKey( l.key ) }
-                                            title={ __( 'Click to fill', '%TEXTDOMAIN%' ) }
-                                        >
-                                            <td className="py-1 pr-3 font-mono">{ l.key }</td>
-                                            <td className="py-1 pr-3">
-                                                { l.tier }
-                                                { l.isExpired ? ' (expired)' : '' }
-                                            </td>
-                                            <td className="py-1">
-                                                { l.productSlugs
-                                                    .map( ( s ) => PRODUCTS.find( ( p ) => p.slug === s )?.name ?? s )
-                                                    .join( ', ' ) }
-                                            </td>
-                                        </tr>
+                        <div className="mt-6 pt-4 border-t">
+                            <p className="text-xs font-medium text-muted-foreground mb-2">
+                                { __( 'Test License Keys', '%TEXTDOMAIN%' ) }
+                            </p>
+                            <div className="space-y-1.5 text-xs text-muted-foreground">
+
+                                <p className="font-medium text-foreground text-[11px] uppercase tracking-wide mt-2">
+                                    { __( 'Unified (all products)', '%TEXTDOMAIN%' ) }
+                                </p>
+                                <div className="grid grid-cols-[1fr_auto] gap-x-3">
+                                    { [
+                                        [ 'LW-UNIFIED-BASIC-2025',   __( 'Basic', '%TEXTDOMAIN%' ) ],
+                                        [ 'LW-UNIFIED-PRO-2025',     __( 'Pro', '%TEXTDOMAIN%' ) ],
+                                        [ 'LW-UNIFIED-AGENCY-2025',  __( 'Agency', '%TEXTDOMAIN%' ) ],
+                                        [ 'LW-UNIFIED-PRO-EXPIRED',  __( 'Pro (expired)', '%TEXTDOMAIN%' ) ],
+                                    ].map( ( [ key, label ] ) => (
+                                        <>
+                                            <code
+                                                key={ key }
+                                                className="font-mono bg-muted px-1 rounded cursor-pointer hover:bg-muted/70 transition-colors py-0.5"
+                                                onClick={ () => setPrefillKey( key ) }
+                                                title={ __( 'Click to fill', '%TEXTDOMAIN%' ) }
+                                            >
+                                                { key }
+                                            </code>
+                                            <span className="self-center">{ label }</span>
+                                        </>
                                     ) ) }
-                                </tbody>
-                            </table>
-                        </details>
+                                </div>
+
+                                <p className="font-medium text-foreground text-[11px] uppercase tracking-wide mt-2">
+                                    { __( 'Unified (single product)', '%TEXTDOMAIN%' ) }
+                                </p>
+                                <div className="grid grid-cols-[1fr_auto] gap-x-3">
+                                    { [
+                                        [ 'LW-UNIFIED-KAD-PRO-2025',   __( 'Kadence Pro', '%TEXTDOMAIN%' ) ],
+                                        [ 'LW-UNIFIED-GIVE-BASIC-2025', __( 'GiveWP Basic', '%TEXTDOMAIN%' ) ],
+                                        [ 'LW-UNIFIED-KAD-GIVE-2025',   __( 'Kadence + GiveWP Pro', '%TEXTDOMAIN%' ) ],
+                                    ].map( ( [ key, label ] ) => (
+                                        <>
+                                            <code
+                                                key={ key }
+                                                className="font-mono bg-muted px-1 rounded cursor-pointer hover:bg-muted/70 transition-colors py-0.5"
+                                                onClick={ () => setPrefillKey( key ) }
+                                                title={ __( 'Click to fill', '%TEXTDOMAIN%' ) }
+                                            >
+                                                { key }
+                                            </code>
+                                            <span className="self-center">{ label }</span>
+                                        </>
+                                    ) ) }
+                                </div>
+
+                                <p className="font-medium text-foreground text-[11px] uppercase tracking-wide mt-2">
+                                    { __( 'Legacy (per-product)', '%TEXTDOMAIN%' ) }
+                                </p>
+                                <div className="grid grid-cols-[1fr_auto] gap-x-3">
+                                    { [
+                                        [ 'LD-LEGACY-AGENCY-001',  __( 'LearnDash Agency', '%TEXTDOMAIN%' ) ],
+                                        [ 'GIVE-LEGACY-PRO-001',   __( 'GiveWP Pro', '%TEXTDOMAIN%' ) ],
+                                        [ 'TEC-LEGACY-PRO-001',    __( 'Events Calendar Pro', '%TEXTDOMAIN%' ) ],
+                                        [ 'KAD-LEGACY-PRO-001',    __( 'Kadence Pro', '%TEXTDOMAIN%' ) ],
+                                    ].map( ( [ key, label ] ) => (
+                                        <>
+                                            <code
+                                                key={ key }
+                                                className="font-mono bg-muted px-1 rounded cursor-pointer hover:bg-muted/70 transition-colors py-0.5"
+                                                onClick={ () => setPrefillKey( key ) }
+                                                title={ __( 'Click to fill', '%TEXTDOMAIN%' ) }
+                                            >
+                                                { key }
+                                            </code>
+                                            <span className="self-center">{ label }</span>
+                                        </>
+                                    ) ) }
+                                </div>
+
+                            </div>
+                        </div>
                     ) }
                 </DialogContent>
             </Dialog>

@@ -41,42 +41,6 @@ export interface LegacyFeature {
     upgradeUrl?: string;
 }
 
-/** @deprecated Use LegacyFeature */
-export type Feature = LegacyFeature;
-
-/**
- * @since TBD
- * @deprecated Use Product
- */
-export interface LegacyBrand {
-    slug: string;
-    name: string;
-    tagline: string;
-    features: LegacyFeature[];
-}
-
-/** @deprecated Use LegacyBrand */
-export type Brand = LegacyBrand;
-
-/**
- * @since TBD
- * @deprecated Use License
- */
-export interface LicenseData {
-    key: string;
-    email: string;
-    status: LicenseStatus;
-    expires: string;
-}
-
-/**
- * @since TBD
- * @deprecated Use activeLicenses from license-store
- */
-export interface DashboardData {
-    license: LicenseData;
-    brands: LegacyBrand[];
-}
 
 // ---------------------------------------------------------------------------
 // New types (id-based model — design-team data model)

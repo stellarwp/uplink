@@ -12,7 +12,7 @@ final class FeatureTest extends UplinkTestCase {
 	 *
 	 * @var Feature
 	 */
-	private Feature $feature;
+	private $feature;
 
 	/**
 	 * Sets up a concrete Feature subclass before each test.

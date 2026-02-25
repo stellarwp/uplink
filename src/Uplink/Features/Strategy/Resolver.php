@@ -24,7 +24,7 @@ class Resolver {
 	 *
 	 * @var ContainerInterface
 	 */
-	private ContainerInterface $container;
+	private $container;
 
 	/**
 	 * Map of feature type strings to strategy class names.
@@ -33,7 +33,7 @@ class Resolver {
 	 *
 	 * @var array<string, class-string<Strategy>>
 	 */
-	private array $map = [];
+	private $map = [];
 
 	/**
 	 * Constructor for the feature type to strategy map resolver.

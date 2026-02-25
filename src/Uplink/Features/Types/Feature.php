@@ -19,7 +19,7 @@ abstract class Feature {
 	 *
 	 * @var string
 	 */
-	protected string $slug;
+	protected $slug;
 
 	/**
 	 * The product group the feature belongs to (e.g. 'LearnDash', 'TEC').
@@ -28,7 +28,7 @@ abstract class Feature {
 	 *
 	 * @var string
 	 */
-	protected string $group;
+	protected $group;
 
 	/**
 	 * The feature tier (e.g. 'Tier 1', 'Tier 2').
@@ -37,7 +37,7 @@ abstract class Feature {
 	 *
 	 * @var string
 	 */
-	protected string $tier;
+	protected $tier;
 
 	/**
 	 * The feature display name.
@@ -46,7 +46,7 @@ abstract class Feature {
 	 *
 	 * @var string
 	 */
-	protected string $name;
+	protected $name;
 
 	/**
 	 * The feature description.
@@ -55,7 +55,7 @@ abstract class Feature {
 	 *
 	 * @var string
 	 */
-	protected string $description;
+	protected $description;
 
 	/**
 	 * The feature type identifier (e.g. 'zip', 'built_in').
@@ -64,7 +64,7 @@ abstract class Feature {
 	 *
 	 * @var string
 	 */
-	protected string $type;
+	protected $type;
 
 	/**
 	 * Whether the feature is available for the current site.
@@ -73,7 +73,7 @@ abstract class Feature {
 	 *
 	 * @var bool
 	 */
-	protected bool $is_available;
+	protected $is_available;
 
 	/**
 	 * The URL linking to the feature documentation or learn-more page.
@@ -82,7 +82,7 @@ abstract class Feature {
 	 *
 	 * @var string
 	 */
-	protected string $documentation;
+	protected $documentation;
 
 	/**
 	 * Constructor for a Feature object.

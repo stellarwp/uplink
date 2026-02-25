@@ -20,12 +20,12 @@ final class Built_In extends Feature {
 	 * @param string $name          The feature display name.
 	 * @param string $description   The feature description.
 	 * @param bool   $is_available  Whether the feature is available.
-	 * @param string $documentation The URL to the feature documentation.
+	 * @param string $documentation_url The URL to the feature documentation.
 	 *
 	 * @return void
 	 */
-	public function __construct( string $slug, string $group, string $tier, string $name, string $description, bool $is_available, string $documentation = '' ) {
-		parent::__construct( $slug, $group, $tier, $name, $description, 'built_in', $is_available, $documentation );
+	public function __construct( string $slug, string $group, string $tier, string $name, string $description, bool $is_available, string $documentation_url = '' ) {
+		parent::__construct( $slug, $group, $tier, $name, $description, 'built_in', $is_available, $documentation_url );
 	}
 
 	/**
@@ -39,7 +39,7 @@ final class Built_In extends Feature {
 			$data['name'],
 			$data['description'] ?? '',
 			$data['is_available'],
-			$data['documentation'] ?? ''
+			$data['documentation_url'] ?? ''
 		);
 	}
 
@@ -55,7 +55,7 @@ final class Built_In extends Feature {
 			'description' => $this->get_description(),
 			'type' => $this->get_type(),
 			'is_available' => $this->is_available(),
-			'documentation' => $this->get_documentation(),
+			'documentation_url' => $this->get_documentation_url(),
 		];
 	}
 }

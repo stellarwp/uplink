@@ -20,7 +20,7 @@ final class BuiltInTest extends UplinkTestCase {
 			'name'          => 'Test Feature',
 			'description'   => 'Test feature description.',
 			'is_available'  => true,
-			'documentation' => 'https://example.com/docs',
+			'documentation_url' => 'https://example.com/docs',
 		] );
 
 		$this->assertInstanceOf( Built_In::class, $feature );
@@ -31,7 +31,7 @@ final class BuiltInTest extends UplinkTestCase {
 		$this->assertSame( 'Test feature description.', $feature->get_description() );
 		$this->assertSame( 'built_in', $feature->get_type() );
 		$this->assertTrue( $feature->is_available() );
-		$this->assertSame( 'https://example.com/docs', $feature->get_documentation() );
+		$this->assertSame( 'https://example.com/docs', $feature->get_documentation_url() );
 	}
 
 	/**
@@ -50,7 +50,7 @@ final class BuiltInTest extends UplinkTestCase {
 			'description'   => 'Test feature description.',
 			'type'          => 'built_in',
 			'is_available'  => true,
-			'documentation' => 'https://example.com/docs',
+			'documentation_url' => 'https://example.com/docs',
 		], $feature->to_array() );
 	}
 
@@ -68,7 +68,7 @@ final class BuiltInTest extends UplinkTestCase {
 			'description'   => 'Test feature description.',
 			'type'          => 'built_in',
 			'is_available'  => true,
-			'documentation' => 'https://example.com/docs',
+			'documentation_url' => 'https://example.com/docs',
 		];
 
 		$feature = Built_In::from_array( $data );

@@ -40,7 +40,7 @@ final class FeatureTest extends UplinkTestCase {
 					$data['description'] ?? '',
 					$data['type'] ?? 'test-type',
 					$data['is_available'],
-					$data['documentation'] ?? ''
+					$data['documentation_url'] ?? ''
 				);
 			}
 
@@ -58,7 +58,7 @@ final class FeatureTest extends UplinkTestCase {
 					'description'   => $this->get_description(),
 					'type'          => $this->get_type(),
 					'is_available'  => $this->is_available(),
-					'documentation' => $this->get_documentation(),
+					'documentation_url' => $this->get_documentation_url(),
 				];
 			}
 		};
@@ -128,12 +128,12 @@ final class FeatureTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Tests that get_documentation returns the URL passed to the constructor.
+	 * Tests that get_documentation_url returns the URL passed to the constructor.
 	 *
 	 * @return void
 	 */
-	public function test_get_documentation(): void {
-		$this->assertSame( 'https://example.com/docs', $this->feature->get_documentation() );
+	public function test_get_documentation_url(): void {
+		$this->assertSame( 'https://example.com/docs', $this->feature->get_documentation_url() );
 	}
 
 	/**
@@ -152,7 +152,7 @@ final class FeatureTest extends UplinkTestCase {
 			'description'   => 'A test feature.',
 			'type'          => 'test-type',
 			'is_available'  => true,
-			'documentation' => 'https://example.com/docs',
+			'documentation_url' => 'https://example.com/docs',
 		], $result );
 	}
 
@@ -170,7 +170,7 @@ final class FeatureTest extends UplinkTestCase {
 			'description'   => 'Hydrated from array.',
 			'type'          => 'custom-type',
 			'is_available'  => false,
-			'documentation' => 'https://example.com/learn-more',
+			'documentation_url' => 'https://example.com/learn-more',
 		] );
 
 		$this->assertInstanceOf( Feature::class, $feature );
@@ -181,6 +181,6 @@ final class FeatureTest extends UplinkTestCase {
 		$this->assertSame( 'Hydrated from array.', $feature->get_description() );
 		$this->assertSame( 'custom-type', $feature->get_type() );
 		$this->assertFalse( $feature->is_available() );
-		$this->assertSame( 'https://example.com/learn-more', $feature->get_documentation() );
+		$this->assertSame( 'https://example.com/learn-more', $feature->get_documentation_url() );
 	}
 }

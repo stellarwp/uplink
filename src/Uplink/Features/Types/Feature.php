@@ -82,7 +82,7 @@ abstract class Feature {
 	 *
 	 * @var string
 	 */
-	protected string $documentation;
+	protected string $documentation_url;
 
 	/**
 	 * Constructor for a Feature object.
@@ -96,19 +96,19 @@ abstract class Feature {
 	 * @param string $description   The feature description.
 	 * @param string $type          The feature type identifier.
 	 * @param bool   $is_available  Whether the feature is available.
-	 * @param string $documentation The URL to the feature documentation.
+	 * @param string $documentation_url The URL to the feature documentation.
 	 *
 	 * @return void
 	 */
-	public function __construct( string $slug, string $group, string $tier, string $name, string $description, string $type, bool $is_available, string $documentation = '' ) {
-		$this->slug          = $slug;
-		$this->group         = $group;
-		$this->tier          = $tier;
-		$this->name          = $name;
-		$this->description   = $description;
-		$this->type          = $type;
-		$this->is_available  = $is_available;
-		$this->documentation = $documentation;
+	public function __construct( string $slug, string $group, string $tier, string $name, string $description, string $type, bool $is_available, string $documentation_url = '' ) {
+		$this->slug              = $slug;
+		$this->group             = $group;
+		$this->tier              = $tier;
+		$this->name              = $name;
+		$this->description       = $description;
+		$this->type              = $type;
+		$this->is_available      = $is_available;
+		$this->documentation_url = $documentation_url;
 	}
 
 	/**
@@ -215,7 +215,7 @@ abstract class Feature {
 	 *
 	 * @return string
 	 */
-	public function get_documentation(): string {
-		return $this->documentation;
+	public function get_documentation_url(): string {
+		return $this->documentation_url;
 	}
 }

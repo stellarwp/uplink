@@ -49,16 +49,16 @@ final class Feature_ControllerTest extends UplinkTestCase {
 			'get_tier'          => 'Tier 1',
 			'get_type'          => 'zip',
 			'is_available'      => true,
-			'get_documentation' => 'https://example.com/alpha',
-			'to_array'          => [
-				'slug'          => 'feature-alpha',
-				'group'         => 'GroupA',
-				'tier'          => 'Tier 1',
-				'name'          => 'Feature Alpha',
-				'description'   => 'Alpha description',
-				'type'          => 'zip',
-				'is_available'  => true,
-				'documentation' => 'https://example.com/alpha',
+			'get_documentation_url' => 'https://example.com/alpha',
+			'to_array'              => [
+				'slug'              => 'feature-alpha',
+				'group'             => 'GroupA',
+				'tier'              => 'Tier 1',
+				'name'              => 'Feature Alpha',
+				'description'       => 'Alpha description',
+				'type'              => 'zip',
+				'is_available'      => true,
+				'documentation_url' => 'https://example.com/alpha',
 			],
 		] ) );
 		$collection->add( $this->makeEmpty( Feature::class, [
@@ -69,16 +69,16 @@ final class Feature_ControllerTest extends UplinkTestCase {
 			'get_tier'          => 'Tier 2',
 			'get_type'          => 'built_in',
 			'is_available'      => false,
-			'get_documentation' => 'https://example.com/beta',
-			'to_array'          => [
-				'slug'          => 'feature-beta',
-				'group'         => 'GroupB',
-				'tier'          => 'Tier 2',
-				'name'          => 'Feature Beta',
-				'description'   => 'Beta description',
-				'type'          => 'built_in',
-				'is_available'  => false,
-				'documentation' => 'https://example.com/beta',
+			'get_documentation_url' => 'https://example.com/beta',
+			'to_array'              => [
+				'slug'              => 'feature-beta',
+				'group'             => 'GroupB',
+				'tier'              => 'Tier 2',
+				'name'              => 'Feature Beta',
+				'description'       => 'Beta description',
+				'type'              => 'built_in',
+				'is_available'      => false,
+				'documentation_url' => 'https://example.com/beta',
 			],
 		] ) );
 
@@ -297,7 +297,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$this->assertSame( 'Tier 1', $data['tier'] );
 		$this->assertSame( 'zip', $data['type'] );
 		$this->assertTrue( $data['is_available'] );
-		$this->assertSame( 'https://example.com/alpha', $data['documentation'] );
+		$this->assertSame( 'https://example.com/alpha', $data['documentation_url'] );
 		$this->assertArrayHasKey( 'enabled', $data );
 	}
 
@@ -497,7 +497,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$this->assertArrayHasKey( 'properties', $schema );
 		$this->assertTrue( $schema['additionalProperties'], 'Schema should allow additional properties for type-specific fields.' );
 
-		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation', 'enabled' ];
+		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'enabled' ];
 
 		foreach ( $expected as $property ) {
 			$this->assertArrayHasKey( $property, $schema['properties'], "Missing schema property: {$property}" );
@@ -517,7 +517,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 
 		$this->assertArrayHasKey( 'properties', $schema );
 
-		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation', 'enabled' ];
+		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'enabled' ];
 
 		foreach ( $expected as $property ) {
 			$this->assertArrayHasKey( $property, $schema['properties'], "Missing schema property: {$property}" );

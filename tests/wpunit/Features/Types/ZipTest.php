@@ -21,7 +21,7 @@ final class ZipTest extends UplinkTestCase {
 			'description'   => 'Test feature description.',
 			'plugin_file'   => 'test-feature/test-feature.php',
 			'is_available'  => true,
-			'documentation' => 'https://example.com/docs',
+			'documentation_url' => 'https://example.com/docs',
 		] );
 
 		$this->assertInstanceOf( Zip::class, $feature );
@@ -33,7 +33,7 @@ final class ZipTest extends UplinkTestCase {
 		$this->assertSame( 'zip', $feature->get_type() );
 		$this->assertSame( 'test-feature/test-feature.php', $feature->get_plugin_file() );
 		$this->assertTrue( $feature->is_available() );
-		$this->assertSame( 'https://example.com/docs', $feature->get_documentation() );
+		$this->assertSame( 'https://example.com/docs', $feature->get_documentation_url() );
 	}
 
 	/**
@@ -53,7 +53,7 @@ final class ZipTest extends UplinkTestCase {
 			'type'          => 'zip',
 			'plugin_file'   => 'test-feature/test-feature.php',
 			'is_available'  => true,
-			'documentation' => 'https://example.com/docs',
+			'documentation_url' => 'https://example.com/docs',
 		], $feature->to_array() );
 	}
 
@@ -72,7 +72,7 @@ final class ZipTest extends UplinkTestCase {
 			'type'          => 'zip',
 			'plugin_file'   => 'test-feature/test-feature.php',
 			'is_available'  => true,
-			'documentation' => 'https://example.com/docs',
+			'documentation_url' => 'https://example.com/docs',
 		];
 
 		$feature = Zip::from_array( $data );

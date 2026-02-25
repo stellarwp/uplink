@@ -33,12 +33,12 @@ final class Zip extends Feature {
 	 * @param string $description   The feature description.
 	 * @param string $plugin_file   The plugin file path (e.g. 'my-plugin/my-plugin.php').
 	 * @param bool   $is_available  Whether the feature is available.
-	 * @param string $documentation The URL to the feature documentation.
+	 * @param string $documentation_url The URL to the feature documentation.
 	 *
 	 * @return void
 	 */
-	public function __construct( string $slug, string $group, string $tier, string $name, string $description, string $plugin_file, bool $is_available, string $documentation = '' ) {
-		parent::__construct( $slug, $group, $tier, $name, $description, 'zip', $is_available, $documentation );
+	public function __construct( string $slug, string $group, string $tier, string $name, string $description, string $plugin_file, bool $is_available, string $documentation_url = '' ) {
+		parent::__construct( $slug, $group, $tier, $name, $description, 'zip', $is_available, $documentation_url );
 
 		$this->plugin_file = $plugin_file;
 	}
@@ -55,7 +55,7 @@ final class Zip extends Feature {
 			$data['description'] ?? '',
 			$data['plugin_file'],
 			$data['is_available'],
-			$data['documentation'] ?? ''
+			$data['documentation_url'] ?? ''
 		);
 	}
 
@@ -72,7 +72,7 @@ final class Zip extends Feature {
 			'type' => $this->get_type(),
 			'plugin_file' => $this->get_plugin_file(),
 			'is_available' => $this->is_available(),
-			'documentation' => $this->get_documentation(),
+			'documentation_url' => $this->get_documentation_url(),
 		];
 	}
 

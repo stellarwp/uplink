@@ -315,7 +315,7 @@ class Feature_Controller extends WP_REST_Controller {
 					'readonly'    => true,
 					'context'     => [ 'view' ],
 				],
-				'documentation' => [
+				'documentation_url' => [
 					'description' => __( 'The URL to the feature documentation.', '%TEXTDOMAIN%' ),
 					'type'        => 'string',
 					'format'      => 'uri',

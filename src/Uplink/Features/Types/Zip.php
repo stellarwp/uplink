@@ -26,15 +26,19 @@ final class Zip extends Feature {
 	 *
 	 * @since TBD
 	 *
-	 * @param string $slug        The feature slug.
-	 * @param string $name        The feature display name.
-	 * @param string $description The feature description.
-	 * @param string $plugin_file The plugin file path (e.g. 'my-plugin/my-plugin.php').
+	 * @param string $slug          The feature slug.
+	 * @param string $group         The product group (e.g. 'LearnDash', 'TEC').
+	 * @param string $tier          The feature tier (e.g. 'Tier 1', 'Tier 2').
+	 * @param string $name          The feature display name.
+	 * @param string $description   The feature description.
+	 * @param string $plugin_file   The plugin file path (e.g. 'my-plugin/my-plugin.php').
+	 * @param bool   $is_available  Whether the feature is available.
+	 * @param string $documentation The URL to the feature documentation.
 	 *
 	 * @return void
 	 */
-	public function __construct( string $slug, string $name, string $description, string $plugin_file ) {
-		parent::__construct( $slug, $name, $description, 'zip' );
+	public function __construct( string $slug, string $group, string $tier, string $name, string $description, string $plugin_file, bool $is_available, string $documentation = '' ) {
+		parent::__construct( $slug, $group, $tier, $name, $description, 'zip', $is_available, $documentation );
 
 		$this->plugin_file = $plugin_file;
 	}
@@ -45,9 +49,13 @@ final class Zip extends Feature {
 	public static function from_array( array $data ) {
 		return new self(
 			$data['slug'],
+			$data['group'],
+			$data['tier'],
 			$data['name'],
 			$data['description'] ?? '',
-			$data['plugin_file']
+			$data['plugin_file'],
+			$data['is_available'],
+			$data['documentation'] ?? ''
 		);
 	}
 

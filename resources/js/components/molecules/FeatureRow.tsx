@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 import { FeatureInfo } from '@/components/molecules/FeatureInfo';
 import { StatusBadge } from '@/components/atoms/StatusBadge';
-import { FeatureToggle } from '@/components/atoms/FeatureToggle';
+import { FeatureSwitch } from '@/components/atoms/FeatureSwitch';
 import { UpsellAction } from '@/components/atoms/UpsellAction';
 import type { Feature } from '@/types/api';
 
@@ -29,7 +29,7 @@ export function FeatureRow( { feature, onToggle }: FeatureRowProps ) {
                 <FeatureInfo
                     name={ feature.name }
                     description={ feature.description }
-                    state={ feature.licenseState }
+                    isLocked={ isLocked }
                 />
             </td>
 
@@ -38,7 +38,9 @@ export function FeatureRow( { feature, onToggle }: FeatureRowProps ) {
             </td>
 
             <td className="px-6 py-4">
-                <StatusBadge state={ feature.licenseState } />
+                <StatusBadge
+                    status={ isLocked ? 'not-licensed' : feature.licenseState === 'active' ? 'enabled' : 'available' }
+                />
             </td>
 
             <td className="px-6 py-4 text-right">
@@ -48,7 +50,7 @@ export function FeatureRow( { feature, onToggle }: FeatureRowProps ) {
                         upgradeUrl={ feature.upgradeUrl ?? '#' }
                     />
                 ) : (
-                    <FeatureToggle
+                    <FeatureSwitch
                         state={ feature.licenseState }
                         onToggle={ ( checked ) => onToggle( feature.slug, checked ) }
                     />

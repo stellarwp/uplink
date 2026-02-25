@@ -1,26 +1,22 @@
-import { Icon, lock } from '@wordpress/icons';
+import { Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { FeatureLicenseState } from '@/types/api';
 
 interface FeatureInfoProps {
     name: string;
     description: string;
-    state: FeatureLicenseState;
+    isLocked: boolean;
 }
 
 /**
  * @since TBD
  */
-export function FeatureInfo( { name, description, state }: FeatureInfoProps ) {
-    const isLocked = state === 'not_included';
-
+export function FeatureInfo( { name, description, isLocked }: FeatureInfoProps ) {
     return (
         <div className="flex items-center gap-2">
             { isLocked && (
-                <Icon
-                    icon={ lock }
-                    size={ 16 }
-                    className="text-slate-400 shrink-0"
+                <Lock
+                    className="w-4 h-4 text-slate-400 shrink-0"
+                    aria-hidden="true"
                 />
             ) }
             <div>

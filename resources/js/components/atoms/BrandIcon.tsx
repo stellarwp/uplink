@@ -1,10 +1,9 @@
-import { Icon } from '@wordpress/icons';
-import type { ReactElement } from 'react';
+import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface BrandIconProps {
-    /** @wordpress/icons icon element */
-    icon: ReactElement;
+    /** Lucide icon component */
+    icon: LucideIcon;
     /** Tailwind bg + text color classes (e.g. "bg-green-100 text-green-600") */
     colorClass: string;
 }
@@ -12,7 +11,7 @@ interface BrandIconProps {
 /**
  * @since TBD
  */
-export function BrandIcon( { icon, colorClass }: BrandIconProps ) {
+export function BrandIcon( { icon: IconComponent, colorClass }: BrandIconProps ) {
     return (
         <div
             className={ cn(
@@ -20,7 +19,7 @@ export function BrandIcon( { icon, colorClass }: BrandIconProps ) {
                 colorClass
             ) }
         >
-            <Icon icon={ icon } size={ 24 } />
+            <IconComponent className="w-6 h-6" />
         </div>
     );
 }

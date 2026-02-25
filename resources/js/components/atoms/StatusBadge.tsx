@@ -1,48 +1,49 @@
 import { __ } from '@wordpress/i18n';
-import { cn } from '@/lib/utils';
-import type { FeatureLicenseState } from '@/types/api';
+import { Check, Lock } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+
+export type FeatureStatus = 'enabled' | 'available' | 'locked' | 'not-licensed';
 
 interface StatusBadgeProps {
-    state: FeatureLicenseState;
+    status: FeatureStatus;
+    requiredTier?: string;
 }
-
-const STATE_CONFIG: Record<
-    FeatureLicenseState,
-    { label: string; badgeClass: string; dotClass?: string }
-> = {
-    active: {
-        label: __( 'Active', '%TEXTDOMAIN%' ),
-        badgeClass: 'bg-green-100 text-green-700',
-        dotClass: 'bg-green-500',
-    },
-    inactive: {
-        label: __( 'Inactive', '%TEXTDOMAIN%' ),
-        badgeClass: 'bg-slate-100 text-slate-600',
-        dotClass: 'bg-slate-400',
-    },
-    not_included: {
-        label: __( 'Not Included', '%TEXTDOMAIN%' ),
-        badgeClass: 'bg-amber-50 text-amber-600',
-    },
-};
 
 /**
  * @since TBD
  */
-export function StatusBadge( { state }: StatusBadgeProps ) {
-    const { label, badgeClass, dotClass } = STATE_CONFIG[ state ];
+export function StatusBadge( { status, requiredTier }: StatusBadgeProps ) {
+    if ( status === 'enabled' ) {
+        return (
+            <Badge variant="success">
+                <Check className="w-3 h-3" />
+                { __( 'Enabled', '%TEXTDOMAIN%' ) }
+            </Badge>
+        );
+    }
 
+    if ( status === 'available' ) {
+        return (
+            <Badge variant="secondary">
+                { __( 'Disabled', '%TEXTDOMAIN%' ) }
+            </Badge>
+        );
+    }
+
+    if ( status === 'locked' && requiredTier ) {
+        return (
+            <Badge variant="warning">
+                <Lock className="w-3 h-3" />
+                { `Requires ${ requiredTier }` }
+            </Badge>
+        );
+    }
+
+    // not-licensed or locked without tier label
     return (
-        <span
-            className={ cn(
-                'inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-xs font-medium',
-                badgeClass
-            ) }
-        >
-            { dotClass && (
-                <span className={ cn( 'h-1.5 w-1.5 rounded-full', dotClass ) } />
-            ) }
-            { label }
-        </span>
+        <Badge variant="outline">
+            <Lock className="w-3 h-3" />
+            { __( 'Not Licensed', '%TEXTDOMAIN%' ) }
+        </Badge>
     );
 }

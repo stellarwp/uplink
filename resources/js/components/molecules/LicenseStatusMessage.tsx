@@ -1,4 +1,4 @@
-import { Icon, check, caution } from '@wordpress/icons';
+import { CheckCircle, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 /** @since TBD */
@@ -28,7 +28,11 @@ export function LicenseStatusMessage( { type, message }: LicenseStatusMessagePro
             role="status"
             aria-live="polite"
         >
-            <Icon icon={ isSuccess ? check : caution } size={ 16 } />
+            { isSuccess ? (
+                <CheckCircle className="w-4 h-4 shrink-0" />
+            ) : (
+                <AlertTriangle className="w-4 h-4 shrink-0" />
+            ) }
             { message }
         </p>
     );

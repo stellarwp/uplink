@@ -204,9 +204,55 @@ class License {
 			$key = $license_class::KEY;
 		} elseif ( defined( $license_class . '::DATA' ) ) {
 			$key = $license_class::DATA;
+		} else {
+			$key = $this->get_key_from_simple_license_file( $license_class );
 		}
 
 		return $key;
+	}
+
+	/**
+	 * Get the license key from a simple license file that returns the key directly.
+	 *
+	 * Supports files like auth-token.php or PLUGIN_LICENSE.php that use
+	 * the pattern: <?php return 'license_key';
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $path The file path, relative to the plugin directory or absolute.
+	 *
+	 * @return string|null
+	 */
+	protected function get_key_from_simple_license_file( string $path ): ?string {
+		$file = $this->resolve_license_file_path( $path );
+
+		if ( empty( $file ) ) {
+			return null;
+		}
+
+		$key = include $file;
+
+		return is_string( $key ) ? $key : null;
+	}
+
+	/**
+	 * Resolve a license file path relative to the plugin directory.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $path The file path, relative to the plugin directory.
+	 *
+	 * @return string|null The resolved file path, or null if the file does not exist.
+	 */
+	private function resolve_license_file_path( string $path ): ?string {
+		$plugin_dir = dirname( WP_PLUGIN_DIR . '/' . $this->resource->get_path() );
+		$file       = $plugin_dir . '/' . $path;
+
+		if ( file_exists( $file ) ) {
+			return $file;
+		}
+
+		return null;
 	}
 
 	/**
@@ -249,7 +295,19 @@ class License {
 	 * @return string
 	 */
 	public function get_key_option_name(): string {
-		return static::$key_option_prefix . $this->resource->get_slug();
+		$option_name = static::$key_option_prefix . $this->resource->get_slug();
+
+		/**
+		 * Filters the option name for the license key.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param string   $option_name The option name.
+		 * @param Resource $resource    The resource instance.
+		 *
+		 * @return string
+		 */
+		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/license_get_key_option_name', $option_name, $this->resource );
 	}
 
 	/**

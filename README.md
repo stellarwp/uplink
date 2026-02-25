@@ -83,14 +83,11 @@ You can also add lines below to your composer file in order to run command autom
 
 ## Embedding a license in your plugin
 
-StellarWP Uplink plugins are downloaded with an embedded license key so that users do not need to manually enter the key when activating their plugin. To make this possible, the class must be in a specific location so that the licensing server can find it.
+StellarWP Uplink plugins are downloaded with an embedded license key so that users do not need to manually enter the key when activating their plugin. There are two ways to embed a license key: using a **class constant** or using a **simple license file**.
 
-```bash
-# The class file should be in this path:
-src/Uplink/Helper.php
-```
-> [!NOTE]  
-> While the default is `src/Uplink/Helper.php`, the licensing server supports embedding the license in [any file path defined on the server](https://github.com/stellarwp/licensing/blob/e8b0fe1c32065fde198e9d10b9de5c04eda45a9d/src/Licensing/Tables/Products.php#L53).
+### Class constant (default)
+
+The class file can be placed anywhere in your plugin. The default convention is `src/Uplink/Helper.php`, but you can use any path as long as you pass the corresponding class as the `$license_class` parameter when registering.
 
 The file should match the following - keeping the `KEY` constant set to a blank string, or, if you want a default license key, set it to that.:
 
@@ -103,6 +100,33 @@ final class Helper {
 	public const KEY = '';
 }
 ```
+
+The `DATA` constant is also supported as an alternative to `KEY`.
+
+### Simple license file
+
+Some products use a simple PHP file that returns the license key directly instead of a class constant. This is common for products that use files like `auth-token.php` or `PLUGIN_LICENSE.php`.
+
+The file should return the license key as a string:
+
+```php
+<?php return 'your-license-key-here';
+```
+
+When registering your plugin, pass the file path (relative to your plugin's root directory) as the `$license_class` parameter:
+
+```php
+Register::plugin(
+	'my-plugin',
+	'My Plugin',
+	'1.0.0',
+	'my-plugin/my-plugin.php',
+	MyPlugin::class,
+	'auth-token.php' // Relative to the plugin directory.
+);
+```
+
+Subdirectory paths are also supported (e.g. `config/license.php`).
 
 ## Registering a plugin
 

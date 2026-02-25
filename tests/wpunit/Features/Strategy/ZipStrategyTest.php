@@ -703,9 +703,13 @@ final class ZipStrategyTest extends UplinkTestCase {
 	): Zip {
 		return new Zip(
 			$slug,
+			'Test',
+			'Tier 1',
 			'Test Feature',
 			'A test feature for unit tests.',
 			$plugin_file,
+			true,
+			'',
 			$download_url,
 			$authors
 		);
@@ -720,13 +724,13 @@ final class ZipStrategyTest extends UplinkTestCase {
 	 * @return Feature
 	 */
 	private function create_non_zip_feature(): Feature {
-		return new class ( 'non-zip', 'Non-Zip Feature', 'Not a zip.', 'other' ) extends Feature {
+		return new class ( 'non-zip', 'Test', 'Tier 1', 'Non-Zip Feature', 'Not a zip.', 'other', true ) extends Feature {
 
 			/**
 			 * @inheritDoc
 			 */
 			public static function from_array( array $data ) {
-				return new self( $data['slug'], $data['name'], $data['description'] ?? '', $data['type'] ?? 'other' );
+				return new self( $data['slug'], $data['group'] ?? '', $data['tier'] ?? '', $data['name'], $data['description'] ?? '', $data['type'] ?? 'other', $data['is_available'] ?? true );
 			}
 		};
 	}

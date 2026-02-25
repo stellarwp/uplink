@@ -6,8 +6,8 @@ use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\Features\API\Client;
 use StellarWP\Uplink\Features\REST\Toggle_Controller;
-use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Strategy\Built_In_Strategy;
+use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Strategy\Zip_Strategy;
 use StellarWP\Uplink\Features\Types\Built_In;
 use StellarWP\Uplink\Features\Types\Zip;
@@ -15,7 +15,7 @@ use StellarWP\Uplink\Features\Types\Zip;
 /**
  * Registers the Features subsystem in the DI container and hooks.
  *
- * @since TBD
+ * @since 3.0.0
  */
 class Provider extends Abstract_Provider {
 
@@ -29,7 +29,7 @@ class Provider extends Abstract_Provider {
 			return new Resolver( $c->get( ContainerInterface::class ) );
 		} );
 
-		$this->container->singleton( Collection::class, Collection::class );
+		$this->container->singleton( Feature_Collection::class, Feature_Collection::class );
 
 		$this->container->singleton( Manager::class, static function ( $c ) {
 			return new Manager(
@@ -52,7 +52,7 @@ class Provider extends Abstract_Provider {
 	/**
 	 * Registers the default feature type to class mappings.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return void
 	 */
@@ -65,7 +65,7 @@ class Provider extends Abstract_Provider {
 	/**
 	 * Registers the default feature type strategies.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return void
 	 */
@@ -81,7 +81,7 @@ class Provider extends Abstract_Provider {
 	/**
 	 * Registers WordPress hooks for the Features subsystem.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return void
 	 */
@@ -92,7 +92,7 @@ class Provider extends Abstract_Provider {
 	/**
 	 * Registers REST API routes.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return void
 	 */

@@ -22,7 +22,7 @@ final class FeatureTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->feature = new class( 'test-feature', 'Test Feature', 'A test feature.', 'test-type' ) extends Feature {
+		$this->feature = new class( 'test-feature', 'TEC', 'Tier 1', 'Test Feature', 'A test feature.', 'test-type', true, 'https://example.com/docs' ) extends Feature {
 
 			/**
 			 * Creates a Feature instance from an associative array.
@@ -34,9 +34,13 @@ final class FeatureTest extends UplinkTestCase {
 			public static function from_array( array $data ) {
 				return new self(
 					$data['slug'],
+					$data['group'],
+					$data['tier'],
 					$data['name'],
 					$data['description'] ?? '',
-					$data['type'] ?? 'test-type'
+					$data['type'] ?? 'test-type',
+					$data['is_available'],
+					$data['documentation'] ?? ''
 				);
 			}
 		};
@@ -49,6 +53,24 @@ final class FeatureTest extends UplinkTestCase {
 	 */
 	public function test_get_slug(): void {
 		$this->assertSame( 'test-feature', $this->feature->get_slug() );
+	}
+
+	/**
+	 * Tests that get_group returns the group passed to the constructor.
+	 *
+	 * @return void
+	 */
+	public function test_get_group(): void {
+		$this->assertSame( 'TEC', $this->feature->get_group() );
+	}
+
+	/**
+	 * Tests that get_tier returns the tier passed to the constructor.
+	 *
+	 * @return void
+	 */
+	public function test_get_tier(): void {
+		$this->assertSame( 'Tier 1', $this->feature->get_tier() );
 	}
 
 	/**
@@ -79,22 +101,48 @@ final class FeatureTest extends UplinkTestCase {
 	}
 
 	/**
+	 * Tests that is_available returns the value passed to the constructor.
+	 *
+	 * @return void
+	 */
+	public function test_is_available(): void {
+		$this->assertTrue( $this->feature->is_available() );
+	}
+
+	/**
+	 * Tests that get_documentation returns the URL passed to the constructor.
+	 *
+	 * @return void
+	 */
+	public function test_get_documentation(): void {
+		$this->assertSame( 'https://example.com/docs', $this->feature->get_documentation() );
+	}
+
+	/**
 	 * Tests that from_array hydrates a Feature with the correct values.
 	 *
 	 * @return void
 	 */
 	public function test_from_array(): void {
 		$feature = $this->feature::from_array( [
-			'slug'        => 'from-array-feature',
-			'name'        => 'From Array',
-			'description' => 'Hydrated from array.',
-			'type'        => 'custom-type',
+			'slug'          => 'from-array-feature',
+			'group'         => 'LearnDash',
+			'tier'          => 'Tier 2',
+			'name'          => 'From Array',
+			'description'   => 'Hydrated from array.',
+			'type'          => 'custom-type',
+			'is_available'  => false,
+			'documentation' => 'https://example.com/learn-more',
 		] );
 
 		$this->assertInstanceOf( Feature::class, $feature );
 		$this->assertSame( 'from-array-feature', $feature->get_slug() );
+		$this->assertSame( 'LearnDash', $feature->get_group() );
+		$this->assertSame( 'Tier 2', $feature->get_tier() );
 		$this->assertSame( 'From Array', $feature->get_name() );
 		$this->assertSame( 'Hydrated from array.', $feature->get_description() );
 		$this->assertSame( 'custom-type', $feature->get_type() );
+		$this->assertFalse( $feature->is_available() );
+		$this->assertSame( 'https://example.com/learn-more', $feature->get_documentation() );
 	}
 }

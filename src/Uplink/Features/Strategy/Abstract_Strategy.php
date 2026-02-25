@@ -83,8 +83,7 @@ abstract class Abstract_Strategy implements Strategy {
 	protected function get_stored_state( string $slug ): ?bool {
 		$raw = get_option(
 			$this->get_option_key( $slug ),
-			null,
-			true
+			null
 		);
 
 		if ( $raw === null ) {

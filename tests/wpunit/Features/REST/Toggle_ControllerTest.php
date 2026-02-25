@@ -3,7 +3,7 @@
 namespace StellarWP\Uplink\Tests\Features\REST;
 
 use StellarWP\Uplink\Features\API\Client;
-use StellarWP\Uplink\Features\Collection;
+use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Features\REST\Toggle_Controller;
@@ -40,7 +40,7 @@ final class Toggle_ControllerTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$collection = new Collection();
+		$collection = new Feature_Collection();
 		$collection->add( $this->makeEmpty( Feature::class, [ 'get_slug' => 'test-feature' ] ) );
 
 		$mock_strategy = $this->makeEmpty( Strategy::class, [

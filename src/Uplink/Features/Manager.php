@@ -13,14 +13,14 @@ use WP_Error;
  * Delegates the actual mechanism to the appropriate strategy and fires
  * global + slug-specific WordPress actions around each operation.
  *
- * @since TBD
+ * @since 3.0.0
  */
 class Manager {
 
 	/**
 	 * The client for fetching available features.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @var Client
 	 */
@@ -29,7 +29,7 @@ class Manager {
 	/**
 	 * The strategy resolver for determining how to toggle features.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @var Resolver
 	 */
@@ -38,7 +38,7 @@ class Manager {
 	/**
 	 * Constructor for the central feature orchestrator.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @param Client   $client   The client for fetching available features.
 	 * @param Resolver $resolver The strategy resolver.
@@ -56,7 +56,7 @@ class Manager {
 	 * Fires 'stellarwp/uplink/feature_enabling' and 'stellarwp/uplink/{slug}/feature_enabling'
 	 * before the operation, and the corresponding 'feature_enabled' actions after success.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @param string $slug The feature slug.
 	 *
@@ -77,7 +77,7 @@ class Manager {
 		/**
 		 * Fires before a feature is enabled.
 		 *
-		 * @since TBD
+		 * @since 3.0.0
 		 *
 		 * @param Feature $feature The feature being enabled.
 		 *
@@ -88,7 +88,7 @@ class Manager {
 		/**
 		 * Fires before a specific feature is enabled.
 		 *
-		 * @since TBD
+		 * @since 3.0.0
 		 *
 		 * @param Feature $feature The feature being enabled.
 		 *
@@ -105,7 +105,7 @@ class Manager {
 		/**
 		 * Fires after a feature has been successfully enabled.
 		 *
-		 * @since TBD
+		 * @since 3.0.0
 		 *
 		 * @param Feature $feature The feature that was enabled.
 		 *
@@ -116,7 +116,7 @@ class Manager {
 		/**
 		 * Fires after a specific feature has been successfully enabled.
 		 *
-		 * @since TBD
+		 * @since 3.0.0
 		 *
 		 * @param Feature $feature The feature that was enabled.
 		 *
@@ -133,7 +133,7 @@ class Manager {
 	 * Fires 'stellarwp/uplink/feature_disabling' and 'stellarwp/uplink/{slug}/feature_disabling'
 	 * before the operation, and the corresponding 'feature_disabled' actions after success.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @param string $slug The feature slug.
 	 *
@@ -154,7 +154,7 @@ class Manager {
 		/**
 		 * Fires before a feature is disabled.
 		 *
-		 * @since TBD
+		 * @since 3.0.0
 		 *
 		 * @param Feature $feature The feature being disabled.
 		 *
@@ -165,7 +165,7 @@ class Manager {
 		/**
 		 * Fires before a specific feature is disabled.
 		 *
-		 * @since TBD
+		 * @since 3.0.0
 		 *
 		 * @param Feature $feature The feature being disabled.
 		 *
@@ -182,7 +182,7 @@ class Manager {
 		/**
 		 * Fires after a feature has been successfully disabled.
 		 *
-		 * @since TBD
+		 * @since 3.0.0
 		 *
 		 * @param Feature $feature The feature that was disabled.
 		 *
@@ -193,7 +193,7 @@ class Manager {
 		/**
 		 * Fires after a specific feature has been successfully disabled.
 		 *
-		 * @since TBD
+		 * @since 3.0.0
 		 *
 		 * @param Feature $feature The feature that was disabled.
 		 *
@@ -209,7 +209,7 @@ class Manager {
 	 *
 	 * Returns false if the feature is not in the catalog.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @param string $slug The feature slug.
 	 *
@@ -230,7 +230,7 @@ class Manager {
 	/**
 	 * Checks whether a feature exists in the cached catalog.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @param string $slug The feature slug.
 	 *
@@ -243,24 +243,33 @@ class Manager {
 	/**
 	 * Gets the feature collection from the catalog.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
-	 * @return Collection
+	 * @return Feature_Collection|WP_Error
 	 */
-	public function get_features(): Collection {
+	public function get_features() {
 		return $this->client->get_features();
 	}
 
 	/**
 	 * Looks up a feature by slug from the cached catalog.
 	 *
-	 * @since TBD
+	 * Returns null when the feature is not found or when the API
+	 * request fails, since the catalog is unavailable.
+	 *
+	 * @since 3.0.0
 	 *
 	 * @param string $slug The feature slug.
 	 *
 	 * @return Feature|null
 	 */
 	private function get_feature( string $slug ): ?Feature {
-		return $this->client->get_features()->get( $slug );
+		$features = $this->client->get_features();
+
+		if ( is_wp_error( $features ) ) {
+			return null;
+		}
+
+		return $features->get( $slug );
 	}
 }

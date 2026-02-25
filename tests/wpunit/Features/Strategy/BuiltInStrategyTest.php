@@ -215,7 +215,7 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 	 * affect the other.
 	 */
 	public function test_features_have_independent_state(): void {
-		$other = new Built_In( 'other-feature', 'Other', 'Another feature.' );
+		$other = new Built_In( 'other-feature', 'TEC', 'Tier 1', 'Other', 'Another feature.', true );
 
 		$this->strategy->enable( $this->feature );
 
@@ -244,7 +244,7 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 		string $name = 'Advanced Tickets',
 		string $description = 'Unlock advanced ticketing features.'
 	): Built_In {
-		return new Built_In( $slug, $name, $description );
+		return new Built_In( $slug, 'TEC', 'Tier 1', $name, $description, true );
 	}
 
 	/**
@@ -256,13 +256,13 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 	 * @return Feature
 	 */
 	private function create_non_built_in_feature(): Feature {
-		return new class ( 'not-built-in', 'Not Built-In', 'Not a built-in feature.', 'other' ) extends Feature {
+		return new class ( 'not-built-in', 'Test', 'Tier 1', 'Not Built-In', 'Not a built-in feature.', 'other', true ) extends Feature {
 
 			/**
 			 * @inheritDoc
 			 */
 			public static function from_array( array $data ) {
-				return new self( $data['slug'], $data['name'], $data['description'] ?? '', $data['type'] ?? 'other' );
+				return new self( $data['slug'], $data['group'] ?? '', $data['tier'] ?? '', $data['name'], $data['description'] ?? '', $data['type'] ?? 'other', $data['is_available'] ?? true );
 			}
 		};
 	}

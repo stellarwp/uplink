@@ -6,59 +6,47 @@ use StellarWP\Uplink\Features\Types\Feature;
 use WP_Error;
 
 /**
- * Contract for feature-gating strategies.
- *
- * Each strategy defines how a feature is enabled, disabled, and queried for
- * its active state. The Zip strategy installs/activates WordPress plugins;
- * future strategies might toggle config flags, enable modules, etc.
- *
- * Return type for enable()/disable() is intentionally omitted from the PHP
- * signature because PHP 7.1 cannot express `true|WP_Error`. The docblock
- * is the source of truth.
+ * Strategy interface for enabling, disabling, and checking
+ * the active state of a Feature.
  *
  * @since 3.0.0
  */
 interface Strategy {
 
 	/**
-	 * Enable the given feature.
-	 *
-	 * Implementations should be idempotent: calling enable() on an already-
-	 * active feature returns true without side effects.
+	 * Enables a feature.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @param Feature $feature The feature to enable.
 	 *
-	 * @return true|WP_Error True on success, WP_Error with a specific error
-	 *                       code on failure.
+	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
 	public function enable( Feature $feature );
 
 	/**
-	 * Disable the given feature.
-	 *
-	 * Implementations should be idempotent: calling disable() on an already-
-	 * inactive feature returns true without side effects.
+	 * Disables a feature.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @param Feature $feature The feature to disable.
 	 *
-	 * @return true|WP_Error True on success, WP_Error with a specific error
-	 *                       code on failure.
+	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
 	public function disable( Feature $feature );
 
 	/**
-	 * Check whether the given feature is currently active.
+	 * Checks whether a feature is currently active.
+	 *
+	 * Implementations should check live state rather than a cached flag.
+	 * If the live state differs from any stored flag, the stored flag
+	 * should be updated to match (self-healing).
 	 *
 	 * @since 3.0.0
 	 *
 	 * @param Feature $feature The feature to check.
 	 *
-	 * @return bool
+	 * @return bool Whether the feature is currently active.
 	 */
 	public function is_active( Feature $feature ): bool;
-
 }

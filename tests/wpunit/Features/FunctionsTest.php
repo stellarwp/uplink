@@ -3,12 +3,13 @@
 namespace StellarWP\Uplink\Tests\Features;
 
 use StellarWP\Uplink\Features\API\Client;
-use StellarWP\Uplink\Features\Collection;
+use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Tests\UplinkTestCase;
+use WP_Error;
 use function StellarWP\Uplink\is_feature_available;
 use function StellarWP\Uplink\is_feature_enabled;
 
@@ -22,7 +23,7 @@ final class FunctionsTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$collection = new Collection();
+		$collection = new Feature_Collection();
 		$collection->add( $this->makeEmpty( Feature::class, [ 'get_slug' => 'test-feature' ] ) );
 
 		$mock_strategy = $this->makeEmpty( Strategy::class, [
@@ -80,5 +81,51 @@ final class FunctionsTest extends UplinkTestCase {
 	 */
 	public function test_is_feature_available_returns_false_for_unknown_feature(): void {
 		$this->assertFalse( is_feature_available( 'nonexistent' ) );
+	}
+
+	/**
+	 * Tests that is_feature_enabled returns false when the catalog returns a WP_Error.
+	 *
+	 * @return void
+	 */
+	public function test_is_feature_enabled_returns_false_when_catalog_errors(): void {
+		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
+
+		$catalog = $this->makeEmpty( Client::class, [
+			'get_features' => $error,
+		] );
+
+		$resolver = $this->makeEmpty( Resolver::class );
+
+		$manager = new Manager( $catalog, $resolver );
+
+		$this->container->bind( Manager::class, static function () use ( $manager ) {
+			return $manager;
+		} );
+
+		$this->assertFalse( is_feature_enabled( 'test-feature' ) );
+	}
+
+	/**
+	 * Tests that is_feature_available returns false when the catalog returns a WP_Error.
+	 *
+	 * @return void
+	 */
+	public function test_is_feature_available_returns_false_when_catalog_errors(): void {
+		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
+
+		$catalog = $this->makeEmpty( Client::class, [
+			'get_features' => $error,
+		] );
+
+		$resolver = $this->makeEmpty( Resolver::class );
+
+		$manager = new Manager( $catalog, $resolver );
+
+		$this->container->bind( Manager::class, static function () use ( $manager ) {
+			return $manager;
+		} );
+
+		$this->assertFalse( is_feature_available( 'test-feature' ) );
 	}
 }

@@ -170,7 +170,7 @@ class Zip_Strategy extends Abstract_Strategy {
 		// Verify the plugin is actually inactive now. This catches edge cases
 		// where a deactivation hook re-activates the plugin or WordPress's
 		// plugin state is otherwise inconsistent.
-		// @phpstan-ignore if.alwaysTrue -- deactivate_plugins() changes active state via DB side effects invisible to static analysis.
+		// @phpstan-ignore if.alwaysTrue (deactivate_plugins() changes active state via DB side effects invisible to static analysis)
 		if ( $this->is_plugin_active( $plugin_file ) ) {
 			return new WP_Error(
 				'deactivation_failed',
@@ -181,7 +181,7 @@ class Zip_Strategy extends Abstract_Strategy {
 			);
 		}
 
-		$this->update_stored_state( $feature->get_slug(), false ); // @phpstan-ignore deadCode.unreachable -- Reachable when deactivate_plugins() succeeds; cascades from the if.alwaysTrue above.
+		$this->update_stored_state( $feature->get_slug(), false ); // @phpstan-ignore deadCode.unreachable
 
 		return true;
 	}
@@ -346,7 +346,7 @@ class Zip_Strategy extends Abstract_Strategy {
 			// Post-install verification: the ZIP's directory structure might not
 			// match the expected plugin_file path. Catch this early with a clear
 			// error rather than a confusing "plugin not found" during activation.
-			// @phpstan-ignore booleanNot.alwaysTrue -- install_plugin() creates files on disk; side effects invisible to static analysis.
+			// @phpstan-ignore booleanNot.alwaysTrue (install_plugin() creates files on disk; side effects invisible to static analysis)
 			if ( ! $this->is_plugin_installed( $plugin_file ) ) {
 				return new WP_Error(
 					'plugin_not_found',
@@ -357,7 +357,7 @@ class Zip_Strategy extends Abstract_Strategy {
 				);
 			}
 
-			return true; // @phpstan-ignore deadCode.unreachable -- Reachable when the installed plugin file exists on disk; cascades from the booleanNot.alwaysTrue above.
+			return true; // @phpstan-ignore deadCode.unreachable
 		} finally {
 			// Always release the lock, even on early returns or exceptions.
 			$this->release_lock( $lock_key );
@@ -599,7 +599,7 @@ class Zip_Strategy extends Abstract_Strategy {
 		}
 
 		$plugin_data   = get_plugin_data( WP_PLUGIN_DIR . '/' . $feature->get_plugin_file(), false, false );
-		$actual_author = trim( $plugin_data['Author'] ?? '' );
+		$actual_author = trim( $plugin_data['Author'] );
 
 		foreach ( $expected_authors as $expected ) {
 			if ( strcasecmp( trim( $expected ), $actual_author ) === 0 ) {

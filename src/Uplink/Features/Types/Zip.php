@@ -9,17 +9,14 @@ namespace StellarWP\Uplink\Features\Types;
  * and plugin_file to activate/deactivate it. The download_url is always
  * provided by the catalog API.
  *
- * @since TBD
+ * @since 3.0.0
  */
 final class Zip extends Feature {
 
 	/**
 	 * The plugin file path relative to the plugins directory.
 	 *
-	 * Must match the directory name inside the ZIP, e.g.:
-	 * "stellar-export/stellar-export.php"
-	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @var string
 	 */
@@ -31,7 +28,7 @@ final class Zip extends Feature {
 	 * Provided by the catalog API. May include authentication tokens as
 	 * query parameters.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @var string
 	 */
@@ -44,7 +41,7 @@ final class Zip extends Feature {
 	 * Author header to ensure we don't activate a different developer's
 	 * plugin that happens to share the same directory slug.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @var string[]
 	 */
@@ -53,26 +50,34 @@ final class Zip extends Feature {
 	/**
 	 * Constructor for a Feature delivered as a standalone WordPress plugin ZIP.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
-	 * @param string   $slug         The feature slug.
-	 * @param string   $name         The feature display name.
-	 * @param string   $description  The feature description.
-	 * @param string   $plugin_file  The plugin file path (e.g. 'my-plugin/my-plugin.php').
-	 * @param string   $download_url Direct download URL for the plugin ZIP.
-	 * @param string[] $authors      Expected plugin authors for ownership verification.
+	 * @param string   $slug          The feature slug.
+	 * @param string   $group         The product group (e.g. 'LearnDash', 'TEC').
+	 * @param string   $tier          The feature tier (e.g. 'Tier 1', 'Tier 2').
+	 * @param string   $name          The feature display name.
+	 * @param string   $description   The feature description.
+	 * @param string   $plugin_file   The plugin file path (e.g. 'my-plugin/my-plugin.php').
+	 * @param bool     $is_available  Whether the feature is available.
+	 * @param string   $documentation The URL to the feature documentation.
+	 * @param string   $download_url  Direct download URL for the plugin ZIP.
+	 * @param string[] $authors       Expected plugin authors for ownership verification.
 	 *
 	 * @return void
 	 */
 	public function __construct(
 		string $slug,
+		string $group,
+		string $tier,
 		string $name,
 		string $description,
 		string $plugin_file,
+		bool $is_available,
+		string $documentation = '',
 		string $download_url = '',
 		array $authors = []
 	) {
-		parent::__construct( $slug, $name, $description, 'zip' );
+		parent::__construct( $slug, $group, $tier, $name, $description, 'zip', $is_available, $documentation );
 
 		$this->plugin_file  = $plugin_file;
 		$this->download_url = $download_url;
@@ -85,9 +90,13 @@ final class Zip extends Feature {
 	public static function from_array( array $data ) {
 		return new self(
 			$data['slug'],
+			$data['group'],
+			$data['tier'],
 			$data['name'],
 			$data['description'] ?? '',
 			$data['plugin_file'],
+			$data['is_available'],
+			$data['documentation'] ?? '',
 			$data['download_url'] ?? '',
 			$data['authors'] ?? []
 		);
@@ -96,7 +105,7 @@ final class Zip extends Feature {
 	/**
 	 * Gets the plugin file path relative to the plugins directory.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return string
 	 */
@@ -107,7 +116,7 @@ final class Zip extends Feature {
 	/**
 	 * Gets the direct download URL for the plugin ZIP.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return string
 	 */
@@ -118,7 +127,7 @@ final class Zip extends Feature {
 	/**
 	 * Gets the expected plugin authors for ownership verification.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return string[]
 	 */
@@ -132,7 +141,7 @@ final class Zip extends Feature {
 	 * For "stellar-export/stellar-export.php" this returns "stellar-export".
 	 * Used as a unique identifier for transient locks and directory checks.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return string
 	 */

@@ -4,6 +4,7 @@ vendor/
 .idea/
 /composer.lock
 node_modules/
+bun.lockb
 
 local-scripts/
 

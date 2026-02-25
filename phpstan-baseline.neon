@@ -139,7 +139,7 @@ parameters:
 			path: src/Uplink/API/Validation_Response.php
 
 		-
-			rawMessage: 'Parameter #1 $obj of function get_object_vars expects object, mixed given.'
+			rawMessage: 'Parameter #1 $object of function get_object_vars expects object, mixed given.'
 			identifier: argument.type
 			count: 1
 			path: src/Uplink/API/Validation_Response.php
@@ -163,7 +163,7 @@ parameters:
 			path: src/Uplink/API/Validation_Response.php
 
 		-
-			rawMessage: 'Parameter #1 $var of function intval expects array|bool|float|int|resource|string|null, mixed given.'
+			rawMessage: 'Parameter #1 $value of function intval expects array|bool|float|int|resource|string|null, mixed given.'
 			identifier: argument.type
 			count: 1
 			path: src/Uplink/API/Validation_Response.php
@@ -277,7 +277,7 @@ parameters:
 			path: src/Uplink/Admin/Field.php
 
 		-
-			rawMessage: 'Parameter #1 $function of function call_user_func expects callable(): mixed, mixed given.'
+			rawMessage: 'Parameter #1 $callback of function call_user_func expects callable(): mixed, mixed given.'
 			identifier: argument.type
 			count: 1
 			path: src/Uplink/Admin/Field.php
@@ -751,7 +751,7 @@ parameters:
 			path: src/Uplink/Pipeline/Pipeline.php
 
 		-
-			rawMessage: 'Parameter #1 $object of function method_exists expects object|string, mixed given.'
+			rawMessage: 'Parameter #1 $object_or_class of function method_exists expects object|string, mixed given.'
 			identifier: argument.type
 			count: 1
 			path: src/Uplink/Pipeline/Pipeline.php
@@ -763,7 +763,7 @@ parameters:
 			path: src/Uplink/Pipeline/Pipeline.php
 
 		-
-			rawMessage: 'Parameter #2 ...$args of function array_merge expects array, mixed given.'
+			rawMessage: 'Parameter #2 ...$arrays of function array_merge expects array, mixed given.'
 			identifier: argument.type
 			count: 1
 			path: src/Uplink/Pipeline/Pipeline.php

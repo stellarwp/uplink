@@ -10,6 +10,7 @@ includes:
 	- vendor/dpanta94/phpstan-containers/extension.neon
 
 parameters:
+	phpVersion: 80000
 	tmpDir: phpstan-cache
 	parallel:
 		jobSize: 10

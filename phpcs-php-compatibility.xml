@@ -1,11 +1,22 @@
 <?xml version="1.0"?>
 <ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="StellarWP Uplink" xsi:noNamespaceSchemaLocation="vendor/squizlabs/php_codesniffer/phpcs.xsd">
 	<description>The custom ruleset for the StellarWP Uplink plugin, especially for PHP Compatibility</description>
-	<file>.src</file>
-	<file>./vendor</file>
+	<file>.</file>
 
+	<!-- General exclusions -->
+	<exclude-pattern>*/docs/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/phpstan-cache/*</exclude-pattern>
+	<exclude-pattern>*/tests/*</exclude-pattern>
+
+	<!-- Formats of the report -->
+	<arg name="report" value="full,summary,source"/>
+	<!-- Show results with colors -->
+	<arg name="colors"/>
+	<!-- Enables cache -->
+	<arg name="cache"/>
+	<!-- Limit to PHP files -->
 	<arg name="extensions" value="php"/>
-	<arg value="s"/>
 
 	<rule ref="PHPCompatibilityWP">
 		<!-- 'resource' is a soft reserved keyword since PHP 7.0, but renaming the Resource class would be a breaking change. -->

@@ -37,9 +37,13 @@ Update `package.json` to add all frontend dependencies and scripts needed for th
   "devDependencies": {
     "@stellarwp/changelogger": "^0.10.0",
     "@tailwindcss/postcss": "^4.1.17",
+    "@wordpress/i18n": "^6.13.0",
+    "@wordpress/icons": "^11.7.0",
     "@wordpress/scripts": "^31.1.0",
     "autoprefixer": "^10.4.22",
     "postcss": "^8.5.6",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "tailwindcss": "^4.1.17",
     "typescript": "^5.9.3"
   },
@@ -62,9 +66,11 @@ bun install
 ## Decisions
 
 - `@wordpress/element` is **not** listed as a dependency — `@wordpress/scripts` externalizes it to `window.wp.element` automatically via webpack. Listing it would create a duplicate React instance.
+- `react` and `react-dom` go in `devDependencies` (not `dependencies`) — webpack externalizes them to `window.React` and `window.ReactDOM` provided by WordPress Core, so they are never bundled. They are listed explicitly so TypeScript can resolve `react` and `react-dom/client` imports without relying on transitive resolution from `@wordpress/scripts`.
+- `@wordpress/i18n` and `@wordpress/icons` go in `devDependencies` — both are externalized by `@wordpress/scripts` at build time (available as `window.wp.i18n` and `window.wp.icons` at runtime). Listing them explicitly gives TypeScript their type declarations for `tsc --noEmit`.
 - `radix-ui` v1 umbrella package is used instead of individual `@radix-ui/*` packages — provides all Radix primitives in a single install without managing multiple package versions.
 - `typescript` goes in `devDependencies` — only used for `tsc --noEmit` at build time.
-- `@wordpress/i18n` is included via `@wordpress/scripts` externals and does not need to be listed separately. Import it as `import { __, sprintf } from '@wordpress/i18n'` — use `'%TEXTDOMAIN%'` as the text domain in all `__()` calls to match the PHP convention used throughout this codebase.
+- `@wordpress/i18n` import convention: use `import { __, sprintf } from '@wordpress/i18n'` with `'%TEXTDOMAIN%'` as the text domain in all `__()` calls to match the PHP convention used throughout this codebase.
 
 ## Verification
 

@@ -7,6 +7,7 @@
 	<exclude-pattern>*/docs/*</exclude-pattern>
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
 	<exclude-pattern>*/phpstan-cache/*</exclude-pattern>
+	<exclude-pattern>*/vendor/*</exclude-pattern>
 	<exclude-pattern>*/tests/*</exclude-pattern>
 
 	<!-- Formats of the report -->

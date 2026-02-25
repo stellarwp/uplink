@@ -245,14 +245,17 @@ class Manager {
 	 *
 	 * @since TBD
 	 *
-	 * @return Collection
+	 * @return Collection|WP_Error
 	 */
-	public function get_features(): Collection {
+	public function get_features() {
 		return $this->client->get_features();
 	}
 
 	/**
 	 * Looks up a feature by slug from the cached catalog.
+	 *
+	 * Returns null when the feature is not found or when the API
+	 * request fails, since the catalog is unavailable.
 	 *
 	 * @since TBD
 	 *
@@ -261,6 +264,12 @@ class Manager {
 	 * @return Feature|null
 	 */
 	private function get_feature( string $slug ): ?Feature {
-		return $this->client->get_features()->get( $slug );
+		$features = $this->client->get_features();
+
+		if ( is_wp_error( $features ) ) {
+			return null;
+		}
+
+		return $features->get( $slug );
 	}
 }

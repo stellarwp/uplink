@@ -4,6 +4,7 @@ namespace StellarWP\Uplink\Features\API;
 
 use StellarWP\Uplink\Features\Collection;
 use StellarWP\Uplink\Features\Types\Feature;
+use WP_Error;
 
 /**
  * Fetches the feature catalog from the Commerce Portal API and
@@ -59,12 +60,12 @@ class Client {
 	 *
 	 * @since TBD
 	 *
-	 * @return Collection
+	 * @return Collection|WP_Error
 	 */
-	public function get_features(): Collection {
+	public function get_features() {
 		$cached = get_transient( self::TRANSIENT_KEY );
 
-		if ( $cached instanceof Collection ) {
+		if ( $cached instanceof Collection || is_wp_error( $cached ) ) {
 			return $cached;
 		}
 
@@ -76,9 +77,9 @@ class Client {
 	 *
 	 * @since TBD
 	 *
-	 * @return Collection
+	 * @return Collection|WP_Error
 	 */
-	public function refresh(): Collection {
+	public function refresh() {
 		delete_transient( self::TRANSIENT_KEY );
 
 		return $this->fetch_features();
@@ -89,10 +90,16 @@ class Client {
 	 *
 	 * @since TBD
 	 *
-	 * @return Collection
+	 * @return Collection|WP_Error
 	 */
-	private function fetch_features(): Collection {
+	private function fetch_features() {
 		$response = $this->request();
+
+		if ( is_wp_error( $response ) ) {
+			set_transient( self::TRANSIENT_KEY, $response, self::DEFAULT_CACHE_DURATION );
+
+			return $response;
+		}
 
 		$collection = $this->hydrate( $response );
 
@@ -106,9 +113,9 @@ class Client {
 	 *
 	 * @since TBD
 	 *
-	 * @return array<int, array<string, mixed>> The decoded response entries.
+	 * @return array<int, array<string, mixed>>|WP_Error The decoded response entries or an error.
 	 */
-	private function request(): array {
+	private function request() {
 		// TODO: Implement the actual API request to Commerce Portal.
 		// Should send site domain + license keys and return the feature catalog.
 		return [];

@@ -293,4 +293,103 @@ final class ManagerTest extends UplinkTestCase {
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertFalse( $disabled_fired, 'feature_disabled should not fire when disable fails.' );
 	}
+
+	/**
+	 * Tests that get_features returns a WP_Error when the catalog errors.
+	 *
+	 * @return void
+	 */
+	public function test_get_features_returns_wp_error_when_catalog_errors(): void {
+		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
+
+		$catalog = $this->makeEmpty( Client::class, [
+			'get_features' => $error,
+		] );
+
+		$resolver = $this->makeEmpty( Resolver::class );
+
+		$manager = new Manager( $catalog, $resolver );
+
+		$this->assertInstanceOf( WP_Error::class, $manager->get_features() );
+	}
+
+	/**
+	 * Tests that is_enabled returns false when the catalog returns a WP_Error.
+	 *
+	 * @return void
+	 */
+	public function test_is_enabled_returns_false_when_catalog_errors(): void {
+		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
+
+		$catalog = $this->makeEmpty( Client::class, [
+			'get_features' => $error,
+		] );
+
+		$resolver = $this->makeEmpty( Resolver::class );
+
+		$manager = new Manager( $catalog, $resolver );
+
+		$this->assertFalse( $manager->is_enabled( 'test-feature' ) );
+	}
+
+	/**
+	 * Tests that is_available returns false when the catalog returns a WP_Error.
+	 *
+	 * @return void
+	 */
+	public function test_is_available_returns_false_when_catalog_errors(): void {
+		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
+
+		$catalog = $this->makeEmpty( Client::class, [
+			'get_features' => $error,
+		] );
+
+		$resolver = $this->makeEmpty( Resolver::class );
+
+		$manager = new Manager( $catalog, $resolver );
+
+		$this->assertFalse( $manager->is_available( 'test-feature' ) );
+	}
+
+	/**
+	 * Tests that enable returns a WP_Error when the catalog errors.
+	 *
+	 * @return void
+	 */
+	public function test_enable_returns_wp_error_when_catalog_errors(): void {
+		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
+
+		$catalog = $this->makeEmpty( Client::class, [
+			'get_features' => $error,
+		] );
+
+		$resolver = $this->makeEmpty( Resolver::class );
+
+		$manager = new Manager( $catalog, $resolver );
+
+		$result = $manager->enable( 'test-feature' );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+	}
+
+	/**
+	 * Tests that disable returns a WP_Error when the catalog errors.
+	 *
+	 * @return void
+	 */
+	public function test_disable_returns_wp_error_when_catalog_errors(): void {
+		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
+
+		$catalog = $this->makeEmpty( Client::class, [
+			'get_features' => $error,
+		] );
+
+		$resolver = $this->makeEmpty( Resolver::class );
+
+		$manager = new Manager( $catalog, $resolver );
+
+		$result = $manager->disable( 'test-feature' );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+	}
 }

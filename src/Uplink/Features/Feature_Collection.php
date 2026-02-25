@@ -38,7 +38,6 @@ class Feature_Collection extends Collection {
 	 *
 	 * @return Feature|null
 	 */
-	#[\ReturnTypeWillChange]
 	public function get( $offset ): ?Feature {
 		return parent::get( $offset );
 	}

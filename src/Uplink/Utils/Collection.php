@@ -69,7 +69,6 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @return mixed|null
 	 */
-	#[\ReturnTypeWillChange]
 	public function get( $offset ) {
 		return $this->offsetGet( $offset );
 	}

@@ -39,7 +39,7 @@ class Client {
 	 *
 	 * @var array<string, class-string<Feature>>
 	 */
-	private $type_map = [];
+	private array $type_map = [];
 
 	/**
 	 * Registers a Feature subclass for a given type string.

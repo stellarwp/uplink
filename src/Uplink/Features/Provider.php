@@ -5,7 +5,7 @@ namespace StellarWP\Uplink\Features;
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\Features\API\Client;
-use StellarWP\Uplink\Features\REST\Toggle_Controller;
+use StellarWP\Uplink\Features\REST\Feature_Controller;
 use StellarWP\Uplink\Features\Strategy\Built_In_Strategy;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Strategy\Zip_Strategy;
@@ -38,8 +38,8 @@ class Provider extends Abstract_Provider {
 			);
 		} );
 
-		$this->container->singleton( Toggle_Controller::class, static function ( $c ) {
-			return new Toggle_Controller(
+		$this->container->singleton( Feature_Controller::class, static function ( $c ) {
+			return new Feature_Controller(
 				$c->get( Manager::class )
 			);
 		} );
@@ -97,6 +97,6 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	public function register_rest_routes(): void {
-		$this->container->get( Toggle_Controller::class )->register_routes();
+		$this->container->get( Feature_Controller::class )->register_routes();
 	}
 }

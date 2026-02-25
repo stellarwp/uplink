@@ -20,7 +20,7 @@ final class Zip extends Feature {
 	 *
 	 * @var string
 	 */
-	protected $plugin_file;
+	protected string $plugin_file;
 
 	/**
 	 * Direct download URL for the plugin ZIP.

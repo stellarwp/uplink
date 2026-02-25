@@ -31,17 +31,38 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 
     const activeTier = getTierForProduct( product.slug );
     const isProductOn = productEnabled[ product.slug ] ?? false;
-    const isAccessible = activeTier !== null && tierGte( activeTier, feature.requiredTier );
 
-    // If product is disabled or user has no license at all
-    if ( ! isProductOn || activeTier === null ) {
+    // Product manually disabled by the user — hide all its features.
+    if ( activeTier !== null && ! isProductOn ) {
         return null;
     }
 
-    const featureEnabled = isFeatureEnabled( feature.id, product.slug );
+    // No license for this product — show every feature as not-licensed.
+    if ( activeTier === null ) {
+        const starterTier = product.tiers.find( ( t ) => t.slug === 'starter' ) ?? product.tiers[ 0 ];
+
+        return (
+            <div className="flex items-center justify-between px-4 py-3 bg-slate-50/50">
+                <FeatureInfo
+                    name={ feature.name }
+                    description={ feature.description }
+                    isLocked={ true }
+                />
+                <div className="flex items-center gap-3 shrink-0 ml-4">
+                    <StatusBadge status="not-licensed" />
+                    <PurchaseLink
+                        tierName={ starterTier.name }
+                        upgradeUrl={ starterTier.upgradeUrl }
+                        mode="learn-more"
+                    />
+                </div>
+            </div>
+        );
+    }
+
+    const isAccessible = tierGte( activeTier, feature.requiredTier );
 
     if ( ! isAccessible ) {
-        // Find the tier name for the upgrade prompt
         const requiredTierObj = product.tiers.find( ( t ) => t.slug === feature.requiredTier );
         const tierName = requiredTierObj?.name ?? feature.requiredTier;
         const upgradeUrl = requiredTierObj?.upgradeUrl ?? '#';
@@ -60,6 +81,8 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
             </div>
         );
     }
+
+    const featureEnabled = isFeatureEnabled( feature.id, product.slug );
 
     const handleToggle = ( checked: boolean ) => {
         toggleFeature( feature.id, product.slug, checked );

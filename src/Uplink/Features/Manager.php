@@ -24,7 +24,7 @@ class Manager {
 	 *
 	 * @var Client
 	 */
-	private Client $client;
+	private $client;
 
 	/**
 	 * The strategy resolver for determining how to toggle features.
@@ -33,7 +33,7 @@ class Manager {
 	 *
 	 * @var Resolver
 	 */
-	private Resolver $resolver;
+	private $resolver;
 
 	/**
 	 * Constructor for the central feature orchestrator.

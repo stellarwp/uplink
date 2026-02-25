@@ -23,14 +23,14 @@ final class Toggle_ControllerTest extends UplinkTestCase {
 	 *
 	 * @var WP_REST_Server
 	 */
-	private WP_REST_Server $server;
+	private $server;
 
 	/**
 	 * The feature manager instance.
 	 *
 	 * @var Manager
 	 */
-	private Manager $manager;
+	private $manager;
 
 	/**
 	 * Sets up the REST server and registers toggle routes before each test.

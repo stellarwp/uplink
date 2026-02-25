@@ -15,7 +15,7 @@ final class ResolverTest extends UplinkTestCase {
 	 *
 	 * @var Resolver
 	 */
-	private Resolver $resolver;
+	private $resolver;
 
 	/**
 	 * Sets up the strategy resolver before each test.

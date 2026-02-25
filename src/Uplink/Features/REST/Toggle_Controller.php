@@ -43,7 +43,7 @@ class Toggle_Controller extends WP_REST_Controller {
 	 *
 	 * @var Manager
 	 */
-	private Manager $manager;
+	private $manager;
 
 	/**
 	 * Constructor for the feature toggle REST API controller.

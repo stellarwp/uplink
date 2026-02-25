@@ -21,7 +21,7 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @var array<string, mixed>
 	 */
-	protected array $items;
+	protected $items;
 
 	/**
 	 * The original Iterator, for memoization.
@@ -30,7 +30,7 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @var Iterator<string, mixed>|null
 	 */
-	private ?Iterator $iterator = null;
+	private $iterator = null;
 
 	/**
 	 * Constructor for a keyed collection.

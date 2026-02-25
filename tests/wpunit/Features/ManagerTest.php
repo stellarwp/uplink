@@ -18,14 +18,14 @@ final class ManagerTest extends UplinkTestCase {
 	 *
 	 * @var Manager
 	 */
-	private Manager $manager;
+	private $manager;
 
 	/**
 	 * The feature collection used by the manager.
 	 *
 	 * @var Feature_Collection
 	 */
-	private Feature_Collection $collection;
+	private $collection;
 
 	/**
 	 * The mocked feature strategy.

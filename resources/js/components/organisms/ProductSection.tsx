@@ -6,7 +6,9 @@
  *
  * @package StellarWP\Uplink
  */
+import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
+import { Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BrandIcon } from '@/components/atoms/BrandIcon';
@@ -34,21 +36,34 @@ export function ProductSection( { product, onAddLicense }: ProductSectionProps )
     const tier = getTierForProduct( product.slug );
     const isEnabled = productEnabled[ product.slug ] ?? false;
     const config = BRAND_CONFIGS[ product.slug ];
+    const [ isPending, setIsPending ] = useState( false );
 
     const tierName =
         product.tiers.find( ( t ) => t.slug === tier )?.name ?? '';
 
-    const handleProductToggle = () => {
+    const handleProductToggle = async () => {
         const next = ! isEnabled;
-        toggleProduct( product.slug, next );
+        setIsPending( true );
+        await toggleProduct( product.slug, next );
         const msg = next
             ? sprintf( __( '%s activated', '%TEXTDOMAIN%' ), product.name )
             : sprintf( __( '%s deactivated', '%TEXTDOMAIN%' ), product.name );
         addToast( msg, next ? 'success' : 'default' );
+        setIsPending( false );
     };
 
     // Features are visible only when the product is licensed and enabled.
     const showFeatures = !! license && isEnabled;
+
+    // During the pending phase the store has already applied the optimistic update,
+    // so isEnabled reflects the *new* value. Use that to pick the right label.
+    const buttonLabel = isPending
+        ? ( isEnabled
+            ? sprintf( __( 'Activating %s…', '%TEXTDOMAIN%' ), product.name )
+            : sprintf( __( 'Deactivating %s…', '%TEXTDOMAIN%' ), product.name ) )
+        : ( isEnabled
+            ? sprintf( __( 'Deactivate %s', '%TEXTDOMAIN%' ), product.name )
+            : sprintf( __( 'Activate %s', '%TEXTDOMAIN%' ), product.name ) );
 
     return (
         <div className="rounded-lg border border-border bg-background overflow-clip">
@@ -91,11 +106,10 @@ export function ProductSection( { product, onAddLicense }: ProductSectionProps )
                         size="sm"
                         variant={ isEnabled ? 'outline' : 'default' }
                         onClick={ handleProductToggle }
+                        disabled={ isPending }
                     >
-                        { isEnabled
-                            ? sprintf( __( 'Deactivate %s', '%TEXTDOMAIN%' ), product.name )
-                            : sprintf( __( 'Activate %s', '%TEXTDOMAIN%' ), product.name )
-                        }
+                        { isPending && <Loader2 className="w-3 h-3 animate-spin" /> }
+                        { buttonLabel }
                     </Button>
                 ) : (
                     <Button size="sm" onClick={ onAddLicense }>

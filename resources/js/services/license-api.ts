@@ -188,7 +188,8 @@ export async function updateProductStatus(
     // API:     data:   { enabled: _enabled },
     // API: });
 
-    // Mock: persisted automatically by Zustand persist middleware.
+    // Mock: simulate API round-trip so the pending state is visible in the UI.
+    await new Promise<void>( ( resolve ) => setTimeout( resolve, 600 ) );
 }
 
 /**
@@ -208,5 +209,6 @@ export async function updateFeatureStatus(
     // API:     data:   { enabled: _enabled },
     // API: });
 
-    // Mock: persisted automatically by Zustand persist middleware.
+    // Mock: simulate API round-trip so the pending state is visible in the UI.
+    await new Promise<void>( ( resolve ) => setTimeout( resolve, 600 ) );
 }

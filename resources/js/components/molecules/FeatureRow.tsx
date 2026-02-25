@@ -6,6 +6,7 @@
  *
  * @package StellarWP\Uplink
  */
+import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { cn } from '@/lib/utils';
 import { FeatureInfo } from '@/components/molecules/FeatureInfo';
@@ -83,20 +84,29 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
     }
 
     const featureEnabled = isFeatureEnabled( feature.id, product.slug );
+    const [ isPending, setIsPending ] = useState( false );
 
-    const handleToggle = ( checked: boolean ) => {
-        toggleFeature( feature.id, product.slug, checked );
+    const handleToggle = async ( checked: boolean ) => {
+        setIsPending( true );
+        await toggleFeature( feature.id, product.slug, checked );
         const msg = checked
             ? sprintf( __( '%s enabled', '%TEXTDOMAIN%' ), feature.name )
             : sprintf( __( '%s disabled', '%TEXTDOMAIN%' ), feature.name );
         addToast( msg, checked ? 'success' : 'default' );
+        setIsPending( false );
     };
+
+    // During the pending phase the store has already applied the optimistic update,
+    // so featureEnabled reflects the *new* value. Use that to pick the right label.
+    const badgeStatus = isPending
+        ? ( featureEnabled ? 'enabling' : 'disabling' )
+        : ( featureEnabled ? 'enabled' : 'available' );
 
     return (
         <div
             className={ cn(
                 'flex items-center justify-between px-4 py-3 transition-colors',
-                'hover:bg-slate-50'
+                isPending ? 'opacity-75' : 'hover:bg-slate-50'
             ) }
         >
             <FeatureInfo
@@ -105,10 +115,11 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
                 isLocked={ false }
             />
             <div className="flex items-center gap-3 shrink-0 ml-4">
-                <StatusBadge status={ featureEnabled ? 'enabled' : 'available' } />
+                <StatusBadge status={ badgeStatus } />
                 <Switch
                     checked={ featureEnabled }
                     onCheckedChange={ handleToggle }
+                    disabled={ isPending }
                     aria-label={
                         featureEnabled
                             ? sprintf( __( 'Disable %s', '%TEXTDOMAIN%' ), feature.name )

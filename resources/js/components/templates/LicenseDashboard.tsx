@@ -18,6 +18,9 @@ export function LicenseDashboard() {
         // TODO: Replace optimistic update with REST API call.
         // POST /wp-json/uplink/v1/features/{slug}/toggle
         // If the feature has a downloadUrl, the REST API installs it first, then activates.
+
+		console.log( 'Toggle feature:', slug, checked );
+
         setBrands( ( prev ) =>
             prev.map( ( brand ) => ( {
                 ...brand,
@@ -45,7 +48,7 @@ export function LicenseDashboard() {
             {/* Page Header */}
             <div className="flex flex-col gap-2">
                 <h1 className="text-3xl font-light text-slate-800">
-                    { __( 'License Management', '%TEXTDOMAIN%' ) }
+                    { __( 'Liquid Web Software', '%TEXTDOMAIN%' ) }
                 </h1>
                 <p className="text-slate-600 text-base max-w-3xl">
                     { __( 'Manage your premium feature licenses across all brands. Enter your master license key below to unlock features for GiveWP, The Events Calendar, LearnDash, and Kadence.', '%TEXTDOMAIN%' ) }

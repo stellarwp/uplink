@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="StellarWP Uplink" xsi:noNamespaceSchemaLocation="vendor/squizlabs/php_codesniffer/phpcs.xsd">
+	<description>The custom ruleset for the StellarWP Uplink plugin, especially for PHP Compatibility</description>
+	<file>.src</file>
+	<file>./vendor</file>
+
+	<arg name="extensions" value="php"/>
+	<arg value="s"/>
+
+	<rule ref="PHPCompatibilityWP">
+		<!-- 'resource' is a soft reserved keyword since PHP 7.0, but renaming the Resource class would be a breaking change. -->
+		<exclude name="PHPCompatibility.Keywords.ForbiddenNamesAsDeclared.resourceFound"/>
+	</rule>
+</ruleset>

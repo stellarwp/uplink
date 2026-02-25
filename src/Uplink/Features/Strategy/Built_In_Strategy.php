@@ -2,8 +2,8 @@
 
 namespace StellarWP\Uplink\Features\Strategy;
 
-use StellarWP\Uplink\Features\Built_In_Feature;
-use StellarWP\Uplink\Features\Feature;
+use StellarWP\Uplink\Features\Types\Built_In;
+use StellarWP\Uplink\Features\Types\Feature;
 use WP_Error;
 
 /**
@@ -28,15 +28,15 @@ class Built_In_Strategy extends Abstract_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Must be a Built_In_Feature instance.
+	 * @param Feature $feature Must be a Built_In instance.
 	 *
 	 * @return true|WP_Error True on success, WP_Error on type mismatch.
 	 */
 	public function enable( Feature $feature ) {
-		if ( ! $feature instanceof Built_In_Feature ) {
+		if ( ! $feature instanceof Built_In ) {
 			return new WP_Error(
 				'feature_type_mismatch',
-				'Built_In_Strategy can only enable Built_In_Feature instances.'
+				'Built_In_Strategy can only enable Built_In instances.'
 			);
 		}
 
@@ -52,15 +52,15 @@ class Built_In_Strategy extends Abstract_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Must be a Built_In_Feature instance.
+	 * @param Feature $feature Must be a Built_In instance.
 	 *
 	 * @return true|WP_Error True on success, WP_Error on type mismatch.
 	 */
 	public function disable( Feature $feature ) {
-		if ( ! $feature instanceof Built_In_Feature ) {
+		if ( ! $feature instanceof Built_In ) {
 			return new WP_Error(
 				'feature_type_mismatch',
-				'Built_In_Strategy can only disable Built_In_Feature instances.'
+				'Built_In_Strategy can only disable Built_In instances.'
 			);
 		}
 
@@ -77,12 +77,12 @@ class Built_In_Strategy extends Abstract_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Must be a Built_In_Feature instance.
+	 * @param Feature $feature Must be a Built_In instance.
 	 *
 	 * @return bool
 	 */
 	public function is_active( Feature $feature ): bool {
-		if ( ! $feature instanceof Built_In_Feature ) {
+		if ( ! $feature instanceof Built_In ) {
 			return false;
 		}
 

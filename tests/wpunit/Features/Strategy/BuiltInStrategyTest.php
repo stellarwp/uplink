@@ -2,9 +2,9 @@
 
 namespace StellarWP\Uplink\Tests\Features\Strategy;
 
-use StellarWP\Uplink\Features\Built_In_Feature;
-use StellarWP\Uplink\Features\Feature;
 use StellarWP\Uplink\Features\Strategy\Built_In_Strategy;
+use StellarWP\Uplink\Features\Types\Built_In;
+use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
 /**
@@ -33,7 +33,7 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 	private $strategy;
 
 	/**
-	 * @var Built_In_Feature
+	 * @var Built_In
 	 */
 	private $feature;
 
@@ -55,7 +55,7 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * enable() must reject non-Built_In_Feature instances with a type mismatch error.
+	 * enable() must reject non-Built_In instances with a type mismatch error.
 	 */
 	public function test_enable_returns_type_mismatch_error_for_non_built_in_feature(): void {
 		$non_built_in = $this->create_non_built_in_feature();
@@ -105,7 +105,7 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * disable() must reject non-Built_In_Feature instances with a type mismatch error.
+	 * disable() must reject non-Built_In instances with a type mismatch error.
 	 */
 	public function test_disable_returns_type_mismatch_error_for_non_built_in_feature(): void {
 		$non_built_in = $this->create_non_built_in_feature();
@@ -157,7 +157,7 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * is_active() returns false for non-Built_In_Feature instances.
+	 * is_active() returns false for non-Built_In instances.
 	 */
 	public function test_is_active_returns_false_for_non_built_in_feature(): void {
 		$non_built_in = $this->create_non_built_in_feature();
@@ -215,7 +215,7 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 	 * affect the other.
 	 */
 	public function test_features_have_independent_state(): void {
-		$other = new Built_In_Feature( 'other-feature', 'Other', 'Another feature.' );
+		$other = new Built_In( 'other-feature', 'Other', 'Another feature.' );
 
 		$this->strategy->enable( $this->feature );
 
@@ -231,20 +231,20 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Create a standard Built_In_Feature for testing.
+	 * Create a standard Built_In feature for testing.
 	 *
 	 * @param string $slug        Feature slug.
 	 * @param string $name        Display name.
 	 * @param string $description Description.
 	 *
-	 * @return Built_In_Feature
+	 * @return Built_In
 	 */
 	private function make_built_in_feature(
 		string $slug = 'advanced-tickets',
 		string $name = 'Advanced Tickets',
 		string $description = 'Unlock advanced ticketing features.'
-	): Built_In_Feature {
-		return new Built_In_Feature( $slug, $name, $description );
+	): Built_In {
+		return new Built_In( $slug, $name, $description );
 	}
 
 	/**
@@ -257,6 +257,13 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 	 */
 	private function create_non_built_in_feature(): Feature {
 		return new class ( 'not-built-in', 'Not Built-In', 'Not a built-in feature.', 'other' ) extends Feature {
+
+			/**
+			 * @inheritDoc
+			 */
+			public static function from_array( array $data ) {
+				return new self( $data['slug'], $data['name'], $data['description'] ?? '', $data['type'] ?? 'other' );
+			}
 		};
 	}
 

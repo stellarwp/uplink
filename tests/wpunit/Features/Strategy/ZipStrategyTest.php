@@ -2,17 +2,10 @@
 
 namespace StellarWP\Uplink\Tests\Features\Strategy;
 
-use StellarWP\Uplink\Features\Feature;
 use StellarWP\Uplink\Features\Strategy\Zip_Strategy;
-use StellarWP\Uplink\Features\Zip_Feature;
+use StellarWP\Uplink\Features\Types\Feature;
+use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Tests\UplinkTestCase;
-
-// The Testable subclass lives in the LoopbackPluginActivatorTest file. Load it
-// explicitly so this test can run in isolation (Codeception doesn't autoload
-// classes defined at the bottom of other test files).
-require_once dirname( __DIR__ ) . '/REST/LoopbackPluginActivatorTest.php';
-
-use StellarWP\Uplink\Tests\Features\REST\Testable_Loopback_Plugin_Activator;
 
 /**
  * Tests for the Zip_Strategy feature-gating strategy.
@@ -60,7 +53,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 	private $strategy;
 
 	/**
-	 * @var Zip_Feature
+	 * @var Zip
 	 */
 	private $feature;
 
@@ -92,7 +85,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * enable() must reject non-Zip_Feature instances with a type mismatch error.
+	 * enable() must reject non-Zip instances with a type mismatch error.
 	 */
 	public function test_enable_returns_type_mismatch_error_for_non_zip_feature(): void {
 		$non_zip = $this->create_non_zip_feature();
@@ -108,16 +101,34 @@ final class ZipStrategyTest extends UplinkTestCase {
 	 * It also updates stored state to keep it in sync.
 	 */
 	public function test_enable_returns_true_when_plugin_already_active(): void {
-		$this->mock_activate_plugin( self::PLUGIN_FILE );
+		$plugin_dir  = WP_PLUGIN_DIR . '/test-feature';
+		$plugin_path = $plugin_dir . '/test-feature.php';
 
-		$result = $this->strategy->enable( $this->feature );
+		if ( ! is_dir( $plugin_dir ) ) {
+			mkdir( $plugin_dir, 0755, true );
+		}
+		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Test Feature\n * Author: StellarWP\n */\n" );
 
-		$this->assertTrue( $result );
-		$this->assertSame( '1', get_option( self::OPTION_KEY ) );
+		try {
+			$this->mock_activate_plugin( self::PLUGIN_FILE );
+
+			$result = $this->strategy->enable( $this->feature );
+
+			$this->assertTrue( $result );
+			$this->assertSame( '1', get_option( self::OPTION_KEY ) );
+		} finally {
+			deactivate_plugins( self::PLUGIN_FILE );
+			if ( file_exists( $plugin_path ) ) {
+				unlink( $plugin_path );
+			}
+			if ( is_dir( $plugin_dir ) ) {
+				rmdir( $plugin_dir );
+			}
+		}
 	}
 
 	/**
-	 * enable() returns a download_url_empty error when the Zip_Feature has
+	 * enable() returns a download_url_empty error when the Zip feature has
 	 * no download URL and the plugin isn't installed on disk.
 	 */
 	public function test_enable_returns_download_url_empty_error_when_url_missing(): void {
@@ -217,7 +228,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * disable() must reject non-Zip_Feature instances with a type mismatch error.
+	 * disable() must reject non-Zip instances with a type mismatch error.
 	 */
 	public function test_disable_returns_type_mismatch_error_for_non_zip_feature(): void {
 		$non_zip = $this->create_non_zip_feature();
@@ -261,7 +272,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * is_active() returns false for non-Zip_Feature instances.
+	 * is_active() returns false for non-Zip instances.
 	 */
 	public function test_is_active_returns_false_for_non_zip_feature(): void {
 		$non_zip = $this->create_non_zip_feature();
@@ -340,7 +351,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 	 * on_plugin_activated updates stored state to true for a known feature.
 	 */
 	public function test_on_plugin_activated_updates_state_for_known_feature(): void {
-		$strategy = new Zip_Strategy( function ( string $plugin_file ): ?Zip_Feature {
+		$strategy = new Zip_Strategy( function ( string $plugin_file ): ?Zip {
 			if ( $plugin_file === self::PLUGIN_FILE ) {
 				return $this->make_zip_feature();
 			}
@@ -356,7 +367,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 	 * on_plugin_activated ignores unknown plugins (resolver returns null).
 	 */
 	public function test_on_plugin_activated_ignores_unknown_plugin(): void {
-		$strategy = new Zip_Strategy( function ( string $plugin_file ): ?Zip_Feature {
+		$strategy = new Zip_Strategy( function ( string $plugin_file ): ?Zip {
 			return null;
 		} );
 
@@ -383,7 +394,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 		// Start with active stored state.
 		update_option( self::OPTION_KEY, '1', true );
 
-		$strategy = new Zip_Strategy( function ( string $plugin_file ): ?Zip_Feature {
+		$strategy = new Zip_Strategy( function ( string $plugin_file ): ?Zip {
 			if ( $plugin_file === self::PLUGIN_FILE ) {
 				return $this->make_zip_feature();
 			}
@@ -399,7 +410,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 	 * on_plugin_deactivated ignores unknown plugins (resolver returns null).
 	 */
 	public function test_on_plugin_deactivated_ignores_unknown_plugin(): void {
-		$strategy = new Zip_Strategy( function ( string $plugin_file ): ?Zip_Feature {
+		$strategy = new Zip_Strategy( function ( string $plugin_file ): ?Zip {
 			return null;
 		} );
 
@@ -579,7 +590,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 	 *
 	 * @dataProvider author_normalization_provider
 	 *
-	 * @param string $expected_author Author value on the Zip_Feature.
+	 * @param string $expected_author Author value on the Zip feature.
 	 * @param string $actual_author   Author header in the plugin file.
 	 */
 	public function test_enable_normalizes_author_comparison(
@@ -631,199 +642,12 @@ final class ZipStrategyTest extends UplinkTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// Loopback activation tests (via injected Loopback_Plugin_Activator)
+	// Pre-flight check tests
 	// -------------------------------------------------------------------------
 
 	/**
-	 * enable() succeeds via loopback when the REST endpoint returns success JSON.
-	 */
-	public function test_enable_with_loopback_success(): void {
-		$plugin_dir  = WP_PLUGIN_DIR . '/test-feature';
-		$plugin_path = $plugin_dir . '/test-feature.php';
-
-		if ( ! is_dir( $plugin_dir ) ) {
-			mkdir( $plugin_dir, 0755, true );
-		}
-		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Test Feature\n * Author: StellarWP\n */\n" );
-
-		try {
-			$loopback = new Testable_Loopback_Plugin_Activator();
-			$loopback->set_loopback_response( [
-				'response' => [ 'code' => 200 ],
-				'body'     => wp_json_encode( [ 'success' => true ] ),
-			] );
-
-			$strategy = new Zip_Strategy( null, $loopback );
-
-			// Manually activate the plugin to simulate what the loopback would do,
-			// since we're mocking the HTTP layer (the REST handler itself isn't
-			// actually running in this process).
-			activate_plugin( self::PLUGIN_FILE );
-
-			$result = $strategy->enable( $this->make_zip_feature() );
-
-			$this->assertTrue( $result );
-			$this->assertSame( '1', get_option( self::OPTION_KEY ) );
-		} finally {
-			deactivate_plugins( self::PLUGIN_FILE );
-			if ( file_exists( $plugin_path ) ) {
-				unlink( $plugin_path );
-			}
-			if ( is_dir( $plugin_dir ) ) {
-				rmdir( $plugin_dir );
-			}
-		}
-	}
-
-	/**
-	 * enable() returns WP_Error when loopback reports an activation error.
-	 */
-	public function test_enable_with_loopback_activation_error(): void {
-		$plugin_dir  = WP_PLUGIN_DIR . '/test-feature';
-		$plugin_path = $plugin_dir . '/test-feature.php';
-
-		if ( ! is_dir( $plugin_dir ) ) {
-			mkdir( $plugin_dir, 0755, true );
-		}
-		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Test Feature\n * Author: StellarWP\n */\n" );
-
-		try {
-			$loopback = new Testable_Loopback_Plugin_Activator();
-			$loopback->set_loopback_response( [
-				'response' => [ 'code' => 200 ],
-				'body'     => wp_json_encode( [
-					'success' => false,
-					'data'    => [
-						'code'    => 'plugin_invalid',
-						'message' => 'Plugin file does not exist.',
-					],
-				] ),
-			] );
-
-			$strategy = new Zip_Strategy( null, $loopback );
-			$result   = $strategy->enable( $this->make_zip_feature() );
-
-			$this->assertWPError( $result );
-			$this->assertSame( 'plugin_invalid', $result->get_error_code() );
-		} finally {
-			if ( file_exists( $plugin_path ) ) {
-				unlink( $plugin_path );
-			}
-			if ( is_dir( $plugin_dir ) ) {
-				rmdir( $plugin_dir );
-			}
-		}
-	}
-
-	/**
-	 * enable() returns activation_fatal WP_Error when loopback returns HTTP 500
-	 * (simulating a plugin that calls die/exit during activation).
-	 */
-	public function test_enable_with_loopback_fatal(): void {
-		$plugin_dir  = WP_PLUGIN_DIR . '/test-feature';
-		$plugin_path = $plugin_dir . '/test-feature.php';
-
-		if ( ! is_dir( $plugin_dir ) ) {
-			mkdir( $plugin_dir, 0755, true );
-		}
-		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Test Feature\n * Author: StellarWP\n */\n" );
-
-		try {
-			$loopback = new Testable_Loopback_Plugin_Activator();
-			$loopback->set_loopback_response( [
-				'response' => [ 'code' => 500 ],
-				'body'     => '<html><body>Internal Server Error</body></html>',
-			] );
-
-			$strategy = new Zip_Strategy( null, $loopback );
-			$result   = $strategy->enable( $this->make_zip_feature() );
-
-			$this->assertWPError( $result );
-			$this->assertSame( 'activation_fatal', $result->get_error_code() );
-			$this->assertStringContainsString( 'HTTP 500', $result->get_error_message() );
-		} finally {
-			if ( file_exists( $plugin_path ) ) {
-				unlink( $plugin_path );
-			}
-			if ( is_dir( $plugin_dir ) ) {
-				rmdir( $plugin_dir );
-			}
-		}
-	}
-
-	/**
-	 * enable() falls back to in-process activation when the loopback HTTP
-	 * request itself fails (e.g. connection refused).
-	 */
-	public function test_enable_falls_back_when_loopback_connection_fails(): void {
-		$plugin_dir  = WP_PLUGIN_DIR . '/test-feature';
-		$plugin_path = $plugin_dir . '/test-feature.php';
-
-		if ( ! is_dir( $plugin_dir ) ) {
-			mkdir( $plugin_dir, 0755, true );
-		}
-		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Test Feature\n * Author: StellarWP\n */\n" );
-
-		try {
-			$loopback = new Testable_Loopback_Plugin_Activator();
-			$loopback->set_loopback_response( new \WP_Error( 'http_request_failed', 'Connection refused' ) );
-
-			$strategy = new Zip_Strategy( null, $loopback );
-			$result   = $strategy->enable( $this->make_zip_feature() );
-
-			// Should succeed via in-process fallback.
-			$this->assertTrue( $result );
-			$this->assertTrue( is_plugin_active( self::PLUGIN_FILE ) );
-			$this->assertSame( '1', get_option( self::OPTION_KEY ) );
-		} finally {
-			deactivate_plugins( self::PLUGIN_FILE );
-			if ( file_exists( $plugin_path ) ) {
-				unlink( $plugin_path );
-			}
-			if ( is_dir( $plugin_dir ) ) {
-				rmdir( $plugin_dir );
-			}
-		}
-	}
-
-	/**
-	 * enable() falls back to in-process activation when the loopback URL
-	 * is unavailable (returns null).
-	 */
-	public function test_enable_falls_back_when_loopback_url_unavailable(): void {
-		$plugin_dir  = WP_PLUGIN_DIR . '/test-feature';
-		$plugin_path = $plugin_dir . '/test-feature.php';
-
-		if ( ! is_dir( $plugin_dir ) ) {
-			mkdir( $plugin_dir, 0755, true );
-		}
-		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Test Feature\n * Author: StellarWP\n */\n" );
-
-		try {
-			$loopback = new Testable_Loopback_Plugin_Activator();
-			$loopback->set_loopback_url( null );
-
-			$strategy = new Zip_Strategy( null, $loopback );
-			$result   = $strategy->enable( $this->make_zip_feature() );
-
-			// Should succeed via in-process fallback.
-			$this->assertTrue( $result );
-			$this->assertTrue( is_plugin_active( self::PLUGIN_FILE ) );
-			$this->assertSame( '1', get_option( self::OPTION_KEY ) );
-		} finally {
-			deactivate_plugins( self::PLUGIN_FILE );
-			if ( file_exists( $plugin_path ) ) {
-				unlink( $plugin_path );
-			}
-			if ( is_dir( $plugin_dir ) ) {
-				rmdir( $plugin_dir );
-			}
-		}
-	}
-
-	/**
 	 * enable() rejects a plugin with unmet requirements in pre-flight checks
-	 * before attempting any loopback or in-process activation.
+	 * before attempting activation.
 	 */
 	public function test_enable_preflight_rejects_invalid_plugin(): void {
 		$plugin_dir  = WP_PLUGIN_DIR . '/bad-plugin';
@@ -833,7 +657,8 @@ final class ZipStrategyTest extends UplinkTestCase {
 			mkdir( $plugin_dir, 0755, true );
 		}
 		// Write a plugin requiring PHP 99.0 — validate_plugin_requirements() will reject it.
-		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Bad Plugin\n * Requires PHP: 99.0\n */\n" );
+		// Include Author header to pass ownership verification so pre-flight runs.
+		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Bad Plugin\n * Author: StellarWP\n * Requires PHP: 99.0\n */\n" );
 
 		try {
 			$feature = $this->make_zip_feature(
@@ -842,9 +667,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 				self::DOWNLOAD_URL
 			);
 
-			$loopback = new Testable_Loopback_Plugin_Activator();
-			$strategy = new Zip_Strategy( null, $loopback );
-			$result   = $strategy->enable( $feature );
+			$result = $this->strategy->enable( $feature );
 
 			$this->assertWPError( $result );
 			$this->assertSame( 'preflight_requirements_not_met', $result->get_error_code() );
@@ -863,22 +686,22 @@ final class ZipStrategyTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Create a standard Zip_Feature for testing.
+	 * Create a standard Zip feature for testing.
 	 *
 	 * @param string   $slug         Feature slug.
 	 * @param string   $plugin_file  Plugin file path.
 	 * @param string   $download_url Download URL for the ZIP.
 	 * @param string[] $authors      Expected plugin authors.
 	 *
-	 * @return Zip_Feature
+	 * @return Zip
 	 */
 	private function make_zip_feature(
 		string $slug = 'test-feature',
 		string $plugin_file = self::PLUGIN_FILE,
 		string $download_url = self::DOWNLOAD_URL,
 		array $authors = [ 'StellarWP' ]
-	): Zip_Feature {
-		return new Zip_Feature(
+	): Zip {
+		return new Zip(
 			$slug,
 			'Test Feature',
 			'A test feature for unit tests.',
@@ -898,6 +721,13 @@ final class ZipStrategyTest extends UplinkTestCase {
 	 */
 	private function create_non_zip_feature(): Feature {
 		return new class ( 'non-zip', 'Non-Zip Feature', 'Not a zip.', 'other' ) extends Feature {
+
+			/**
+			 * @inheritDoc
+			 */
+			public static function from_array( array $data ) {
+				return new self( $data['slug'], $data['name'], $data['description'] ?? '', $data['type'] ?? 'other' );
+			}
 		};
 	}
 

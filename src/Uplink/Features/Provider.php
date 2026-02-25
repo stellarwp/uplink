@@ -7,6 +7,8 @@ use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\Features\API\Client;
 use StellarWP\Uplink\Features\REST\Toggle_Controller;
 use StellarWP\Uplink\Features\Strategy\Resolver;
+use StellarWP\Uplink\Features\Strategy\Built_In_Strategy;
+use StellarWP\Uplink\Features\Strategy\Zip_Strategy;
 use StellarWP\Uplink\Features\Types\Built_In;
 use StellarWP\Uplink\Features\Types\Zip;
 
@@ -63,18 +65,17 @@ class Provider extends Abstract_Provider {
 	/**
 	 * Registers the default feature type strategies.
 	 *
-	 * Strategy implementations are not yet created, so this is a
-	 * placeholder for when Zip_Strategy and Built_In_Strategy are added.
-	 *
 	 * @since TBD
 	 *
 	 * @return void
 	 */
 	private function register_default_strategies(): void {
-		// TODO: Register default strategies once implemented.
-		// $resolver = $this->container->get( Resolver::class );
-		// $resolver->register( 'zip', Zip_Strategy::class );
-		// $resolver->register( 'built_in', Built_In_Strategy::class );
+		$this->container->singleton( Zip_Strategy::class, Zip_Strategy::class );
+		$this->container->singleton( Built_In_Strategy::class, Built_In_Strategy::class );
+
+		$resolver = $this->container->get( Resolver::class );
+		$resolver->register( 'zip', Zip_Strategy::class );
+		$resolver->register( 'built_in', Built_In_Strategy::class );
 	}
 
 	/**

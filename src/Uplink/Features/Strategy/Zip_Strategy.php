@@ -2,9 +2,8 @@
 
 namespace StellarWP\Uplink\Features\Strategy;
 
-use StellarWP\Uplink\Features\Feature;
-use StellarWP\Uplink\Features\REST\Loopback_Plugin_Activator;
-use StellarWP\Uplink\Features\Zip_Feature;
+use StellarWP\Uplink\Features\Types\Feature;
+use StellarWP\Uplink\Features\Types\Zip;
 use WP_Error;
 use Throwable;
 use WP_Ajax_Upgrader_Skin;
@@ -55,9 +54,9 @@ class Zip_Strategy extends Abstract_Strategy {
 	private const LOCK_PREFIX = 'stellarwp_uplink_install_lock_';
 
 	/**
-	 * Optional callable that resolves a plugin_file string to a Zip_Feature.
+	 * Optional callable that resolves a plugin_file string to a Zip feature.
 	 *
-	 * Signature: fn(string $plugin_file): ?Zip_Feature
+	 * Signature: fn(string $plugin_file): ?Zip
 	 *
 	 * The Provider layer wires this to the Feature Collection. Until then,
 	 * sync hook callbacks (on_plugin_activated / on_plugin_deactivated) will
@@ -70,31 +69,15 @@ class Zip_Strategy extends Abstract_Strategy {
 	private $feature_resolver;
 
 	/**
-	 * Optional loopback activator for sandboxed plugin activation.
-	 *
-	 * When provided, activate_plugin() delegates its Phase 2 (loopback)
-	 * to this object. When null, loopback is skipped and activation falls
-	 * through directly to the in-process fallback.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var Loopback_Plugin_Activator|null
-	 */
-	private $loopback_activator;
-
-	/**
 	 * Construct the Zip_Strategy.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param callable|null           $feature_resolver    Optional. Resolves a plugin_file
-	 *                                                     string to a Zip_Feature instance.
-	 * @param Loopback_Plugin_Activator|null $loopback_activator  Optional. Sandboxed activation via
-	 *                                                     loopback HTTP request.
+	 * @param callable|null $feature_resolver Optional. Resolves a plugin_file
+	 *                                        string to a Zip instance.
 	 */
-	public function __construct( ?callable $feature_resolver = null, ?Loopback_Plugin_Activator $loopback_activator = null ) {
-		$this->feature_resolver   = $feature_resolver;
-		$this->loopback_activator = $loopback_activator;
+	public function __construct( ?callable $feature_resolver = null ) {
+		$this->feature_resolver = $feature_resolver;
 	}
 
 	/**
@@ -105,16 +88,16 @@ class Zip_Strategy extends Abstract_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Must be a Zip_Feature instance.
+	 * @param Feature $feature Must be a Zip instance.
 	 *
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
 	public function enable( Feature $feature ) {
-		// Type-guard: Zip_Strategy only handles Zip_Feature instances.
-		if ( ! $feature instanceof Zip_Feature ) {
+		// Type-guard: Zip_Strategy only handles Zip instances.
+		if ( ! $feature instanceof Zip ) {
 			return new WP_Error(
 				'feature_type_mismatch',
-				'Zip_Strategy can only enable Zip_Feature instances.'
+				'Zip_Strategy can only enable Zip instances.'
 			);
 		}
 
@@ -156,16 +139,16 @@ class Zip_Strategy extends Abstract_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Must be a Zip_Feature instance.
+	 * @param Feature $feature Must be a Zip instance.
 	 *
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
 	public function disable( Feature $feature ) {
-		// Type-guard: Zip_Strategy only handles Zip_Feature instances.
-		if ( ! $feature instanceof Zip_Feature ) {
+		// Type-guard: Zip_Strategy only handles Zip instances.
+		if ( ! $feature instanceof Zip ) {
 			return new WP_Error(
 				'feature_type_mismatch',
-				'Zip_Strategy can only disable Zip_Feature instances.'
+				'Zip_Strategy can only disable Zip instances.'
 			);
 		}
 
@@ -213,13 +196,13 @@ class Zip_Strategy extends Abstract_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Must be a Zip_Feature instance.
+	 * @param Feature $feature Must be a Zip instance.
 	 *
 	 * @return bool
 	 */
 	public function is_active( Feature $feature ): bool {
 		// Type-guard: non-Zip features are never "active" from this strategy's perspective.
-		if ( ! $feature instanceof Zip_Feature ) {
+		if ( ! $feature instanceof Zip ) {
 			return false;
 		}
 
@@ -254,7 +237,7 @@ class Zip_Strategy extends Abstract_Strategy {
 	 * Sync hook: update stored state when a plugin is activated via WordPress.
 	 *
 	 * Intended to be wired to the 'activated_plugin' hook by the Provider.
-	 * Resolves the plugin_file to a Zip_Feature via the feature_resolver
+	 * Resolves the plugin_file to a Zip feature via the feature_resolver
 	 * callable, then updates stored state to match.
 	 *
 	 * If no feature_resolver is configured (i.e. the Provider isn't built yet),
@@ -284,7 +267,7 @@ class Zip_Strategy extends Abstract_Strategy {
 	 * Sync hook: update stored state when a plugin is deactivated via WordPress.
 	 *
 	 * Intended to be wired to the 'deactivated_plugin' hook by the Provider.
-	 * Resolves the plugin_file to a Zip_Feature via the feature_resolver
+	 * Resolves the plugin_file to a Zip feature via the feature_resolver
 	 * callable, then updates stored state to match.
 	 *
 	 * TODO: Wire this to the 'deactivated_plugin' hook in Provider once the
@@ -318,11 +301,11 @@ class Zip_Strategy extends Abstract_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Zip_Feature $feature The feature whose plugin to ensure is installed.
+	 * @param Zip $feature The feature whose plugin to ensure is installed.
 	 *
 	 * @return true|WP_Error True if installed (or already was), WP_Error on failure.
 	 */
-	private function ensure_installed( Zip_Feature $feature ) {
+	private function ensure_installed( Zip $feature ) {
 		$plugin_file = $feature->get_plugin_file();
 
 		// Already on disk — verify ownership before treating it as "ours."
@@ -334,7 +317,7 @@ class Zip_Strategy extends Abstract_Strategy {
 		if ( empty( $feature->get_download_url() ) ) {
 			return new WP_Error(
 				'download_url_empty',
-				sprintf( 'Zip_Feature "%s" has an empty download URL.', $feature->get_slug() )
+				sprintf( 'Zip feature "%s" has an empty download URL.', $feature->get_slug() )
 			);
 		}
 
@@ -382,18 +365,18 @@ class Zip_Strategy extends Abstract_Strategy {
 	}
 
 	/**
-	 * Install a plugin from a Zip_Feature's download URL using Plugin_Upgrader.
+	 * Install a plugin from a Zip feature's download URL using Plugin_Upgrader.
 	 *
 	 * Uses WP_Ajax_Upgrader_Skin to suppress output — the caller handles
 	 * error reporting via WP_Error codes.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Zip_Feature $feature The feature whose plugin to install.
+	 * @param Zip $feature The feature whose plugin to install.
 	 *
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
-	private function install_plugin( Zip_Feature $feature ) {
+	private function install_plugin( Zip $feature ) {
 		// WP_Ajax_Upgrader_Skin collects errors without echoing HTML, which is
 		// ideal for REST/AJAX contexts where we don't want upgrade UI output.
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
@@ -437,52 +420,29 @@ class Zip_Strategy extends Abstract_Strategy {
 	}
 
 	/**
-	 * Activate the plugin for a Zip_Feature with sandboxed fatal error protection.
+	 * Activate the plugin for a Zip feature with fatal error protection.
 	 *
-	 * Orchestrates three phases:
-	 * 1. Pre-flight checks — cheap validation before any activation attempt.
-	 * 2. Loopback activation — POST to the REST API so a fatal only kills
-	 *    the loopback request, not the parent process (requires injected
-	 *    Loopback_Plugin_Activator).
-	 * 3. In-process fallback — existing try/catch Throwable path when the
-	 *    loopback is unavailable (e.g. BasicAuth, localhost blocked, or
-	 *    no Loopback_Plugin_Activator injected).
+	 * Runs pre-flight checks (cheap validation) followed by in-process
+	 * activation with try/catch Throwable to catch PHP Error subclasses
+	 * (ParseError, TypeError, etc.).
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Zip_Feature $feature The feature whose plugin to activate.
+	 * @param Zip $feature The feature whose plugin to activate.
 	 *
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
-	private function activate_plugin( Zip_Feature $feature ) {
+	private function activate_plugin( Zip $feature ) {
 		$plugin_file = $feature->get_plugin_file();
 
-		// Phase 1: cheap validation — fail fast before HTTP or include.
+		// Pre-flight: cheap validation — fail fast before include.
 		$preflight = $this->pre_flight_checks( $plugin_file );
 
 		if ( is_wp_error( $preflight ) ) {
 			return $preflight;
 		}
 
-		// Phase 2: try the sandboxed loopback request (when available).
-		if ( $this->loopback_activator !== null ) {
-			$loopback_result = $this->loopback_activator->activate( $plugin_file );
-
-			if ( $loopback_result === true ) {
-				// Loopback succeeded — plugin is active.
-				$this->update_stored_state( $feature->get_slug(), true );
-
-				return true;
-			}
-
-			if ( is_wp_error( $loopback_result ) ) {
-				// Definitive failure from the loopback (plugin error or fatal).
-				return $loopback_result;
-			}
-		}
-
-		// Phase 3: loopback infrastructure failed (null) or not injected —
-		// fall back to in-process activation.
+		// In-process activation with try/catch Throwable.
 		return $this->activate_plugin_in_process( $feature );
 	}
 
@@ -533,17 +493,16 @@ class Zip_Strategy extends Abstract_Strategy {
 	/**
 	 * Activate a plugin in-process with try/catch Throwable protection.
 	 *
-	 * This is the original activation path, used as a fallback when the
-	 * loopback request is unavailable. It catches PHP Error subclasses
-	 * (ParseError, TypeError, etc.) but cannot catch exit()/die()/OOM.
+	 * Catches PHP Error subclasses (ParseError, TypeError, etc.) but cannot
+	 * catch exit()/die()/OOM.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Zip_Feature $feature The feature whose plugin to activate.
+	 * @param Zip $feature The feature whose plugin to activate.
 	 *
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
-	private function activate_plugin_in_process( Zip_Feature $feature ) {
+	private function activate_plugin_in_process( Zip $feature ) {
 		$plugin_file = $feature->get_plugin_file();
 
 		try {
@@ -622,17 +581,17 @@ class Zip_Strategy extends Abstract_Strategy {
 	 * Verify that an installed plugin belongs to an expected author.
 	 *
 	 * Reads the plugin's Author header from disk and compares it against the
-	 * expected authors from the Zip_Feature. Any single match is sufficient.
+	 * expected authors from the Zip feature. Any single match is sufficient.
 	 * This prevents activating a different developer's plugin that happens to
 	 * share the same directory slug.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Zip_Feature $feature The feature whose plugin to verify.
+	 * @param Zip $feature The feature whose plugin to verify.
 	 *
 	 * @return true|WP_Error True if ownership matches, WP_Error on mismatch.
 	 */
-	private function verify_plugin_ownership( Zip_Feature $feature ) {
+	private function verify_plugin_ownership( Zip $feature ) {
 		$expected_authors = $feature->get_authors();
 
 		if ( $expected_authors === [] ) {
@@ -700,7 +659,7 @@ class Zip_Strategy extends Abstract_Strategy {
 	}
 
 	/**
-	 * Resolve a plugin file path to a Zip_Feature via the configured resolver.
+	 * Resolve a plugin file path to a Zip feature via the configured resolver.
 	 *
 	 * Returns null if no resolver is configured or if the plugin doesn't
 	 * correspond to a known feature.
@@ -709,9 +668,9 @@ class Zip_Strategy extends Abstract_Strategy {
 	 *
 	 * @param string $plugin_file Plugin file path relative to plugins directory.
 	 *
-	 * @return Zip_Feature|null
+	 * @return Zip|null
 	 */
-	private function resolve_feature( string $plugin_file ): ?Zip_Feature {
+	private function resolve_feature( string $plugin_file ): ?Zip {
 		if ( $this->feature_resolver === null ) {
 			return null;
 		}

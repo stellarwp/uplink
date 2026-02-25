@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\Features\Contracts;
 
-use StellarWP\Uplink\Features\Feature;
+use StellarWP\Uplink\Features\Types\Feature;
 use WP_Error;
 
 /**

@@ -29,7 +29,7 @@
         }
     },
     "require": {
-        "php": ">=7.1",
+        "php": ">=7.4",
         "ext-json": "*",
         "stellarwp/container-contract": "^1.0"
     },
@@ -41,20 +41,49 @@
         }
     },
     "require-dev": {
+        "dpanta94/phpstan-containers": "^0",
         "lucatume/codeception-snapshot-assertions": "*",
-        "lucatume/di52": "^3.0",
+        "lucatume/di52": "^3",
         "lucatume/wp-browser": "*",
-        "phpspec/prophecy": "*",
+        "php-stubs/wp-cli-stubs": "^2",
+        "phpcompatibility/phpcompatibility-wp": "^2",
         "phpspec/prophecy-phpunit": "*",
+        "phpspec/prophecy": "*",
+        "phpstan/phpstan": "^2",
         "phpunit/phpunit": "*",
         "szepeviktor/phpstan-wordpress": ">=1.0"
     },
     "scripts": {
       "test:analysis": [
         "phpstan analyse -c phpstan.neon.dist --memory-limit=-1"
+      ],
+      "test:analysis:baseline": [
+        "phpstan analyse -c phpstan.neon.dist --memory-limit=-1 --generate-baseline"
+      ],
+      "compatibility:php-7.4": "phpcs ./src -s --standard=PHPCompatibilityWP --runtime-set testVersion 7.4",
+      "compatibility:php-8.0": "phpcs ./src -s --standard=PHPCompatibilityWP --runtime-set testVersion 8.0",
+      "compatibility:php-8.1": "phpcs ./src -s --standard=PHPCompatibilityWP --runtime-set testVersion 8.1",
+      "compatibility:php-8.2": "phpcs ./src -s --standard=PHPCompatibilityWP --runtime-set testVersion 8.2",
+      "compatibility:php-8.3": "phpcs ./src -s --standard=PHPCompatibilityWP --runtime-set testVersion 8.3",
+      "compatibility:php-8.4": "phpcs ./src -s --standard=PHPCompatibilityWP --runtime-set testVersion 8.4",
+      "compatibility": [
+        "@compatibility:php-7.4",
+        "@compatibility:php-8.0",
+        "@compatibility:php-8.1",
+        "@compatibility:php-8.2",
+        "@compatibility:php-8.3",
+        "@compatibility:php-8.4"
       ]
     },
     "scripts-descriptions": {
-      "test:analysis": "Run static code analysis."
+      "test:analysis": "Run static code analysis.",
+      "test:analysis:baseline": "Generate a baseline for static code analysis.",
+      "compatibility:php-7.4": "Run PHPCompatibilityWP for PHP 7.4.",
+      "compatibility:php-8.0": "Run PHPCompatibilityWP for PHP 8.0.",
+      "compatibility:php-8.1": "Run PHPCompatibilityWP for PHP 8.1.",
+      "compatibility:php-8.2": "Run PHPCompatibilityWP for PHP 8.2.",
+      "compatibility:php-8.3": "Run PHPCompatibilityWP for PHP 8.3.",
+      "compatibility:php-8.4": "Run PHPCompatibilityWP for PHP 8.4.",
+      "compatibility": "Run PHPCompatibilityWP for all supported PHP versions."
     }
 }

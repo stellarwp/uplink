@@ -1,0 +1,1213 @@
+parameters:
+	ignoreErrors:
+		-
+			rawMessage: '@@param stdClass|null $result does not accept actual type of parameter: mixed.'
+			identifier: parameter.phpDocType
+			count: 1
+			path: src/Uplink/API/Client.php
+
+		-
+			rawMessage: Cannot access offset 'network_activated' on mixed.
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Uplink/API/Client.php
+
+		-
+			rawMessage: 'Parameter #1 $value of function trailingslashit expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/API/Client.php
+
+		-
+			rawMessage: 'Parameter #2 $args of function wp_remote_get expects array{method?: string, timeout?: float, redirection?: int, httpversion?: string, user-agent?: string, reject_unsafe_urls?: bool, blocking?: bool, headers?: array|string, ...}, array<mixed> given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/API/Client.php
+
+		-
+			rawMessage: 'Parameter #3 $response of class StellarWP\Uplink\API\Validation_Response constructor expects stdClass|null, object|null given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/API/Client.php
+
+		-
+			rawMessage: 'Parameter #3 $subject of function preg_replace expects array<float|int|string>|string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/API/Client.php
+
+		-
+			rawMessage: 'Parameter #4 $resource of class StellarWP\Uplink\API\Validation_Response constructor expects StellarWP\Uplink\Resources\Resource, StellarWP\Uplink\Resources\Resource|string given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/API/Client.php
+
+		-
+			rawMessage: Cannot access offset 'auth_url' on mixed.
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Uplink/API/V3/Auth/Auth_Url.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\API\V3\Auth\Auth_Url::get() should return string but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/Uplink/API/V3/Auth/Auth_Url.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\API\V3\Auth\Auth_Url_Cache_Decorator::get() should return string but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/Uplink/API/V3/Auth/Auth_Url_Cache_Decorator.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\API\V3\Auth\Token_Authorizer_Cache_Decorator::build_transient_no_prefix() has parameter $args with no value type specified in iterable type array.'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Uplink/API/V3/Auth/Token_Authorizer_Cache_Decorator.php
+
+		-
+			rawMessage: 'Parameter #2 $data of function hash expects string, string|false given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/API/V3/Auth/Token_Authorizer_Cache_Decorator.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\API\V3\Client::request() should return array{body: array<string, mixed>, headers: WpOrg\Requests\Utility\CaseInsensitiveDictionary, response: array{code: int, message: string}, cookies: array<int, WP_Http_Cookie>, filename: string|null, http_response: WP_HTTP_Requests_Response}|WP_Error but returns array{headers: WpOrg\Requests\Utility\CaseInsensitiveDictionary, body: mixed, response: array{code: int, message: string}, cookies: array<int, WP_Http_Cookie>, filename: string|null, http_response: WP_HTTP_Requests_Response}.'
+			identifier: return.type
+			count: 1
+			path: src/Uplink/API/V3/Client.php
+
+		-
+			rawMessage: 'Parameter #2 $args of method WP_Http::request() expects array{method?: string, timeout?: float, redirection?: int, httpversion?: string, user-agent?: string, reject_unsafe_urls?: bool, blocking?: bool, headers?: array|string, ...}, non-empty-array<string, mixed> given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/API/V3/Client.php
+
+		-
+			rawMessage: '@@param string $api_root does not accept actual type of parameter: mixed.'
+			identifier: parameter.phpDocType
+			count: 1
+			path: src/Uplink/API/V3/Provider.php
+
+		-
+			rawMessage: 'Cannot call method get() on mixed.'
+			identifier: method.nonObject
+			count: 2
+			path: src/Uplink/API/V3/Provider.php
+
+		-
+			rawMessage: 'Parameter #1 $authorizer of class StellarWP\Uplink\API\V3\Auth\Token_Authorizer_Cache_Decorator constructor expects StellarWP\Uplink\API\V3\Auth\Token_Authorizer, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/API/V3/Provider.php
+
+		-
+			rawMessage: 'Parameter #2 $storage of class StellarWP\Uplink\API\V3\Auth\Token_Authorizer_Cache_Decorator constructor expects StellarWP\Uplink\Storage\Contracts\Storage, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/API/V3/Provider.php
+
+		-
+			rawMessage: 'Parameter #3 $request_args of class StellarWP\Uplink\API\V3\Client constructor expects array<string, mixed>, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/API/V3/Provider.php
+
+		-
+			rawMessage: 'Parameter #3 $subject of function preg_replace expects array<float|int|string>|string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/API/V3/Provider.php
+
+		-
+			rawMessage: 'Binary operation "." between mixed and ''&key='' results in an error.'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Uplink/API/Validation_Response.php
+
+		-
+			rawMessage: Cannot cast mixed to int.
+			identifier: cast.int
+			count: 3
+			path: src/Uplink/API/Validation_Response.php
+
+		-
+			rawMessage: 'Parameter #1 $content of function wp_kses expects string, mixed given.'
+			identifier: argument.type
+			count: 2
+			path: src/Uplink/API/Validation_Response.php
+
+		-
+			rawMessage: 'Parameter #1 $obj of function get_object_vars expects object, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/API/Validation_Response.php
+
+		-
+			rawMessage: 'Parameter #1 $str of function sanitize_text_field expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/API/Validation_Response.php
+
+		-
+			rawMessage: 'Parameter #1 $url of function esc_url expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/API/Validation_Response.php
+
+		-
+			rawMessage: 'Parameter #1 $url of method StellarWP\Uplink\Resources\Resource::set_home_url() expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/API/Validation_Response.php
+
+		-
+			rawMessage: 'Parameter #1 $var of function intval expects array|bool|float|int|resource|string|null, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/API/Validation_Response.php
+
+		-
+			rawMessage: 'Parameter #2 ...$values of function sprintf expects bool|float|int|string|null, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/API/Validation_Response.php
+
+		-
+			rawMessage: 'Parameter #3 ...$values of function sprintf expects bool|float|int|string|null, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/API/Validation_Response.php
+
+		-
+			rawMessage: 'Property StellarWP\Uplink\API\Validation_Response::$expiration (string) does not accept mixed.'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Uplink/API/Validation_Response.php
+
+		-
+			rawMessage: 'Property StellarWP\Uplink\API\Validation_Response::$replacement_key (string|null) does not accept mixed.'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Uplink/API/Validation_Response.php
+
+		-
+			rawMessage: 'Property StellarWP\Uplink\API\Validation_Response::$response (stdClass) does not accept mixed.'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Uplink/API/Validation_Response.php
+
+		-
+			rawMessage: 'Property StellarWP\Uplink\API\Validation_Response::$response (stdClass) does not accept stdClass|null.'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Uplink/API/Validation_Response.php
+
+		-
+			rawMessage: 'Parameter #1 $key of static method StellarWP\Uplink\Utils\Sanitize::key() expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Admin/Ajax.php
+
+		-
+			rawMessage: 'Parameter #1 $str of function sanitize_text_field expects string, mixed given.'
+			identifier: argument.type
+			count: 2
+			path: src/Uplink/Admin/Ajax.php
+
+		-
+			rawMessage: 'Binary operation "." between ''<th scope="row">'' and mixed results in an error.'
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Uplink/Admin/Field.php
+
+		-
+			rawMessage: Binary operation "." between non-falsy-string and mixed results in an error.
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Uplink/Admin/Field.php
+
+		-
+			rawMessage: Cannot access offset 'args' on mixed.
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 4
+			path: src/Uplink/Admin/Field.php
+
+		-
+			rawMessage: Cannot access offset 'callback' on mixed.
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Uplink/Admin/Field.php
+
+		-
+			rawMessage: Cannot access offset 'class' on mixed.
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Uplink/Admin/Field.php
+
+		-
+			rawMessage: Cannot access offset 'label_for' on mixed.
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Uplink/Admin/Field.php
+
+		-
+			rawMessage: Cannot access offset 'slug' on mixed.
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Uplink/Admin/Field.php
+
+		-
+			rawMessage: Cannot access offset 'title' on mixed.
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/Uplink/Admin/Field.php
+
+		-
+			rawMessage: Cannot access offset string on mixed.
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/Uplink/Admin/Field.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Admin\Field::get_path() should return string but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/Uplink/Admin/Field.php
+
+		-
+			rawMessage: 'Parameter #1 $function of function call_user_func expects callable(): mixed, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Admin/Field.php
+
+		-
+			rawMessage: 'Parameter #1 $text of function esc_attr expects string, mixed given.'
+			identifier: argument.type
+			count: 2
+			path: src/Uplink/Admin/Field.php
+
+		-
+			rawMessage: 'Parameter #1 (mixed) of echo cannot be converted to string.'
+			identifier: echo.nonString
+			count: 1
+			path: src/Uplink/Admin/Field.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Admin\Fields\Field::render() has parameter $args with no value type specified in iterable type array.'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Uplink/Admin/Fields/Field.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Admin\Group::get_name() should return string but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/Uplink/Admin/Group.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Admin\License_Field::get_field_html() should return string but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/Uplink/Admin/License_Field.php
+
+		-
+			rawMessage: Cannot access offset string on mixed.
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 2
+			path: src/Uplink/Admin/Notice.php
+
+		-
+			rawMessage: 'Cannot call method move() on mixed.'
+			identifier: method.nonObject
+			count: 2
+			path: src/Uplink/Admin/Package_Handler.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Admin\Package_Handler::filter_upgrader_install_package_result() return type has no value type specified in iterable type array.'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Uplink/Admin/Package_Handler.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Admin\Package_Handler::filter_upgrader_pre_download() has parameter $hook_extra with no value type specified in iterable type array.'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Uplink/Admin/Package_Handler.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Admin\Package_Handler::is_uplink_package_url() has parameter $hook_extra with no value type specified in iterable type array.'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Uplink/Admin/Package_Handler.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Admin\Package_Handler::is_uplink_package_url() should return bool but returns int|false.'
+			identifier: return.type
+			count: 1
+			path: src/Uplink/Admin/Package_Handler.php
+
+		-
+			rawMessage: 'Parameter #1 $path of function basename expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Admin/Package_Handler.php
+
+		-
+			rawMessage: 'Parameter #1 $path of function dirname expects string, mixed given.'
+			identifier: argument.type
+			count: 2
+			path: src/Uplink/Admin/Package_Handler.php
+
+		-
+			rawMessage: 'Parameter #1 $plugin of function activate_plugin expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Admin/Package_Handler.php
+
+		-
+			rawMessage: 'Parameter #1 $plugin of method StellarWP\Uplink\Admin\Package_Handler::is_uplink_package() expects string, mixed given.'
+			identifier: argument.type
+			count: 2
+			path: src/Uplink/Admin/Package_Handler.php
+
+		-
+			rawMessage: 'Parameter #2 $message of class WP_Error constructor expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Admin/Package_Handler.php
+
+		-
+			rawMessage: 'Parameter #2 $version2 of function version_compare expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Admin/Plugin_Manager_Page.php
+
+		-
+			rawMessage: Binary operation "." between 'stellarwp/uplink/' and mixed results in an error.
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Uplink/Admin/Plugins_Page.php
+
+		-
+			rawMessage: Cannot access property $license_error on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/Uplink/Admin/Plugins_Page.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Admin\Plugins_Page::get_plugin_notices() should return array<string, array{slug: string, message_row_html: string}> but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/Uplink/Admin/Plugins_Page.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Admin\Plugins_Page::get_plugins() should return iterable<StellarWP\Uplink\Resources\Plugin>&StellarWP\Uplink\Resources\Collection but returns StellarWP\Uplink\Resources\Collection.'
+			identifier: return.type
+			count: 1
+			path: src/Uplink/Admin/Plugins_Page.php
+
+		-
+			rawMessage: 'Parameter #2 ...$values of function sprintf expects bool|float|int|string|null, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Admin/Plugins_Page.php
+
+		-
+			rawMessage: 'Property StellarWP\Uplink\Admin\Plugins_Page::$plugins ((iterable<StellarWP\Uplink\Resources\Plugin>&StellarWP\Uplink\Resources\Collection)|null) does not accept StellarWP\Uplink\Resources\Collection.'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Uplink/Admin/Plugins_Page.php
+
+		-
+			rawMessage: 'Cannot call method get() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/Uplink/Admin/Provider.php
+
+		-
+			rawMessage: Cannot cast mixed to string.
+			identifier: cast.string
+			count: 2
+			path: src/Uplink/Admin/Provider.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Admin\Provider::filter_upgrader_install_package_result() has parameter $extras with no value type specified in iterable type array.'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Uplink/Admin/Provider.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Admin\Provider::filter_upgrader_install_package_result() has parameter $result with no value type specified in iterable type array.'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Uplink/Admin/Provider.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Admin\Provider::filter_upgrader_install_package_result() return type has no value type specified in iterable type array.'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Uplink/Admin/Provider.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Admin\Provider::filter_upgrader_pre_download() has parameter $hook_extra with no value type specified in iterable type array.'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Uplink/Admin/Provider.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Admin\Provider::filter_upgrader_source_selection_for_update_prevention() has parameter $extras with no value type specified in iterable type array.'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Uplink/Admin/Provider.php
+
+		-
+			rawMessage: 'Parameter #1 $assets_path of class StellarWP\Uplink\Admin\Asset_Manager constructor expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Admin/Provider.php
+
+		-
+			rawMessage: '@@param array $incompatible_plugins does not accept actual type of parameter: mixed.'
+			identifier: parameter.phpDocType
+			count: 1
+			path: src/Uplink/Admin/Update_Prevention.php
+
+		-
+			rawMessage: '@@param string $plugin does not accept actual type of parameter: mixed.'
+			identifier: parameter.phpDocType
+			count: 1
+			path: src/Uplink/Admin/Update_Prevention.php
+
+		-
+			rawMessage: '@@param string $remote_source does not accept actual type of parameter: mixed.'
+			identifier: parameter.phpDocType
+			count: 1
+			path: src/Uplink/Admin/Update_Prevention.php
+
+		-
+			rawMessage: '@@param string $source does not accept actual type of parameter: string|WP_Error.'
+			identifier: parameter.phpDocType
+			count: 1
+			path: src/Uplink/Admin/Update_Prevention.php
+
+		-
+			rawMessage: Binary operation "." between mixed and '/' results in an error.
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Uplink/Admin/Update_Prevention.php
+
+		-
+			rawMessage: Binary operation "." between non-falsy-string and mixed results in an error.
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Uplink/Admin/Update_Prevention.php
+
+		-
+			rawMessage: 'Parameter #1 $plugin of method StellarWP\Uplink\Admin\Update_Prevention::is_stellar_uplink_resource() expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Admin/Update_Prevention.php
+
+		-
+			rawMessage: 'Parameter #1 $hook_name of function do_action expects non-empty-string, string given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Auth/Action_Manager.php
+
+		-
+			rawMessage: 'Parameter #1 $slug of method StellarWP\Uplink\Auth\Action_Manager::get_hook_name() expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Auth/Action_Manager.php
+
+		-
+			rawMessage: Binary operation "." between non-falsy-string and mixed results in an error.
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Uplink/Auth/Admin/Connect_Controller.php
+
+		-
+			rawMessage: 'Parameter #1 $key of method StellarWP\Uplink\Resources\Resource::set_license_key() expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Auth/Admin/Connect_Controller.php
+
+		-
+			rawMessage: 'Parameter #1 $nonce of method StellarWP\Uplink\Auth\Nonce::verify() expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Auth/Admin/Connect_Controller.php
+
+		-
+			rawMessage: 'Parameter #1 $token of method StellarWP\Uplink\Auth\Token\Connector::connect() expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Auth/Admin/Connect_Controller.php
+
+		-
+			rawMessage: '@@param string $slug does not accept actual type of parameter: mixed.'
+			identifier: parameter.phpDocType
+			count: 2
+			path: src/Uplink/Auth/Admin/Disconnect_Controller.php
+
+		-
+			rawMessage: Binary operation "." between non-falsy-string and mixed results in an error.
+			identifier: binaryOp.invalid
+			count: 1
+			path: src/Uplink/Auth/Admin/Disconnect_Controller.php
+
+		-
+			rawMessage: 'Parameter #1 $slug of method StellarWP\Uplink\Auth\Token\Disconnector::disconnect() expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Auth/Admin/Disconnect_Controller.php
+
+		-
+			rawMessage: 'Parameter #1 $str of function sanitize_text_field expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Auth/Admin/Disconnect_Controller.php
+
+		-
+			rawMessage: 'Parameter #2 $cache_key of method StellarWP\Uplink\Auth\Token\Disconnector::disconnect() expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Auth/Admin/Disconnect_Controller.php
+
+		-
+			rawMessage: 'Parameter #1 $path of function admin_url expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Auth/Auth_Url_Builder.php
+
+		-
+			rawMessage: 'Parameter #1 $url of function wp_parse_url expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Auth/Auth_Url_Builder.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Auth\Nonce::create() should return string but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/Uplink/Auth/Nonce.php
+
+		-
+			rawMessage: 'Cannot call method get() on mixed.'
+			identifier: method.nonObject
+			count: 2
+			path: src/Uplink/Auth/Provider.php
+
+		-
+			rawMessage: 'Parameter #1 $option_name of class StellarWP\Uplink\Auth\Token\Token_Manager constructor expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Auth/Provider.php
+
+		-
+			rawMessage: 'Parameter #1 $storage of class StellarWP\Uplink\Auth\Nonce constructor expects StellarWP\Uplink\Storage\Contracts\Storage, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Auth/Provider.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Auth\Token\Token_Manager::get_all() should return array<string, string> but returns array.'
+			identifier: return.type
+			count: 1
+			path: src/Uplink/Auth/Token/Token_Manager.php
+
+		-
+			rawMessage: '@@param string|null $pagenow does not accept actual type of parameter: mixed.'
+			identifier: parameter.phpDocType
+			count: 6
+			path: src/Uplink/Components/Admin/Authorize_Button_Controller.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Components\Controller::classes() has parameter $classes with no value type specified in iterable type array.'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Uplink/Components/Controller.php
+
+		-
+			rawMessage: 'Parameter #1 $callback of function array_map expects (callable(mixed): mixed)|null, ''sanitize_html_class'' given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Components/Controller.php
+
+		-
+			rawMessage: Cannot cast mixed to string.
+			identifier: cast.string
+			count: 1
+			path: src/Uplink/Messages/Expired_Key.php
+
+		-
+			rawMessage: 'Parameter #1 $content of function wp_kses expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Messages/Expired_Key.php
+
+		-
+			rawMessage: Cannot access property $update on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/Uplink/Messages/Update_Now.php
+
+		-
+			rawMessage: Cannot access property $version on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/Uplink/Messages/Update_Now.php
+
+		-
+			rawMessage: 'Parameter #2 ...$values of function sprintf expects bool|float|int|string|null, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Messages/Update_Now.php
+
+		-
+			rawMessage: 'Parameter #1 $text of function esc_html expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Messages/Valid_Key.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Notice\Notice::toArray() should return array{type: string, message: string, dismissible: bool, alt: bool, large: bool} but returns array<mixed>.'
+			identifier: return.type
+			count: 1
+			path: src/Uplink/Notice/Notice.php
+
+		-
+			rawMessage: 'Offset ''alt'' might not exist on array{type?: string, message?: string, dismissible: bool, alt?: bool, large?: bool}.'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Uplink/Notice/Notice_Controller.php
+
+		-
+			rawMessage: 'Offset ''dismissible'' might not exist on array{type?: string, message?: string, dismissible?: bool, alt?: bool, large?: bool}.'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Uplink/Notice/Notice_Controller.php
+
+		-
+			rawMessage: 'Offset ''large'' might not exist on array{type?: string, message?: string, dismissible: bool, alt: bool, large?: bool}.'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Uplink/Notice/Notice_Controller.php
+
+		-
+			rawMessage: 'Offset ''message'' might not exist on array{type?: string, message?: string, dismissible: bool, alt: bool, large: bool}.'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Uplink/Notice/Notice_Controller.php
+
+		-
+			rawMessage: 'Offset ''type'' might not exist on array{type?: string, message?: string, dismissible?: bool, alt?: bool, large?: bool}.'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Uplink/Notice/Notice_Controller.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Notice\Notice_Handler::all() should return array<StellarWP\Uplink\Notice\Notice> but returns array<mixed>.'
+			identifier: return.type
+			count: 1
+			path: src/Uplink/Notice/Notice_Handler.php
+
+		-
+			rawMessage: 'Cannot call method get() on mixed.'
+			identifier: method.nonObject
+			count: 2
+			path: src/Uplink/Notice/Provider.php
+
+		-
+			rawMessage: 'Parameter #1 $controller of class StellarWP\Uplink\Notice\Notice_Handler constructor expects StellarWP\Uplink\Notice\Notice_Controller, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Notice/Provider.php
+
+		-
+			rawMessage: 'Parameter #2 $storage of class StellarWP\Uplink\Notice\Notice_Handler constructor expects StellarWP\Uplink\Storage\Contracts\Storage, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Notice/Provider.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Pipeline\Pipeline::parsePipeString() return type has no value type specified in iterable type array.'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Uplink/Pipeline/Pipeline.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Pipeline\Pipeline::pipes() return type has no value type specified in iterable type array.'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Uplink/Pipeline/Pipeline.php
+
+		-
+			rawMessage: 'Parameter #1 $id of method StellarWP\ContainerContract\ContainerInterface::get() expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Pipeline/Pipeline.php
+
+		-
+			rawMessage: 'Parameter #1 $object of function method_exists expects object|string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Pipeline/Pipeline.php
+
+		-
+			rawMessage: 'Parameter #1 $pipe of method StellarWP\Uplink\Pipeline\Pipeline::parsePipeString() expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Pipeline/Pipeline.php
+
+		-
+			rawMessage: 'Parameter #2 ...$args of function array_merge expects array, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Pipeline/Pipeline.php
+
+		-
+			rawMessage: Property StellarWP\Uplink\Pipeline\Pipeline::$pipes type has no value type specified in iterable type array.
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Uplink/Pipeline/Pipeline.php
+
+		-
+			rawMessage: Trying to invoke mixed but it's not a callable.
+			identifier: callable.nonCallable
+			count: 2
+			path: src/Uplink/Pipeline/Pipeline.php
+
+		-
+			rawMessage: 'Class StellarWP\Uplink\Resources\Collection implements generic interface ArrayAccess but does not specify its types: TKey, TValue'
+			identifier: missingType.generics
+			count: 1
+			path: src/Uplink/Resources/Collection.php
+
+		-
+			rawMessage: 'Class StellarWP\Uplink\Resources\Collection implements generic interface Iterator but does not specify its types: TKey, TValue'
+			identifier: missingType.generics
+			count: 1
+			path: src/Uplink/Resources/Collection.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Resources\Collection::add() should return StellarWP\Uplink\Resources\Resource but returns StellarWP\Uplink\Resources\Resource|null.'
+			identifier: return.type
+			count: 1
+			path: src/Uplink/Resources/Collection.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Resources\Collection::current() should return StellarWP\Uplink\Resources\Resource but returns StellarWP\Uplink\Resources\Resource|false.'
+			identifier: return.type
+			count: 1
+			path: src/Uplink/Resources/Collection.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Resources\Collection::get() has parameter $offset with no type specified.'
+			identifier: missingType.parameter
+			count: 1
+			path: src/Uplink/Resources/Collection.php
+
+		-
+			rawMessage: 'Parameter #1 $key of function array_key_exists expects int|string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Resources/Collection.php
+
+		-
+			rawMessage: Possibly invalid array key type mixed.
+			identifier: offsetAccess.invalidOffset
+			count: 3
+			path: src/Uplink/Resources/Collection.php
+
+		-
+			rawMessage: 'Property StellarWP\Uplink\Resources\Collection::$resources (array<string, StellarWP\Uplink\Resources\Resource>) does not accept array<mixed>.'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Uplink/Resources/Collection.php
+
+		-
+			rawMessage: 'Cannot call method get_path() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/Uplink/Resources/Filters/Path_FilterIterator.php
+
+		-
+			rawMessage: 'Class StellarWP\Uplink\Resources\Filters\Path_FilterIterator extends generic class FilterIterator but does not specify its types: TKey, TValue, TIterator'
+			identifier: missingType.generics
+			count: 1
+			path: src/Uplink/Resources/Filters/Path_FilterIterator.php
+
+		-
+			rawMessage: 'Cannot call method get_type() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/Uplink/Resources/Filters/Plugin_FilterIterator.php
+
+		-
+			rawMessage: 'Class StellarWP\Uplink\Resources\Filters\Plugin_FilterIterator extends generic class FilterIterator but does not specify its types: TKey, TValue, TIterator'
+			identifier: missingType.generics
+			count: 1
+			path: src/Uplink/Resources/Filters/Plugin_FilterIterator.php
+
+		-
+			rawMessage: 'Cannot call method get_type() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/Uplink/Resources/Filters/Service_FilterIterator.php
+
+		-
+			rawMessage: 'Class StellarWP\Uplink\Resources\Filters\Service_FilterIterator extends generic class FilterIterator but does not specify its types: TKey, TValue, TIterator'
+			identifier: missingType.generics
+			count: 1
+			path: src/Uplink/Resources/Filters/Service_FilterIterator.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Resources\License::get_key_from_license_file() should return string|null but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/Uplink/Resources/License.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Resources\License::get_key_status() should return string|null but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/Uplink/Resources/License.php
+
+		-
+			rawMessage: Cannot access offset string on mixed.
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 5
+			path: src/Uplink/Resources/Plugin.php
+
+		-
+			rawMessage: Cannot access property $checked_version on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/Uplink/Resources/Plugin.php
+
+		-
+			rawMessage: Cannot access property $last_check on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/Uplink/Resources/Plugin.php
+
+		-
+			rawMessage: Cannot access property $update on mixed.
+			identifier: property.nonObject
+			count: 2
+			path: src/Uplink/Resources/Plugin.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Resources\Plugin::get_version_from_response() should return string but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/Uplink/Resources/Plugin.php
+
+		-
+			rawMessage: 'Property StellarWP\Uplink\Resources\Plugin::$update_status (stdClass|null) does not accept mixed.'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Uplink/Resources/Plugin.php
+
+		-
+			rawMessage: 'Cannot call method get_key() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/Uplink/Resources/Resource.php
+
+		-
+			rawMessage: 'Cannot call method get_result() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/Uplink/Resources/Resource.php
+
+		-
+			rawMessage: 'Cannot call method has_replacement_key() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/Uplink/Resources/Resource.php
+
+		-
+			rawMessage: 'Cannot call method is_valid() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/Uplink/Resources/Resource.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Resources\Resource::validate_license() should return StellarWP\Uplink\API\Validation_Response but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/Uplink/Resources/Resource.php
+
+		-
+			rawMessage: 'Parameter #1 $key of method StellarWP\Uplink\Resources\License::set_key() expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Resources/Resource.php
+
+		-
+			rawMessage: 'Parameter #1 $valid of method StellarWP\Uplink\Resources\License::set_key_status() expects int, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Resources/Resource.php
+
+		-
+			rawMessage: '@@param string $domain does not accept actual type of parameter: mixed.'
+			identifier: parameter.phpDocType
+			count: 1
+			path: src/Uplink/Site/Data.php
+
+		-
+			rawMessage: '@@param string $version does not accept actual type of parameter: mixed.'
+			identifier: parameter.phpDocType
+			count: 1
+			path: src/Uplink/Site/Data.php
+
+		-
+			rawMessage: '@@param string $wp_version does not accept actual type of parameter: mixed.'
+			identifier: parameter.phpDocType
+			count: 1
+			path: src/Uplink/Site/Data.php
+
+		-
+			rawMessage: Cannot access property $blogs on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/Uplink/Site/Data.php
+
+		-
+			rawMessage: Cannot access property $posts on mixed.
+			identifier: property.nonObject
+			count: 1
+			path: src/Uplink/Site/Data.php
+
+		-
+			rawMessage: 'Cannot call method db_version() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/Uplink/Site/Data.php
+
+		-
+			rawMessage: 'Cannot call method get_var() on mixed.'
+			identifier: method.nonObject
+			count: 2
+			path: src/Uplink/Site/Data.php
+
+		-
+			rawMessage: Cannot cast mixed to int.
+			identifier: cast.int
+			count: 2
+			path: src/Uplink/Site/Data.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Site\Data::get_site_domain() should return string but returns mixed.'
+			identifier: return.type
+			count: 1
+			path: src/Uplink/Site/Data.php
+
+		-
+			rawMessage: 'Part $wpdb->blogs (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/Uplink/Site/Data.php
+
+		-
+			rawMessage: 'Part $wpdb->posts (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/Uplink/Site/Data.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Storage\Contracts\Storage::pull() has no return type specified.'
+			identifier: missingType.return
+			count: 1
+			path: src/Uplink/Storage/Contracts/Storage.php
+
+		-
+			rawMessage: Cannot access offset 'expiration' on mixed.
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Uplink/Storage/Drivers/Option_Storage.php
+
+		-
+			rawMessage: Cannot access offset 'value' on mixed.
+			identifier: offsetAccess.nonOffsetAccessible
+			count: 1
+			path: src/Uplink/Storage/Drivers/Option_Storage.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Storage\Drivers\Option_Storage::pull() has no return type specified.'
+			identifier: missingType.return
+			count: 1
+			path: src/Uplink/Storage/Drivers/Option_Storage.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Storage\Drivers\Transient_Storage::pull() has no return type specified.'
+			identifier: missingType.return
+			count: 1
+			path: src/Uplink/Storage/Drivers/Transient_Storage.php
+
+		-
+			rawMessage: Anonymous function should return StellarWP\Uplink\Storage\Contracts\Storage but returns mixed.
+			identifier: return.type
+			count: 1
+			path: src/Uplink/Storage/Provider.php
+
+		-
+			rawMessage: 'Cannot call method get() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/Uplink/Storage/Provider.php
+
+		-
+			rawMessage: 'Parameter #3 $context of function sanitize_title_with_dashes expects ''display''|''save'', string given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/Utils/Sanitize.php
+
+		-
+			rawMessage: 'Parameter #1 $value of function trailingslashit expects string, string|false given.'
+			identifier: argument.type
+			count: 1
+			path: src/Uplink/View/WordPress_View.php
+
+		-
+			rawMessage: 'Call to an undefined method Throwable::getFile().'
+			identifier: method.notFound
+			count: 3
+			path: src/Uplink/functions.php
+
+		-
+			rawMessage: 'Call to an undefined method Throwable::getLine().'
+			identifier: method.notFound
+			count: 3
+			path: src/Uplink/functions.php
+
+		-
+			rawMessage: 'Call to an undefined method Throwable::getMessage().'
+			identifier: method.notFound
+			count: 3
+			path: src/Uplink/functions.php
+
+		-
+			rawMessage: 'Call to an undefined method Throwable::getTraceAsString().'
+			identifier: method.notFound
+			count: 3
+			path: src/Uplink/functions.php
+
+		-
+			rawMessage: 'Method StellarWP\Uplink\Auth\Auth_Url_Builder::build() invoked with 3 parameters, 1-2 required.'
+			identifier: arguments.count
+			count: 1
+			path: src/Uplink/functions.php
+
+		-
+			rawMessage: 'Part $e->getFile() (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 3
+			path: src/Uplink/functions.php
+
+		-
+			rawMessage: 'Part $e->getLine() (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 3
+			path: src/Uplink/functions.php
+
+		-
+			rawMessage: 'Part $e->getMessage() (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 3
+			path: src/Uplink/functions.php
+
+		-
+			rawMessage: 'Part $e->getTraceAsString() (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 3
+			path: src/Uplink/functions.php
+
+		-
+			rawMessage: 'Cannot call method get_name() on mixed.'
+			identifier: method.nonObject
+			count: 1
+			path: src/admin-views/fields/settings.php
+
+		-
+			rawMessage: 'Cannot call method get_slug() on mixed.'
+			identifier: method.nonObject
+			count: 5
+			path: src/admin-views/fields/settings.php
+
+		-
+			rawMessage: 'Parameter #1 $plugin of static method StellarWP\Uplink\Admin\License_Field::get_section_name() expects StellarWP\Uplink\Resources\Resource, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/admin-views/fields/settings.php
+
+		-
+			rawMessage: 'Parameter #1 $text of function esc_html expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/admin-views/fields/settings.php
+
+		-
+			rawMessage: 'Parameter #1 $title of function sanitize_title expects string, mixed given.'
+			identifier: argument.type
+			count: 1
+			path: src/admin-views/fields/settings.php
+
+		-
+			rawMessage: 'Call to an undefined method Throwable::getFile().'
+			identifier: method.notFound
+			count: 1
+			path: src/views/admin/fields/field.php
+
+		-
+			rawMessage: 'Call to an undefined method Throwable::getLine().'
+			identifier: method.notFound
+			count: 1
+			path: src/views/admin/fields/field.php
+
+		-
+			rawMessage: 'Call to an undefined method Throwable::getMessage().'
+			identifier: method.notFound
+			count: 1
+			path: src/views/admin/fields/field.php
+
+		-
+			rawMessage: 'Call to an undefined method Throwable::getTraceAsString().'
+			identifier: method.notFound
+			count: 1
+			path: src/views/admin/fields/field.php
+
+		-
+			rawMessage: 'Part $e->getFile() (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/views/admin/fields/field.php
+
+		-
+			rawMessage: 'Part $e->getLine() (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/views/admin/fields/field.php
+
+		-
+			rawMessage: 'Part $e->getMessage() (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/views/admin/fields/field.php
+
+		-
+			rawMessage: 'Part $e->getTraceAsString() (mixed) of encapsed string cannot be cast to string.'
+			identifier: encapsedStringPart.nonString
+			count: 1
+			path: src/views/admin/fields/field.php
+
+		-
+			rawMessage: 'Parameter #2 $allowed_html of function wp_kses expects array<array>|string, array<string, mixed> given.'
+			identifier: argument.type
+			count: 1
+			path: src/views/admin/notice.php

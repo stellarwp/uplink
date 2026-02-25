@@ -5,7 +5,7 @@
  *
  * @package StellarWP\Uplink
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { __ } from '@wordpress/i18n';
 import { Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -16,13 +16,22 @@ import { useToastStore } from '@/stores/toast-store';
 interface LicenseKeyInputProps {
     /** Called on successful activation (dialog can close) */
     onSuccess?: () => void;
+    /** When set, fills the input with this value (e.g. from the test-key cheat-sheet) */
+    prefillKey?: string;
 }
 
 /**
  * @since TBD
  */
-export function LicenseKeyInput( { onSuccess }: LicenseKeyInputProps ) {
+export function LicenseKeyInput( { onSuccess, prefillKey }: LicenseKeyInputProps ) {
     const [ key, setKey ] = useState( '' );
+
+    useEffect( () => {
+        if ( prefillKey ) {
+            setKey( prefillKey );
+            setError( null );
+        }
+    }, [ prefillKey ] );
     const [ error, setError ] = useState<string | null>( null );
     const [ isVerifying, setIsVerifying ] = useState( false );
 

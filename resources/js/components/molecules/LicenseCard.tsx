@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogHeader, DialogContent, DialogFooter } from '@/components/ui/dialog';
 import { useLicenseStore } from '@/stores/license-store';
 import { PRODUCTS } from '@/data/products';
-import { MOCK_LICENSES } from '@/data/licenses';
 import type { License } from '@/types/api';
 
 interface LicenseCardProps {
@@ -175,35 +174,7 @@ export function LicenseDetailModal( {
                     <dd className="m-0">{ productNames.join( ', ' ) }</dd>
                 </dl>
 
-                { /* Dev-only: test key cheat-sheet */ }
-                { process.env.NODE_ENV !== 'production' && (
-                    <details className="mt-4 rounded border border-dashed border-amber-300 bg-amber-50 p-3 text-xs">
-                        <summary className="cursor-pointer font-medium text-amber-700 select-none">
-                            { __( 'Dev: test license keys', '%TEXTDOMAIN%' ) }
-                        </summary>
-                        <table className="mt-2 w-full border-collapse text-amber-900">
-                            <thead>
-                                <tr className="border-b border-amber-200">
-                                    <th className="py-1 pr-4 text-left font-medium">Key</th>
-                                    <th className="py-1 pr-4 text-left font-medium">Tier</th>
-                                    <th className="py-1 text-left font-medium">Products</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                { MOCK_LICENSES.map( ( l ) => (
-                                    <tr key={ l.key } className="border-b border-amber-100 last:border-0">
-                                        <td className="py-1 pr-4 font-mono">{ l.key }</td>
-                                        <td className="py-1 pr-4">
-                                            { l.tier }
-                                            { l.isExpired ? ' (expired)' : '' }
-                                        </td>
-                                        <td className="py-1">{ l.productSlugs.join( ', ' ) }</td>
-                                    </tr>
-                                ) ) }
-                            </tbody>
-                        </table>
-                    </details>
-                ) }
+
             </DialogContent>
             <DialogFooter>
                 <Button

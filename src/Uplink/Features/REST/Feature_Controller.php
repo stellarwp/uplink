@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Features\REST;
 
+use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Features\Types\Feature;
 use WP_Error;
@@ -181,7 +182,7 @@ class Feature_Controller extends WP_REST_Controller {
 
 		if ( ! $feature ) {
 			return new WP_Error(
-				'feature_not_found',
+				Error_Code::FEATURE_NOT_FOUND,
 				sprintf( 'Feature "%s" not found.', $slug ),
 				[ 'status' => 404 ]
 			);

@@ -5,6 +5,7 @@ namespace StellarWP\Uplink\Features;
 use StellarWP\Uplink\Features\API\Client;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Types\Feature;
+use StellarWP\Uplink\Features\Error_Code;
 use WP_Error;
 
 /**
@@ -67,7 +68,7 @@ class Manager {
 
 		if ( ! $feature ) {
 			return new WP_Error(
-				'feature_not_found',
+				Error_Code::FEATURE_NOT_FOUND,
 				sprintf( 'Feature "%s" not found in the catalog.', $slug )
 			);
 		}
@@ -144,7 +145,7 @@ class Manager {
 
 		if ( ! $feature ) {
 			return new WP_Error(
-				'feature_not_found',
+				Error_Code::FEATURE_NOT_FOUND,
 				sprintf( 'Feature "%s" not found in the catalog.', $slug )
 			);
 		}

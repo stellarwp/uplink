@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink\Tests\Features;
 
 use StellarWP\Uplink\Features\API\Client;
+use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Manager;
@@ -82,7 +83,7 @@ final class ManagerTest extends UplinkTestCase {
 		$result = $this->manager->enable( 'nonexistent' );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'feature_not_found', $result->get_error_code() );
+		$this->assertSame( Error_Code::FEATURE_NOT_FOUND, $result->get_error_code() );
 	}
 
 	/**
@@ -105,7 +106,7 @@ final class ManagerTest extends UplinkTestCase {
 		$result = $this->manager->disable( 'nonexistent' );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'feature_not_found', $result->get_error_code() );
+		$this->assertSame( Error_Code::FEATURE_NOT_FOUND, $result->get_error_code() );
 	}
 
 	/**

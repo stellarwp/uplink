@@ -6,7 +6,7 @@
  *
  * @package StellarWP\Uplink
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { __ } from '@wordpress/i18n';
 import { Plus, KeyRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,11 +16,30 @@ import { LicenseCard } from '@/components/molecules/LicenseCard';
 import { LicenseKeyInput } from '@/components/molecules/LicenseKeyInput';
 import { useLicenseStore } from '@/stores/license-store';
 
+interface LicenseListProps {
+    /** When true, immediately opens the Add License dialog */
+    openAddDialog?: boolean;
+    /** Called when the externally-triggered dialog closes */
+    onAddDialogClose?: () => void;
+}
+
 /**
  * @since TBD
  */
-export function LicenseList() {
+export function LicenseList( { openAddDialog = false, onAddDialogClose }: LicenseListProps = {} ) {
     const [ addOpen, setAddOpen ] = useState( false );
+
+    // Respond to external open request (e.g. from AppShell / MyProductsTab)
+    useEffect( () => {
+        if ( openAddDialog ) {
+            setAddOpen( true );
+        }
+    }, [ openAddDialog ] );
+
+    const handleClose = () => {
+        setAddOpen( false );
+        onAddDialogClose?.();
+    };
     const activeLicenses = useLicenseStore( ( s ) => s.activeLicenses );
 
     return (
@@ -35,7 +54,7 @@ export function LicenseList() {
                     </p>
                 </div>
                 <Button onClick={ () => setAddOpen( true ) } size="sm">
-                    <Plus className="w-4 h-4" />
+                    <Plus />
                     { __( 'Add License', '%TEXTDOMAIN%' ) }
                 </Button>
             </div>
@@ -64,14 +83,14 @@ export function LicenseList() {
             ) }
 
             {/* Add License dialog */}
-            <Dialog open={ addOpen } onClose={ () => setAddOpen( false ) }>
+            <Dialog open={ addOpen } onClose={ handleClose }>
                 <DialogHeader
                     title={ __( 'Add License', '%TEXTDOMAIN%' ) }
                     description={ __( 'Enter your license key to activate it on this site.', '%TEXTDOMAIN%' ) }
-                    onClose={ () => setAddOpen( false ) }
+                    onClose={ handleClose }
                 />
                 <DialogContent>
-                    <LicenseKeyInput onSuccess={ () => setAddOpen( false ) } />
+                    <LicenseKeyInput onSuccess={ handleClose } />
 
                     { /* Dev-only: quick test keys reminder */ }
                     { process.env.NODE_ENV !== 'production' && (

@@ -2,22 +2,22 @@
 
 namespace wpunit\Admin;
 
-use StellarWP\Uplink\Admin\Plugin_Manager_Page;
+use StellarWP\Uplink\Admin\Feature_Manager_Page;
 use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Uplink;
 
-class Plugin_Manager_PageTest extends UplinkTestCase {
+class Feature_Manager_PageTest extends UplinkTestCase {
 
 	/**
-	 * @var Plugin_Manager_Page
+	 * @var Feature_Manager_Page
 	 */
 	private $page;
 
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->page = new Plugin_Manager_Page();
+		$this->page = new Feature_Manager_Page();
 
 		Register::plugin(
 			'manager-test',
@@ -66,7 +66,7 @@ class Plugin_Manager_PageTest extends UplinkTestCase {
 		$this->page->maybe_register_page();
 
 		$slugs = array_column( $menu, 2 );
-		$this->assertContains( 'stellarwp-licenses', $slugs );
+		$this->assertContains( 'lws-feature-manager', $slugs );
 	}
 
 	/**
@@ -78,14 +78,14 @@ class Plugin_Manager_PageTest extends UplinkTestCase {
 
 		set_current_screen( 'dashboard' );
 
-		$page_a = new Plugin_Manager_Page();
-		$page_b = new Plugin_Manager_Page();
+		$page_a = new Feature_Manager_Page();
+		$page_b = new Feature_Manager_Page();
 
 		$page_a->maybe_register_page();
 		$page_b->maybe_register_page();
 
 		$slugs = array_filter( array_column( $menu, 2 ), static function ( $s ) {
-			return $s === 'stellarwp-licenses';
+			return $s === 'lws-feature-manager';
 		} );
 
 		$this->assertCount( 1, $slugs );

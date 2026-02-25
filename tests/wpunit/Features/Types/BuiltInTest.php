@@ -5,7 +5,7 @@ namespace StellarWP\Uplink\Tests\Features\Types;
 use StellarWP\Uplink\Features\Types\Built_In;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
-final class Built_InTest extends UplinkTestCase {
+final class BuiltInTest extends UplinkTestCase {
 
 	/**
 	 * Tests a Built_In feature can be hydrated from an associative array.

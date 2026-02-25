@@ -55,10 +55,10 @@ class Feature_Collection extends Collection {
 	 * @param bool|null   $available Filter by availability (true/false).
 	 * @param string|null $type      Filter by feature type (e.g. 'zip', 'built_in').
 	 *
-	 * @return static
+	 * @return Feature_Collection
 	 */
 	public function filter( ?string $group = null, ?string $tier = null, ?bool $available = null, ?string $type = null ): Feature_Collection {
-		$filtered = new static();
+		$filtered = new self();
 
 		foreach ( $this as $feature ) {
 			if ( $group !== null && $feature->get_group() !== $group ) {

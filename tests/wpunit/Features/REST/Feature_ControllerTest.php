@@ -42,42 +42,24 @@ final class Feature_ControllerTest extends UplinkTestCase {
 
 		$collection = new Feature_Collection();
 		$collection->add( $this->makeEmpty( Feature::class, [
-			'get_slug'          => 'feature-alpha',
-			'get_name'          => 'Feature Alpha',
-			'get_description'   => 'Alpha description',
-			'get_group'         => 'GroupA',
-			'get_tier'          => 'Tier 1',
-			'get_type'          => 'zip',
-			'is_available'      => true,
+			'get_slug'        => 'feature-alpha',
+			'get_name'        => 'Feature Alpha',
+			'get_description' => 'Alpha description',
+			'get_group'       => 'GroupA',
+			'get_tier'        => 'Tier 1',
+			'get_type'        => 'zip',
+			'is_available'    => true,
 			'get_documentation' => 'https://example.com/alpha',
-			'to_array'          => [
-				'slug'          => 'feature-alpha',
-				'group'         => 'GroupA',
-				'tier'          => 'Tier 1',
-				'name'          => 'Feature Alpha',
-				'description'   => 'Alpha description',
-				'is_available'  => true,
-				'documentation' => 'https://example.com/alpha',
-			],
 		] ) );
 		$collection->add( $this->makeEmpty( Feature::class, [
-			'get_slug'          => 'feature-beta',
-			'get_name'          => 'Feature Beta',
-			'get_description'   => 'Beta description',
-			'get_group'         => 'GroupB',
-			'get_tier'          => 'Tier 2',
-			'get_type'          => 'built_in',
-			'is_available'      => false,
+			'get_slug'        => 'feature-beta',
+			'get_name'        => 'Feature Beta',
+			'get_description' => 'Beta description',
+			'get_group'       => 'GroupB',
+			'get_tier'        => 'Tier 2',
+			'get_type'        => 'built_in',
+			'is_available'    => false,
 			'get_documentation' => 'https://example.com/beta',
-			'to_array'          => [
-				'slug'          => 'feature-beta',
-				'group'         => 'GroupB',
-				'tier'          => 'Tier 2',
-				'name'          => 'Feature Beta',
-				'description'   => 'Beta description',
-				'is_available'  => false,
-				'documentation' => 'https://example.com/beta',
-			],
 		] ) );
 
 		$mock_strategy = $this->makeEmpty( Strategy::class, [

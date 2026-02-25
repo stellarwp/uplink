@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@config "../../tailwind.config.js";
 
 /*
  * Map Tailwind v4 color utilities to CSS variables.

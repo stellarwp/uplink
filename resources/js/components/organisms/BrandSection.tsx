@@ -37,10 +37,10 @@ export function BrandSection( { brand, onToggle }: BrandSectionProps ) {
                         />
                     ) }
                     <div>
-                        <h3 className="text-xl font-bold text-slate-800">
+                        <h3 className="text-xl font-bold text-slate-800 m-0">
                             { brand.name }
                         </h3>
-                        <p className="text-xs text-slate-500">{ brand.tagline }</p>
+                        <p className="text-xs text-slate-500 m-0">{ brand.tagline }</p>
                     </div>
                 </div>
 

@@ -69,7 +69,12 @@ sequenceDiagram
 
 The Stellar Licensing service has the capability of embedding license keys within the plugin code for products that have that capability enabled. The embedding happens at the moment of download. For plugins that expect an embedded license key to exist, the Uplink library needs to be notified of that license key's existence during registration of the plugin. You can see the expected structure in the [README](/README.md#embedding-a-license-in-your-plugin).
 
-You can see an example of this in the wild within the [Events Calendar Pro plugin](https://github.com/the-events-calendar/events-pro/blob/master/src/Tribe/PUE/Helper.php).
+Two formats are supported:
+
+1. **Class constant** — A PHP class with a `KEY` or `DATA` constant. This is the traditional approach. You can see an example of this in the wild within the [Events Calendar Pro plugin](https://github.com/the-events-calendar/events-pro/blob/master/src/Tribe/PUE/Helper.php).
+2. **Simple license file** — A PHP file that returns the license key directly (e.g. `<?php return 'key';`). This is used by products with files like `auth-token.php` or `PLUGIN_LICENSE.php`. The file path is passed as the `$license_class` parameter during registration, relative to the plugin's root directory.
+
+When resolving the license key, Uplink checks in this order: class `KEY` constant, class `DATA` constant, then simple license file. See the [README](/README.md#simple-license-file) for usage examples.
 
 #### UI for entering keys
 

@@ -11,6 +11,7 @@ use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
 use StellarWP\Uplink\Auth\Auth_Url_Builder;
 use StellarWP\Uplink\Auth\Authorizer;
 use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
+use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Resources\Plugin;
 use StellarWP\Uplink\Resources\Service;
@@ -272,4 +273,47 @@ function get_form(): Form {
  */
 function get_plugins(): Collection {
 	return get_container()->get( Collection::class )->get_plugins();
+}
+
+/**
+ * Checks if a feature is available in the catalog AND enabled/active.
+ * Returns false if the feature is not in the catalog at all.
+ *
+ * @since TBD
+ *
+ * @param string $slug The feature slug.
+ *
+ * @return bool
+ */
+function is_feature_enabled( string $slug ): bool {
+	try {
+		return get_container()->get( Manager::class )->is_enabled( $slug );
+	} catch ( Throwable $e ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( "Error checking feature enabled state: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
+		}
+
+		return false;
+	}
+}
+
+/**
+ * Checks if a feature is available in the catalog, regardless of enabled state.
+ *
+ * @since TBD
+ *
+ * @param string $slug The feature slug.
+ *
+ * @return bool
+ */
+function is_feature_available( string $slug ): bool {
+	try {
+		return get_container()->get( Manager::class )->is_available( $slug );
+	} catch ( Throwable $e ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( "Error checking feature availability: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
+		}
+
+		return false;
+	}
 }

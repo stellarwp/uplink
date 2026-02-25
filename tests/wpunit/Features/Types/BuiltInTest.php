@@ -48,6 +48,7 @@ final class BuiltInTest extends UplinkTestCase {
 			'tier'          => 'Tier 1',
 			'name'          => 'Test Feature',
 			'description'   => 'Test feature description.',
+			'type'          => 'built_in',
 			'is_available'  => true,
 			'documentation' => 'https://example.com/docs',
 		], $feature->to_array() );
@@ -65,6 +66,7 @@ final class BuiltInTest extends UplinkTestCase {
 			'tier'          => 'Tier 1',
 			'name'          => 'Test Feature',
 			'description'   => 'Test feature description.',
+			'type'          => 'built_in',
 			'is_available'  => true,
 			'documentation' => 'https://example.com/docs',
 		];

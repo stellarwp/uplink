@@ -53,6 +53,7 @@ final class Built_In extends Feature {
 			'tier' => $this->get_tier(),
 			'name' => $this->get_name(),
 			'description' => $this->get_description(),
+			'type' => $this->get_type(),
 			'is_available' => $this->is_available(),
 			'documentation' => $this->get_documentation(),
 		];

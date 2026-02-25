@@ -69,6 +69,7 @@ final class Zip extends Feature {
 			'tier' => $this->get_tier(),
 			'name' => $this->get_name(),
 			'description' => $this->get_description(),
+			'type' => $this->get_type(),
 			'plugin_file' => $this->get_plugin_file(),
 			'is_available' => $this->is_available(),
 			'documentation' => $this->get_documentation(),

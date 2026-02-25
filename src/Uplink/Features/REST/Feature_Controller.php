@@ -384,16 +384,8 @@ class Feature_Controller extends WP_REST_Controller {
 	 * @return array<string, mixed>
 	 */
 	private function prepare_feature_data( Feature $feature ): array {
-		return [
-			'slug'          => $feature->get_slug(),
-			'name'          => $feature->get_name(),
-			'description'   => $feature->get_description(),
-			'group'         => $feature->get_group(),
-			'tier'          => $feature->get_tier(),
-			'type'          => $feature->get_type(),
-			'is_available'  => $feature->is_available(),
-			'documentation' => $feature->get_documentation(),
-			'enabled'       => $this->manager->is_enabled( $feature->get_slug() ),
+		return $feature->to_array() + [
+			'enabled' => $this->manager->is_enabled( $feature->get_slug() ),
 		];
 	}
 

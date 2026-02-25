@@ -14,7 +14,7 @@ class Plugin_Manager_Page {
 	 * @return void
 	 */
 	public function maybe_register_page(): void {
-		if ( ! Version::is_leader( 'admin_page' ) ) {
+		if ( ! Version::should_handle( 'admin_page' ) ) {
 			return;
 		}
 

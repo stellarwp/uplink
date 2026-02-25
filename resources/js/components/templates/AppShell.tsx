@@ -34,14 +34,14 @@ export function AppShell() {
         <div className="max-w-[1200px] mx-auto p-4 md:p-8 space-y-6">
             {/* Page Header */}
             <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Cloud className="w-6 h-6 text-primary" />
+                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary text-primary-foreground">
+                    <Cloud className="w-6 h-6" />
                 </div>
                 <div>
-                    <h1 className="text-2xl font-semibold text-foreground m-0">
+                    <h1 className="text-xl font-normal tracking-tight m-0 p-0">
                         { __( 'Liquid Web Software', '%TEXTDOMAIN%' ) }
                     </h1>
-                    <p className="text-sm text-muted-foreground m-0">
+                    <p className="text-sm text-muted-foreground leading-tight m-0 p-0">
                         { __( 'Manage your product licenses and features', '%TEXTDOMAIN%' ) }
                     </p>
                 </div>

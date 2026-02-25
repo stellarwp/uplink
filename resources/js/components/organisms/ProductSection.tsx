@@ -51,9 +51,9 @@ export function ProductSection( { product, onAddLicense }: ProductSectionProps )
     const showFeatures = !! license && isEnabled;
 
     return (
-        <div className="rounded-lg border border-border bg-background overflow-hidden">
-            {/* Sticky product header */}
-            <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 bg-background border-b border-border">
+        <div className="rounded-lg border border-border bg-background overflow-clip">
+            {/* Sticky product header — offset by WP admin bar height (32px desktop / 46px mobile) */}
+            <div className="sticky top-[var(--wp-admin--admin-bar--height,0px)] z-10 flex items-center justify-between px-4 py-3 bg-background border-b border-border">
                 <div className="flex items-center gap-3">
                     { config && (
                         <BrandIcon icon={ config.icon } colorClass={ config.colorClass } />

@@ -1,93 +1,182 @@
 /**
  * API type definitions for the License Manager Dashboard.
  *
- * These mirror what the uplink/v1 REST API will return.
- * Currently backed by resources/js/data/mock-features.json.
- *
  * @package StellarWP\Uplink
  */
 
+// ---------------------------------------------------------------------------
+// Legacy types (slug-based model — kept until old organisms are deleted)
+// ---------------------------------------------------------------------------
+
 /**
  * The license and activation state of a feature entry.
- *
- * - active:       Licensed and the WP feature is active.
- * - inactive:     Licensed but the WP feature is either not activated or not yet
- *                 installed. When downloadUrl is present, toggling to active
- *                 triggers programmatic installation then activation via the REST API.
- * - not_included: Not part of the user's plan. Row is locked with an upsell.
- *
  * @since TBD
  */
 export type FeatureLicenseState = 'active' | 'inactive' | 'not_included';
 
 /**
  * Activation status of the master license key itself.
- *
  * @since TBD
  */
 export type LicenseStatus = 'active' | 'expired' | 'invalid' | 'idle';
 
 /**
  * @since TBD
+ * @deprecated Use the new id-based Feature type from the new data model.
  */
-export interface Feature {
+export interface LegacyFeature {
     /** Unique feature slug (e.g. "give-recurring") */
     slug: string;
     /** Human-readable feature name */
     name: string;
     /** Short description shown below the feature name */
     description: string;
-    /** Installed version string (e.g. "2.4.1"). Empty string when not installed or not_included. */
+    /** Installed version string. Empty string when not installed or not_included. */
     version: string;
     /** License and activation state */
     licenseState: FeatureLicenseState;
-    /**
-     * URL to download and install the feature zip.
-     * Only present for inactive features that are not yet installed on this WordPress site.
-     * When toggling to active, the REST API uses this URL to install the feature first.
-     */
+    /** URL to download/install the feature zip (inactive features only). */
     downloadUrl?: string;
-    /**
-     * URL to purchase or upgrade the license.
-     * Only present when licenseState === 'not_included'.
-     */
+    /** URL to purchase or upgrade the license (not_included features only). */
     upgradeUrl?: string;
 }
 
-/**
- * @since TBD
- */
-export interface Brand {
-    /** Unique brand slug (e.g. "givewp"). Used to look up BrandConfig. */
-    slug: string;
-    /** Display name (e.g. "GiveWP") */
-    name: string;
-    /** Short tagline shown below the brand name */
-    tagline: string;
-    /** Features belonging to this brand */
-    features: Feature[];
-}
+/** @deprecated Use LegacyFeature */
+export type Feature = LegacyFeature;
 
 /**
  * @since TBD
+ * @deprecated Use Product
+ */
+export interface LegacyBrand {
+    slug: string;
+    name: string;
+    tagline: string;
+    features: LegacyFeature[];
+}
+
+/** @deprecated Use LegacyBrand */
+export type Brand = LegacyBrand;
+
+/**
+ * @since TBD
+ * @deprecated Use License
  */
 export interface LicenseData {
-    /** The license key value */
     key: string;
-    /** Registered email address */
     email: string;
-    /** Current license status */
     status: LicenseStatus;
-    /** Human-readable expiry date (e.g. "December 31, 2025") */
     expires: string;
 }
 
 /**
- * Root data shape returned by the mock JSON and eventually by the REST API.
- *
  * @since TBD
+ * @deprecated Use activeLicenses from license-store
  */
 export interface DashboardData {
     license: LicenseData;
-    brands: Brand[];
+    brands: LegacyBrand[];
+}
+
+// ---------------------------------------------------------------------------
+// New types (id-based model — design-team data model)
+// ---------------------------------------------------------------------------
+
+/**
+ * Plan tier for a product.
+ * @since TBD
+ */
+export type TierSlug = 'starter' | 'pro' | 'agency';
+
+/**
+ * A plan tier definition.
+ * @since TBD
+ */
+export interface Tier {
+    slug: TierSlug;
+    /** Display name (e.g. "Pro") */
+    name: string;
+    /** Marketing description */
+    description: string;
+    /** Upgrade URL for purchasing this tier */
+    upgradeUrl: string;
+}
+
+/**
+ * A feature belonging to a product tier.
+ * @since TBD
+ */
+export interface ProductFeature {
+    /** Numeric feature ID */
+    id: number;
+    /** Human-readable feature name */
+    name: string;
+    /** Short description shown below the feature name */
+    description: string;
+    /** Minimum tier required to access this feature */
+    requiredTier: TierSlug;
+    /** Category/group for display grouping */
+    category: string;
+}
+
+/**
+ * A product with tiered plans and features.
+ * @since TBD
+ */
+export interface Product {
+    /** Unique product slug (e.g. "givewp") */
+    slug: string;
+    /** Display name (e.g. "GiveWP") */
+    name: string;
+    /** Short tagline */
+    tagline: string;
+    /** Available tiers (ordered starter → pro → agency) */
+    tiers: Tier[];
+    /** All features across all tiers */
+    features: ProductFeature[];
+}
+
+/**
+ * A license key entry.
+ * @since TBD
+ */
+export interface License {
+    /** The license key string */
+    key: string;
+    /**
+     * License type:
+     * - unified: covers all products at the licensed tier
+     * - legacy: product-specific legacy key (shows amber banner)
+     */
+    type: 'unified' | 'legacy';
+    /** Tier this license grants access to */
+    tier: TierSlug;
+    /** Products this license applies to (slug list) */
+    productSlugs: string[];
+    /** Human-readable expiry date (e.g. "December 31, 2026") */
+    expires: string;
+    /** Whether this license is currently expired */
+    isExpired: boolean;
+    /** Renewal URL */
+    renewUrl: string;
+}
+
+/**
+ * Per-product activation record stored in the license store.
+ * @since TBD
+ */
+export interface LicenseProduct {
+    productSlug: string;
+    tier: TierSlug;
+    licenseKey: string;
+}
+
+/**
+ * Runtime toggle state for an individual feature.
+ * @since TBD
+ */
+export interface FeatureState {
+    featureId: number;
+    productSlug: string;
+    enabled: boolean;
 }

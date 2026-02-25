@@ -153,8 +153,14 @@ class Feature_Controller extends WP_REST_Controller {
 
 		$data = [];
 
-		foreach ( $features as $feature ) {
-			$data[] = $this->prepare_feature_data( $feature );
+		if ( ! $features instanceof WP_Error ) {
+			foreach ( $features as $feature ) {
+				if ( ! $feature instanceof Feature ) {
+					continue;
+				}
+
+				$data[] = $feature->to_array();
+			}
 		}
 
 		return new WP_REST_Response( $data );
@@ -187,7 +193,7 @@ class Feature_Controller extends WP_REST_Controller {
 			);
 		}
 
-		return new WP_REST_Response( $this->prepare_feature_data( $feature ) );
+		return new WP_REST_Response( $feature->to_array() );
 	}
 
 	/**
@@ -371,29 +377,6 @@ class Feature_Controller extends WP_REST_Controller {
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 			],
-		];
-	}
-
-	/**
-	 * Prepares feature data for the response.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param Feature $feature The feature instance.
-	 *
-	 * @return array<string, mixed>
-	 */
-	private function prepare_feature_data( Feature $feature ): array {
-		return [
-			'slug'          => $feature->get_slug(),
-			'name'          => $feature->get_name(),
-			'description'   => $feature->get_description(),
-			'group'         => $feature->get_group(),
-			'tier'          => $feature->get_tier(),
-			'type'          => $feature->get_type(),
-			'is_available'  => $feature->is_available(),
-			'documentation' => $feature->get_documentation(),
-			'enabled'       => $this->manager->is_enabled( $feature->get_slug() ),
 		];
 	}
 

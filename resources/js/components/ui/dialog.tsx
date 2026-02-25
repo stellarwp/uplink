@@ -6,7 +6,7 @@
  *
  * @package StellarWP\Uplink
  */
-import * as React from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { __ } from '@wordpress/i18n';
@@ -14,7 +14,7 @@ import { __ } from '@wordpress/i18n';
 interface DialogProps {
     open: boolean;
     onClose: () => void;
-    children: React.ReactNode;
+    children: ReactNode;
     /** Max width class, defaults to "max-w-lg" */
     maxWidth?: string;
 }
@@ -25,7 +25,7 @@ interface DialogProps {
  */
 export function Dialog( { open, onClose, children, maxWidth = 'max-w-lg' }: DialogProps ) {
     // Close on Escape key
-    React.useEffect( () => {
+    useEffect( () => {
         if ( ! open ) return;
         const handleKey = ( e: KeyboardEvent ) => {
             if ( e.key === 'Escape' ) onClose();
@@ -35,7 +35,7 @@ export function Dialog( { open, onClose, children, maxWidth = 'max-w-lg' }: Dial
     }, [ open, onClose ] );
 
     // Prevent body scroll when open
-    React.useEffect( () => {
+    useEffect( () => {
         if ( open ) {
             document.body.style.overflow = 'hidden';
         } else {
@@ -102,7 +102,7 @@ export function DialogHeader( { title, description, onClose }: DialogHeaderProps
     );
 }
 
-export function DialogContent( { children, className }: { children: React.ReactNode; className?: string } ) {
+export function DialogContent( { children, className }: { children: ReactNode; className?: string } ) {
     return (
         <div className={ cn( 'p-6', className ) }>
             { children }
@@ -110,7 +110,7 @@ export function DialogContent( { children, className }: { children: React.ReactN
     );
 }
 
-export function DialogFooter( { children, className }: { children: React.ReactNode; className?: string } ) {
+export function DialogFooter( { children, className }: { children: ReactNode; className?: string } ) {
     return (
         <div className={ cn( 'flex items-center justify-end gap-2 px-6 pb-6 pt-0', className ) }>
             { children }

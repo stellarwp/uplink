@@ -17,7 +17,8 @@ interface PurchaseLinkProps {
 export function PurchaseLink( { tierName, upgradeUrl, mode = 'upgrade' }: PurchaseLinkProps ) {
     const label =
         mode === 'upgrade'
-            ? sprintf( __( 'Upgrade to %s', '%TEXTDOMAIN%' ), tierName )
+            ? /* translators: %s is the name of the license tier to upgrade to */
+              sprintf( __( 'Upgrade to %s', '%TEXTDOMAIN%' ), tierName )
             : __( 'Learn more', '%TEXTDOMAIN%' );
 
     return (

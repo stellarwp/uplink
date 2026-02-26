@@ -45,9 +45,11 @@ export function ProductSection( { product, onAddLicense }: ProductSectionProps )
         const next = ! isEnabled;
         setIsPending( true );
         await toggleProduct( product.slug, next );
+        /* translators: %s is the name of the product being activated */
         const msg = next
             ? sprintf( __( '%s activated', '%TEXTDOMAIN%' ), product.name )
-            : sprintf( __( '%s deactivated', '%TEXTDOMAIN%' ), product.name );
+            : /* translators: %s is the name of the product being deactivated */
+              sprintf( __( '%s deactivated', '%TEXTDOMAIN%' ), product.name );
         addToast( msg, next ? 'success' : 'default' );
         setIsPending( false );
     };
@@ -59,11 +61,15 @@ export function ProductSection( { product, onAddLicense }: ProductSectionProps )
     // so isEnabled reflects the *new* value. Use that to pick the right label.
     const buttonLabel = isPending
         ? ( isEnabled
-            ? sprintf( __( 'Activating %s…', '%TEXTDOMAIN%' ), product.name )
-            : sprintf( __( 'Deactivating %s…', '%TEXTDOMAIN%' ), product.name ) )
+            ? /* translators: %s is the name of the product being activated */
+              sprintf( __( 'Activating %s…', '%TEXTDOMAIN%' ), product.name )
+            : /* translators: %s is the name of the product being deactivated */
+              sprintf( __( 'Deactivating %s…', '%TEXTDOMAIN%' ), product.name ) )
         : ( isEnabled
-            ? sprintf( __( 'Deactivate %s', '%TEXTDOMAIN%' ), product.name )
-            : sprintf( __( 'Activate %s', '%TEXTDOMAIN%' ), product.name ) );
+            ? /* translators: %s is the name of the product to deactivate */
+              sprintf( __( 'Deactivate %s', '%TEXTDOMAIN%' ), product.name )
+            : /* translators: %s is the name of the product to activate */
+              sprintf( __( 'Activate %s', '%TEXTDOMAIN%' ), product.name ) );
 
     return (
         <div className="rounded-lg border border-border bg-background overflow-clip">
@@ -134,8 +140,10 @@ export function ProductSection( { product, onAddLicense }: ProductSectionProps )
             { ! showFeatures && (
                 <p className="px-4 py-6 text-sm text-muted-foreground text-center">
                     { ! license
-                        ? sprintf( __( 'Add a license to unlock %s features.', '%TEXTDOMAIN%' ), product.name )
-                        : sprintf( __( '%s is deactivated. Activate it to manage features.', '%TEXTDOMAIN%' ), product.name )
+                        ? /* translators: %s is the name of the product */
+                          sprintf( __( 'Add a license to unlock %s features.', '%TEXTDOMAIN%' ), product.name )
+                        : /* translators: %s is the name of the product that is deactivated */
+                          sprintf( __( '%s is deactivated. Activate it to manage features.', '%TEXTDOMAIN%' ), product.name )
                     }
                 </p>
             ) }

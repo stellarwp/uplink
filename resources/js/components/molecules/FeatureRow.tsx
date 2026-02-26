@@ -90,8 +90,10 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
         setIsPending( true );
         await toggleFeature( feature.id, product.slug, checked );
         const msg = checked
-            ? sprintf( __( '%s enabled', '%TEXTDOMAIN%' ), feature.name )
-            : sprintf( __( '%s disabled', '%TEXTDOMAIN%' ), feature.name );
+            ? /* translators: %s is the name of the feature being enabled */
+              sprintf( __( '%s enabled', '%TEXTDOMAIN%' ), feature.name )
+            : /* translators: %s is the name of the feature being disabled */
+              sprintf( __( '%s disabled', '%TEXTDOMAIN%' ), feature.name );
         addToast( msg, checked ? 'success' : 'default' );
         setIsPending( false );
     };
@@ -122,8 +124,10 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
                     disabled={ isPending }
                     aria-label={
                         featureEnabled
-                            ? sprintf( __( 'Disable %s', '%TEXTDOMAIN%' ), feature.name )
-                            : sprintf( __( 'Enable %s', '%TEXTDOMAIN%' ), feature.name )
+                            ? /* translators: %s is the name of the feature to disable */
+                              sprintf( __( 'Disable %s', '%TEXTDOMAIN%' ), feature.name )
+                            : /* translators: %s is the name of the feature to enable */
+                              sprintf( __( 'Enable %s', '%TEXTDOMAIN%' ), feature.name )
                     }
                 />
             </div>

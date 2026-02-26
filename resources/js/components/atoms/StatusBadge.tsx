@@ -1,4 +1,4 @@
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Check, Lock, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
@@ -58,7 +58,8 @@ export function StatusBadge( { status, requiredTier }: StatusBadgeProps ) {
         return (
             <Badge variant="warning">
                 <Lock className="w-3 h-3" />
-                { `Requires ${ requiredTier }` }
+                {/* translators: %s is the name of the required license tier */}
+                { sprintf( __( 'Requires %s', '%TEXTDOMAIN%' ), requiredTier ) }
             </Badge>
         );
     }

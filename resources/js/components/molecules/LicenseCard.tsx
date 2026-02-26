@@ -56,8 +56,10 @@ export function LicenseCard( { license }: LicenseCardProps ) {
                             { productNames }
                             { ' · ' }
                             { license.isExpired
-                                ? sprintf( __( 'Expired %s', '%TEXTDOMAIN%' ), license.expires )
-                                : sprintf( __( 'Expires %s', '%TEXTDOMAIN%' ), license.expires ) }
+                                ? /* translators: %s is the expiration date of the license */
+                                  sprintf( __( 'Expired %s', '%TEXTDOMAIN%' ), license.expires )
+                                : /* translators: %s is the expiration date of the license */
+                                  sprintf( __( 'Expires %s', '%TEXTDOMAIN%' ), license.expires ) }
                         </p>
                     </div>
                 </div>

@@ -73,7 +73,7 @@ class Feature_Manager_PageTest extends UplinkTestCase {
 
 		set_current_screen( 'dashboard' );
 
-		do_action( 'stellarwp/uplink/handled/admin_page' );
+		do_action( 'stellarwp/uplink/unified_ui_registered' );
 
 		$this->page->maybe_register_page();
 

@@ -35,7 +35,8 @@ class Feature_Manager_Page {
 	 * @return bool
 	 */
 	public function should_render(): bool {
-		$highest = (string) apply_filters( 'stellarwp/uplink/highest_version', '0.0.0' );
+		$highest = apply_filters( 'stellarwp/uplink/highest_version', '0.0.0' );
+		$highest = is_string( $highest ) ? $highest : '0.0.0';
 
 		if ( version_compare( Uplink::VERSION, $highest, '<' ) ) {
 			return false;

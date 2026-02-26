@@ -10,7 +10,7 @@ class Provider extends Abstract_Provider {
 	/**
 	 * Register the service provider.
 	 *
-     * @since TBD added Feature_Manager_Page.
+	 * @since TBD added Feature_Manager_Page.
 	 * @since 1.0.0
 	 *
 	 * @return void

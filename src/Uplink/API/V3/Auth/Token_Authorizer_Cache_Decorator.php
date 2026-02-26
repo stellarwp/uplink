@@ -36,8 +36,8 @@ final class Token_Authorizer_Cache_Decorator implements Contracts\Token_Authoriz
 	 * @see Config::set_auth_cache_expiration()
 	 * @see Provider::register_token_authorizer()
 	 *
-	 * @param  Token_Authorizer  $authorizer The original authorizer.
-	 * @param  int               $expiration The expiration time in seconds.
+	 * @param Token_Authorizer $authorizer The original authorizer.
+	 * @param int              $expiration The expiration time in seconds.
 	 */
 	public function __construct(
 		Token_Authorizer $authorizer,
@@ -56,10 +56,10 @@ final class Token_Authorizer_Cache_Decorator implements Contracts\Token_Authoriz
 	 * @see is_authorized()
 	 * @see Token_Authorizer
 	 *
-	 * @param  string  $license  The license key.
-	 * @param  string  $slug     The plugin/service slug.
-	 * @param  string  $token    The stored token.
-	 * @param  string  $domain   The user's domain.
+	 * @param string $license  The license key.
+	 * @param string $slug     The plugin/service slug.
+	 * @param string $token    The stored token.
+	 * @param string $domain   The user's domain.
 	 *
 	 * @return bool
 	 */
@@ -84,7 +84,7 @@ final class Token_Authorizer_Cache_Decorator implements Contracts\Token_Authoriz
 	/**
 	 * Build a transient key.
 	 *
-	 * @param  array<int, string>  $args
+	 * @param array<int, string> $args
 	 *
 	 * @return string
 	 */
@@ -95,12 +95,11 @@ final class Token_Authorizer_Cache_Decorator implements Contracts\Token_Authoriz
 	/**
 	 * Build a transient key without the prefix.
 	 *
-	 * @param  array  $args
+	 * @param array $args
 	 *
 	 * @return string
 	 */
 	public function build_transient_no_prefix( array $args ): string {
 		return hash( 'sha256', json_encode( $args ) );
 	}
-
 }

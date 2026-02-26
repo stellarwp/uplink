@@ -20,7 +20,7 @@ final class Auth_Url implements Contracts\Auth_Url {
 	private $client;
 
 	/**
-	 * @param  Client_V3  $client  The V3 API Client.
+	 * @param Client_V3 $client  The V3 API Client.
 	 */
 	public function __construct( Client_V3 $client ) {
 		$this->client = $client;
@@ -29,22 +29,27 @@ final class Auth_Url implements Contracts\Auth_Url {
 	/**
 	 * Retrieve an Origin's auth url, if it exists.
 	 *
-	 * @param  string  $slug  The product slug.
+	 * @param string $slug  The product slug.
 	 *
 	 * @return string
 	 */
 	public function get( string $slug ): string {
-		$response = $this->client->get( 'tokens/auth_url', [
-			'slug' => $slug,
-		] );
+		$response = $this->client->get(
+			'tokens/auth_url',
+			[
+				'slug' => $slug,
+			] 
+		);
 
 		if ( $response instanceof WP_Error ) {
 			if ( $this->is_wp_debug() ) {
-				error_log( sprintf(
-					'Token auth failed for slug: "%s". Errors: %s',
-					$slug,
-					implode( ', ', $response->get_error_messages() )
-				) );
+				error_log(
+					sprintf(
+						'Token auth failed for slug: "%s". Errors: %s',
+						$slug,
+						implode( ', ', $response->get_error_messages() )
+					) 
+				);
 			}
 
 			return '';
@@ -52,5 +57,4 @@ final class Auth_Url implements Contracts\Auth_Url {
 
 		return $response['body']['data']['auth_url'] ?? '';
 	}
-
 }

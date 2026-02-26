@@ -37,23 +37,27 @@ class Ajax {
 		];
 
 		if ( empty( $submission['key'] ) || ! wp_verify_nonce( $submission['_wpnonce'], $this->group->get_name() ) ) {
-			wp_send_json_error( [
-				'status'  => 0,
-				'message' => __( 'Invalid request: nonce field is expired. Please try again.', '%TEXTDOMAIN%' ),
-			] );
+			wp_send_json_error(
+				[
+					'status'  => 0,
+					'message' => __( 'Invalid request: nonce field is expired. Please try again.', '%TEXTDOMAIN%' ),
+				] 
+			);
 		}
 
 		$collection = $this->container->get( Collection::class );
 		$plugin     = $collection->offsetGet( $submission['slug'] );
 
 		if ( ! $plugin ) {
-			wp_send_json_error( [
-				'message'    => sprintf(
-					__( 'Error: The plugin with slug "%s" was not found. It is impossible to validate the license key, please contact the plugin author.', '%TEXTDOMAIN%' ),
-					$submission['slug']
-				),
-				'submission' => $submission,
-			] );
+			wp_send_json_error(
+				[
+					'message'    => sprintf(
+						__( 'Error: The plugin with slug "%s" was not found. It is impossible to validate the license key, please contact the plugin author.', '%TEXTDOMAIN%' ),
+						$submission['slug']
+					),
+					'submission' => $submission,
+				] 
+			);
 		}
 
 		$results  = $plugin->validate_license( $submission['key'] );
@@ -63,11 +67,12 @@ class Ajax {
 			->set_license( $submission['key'] )
 			->build( $submission['slug'], get_site_url() );
 
-		wp_send_json( [
-			'status'  => absint( $results->is_valid() ),
-			'message' => $message,
-			'auth_url' => $auth_url,
-		] );
+		wp_send_json(
+			[
+				'status'   => absint( $results->is_valid() ),
+				'message'  => $message,
+				'auth_url' => $auth_url,
+			] 
+		);
 	}
-
 }

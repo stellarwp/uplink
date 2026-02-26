@@ -41,10 +41,10 @@ final class Client implements Client_V3 {
 	private $wp_http;
 
 	/**
-	 * @param  string  $api_root
-	 * @param  string  $base_url
-	 * @param  array<string, mixed>  $request_args
-	 * @param  WP_Http  $wp_http
+	 * @param string               $api_root
+	 * @param string               $base_url
+	 * @param array<string, mixed> $request_args
+	 * @param WP_Http              $wp_http
 	 */
 	public function __construct( string $api_root, string $base_url, array $request_args, WP_Http $wp_http ) {
 		$this->api_root     = $api_root;
@@ -56,8 +56,8 @@ final class Client implements Client_V3 {
 	/**
 	 * Perform a GET request.
 	 *
-	 * @param  string  $endpoint
-	 * @param  array<string, mixed>  $params
+	 * @param string               $endpoint
+	 * @param array<string, mixed> $params
 	 *
 	 * @return WP_Error|array{
 	 *       'body' : array<string, mixed>,
@@ -72,9 +72,12 @@ final class Client implements Client_V3 {
 	 *   }
 	 */
 	public function get( string $endpoint, array $params = [] ) {
-		$args = array_merge( $this->request_args, [
-			'body' => $params,
-		] );
+		$args = array_merge(
+			$this->request_args,
+			[
+				'body' => $params,
+			] 
+		);
 
 		return $this->request( $endpoint, 'GET', $args );
 	}
@@ -82,8 +85,8 @@ final class Client implements Client_V3 {
 	/**
 	 * Perform a POST request.
 	 *
-	 * @param  string  $endpoint
-	 * @param  array<string, mixed>  $params
+	 * @param string               $endpoint
+	 * @param array<string, mixed> $params
 	 *
 	 * @return WP_Error|array{
 	 *       'body' : array<string, mixed>,
@@ -98,9 +101,12 @@ final class Client implements Client_V3 {
 	 *   }
 	 */
 	public function post( string $endpoint, array $params = [] ) {
-		$args = array_merge( $this->request_args, [
-			'body' => $params,
-		] );
+		$args = array_merge(
+			$this->request_args,
+			[
+				'body' => $params,
+			] 
+		);
 
 		return $this->request( $endpoint, 'POST', $args );
 	}
@@ -108,9 +114,9 @@ final class Client implements Client_V3 {
 	/**
 	 * Perform any other request.
 	 *
-	 * @param  string  $endpoint
-	 * @param  string  $method
-	 * @param  array<string, mixed>  $params
+	 * @param string               $endpoint
+	 * @param string               $method
+	 * @param array<string, mixed> $params
 	 *
 	 * @return WP_Error|array{
 	 *       'body' : array<string, mixed>,
@@ -127,9 +133,13 @@ final class Client implements Client_V3 {
 	public function request( string $endpoint, string $method = 'GET', array $params = [] ) {
 		$url = $this->build_url( $endpoint );
 
-		$args = array_merge( $this->request_args, [
-			'method' => strtoupper( $method ),
-		], $params );
+		$args = array_merge(
+			$this->request_args,
+			[
+				'method' => strtoupper( $method ),
+			],
+			$params 
+		);
 
 		$response = $this->wp_http->request( $url, $args );
 
@@ -145,12 +155,11 @@ final class Client implements Client_V3 {
 	/**
 	 * Build the complete URL from a provided endpoint.
 	 *
-	 * @param  string  $endpoint  The relative endpoint.
+	 * @param string $endpoint  The relative endpoint.
 	 *
 	 * @return string
 	 */
 	private function build_url( string $endpoint ): string {
 		return rtrim( $this->base_url, '/' ) . trailingslashit( $this->api_root ) . ltrim( $endpoint, '/' );
 	}
-
 }

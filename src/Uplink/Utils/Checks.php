@@ -25,15 +25,18 @@ class Checks {
 		 *
 		 * @param array $truthy_strings
 		 */
-		$truthy_strings = (array) apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/is_truthy_strings', [
-			'1',
-			'enable',
-			'enabled',
-			'on',
-			'y',
-			'yes',
-			'true',
-		] );
+		$truthy_strings = (array) apply_filters(
+			'stellarwp/uplink/' . Config::get_hook_prefix() . '/is_truthy_strings',
+			[
+				'1',
+				'enable',
+				'enabled',
+				'on',
+				'y',
+				'yes',
+				'true',
+			] 
+		);
 
 		// Makes sure we are dealing with lowercase for testing
 		if ( is_string( $var ) ) {
@@ -57,8 +60,8 @@ class Checks {
 	/**
 	 * String Starts With PHP80 polyfill.
 	 *
-	 * @param  string  $haystack  The string to search in.
-	 * @param  string  $needle  The substring to search for in the haystack.
+	 * @param string $haystack  The string to search in.
+	 * @param string $needle  The substring to search for in the haystack.
 	 *
 	 * @return bool Returns true if haystack begins with needle, false otherwise.
 	 */
@@ -69,5 +72,4 @@ class Checks {
 
 		return 0 === strncmp( $haystack, $needle, strlen( $needle ) );
 	}
-
 }

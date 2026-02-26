@@ -29,16 +29,19 @@ final class AuthUrlTest extends UplinkTestCase {
 	}
 
 	public function test_it_gets_an_auth_url(): void {
-		$clientMock = $this->makeEmpty( Client_V3::class, [
-			'get' => static function () {
-				return [
-					'response' => [
-						'code' => 200,
-					],
-					'body'   => json_decode( '{"success":true,"data":{"status":200,"auth_url":"https://www.kadencewp.com/account-auth/"}}', true ),
-				];
-			},
-		] );
+		$clientMock = $this->makeEmpty(
+			Client_V3::class,
+			[
+				'get' => static function () {
+					return [
+						'response' => [
+							'code' => 200,
+						],
+						'body'     => json_decode( '{"success":true,"data":{"status":200,"auth_url":"https://www.kadencewp.com/account-auth/"}}', true ),
+					];
+				},
+			] 
+		);
 
 		$this->container->bind( Client_V3::class, $clientMock );
 
@@ -48,16 +51,19 @@ final class AuthUrlTest extends UplinkTestCase {
 	}
 
 	public function test_it_builds_an_auth_url(): void {
-		$clientMock = $this->makeEmpty( Client_V3::class, [
-			'get' => static function () {
-				return [
-					'response' => [
-						'code' => 200,
-					],
-					'body'   => json_decode( '{"success":true,"data":{"status":200,"auth_url":"https://www.kadencewp.com/account-auth/"}}', true ),
-				];
-			},
-		] );
+		$clientMock = $this->makeEmpty(
+			Client_V3::class,
+			[
+				'get' => static function () {
+					return [
+						'response' => [
+							'code' => 200,
+						],
+						'body'     => json_decode( '{"success":true,"data":{"status":200,"auth_url":"https://www.kadencewp.com/account-auth/"}}', true ),
+					];
+				},
+			] 
+		);
 
 		$this->container->bind( Client_V3::class, $clientMock );
 
@@ -74,16 +80,19 @@ final class AuthUrlTest extends UplinkTestCase {
 	}
 
 	public function test_it_does_not_get_an_auth_url(): void {
-		$clientMock = $this->makeEmpty( Client_V3::class, [
-			'get' => static function () {
-				return [
-					'response' => [
-						'code' => 404,
-					],
-					'body'   => json_decode( '{"success":false,"data":{"status":404,"message":"Auth URL Not Found"}}', true ),
-				];
-			},
-		] );
+		$clientMock = $this->makeEmpty(
+			Client_V3::class,
+			[
+				'get' => static function () {
+					return [
+						'response' => [
+							'code' => 404,
+						],
+						'body'     => json_decode( '{"success":false,"data":{"status":404,"message":"Auth URL Not Found"}}', true ),
+					];
+				},
+			] 
+		);
 
 		$this->container->bind( Client_V3::class, $clientMock );
 
@@ -93,16 +102,19 @@ final class AuthUrlTest extends UplinkTestCase {
 	}
 
 	public function test_it_caches_a_valid_auth_url(): void {
-		$clientMock = $this->makeEmpty( Client_V3::class, [
-			'get' => static function () {
-				return [
-					'response' => [
-						'code' => 200,
-					],
-					'body'   => json_decode( '{"success":true,"data":{"status":200,"auth_url":"https://www.kadencewp.com/account-auth/"}}', true ),
-				];
-			},
-		] );
+		$clientMock = $this->makeEmpty(
+			Client_V3::class,
+			[
+				'get' => static function () {
+					return [
+						'response' => [
+							'code' => 200,
+						],
+						'body'     => json_decode( '{"success":true,"data":{"status":200,"auth_url":"https://www.kadencewp.com/account-auth/"}}', true ),
+					];
+				},
+			] 
+		);
 
 		$this->container->bind( Client_V3::class, $clientMock );
 
@@ -113,16 +125,19 @@ final class AuthUrlTest extends UplinkTestCase {
 	}
 
 	public function test_it_caches_an_empty_auth_url(): void {
-		$clientMock = $this->makeEmpty( Client_V3::class, [
-			'get' => static function () {
-				return [
-					'response' => [
-						'code' => 404,
-					],
-					'body'   => json_decode( '{"success":false,"data":{"status":404,"message":"Auth URL Not Found"}}', true ),
-				];
-			},
-		] );
+		$clientMock = $this->makeEmpty(
+			Client_V3::class,
+			[
+				'get' => static function () {
+					return [
+						'response' => [
+							'code' => 404,
+						],
+						'body'     => json_decode( '{"success":false,"data":{"status":404,"message":"Auth URL Not Found"}}', true ),
+					];
+				},
+			] 
+		);
 
 		$this->container->bind( Client_V3::class, $clientMock );
 
@@ -131,5 +146,4 @@ final class AuthUrlTest extends UplinkTestCase {
 		$this->assertSame( '', $auth_url );
 		$this->assertSame( '', $this->storage->get( Auth_Url_Cache_Decorator::TRANSIENT_PREFIX . 'kadence_blocks_pro' ) );
 	}
-
 }

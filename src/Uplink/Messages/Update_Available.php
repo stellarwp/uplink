@@ -18,7 +18,7 @@ class Update_Available extends Message_Abstract {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Resource $resource Resource instance.
+	 * @param Resource                $resource Resource instance.
 	 * @param ContainerInterface|null $container Container instance.
 	 */
 	public function __construct( Resource $resource, $container = null ) {
@@ -34,7 +34,7 @@ class Update_Available extends Message_Abstract {
 		$link = sprintf( '<a href="%s">', $this->resource->get_home_url() ?: '' );
 
 		return sprintf(
-			esc_html__( 'There is an update for %s. You\'ll need to %scheck your license%s to have access to updates, downloads, and support.', '%TEXTDOMAIN%' ),
+			esc_html__( 'There is an update for %1$s. You\'ll need to %2$scheck your license%3$s to have access to updates, downloads, and support.', '%TEXTDOMAIN%' ),
 			$this->resource->get_name(),
 			$link,
 			'</a>'

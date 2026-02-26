@@ -28,9 +28,9 @@ class Update_Prevention {
 	 * Checks for the list of constants associate with plugin to make sure we are dealing
 	 * with a plugin owned by the plugin using this library.
 	 *
-	 * @since  4.9.12
+	 * @since 4.9.12
 	 *
-	 * @param  string $plugin Plugin file partial path, folder and main php file.
+	 * @param string $plugin Plugin file partial path, folder and main php file.
 	 *
 	 * @return bool
 	 */
@@ -48,7 +48,7 @@ class Update_Prevention {
 	/**
 	 * Filters the source file location for the upgrade package for the PUE Update_Prevention engine.
 	 *
-	 * @since  4.9.12
+	 * @since 4.9.12
 	 *
 	 * @param string|WP_Error $source        File source location.
 	 * @param mixed           $remote_source Remote file source location.
@@ -70,7 +70,7 @@ class Update_Prevention {
 		}
 
 		$incompatible_plugins = apply_filters(
-			'stellarwp/uplink/' . Config::get_hook_prefix(). '/update_prevention_incompatible_plugins',
+			'stellarwp/uplink/' . Config::get_hook_prefix() . '/update_prevention_incompatible_plugins',
 			[],
 			$source,
 			$remote_source
@@ -84,7 +84,7 @@ class Update_Prevention {
 		/**
 		 * Filter if we should prevent the update.
 		 *
-		 * @since  4.9.12
+		 * @since 4.9.12
 		 *
 		 * @param bool        $should_prevent       Flag false to skip the prevention.
 		 * @param string      $plugin               Plugin core file path
@@ -95,7 +95,7 @@ class Update_Prevention {
 		 * @param array       $extra                Extra arguments passed to hooked filters.
 		 */
 		$should_prevent_update = apply_filters(
-			'stellarwp/uplink/' . Config::get_hook_prefix(). '/should_prevent_update_without_license',
+			'stellarwp/uplink/' . Config::get_hook_prefix() . '/should_prevent_update_without_license',
 			true,
 			$plugin,
 			$incompatible_plugins,
@@ -111,7 +111,7 @@ class Update_Prevention {
 		}
 
 		$full_plugin_path = $remote_source . '/' . $plugin;
-		$plugin_data = get_plugin_data( $full_plugin_path );
+		$plugin_data      = get_plugin_data( $full_plugin_path );
 
 		$link_read_more = '<a href="http://evnt.is/1aev" target="_blank">' . esc_html__( 'Read more', '%TEXTDOMAIN%' ) . '.</a>';
 
@@ -128,5 +128,4 @@ class Update_Prevention {
 			[]
 		);
 	}
-
 }

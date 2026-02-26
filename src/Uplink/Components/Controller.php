@@ -20,12 +20,12 @@ abstract class Controller {
 	/**
 	 * Render the view file.
 	 *
-	 * @param  mixed[]  $args  An optional array of arguments to utilize when rendering.
+	 * @param mixed[] $args  An optional array of arguments to utilize when rendering.
 	 */
 	abstract public function render( array $args = [] ): void;
 
 	/**
-	 * @param  View  $view  The View Engine to render views.
+	 * @param View $view  The View Engine to render views.
 	 */
 	public function __construct( View $view ) {
 		$this->view = $view;
@@ -34,7 +34,7 @@ abstract class Controller {
 	/**
 	 * Format an array of CSS classes into a string.
 	 *
-	 * @param  array  $classes
+	 * @param array $classes
 	 *
 	 * @return string
 	 */
@@ -47,5 +47,4 @@ abstract class Controller {
 
 		return implode( ' ', $classes );
 	}
-
 }

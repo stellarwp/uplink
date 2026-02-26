@@ -29,7 +29,7 @@ final class Token_Manager implements Contracts\Token_Manager {
 	protected $option_name;
 
 	/**
-	 * @param  string  $option_name  The option name as set via Config::set_token_auth_prefix().
+	 * @param string $option_name  The option name as set via Config::set_token_auth_prefix().
 	 */
 	public function __construct( string $option_name ) {
 		if ( ! $option_name ) {
@@ -53,7 +53,7 @@ final class Token_Manager implements Contracts\Token_Manager {
 	/**
 	 * Validates a token is in the accepted UUIDv4 format.
 	 *
-	 * @param  string  $token
+	 * @param string $token
 	 *
 	 * @return bool
 	 */
@@ -68,8 +68,8 @@ final class Token_Manager implements Contracts\Token_Manager {
 	 *
 	 * @since 2.0.0 Added $plugin param.
 	 *
-	 * @param  string    $token   The token to store.
-	 * @param  Resource  $plugin  The Product to store the token for.
+	 * @param string   $token   The token to store.
+	 * @param Resource $plugin  The Product to store the token for.
 	 *
 	 * @return bool
 	 */
@@ -95,9 +95,9 @@ final class Token_Manager implements Contracts\Token_Manager {
 	 *
 	 * @since 2.0.0 Added $plugin param.
 	 *
-	 * @note  This will fallback to the legacy token, if it exists.
+	 * @note This will fallback to the legacy token, if it exists.
 	 *
-	 * @param  Resource  $plugin  The Product to retrieve the token for.
+	 * @param Resource $plugin  The Product to retrieve the token for.
 	 *
 	 * @return string|null
 	 */
@@ -131,7 +131,7 @@ final class Token_Manager implements Contracts\Token_Manager {
 	/**
 	 * Revoke the token.
 	 *
-	 * @param  string  $slug The Product to retrieve the token for.
+	 * @param string $slug The Product to retrieve the token for.
 	 *
 	 * @return bool
 	 */
@@ -155,5 +155,4 @@ final class Token_Manager implements Contracts\Token_Manager {
 
 		return update_network_option( get_current_network_id(), $this->option_name, $tokens );
 	}
-
 }

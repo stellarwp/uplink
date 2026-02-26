@@ -51,7 +51,7 @@ class RegisterTest extends UplinkTestCase {
 	/**
 	 * @test
 	 */
-	public function is_should_register_service_with_oauth_using_int():void{
+	public function is_should_register_service_with_oauth_using_int(): void {
 		$collection = Config::get_container()->get( Collection::class );
 
 		$this->assertFalse( $collection->offsetExists( 'service-with-oauth-int' ) );
@@ -71,7 +71,7 @@ class RegisterTest extends UplinkTestCase {
 		$this->assertFalse( $collection->get( 'service-with-oauth-int' )->oauth_requires_license_key() );
 	}
 
-	public function is_should_register_service_with_oauth_and_license_key_using_int():void{
+	public function is_should_register_service_with_oauth_and_license_key_using_int(): void {
 		$collection = Config::get_container()->get( Collection::class );
 
 		$this->assertFalse( $collection->offsetExists( 'service-with-oauth-int-2' ) );

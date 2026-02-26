@@ -30,8 +30,8 @@ final class Auth_Url_Cache_Decorator implements Contracts\Auth_Url {
 	private $expiration;
 
 	/**
-	 * @param  Auth_Url  $auth_url  Remotely fetch the Origin's Auth URL.
-	 * @param  int  $expiration  The cache expiration in seconds.
+	 * @param Auth_Url $auth_url  Remotely fetch the Origin's Auth URL.
+	 * @param int      $expiration  The cache expiration in seconds.
 	 */
 	public function __construct( Auth_Url $auth_url, Storage $storage, int $expiration = DAY_IN_SECONDS ) {
 		$this->auth_url   = $auth_url;
@@ -42,7 +42,7 @@ final class Auth_Url_Cache_Decorator implements Contracts\Auth_Url {
 	/**
 	 * Cache the auth url response.
 	 *
-	 * @param  string  $slug  The product slug.
+	 * @param string $slug  The product slug.
 	 *
 	 * @throws InvalidArgumentException
 	 *
@@ -72,12 +72,11 @@ final class Auth_Url_Cache_Decorator implements Contracts\Auth_Url {
 	/**
 	 * Build the transient key based on the provided slug.
 	 *
-	 * @param  string  $slug
+	 * @param string $slug
 	 *
 	 * @return string
 	 */
 	private function build_transient( string $slug ): string {
 		return self::TRANSIENT_PREFIX . str_replace( '-', '_', $slug );
 	}
-
 }

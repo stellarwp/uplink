@@ -46,7 +46,7 @@ final class CollectionTest extends UplinkTestCase {
 	 */
 	public function get_resources(): array {
 		return [
-			'plugin-1' => [
+			'plugin-1'  => [
 				'slug'          => 'plugin-1',
 				'name'          => 'Plugin 1',
 				'path'          => $this->root . '/plugin.php',
@@ -55,7 +55,7 @@ final class CollectionTest extends UplinkTestCase {
 				'version'       => '1.0.0',
 				'type'          => 'plugin',
 			],
-			'plugin-2' => [
+			'plugin-2'  => [
 				'slug'          => 'plugin-2',
 				'name'          => 'Plugin 2',
 				'path'          => $this->root . '/plugin.php',
@@ -122,18 +122,23 @@ final class CollectionTest extends UplinkTestCase {
 		$this->assertCount( 4, $this->collection->getIterator() );
 
 		foreach ( $resources as $resource ) {
-			$this->assertThat( $resource->get_slug(), $this->logicalOr(
-				$this->equalTo( 'plugin-1' ),
-				$this->equalTo( 'plugin-2' )
-			) );
+			$this->assertThat(
+				$resource->get_slug(),
+				$this->logicalOr(
+					$this->equalTo( 'plugin-1' ),
+					$this->equalTo( 'plugin-2' )
+				) 
+			);
 		}
 	}
 
 	public function test_it_gets_multiple_resources_by_multiple_paths(): void {
-		$resources = $this->collection->get_by_paths( [
-			$this->root . '/plugin.php',
-			$this->root . '/service1.php',
-		] );
+		$resources = $this->collection->get_by_paths(
+			[
+				$this->root . '/plugin.php',
+				$this->root . '/service1.php',
+			] 
+		);
 
 		$this->assertSame( 3, $resources->count() );
 		$this->assertInstanceOf( Uplink_Resources\Collection::class, $resources );
@@ -143,11 +148,14 @@ final class CollectionTest extends UplinkTestCase {
 		$this->assertCount( 4, $this->collection->getIterator() );
 
 		foreach ( $resources as $resource ) {
-			$this->assertThat( $resource->get_slug(), $this->logicalOr(
-				$this->equalTo( 'plugin-1' ),
-				$this->equalTo( 'plugin-2' ),
-				$this->equalTo( 'service-1' )
-			) );
+			$this->assertThat(
+				$resource->get_slug(),
+				$this->logicalOr(
+					$this->equalTo( 'plugin-1' ),
+					$this->equalTo( 'plugin-2' ),
+					$this->equalTo( 'service-1' )
+				) 
+			);
 		}
 	}
 
@@ -161,10 +169,13 @@ final class CollectionTest extends UplinkTestCase {
 		$this->assertSame( 4, $this->collection->count() );
 
 		foreach ( $resources as $resource ) {
-			$this->assertThat( $resource->get_slug(), $this->logicalOr(
-				$this->equalTo( 'plugin-1' ),
-				$this->equalTo( 'plugin-2' )
-			) );
+			$this->assertThat(
+				$resource->get_slug(),
+				$this->logicalOr(
+					$this->equalTo( 'plugin-1' ),
+					$this->equalTo( 'plugin-2' )
+				) 
+			);
 		}
 	}
 
@@ -178,10 +189,13 @@ final class CollectionTest extends UplinkTestCase {
 		$this->assertSame( 4, $this->collection->count() );
 
 		foreach ( $resources as $resource ) {
-			$this->assertThat( $resource->get_slug(), $this->logicalOr(
-				$this->equalTo( 'service-1' ),
-				$this->equalTo( 'service-2' )
-			) );
+			$this->assertThat(
+				$resource->get_slug(),
+				$this->logicalOr(
+					$this->equalTo( 'service-1' ),
+					$this->equalTo( 'service-2' )
+				) 
+			);
 		}
 	}
 
@@ -190,11 +204,13 @@ final class CollectionTest extends UplinkTestCase {
 		$resources = [];
 
 		foreach ( $plugins as $slug => $plugin ) {
-			$resources[ $slug ] = new Uplink_Resources\Plugin( $plugin['slug'],
+			$resources[ $slug ] = new Uplink_Resources\Plugin(
+				$plugin['slug'],
 				$plugin['name'],
 				$plugin['version'],
 				$plugin['path'],
-				$plugin['class'] );
+				$plugin['class'] 
+			);
 		}
 
 		$collection = new Uplink_Resources\Collection( new ArrayIterator( $resources ) );
@@ -203,10 +219,13 @@ final class CollectionTest extends UplinkTestCase {
 		$this->assertCount( 2, $collection->getIterator() );
 
 		foreach ( $collection as $resource ) {
-			$this->assertThat( $resource->get_slug(), $this->logicalOr(
-				$this->equalTo( 'plugin-1' ),
-				$this->equalTo( 'plugin-2' )
-			) );
+			$this->assertThat(
+				$resource->get_slug(),
+				$this->logicalOr(
+					$this->equalTo( 'plugin-1' ),
+					$this->equalTo( 'plugin-2' )
+				) 
+			);
 		}
 
 		$services = $collection->get_services();
@@ -216,7 +235,5 @@ final class CollectionTest extends UplinkTestCase {
 		// Assert the original underlying iterator was not changed.
 		$this->assertSame( 2, $collection->count() );
 		$this->assertCount( 2, $collection->getIterator() );
-
 	}
-
 }

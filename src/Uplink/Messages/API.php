@@ -33,9 +33,9 @@ class API extends Message_Abstract {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $message API message.
-	 * @param string $version Resource version.
-	 * @param Resource $resource Resource instance.
+	 * @param string                  $message API message.
+	 * @param string                  $version Resource version.
+	 * @param Resource                $resource Resource instance.
 	 * @param ContainerInterface|null $container Container instance.
 	 */
 	public function __construct( string $message, string $version, Resource $resource, $container = null ) {

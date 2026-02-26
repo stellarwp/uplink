@@ -29,5 +29,4 @@ final class Authorizer {
 			is_super_admin()
 		);
 	}
-
 }

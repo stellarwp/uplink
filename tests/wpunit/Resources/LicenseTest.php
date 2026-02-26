@@ -2,7 +2,6 @@
 
 namespace StellarWP\Uplink\Tests\Resources;
 
-use ReflectionProperty;
 use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Resources\License;
 use StellarWP\Uplink\Resources\Plugin;
@@ -306,7 +305,7 @@ final class LicenseTest extends UplinkTestCase {
 
 		$this->assertSame( $filtered_key, $key );
 
-		$key_origin = $this->get_key_origin( $license );
+		$key_origin = $license->get_key_origin();
 
 		$this->assertSame( 'filter', $key_origin );
 	}
@@ -331,7 +330,7 @@ final class LicenseTest extends UplinkTestCase {
 
 		$this->assertSame( $filtered_key, $key );
 
-		$key_origin = $this->get_key_origin( $license );
+		$key_origin = $license->get_key_origin();
 
 		$this->assertSame( 'filter', $key_origin );
 	}
@@ -358,7 +357,7 @@ final class LicenseTest extends UplinkTestCase {
 
 		$this->assertSame( $original_key, $key );
 
-		$key_origin = $this->get_key_origin( $license );
+		$key_origin = $license->get_key_origin();
 
 		$this->assertNotSame( 'filter', $key_origin );
 	}
@@ -381,7 +380,7 @@ final class LicenseTest extends UplinkTestCase {
 
 		$this->assertSame( '', $key );
 
-		$key_origin = $this->get_key_origin( $license );
+		$key_origin = $license->get_key_origin();
 
 		$this->assertNotSame( 'filter', $key_origin );
 	}
@@ -476,17 +475,4 @@ final class LicenseTest extends UplinkTestCase {
 		$this->assertSame( 'o', $license->get_key_origin_code() );
 	}
 
-	/**
-	 * Gets the protected key_origin property via reflection.
-	 *
-	 * @param License $license The license instance.
-	 *
-	 * @return string|null
-	 */
-	private function get_key_origin( License $license ) {
-		$property = new ReflectionProperty( License::class, 'key_origin' );
-		$property->setAccessible( true );
-
-		return $property->getValue( $license );
-	}
 }

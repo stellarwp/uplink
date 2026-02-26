@@ -24,7 +24,7 @@ class Version {
 	 * @return bool
 	 */
 	public static function is_highest(): bool {
-		$highest = (string) apply_filters( 'stellarwp/uplink/highest_version', '0.0.0' );
+		$highest = Cast::to_string( apply_filters( 'stellarwp/uplink/highest_version', '0.0.0' ) );
 
 		return ! version_compare( Uplink::VERSION, $highest, '<' );
 	}

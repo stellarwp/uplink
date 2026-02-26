@@ -26,9 +26,12 @@ class VersionTest extends UplinkTestCase {
 	 * @since 3.0.0
 	 */
 	public function it_should_not_be_highest_when_a_higher_version_exists(): void {
-		add_filter( 'stellarwp/uplink/highest_version', static function () {
-			return '99.0.0';
-		} );
+		add_filter(
+			'stellarwp/uplink/highest_version',
+			static function () {
+				return '99.0.0';
+			}
+		);
 
 		$this->assertFalse( Version::is_highest() );
 	}
@@ -39,9 +42,12 @@ class VersionTest extends UplinkTestCase {
 	 * @since 3.0.0
 	 */
 	public function it_should_be_highest_when_versions_are_equal(): void {
-		add_filter( 'stellarwp/uplink/highest_version', static function () {
-			return Uplink::VERSION;
-		} );
+		add_filter(
+			'stellarwp/uplink/highest_version',
+			static function () {
+				return Uplink::VERSION;
+			}
+		);
 
 		$this->assertTrue( Version::is_highest() );
 	}
@@ -61,9 +67,12 @@ class VersionTest extends UplinkTestCase {
 	 * @since 3.0.0
 	 */
 	public function it_should_not_handle_when_a_higher_version_exists(): void {
-		add_filter( 'stellarwp/uplink/highest_version', static function () {
-			return '99.0.0';
-		} );
+		add_filter(
+			'stellarwp/uplink/highest_version',
+			static function () {
+				return '99.0.0';
+			}
+		);
 
 		$this->assertFalse( Version::should_handle( 'test_action' ) );
 	}
@@ -74,7 +83,7 @@ class VersionTest extends UplinkTestCase {
 	 * @since 3.0.0
 	 */
 	public function it_should_not_handle_when_action_already_claimed(): void {
-		do_action( 'stellarwp/uplink/handled/test_action' );
+		do_action( 'stellarwp/uplink/handled/test_action' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores .
 
 		$this->assertFalse( Version::should_handle( 'test_action' ) );
 	}
@@ -98,9 +107,12 @@ class VersionTest extends UplinkTestCase {
 	 * @since 3.0.0
 	 */
 	public function it_should_not_fire_the_hook_on_failure(): void {
-		add_filter( 'stellarwp/uplink/highest_version', static function () {
-			return '99.0.0';
-		} );
+		add_filter(
+			'stellarwp/uplink/highest_version',
+			static function () {
+				return '99.0.0';
+			}
+		);
 
 		Version::should_handle( 'test_action' );
 

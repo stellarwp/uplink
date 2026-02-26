@@ -50,6 +50,7 @@ class Uplink {
 		$container->singleton( Admin\Provider::class, Admin\Provider::class );
 		$container->singleton( Auth\Provider::class, Auth\Provider::class );
 		$container->singleton( Features\Provider::class, Features\Provider::class );
+		$container->singleton( Features\Update\Provider::class, Features\Update\Provider::class );
 
 		if ( static::is_enabled() ) {
 			$container->get( Storage\Provider::class )->register();
@@ -62,8 +63,8 @@ class Uplink {
 				$container->get( Auth\Provider::class )->register();
 			}
 
-			// TODO: Register to only the newest instance.
 			$container->get( Features\Provider::class )->register();
+			$container->get( Features\Update\Provider::class )->register();
 
 			static::register_cross_instance_hooks( $container );
 		}
@@ -96,7 +97,7 @@ class Uplink {
 					return self::VERSION;
 				}
 				return $current_highest;
-			} 
+			}
 		);
 
 		add_filter(
@@ -109,7 +110,7 @@ class Uplink {
 				return $resource->validate_license( $key );
 			},
 			10,
-			3 
+			3
 		);
 
 		add_filter(
@@ -124,7 +125,7 @@ class Uplink {
 				return true;
 			},
 			10,
-			4 
+			4
 		);
 
 		add_filter(
@@ -137,7 +138,7 @@ class Uplink {
 				return $resource->delete_license_key( $type );
 			},
 			10,
-			3 
+			3
 		);
 	}
 

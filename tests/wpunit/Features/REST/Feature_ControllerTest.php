@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\Tests\Features\REST;
 
-use StellarWP\Uplink\Features\API\Client;
+use StellarWP\Uplink\Features\API\Feature_Client;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Manager;
@@ -109,7 +109,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		);
 
 		$catalog = $this->makeEmpty(
-			Client::class,
+			Feature_Client::class,
 			[
 				'get_features' => $collection,
 			] 

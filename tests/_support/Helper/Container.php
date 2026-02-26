@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Tests;
 
+use Closure;
 use StellarWP\ContainerContract\ContainerInterface;
 use lucatume\DI52\Container as DI52Container;
 
@@ -24,7 +25,7 @@ class Container implements ContainerInterface {
 	 * @inheritDoc
 	 */
 	public function bind( string $id, $implementation = null, array $afterBuildMethods = null ) {
-		$this->container->bind( $id, $implementation, $afterBuildMethods );
+		$this->container->bind( $id, $this->wrap_closure( $implementation ), $afterBuildMethods );
 	}
 
 	/**
@@ -52,7 +53,7 @@ class Container implements ContainerInterface {
 	 * @inheritDoc
 	 */
 	public function singleton( string $id, $implementation = null, array $afterBuildMethods = null ) {
-		$this->container->singleton( $id, $implementation, $afterBuildMethods );
+		$this->container->singleton( $id, $this->wrap_closure( $implementation ), $afterBuildMethods );
 	}
 
 	/**
@@ -64,5 +65,28 @@ class Container implements ContainerInterface {
 
 	public function make( $id ) {
 		return $this->get( $id );
+	}
+
+	/**
+	 * Wraps a closure so that DI52 passes this wrapper instead of itself.
+	 *
+	 * DI52's ClosureBuilder passes the raw DI52 container to closures, but
+	 * closures in the codebase type-hint ContainerInterface. This ensures
+	 * they receive this wrapper which implements that interface.
+	 *
+	 * @param mixed $implementation The implementation to potentially wrap.
+	 *
+	 * @return mixed
+	 */
+	private function wrap_closure( $implementation ) {
+		if ( ! $implementation instanceof Closure ) {
+			return $implementation;
+		}
+
+		$wrapper = $this;
+
+		return static function () use ( $implementation, $wrapper ) {
+			return $implementation( $wrapper );
+		};
 	}
 }

@@ -5,6 +5,7 @@ namespace wpunit;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Resources\Collection;
+use StellarWP\Uplink\Resources\License;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Uplink;
 use StellarWP\Uplink\Tests\Sample_Plugin;
@@ -85,5 +86,52 @@ class CrossInstanceHooksTest extends UplinkTestCase {
 		$result = apply_filters( 'stellarwp/uplink/delete_license_key', false, 'nonexistent-plugin', 'local' );
 
 		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that license objects are gathered for requested slugs via the filter.
+	 *
+	 * @return void
+	 */
+	public function test_it_gathers_license_objects_for_requested_slugs(): void {
+		$collection = Config::get_container()->get( Collection::class );
+		$collection->get( 'cross-test' )->set_license_key( 'gather-key-123', 'local' );
+
+		/** @var array<string, License> $licenses */
+		$licenses = apply_filters( 'stellarwp/uplink/licenses', [], [ 'cross-test' ] );
+
+		$this->assertArrayHasKey( 'cross-test', $licenses );
+		$this->assertInstanceOf( License::class, $licenses['cross-test'] );
+		$this->assertSame( 'gather-key-123', $licenses['cross-test']->get_key() );
+	}
+
+	/**
+	 * Tests that already-gathered slugs are not overwritten by the filter.
+	 *
+	 * @return void
+	 */
+	public function test_it_skips_slugs_already_gathered(): void {
+		$collection = Config::get_container()->get( Collection::class );
+		$resource   = $collection->get( 'cross-test' );
+		$resource->set_license_key( 'new-key', 'local' );
+
+		$pre_populated = [ 'cross-test' => $resource->get_license_object() ];
+
+		/** @var array<string, License> $licenses */
+		$licenses = apply_filters( 'stellarwp/uplink/licenses', $pre_populated, [ 'cross-test' ] );
+
+		$this->assertSame( $pre_populated['cross-test'], $licenses['cross-test'] );
+	}
+
+	/**
+	 * Tests that unknown slugs return an empty array from the licenses filter.
+	 *
+	 * @return void
+	 */
+	public function test_it_returns_empty_for_unknown_slugs(): void {
+		/** @var array<string, License> $licenses */
+		$licenses = apply_filters( 'stellarwp/uplink/licenses', [], [ 'nonexistent-plugin' ] );
+
+		$this->assertSame( [], $licenses );
 	}
 }

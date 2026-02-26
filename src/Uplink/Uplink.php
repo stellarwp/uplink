@@ -96,7 +96,7 @@ class Uplink {
 					return self::VERSION;
 				}
 				return $current_highest;
-			} 
+			}
 		);
 
 		add_filter(
@@ -109,7 +109,7 @@ class Uplink {
 				return $resource->validate_license( $key );
 			},
 			10,
-			3 
+			3
 		);
 
 		add_filter(
@@ -124,7 +124,7 @@ class Uplink {
 				return true;
 			},
 			10,
-			4 
+			4
 		);
 
 		add_filter(
@@ -137,7 +137,42 @@ class Uplink {
 				return $resource->delete_license_key( $type );
 			},
 			10,
-			3 
+			3
+		);
+
+		add_filter(
+			'stellarwp/uplink/licenses',
+			/**
+			 * Gathers license keys for a given array of slugs.
+			 *
+			 * @param array<string, License> $licenes Slug-keyed license objects gathered so far.
+			 * @param array<string>          $slugs   Slugs to gather keys for.
+			 *
+			 * @return array<string, License>
+			 */
+			static function ( array $licenses, array $slugs ) use ( $container ): array {
+				$collection = $container->get( Resources\Collection::class );
+
+				foreach ( $slugs as $slug ) {
+					if ( ! is_string( $slug ) || isset( $licenses[ $slug ] ) ) {
+						continue;
+					}
+
+					$resource = $collection->get( $slug );
+
+					if ( ! $resource ) {
+						continue;
+					}
+
+					$license = $resource->get_license_object();
+
+					$licenses[ $slug ] = $license;
+				}
+
+				return $licenses;
+			},
+			10,
+			2
 		);
 	}
 

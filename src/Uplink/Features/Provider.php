@@ -9,6 +9,7 @@ use StellarWP\Uplink\Features\REST\Feature_Controller;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Types\Built_In;
 use StellarWP\Uplink\Features\Types\Zip;
+use StellarWP\Uplink\Utils\Version;
 
 /**
  * Registers the Features subsystem in the DI container and hooks.
@@ -98,6 +99,10 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	public function register_rest_routes(): void {
+		if ( ! Version::should_handle( 'features_rest_routes' ) ) {
+			return;
+		}
+
 		$this->container->get( Feature_Controller::class )->register_routes();
 	}
 }

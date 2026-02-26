@@ -79,7 +79,7 @@
       ],
       "phpcs": "phpcs -s",
       "phpcs:fix": "phpcbf",
-      "phpcs:ci": "dev_scripts/partial-phpcs.sh diff"
+      "phpcs:ci": "dev_scripts/partial-phpcs.sh"
     },
     "scripts-descriptions": {
       "test:analysis": "Run static code analysis.",

@@ -6,3 +6,6 @@ vendor/
 node_modules/
 
 local-scripts/
+
+# PHPStan cache
+phpstan-cache

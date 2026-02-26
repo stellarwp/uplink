@@ -92,7 +92,7 @@ abstract class Http_API_Mock {
 	 *
 	 * @throws \JsonException If the response body cannot be encoded as JSON.
 	 */
-	public function make_response( int $status_code, $body, string $content_type = 'applicaton/json' ): array {
+	public function make_response( int $status_code, $body, string $content_type = 'application/json' ): array {
 		if ( $content_type === 'application/json' ) {
 			$body = is_string( $body ) ? $body : json_encode( $body, JSON_THROW_ON_ERROR );
 		} elseif ( $content_type === 'application/x-www-form-urlencoded' ) {
@@ -200,7 +200,7 @@ $body",
 	}
 
 	/**
-	 * Sets up the HPTT API mock to return a response to a specific request.
+	 * Sets up the HTTP API mock to return a response to a specific request.
 	 *
 	 * @param string         $method   The HTTP method to mock, defaults to `GET`.
 	 * @param string         $uri      The URI to mock, relative to the URL specified by the extending class `get_url`

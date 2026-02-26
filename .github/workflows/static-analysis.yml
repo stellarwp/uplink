@@ -1,10 +1,16 @@
-name: Static Analysis
+# cspell:ignore shivammathur reqs
+name: PHPStan
+
 on:
+  pull_request:
   push:
+    branches:
+      - main
 
 jobs:
-  phpstsan:
+  phpstan:
     name: phpstan
+
     runs-on: ubuntu-latest
 
     steps:
@@ -14,13 +20,31 @@ jobs:
       - name: Configure PHP environment
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: "8.0"
           extensions: mbstring, intl
           coverage: none
 
       - uses: ramsey/composer-install@v3
         with:
-          composer-options: "--optimize-autoloader"
+          composer-options: "--ignore-platform-reqs --optimize-autoloader"
+
+      # See https://phpstan.org/user-guide/result-cache#setup-in-github-actions for more info.
+      - name: Restore PHPStan cache
+        uses: actions/cache/restore@v4
+        with:
+          path: phpstan-cache
+          key: v2-phpstan-${{ runner.os }}-${{ github.ref_name }}-${{ github.run_id }}
+          restore-keys: |
+            v2-phpstan-${{ runner.os }}-${{ github.ref_name }}-
+            v2-phpstan-${{ runner.os }}-
+            v2-phpstan-
 
       - name: Run PHPStan static analysis
         run: composer test:analysis
+
+      - name: Save PHPStan cache
+        uses: actions/cache/save@v4
+        if: ${{ !cancelled() }}
+        with:
+          path: phpstan-cache
+          key: v2-phpstan-${{ runner.os }}-${{ github.ref_name }}-${{ github.run_id }}

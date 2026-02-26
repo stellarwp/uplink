@@ -1,8 +1,12 @@
 {
-  "name": "uplink",
+  "name": "@stellarwp/uplink",
   "private": true,
+  "scripts": {
+    "check:spelling": "bunx cspell lint -c .cspell.json --no-progress --no-must-find-files --dot '**'"
+  },
   "devDependencies": {
-    "@stellarwp/changelogger": "^0.10.0"
+    "@stellarwp/changelogger": "^0.10.0",
+    "cspell": "^8"
   },
   "changelogger": {
     "changesDir": "changelog",

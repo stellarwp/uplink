@@ -9,8 +9,8 @@ The goals of this library are to provide a simple way to register one or more pl
 
 ## Expectations
 
-1. This library will exist within multiple plugins--ideally included via Compuser using Strauss to avoid collisions with other installed versions of the same library.
-2. This library may be included in a plugin collection that has a shared codebase, so multiple plugins need to be able to register themselves using a shared library. An example of this usecase would be The Events Calendar and Event Tickets, which have a shared library that all of The Events Calendar add-ons utilize.
+1. This library will exist within multiple plugins--ideally included via Composer using Strauss to avoid collisions with other installed versions of the same library.
+2. This library may be included in a plugin collection that has a shared codebase, so multiple plugins need to be able to register themselves using a shared library. An example of this use case would be The Events Calendar and Event Tickets, which have a shared library that all of The Events Calendar add-ons utilize.
 3. This library should be as unopinionated as possible when it comes to the UI. It should provide page content that plugins can render where they see fit.
 
 ## Features
@@ -78,7 +78,7 @@ When resolving the license key, Uplink checks in this order: class `KEY` constan
 
 #### UI for entering keys
 
-Uplink should provide a UI for entering license keys. Ideally, Uplink should have a way to render license key fields, notifications, enqueue relevent styles & JS, etc within an administrative page as dictated by the plugin. For example, The Events Calendar needs to be able to choose to have the license keys fields/notices for Events Calendar Pro, Filter Bar, Virtual Events, etc (which are all add-ons of TEC) rendered on the _Events > Settings > Licenses_ page in the dashboard. Whereas Restrict Content Pro should be able to have _its_ license key fields rendered on a different Dashboard page.
+Uplink should provide a UI for entering license keys. Ideally, Uplink should have a way to render license key fields, notifications, enqueue relevant styles & JS, etc within an administrative page as dictated by the plugin. For example, The Events Calendar needs to be able to choose to have the license keys fields/notices for Events Calendar Pro, Filter Bar, Virtual Events, etc (which are all add-ons of TEC) rendered on the _Events > Settings > Licenses_ page in the dashboard. Whereas Restrict Content Pro should be able to have _its_ license key fields rendered on a different Dashboard page.
 
 When a license field is rendered, manipulated, or saved, a validation request should be triggered (see the diagram above).
 

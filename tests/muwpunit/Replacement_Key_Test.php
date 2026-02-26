@@ -135,7 +135,7 @@ class Replacement_Key_Test extends UplinkTestCase {
 	}
 
 	/**
-	 * It should set not previosly set network key to validated key when replacement key not provided
+	 * It should set not previously set network key to validated key when replacement key not provided
 	 *
 	 * @test
 	 */

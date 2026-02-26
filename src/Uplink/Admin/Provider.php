@@ -10,7 +10,7 @@ class Provider extends Abstract_Provider {
 	/**
 	 * Register the service provider.
 	 *
-     * @since 3.0.0 added Plugin_Manager_Page
+	 * @since 3.0.0 added Plugin_Manager_Page
 	 * @since 1.0.0
 	 *
 	 * @return void
@@ -24,9 +24,12 @@ class Provider extends Abstract_Provider {
 		$this->container->singleton( Update_Prevention::class, Update_Prevention::class );
 		$this->container->singleton( Group::class, Group::class );
 		$this->container->singleton( Plugin_Manager_Page::class, Plugin_Manager_Page::class );
-		$this->container->singleton( Asset_Manager::class, static function ( $c ) {
-			return new Asset_Manager( $c->get( Uplink::UPLINK_ASSETS_URI ) );
-		} );
+		$this->container->singleton(
+			Asset_Manager::class,
+			static function ( $c ) {
+				return new Asset_Manager( $c->get( Uplink::UPLINK_ASSETS_URI ) );
+			}
+		);
 
 		$this->register_hooks();
 	}
@@ -46,7 +49,7 @@ class Provider extends Abstract_Provider {
 		add_filter( 'upgrader_source_selection', [ $this, 'filter_upgrader_source_selection_for_update_prevention' ], 15, 4 );
 
 		$action = sprintf( 'wp_ajax_pue-validate-key-uplink-%s', Config::get_hook_prefix_underscored() );
-		add_action($action, [ $this, 'ajax_validate_license' ], 10, 0 );
+		add_action( $action, [ $this, 'ajax_validate_license' ], 10, 0 );
 		add_action( 'admin_init', [ $this, 'admin_init' ], 10, 0 );
 		add_action( 'admin_menu', [ $this, 'register_unified_plugin_manager_page' ], 20, 0 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'display_plugin_messages' ], 1, 1 );
@@ -174,11 +177,11 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  bool|\WP_Error  $reply       Whether to bail without returning the package.
-	 *                                      Default false.
-	 * @param  string|null     $package     The package file name or URL.
-	 * @param  \WP_Upgrader    $upgrader    The WP_Upgrader instance.
-	 * @param  array           $hook_extra  Extra arguments passed to hooked filters.
+	 * @param bool|\WP_Error $reply       Whether to bail without returning the package.
+	 *                                     Default false.
+	 * @param string|null    $package     The package file name or URL.
+	 * @param \WP_Upgrader   $upgrader    The WP_Upgrader instance.
+	 * @param array          $hook_extra  Extra arguments passed to hooked filters.
 	 *
 	 * @return string|bool|\WP_Error
 	 */

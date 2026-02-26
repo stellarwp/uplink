@@ -39,9 +39,12 @@ class Plugin_Manager_PageTest extends UplinkTestCase {
 	 * @test
 	 */
 	public function it_should_not_render_when_a_higher_version_exists(): void {
-		add_filter( 'stellarwp/uplink/highest_version', static function () {
-			return '99.0.0';
-		} );
+		add_filter(
+			'stellarwp/uplink/highest_version',
+			static function () {
+				return '99.0.0';
+			} 
+		);
 
 		$this->assertFalse( $this->page->should_render() );
 	}
@@ -84,9 +87,12 @@ class Plugin_Manager_PageTest extends UplinkTestCase {
 		$page_a->maybe_register_page();
 		$page_b->maybe_register_page();
 
-		$slugs = array_filter( array_column( $menu, 2 ), static function ( $s ) {
-			return $s === 'stellarwp-licenses';
-		} );
+		$slugs = array_filter(
+			array_column( $menu, 2 ),
+			static function ( $s ) {
+				return $s === 'stellarwp-licenses';
+			} 
+		);
 
 		$this->assertCount( 1, $slugs );
 	}

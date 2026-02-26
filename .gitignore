@@ -9,3 +9,8 @@ local-scripts/
 
 # PHPStan cache
 phpstan-cache
+
+# Partial phpcs output files.
+diff.txt
+diffcs.txt
+phpcs.json

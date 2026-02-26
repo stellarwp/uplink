@@ -28,13 +28,6 @@ final class ZipStrategyTest extends UplinkTestCase {
 	private const PLUGIN_FILE = 'test-feature/test-feature.php';
 
 	/**
-	 * Test download URL used across tests.
-	 *
-	 * @var string
-	 */
-	private const DOWNLOAD_URL = 'https://example.com/test-feature.zip';
-
-	/**
 	 * The option key for the test feature's stored state.
 	 *
 	 * @var string
@@ -490,7 +483,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Test Feature\n * Author: Foreign Developer\n */\n" );
 
 		try {
-			$feature = $this->make_zip_feature( 'test-feature', self::PLUGIN_FILE, self::DOWNLOAD_URL, [ 'StellarWP' ] );
+			$feature = $this->make_zip_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP' ] );
 			$result  = $this->strategy->enable( $feature );
 
 			$this->assertWPError( $result );
@@ -523,7 +516,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 		try {
 			$this->mock_activate_plugin( self::PLUGIN_FILE );
 
-			$feature = $this->make_zip_feature( 'test-feature', self::PLUGIN_FILE, self::DOWNLOAD_URL, [ 'StellarWP' ] );
+			$feature = $this->make_zip_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP' ] );
 			$result  = $this->strategy->enable( $feature );
 
 			$this->assertWPError( $result );
@@ -555,7 +548,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Test Feature\n * Author: StellarWP\n */\n" );
 
 		try {
-			$feature = $this->make_zip_feature( 'test-feature', self::PLUGIN_FILE, self::DOWNLOAD_URL, [ 'StellarWP' ] );
+			$feature = $this->make_zip_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP' ] );
 			$result  = $this->strategy->enable( $feature );
 
 			$this->assertTrue( $result );
@@ -586,7 +579,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Test Feature\n * Author: The Events Calendar\n */\n" );
 
 		try {
-			$feature = $this->make_zip_feature( 'test-feature', self::PLUGIN_FILE, self::DOWNLOAD_URL, [ 'StellarWP', 'The Events Calendar' ] );
+			$feature = $this->make_zip_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP', 'The Events Calendar' ] );
 			$result  = $this->strategy->enable( $feature );
 
 			$this->assertTrue( $result );
@@ -618,7 +611,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 
 		try {
 			// Empty authors array — ownership check should be skipped.
-			$feature = $this->make_zip_feature( 'test-feature', self::PLUGIN_FILE, self::DOWNLOAD_URL, [] );
+			$feature = $this->make_zip_feature( 'test-feature', self::PLUGIN_FILE, [] );
 			$result  = $this->strategy->enable( $feature );
 
 			$this->assertTrue( $result );
@@ -656,7 +649,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Test Feature\n * Author: {$actual_author}\n */\n" );
 
 		try {
-			$feature = $this->make_zip_feature( 'test-feature', self::PLUGIN_FILE, self::DOWNLOAD_URL, [ $expected_author ] );
+			$feature = $this->make_zip_feature( 'test-feature', self::PLUGIN_FILE, [ $expected_author ] );
 			$result  = $this->strategy->enable( $feature );
 
 			$this->assertTrue( $result, sprintf(
@@ -713,8 +706,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 		try {
 			$feature = $this->make_zip_feature(
 				'bad-plugin',
-				'bad-plugin/bad-plugin.php',
-				self::DOWNLOAD_URL
+				'bad-plugin/bad-plugin.php'
 			);
 
 			$result = $this->strategy->enable( $feature );
@@ -740,7 +732,6 @@ final class ZipStrategyTest extends UplinkTestCase {
 	 *
 	 * @param string   $slug         Feature slug.
 	 * @param string   $plugin_file  Plugin file path.
-	 * @param string   $download_url Download URL for the ZIP.
 	 * @param string[] $authors      Expected plugin authors.
 	 *
 	 * @return Zip
@@ -748,7 +739,6 @@ final class ZipStrategyTest extends UplinkTestCase {
 	private function make_zip_feature(
 		string $slug = 'test-feature',
 		string $plugin_file = self::PLUGIN_FILE,
-		string $download_url = self::DOWNLOAD_URL,
 		array $authors = [ 'StellarWP' ]
 	): Zip {
 		return new Zip( [
@@ -759,7 +749,6 @@ final class ZipStrategyTest extends UplinkTestCase {
 			'description'  => 'A test feature for unit tests.',
 			'plugin_file'  => $plugin_file,
 			'is_available' => true,
-			'download_url' => $download_url,
 			'authors'      => $authors,
 		] );
 	}

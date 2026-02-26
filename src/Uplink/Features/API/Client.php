@@ -140,7 +140,6 @@ class Client {
 				'plugin_file'       => 'zip-feature/zip-feature.php',
 				'is_available'      => true,
 				'documentation_url' => '',
-				'download_url'      => 'https://example.com/zip-feature.zip',
 				'authors'           => [ 'StellarWP' ],
 			],
 		];

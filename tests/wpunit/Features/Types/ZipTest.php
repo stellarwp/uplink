@@ -10,23 +10,21 @@ final class ZipTest extends UplinkTestCase {
 	/**
 	 * Standard test values.
 	 */
-	private const SLUG         = 'stellar-export';
-	private const GROUP        = 'LearnDash';
-	private const TIER         = 'Tier 1';
-	private const NAME         = 'Stellar Export';
-	private const DESCRIPTION  = 'Export your data.';
-	private const PLUGIN_FILE  = 'stellar-export/stellar-export.php';
-	private const DOWNLOAD_URL = 'https://portal.stellarwp.com/stellar-export.zip?secret=abc123';
+	private const SLUG        = 'stellar-export';
+	private const GROUP       = 'LearnDash';
+	private const TIER        = 'Tier 1';
+	private const NAME        = 'Stellar Export';
+	private const DESCRIPTION = 'Export your data.';
+	private const PLUGIN_FILE = 'stellar-export/stellar-export.php';
 
 	/**
 	 * Create a Zip feature with configurable values.
 	 *
-	 * @param string   $slug         Feature slug.
-	 * @param string   $name         Display name.
-	 * @param string   $description  Description.
-	 * @param string   $plugin_file  Plugin file path.
-	 * @param string   $download_url Download URL.
-	 * @param string[] $authors      Expected plugin authors.
+	 * @param string   $slug        Feature slug.
+	 * @param string   $name        Display name.
+	 * @param string   $description Description.
+	 * @param string   $plugin_file Plugin file path.
+	 * @param string[] $authors     Expected plugin authors.
 	 *
 	 * @return Zip
 	 */
@@ -35,19 +33,17 @@ final class ZipTest extends UplinkTestCase {
 		string $name = self::NAME,
 		string $description = self::DESCRIPTION,
 		string $plugin_file = self::PLUGIN_FILE,
-		string $download_url = self::DOWNLOAD_URL,
 		array $authors = [ 'StellarWP' ]
 	): Zip {
 		return new Zip( [
-			'slug'         => $slug,
-			'group'        => self::GROUP,
-			'tier'         => self::TIER,
-			'name'         => $name,
-			'description'  => $description,
-			'plugin_file'  => $plugin_file,
+			'slug'        => $slug,
+			'group'       => self::GROUP,
+			'tier'        => self::TIER,
+			'name'        => $name,
+			'description' => $description,
+			'plugin_file' => $plugin_file,
 			'is_available' => true,
-			'download_url' => $download_url,
-			'authors'      => $authors,
+			'authors'     => $authors,
 		] );
 	}
 
@@ -70,7 +66,6 @@ final class ZipTest extends UplinkTestCase {
 			'plugin_file'       => 'test-feature/test-feature.php',
 			'is_available'      => true,
 			'documentation_url' => 'https://example.com/docs',
-			'download_url'      => 'https://example.com/test-feature.zip',
 			'authors'           => [ 'StellarWP' ],
 		] );
 
@@ -84,7 +79,6 @@ final class ZipTest extends UplinkTestCase {
 		$this->assertSame( 'test-feature/test-feature.php', $feature->get_plugin_file() );
 		$this->assertTrue( $feature->is_available() );
 		$this->assertSame( 'https://example.com/docs', $feature->get_documentation_url() );
-		$this->assertSame( 'https://example.com/test-feature.zip', $feature->get_download_url() );
 		$this->assertSame( [ 'StellarWP' ], $feature->get_authors() );
 	}
 
@@ -103,7 +97,6 @@ final class ZipTest extends UplinkTestCase {
 			'plugin_file'       => 'test-feature/test-feature.php',
 			'is_available'      => true,
 			'documentation_url' => 'https://example.com/docs',
-			'download_url'      => 'https://example.com/test-feature.zip',
 			'authors'           => [ 'StellarWP' ],
 		] );
 
@@ -116,7 +109,6 @@ final class ZipTest extends UplinkTestCase {
 			'plugin_file'       => 'test-feature/test-feature.php',
 			'is_available'      => true,
 			'documentation_url' => 'https://example.com/docs',
-			'download_url'      => 'https://example.com/test-feature.zip',
 			'authors'           => [ 'StellarWP' ],
 			'type'              => 'zip',
 		], $feature->to_array() );
@@ -138,7 +130,6 @@ final class ZipTest extends UplinkTestCase {
 			'plugin_file'       => 'test-feature/test-feature.php',
 			'is_available'      => true,
 			'documentation_url' => 'https://example.com/docs',
-			'download_url'      => 'https://example.com/test-feature.zip',
 			'authors'           => [ 'StellarWP' ],
 		];
 
@@ -163,24 +154,6 @@ final class ZipTest extends UplinkTestCase {
 		] );
 
 		$this->assertSame( '', $feature->get_description() );
-	}
-
-	/**
-	 * Tests that download_url defaults to an empty string when omitted from the array.
-	 *
-	 * @return void
-	 */
-	public function test_it_defaults_download_url_to_empty_string(): void {
-		$feature = Zip::from_array( [
-			'slug'         => 'test-feature',
-			'group'        => 'LearnDash',
-			'tier'         => 'Tier 1',
-			'name'         => 'Test Feature',
-			'plugin_file'  => 'test-feature/test-feature.php',
-			'is_available' => true,
-		] );
-
-		$this->assertSame( '', $feature->get_download_url() );
 	}
 
 	/**
@@ -240,31 +213,6 @@ final class ZipTest extends UplinkTestCase {
 		$this->assertSame( 'my-plugin/my-plugin.php', $feature->get_plugin_file() );
 	}
 
-	/**
-	 * get_download_url() returns the download URL passed to the constructor.
-	 */
-	public function test_get_download_url_returns_constructor_value(): void {
-		$url     = 'https://example.com/plugin.zip?token=xyz';
-		$feature = $this->make_feature(
-			self::SLUG, self::NAME, self::DESCRIPTION,
-			self::PLUGIN_FILE, $url
-		);
-
-		$this->assertSame( $url, $feature->get_download_url() );
-	}
-
-	/**
-	 * get_download_url() can return an empty string (validated by the strategy, not the VO).
-	 */
-	public function test_get_download_url_allows_empty_string(): void {
-		$feature = $this->make_feature(
-			self::SLUG, self::NAME, self::DESCRIPTION,
-			self::PLUGIN_FILE, ''
-		);
-
-		$this->assertSame( '', $feature->get_download_url() );
-	}
-
 	// -------------------------------------------------------------------------
 	// get_authors() — ownership verification field
 	// -------------------------------------------------------------------------
@@ -275,7 +223,7 @@ final class ZipTest extends UplinkTestCase {
 	public function test_get_authors_returns_constructor_value(): void {
 		$feature = $this->make_feature(
 			self::SLUG, self::NAME, self::DESCRIPTION,
-			self::PLUGIN_FILE, self::DOWNLOAD_URL, [ 'StellarWP' ]
+			self::PLUGIN_FILE, [ 'StellarWP' ]
 		);
 
 		$this->assertSame( [ 'StellarWP' ], $feature->get_authors() );
@@ -287,7 +235,7 @@ final class ZipTest extends UplinkTestCase {
 	public function test_get_authors_allows_empty_array(): void {
 		$feature = $this->make_feature(
 			self::SLUG, self::NAME, self::DESCRIPTION,
-			self::PLUGIN_FILE, self::DOWNLOAD_URL, []
+			self::PLUGIN_FILE, []
 		);
 
 		$this->assertSame( [], $feature->get_authors() );
@@ -300,7 +248,7 @@ final class ZipTest extends UplinkTestCase {
 		$authors = [ 'StellarWP', 'The Events Calendar' ];
 		$feature = $this->make_feature(
 			self::SLUG, self::NAME, self::DESCRIPTION,
-			self::PLUGIN_FILE, self::DOWNLOAD_URL, $authors
+			self::PLUGIN_FILE, $authors
 		);
 
 		$this->assertSame( $authors, $feature->get_authors() );
@@ -361,7 +309,6 @@ final class ZipTest extends UplinkTestCase {
 			'plugin_file'       => 'the-slug/the-slug.php',
 			'is_available'      => true,
 			'documentation_url' => 'https://example.com/docs',
-			'download_url'      => 'https://example.com/the-slug.zip',
 			'authors'           => [ 'StellarWP', 'The Events Calendar' ],
 		] );
 
@@ -374,7 +321,6 @@ final class ZipTest extends UplinkTestCase {
 		$this->assertTrue( $feature->is_available() );
 		$this->assertSame( 'https://example.com/docs', $feature->get_documentation_url() );
 		$this->assertSame( 'the-slug/the-slug.php', $feature->get_plugin_file() );
-		$this->assertSame( 'https://example.com/the-slug.zip', $feature->get_download_url() );
 		$this->assertSame( [ 'StellarWP', 'The Events Calendar' ], $feature->get_authors() );
 		$this->assertSame( 'the-slug', $feature->get_plugin_slug() );
 	}

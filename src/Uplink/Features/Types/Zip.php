@@ -43,7 +43,6 @@ final class Zip extends Feature {
 			'plugin_file'       => $data['plugin_file'],
 			'is_available'      => $data['is_available'],
 			'documentation_url' => $data['documentation_url'] ?? '',
-			'download_url'      => $data['download_url'] ?? '',
 			'authors'           => $data['authors'] ?? [],
 		] );
 	}
@@ -57,17 +56,6 @@ final class Zip extends Feature {
 	 */
 	public function get_plugin_file(): string {
 		return Cast::to_string( $this->attributes['plugin_file'] ?? '' );
-	}
-
-	/**
-	 * Gets the direct download URL for the plugin ZIP.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return string
-	 */
-	public function get_download_url(): string {
-		return Cast::to_string( $this->attributes['download_url'] ?? '' );
 	}
 
 	/**

@@ -9,7 +9,7 @@ use StellarWP\Uplink\Uplink;
  *
  * When multiple vendor-prefixed copies of Uplink are active, only the
  * highest version should own shared responsibilities (admin page, REST
- * routes, etc.). This class centralises that check using a global
+ * routes, etc.). This class centralizes that check using a global
  * WordPress action as the cross-copy mutex.
  *
  * @since 3.0.0

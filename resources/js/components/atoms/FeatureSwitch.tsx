@@ -7,11 +7,23 @@ interface FeatureToggleProps {
     onToggle: ( checked: boolean ) => void;
 }
 
+function getLabel( isLocked: boolean, isChecked: boolean ): string {
+    if ( isLocked ) {
+		return __( 'Feature not included in your plan', '%TEXTDOMAIN%' );
+	}
+
+	if ( isChecked ) {
+		return __( 'Deactivate feature', '%TEXTDOMAIN%' );
+	}
+
+	return __( 'Activate feature', '%TEXTDOMAIN%' );
+}
+
 /**
  * @since TBD
  */
 export function FeatureSwitch( { state, onToggle }: FeatureToggleProps ) {
-    const isLocked = state === 'not_included';
+    const isLocked  = state === 'not_included';
     const isChecked = state === 'active';
 
     return (
@@ -19,13 +31,7 @@ export function FeatureSwitch( { state, onToggle }: FeatureToggleProps ) {
             checked={ isChecked }
             onCheckedChange={ onToggle }
             disabled={ isLocked }
-            aria-label={
-                isLocked
-                    ? __( 'Feature not included in your plan', '%TEXTDOMAIN%' )
-                    : isChecked
-                      ? __( 'Deactivate feature', '%TEXTDOMAIN%' )
-                      : __( 'Activate feature', '%TEXTDOMAIN%' )
-            }
+            aria-label={ getLabel( isLocked, isChecked ) }
         />
     );
 }

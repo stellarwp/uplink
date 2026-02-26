@@ -96,14 +96,24 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Checks whether an item exists at the given key.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $offset The item key.
+	 *
+	 * @return bool
 	 */
 	public function offsetExists( $offset ): bool {
 		return array_key_exists( $offset, $this->items );
 	}
 
 	/**
+	 * Retrieves an item by its key.
+	 *
 	 * @since 3.0.0
+	 *
+	 * @param string $offset The item key.
 	 *
 	 * @return TValue|null
 	 */
@@ -113,14 +123,27 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Sets an item at the given key.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $offset The item key.
+	 * @param TValue $value  The item value.
+	 *
+	 * @return void
 	 */
 	public function offsetSet( $offset, $value ): void {
 		$this->items[ $offset ] = $value;
 	}
 
 	/**
-	 * @inheritDoc
+	 * Removes an item at the given key.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $offset The item key.
+	 *
+	 * @return void
 	 */
 	public function offsetUnset( $offset ): void {
 		unset( $this->items[ $offset ] );
@@ -172,6 +195,8 @@ class Collection implements ArrayAccess, Iterator, Countable {
 			return $this->iterator;
 		}
 
-		return $this->iterator = new ArrayIterator( $this->items );
+		$this->iterator = new ArrayIterator( $this->items );
+
+		return $this->iterator;
 	}
 }

@@ -24,6 +24,8 @@ class Uplink {
 	 *
 	 * @since 1.0.0
 	 *
+	 * @throws RuntimeException If the container has not been configured.
+	 *
 	 * @return void
 	 */
 	public static function init(): void {

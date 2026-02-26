@@ -294,6 +294,7 @@ function is_feature_enabled( string $slug ) {
 		return get_container()->get( Manager::class )->is_enabled( $slug );
 	} catch ( Throwable $e ) {
 		if ( $e instanceof \Exception && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
 			error_log( "Error checking feature enabled state: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
 		}
 
@@ -317,6 +318,7 @@ function is_feature_available( string $slug ) {
 		return get_container()->get( Manager::class )->is_available( $slug );
 	} catch ( Throwable $e ) {
 		if ( $e instanceof \Exception && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
 			error_log( "Error checking feature availability: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
 		}
 

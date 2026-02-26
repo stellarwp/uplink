@@ -7,6 +7,7 @@ use StellarWP\Uplink\API;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Exceptions;
+use StellarWP\Uplink\Legacy\LegacyConfig;
 use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Utils;
 
@@ -140,6 +141,15 @@ abstract class Resource {
 	 * @var int
 	 */
 	protected $oauth = 0;
+
+	/**
+	 * Legacy configuration for suppressing old hooks and importing licenses.
+	 *
+	 * @since 3.1.0
+	 *
+	 * @var LegacyConfig|null
+	 */
+	protected $legacy_config;
 
 	/**
 	 * Constructor.
@@ -530,6 +540,43 @@ abstract class Resource {
 		$resource = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/resource_register', $resource );
 
 		return $resource;
+	}
+
+	/**
+	 * Get or create the legacy configuration builder.
+	 *
+	 * @since 3.1.0
+	 *
+	 * @return LegacyConfig
+	 */
+	public function legacy(): LegacyConfig {
+		if ( ! $this->legacy_config ) {
+			$this->legacy_config = new LegacyConfig();
+		}
+
+		return $this->legacy_config;
+	}
+
+	/**
+	 * Whether this resource has a legacy configuration.
+	 *
+	 * @since 3.1.0
+	 *
+	 * @return bool
+	 */
+	public function has_legacy_config(): bool {
+		return $this->legacy_config !== null;
+	}
+
+	/**
+	 * Get the legacy configuration, if set.
+	 *
+	 * @since 3.1.0
+	 *
+	 * @return LegacyConfig|null
+	 */
+	public function get_legacy_config(): ?LegacyConfig {
+		return $this->legacy_config;
 	}
 
 	/**

@@ -2,7 +2,6 @@
 
 namespace StellarWP\Uplink\Admin\Fields;
 
-use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Admin\Group;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Auth\Token\Token_Manager as Concrete_Token_Manager;
@@ -21,11 +20,6 @@ class FieldTest extends UplinkTestCase {
 	use TestUtils;
 	use SnapshotAssertions;
 	use With_Uopz;
-
-	/**
-	 * @var ContainerInterface|null
-	 */
-	private $original_container = null;
 
 	public function resourceProvider() {
 		$resources = $this->get_test_resources();
@@ -52,21 +46,12 @@ class FieldTest extends UplinkTestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		// Clone the original container used in all tests to avoid polluting the global container with custom bindings.
-		$this->original_container = $this->container;
-		$this->container          = clone $this->container;
-		// Bind the token manager to the cloned container.
 		$this->container->singleton(
 			Token_Manager::class,
 			static function ( $c ) {
 				return new Concrete_Token_Manager( 'something' );
-			} 
+			}
 		);
-	}
-
-	public function tearDown(): void {
-		$this->container = $this->original_container;
-		parent::tearDown();
 	}
 
 	/**

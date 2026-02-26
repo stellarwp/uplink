@@ -24,6 +24,8 @@ class Uplink {
 	 *
 	 * @since 1.0.0
 	 *
+	 * @throws RuntimeException If the container has not been configured.
+	 *
 	 * @return void
 	 */
 	public static function init(): void {
@@ -47,6 +49,7 @@ class Uplink {
 		$container->singleton( Notice\Provider::class, Notice\Provider::class );
 		$container->singleton( Admin\Provider::class, Admin\Provider::class );
 		$container->singleton( Auth\Provider::class, Auth\Provider::class );
+		$container->singleton( Features\Provider::class, Features\Provider::class );
 
 		if ( static::is_enabled() ) {
 			$container->get( Storage\Provider::class )->register();
@@ -58,6 +61,9 @@ class Uplink {
 			if ( $container->has( Config::TOKEN_OPTION_NAME ) ) {
 				$container->get( Auth\Provider::class )->register();
 			}
+
+			// TODO: Register to only the newest instance.
+			$container->get( Features\Provider::class )->register();
 
 			static::register_cross_instance_hooks( $container );
 		}

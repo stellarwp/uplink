@@ -31,6 +31,48 @@ class Cast {
 	}
 
 	/**
+	 * Safely casts a value to an int.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param mixed $value The value to cast.
+	 *
+	 * @return int
+	 */
+	public static function to_int( $value ): int {
+		if ( is_int( $value ) ) {
+			return $value;
+		}
+
+		if ( ! is_scalar( $value ) ) {
+			return 0;
+		}
+
+		return intval( $value );
+	}
+
+	/**
+	 * Safely casts a value to a float.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param mixed $value The value to cast.
+	 *
+	 * @return float
+	 */
+	public static function to_float( $value ): float {
+		if ( is_float( $value ) ) {
+			return $value;
+		}
+
+		if ( ! is_scalar( $value ) ) {
+			return 0.0;
+		}
+
+		return floatval( $value );
+	}
+
+	/**
 	 * Safely casts a value to a bool.
 	 *
 	 * @since 3.0.0

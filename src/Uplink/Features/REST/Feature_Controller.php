@@ -70,51 +70,67 @@ class Feature_Controller extends WP_REST_Controller {
 	 * @return void
 	 */
 	public function register_routes(): void {
-		register_rest_route( $this->namespace, '/' . $this->rest_base, [
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base,
 			[
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'get_items' ],
-				'permission_callback' => [ $this, 'check_permissions' ],
-				'args'                => $this->get_collection_params(),
-			],
-			'schema' => [ $this, 'get_public_item_schema' ],
-		] );
+				[
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => [ $this, 'get_items' ],
+					'permission_callback' => [ $this, 'check_permissions' ],
+					'args'                => $this->get_collection_params(),
+				],
+				'schema' => [ $this, 'get_public_item_schema' ],
+			] 
+		);
 
-		register_rest_route( $this->namespace, '/' . $this->rest_base . '/(?P<slug>[a-zA-Z0-9_-]+)', [
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<slug>[a-zA-Z0-9_-]+)',
 			[
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'get_item' ],
-				'permission_callback' => [ $this, 'check_permissions' ],
-				'args'                => [
-					'slug' => [
-						'required'          => true,
-						'type'              => 'string',
-						'sanitize_callback' => 'sanitize_text_field',
+				[
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => [ $this, 'get_item' ],
+					'permission_callback' => [ $this, 'check_permissions' ],
+					'args'                => [
+						'slug' => [
+							'required'          => true,
+							'type'              => 'string',
+							'sanitize_callback' => 'sanitize_text_field',
+						],
 					],
 				],
-			],
-			'schema' => [ $this, 'get_public_item_schema' ],
-		] );
+				'schema' => [ $this, 'get_public_item_schema' ],
+			] 
+		);
 
-		register_rest_route( $this->namespace, '/' . $this->rest_base . '/(?P<slug>[a-zA-Z0-9_-]+)/enable', [
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<slug>[a-zA-Z0-9_-]+)/enable',
 			[
-				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => [ $this, 'enable' ],
-				'permission_callback' => [ $this, 'check_permissions' ],
-				'args'                => $this->get_slug_args(),
-			],
-			'schema' => [ $this, 'get_public_item_schema' ],
-		] );
+				[
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => [ $this, 'enable' ],
+					'permission_callback' => [ $this, 'check_permissions' ],
+					'args'                => $this->get_slug_args(),
+				],
+				'schema' => [ $this, 'get_public_item_schema' ],
+			] 
+		);
 
-		register_rest_route( $this->namespace, '/' . $this->rest_base . '/(?P<slug>[a-zA-Z0-9_-]+)/disable', [
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<slug>[a-zA-Z0-9_-]+)/disable',
 			[
-				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => [ $this, 'disable' ],
-				'permission_callback' => [ $this, 'check_permissions' ],
-				'args'                => $this->get_slug_args(),
-			],
-			'schema' => [ $this, 'get_public_item_schema' ],
-		] );
+				[
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => [ $this, 'disable' ],
+					'permission_callback' => [ $this, 'check_permissions' ],
+					'args'                => $this->get_slug_args(),
+				],
+				'schema' => [ $this, 'get_public_item_schema' ],
+			] 
+		);
 	}
 
 	/**
@@ -224,9 +240,11 @@ class Feature_Controller extends WP_REST_Controller {
 			return $result;
 		}
 
-		return new WP_REST_Response( $feature->to_array() + [
-			'enabled' => true,
-		] );
+		return new WP_REST_Response(
+			$feature->to_array() + [
+				'enabled' => true,
+			] 
+		);
 	}
 
 	/**
@@ -256,9 +274,11 @@ class Feature_Controller extends WP_REST_Controller {
 			return $result;
 		}
 
-		return new WP_REST_Response( $feature->to_array() + [
-			'enabled' => false,
-		] );
+		return new WP_REST_Response(
+			$feature->to_array() + [
+				'enabled' => false,
+			] 
+		);
 	}
 
 	/**
@@ -280,43 +300,43 @@ class Feature_Controller extends WP_REST_Controller {
 			'type'                 => 'object',
 			'additionalProperties' => true,
 			'properties'           => [
-				'slug'          => [
+				'slug'              => [
 					'description' => __( 'The feature slug.', '%TEXTDOMAIN%' ),
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => [ 'view' ],
 				],
-				'name'          => [
+				'name'              => [
 					'description' => __( 'The feature display name.', '%TEXTDOMAIN%' ),
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => [ 'view' ],
 				],
-				'description'   => [
+				'description'       => [
 					'description' => __( 'The feature description.', '%TEXTDOMAIN%' ),
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => [ 'view' ],
 				],
-				'group'         => [
+				'group'             => [
 					'description' => __( 'The product group the feature belongs to.', '%TEXTDOMAIN%' ),
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => [ 'view' ],
 				],
-				'tier'          => [
+				'tier'              => [
 					'description' => __( 'The feature tier.', '%TEXTDOMAIN%' ),
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => [ 'view' ],
 				],
-				'type'          => [
+				'type'              => [
 					'description' => __( 'The feature type identifier.', '%TEXTDOMAIN%' ),
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => [ 'view' ],
 				],
-				'is_available'  => [
+				'is_available'      => [
 					'description' => __( 'Whether the feature is available for the current site.', '%TEXTDOMAIN%' ),
 					'type'        => 'boolean',
 					'readonly'    => true,
@@ -329,7 +349,7 @@ class Feature_Controller extends WP_REST_Controller {
 					'readonly'    => true,
 					'context'     => [ 'view' ],
 				],
-				'enabled'       => [
+				'enabled'           => [
 					'description' => __( 'Whether the feature is currently enabled.', '%TEXTDOMAIN%' ),
 					'type'        => 'boolean',
 					'readonly'    => true,

@@ -34,8 +34,20 @@ final class Feature_CollectionTest extends UplinkTestCase {
 	 */
 	public function test_it_does_not_duplicate_features_with_same_slug(): void {
 		$collection = new Feature_Collection();
-		$first      = $this->makeEmpty( Feature::class, [ 'get_slug' => 'test-feature', 'get_name' => 'First' ] );
-		$second     = $this->makeEmpty( Feature::class, [ 'get_slug' => 'test-feature', 'get_name' => 'Second' ] );
+		$first      = $this->makeEmpty(
+			Feature::class,
+			[
+				'get_slug' => 'test-feature',
+				'get_name' => 'First',
+			] 
+		);
+		$second     = $this->makeEmpty(
+			Feature::class,
+			[
+				'get_slug' => 'test-feature',
+				'get_name' => 'Second',
+			] 
+		);
 
 		$collection->add( $first );
 		$collection->add( $second );
@@ -281,29 +293,44 @@ final class Feature_CollectionTest extends UplinkTestCase {
 	private function build_collection(): Feature_Collection {
 		$collection = new Feature_Collection();
 
-		$collection->add( $this->makeEmpty( Feature::class, [
-			'get_slug'  => 'tec-feature-1',
-			'get_group' => 'TEC',
-			'get_tier'  => 'Tier 1',
-			'get_type'  => 'built_in',
-			'is_available' => true,
-		] ) );
+		$collection->add(
+			$this->makeEmpty(
+				Feature::class,
+				[
+					'get_slug'     => 'tec-feature-1',
+					'get_group'    => 'TEC',
+					'get_tier'     => 'Tier 1',
+					'get_type'     => 'built_in',
+					'is_available' => true,
+				] 
+			) 
+		);
 
-		$collection->add( $this->makeEmpty( Feature::class, [
-			'get_slug'  => 'tec-feature-2',
-			'get_group' => 'TEC',
-			'get_tier'  => 'Tier 2',
-			'get_type'  => 'built_in',
-			'is_available' => false,
-		] ) );
+		$collection->add(
+			$this->makeEmpty(
+				Feature::class,
+				[
+					'get_slug'     => 'tec-feature-2',
+					'get_group'    => 'TEC',
+					'get_tier'     => 'Tier 2',
+					'get_type'     => 'built_in',
+					'is_available' => false,
+				] 
+			) 
+		);
 
-		$collection->add( $this->makeEmpty( Feature::class, [
-			'get_slug'  => 'ld-feature-1',
-			'get_group' => 'LearnDash',
-			'get_tier'  => 'Tier 1',
-			'get_type'  => 'zip',
-			'is_available' => true,
-		] ) );
+		$collection->add(
+			$this->makeEmpty(
+				Feature::class,
+				[
+					'get_slug'     => 'ld-feature-1',
+					'get_group'    => 'LearnDash',
+					'get_tier'     => 'Tier 1',
+					'get_type'     => 'zip',
+					'is_available' => true,
+				] 
+			) 
+		);
 
 		return $collection;
 	}

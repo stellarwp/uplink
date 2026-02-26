@@ -36,9 +36,12 @@ final class ResolverTest extends UplinkTestCase {
 	public function test_it_resolves_registered_strategy(): void {
 		$mock_strategy = $this->makeEmpty( Strategy::class );
 
-		$this->container->bind( get_class( $mock_strategy ), static function () use ( $mock_strategy ) {
-			return $mock_strategy;
-		} );
+		$this->container->bind(
+			get_class( $mock_strategy ),
+			static function () use ( $mock_strategy ) {
+				return $mock_strategy;
+			} 
+		);
 
 		$this->resolver->register( 'test-type', get_class( $mock_strategy ) );
 

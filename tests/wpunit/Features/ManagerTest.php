@@ -46,19 +46,28 @@ final class ManagerTest extends UplinkTestCase {
 		$this->collection = new Feature_Collection();
 		$this->collection->add( $this->makeEmpty( Feature::class, [ 'get_slug' => 'test-feature' ] ) );
 
-		$catalog = $this->makeEmpty( Client::class, [
-			'get_features' => $this->collection,
-		] );
+		$catalog = $this->makeEmpty(
+			Client::class,
+			[
+				'get_features' => $this->collection,
+			] 
+		);
 
-		$this->mock_strategy = $this->makeEmpty( Strategy::class, [
-			'enable'    => true,
-			'disable'   => true,
-			'is_active' => true,
-		] );
+		$this->mock_strategy = $this->makeEmpty(
+			Strategy::class,
+			[
+				'enable'    => true,
+				'disable'   => true,
+				'is_active' => true,
+			] 
+		);
 
-		$resolver = $this->makeEmpty( Resolver::class, [
-			'resolve' => $this->mock_strategy,
-		] );
+		$resolver = $this->makeEmpty(
+			Resolver::class,
+			[
+				'resolve' => $this->mock_strategy,
+			] 
+		);
 
 		$this->manager = new Manager( $catalog, $resolver );
 	}
@@ -168,21 +177,33 @@ final class ManagerTest extends UplinkTestCase {
 		$slug_enabling_fired = false;
 		$slug_enabled_fired  = false;
 
-		add_action( 'stellarwp/uplink/feature_enabling', static function () use ( &$enabling_fired ) {
-			$enabling_fired = true;
-		} );
+		add_action(
+			'stellarwp/uplink/feature_enabling',
+			static function () use ( &$enabling_fired ) {
+				$enabling_fired = true;
+			} 
+		);
 
-		add_action( 'stellarwp/uplink/feature_enabled', static function () use ( &$enabled_fired ) {
-			$enabled_fired = true;
-		} );
+		add_action(
+			'stellarwp/uplink/feature_enabled',
+			static function () use ( &$enabled_fired ) {
+				$enabled_fired = true;
+			} 
+		);
 
-		add_action( 'stellarwp/uplink/test-feature/feature_enabling', static function () use ( &$slug_enabling_fired ) {
-			$slug_enabling_fired = true;
-		} );
+		add_action(
+			'stellarwp/uplink/test-feature/feature_enabling',
+			static function () use ( &$slug_enabling_fired ) {
+				$slug_enabling_fired = true;
+			} 
+		);
 
-		add_action( 'stellarwp/uplink/test-feature/feature_enabled', static function () use ( &$slug_enabled_fired ) {
-			$slug_enabled_fired = true;
-		} );
+		add_action(
+			'stellarwp/uplink/test-feature/feature_enabled',
+			static function () use ( &$slug_enabled_fired ) {
+				$slug_enabled_fired = true;
+			} 
+		);
 
 		$this->manager->enable( 'test-feature' );
 
@@ -203,21 +224,33 @@ final class ManagerTest extends UplinkTestCase {
 		$slug_disabling_fired = false;
 		$slug_disabled_fired  = false;
 
-		add_action( 'stellarwp/uplink/feature_disabling', static function () use ( &$disabling_fired ) {
-			$disabling_fired = true;
-		} );
+		add_action(
+			'stellarwp/uplink/feature_disabling',
+			static function () use ( &$disabling_fired ) {
+				$disabling_fired = true;
+			} 
+		);
 
-		add_action( 'stellarwp/uplink/feature_disabled', static function () use ( &$disabled_fired ) {
-			$disabled_fired = true;
-		} );
+		add_action(
+			'stellarwp/uplink/feature_disabled',
+			static function () use ( &$disabled_fired ) {
+				$disabled_fired = true;
+			} 
+		);
 
-		add_action( 'stellarwp/uplink/test-feature/feature_disabling', static function () use ( &$slug_disabling_fired ) {
-			$slug_disabling_fired = true;
-		} );
+		add_action(
+			'stellarwp/uplink/test-feature/feature_disabling',
+			static function () use ( &$slug_disabling_fired ) {
+				$slug_disabling_fired = true;
+			} 
+		);
 
-		add_action( 'stellarwp/uplink/test-feature/feature_disabled', static function () use ( &$slug_disabled_fired ) {
-			$slug_disabled_fired = true;
-		} );
+		add_action(
+			'stellarwp/uplink/test-feature/feature_disabled',
+			static function () use ( &$slug_disabled_fired ) {
+				$slug_disabled_fired = true;
+			} 
+		);
 
 		$this->manager->disable( 'test-feature' );
 
@@ -235,25 +268,37 @@ final class ManagerTest extends UplinkTestCase {
 	public function test_enable_does_not_fire_enabled_action_on_failure(): void {
 		$error = new WP_Error( 'enable_failed', 'Could not enable feature.' );
 
-		$strategy = $this->makeEmpty( Strategy::class, [
-			'enable' => $error,
-		] );
+		$strategy = $this->makeEmpty(
+			Strategy::class,
+			[
+				'enable' => $error,
+			] 
+		);
 
-		$resolver = $this->makeEmpty( Resolver::class, [
-			'resolve' => $strategy,
-		] );
+		$resolver = $this->makeEmpty(
+			Resolver::class,
+			[
+				'resolve' => $strategy,
+			] 
+		);
 
-		$catalog = $this->makeEmpty( Client::class, [
-			'get_features' => $this->collection,
-		] );
+		$catalog = $this->makeEmpty(
+			Client::class,
+			[
+				'get_features' => $this->collection,
+			] 
+		);
 
 		$manager = new Manager( $catalog, $resolver );
 
 		$enabled_fired = false;
 
-		add_action( 'stellarwp/uplink/feature_enabled', static function () use ( &$enabled_fired ) {
-			$enabled_fired = true;
-		} );
+		add_action(
+			'stellarwp/uplink/feature_enabled',
+			static function () use ( &$enabled_fired ) {
+				$enabled_fired = true;
+			} 
+		);
 
 		$result = $manager->enable( 'test-feature' );
 
@@ -269,25 +314,37 @@ final class ManagerTest extends UplinkTestCase {
 	public function test_disable_does_not_fire_disabled_action_on_failure(): void {
 		$error = new WP_Error( 'disable_failed', 'Could not disable feature.' );
 
-		$strategy = $this->makeEmpty( Strategy::class, [
-			'disable' => $error,
-		] );
+		$strategy = $this->makeEmpty(
+			Strategy::class,
+			[
+				'disable' => $error,
+			] 
+		);
 
-		$resolver = $this->makeEmpty( Resolver::class, [
-			'resolve' => $strategy,
-		] );
+		$resolver = $this->makeEmpty(
+			Resolver::class,
+			[
+				'resolve' => $strategy,
+			] 
+		);
 
-		$catalog = $this->makeEmpty( Client::class, [
-			'get_features' => $this->collection,
-		] );
+		$catalog = $this->makeEmpty(
+			Client::class,
+			[
+				'get_features' => $this->collection,
+			] 
+		);
 
 		$manager = new Manager( $catalog, $resolver );
 
 		$disabled_fired = false;
 
-		add_action( 'stellarwp/uplink/feature_disabled', static function () use ( &$disabled_fired ) {
-			$disabled_fired = true;
-		} );
+		add_action(
+			'stellarwp/uplink/feature_disabled',
+			static function () use ( &$disabled_fired ) {
+				$disabled_fired = true;
+			} 
+		);
 
 		$result = $manager->disable( 'test-feature' );
 
@@ -303,9 +360,12 @@ final class ManagerTest extends UplinkTestCase {
 	public function test_get_features_returns_wp_error_when_catalog_errors(): void {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
-		$catalog = $this->makeEmpty( Client::class, [
-			'get_features' => $error,
-		] );
+		$catalog = $this->makeEmpty(
+			Client::class,
+			[
+				'get_features' => $error,
+			] 
+		);
 
 		$resolver = $this->makeEmpty( Resolver::class );
 
@@ -322,9 +382,12 @@ final class ManagerTest extends UplinkTestCase {
 	public function test_is_enabled_returns_wp_error_when_catalog_errors(): void {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
-		$catalog = $this->makeEmpty( Client::class, [
-			'get_features' => $error,
-		] );
+		$catalog = $this->makeEmpty(
+			Client::class,
+			[
+				'get_features' => $error,
+			] 
+		);
 
 		$resolver = $this->makeEmpty( Resolver::class );
 
@@ -343,9 +406,12 @@ final class ManagerTest extends UplinkTestCase {
 	public function test_is_available_returns_wp_error_when_catalog_errors(): void {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
-		$catalog = $this->makeEmpty( Client::class, [
-			'get_features' => $error,
-		] );
+		$catalog = $this->makeEmpty(
+			Client::class,
+			[
+				'get_features' => $error,
+			] 
+		);
 
 		$resolver = $this->makeEmpty( Resolver::class );
 
@@ -364,9 +430,12 @@ final class ManagerTest extends UplinkTestCase {
 	public function test_enable_returns_wp_error_when_catalog_errors(): void {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
-		$catalog = $this->makeEmpty( Client::class, [
-			'get_features' => $error,
-		] );
+		$catalog = $this->makeEmpty(
+			Client::class,
+			[
+				'get_features' => $error,
+			] 
+		);
 
 		$resolver = $this->makeEmpty( Resolver::class );
 
@@ -385,9 +454,12 @@ final class ManagerTest extends UplinkTestCase {
 	public function test_disable_returns_wp_error_when_catalog_errors(): void {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
-		$catalog = $this->makeEmpty( Client::class, [
-			'get_features' => $error,
-		] );
+		$catalog = $this->makeEmpty(
+			Client::class,
+			[
+				'get_features' => $error,
+			] 
+		);
 
 		$resolver = $this->makeEmpty( Resolver::class );
 

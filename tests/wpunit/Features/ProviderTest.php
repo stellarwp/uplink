@@ -66,11 +66,14 @@ final class ProviderTest extends UplinkTestCase {
 	public function it_should_register_routes_when_it_has_the_highest_version(): void {
 		$called = 0;
 
-		$mock = $this->makeEmpty( Feature_Controller::class, [
-			'register_routes' => static function () use ( &$called ) {
-				$called++;
-			},
-		] );
+		$mock = $this->makeEmpty(
+			Feature_Controller::class,
+			[
+				'register_routes' => static function () use ( &$called ) {
+					$called++;
+				},
+			] 
+		);
 
 		$this->container->singleton( Feature_Controller::class, $mock );
 
@@ -86,11 +89,14 @@ final class ProviderTest extends UplinkTestCase {
 	public function it_should_not_register_routes_when_a_higher_version_exists(): void {
 		$called = false;
 
-		$mock = $this->makeEmpty( Feature_Controller::class, [
-			'register_routes' => static function () use ( &$called ) {
-				$called = true;
-			},
-		] );
+		$mock = $this->makeEmpty(
+			Feature_Controller::class,
+			[
+				'register_routes' => static function () use ( &$called ) {
+					$called = true;
+				},
+			] 
+		);
 
 		$this->container->singleton( Feature_Controller::class, $mock );
 
@@ -113,11 +119,14 @@ final class ProviderTest extends UplinkTestCase {
 	public function it_should_not_register_routes_when_already_claimed(): void {
 		$called = false;
 
-		$mock = $this->makeEmpty( Feature_Controller::class, [
-			'register_routes' => static function () use ( &$called ) {
-				$called = true;
-			},
-		] );
+		$mock = $this->makeEmpty(
+			Feature_Controller::class,
+			[
+				'register_routes' => static function () use ( &$called ) {
+					$called = true;
+				},
+			] 
+		);
 
 		$this->container->singleton( Feature_Controller::class, $mock );
 
@@ -135,11 +144,14 @@ final class ProviderTest extends UplinkTestCase {
 	public function it_should_only_register_routes_once(): void {
 		$called = 0;
 
-		$mock = $this->makeEmpty( Feature_Controller::class, [
-			'register_routes' => static function () use ( &$called ) {
-				$called++;
-			},
-		] );
+		$mock = $this->makeEmpty(
+			Feature_Controller::class,
+			[
+				'register_routes' => static function () use ( &$called ) {
+					$called++;
+				},
+			] 
+		);
 
 		$this->container->singleton( Feature_Controller::class, $mock );
 

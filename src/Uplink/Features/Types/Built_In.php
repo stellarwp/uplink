@@ -28,15 +28,17 @@ final class Built_In extends Feature {
 	 * @inheritDoc
 	 */
 	public static function from_array( array $data ) {
-		return new self( [
-			'slug'              => $data['slug'],
-			'group'             => $data['group'],
-			'tier'              => $data['tier'],
-			'name'              => $data['name'],
-			'description'       => $data['description'] ?? '',
-			'type'              => 'built_in',
-			'is_available'      => $data['is_available'],
-			'documentation_url' => $data['documentation_url'] ?? '',
-		] );
+		return new self(
+			[
+				'slug'              => $data['slug'],
+				'group'             => $data['group'],
+				'tier'              => $data['tier'],
+				'name'              => $data['name'],
+				'description'       => $data['description'] ?? '',
+				'type'              => 'built_in',
+				'is_available'      => $data['is_available'],
+				'documentation_url' => $data['documentation_url'] ?? '',
+			] 
+		);
 	}
 }

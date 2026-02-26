@@ -24,26 +24,35 @@ class Provider extends Abstract_Provider {
 	public function register(): void {
 		$this->container->singleton( Client::class, Client::class );
 
-		$this->container->singleton( Resolver::class, static function ( ContainerInterface $c ) {
-			$container = $c->get( ContainerInterface::class );
+		$this->container->singleton(
+			Resolver::class,
+			static function ( ContainerInterface $c ) {
+				$container = $c->get( ContainerInterface::class );
 
-			return new Resolver( $container );
-		} );
+				return new Resolver( $container );
+			} 
+		);
 
 		$this->container->singleton( Feature_Collection::class, Feature_Collection::class );
 
-		$this->container->singleton( Manager::class, static function ( ContainerInterface $c ) {
-			$client = $c->get( Client::class );
-			$resolver = $c->get( Resolver::class );
+		$this->container->singleton(
+			Manager::class,
+			static function ( ContainerInterface $c ) {
+				$client   = $c->get( Client::class );
+				$resolver = $c->get( Resolver::class );
 
-			return new Manager( $client, $resolver );
-		} );
+				return new Manager( $client, $resolver );
+			} 
+		);
 
-		$this->container->singleton( Feature_Controller::class, static function ( ContainerInterface $c ) {
-			$manager = $c->get( Manager::class );
+		$this->container->singleton(
+			Feature_Controller::class,
+			static function ( ContainerInterface $c ) {
+				$manager = $c->get( Manager::class );
 
-			return new Feature_Controller( $manager );
-		} );
+				return new Feature_Controller( $manager );
+			} 
+		);
 
 		$this->register_default_types();
 		$this->register_default_strategies();

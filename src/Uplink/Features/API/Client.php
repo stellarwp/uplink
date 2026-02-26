@@ -116,7 +116,8 @@ class Client {
 	 *
 	 * @return array<int, array<string, mixed>>|WP_Error The decoded response entries or an error.
 	 */
-	private function request() { // @phpstan-ignore-line return.unusedType -- Remove once the API request is implemented.
+	private function request() {
+		// @phpstan-ignore-line return.unusedType -- Remove once the API request is implemented.
 		// TODO: Implement the actual API request to Commerce Portal.
 		// Should send site domain + license keys and return the feature catalog.
 		return [];
@@ -140,11 +141,13 @@ class Client {
 
 			if ( $class === null ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					error_log( sprintf(
-						"Uplink: Unknown feature type '%s' for slug '%s'",
-						$type ?? '(null)',
-						Cast::to_string( $entry['slug'] ?? '(unknown)' )
-					) );
+					error_log(
+						sprintf(
+							"Uplink: Unknown feature type '%s' for slug '%s'",
+							$type ?? '(null)',
+							Cast::to_string( $entry['slug'] ?? '(unknown)' )
+						) 
+					);
 				}
 				continue;
 			}

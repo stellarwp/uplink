@@ -52,7 +52,7 @@ class Client {
 	 *
 	 * @return void
 	 */
-	public function register_type( string $type, string $feature_class ): void {
+	public function register_type( string $type, string $feature_class ): void { // phpcs:ignore Squiz.Commenting.FunctionComment.IncorrectTypeHint -- class-string<Feature> is a PHPStan type narrowing.
 		$this->type_map[ $type ] = $feature_class;
 	}
 
@@ -141,6 +141,7 @@ class Client {
 
 			if ( $class === null ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
 					error_log(
 						sprintf(
 							"Uplink: Unknown feature type '%s' for slug '%s'",

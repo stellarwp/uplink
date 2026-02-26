@@ -83,10 +83,12 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	private function register_default_strategies(): void {
+		// phpcs:disable Squiz.PHP.CommentedOutCode.Found, Squiz.Commenting.InlineComment.InvalidEndChar -- Placeholder for future strategy registration.
 		// TODO: Register default strategies once implemented.
 		// $resolver = $this->container->get( Resolver::class );
 		// $resolver->register( 'zip', Zip_Strategy::class );
 		// $resolver->register( 'built_in', Built_In_Strategy::class );
+		// phpcs:enable Squiz.PHP.CommentedOutCode.Found, Squiz.Commenting.InlineComment.InvalidEndChar
 	}
 
 	/**

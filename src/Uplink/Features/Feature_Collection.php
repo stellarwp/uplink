@@ -40,7 +40,7 @@ class Feature_Collection extends Collection {
 	 *
 	 * @return Feature|null
 	 */
-	public function get( $offset ): ?Feature {
+	public function get( $offset ): ?Feature { // phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found -- Narrows return type for IDE support.
 		return parent::get( $offset );
 	}
 

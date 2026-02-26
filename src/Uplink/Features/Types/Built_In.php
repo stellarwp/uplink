@@ -25,7 +25,13 @@ final class Built_In extends Feature {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Creates a Feature instance from an associative array.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param array<string, mixed> $data The feature data from the API response.
+	 *
+	 * @return static
 	 */
 	public static function from_array( array $data ) {
 		return new self(

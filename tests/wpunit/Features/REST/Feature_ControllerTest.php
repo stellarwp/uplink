@@ -119,7 +119,8 @@ final class Feature_ControllerTest extends UplinkTestCase {
 
 		/** @var WP_REST_Server $wp_rest_server */
 		global $wp_rest_server;
-		$this->server = $wp_rest_server = new WP_REST_Server();
+		$wp_rest_server   = new WP_REST_Server();
+		$this->server     = $wp_rest_server;
 
 		// Allow registering routes outside of the rest_api_init hook.
 		$this->set_fn_return(

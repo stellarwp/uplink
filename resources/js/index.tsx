@@ -23,5 +23,8 @@ function Root() {
 const rootElement = document.getElementById( 'uplink-root' );
 
 if ( rootElement ) {
-    createRoot( rootElement ).render( <Root /> );
+	// Delay execution until after the DOM is fully loaded.
+	window.addEventListener( 'DOMContentLoaded', () => {
+		createRoot( rootElement ).render( <Root /> );
+	} );
 }

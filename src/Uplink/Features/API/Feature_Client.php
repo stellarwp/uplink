@@ -13,7 +13,7 @@ use WP_Error;
  *
  * @since 3.0.0
  */
-class Client {
+class Feature_Client {
 
 	/**
 	 * Transient key for the cached feature catalog.
@@ -31,7 +31,7 @@ class Client {
 	 *
 	 * @var int
 	 */
-	private const DEFAULT_CACHE_DURATION = 43200;
+	private const DEFAULT_CACHE_DURATION = HOUR_IN_SECONDS * 12;
 
 	/**
 	 * Map of feature type strings to Feature subclass names.

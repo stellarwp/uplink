@@ -4,7 +4,7 @@ namespace StellarWP\Uplink\Features;
 
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
-use StellarWP\Uplink\Features\API\Client;
+use StellarWP\Uplink\Features\API\Feature_Client;
 use StellarWP\Uplink\Features\REST\Feature_Controller;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Types\Built_In;
@@ -22,7 +22,7 @@ class Provider extends Abstract_Provider {
 	 * @inheritDoc
 	 */
 	public function register(): void {
-		$this->container->singleton( Client::class, Client::class );
+		$this->container->singleton( Feature_Client::class, Feature_Client::class );
 
 		$this->container->singleton(
 			Resolver::class,
@@ -38,7 +38,7 @@ class Provider extends Abstract_Provider {
 		$this->container->singleton(
 			Manager::class,
 			static function ( ContainerInterface $c ) {
-				$client   = $c->get( Client::class );
+				$client   = $c->get( Feature_Client::class );
 				$resolver = $c->get( Resolver::class );
 
 				return new Manager( $client, $resolver );
@@ -67,7 +67,7 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	private function register_default_types(): void {
-		$client = $this->container->get( Client::class );
+		$client = $this->container->get( Feature_Client::class );
 		$client->register_type( 'zip', Zip::class );
 		$client->register_type( 'built_in', Built_In::class );
 	}

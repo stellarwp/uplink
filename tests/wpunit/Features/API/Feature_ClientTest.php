@@ -2,19 +2,19 @@
 
 namespace StellarWP\Uplink\Tests\Features\API;
 
-use StellarWP\Uplink\Features\API\Client;
+use StellarWP\Uplink\Features\API\Feature_Client;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
-final class ClientTest extends UplinkTestCase {
+final class Feature_ClientTest extends UplinkTestCase {
 
 	/**
 	 * The API client instance under test.
 	 *
-	 * @var Client
+	 * @var Feature_Client
 	 */
-	private Client $client;
+	private Feature_Client $client;
 
 	/**
 	 * Sets up the API client and clears the transient before each test.
@@ -24,7 +24,7 @@ final class ClientTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->client = new Client();
+		$this->client = new Feature_Client();
 
 		delete_transient( 'stellarwp_uplink_feature_catalog' );
 	}

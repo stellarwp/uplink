@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\Features;
 
-use StellarWP\Uplink\Features\API\Client;
+use StellarWP\Uplink\Features\API\Feature_Client;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Error_Code;
@@ -23,9 +23,9 @@ class Manager {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @var Client
+	 * @var Feature_Client
 	 */
-	private Client $client;
+	private Feature_Client $client;
 
 	/**
 	 * The strategy resolver for determining how to toggle features.
@@ -41,12 +41,12 @@ class Manager {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Client   $client   The client for fetching available features.
-	 * @param Resolver $resolver The strategy resolver.
+	 * @param Feature_Client $client   The client for fetching available features.
+	 * @param Resolver       $resolver The strategy resolver.
 	 *
 	 * @return void
 	 */
-	public function __construct( Client $client, Resolver $resolver ) {
+	public function __construct( Feature_Client $client, Resolver $resolver ) {
 		$this->client   = $client;
 		$this->resolver = $resolver;
 	}

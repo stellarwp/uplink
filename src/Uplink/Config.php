@@ -12,7 +12,7 @@ use StellarWP\Uplink\Utils\Sanitize;
 
 class Config {
 
-	public const TOKEN_OPTION_NAME  = 'uplink.token_prefix';
+	public const TOKEN_OPTION_NAME = 'uplink.token_prefix';
 
 	/**
 	 * The default authorization cache time in seconds (6 hours).
@@ -133,14 +133,14 @@ class Config {
 	}
 
 	/**
-	* Set the container object.
-	*
-    * @since 1.0.0
-    *
-	* @param ContainerInterface $container Container object.
-	*
-	* @return void
-	*/
+	 * Set the container object.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param ContainerInterface $container Container object.
+	 *
+	 * @return void
+	 */
 	public static function set_container( ContainerInterface $container ): void {
 		self::$container = $container;
 	}
@@ -165,7 +165,7 @@ class Config {
 	 *
 	 * @since 1.3.0
 	 *
-	 * @param  string  $prefix
+	 * @param string $prefix
 	 *
 	 * @throws RuntimeException|InvalidArgumentException
 	 *
@@ -199,8 +199,8 @@ class Config {
 	/**
 	 * Set the token authorization expiration.
 	 *
-	 * @param  int  $seconds  The time seconds the cache will exist for.
-	 *                        -1 = disabled, 0 = no expiration.
+	 * @param int $seconds  The time seconds the cache will exist for.
+	 *                       -1 = disabled, 0 = no expiration.
 	 *
 	 * @return void
 	 */
@@ -220,7 +220,7 @@ class Config {
 	/**
 	 * Set the underlying storage driver.
 	 *
-	 * @param  class-string<Storage>  $class_name The FQCN to a storage driver.
+	 * @param class-string<Storage> $class_name The FQCN to a storage driver.
 	 *
 	 * @return void
 	 */
@@ -238,5 +238,4 @@ class Config {
 
 		return $driver ?: Option_Storage::class;
 	}
-
 }

@@ -42,7 +42,7 @@ class Register {
 	 *
 	 * @return Resources\Resource
 	 */
-	public static function service( $slug, $name, $version, $path, $class, $license_class = null, $oauth = false) {
+	public static function service( $slug, $name, $version, $path, $class, $license_class = null, $oauth = false ) {
 		return Resources\Service::register( $slug, $name, $version, $path, $class, $license_class, $oauth );
 	}
 }

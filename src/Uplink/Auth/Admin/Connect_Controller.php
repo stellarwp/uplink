@@ -74,22 +74,28 @@ final class Connect_Controller {
 			return;
 		}
 
-		$args = array_intersect_key( $_GET, [
-			self::TOKEN   => true,
-			self::NONCE   => true,
-			self::LICENSE => true,
-			self::SLUG    => true,
-		] );
+		$args = array_intersect_key(
+			$_GET,
+			[
+				self::TOKEN   => true,
+				self::NONCE   => true,
+				self::LICENSE => true,
+				self::SLUG    => true,
+			] 
+		);
 
 		if ( ! $args ) {
 			return;
 		}
 
 		if ( ! $this->authorizer->can_auth() ) {
-			$this->notice->add( new Notice( Notice::ERROR,
-				__( 'Sorry, you do not have permission to connect this site.', '%TEXTDOMAIN%' ),
-				true
-			) );
+			$this->notice->add(
+				new Notice(
+					Notice::ERROR,
+					__( 'Sorry, you do not have permission to connect this site.', '%TEXTDOMAIN%' ),
+					true
+				) 
+			);
 
 			return;
 		}
@@ -98,54 +104,69 @@ final class Connect_Controller {
 		if ( ! $this->nonce->verify( $args[ self::NONCE ] ?? '' ) ) {
 			if ( ! function_exists( 'is_plugin_active' ) ) {
 				// @phpstan-ignore-next-line The file will exist in a WordPress installation.
-				require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+				require_once ABSPATH . 'wp-admin/includes/plugin.php';
 			}
 
 			// The Litespeed plugin allows completely disabling transients for some reason...
 			if ( Config::get_storage_driver() === Transient_Storage::class && is_plugin_active( 'litespeed-cache/litespeed-cache.php' ) ) {
-				$this->notice->add( new Notice( Notice::ERROR,
-					sprintf(
-						__( 'The Litespeed plugin was detected, ensure "Store Transients" is set to ON and try again. See the <a href="%s" target="_blank">Litespeed documentation</a> for more information.', '%TEXTDOMAIN%' ),
-						esc_url( 'https://docs.litespeedtech.com/lscache/lscwp/cache/#store-transients' )
-					),
-					true
-				) );
+				$this->notice->add(
+					new Notice(
+						Notice::ERROR,
+						sprintf(
+							__( 'The Litespeed plugin was detected, ensure "Store Transients" is set to ON and try again. See the <a href="%s" target="_blank">Litespeed documentation</a> for more information.', '%TEXTDOMAIN%' ),
+							esc_url( 'https://docs.litespeedtech.com/lscache/lscwp/cache/#store-transients' )
+						),
+						true
+					) 
+				);
 			}
 
-			$this->notice->add( new Notice( Notice::ERROR,
-				__( 'Unable to save token data: nonce verification failed.', '%TEXTDOMAIN%' ),
-				true
-			) );
+			$this->notice->add(
+				new Notice(
+					Notice::ERROR,
+					__( 'Unable to save token data: nonce verification failed.', '%TEXTDOMAIN%' ),
+					true
+				) 
+			);
 
 			return;
 		}
 
-		$slug    = $args[ self::SLUG ] ?? '';
-		$plugin  = $this->collection->offsetGet( $slug );
+		$slug   = $args[ self::SLUG ] ?? '';
+		$plugin = $this->collection->offsetGet( $slug );
 
 		if ( ! $plugin ) {
-			$this->notice->add( new Notice( Notice::ERROR,
-				__( 'Plugin or Service slug not found.', '%TEXTDOMAIN%' ),
-				true
-			) );
+			$this->notice->add(
+				new Notice(
+					Notice::ERROR,
+					__( 'Plugin or Service slug not found.', '%TEXTDOMAIN%' ),
+					true
+				) 
+			);
 
 			return;
 		}
 
 		try {
 			if ( ! $this->connector->connect( $args[ self::TOKEN ] ?? '', $plugin ) ) {
-				$this->notice->add( new Notice( Notice::ERROR,
-					__( 'Error storing token.', '%TEXTDOMAIN%' ),
-					true
-				) );
+				$this->notice->add(
+					new Notice(
+						Notice::ERROR,
+						__( 'Error storing token.', '%TEXTDOMAIN%' ),
+						true
+					) 
+				);
 
 				return;
 			}
 		} catch ( InvalidTokenException $e ) {
-			$this->notice->add( new Notice( Notice::ERROR,
-				sprintf( '%s.', $e->getMessage() ),
-				true
-			) );
+			$this->notice->add(
+				new Notice(
+					Notice::ERROR,
+					sprintf( '%s.', $e->getMessage() ),
+					true
+				) 
+			);
 
 			return;
 		}
@@ -155,17 +176,21 @@ final class Connect_Controller {
 
 		if ( $license ) {
 			if ( ! $plugin->set_license_key( $license, 'network' ) ) {
-				$this->notice->add( new Notice( Notice::ERROR,
-					__( 'Error storing license key.', '%TEXTDOMAIN%' ),
-				true
-				) );
+				$this->notice->add(
+					new Notice(
+						Notice::ERROR,
+						__( 'Error storing license key.', '%TEXTDOMAIN%' ),
+						true
+					) 
+				);
 
 				return;
 			}
 		}
 
 		$this->notice->add(
-			new Notice( Notice::SUCCESS,
+			new Notice(
+				Notice::SUCCESS,
 				__( 'Connected successfully.', '%TEXTDOMAIN%' ),
 				true
 			)

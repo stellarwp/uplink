@@ -154,7 +154,7 @@ class FormTest extends UplinkTestCase {
 			$fields = $form->get_fields();
 			$this->assertArrayHasKey( $slug, $fields, "Form should have the field with slug '$slug'" );
 			$this->assertEquals( 'field-' . $slug, $fields[ $slug ]->get_field_name(), "Field name should be 'field-$slug'" );
-			$this->assertInstanceOf( Field::class, $fields[ $slug ], "Field should be an instance of Field class" );
+			$this->assertInstanceOf( Field::class, $fields[ $slug ], 'Field should be an instance of Field class' );
 		}
 
 		$form_fields = $form->get_fields();
@@ -182,7 +182,7 @@ class FormTest extends UplinkTestCase {
 			$fields = $form->get_fields();
 			$this->assertArrayHasKey( $slug, $fields, "Form should have the field with slug '$slug'" );
 			$this->assertEquals( 'field-' . $slug, $fields[ $slug ]->get_field_name(), "Field name should be 'field-$slug'" );
-			$this->assertInstanceOf( Field::class, $fields[ $slug ], "Field should be an instance of Field class" );
+			$this->assertInstanceOf( Field::class, $fields[ $slug ], 'Field should be an instance of Field class' );
 		}
 
 		$this->assertEquals( $expected_field_count, count( $form->get_fields() ) );

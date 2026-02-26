@@ -89,5 +89,4 @@ final class ActionManagerTest extends UplinkTestCase {
 			$this->assertSame( 1, did_action( $this->action_manager->get_hook_name( $resource->get_slug() ) ) );
 		}
 	}
-
 }

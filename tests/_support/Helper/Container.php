@@ -3,7 +3,7 @@
 namespace StellarWP\Uplink\Tests;
 
 use StellarWP\ContainerContract\ContainerInterface;
-use \lucatume\DI52\Container as DI52Container;
+use lucatume\DI52\Container as DI52Container;
 
 class Container implements ContainerInterface {
 	/**
@@ -62,9 +62,7 @@ class Container implements ContainerInterface {
 		return $this->container->{$name}( ...$args );
 	}
 
-	public function make($id)
-	{
-		return $this->get($id);
+	public function make( $id ) {
+		return $this->get( $id );
 	}
-
 }

@@ -59,5 +59,4 @@ interface Storage {
 	 * @throws Invalid_Key_Exception If passed an invalid storage key.
 	 */
 	public function pull( $key );
-
 }

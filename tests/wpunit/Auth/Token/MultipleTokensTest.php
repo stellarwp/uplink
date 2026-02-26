@@ -184,7 +184,7 @@ final class MultipleTokensTest extends UplinkTestCase {
 		$this->assertSame( $token, $this->token_manager->get( $plugin ) );
 
 		// Retrieve all tokens and include the single token.
-		$all_tokens = $this->token_manager->get_all();
+		$all_tokens      = $this->token_manager->get_all();
 		$expected_tokens = [
 			ConcreteTokenManager::LEGACY_INDEX => $token, // This will be the legacy token format.
 		];
@@ -216,5 +216,4 @@ final class MultipleTokensTest extends UplinkTestCase {
 		$all_tokens = $this->token_manager->get_all();
 		$this->assertSame( $expected_tokens, $all_tokens );
 	}
-
 }

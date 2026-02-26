@@ -58,5 +58,4 @@ final class TokenResourceTest extends UplinkTestCase {
 		$this->assertSame( $token, $this->plugin->get_token() );
 		$this->assertSame( $token, $this->token_manager->get( $this->plugin ) );
 	}
-
 }

@@ -25,7 +25,7 @@ final class Nonce {
 	private $expiration;
 
 	/**
-	 * @param  int  $expiration  How long the nonce is valid for in seconds.
+	 * @param int $expiration  How long the nonce is valid for in seconds.
 	 */
 	public function __construct( Storage $storage, int $expiration = 2100 ) {
 		$this->storage    = $storage;
@@ -35,7 +35,7 @@ final class Nonce {
 	/**
 	 * Verify a nonce.
 	 *
-	 * @param  string  $nonce The nonce token.
+	 * @param string $nonce The nonce token.
 	 *
 	 * @return bool
 	 */
@@ -71,7 +71,7 @@ final class Nonce {
 	 *
 	 * @note Unlike WordPress' function, you should escape this manually.
 	 *
-	 * @param  string  $url The existing URL to attach the nonce to.
+	 * @param string $url The existing URL to attach the nonce to.
 	 *
 	 * @return string
 	 */
@@ -87,5 +87,4 @@ final class Nonce {
 	private function key(): string {
 		return Config::get_hook_prefix_underscored() . self::NONCE_SUFFIX;
 	}
-
 }

@@ -14,7 +14,7 @@ final class Connector {
 	private $token_manager;
 
 	/**
-	 * @param  Token_Manager  $token_manager The Token Manager.
+	 * @param Token_Manager $token_manager The Token Manager.
 	 */
 	public function __construct(
 		Token_Manager $token_manager
@@ -34,5 +34,4 @@ final class Connector {
 
 		return $this->token_manager->store( $token, $plugin );
 	}
-
 }

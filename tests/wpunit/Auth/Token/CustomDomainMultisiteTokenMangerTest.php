@@ -134,7 +134,7 @@ final class CustomDomainMultisiteTokenMangerTest extends UplinkTestCase {
 			'565435c0-f601-4ba0-ae4e-982b83460f34',
 			'a6e8d999-8b55-47ed-8798-0adb608083a6',
 			'21897516-419a-4a4c-b0d5-9e21e6506421',
-			'09f7f9ea-f931-4600-9739-97fa6ac0d454'
+			'09f7f9ea-f931-4600-9739-97fa6ac0d454',
 		];
 
 		foreach ( $tokens as $token ) {
@@ -157,5 +157,4 @@ final class CustomDomainMultisiteTokenMangerTest extends UplinkTestCase {
 			$this->assertFalse( $this->token_manager->validate( $token ) );
 		}
 	}
-
 }

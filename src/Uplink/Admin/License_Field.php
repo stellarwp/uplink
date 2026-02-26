@@ -42,7 +42,7 @@ class License_Field extends Field {
 	 *
 	 * @return string
 	 */
-	public static function get_section_name( $plugin ) : string {
+	public static function get_section_name( $plugin ): string {
 		return sprintf( '%s_%s', self::LICENSE_FIELD_ID, sanitize_title( $plugin->get_slug() ) );
 	}
 
@@ -94,8 +94,8 @@ class License_Field extends Field {
 	 *
 	 * @return string
 	 */
-	public function get_field_html( $plugin ) : string {
-		$html = sprintf( '<p class="tooltip description">%s</p>', __( 'A valid license key is required for support and updates', '%TEXTDOMAIN%' ) );
+	public function get_field_html( $plugin ): string {
+		$html  = sprintf( '<p class="tooltip description">%s</p>', __( 'A valid license key is required for support and updates', '%TEXTDOMAIN%' ) );
 		$html .= '<div class="license-test-results"><img src="' . esc_url( admin_url( 'images/wpspin_light.gif' ) ) . '" class="ajax-loading-license" alt="Loading" style="display: none"/>';
 		$html .= '<div class="key-validity"></div></div>';
 
@@ -117,8 +117,8 @@ class License_Field extends Field {
 	 * Renders a single resource's license field.
 	 *
 	 * @param string $plugin_slug The plugin slug to render.
-	 * @param bool $show_title Whether to show the title or not.
-	 * @param bool $show_button Whether to show the submit button or not.
+	 * @param bool   $show_title Whether to show the title or not.
+	 * @param bool   $show_button Whether to show the submit button or not.
 	 *
 	 * @return void
 	 */
@@ -131,10 +131,12 @@ class License_Field extends Field {
 			return;
 		}
 
-		echo $this->get_content( [
-			'plugin'      => $resource,
-			'show_title'  => $show_title,
-			'show_button' => $show_button,
-		] );
+		echo $this->get_content(
+			[
+				'plugin'      => $resource,
+				'show_title'  => $show_title,
+				'show_button' => $show_button,
+			] 
+		);
 	}
 }

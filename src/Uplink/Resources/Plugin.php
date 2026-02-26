@@ -35,7 +35,7 @@ class Plugin extends Resource {
 	 * @since 1.0.0
 	 *
 	 * @param mixed $transient The pre-saved value of the `update_plugins` site transient.
-	 * @param bool $force_fetch Force fetching the update status.
+	 * @param bool  $force_fetch Force fetching the update status.
 	 *
 	 * @return mixed
 	 */
@@ -89,6 +89,7 @@ class Plugin extends Resource {
 				 * If the plugin is up to date, we need to add it to the `no_update` property so that enable auto updates can appear correctly in the UI.
 				 *
 				 * See this post for more information:
+				 *
 				 * @link https://make.wordpress.org/core/2020/07/30/recommended-usage-of-the-updates-api-to-support-the-auto-updates-ui-for-plugins-and-themes-in-wordpress-5-5/
 				 */
 				/** @var \stdClass $transient */
@@ -106,8 +107,7 @@ class Plugin extends Resource {
 					$transient->response = [];
 				}
 				$transient->response[ $product_path ] = $results->handle_api_errors();
-			}
-
+			}       
 		}
 
 		$this->set_update_status( $status );
@@ -185,5 +185,4 @@ class Plugin extends Resource {
 	protected function set_update_status( $status ) {
 		update_option( $this->get_update_status_option_name(), $status );
 	}
-
 }

@@ -75,8 +75,8 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $path Path to filter collection by.
-	 * @param Iterator<string, Resource>|null  $iterator Optional. Iterator to filter.
+	 * @param string                          $path Path to filter collection by.
+	 * @param Iterator<string, Resource>|null $iterator Optional. Iterator to filter.
 	 *
 	 * @return self
 	 */
@@ -91,8 +91,8 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param array<string> $paths Paths to filter collection by.
-	 * @param Iterator<string, Resource>|null  $iterator Optional. Iterator to filter.
+	 * @param array<string>                   $paths Paths to filter collection by.
+	 * @param Iterator<string, Resource>|null $iterator Optional. Iterator to filter.
 	 *
 	 * @return self
 	 */
@@ -107,7 +107,7 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  Iterator<string, Resource>|null  $iterator Optional. Iterator to filter.
+	 * @param Iterator<string, Resource>|null $iterator Optional. Iterator to filter.
 	 *
 	 * @return self
 	 */
@@ -122,7 +122,7 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param  Iterator<string, Resource>|null  $iterator Optional. Iterator to filter.
+	 * @param Iterator<string, Resource>|null $iterator Optional. Iterator to filter.
 	 *
 	 * @return self
 	 */
@@ -201,7 +201,7 @@ class Collection implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $slug Resource slug.
+	 * @param string   $slug Resource slug.
 	 * @param Resource $resource Resource instance.
 	 *
 	 * @return Resource|null
@@ -238,5 +238,4 @@ class Collection implements ArrayAccess, Iterator, Countable {
 
 		return $this->iterator = new ArrayIterator( $this->resources );
 	}
-
 }

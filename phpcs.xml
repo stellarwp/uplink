@@ -46,6 +46,7 @@
 		<exclude name="Generic.Debug.JSHint"/>
 		<exclude name="Squiz.Commenting.FileComment.Missing"/>
 		<exclude name="Squiz.Commenting.ClassComment.Missing"/>
+		<exclude name="WordPress.NamingConventions.ValidHookName.UseUnderscores"/>
 	</rule>
 
 	<rule ref="WordPress.WP.I18n">

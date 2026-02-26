@@ -52,6 +52,7 @@
         "phpspec/prophecy": "*",
         "phpstan/phpstan": "^2",
         "phpunit/phpunit": "*",
+        "stellarwp/coding-standards": "^2",
         "szepeviktor/phpstan-wordpress": ">=1.0"
     },
     "scripts": {
@@ -74,11 +75,15 @@
         "@compatibility:php-8.2",
         "@compatibility:php-8.3",
         "@compatibility:php-8.4"
-      ]
+      ],
+      "phpcs": "phpcs ./ -s",
+      "phpcs:fix": "phpcbf ./"
     },
     "scripts-descriptions": {
       "test:analysis": "Run static code analysis.",
       "test:analysis:baseline": "Generate a baseline for static code analysis.",
+      "phpcs": "Run PHP Code Sniffer to check coding standards.",
+      "phpcs:fix": "Auto-fix PHP Code Sniffer issues.",
       "compatibility:php-7.4": "Run PHPCompatibilityWP for PHP 7.4.",
       "compatibility:php-8.0": "Run PHPCompatibilityWP for PHP 8.0.",
       "compatibility:php-8.1": "Run PHPCompatibilityWP for PHP 8.1.",

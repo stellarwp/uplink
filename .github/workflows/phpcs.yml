@@ -1,0 +1,29 @@
+# cspell:ignore shivammathur reqs
+name: PHP Code Standards
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  phpcs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Configure PHP environment
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "7.4"
+          extensions: mbstring, intl
+          coverage: none
+
+      - uses: ramsey/composer-install@v3
+        with:
+          composer-options: "--ignore-platform-reqs --optimize-autoloader"
+
+      - name: PHP Code Sniffer
+        run: composer phpcs

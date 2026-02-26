@@ -49,7 +49,7 @@ export const PRODUCTS: Product[] = [
             { id: 111, name: 'Import & Export', description: 'Bulk donor and donation import/export', requiredTier: 'pro', category: 'Core' },
             { id: 112, name: 'Tributes & Dedications', description: 'Honor someone with a donation', requiredTier: 'pro', category: 'Fundraising' },
             { id: 113, name: 'Form Field Manager', description: 'Custom fields on donation forms', requiredTier: 'pro', category: 'Forms' },
-            { id: 114, name: 'Donation Upsells', description: 'Suggest recurring at checkout', requiredTier: 'pro', category: 'Fundraising' },
+            { id: 114, name: 'Donation Upsells', description: 'Suggest recurring at checkout', requiredTier: 'pro', category: 'Fundraising' }, // cspell:ignore Upsells
             // Agency
             { id: 115, name: 'Peer-to-Peer Fundraising', description: 'Crowdfunding and team pages', requiredTier: 'agency', category: 'Fundraising' },
             { id: 116, name: 'Virtual Terminal', description: 'Accept donations over the phone', requiredTier: 'agency', category: 'Payments' },
@@ -94,7 +94,7 @@ export const PRODUCTS: Product[] = [
             { id: 208, name: 'RSVP', description: 'Attendee RSVP management', requiredTier: 'pro', category: 'Ticketing' },
             { id: 209, name: 'Week & Day Views', description: 'Additional calendar view modes', requiredTier: 'pro', category: 'Views' },
             { id: 210, name: 'Photo View', description: 'Image-focused event layout', requiredTier: 'pro', category: 'Views' },
-            { id: 211, name: 'Map View', description: 'Geospatial event map', requiredTier: 'pro', category: 'Views' },
+            { id: 211, name: 'Map View', description: 'Geospatial event map', requiredTier: 'pro', category: 'Views' }, // cspell:ignore Geospatial
             { id: 212, name: 'iCal Export', description: 'Export events to calendar apps', requiredTier: 'pro', category: 'Core' },
             // Agency
             { id: 213, name: 'Event Aggregator', description: 'Import events from Meetup, Eventbrite', requiredTier: 'agency', category: 'Imports' },
@@ -144,7 +144,7 @@ export const PRODUCTS: Product[] = [
             { id: 312, name: 'Video Progression', description: 'Require video completion to advance', requiredTier: 'pro', category: 'Media' },
             // Agency
             { id: 313, name: 'ProPanel', description: 'Advanced reporting and analytics', requiredTier: 'agency', category: 'Analytics' },
-            { id: 314, name: 'Tin Canny Reporting', description: 'SCORM/xAPI tracking', requiredTier: 'agency', category: 'Analytics' },
+            { id: 314, name: 'Tin Canny Reporting', description: 'SCORM/xAPI tracking', requiredTier: 'agency', category: 'Analytics' }, // cspell:ignore SCORM
             { id: 315, name: 'Assignment Grading', description: 'Manual assignment review workflow', requiredTier: 'agency', category: 'Assessments' },
             { id: 316, name: 'Unlimited Sites', description: 'Use on any number of WordPress sites', requiredTier: 'agency', category: 'Licensing' },
         ],

@@ -46,7 +46,7 @@ export interface ActivateSuccess {
 // Mock persistence helpers — deleted when the REST API is active.
 // ---------------------------------------------------------------------------
 
-/** Key used by the Zustand persist middleware; read here for initialisation. */
+/** Key used by the Zustand persist middleware; read here for initialization. */
 const STORAGE_KEY = 'stellarwp-uplink-licenses';
 
 function emptyState(): LicenseState {

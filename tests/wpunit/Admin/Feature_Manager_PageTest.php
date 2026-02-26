@@ -39,7 +39,7 @@ class Feature_Manager_PageTest extends UplinkTestCase {
 		$this->page->maybe_register_page();
 
 		$slugs = array_column( $menu, 2 );
-		$this->assertContains( 'stellarwp-licenses', $slugs );
+		$this->assertContains( 'lws-feature-manager', $slugs );
 	}
 
 	/**
@@ -61,7 +61,7 @@ class Feature_Manager_PageTest extends UplinkTestCase {
 		$this->page->maybe_register_page();
 
 		$slugs = array_column( $menu, 2 );
-		$this->assertNotContains( 'stellarwp-licenses', $slugs );
+		$this->assertNotContains( 'lws-feature-manager', $slugs );
 	}
 
 	/**
@@ -78,7 +78,7 @@ class Feature_Manager_PageTest extends UplinkTestCase {
 		$this->page->maybe_register_page();
 
 		$slugs = array_column( $menu, 2 );
-		$this->assertNotContains( 'stellarwp-licenses', $slugs );
+		$this->assertNotContains( 'lws-feature-manager', $slugs );
 	}
 
 	/**
@@ -113,8 +113,8 @@ class Feature_Manager_PageTest extends UplinkTestCase {
 		$slugs = array_filter(
 			array_column( $menu, 2 ),
 			static function ( $s ) {
-			    return $s === 'lws-feature-manager';
-			} 
+				return $s === 'lws-feature-manager';
+			}
 		);
 
 		$this->assertCount( 1, $slugs );

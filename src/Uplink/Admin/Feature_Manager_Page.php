@@ -35,7 +35,7 @@ class Feature_Manager_Page {
 	 * @return bool
 	 */
 	public function should_render(): bool {
-		$highest = apply_filters( 'stellarwp/uplink/highest_version', '0.0.0' );
+		$highest = (string) apply_filters( 'stellarwp/uplink/highest_version', '0.0.0' );
 
 		if ( version_compare( Uplink::VERSION, $highest, '<' ) ) {
 			return false;
@@ -122,8 +122,8 @@ class Feature_Manager_Page {
 		wp_register_script(
 			$handle,
 			$plugin_root_url . $build_dir . '/index.js',
-			[ 'wp-element' ],  // wp-element provides React + ReactDOM from WP Core
-			null,              // null = no ?ver= query string; cache busting via contenthash
+			[ 'wp-element' ],  // wp-element provides React + ReactDOM from WP Core.
+			null,              // null = no ?ver= query string; cache busting via contenthash.
 			[ 'in_footer' => true ]
 		);
 

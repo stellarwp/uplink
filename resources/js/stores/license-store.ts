@@ -136,7 +136,7 @@ export const useLicenseStore = create<LicenseStoreState>()(
         {
             name:    'stellarwp-uplink-licenses',
             storage: createJSONStorage( () => licenseStorage ),
-            partialize: ( state ): Pick<LicenseStoreState, 'activeLicenses' | 'featureStates' | 'productEnabled'> => ( {
+            partialize: ( state ): Pick<LicenseStoreState, 'activeLicenses' | 'featureStates' | 'productEnabled'> => ( { // cspell:ignore partialize
                 activeLicenses: state.activeLicenses,
                 featureStates:  state.featureStates,
                 productEnabled: state.productEnabled,

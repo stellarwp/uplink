@@ -1,3 +1,4 @@
+/* cspell:disable */
 /**
  * Tailwind CSS configuration.
  *
@@ -15,6 +16,7 @@
  * @see resources/css/globals.css  for the @config reference.
  * @see postcss.config.js          for the scoping plugin.
  */
+/* cspell:enable */
 /** @type {import('tailwindcss').Config} */
 module.exports = {
     important: true,

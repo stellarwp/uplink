@@ -25,13 +25,20 @@ class LegacyLicense {
 	public $status;
 
 	/**
-	 * @param string $key           The license key.
-	 * @param string $resource_slug The Uplink resource slug this key belongs to.
-	 * @param string $status        The license status (e.g. 'valid', 'expired', 'invalid').
+	 * @var string
 	 */
-	public function __construct( string $key, string $resource_slug, string $status = 'unknown' ) {
-		$this->key           = $key;
-		$this->resource_slug = $resource_slug;
-		$this->status        = $status;
+	public $license_page_url;
+
+	/**
+	 * @param string $key              The license key.
+	 * @param string $resource_slug    The Uplink resource slug this key belongs to.
+	 * @param string $status           The license status (e.g. 'valid', 'expired', 'invalid').
+	 * @param string $license_page_url URL to the plugin's legacy license management page.
+	 */
+	public function __construct( string $key, string $resource_slug, string $status = 'unknown', string $license_page_url = '' ) {
+		$this->key              = $key;
+		$this->resource_slug    = $resource_slug;
+		$this->status           = $status;
+		$this->license_page_url = $license_page_url;
 	}
 }

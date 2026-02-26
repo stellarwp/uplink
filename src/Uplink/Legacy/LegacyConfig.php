@@ -36,13 +36,6 @@ class LegacyConfig {
 	protected $license_provider;
 
 	/**
-	 * URL to the plugin's legacy license management page.
-	 *
-	 * @var string
-	 */
-	protected $license_page_url = '';
-
-	/**
 	 * Provide a callable that returns this resource's legacy licenses.
 	 *
 	 * These are reported to the cross-instance filter so the Uplink
@@ -60,33 +53,6 @@ class LegacyConfig {
 		$this->license_provider = $provider;
 
 		return $this;
-	}
-
-	/**
-	 * Set the URL to this plugin's legacy license page so the
-	 * unified UI can link back to it.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param string $url
-	 *
-	 * @return $this
-	 */
-	public function license_page( string $url ): self {
-		$this->license_page_url = $url;
-
-		return $this;
-	}
-
-	/**
-	 * Get the legacy license page URL, if set.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return string
-	 */
-	public function get_license_page_url(): string {
-		return $this->license_page_url;
 	}
 
 	/**

@@ -115,9 +115,10 @@ class Client {
 	 * @since 3.0.0
 	 *
 	 * @return array<int, array<string, mixed>>|WP_Error The decoded response entries or an error.
+	 *
+	 * @phpstan-ignore-next-line return.unusedType -- Remove once the API request is implemented.
 	 */
 	private function request() {
-		// @phpstan-ignore-line return.unusedType -- Remove once the API request is implemented.
 		// TODO: Implement the actual API request to Commerce Portal.
 		// Should send site domain + license keys and return the feature catalog.
 		return [];
@@ -147,7 +148,7 @@ class Client {
 							"Uplink: Unknown feature type '%s' for slug '%s'",
 							$type ?? '(null)',
 							Cast::to_string( $entry['slug'] ?? '(unknown)' )
-						) 
+						)
 					);
 				}
 				continue;

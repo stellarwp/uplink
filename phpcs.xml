@@ -45,6 +45,7 @@
 		<exclude name="Generic.Files.LineLength.TooLong"/>
 		<exclude name="Generic.Debug.JSHint"/>
 		<exclude name="Squiz.Commenting.FileComment.Missing"/>
+		<exclude name="Squiz.Commenting.ClassComment.Missing"/>
 	</rule>
 
 	<rule ref="WordPress.WP.I18n">

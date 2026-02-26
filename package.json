@@ -2,11 +2,15 @@
   "name": "@stellarwp/uplink",
   "private": true,
   "scripts": {
-    "check:spelling": "bunx cspell lint -c .cspell.json --no-progress --no-must-find-files --dot '**'"
+    "check:spelling": "bunx cspell lint -c .cspell.json --no-progress --no-must-find-files --dot '**'",
+    "lint:md": "markdownlint '**/*.md' --ignore node_modules --ignore vendor",
+    "fix:md": "prettier --write '**/*.md' '!node_modules/**' '!vendor/**' && markdownlint '**/*.md' --ignore node_modules --ignore vendor --fix"
   },
   "devDependencies": {
     "@stellarwp/changelogger": "^0.10.0",
-    "cspell": "^8"
+    "cspell": "^8",
+    "markdownlint-cli": "^0.47",
+    "prettier": "^3.8"
   },
   "changelogger": {
     "changesDir": "changelog",

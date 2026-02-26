@@ -2,10 +2,10 @@
 
 The goals of this library are to provide a simple way to register one or more plugins / services for licensing and updates. It should provide:
 
-* An API and documentation for registering plugins/services
-* Support for plugins that embed license keys within the code
-* A user interface for entering / changing license keys
-* Support for fetching and installing plugin updates from Stellar Licensing
+- An API and documentation for registering plugins/services
+- Support for plugins that embed license keys within the code
+- A user interface for entering / changing license keys
+- Support for fetching and installing plugin updates from Stellar Licensing
 
 ## Expectations
 
@@ -24,46 +24,45 @@ Registration of plugins and services should happen programmatically and the inte
 The Uplink library should communicate with the Stellar Licensing system at specific moments. Those moments are:
 
 1. When a user interacts with a page in the dashboard where Uplink's license key field UI is rendered.
-2. When an authorized user* navigates to the plugins page and there has not been a request to the Stellar Licensing system within the past 12 hours.
-3. When an authorized user* attempts to upgrade plugins.
+2. When an authorized user\* navigates to the plugins page and there has not been a request to the Stellar Licensing system within the past 12 hours.
+3. When an authorized user\* attempts to upgrade plugins.
 
-_* An authorized user is defined as a user with the `install_plugins` capability._
+_\* An authorized user is defined as a user with the `install_plugins` capability._
 
 When a page is loaded where the Uplink library should call home to the Stellar Licensing system, this flow should be followed:
 
 ```mermaid
 sequenceDiagram
-	autonumber
-	participant wp as WordPress
-	participant plugin as Plugin
-	participant uplink as Uplink
-	participant stellar as Stellar Licensing
-	link uplink: stellarwp/uplink @ https://github.com/stellarwp/uplink
-	link stellar: the-events-calendar/pue-service @ https://github.com/the-events-calendar/pue-service
-	link stellar: stellarwp/licensing @ https://github.com/stellarwp/licensing
+ autonumber
+ participant wp as WordPress
+ participant plugin as Plugin
+ participant uplink as Uplink
+ participant stellar as Stellar Licensing
+ link uplink: stellarwp/uplink @ https://github.com/stellarwp/uplink
+ link stellar: the-events-calendar/pue-service @ https://github.com/the-events-calendar/pue-service
+ link stellar: stellarwp/licensing @ https://github.com/stellarwp/licensing
 
-	wp->>plugin: plugins_loaded action
-	plugin->>uplink: Register::plugin()
-	Note over wp, stellar: The following is triggered by the 3 conditions mentioned above.
-	alt License key in wp_options
-		uplink-->>+wp: Check for license key in wp_options
-		wp->>-uplink: license key
-	else License key embedded in plugin
-		uplink-->>+plugin: Check for embedded license key in plugin
-		plugin->>-uplink: license key
-	end
+ wp->>plugin: plugins_loaded action
+ plugin->>uplink: Register::plugin()
+ Note over wp, stellar: The following is triggered by the 3 conditions mentioned above.
+ alt License key in wp_options
+  uplink-->>+wp: Check for license key in wp_options
+  wp->>-uplink: license key
+ else License key embedded in plugin
+  uplink-->>+plugin: Check for embedded license key in plugin
+  plugin->>-uplink: license key
+ end
 
-	uplink->>stellar: POST /api/plugins/v2/license/validate
+ uplink->>stellar: POST /api/plugins/v2/license/validate
 
-	stellar-->>+uplink: 200 OK response
-	uplink-->>wp: Store response in wp_options
-	uplink->>uplink: Check for response_key in response
-	opt replacement_key in response
-		uplink-->>-wp: Update stored license key in wp_options
-		Note over wp, uplink: The replacement_key is typically only set if the provided license key is a placeholder key from the<br>WordPress Marketplace.
-	end
+ stellar-->>+uplink: 200 OK response
+ uplink-->>wp: Store response in wp_options
+ uplink->>uplink: Check for response_key in response
+ opt replacement_key in response
+  uplink-->>-wp: Update stored license key in wp_options
+  Note over wp, uplink: The replacement_key is typically only set if the provided license key is a placeholder key from the<br>WordPress Marketplace.
+ end
 ```
-
 
 #### Embedded keys
 

@@ -124,7 +124,7 @@ class Plugins_Page {
 			if ( ! $notice ) {
 				continue;
 			}
-		?>
+			?>
 		<script>
 		/**
 		 * Appends license key notifications inline within the plugin table.
@@ -157,7 +157,7 @@ class Plugins_Page {
 			} );
 		})( jQuery, {} );
 		</script>
-		<?php
+			<?php
 		endforeach;
 	}
 
@@ -198,9 +198,9 @@ class Plugins_Page {
 	 *
 	 * @see plugins_api()
 	 *
-	 * @param mixed  $result
-	 * @param string|null  $action
-	 * @param array<mixed>|object|null  $args
+	 * @param mixed                    $result
+	 * @param string|null              $action
+	 * @param array<mixed>|object|null $args
 	 *
 	 * @return mixed
 	 */
@@ -222,5 +222,4 @@ class Plugins_Page {
 
 		return $plugin->validate_license()->to_wp_format();
 	}
-
 }

@@ -13,3 +13,6 @@ local-scripts/
 
 # OS
 .DS_Store
+
+# PHPStan cache
+phpstan-cache

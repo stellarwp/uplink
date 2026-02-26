@@ -12,6 +12,6 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<div class="<?php echo esc_attr( $classes ) ?>">
-	<p><?php echo wp_kses( $message, $allowed_tags, $allowed_protocols ) ?></p>
+<div class="<?php echo esc_attr( $classes ); ?>">
+	<p><?php echo wp_kses( $message, $allowed_tags, $allowed_protocols ); ?></p>
 </div>

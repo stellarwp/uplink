@@ -39,8 +39,10 @@ class License {
 	 *     network_option
 	 *     site_option
 	 *     file
+	 *     filter
 	 *
 	 * @since 1.0.0
+	 * @since 3.0.0 Added 'filter' for filtered.
 	 *
 	 * @var string
 	 */
@@ -52,8 +54,10 @@ class License {
 	 *     m = manual
 	 *     e = embedded
 	 *     o = original
+	 *     f = filtered
 	 *
 	 * @since 1.0.0
+	 * @since 3.0.0 Added 'f' for filtered.
 	 *
 	 * @var string
 	 */
@@ -91,7 +95,7 @@ class License {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Resource $resource The resource instance.
+	 * @param Resource                $resource The resource instance.
 	 * @param ContainerInterface|null $container Container instance.
 	 */
 	public function __construct( Resource $resource, $container = null ) {
@@ -158,7 +162,7 @@ class License {
 		 * @param string|null $key The license key.
 		 * @param Resource $resource The resource instance.
 		 */
-		$key = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_get_key', $this->key, $this->resource );
+		$filtered_key = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/license_get_key', $this->key, $this->resource );
 
 		/**
 		 * Filter the license key.
@@ -170,9 +174,17 @@ class License {
 		 * @param string|null $key The license key.
 		 * @param Resource $resource The resource instance.
 		 */
-		$key = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/' . $this->resource->get_slug() . '/license_get_key', $key, $this->resource );
+		$filtered_key = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/' . $this->resource->get_slug() . '/license_get_key', $filtered_key, $this->resource );
 
-		return $key ?: '';
+		if ( $filtered_key !== $this->key ) {
+			$this->key = $filtered_key;
+
+			if ( ! empty( $this->key ) ) {
+				$this->key_origin = 'filter';
+			}
+		}
+
+		return $this->key ?: '';
 	}
 
 	/**
@@ -194,9 +206,55 @@ class License {
 			$key = $license_class::KEY;
 		} elseif ( defined( $license_class . '::DATA' ) ) {
 			$key = $license_class::DATA;
+		} else {
+			$key = $this->get_key_from_simple_license_file( $license_class );
 		}
 
 		return $key;
+	}
+
+	/**
+	 * Get the license key from a simple license file that returns the key directly.
+	 *
+	 * Supports files like auth-token.php or PLUGIN_LICENSE.php that use
+	 * the pattern: <?php return 'license_key';
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $path The file path, relative to the plugin directory or absolute.
+	 *
+	 * @return string|null
+	 */
+	protected function get_key_from_simple_license_file( string $path ): ?string {
+		$file = $this->resolve_license_file_path( $path );
+
+		if ( empty( $file ) ) {
+			return null;
+		}
+
+		$key = include $file;
+
+		return is_string( $key ) ? $key : null;
+	}
+
+	/**
+	 * Resolve a license file path relative to the plugin directory.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $path The file path, relative to the plugin directory.
+	 *
+	 * @return string|null The resolved file path, or null if the file does not exist.
+	 */
+	private function resolve_license_file_path( string $path ): ?string {
+		$plugin_dir = dirname( WP_PLUGIN_DIR . '/' . $this->resource->get_path() );
+		$file       = $plugin_dir . '/' . $path;
+
+		if ( file_exists( $file ) ) {
+			return $file;
+		}
+
+		return null;
 	}
 
 	/**
@@ -266,16 +324,17 @@ class License {
 			return $this->key_origin_code;
 		}
 
-		$key         = $this->get_key();
-		$default_key = $this->get_key( 'default' );
+		// Ensure key has been loaded so key_origin is set.
+		$this->get_key();
 
-		if ( $key === $default_key ) {
-			$this->key_origin_code = 'o';
-		} elseif ( 'file' === $this->key_origin ) {
-			$this->key_origin_code = 'e';
-		} else {
-			$this->key_origin_code = 'm';
-		}
+		$origin_map = [
+			'filter'         => 'f',
+			'file'           => 'e',
+			'network_option' => 'm',
+			'site_option'    => 'm',
+		];
+
+		$this->key_origin_code = $origin_map[ $this->key_origin ] ?? 'o';
 
 		return $this->key_origin_code;
 	}
@@ -310,7 +369,7 @@ class License {
 		/** @var Data */
 		$data = $this->container->get( Data::class );
 
-		return static::$key_status_option_prefix . $this->resource->get_slug() . '_'. $data->get_site_domain();
+		return static::$key_status_option_prefix . $this->resource->get_slug() . '_' . $data->get_site_domain();
 	}
 
 	/**

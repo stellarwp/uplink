@@ -3,12 +3,10 @@
 namespace muwpunit;
 
 use StellarWP\Uplink\Tests\Licensing\Service_Mock;
-use StellarWP\Uplink\API\Validation_Response;
 use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Resources\Plugin;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Tests\Traits\With_Uopz;
-use StellarWP\Uplink\Uplink;
 
 class Replacement_Key_Test extends UplinkTestCase {
 	use With_Uopz;
@@ -46,9 +44,13 @@ class Replacement_Key_Test extends UplinkTestCase {
 	 * @before
 	 */
 	public function set_plugin_active_for_network(): void {
-		$this->set_fn_return( 'is_plugin_active_for_network', function ( string $plugin ): bool {
-			return $plugin === 'uplink/index.php' || is_plugin_active_for_network( $plugin );
-		}, true );
+		$this->set_fn_return(
+			'is_plugin_active_for_network',
+			function ( string $plugin ): bool {
+				return $plugin === 'uplink/index.php' || is_plugin_active_for_network( $plugin );
+			},
+			true 
+		);
 	}
 
 	/**
@@ -60,7 +62,7 @@ class Replacement_Key_Test extends UplinkTestCase {
 		// Ensure there is no key set.
 		$this->resource->delete_license_key();
 		$validated_key = md5( microtime() );
-		$body = $this->service_mock->get_validate_key_success_body();
+		$body          = $this->service_mock->get_validate_key_success_body();
 		$mock_response = $this->service_mock->make_response( 200, $body, 'application/json' );
 		$this->service_mock->will_reply_to_request( 'POST', '/plugins/v2/license/validate', $mock_response );
 
@@ -79,10 +81,10 @@ class Replacement_Key_Test extends UplinkTestCase {
 		// Ensure there is no key set.
 		$this->resource->delete_license_key();
 		$validated_key = md5( microtime() );
-		$body = $this->service_mock->get_validate_key_success_body();
+		$body          = $this->service_mock->get_validate_key_success_body();
 		// Add an empty replacement key to the response body.
 		$body['results'][0]['replacement_key'] = '';
-		$mock_response = $this->service_mock->make_response( 200, $body, 'application/json' );
+		$mock_response                         = $this->service_mock->make_response( 200, $body, 'application/json' );
 		$this->service_mock->will_reply_to_request( 'POST', '/plugins/v2/license/validate', $mock_response );
 
 		$result = $this->resource->validate_license( $validated_key );
@@ -101,10 +103,10 @@ class Replacement_Key_Test extends UplinkTestCase {
 		$this->resource->delete_license_key();
 		// Set the response mock to provide a replacement key.
 		$replacement_key = '2222222222222222222222222222222222222222';
-		$body = $this->service_mock->get_validate_key_success_body();
+		$body            = $this->service_mock->get_validate_key_success_body();
 		// Add a replacement key to the response body.
 		$body['results'][0]['replacement_key'] = $replacement_key;
-		$mock_response = $this->service_mock->make_response( 200, $body, 'application/json' );
+		$mock_response                         = $this->service_mock->make_response( 200, $body, 'application/json' );
 		$this->service_mock->will_reply_to_request( 'POST', '/plugins/v2/license/validate', $mock_response );
 
 		$result = $this->resource->validate_license( $validated_key );
@@ -123,10 +125,10 @@ class Replacement_Key_Test extends UplinkTestCase {
 		$this->resource->set_license_key( $original_key );
 		// Set the response mock to provide a replacement key.
 		$replacement_key = '2222222222222222222222222222222222222222';
-		$body = $this->service_mock->get_validate_key_success_body();
+		$body            = $this->service_mock->get_validate_key_success_body();
 		// Add a replacement key to the response body.
 		$body['results'][0]['replacement_key'] = $replacement_key;
-		$mock_response = $this->service_mock->make_response( 200, $body, 'application/json' );
+		$mock_response                         = $this->service_mock->make_response( 200, $body, 'application/json' );
 		$this->service_mock->will_reply_to_request( 'POST', '/plugins/v2/license/validate', $mock_response );
 
 		$result = $this->resource->validate_license( $original_key );
@@ -135,7 +137,7 @@ class Replacement_Key_Test extends UplinkTestCase {
 	}
 
 	/**
-	 * It should set not previosly set network key to validated key when replacement key not provided
+	 * It should set not previously set network key to validated key when replacement key not provided
 	 *
 	 * @test
 	 */
@@ -144,7 +146,7 @@ class Replacement_Key_Test extends UplinkTestCase {
 		// Ensure there is no license key locally or network wide.
 		$this->resource->delete_license_key();
 		$this->resource->delete_license_key( 'network' );
-		$body = $this->service_mock->get_validate_key_success_body();
+		$body          = $this->service_mock->get_validate_key_success_body();
 		$mock_response = $this->service_mock->make_response( 200, $body, 'application/json' );
 		$this->service_mock->will_reply_to_request( 'POST', '/plugins/v2/license/validate', $mock_response );
 
@@ -164,7 +166,7 @@ class Replacement_Key_Test extends UplinkTestCase {
 		$body = $this->service_mock->get_validate_key_success_body();
 		// Add a replacement key to the response body.
 		$body['results'][0]['replacement_key'] = '';
-		$mock_response = $this->service_mock->make_response( 200, $body, 'application/json' );
+		$mock_response                         = $this->service_mock->make_response( 200, $body, 'application/json' );
 		$this->service_mock->will_reply_to_request( 'POST', '/plugins/v2/license/validate', $mock_response );
 
 		$result = $this->resource->validate_license( $validated_key, true );
@@ -182,9 +184,9 @@ class Replacement_Key_Test extends UplinkTestCase {
 		$this->resource->delete_license_key( 'network' );
 		$body = $this->service_mock->get_validate_key_success_body();
 		// Add a replacement key to the response body.
-		$replacement_key = '2222222222222222222222222222222222222222';
+		$replacement_key                       = '2222222222222222222222222222222222222222';
 		$body['results'][0]['replacement_key'] = $replacement_key;
-		$mock_response = $this->service_mock->make_response( 200, $body, 'application/json' );
+		$mock_response                         = $this->service_mock->make_response( 200, $body, 'application/json' );
 		$this->service_mock->will_reply_to_request( 'POST', '/plugins/v2/license/validate', $mock_response );
 
 		$result = $this->resource->validate_license( $validated_key, true );
@@ -205,9 +207,9 @@ class Replacement_Key_Test extends UplinkTestCase {
 		$this->resource->delete_license_key( 'network' );
 		$body = $this->service_mock->get_validate_key_success_body();
 		// Add a replacement key to the response body.
-		$replacement_key = '2222222222222222222222222222222222222222';
+		$replacement_key                       = '2222222222222222222222222222222222222222';
 		$body['results'][0]['replacement_key'] = $replacement_key;
-		$mock_response = $this->service_mock->make_response( 200, $body, 'application/json' );
+		$mock_response                         = $this->service_mock->make_response( 200, $body, 'application/json' );
 		$this->service_mock->will_reply_to_request( 'POST', '/plugins/v2/license/validate', $mock_response );
 
 		$result = $this->resource->validate_license( $validated_key, true );

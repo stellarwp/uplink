@@ -21,7 +21,7 @@ final class Notice_Controller extends Controller {
 	 * @see Notice::toArray()
 	 * @see src/views/admin/notice.php
 	 *
-	 * @param  array{type?: string, message?: string, dismissible?: bool, alt?: bool, large?: bool}  $args The notice.
+	 * @param array{type?: string, message?: string, dismissible?: bool, alt?: bool, large?: bool} $args The notice.
 	 *
 	 * @throws FileNotFoundException If the view is not found.
 	 *
@@ -36,29 +36,31 @@ final class Notice_Controller extends Controller {
 			$args['large'] ? 'notice-large' : '',
 		];
 
-		echo $this->view->render( self::VIEW, [
-			'message'           => $args['message'],
-			'classes'           => $this->classes( $classes ),
-			'allowed_tags'      => [
-				'a'      => [
-					'href'   => [],
-					'title'  => [],
-					'target' => [],
-					'rel'    => [],
+		echo $this->view->render(
+			self::VIEW,
+			[
+				'message'           => $args['message'],
+				'classes'           => $this->classes( $classes ),
+				'allowed_tags'      => [
+					'a'      => [
+						'href'   => [],
+						'title'  => [],
+						'target' => [],
+						'rel'    => [],
+					],
+					'br'     => [],
+					'code'   => [],
+					'em'     => [],
+					'pre'    => [],
+					'span'   => [],
+					'strong' => [],
 				],
-				'br'     => [],
-				'code'   => [],
-				'em'     => [],
-				'pre'    => [],
-				'span'   => [],
-				'strong' => [],
-			],
-			'allowed_protocols' => [
-				'http',
-				'https',
-				'mailto',
-			],
-		] );
+				'allowed_protocols' => [
+					'http',
+					'https',
+					'mailto',
+				],
+			] 
+		);
 	}
-
 }

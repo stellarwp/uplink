@@ -1,0 +1,4 @@
+significance: patch
+type: fix
+entry: Resolved an issue where `key_origin_code` could not be correctly determined.
+timestamp: 2026-02-25T19:18:45.295Z

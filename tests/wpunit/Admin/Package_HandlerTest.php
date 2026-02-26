@@ -63,7 +63,7 @@ final class Package_HandlerTest extends UplinkTestCase {
 		$skin->feedback( 'downloading_package', $package )->shouldBeCalled();
 
 		$GLOBALS['wp_filesystem'] = $this->filesystem->reveal();
-		$upgrader->skin 	  	  = $skin->reveal();
+		$upgrader->skin           = $skin->reveal();
 
 		$sut      = new Package_Handler();
 		$filtered = $sut->filter_upgrader_pre_download( false, $package, $upgrader, [] );
@@ -83,27 +83,28 @@ final class Package_HandlerTest extends UplinkTestCase {
 		$real_temp_file_name = '';
 		$destination_file    = '';
 
-		$this->filesystem->move( Argument::type( 'string' ), Argument::type( 'string' ) )->will( function ( $args ) use (
-			&$real_temp_file_name,
-			&$destination_file
-		) {
-			$real_temp_file_name = $args[0];
-			$destination_file    = $args[1];
+		$this->filesystem->move( Argument::type( 'string' ), Argument::type( 'string' ) )->will(
+			function ( $args ) use (
+				&$real_temp_file_name,
+				&$destination_file
+			) {
+				$real_temp_file_name = $args[0];
+				$destination_file    = $args[1];
 
-			unlink( $args[0] );
+				unlink( $args[0] );
 
-			return true;
-		} );
+				return true;
+			} 
+		);
 
 		$sut      = new Package_Handler();
 		$filtered = $sut->filter_upgrader_pre_download( false, $package, $upgrader, [] );
 
-		$expected_dir           = dirname( $real_temp_file_name );
-		$expected_file_exension = pathinfo( $real_temp_file_name, PATHINFO_EXTENSION );
-		$expected_file_basename = substr( md5( $real_temp_file_name ), 0, 5 ) . '.' . $expected_file_exension;
-		$expected_filename      = $expected_dir . '/' . $expected_file_basename;
+		$expected_dir            = dirname( $real_temp_file_name );
+		$expected_file_extension = pathinfo( $real_temp_file_name, PATHINFO_EXTENSION );
+		$expected_file_basename  = substr( md5( $real_temp_file_name ), 0, 5 ) . '.' . $expected_file_extension;
+		$expected_filename       = $expected_dir . '/' . $expected_file_basename;
 		$this->assertEquals( $expected_filename, $destination_file );
 		$this->assertEquals( $destination_file, $filtered );
 	}
-
 }

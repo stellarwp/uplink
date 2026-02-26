@@ -78,9 +78,13 @@ final class StorageDriverTest extends UplinkTestCase {
 		$key   = 'uplink_test_key';
 		$value = 'test';
 
-		$stored_value = $storage->remember( $key, function () use ( $value ) {
-			return $value;
-		}, $this->expire );
+		$stored_value = $storage->remember(
+			$key,
+			function () use ( $value ) {
+				return $value;
+			},
+			$this->expire 
+		);
 
 		$this->assertSame( $value, $stored_value );
 		$this->assertSame( $value, $storage->get( $key ) );
@@ -161,5 +165,4 @@ final class StorageDriverTest extends UplinkTestCase {
 
 		$this->assertSame( $value, $storage->get( $key ) );
 	}
-
 }

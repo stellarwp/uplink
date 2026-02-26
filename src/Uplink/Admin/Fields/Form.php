@@ -3,10 +3,9 @@
 namespace StellarWP\Uplink\Admin\Fields;
 
 use StellarWP\Uplink\Config;
-use StellarWP\Uplink\Uplink;
 use StellarWP\Uplink\Components\Controller;
 
-class Form extends Controller{
+class Form extends Controller {
 	/**
 	 * @var array<string, Field>
 	 */

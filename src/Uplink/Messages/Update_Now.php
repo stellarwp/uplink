@@ -18,7 +18,7 @@ class Update_Now extends Message_Abstract {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Plugin $resource Resource instance.
+	 * @param Plugin                  $resource Resource instance.
 	 * @param ContainerInterface|null $container Container instance.
 	 */
 	public function __construct( Plugin $resource, $container = null ) {
@@ -49,11 +49,9 @@ class Update_Now extends Message_Abstract {
 			$update_now_link
 		);
 
-		$message = sprintf(
+		return sprintf(
 			'<p>%s</p>',
 			$update_message
 		);
-
-		return $message;
 	}
 }

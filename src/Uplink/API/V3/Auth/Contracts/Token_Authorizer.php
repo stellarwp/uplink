@@ -10,13 +10,12 @@ interface Token_Authorizer {
 	 * @see is_authorized()
 	 * @see \StellarWP\Uplink\API\V3\Auth\Token_Authorizer
 	 *
-	 * @param  string  $license  The license key.
-	 * @param  string  $slug     The plugin/service slug.
-	 * @param  string  $token    The stored token.
-	 * @param  string  $domain   The user's domain.
+	 * @param string $license  The license key.
+	 * @param string $slug     The plugin/service slug.
+	 * @param string $token    The stored token.
+	 * @param string $domain   The user's domain.
 	 *
 	 * @return bool
 	 */
 	public function is_authorized( string $license, string $slug, string $token, string $domain ): bool;
-
 }

@@ -22,8 +22,8 @@ final class Auth_Url_Builder {
 	private $license_key;
 
 	/**
-	 * @param  Nonce  $nonce  The Nonce creator.
-	 * @param  Auth_Url  $auth_url_manager  The auth URL manager.
+	 * @param Nonce    $nonce  The Nonce creator.
+	 * @param Auth_Url $auth_url_manager  The auth URL manager.
 	 */
 	public function __construct(
 		Nonce $nonce,
@@ -38,8 +38,8 @@ final class Auth_Url_Builder {
 	 *
 	 * @note This URL requires escaping.
 	 *
-	 * @param  string  $slug  The product/service slug.
-	 * @param  string  $domain  An optional domain associated with a license key to pass along.
+	 * @param string $slug  The product/service slug.
+	 * @param string $domain  An optional domain associated with a license key to pass along.
 	 *
 	 * @return string
 	 */
@@ -79,11 +79,14 @@ final class Auth_Url_Builder {
 			$callback_url
 		);
 
-		return sprintf( '%s?%s',
+		return sprintf(
+			'%s?%s',
 			$auth_url,
-			http_build_query( [
-				'uplink_callback' => base64_encode( $this->nonce->create_url( $url ) ),
-			] )
+			http_build_query(
+				[
+					'uplink_callback' => base64_encode( $this->nonce->create_url( $url ) ),
+				] 
+			)
 		);
 	}
 

@@ -4,7 +4,6 @@ namespace wpunit\Admin;
 
 use StellarWP\Uplink\Admin\Ajax;
 use StellarWP\Uplink\Admin\Group;
-use StellarWP\Uplink\Admin\License_Field;
 use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Uplink;
@@ -29,7 +28,7 @@ class AjaxText extends UplinkTestCase {
 		$handler          = new Ajax();
 		$invalid_response = [
 			'status'  => 0,
-			'message' => __( 'Invalid request: nonce field is expired. Please try again.', '%TEXTDOMAIN%' )
+			'message' => __( 'Invalid request: nonce field is expired. Please try again.', '%TEXTDOMAIN%' ),
 		];
 
 		$this->assertSame(
@@ -38,12 +37,17 @@ class AjaxText extends UplinkTestCase {
 			'Should return invalid request message if nonce or key is missing is empty'
 		);
 		$_POST['_wpnonce'] = wp_create_nonce( $this->container->get( Group::class )->get_name() );
-		$_POST['key']	   = 'sample';
+		$_POST['key']      = 'sample';
 		$_POST['plugin']   = 'sample/index.php';
 
-		$this->assertSame( json_encode( [
-			'status' => 0,
-		] ), $handler->validate_license(), 'Should return 0 status since endpoint is unreachable' );
+		$this->assertSame(
+			json_encode(
+				[
+					'status' => 0,
+				] 
+			),
+			$handler->validate_license(),
+			'Should return 0 status since endpoint is unreachable' 
+		);
 	}
-
 }

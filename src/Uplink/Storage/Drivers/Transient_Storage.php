@@ -89,5 +89,4 @@ class Transient_Storage implements Storage {
 
 		return $value;
 	}
-
 }

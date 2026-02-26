@@ -294,9 +294,12 @@ final class LicenseTest extends UplinkTestCase {
 	public function test_sets_key_origin_to_filtered_when_key_is_changed_by_filter(): void {
 		$filtered_key = 'filtered-license-key-12345';
 
-		add_filter( 'stellarwp/uplink/test/license_get_key', function () use ( $filtered_key ) {
-			return $filtered_key;
-		} );
+		add_filter(
+			'stellarwp/uplink/test/license_get_key',
+			function () use ( $filtered_key ) {
+				return $filtered_key;
+			} 
+		);
 
 		$license = $this->resource->get_license_object();
 		$key     = $license->get_key();
@@ -316,9 +319,12 @@ final class LicenseTest extends UplinkTestCase {
 	public function test_sets_key_origin_to_filtered_when_key_is_changed_by_slug_specific_filter(): void {
 		$filtered_key = 'slug-filtered-license-key-12345';
 
-		add_filter( 'stellarwp/uplink/test/sample/license_get_key', function () use ( $filtered_key ) {
-			return $filtered_key;
-		} );
+		add_filter(
+			'stellarwp/uplink/test/sample/license_get_key',
+			function () use ( $filtered_key ) {
+				return $filtered_key;
+			} 
+		);
 
 		$license = $this->resource->get_license_object();
 		$key     = $license->get_key();
@@ -340,9 +346,12 @@ final class LicenseTest extends UplinkTestCase {
 
 		$this->resource->set_license_key( $original_key );
 
-		add_filter( 'stellarwp/uplink/test/license_get_key', function ( $key ) {
-			return $key;
-		} );
+		add_filter(
+			'stellarwp/uplink/test/license_get_key',
+			function ( $key ) {
+				return $key;
+			} 
+		);
 
 		$license = $this->resource->get_license_object();
 		$key     = $license->get_key();
@@ -360,9 +369,12 @@ final class LicenseTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_does_not_set_key_origin_to_filtered_when_filter_returns_empty(): void {
-		add_filter( 'stellarwp/uplink/test/license_get_key', function () {
-			return '';
-		} );
+		add_filter(
+			'stellarwp/uplink/test/license_get_key',
+			function () {
+				return '';
+			} 
+		);
 
 		$license = $this->resource->get_license_object();
 		$key     = $license->get_key();
@@ -382,9 +394,12 @@ final class LicenseTest extends UplinkTestCase {
 	public function test_get_key_origin_code_returns_f_when_key_is_filtered(): void {
 		$filtered_key = 'filtered-origin-code-key-12345';
 
-		add_filter( 'stellarwp/uplink/test/license_get_key', function () use ( $filtered_key ) {
-			return $filtered_key;
-		} );
+		add_filter(
+			'stellarwp/uplink/test/license_get_key',
+			function () use ( $filtered_key ) {
+				return $filtered_key;
+			} 
+		);
 
 		$license = $this->resource->get_license_object();
 		$license->get_key();
@@ -400,9 +415,12 @@ final class LicenseTest extends UplinkTestCase {
 	public function test_get_key_origin_code_returns_f_when_key_is_filtered_by_slug_specific_filter(): void {
 		$filtered_key = 'slug-filtered-origin-code-key-12345';
 
-		add_filter( 'stellarwp/uplink/test/sample/license_get_key', function () use ( $filtered_key ) {
-			return $filtered_key;
-		} );
+		add_filter(
+			'stellarwp/uplink/test/sample/license_get_key',
+			function () use ( $filtered_key ) {
+				return $filtered_key;
+			} 
+		);
 
 		$license = $this->resource->get_license_object();
 		$license->get_key();

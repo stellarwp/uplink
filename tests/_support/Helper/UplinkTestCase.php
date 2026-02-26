@@ -25,6 +25,7 @@ class UplinkTestCase extends WPTestCase {
 		parent::setUp();
 
 		$container = new Container();
+		$container->singleton( ContainerInterface::class, $container );
 		Config::set_container( $container );
 		Config::set_hook_prefix( 'test' );
 

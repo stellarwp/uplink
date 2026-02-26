@@ -2,91 +2,19 @@
 
 namespace StellarWP\Uplink\Tests;
 
-use Closure;
 use StellarWP\ContainerContract\ContainerInterface;
 use lucatume\DI52\Container as DI52Container;
 
-class Container implements ContainerInterface {
-	/**
-	 * @var DI52Container
-	 */
-	protected $container;
+class Container extends DI52Container implements ContainerInterface {
 
 	/**
-	 * Container constructor.
+	 * Alias for get().
 	 *
-	 * @param object $container The container to use.
-	 */
-	public function __construct( $container = null ) {
-		$this->container = $container ?: new DI52Container();
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function bind( string $id, $implementation = null, array $afterBuildMethods = null ) {
-		$this->container->bind( $id, $this->wrap_closure( $implementation ), $afterBuildMethods );
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function get( string $id ) {
-		return $this->container->get( $id );
-	}
-
-	/**
-	 * @return DI52Container
-	 */
-	public function get_container() {
-		return $this->container;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function has( string $id ) {
-		return $this->container->has( $id );
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function singleton( string $id, $implementation = null, array $afterBuildMethods = null ) {
-		$this->container->singleton( $id, $this->wrap_closure( $implementation ), $afterBuildMethods );
-	}
-
-	/**
-	 * Defer all other calls to the container object.
-	 */
-	public function __call( $name, $args ) {
-		return $this->container->{$name}( ...$args );
-	}
-
-	public function make( $id ) {
-		return $this->get( $id );
-	}
-
-	/**
-	 * Wraps a closure so that DI52 passes this wrapper instead of itself.
-	 *
-	 * DI52's ClosureBuilder passes the raw DI52 container to closures, but
-	 * closures in the codebase type-hint ContainerInterface. This ensures
-	 * they receive this wrapper which implements that interface.
-	 *
-	 * @param mixed $implementation The implementation to potentially wrap.
+	 * @param string $id Identifier of the entry to look for.
 	 *
 	 * @return mixed
 	 */
-	private function wrap_closure( $implementation ) {
-		if ( ! $implementation instanceof Closure ) {
-			return $implementation;
-		}
-
-		$wrapper = $this;
-
-		return static function () use ( $implementation, $wrapper ) {
-			return $implementation( $wrapper );
-		};
+	public function make( $id ) {
+		return $this->get( $id );
 	}
 }

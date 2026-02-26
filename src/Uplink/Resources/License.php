@@ -39,8 +39,10 @@ class License {
 	 *     network_option
 	 *     site_option
 	 *     file
+	 *     filter
 	 *
 	 * @since 1.0.0
+	 * @since 3.0.0 Added 'filter' for filtered.
 	 *
 	 * @var string
 	 */
@@ -52,8 +54,10 @@ class License {
 	 *     m = manual
 	 *     e = embedded
 	 *     o = original
+	 *     f = filtered
 	 *
 	 * @since 1.0.0
+	 * @since 3.0.0 Added 'f' for filtered.
 	 *
 	 * @var string
 	 */
@@ -158,7 +162,7 @@ class License {
 		 * @param string|null $key The license key.
 		 * @param Resource $resource The resource instance.
 		 */
-		$key = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_get_key', $this->key, $this->resource );
+		$filtered_key = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_get_key', $this->key, $this->resource );
 
 		/**
 		 * Filter the license key.
@@ -170,9 +174,17 @@ class License {
 		 * @param string|null $key The license key.
 		 * @param Resource $resource The resource instance.
 		 */
-		$key = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/' . $this->resource->get_slug() . '/license_get_key', $key, $this->resource );
+		$filtered_key = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/' . $this->resource->get_slug() . '/license_get_key', $filtered_key, $this->resource );
 
-		return $key ?: '';
+		if ( $filtered_key !== $this->key ) {
+			$this->key = $filtered_key;
+
+			if ( ! empty( $this->key ) ) {
+				$this->key_origin = 'filter';
+			}
+		}
+
+		return $this->key ?: '';
 	}
 
 	/**
@@ -312,16 +324,17 @@ class License {
 			return $this->key_origin_code;
 		}
 
-		$key         = $this->get_key();
-		$default_key = $this->get_key( 'default' );
+		// Ensure key has been loaded so key_origin is set.
+		$this->get_key();
 
-		if ( $key === $default_key ) {
-			$this->key_origin_code = 'o';
-		} elseif ( 'file' === $this->key_origin ) {
-			$this->key_origin_code = 'e';
-		} else {
-			$this->key_origin_code = 'm';
-		}
+		$origin_map = [
+			'filter'         => 'f',
+			'file'           => 'e',
+			'network_option' => 'm',
+			'site_option'    => 'm',
+		];
+
+		$this->key_origin_code = $origin_map[ $this->key_origin ] ?? 'o';
 
 		return $this->key_origin_code;
 	}

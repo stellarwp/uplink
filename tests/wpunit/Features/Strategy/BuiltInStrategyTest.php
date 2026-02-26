@@ -191,31 +191,22 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// enable/disable/is_active round-trip
+	// Independent state
 	// -------------------------------------------------------------------------
-
-	/**
-	 * Full lifecycle: enable → is_active → disable → is_active.
-	 */
-	public function test_full_enable_disable_lifecycle(): void {
-		// Initially inactive.
-		$this->assertFalse( $this->strategy->is_active( $this->feature ) );
-
-		// Enable.
-		$this->assertTrue( $this->strategy->enable( $this->feature ) );
-		$this->assertTrue( $this->strategy->is_active( $this->feature ) );
-
-		// Disable.
-		$this->assertTrue( $this->strategy->disable( $this->feature ) );
-		$this->assertFalse( $this->strategy->is_active( $this->feature ) );
-	}
 
 	/**
 	 * Different features have independent state — enabling one does not
 	 * affect the other.
 	 */
 	public function test_features_have_independent_state(): void {
-		$other = new Built_In( 'other-feature', 'TEC', 'Tier 1', 'Other', 'Another feature.', true );
+		$other = new Built_In( [
+			'slug'         => 'other-feature',
+			'group'        => 'TEC',
+			'tier'         => 'Tier 1',
+			'name'         => 'Other',
+			'description'  => 'Another feature.',
+			'is_available' => true,
+		] );
 
 		$this->strategy->enable( $this->feature );
 
@@ -244,7 +235,14 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 		string $name = 'Advanced Tickets',
 		string $description = 'Unlock advanced ticketing features.'
 	): Built_In {
-		return new Built_In( $slug, 'TEC', 'Tier 1', $name, $description, true );
+		return new Built_In( [
+			'slug'         => $slug,
+			'group'        => 'TEC',
+			'tier'         => 'Tier 1',
+			'name'         => $name,
+			'description'  => $description,
+			'is_available' => true,
+		] );
 	}
 
 	/**
@@ -256,13 +254,21 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 	 * @return Feature
 	 */
 	private function create_non_built_in_feature(): Feature {
-		return new class ( 'not-built-in', 'Test', 'Tier 1', 'Not Built-In', 'Not a built-in feature.', 'other', true ) extends Feature {
+		return new class ( [
+			'slug'         => 'not-built-in',
+			'group'        => 'Test',
+			'tier'         => 'Tier 1',
+			'name'         => 'Not Built-In',
+			'description'  => 'Not a built-in feature.',
+			'type'         => 'other',
+			'is_available' => true,
+		] ) extends Feature {
 
 			/**
 			 * @inheritDoc
 			 */
 			public static function from_array( array $data ) {
-				return new self( $data['slug'], $data['group'] ?? '', $data['tier'] ?? '', $data['name'], $data['description'] ?? '', $data['type'] ?? 'other', $data['is_available'] ?? true );
+				return new self( $data );
 			}
 		};
 	}

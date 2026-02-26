@@ -7,9 +7,8 @@ use StellarWP\Uplink\Utils\Cast;
 /**
  * A Feature delivered as a standalone WordPress plugin ZIP.
  *
- * The Zip_Strategy uses download_url to install the plugin via Plugin_Upgrader,
- * and plugin_file to activate/deactivate it. The download_url is always
- * provided by the catalog API.
+ * The Zip_Strategy installs the plugin via plugins_api() + Plugin_Upgrader,
+ * and uses plugin_file to activate/deactivate it.
  *
  * @since 3.0.0
  */

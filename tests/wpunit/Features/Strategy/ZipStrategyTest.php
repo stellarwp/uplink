@@ -6,6 +6,7 @@ use StellarWP\Uplink\Features\Strategy\Zip_Strategy;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Tests\UplinkTestCase;
+use WP_Error;
 
 /**
  * Tests for the Zip_Strategy feature-gating strategy.
@@ -128,16 +129,52 @@ final class ZipStrategyTest extends UplinkTestCase {
 	}
 
 	/**
-	 * enable() returns a download_url_empty error when the Zip feature has
-	 * no download URL and the plugin isn't installed on disk.
+	 * enable() returns a plugins_api_failed error when plugins_api()
+	 * returns a WP_Error for the feature slug.
 	 */
-	public function test_enable_returns_download_url_empty_error_when_url_missing(): void {
-		$feature = $this->make_zip_feature( 'test-feature', self::PLUGIN_FILE, '' );
+	public function test_enable_returns_plugins_api_failed_error(): void {
+		$filter = static function ( $result, $action, $args ) {
+			if ( 'plugin_information' === $action && $args->slug === 'test-feature' ) {
+				return new WP_Error( 'plugins_api_failed', 'No info available.' );
+			}
+			return $result;
+		};
+		add_filter( 'plugins_api', $filter, 10, 3 );
 
-		$result = $this->strategy->enable( $feature );
+		try {
+			$result = $this->strategy->enable( $this->feature );
 
-		$this->assertWPError( $result );
-		$this->assertSame( 'download_url_empty', $result->get_error_code() );
+			$this->assertWPError( $result );
+			$this->assertSame( 'plugins_api_failed', $result->get_error_code() );
+		} finally {
+			remove_filter( 'plugins_api', $filter, 10 );
+		}
+	}
+
+	/**
+	 * enable() returns a download_link_empty error when plugins_api()
+	 * returns an object without a download_link property.
+	 *
+	 * This simulates the case where the plugins_api filter for features
+	 * is registered but the feature has no download URL.
+	 */
+	public function test_enable_returns_download_link_empty_error(): void {
+		$filter = static function ( $result, $action, $args ) {
+			if ( 'plugin_information' === $action && $args->slug === 'test-feature' ) {
+				return (object) [ 'slug' => 'test-feature' ];
+			}
+			return $result;
+		};
+		add_filter( 'plugins_api', $filter, 10, 3 );
+
+		try {
+			$result = $this->strategy->enable( $this->feature );
+
+			$this->assertWPError( $result );
+			$this->assertSame( 'download_link_empty', $result->get_error_code() );
+		} finally {
+			remove_filter( 'plugins_api', $filter, 10 );
+		}
 	}
 
 	/**
@@ -197,30 +234,43 @@ final class ZipStrategyTest extends UplinkTestCase {
 	/**
 	 * enable() releases the transient lock even when installation fails.
 	 *
-	 * We test this by calling enable() on a feature with a download URL that
-	 * will fail (plugin not on disk, URL not reachable). The lock should be
-	 * released in the finally block.
+	 * We simulate a plugins_api() response with a fake download_link that
+	 * Plugin_Upgrader::install() cannot fetch. The lock should be released
+	 * in the finally block regardless.
 	 */
 	public function test_enable_releases_lock_on_install_failure(): void {
-		// The feature has a download URL but the plugin isn't on disk.
-		// Plugin_Upgrader::install() will fail because the URL is fake.
-		// We just need to verify the lock is released afterward.
-		//
-		// Track output buffer level because Plugin_Upgrader's WP_Ajax_Upgrader_Skin
-		// opens buffers that may not get closed on failure. PHPUnit flags the
-		// mismatch as "risky", so we clean up any leftover buffers.
-		$ob_level = ob_get_level();
-		$result   = $this->strategy->enable( $this->feature );
+		// Make plugins_api() return a download_link so the strategy reaches
+		// Plugin_Upgrader::install(), which will fail on the fake URL.
+		$filter = static function ( $result, $action, $args ) {
+			if ( 'plugin_information' === $action && $args->slug === 'test-feature' ) {
+				return (object) [
+					'slug'          => 'test-feature',
+					'download_link' => 'https://example.com/test-feature.zip',
+				];
+			}
+			return $result;
+		};
+		add_filter( 'plugins_api', $filter, 10, 3 );
 
-		while ( ob_get_level() > $ob_level ) {
-			ob_end_clean();
+		try {
+			// Track output buffer level because Plugin_Upgrader's WP_Ajax_Upgrader_Skin
+			// opens buffers that may not get closed on failure. PHPUnit flags the
+			// mismatch as "risky", so we clean up any leftover buffers.
+			$ob_level = ob_get_level();
+			$result   = $this->strategy->enable( $this->feature );
+
+			while ( ob_get_level() > $ob_level ) {
+				ob_end_clean();
+			}
+
+			// Should fail (install_failed or similar).
+			$this->assertWPError( $result );
+
+			// Lock should be released.
+			$this->assertFalse( get_transient( self::LOCK_KEY ) );
+		} finally {
+			remove_filter( 'plugins_api', $filter, 10 );
 		}
-
-		// Should fail (install_failed or similar).
-		$this->assertWPError( $result );
-
-		// Lock should be released.
-		$this->assertFalse( get_transient( self::LOCK_KEY ) );
 	}
 
 	// -------------------------------------------------------------------------
@@ -701,18 +751,17 @@ final class ZipStrategyTest extends UplinkTestCase {
 		string $download_url = self::DOWNLOAD_URL,
 		array $authors = [ 'StellarWP' ]
 	): Zip {
-		return new Zip(
-			$slug,
-			'Test',
-			'Tier 1',
-			'Test Feature',
-			'A test feature for unit tests.',
-			$plugin_file,
-			true,
-			'',
-			$download_url,
-			$authors
-		);
+		return new Zip( [
+			'slug'         => $slug,
+			'group'        => 'Test',
+			'tier'         => 'Tier 1',
+			'name'         => 'Test Feature',
+			'description'  => 'A test feature for unit tests.',
+			'plugin_file'  => $plugin_file,
+			'is_available' => true,
+			'download_url' => $download_url,
+			'authors'      => $authors,
+		] );
 	}
 
 	/**
@@ -724,13 +773,21 @@ final class ZipStrategyTest extends UplinkTestCase {
 	 * @return Feature
 	 */
 	private function create_non_zip_feature(): Feature {
-		return new class ( 'non-zip', 'Test', 'Tier 1', 'Non-Zip Feature', 'Not a zip.', 'other', true ) extends Feature {
+		return new class ( [
+			'slug'         => 'non-zip',
+			'group'        => 'Test',
+			'tier'         => 'Tier 1',
+			'name'         => 'Non-Zip Feature',
+			'description'  => 'Not a zip.',
+			'type'         => 'other',
+			'is_available' => true,
+		] ) extends Feature {
 
 			/**
 			 * @inheritDoc
 			 */
 			public static function from_array( array $data ) {
-				return new self( $data['slug'], $data['group'] ?? '', $data['tier'] ?? '', $data['name'], $data['description'] ?? '', $data['type'] ?? 'other', $data['is_available'] ?? true );
+				return new self( $data );
 			}
 		};
 	}

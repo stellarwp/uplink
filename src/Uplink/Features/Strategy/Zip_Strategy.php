@@ -293,9 +293,10 @@ class Zip_Strategy extends Abstract_Strategy {
 	/**
 	 * Ensure the plugin is installed on disk, downloading from ZIP if needed.
 	 *
-	 * Validates the download URL, acquires a per-slug transient lock to prevent
-	 * concurrent installs, runs Plugin_Upgrader::install(), and verifies the
-	 * expected plugin_file exists on disk afterward.
+	 * Acquires a per-slug transient lock to prevent concurrent installs,
+	 * resolves the download link via plugins_api(), runs
+	 * Plugin_Upgrader::install(), and verifies the expected plugin_file
+	 * exists on disk afterward.
 	 *
 	 * If the plugin is already installed, returns true immediately (no lock needed).
 	 *
@@ -311,14 +312,6 @@ class Zip_Strategy extends Abstract_Strategy {
 		// Already on disk — verify ownership before treating it as "ours."
 		if ( $this->is_plugin_installed( $plugin_file ) ) {
 			return $this->verify_plugin_ownership( $feature );
-		}
-
-		// Guard against empty download URLs before attempting install.
-		if ( empty( $feature->get_download_url() ) ) {
-			return new WP_Error(
-				'download_url_empty',
-				sprintf( 'Zip feature "%s" has an empty download URL.', $feature->get_slug() )
-			);
 		}
 
 		// Acquire a per-slug transient lock to prevent concurrent installs.
@@ -365,10 +358,11 @@ class Zip_Strategy extends Abstract_Strategy {
 	}
 
 	/**
-	 * Install a plugin from a Zip feature's download URL using Plugin_Upgrader.
+	 * Install a plugin via plugins_api() and Plugin_Upgrader.
 	 *
-	 * Uses WP_Ajax_Upgrader_Skin to suppress output — the caller handles
-	 * error reporting via WP_Error codes.
+	 * Resolves the download link through plugins_api(), which is expected to
+	 * be filtered by the Features Provider to return catalog data for known
+	 * feature slugs. Uses WP_Ajax_Upgrader_Skin to suppress output.
 	 *
 	 * @since 3.0.0
 	 *
@@ -377,18 +371,37 @@ class Zip_Strategy extends Abstract_Strategy {
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
 	private function install_plugin( Zip $feature ) {
-		// WP_Ajax_Upgrader_Skin collects errors without echoing HTML, which is
-		// ideal for REST/AJAX contexts where we don't want upgrade UI output.
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-ajax-upgrader-skin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		$plugin_info = plugins_api( 'plugin_information', [
+			'slug'   => sanitize_key( $feature->get_plugin_slug() ),
+			'fields' => [ 'sections' => false ],
+		] );
+
+		if ( is_wp_error( $plugin_info ) ) {
+			return new WP_Error(
+				'plugins_api_failed',
+				sprintf(
+					'plugins_api() failed for "%s": %s',
+					$feature->get_slug(),
+					$plugin_info->get_error_message()
+				)
+			);
+		}
+
+		if ( empty( $plugin_info->download_link ) ) {
+			return new WP_Error(
+				'download_link_empty',
+				sprintf( 'plugins_api() returned no download_link for "%s".', $feature->get_slug() )
+			);
+		}
 
 		$skin     = new WP_Ajax_Upgrader_Skin();
 		$upgrader = new Plugin_Upgrader( $skin );
 
-		// Install directly from the download URL — no plugins_api() lookup.
-		// The catalog API always provides the download URL, making this flow
-		// simpler and more reliable than the fragile plugins_api filter chain.
-		$result = $upgrader->install( $feature->get_download_url() );
+		$result = $upgrader->install( $plugin_info->download_link );
 
 		// Plugin_Upgrader::install() returns true on success or WP_Error on
 		// failure. The skin may also collect errors separately.

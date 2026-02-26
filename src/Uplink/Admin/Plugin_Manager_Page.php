@@ -2,7 +2,9 @@
 
 namespace StellarWP\Uplink\Admin;
 
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Utils\Version;
+use StellarWP\Uplink\Legacy\LicenseRepository;
 
 class Plugin_Manager_Page {
 
@@ -42,5 +44,16 @@ class Plugin_Manager_Page {
 			<h1><?php esc_html_e( 'StellarWP Licenses', '%TEXTDOMAIN%' ); ?></h1>
 		</div>
 		<?php
-	}
+        $legacyRepository = Config::get_container()->get(LicenseRepository::class);
+        $licenses = $legacyRepository->all();
+        if ( empty( $licenses ) ) {
+            echo '<p>' . esc_html__( 'No licenses found.', '%TEXTDOMAIN%' ) . '</p>';
+        } else {
+            echo '<ul>';
+            foreach ( $licenses as $license ) {
+                echo '<li>' . '<strong>' . esc_html( $license->resource_slug ) . '</strong>: ' . esc_html( $license->key ) . '</li>';
+                }
+                echo '</ul>';
+            }
+        }
 }

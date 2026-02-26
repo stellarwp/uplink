@@ -4,15 +4,15 @@ namespace StellarWP\Uplink\Legacy;
 
 use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\Resources\Collection;
-
+use StellarWP\Uplink\Utils\Version;
 /**
  * Registers hooks for legacy suppression.
  *
- * Each Uplink instance handles its own resources independently
- * since each instance only knows about the resources registered
- * in its own collection.
+ * The highest Uplink version (the leader) fires a cross-instance
+ * action so every instance can evaluate its own suppress_when
+ * callbacks.
  *
- * @since 3.1.0
+ * @since 3.0.0
  */
 class Provider extends Abstract_Provider {
 
@@ -29,17 +29,25 @@ class Provider extends Abstract_Provider {
 			}
 		);
 
+		$this->container->singleton( LicenseRepository::class, LicenseRepository::class );
+
 		add_action( 'admin_init', [ $this, 'handle_legacy' ], 1, 0 );
 	}
 
 	/**
-	 * Suppress legacy hooks when a unified key is present.
+	 * When this instance is the leader, fire the cross-instance
+	 * suppression action. Each plugin's suppress_when callback
+	 * decides whether suppression actually runs.
 	 *
-	 * @since 3.1.0
+	 * @since 3.0.0
 	 *
 	 * @return void
 	 */
 	public function handle_legacy(): void {
-		$this->container->get( LegacyManager::class )->suppress_all();
+		if ( ! Version::should_handle( 'legacy_suppression' ) ) {
+			return;
+		}
+
+		do_action( 'stellarwp/uplink/suppress_legacy' );
 	}
 }

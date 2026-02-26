@@ -49,6 +49,7 @@ class Uplink {
 		$container->singleton( Notice\Provider::class, Notice\Provider::class );
 		$container->singleton( Admin\Provider::class, Admin\Provider::class );
 		$container->singleton( Auth\Provider::class, Auth\Provider::class );
+		$container->singleton( Legacy\Provider::class, Legacy\Provider::class );
 		$container->singleton( Features\Provider::class, Features\Provider::class );
 
 		if ( static::is_enabled() ) {
@@ -148,6 +149,13 @@ class Uplink {
 					$licenses,
 					$container->get( Legacy\LegacyManager::class )->collect_licenses()
 				);
+			}
+		);
+
+		add_action(
+			'stellarwp/uplink/suppress_legacy',
+			static function () use ( $container ): void {
+				$container->get( Legacy\LegacyManager::class )->suppress();
 			}
 		);
 	}

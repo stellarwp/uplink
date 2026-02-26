@@ -143,9 +143,9 @@ abstract class Resource {
 	protected $oauth = 0;
 
 	/**
-	 * Legacy configuration for suppressing old hooks and importing licenses.
+	 * Legacy configuration for importing licenses.
 	 *
-	 * @since 3.1.0
+	 * @since 3.0.0
 	 *
 	 * @var LegacyConfig|null
 	 */
@@ -545,7 +545,7 @@ abstract class Resource {
 	/**
 	 * Get or create the legacy configuration builder.
 	 *
-	 * @since 3.1.0
+	 * @since 3.0.0
 	 *
 	 * @return LegacyConfig
 	 */
@@ -560,7 +560,7 @@ abstract class Resource {
 	/**
 	 * Whether this resource has a legacy configuration.
 	 *
-	 * @since 3.1.0
+	 * @since 3.0.0
 	 *
 	 * @return bool
 	 */
@@ -571,7 +571,7 @@ abstract class Resource {
 	/**
 	 * Get the legacy configuration, if set.
 	 *
-	 * @since 3.1.0
+	 * @since 3.0.0
 	 *
 	 * @return LegacyConfig|null
 	 */

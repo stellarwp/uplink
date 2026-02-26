@@ -6,10 +6,10 @@ use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Resources\Resource;
 
 /**
- * Orchestrates legacy hook suppression across all registered
- * resources that have legacy configs.
+ * Manages legacy suppression and license collection for a single
+ * Uplink instance's resources.
  *
- * @since 3.1.0
+ * @since 3.0.0
  */
 class LegacyManager {
 
@@ -26,33 +26,28 @@ class LegacyManager {
 	}
 
 	/**
-	 * Suppress legacy hooks for all resources that registered them,
-	 * but only when a unified key exists. Without a unified key the
-	 * legacy systems should remain active.
+	 * Run suppression for all resources in this instance that
+	 * registered a suppressor via LegacyConfig::suppress().
 	 *
-	 * @since 3.1.0
+	 * @since 3.0.0
 	 *
 	 * @return void
 	 */
-	public function suppress_all(): void {
-		if ( ! UnifiedKey::exists() ) {
-			return;
-		}
-
+	public function suppress(): void {
 		foreach ( $this->get_legacy_resources() as $resource ) {
 			$config = $resource->get_legacy_config();
 
 			if ( $config ) {
-				$config->suppress();
+				$config->run_suppressor();
 			}
 		}
 	}
 
 	/**
-	 * Collect legacy licenses from all resources in this instance's
-	 * collection that have a license provider.
+	 * Collect legacy licenses from all resources in this instance
+	 * that have a license provider.
 	 *
-	 * @since 3.1.0
+	 * @since 3.0.0
 	 *
 	 * @return LegacyLicense[]
 	 */
@@ -73,7 +68,7 @@ class LegacyManager {
 	/**
 	 * Get all resources that have a legacy config.
 	 *
-	 * @since 3.1.0
+	 * @since 3.0.0
 	 *
 	 * @return Resource[]
 	 */

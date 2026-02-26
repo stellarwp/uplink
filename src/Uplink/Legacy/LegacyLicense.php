@@ -5,7 +5,7 @@ namespace StellarWP\Uplink\Legacy;
 /**
  * Represents a license key discovered from a plugin's legacy storage.
  *
- * @since 3.1.0
+ * @since 3.0.0
  */
 class LegacyLicense {
 

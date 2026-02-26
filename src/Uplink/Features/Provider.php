@@ -23,8 +23,7 @@ class Provider extends Abstract_Provider {
 	public function register(): void {
 		$this->container->singleton( Client::class, Client::class );
 
-		$this->container->singleton( Resolver::class, static function ( $c ) {
-			/** @var ContainerInterface $container */
+		$this->container->singleton( Resolver::class, static function ( ContainerInterface $c ) {
 			$container = $c->get( ContainerInterface::class );
 
 			return new Resolver( $container );
@@ -32,17 +31,14 @@ class Provider extends Abstract_Provider {
 
 		$this->container->singleton( Feature_Collection::class, Feature_Collection::class );
 
-		$this->container->singleton( Manager::class, static function ( $c ) {
-			/** @var Client $client */
+		$this->container->singleton( Manager::class, static function ( ContainerInterface $c ) {
 			$client = $c->get( Client::class );
-			/** @var Resolver $resolver */
 			$resolver = $c->get( Resolver::class );
 
 			return new Manager( $client, $resolver );
 		} );
 
-		$this->container->singleton( Feature_Controller::class, static function ( $c ) {
-			/** @var Manager $manager */
+		$this->container->singleton( Feature_Controller::class, static function ( ContainerInterface $c ) {
 			$manager = $c->get( Manager::class );
 
 			return new Feature_Controller( $manager );

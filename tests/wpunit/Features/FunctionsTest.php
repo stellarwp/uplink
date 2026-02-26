@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink\Tests\Features;
 
 use StellarWP\Uplink\Features\API\Client;
+use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Manager;
@@ -84,11 +85,11 @@ final class FunctionsTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Tests that is_feature_enabled returns false when the catalog returns a WP_Error.
+	 * Tests that is_feature_enabled returns a WP_Error when the catalog returns a WP_Error.
 	 *
 	 * @return void
 	 */
-	public function test_is_feature_enabled_returns_false_when_catalog_errors(): void {
+	public function test_is_feature_enabled_returns_wp_error_when_catalog_errors(): void {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
 		$catalog = $this->makeEmpty( Client::class, [
@@ -103,15 +104,17 @@ final class FunctionsTest extends UplinkTestCase {
 			return $manager;
 		} );
 
-		$this->assertFalse( is_feature_enabled( 'test-feature' ) );
+		$result = is_feature_enabled( 'test-feature' );
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( Error_Code::FEATURE_CHECK_FAILED, $result->get_error_code() );
 	}
 
 	/**
-	 * Tests that is_feature_available returns false when the catalog returns a WP_Error.
+	 * Tests that is_feature_available returns a WP_Error when the catalog returns a WP_Error.
 	 *
 	 * @return void
 	 */
-	public function test_is_feature_available_returns_false_when_catalog_errors(): void {
+	public function test_is_feature_available_returns_wp_error_when_catalog_errors(): void {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
 		$catalog = $this->makeEmpty( Client::class, [
@@ -126,6 +129,8 @@ final class FunctionsTest extends UplinkTestCase {
 			return $manager;
 		} );
 
-		$this->assertFalse( is_feature_available( 'test-feature' ) );
+		$result = is_feature_available( 'test-feature' );
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( Error_Code::FEATURE_CHECK_FAILED, $result->get_error_code() );
 	}
 }

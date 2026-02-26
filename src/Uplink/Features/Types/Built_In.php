@@ -14,32 +14,29 @@ final class Built_In extends Feature {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $slug          The feature slug.
-	 * @param string $group         The product group (e.g. 'LearnDash', 'TEC').
-	 * @param string $tier          The feature tier (e.g. 'Tier 1', 'Tier 2').
-	 * @param string $name          The feature display name.
-	 * @param string $description   The feature description.
-	 * @param bool   $is_available  Whether the feature is available.
-	 * @param string $documentation The URL to the feature documentation.
+	 * @param array<string, mixed> $attributes The feature attributes.
 	 *
 	 * @return void
 	 */
-	public function __construct( string $slug, string $group, string $tier, string $name, string $description, bool $is_available, string $documentation = '' ) {
-		parent::__construct( $slug, $group, $tier, $name, $description, 'built_in', $is_available, $documentation );
+	public function __construct( array $attributes ) {
+		$attributes['type'] = 'built_in';
+
+		parent::__construct( $attributes );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public static function from_array( array $data ) {
-		return new self(
-			$data['slug'],
-			$data['group'],
-			$data['tier'],
-			$data['name'],
-			$data['description'] ?? '',
-			$data['is_available'],
-			$data['documentation'] ?? ''
-		);
+		return new self( [
+			'slug'              => $data['slug'],
+			'group'             => $data['group'],
+			'tier'              => $data['tier'],
+			'name'              => $data['name'],
+			'description'       => $data['description'] ?? '',
+			'type'              => 'built_in',
+			'is_available'      => $data['is_available'],
+			'documentation_url' => $data['documentation_url'] ?? '',
+		] );
 	}
 }

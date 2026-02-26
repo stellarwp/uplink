@@ -22,7 +22,16 @@ final class FeatureTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->feature = new class( 'test-feature', 'TEC', 'Tier 1', 'Test Feature', 'A test feature.', 'test-type', true, 'https://example.com/docs' ) extends Feature {
+		$this->feature = new class( [
+			'slug'              => 'test-feature',
+			'group'             => 'TEC',
+			'tier'              => 'Tier 1',
+			'name'              => 'Test Feature',
+			'description'       => 'A test feature.',
+			'type'              => 'test-type',
+			'is_available'      => true,
+			'documentation_url' => 'https://example.com/docs',
+		] ) extends Feature {
 
 			/**
 			 * Creates a Feature instance from an associative array.
@@ -32,16 +41,16 @@ final class FeatureTest extends UplinkTestCase {
 			 * @return static
 			 */
 			public static function from_array( array $data ) {
-				return new self(
-					$data['slug'],
-					$data['group'],
-					$data['tier'],
-					$data['name'],
-					$data['description'] ?? '',
-					$data['type'] ?? 'test-type',
-					$data['is_available'],
-					$data['documentation'] ?? ''
-				);
+				return new self( [
+					'slug'              => $data['slug'],
+					'group'             => $data['group'],
+					'tier'              => $data['tier'],
+					'name'              => $data['name'],
+					'description'       => $data['description'] ?? '',
+					'type'              => $data['type'] ?? 'test-type',
+					'is_available'      => $data['is_available'],
+					'documentation_url' => $data['documentation_url'] ?? '',
+				] );
 			}
 		};
 	}
@@ -110,12 +119,32 @@ final class FeatureTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Tests that get_documentation returns the URL passed to the constructor.
+	 * Tests that get_documentation_url returns the URL passed to the constructor.
 	 *
 	 * @return void
 	 */
-	public function test_get_documentation(): void {
-		$this->assertSame( 'https://example.com/docs', $this->feature->get_documentation() );
+	public function test_get_documentation_url(): void {
+		$this->assertSame( 'https://example.com/docs', $this->feature->get_documentation_url() );
+	}
+
+	/**
+	 * Tests that to_array returns the expected associative array.
+	 *
+	 * @return void
+	 */
+	public function test_to_array(): void {
+		$result = $this->feature->to_array();
+
+		$this->assertSame( [
+			'slug'              => 'test-feature',
+			'group'             => 'TEC',
+			'tier'              => 'Tier 1',
+			'name'              => 'Test Feature',
+			'description'       => 'A test feature.',
+			'type'              => 'test-type',
+			'is_available'      => true,
+			'documentation_url' => 'https://example.com/docs',
+		], $result );
 	}
 
 	/**
@@ -125,14 +154,14 @@ final class FeatureTest extends UplinkTestCase {
 	 */
 	public function test_from_array(): void {
 		$feature = $this->feature::from_array( [
-			'slug'          => 'from-array-feature',
-			'group'         => 'LearnDash',
-			'tier'          => 'Tier 2',
-			'name'          => 'From Array',
-			'description'   => 'Hydrated from array.',
-			'type'          => 'custom-type',
-			'is_available'  => false,
-			'documentation' => 'https://example.com/learn-more',
+			'slug'              => 'from-array-feature',
+			'group'             => 'LearnDash',
+			'tier'              => 'Tier 2',
+			'name'              => 'From Array',
+			'description'       => 'Hydrated from array.',
+			'type'              => 'custom-type',
+			'is_available'      => false,
+			'documentation_url' => 'https://example.com/learn-more',
 		] );
 
 		$this->assertInstanceOf( Feature::class, $feature );
@@ -143,6 +172,6 @@ final class FeatureTest extends UplinkTestCase {
 		$this->assertSame( 'Hydrated from array.', $feature->get_description() );
 		$this->assertSame( 'custom-type', $feature->get_type() );
 		$this->assertFalse( $feature->is_available() );
-		$this->assertSame( 'https://example.com/learn-more', $feature->get_documentation() );
+		$this->assertSame( 'https://example.com/learn-more', $feature->get_documentation_url() );
 	}
 }

@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Features\REST;
 
+use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Features\Types\Feature;
 use WP_Error;
@@ -101,7 +102,7 @@ class Feature_Controller extends WP_REST_Controller {
 				'permission_callback' => [ $this, 'check_permissions' ],
 				'args'                => $this->get_slug_args(),
 			],
-			'schema' => [ $this, 'get_public_toggle_schema' ],
+			'schema' => [ $this, 'get_public_item_schema' ],
 		] );
 
 		register_rest_route( $this->namespace, '/' . $this->rest_base . '/(?P<slug>[a-zA-Z0-9_-]+)/disable', [
@@ -111,7 +112,7 @@ class Feature_Controller extends WP_REST_Controller {
 				'permission_callback' => [ $this, 'check_permissions' ],
 				'args'                => $this->get_slug_args(),
 			],
-			'schema' => [ $this, 'get_public_toggle_schema' ],
+			'schema' => [ $this, 'get_public_item_schema' ],
 		] );
 	}
 
@@ -181,7 +182,7 @@ class Feature_Controller extends WP_REST_Controller {
 
 		if ( ! $feature ) {
 			return new WP_Error(
-				'feature_not_found',
+				Error_Code::FEATURE_NOT_FOUND,
 				sprintf( 'Feature "%s" not found.', $slug ),
 				[ 'status' => 404 ]
 			);
@@ -200,15 +201,24 @@ class Feature_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function enable( WP_REST_Request $request ) {
-		$slug   = $request->get_param( 'slug' );
+		$slug    = $request->get_param( 'slug' );
+		$feature = $this->manager->get_feature( $slug );
+
+		if ( ! $feature ) {
+			return new WP_Error(
+				Error_Code::FEATURE_NOT_FOUND,
+				sprintf( 'Feature "%s" not found.', $slug ),
+				[ 'status' => 404 ]
+			);
+		}
+
 		$result = $this->manager->enable( $slug );
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
 
-		return new WP_REST_Response( [
-			'slug'    => $slug,
+		return new WP_REST_Response( $feature->to_array() + [
 			'enabled' => true,
 		] );
 	}
@@ -223,15 +233,24 @@ class Feature_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function disable( WP_REST_Request $request ) {
-		$slug   = $request->get_param( 'slug' );
+		$slug    = $request->get_param( 'slug' );
+		$feature = $this->manager->get_feature( $slug );
+
+		if ( ! $feature ) {
+			return new WP_Error(
+				Error_Code::FEATURE_NOT_FOUND,
+				sprintf( 'Feature "%s" not found.', $slug ),
+				[ 'status' => 404 ]
+			);
+		}
+
 		$result = $this->manager->disable( $slug );
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
 
-		return new WP_REST_Response( [
-			'slug'    => $slug,
+		return new WP_REST_Response( $feature->to_array() + [
 			'enabled' => false,
 		] );
 	}
@@ -249,10 +268,11 @@ class Feature_Controller extends WP_REST_Controller {
 		}
 
 		$this->schema = [
-			'$schema'    => 'http://json-schema.org/draft-04/schema#',
-			'title'      => 'feature',
-			'type'       => 'object',
-			'properties' => [
+			'$schema'              => 'http://json-schema.org/draft-04/schema#',
+			'title'                => 'feature',
+			'type'                 => 'object',
+			'additionalProperties' => true,
+			'properties'           => [
 				'slug'          => [
 					'description' => __( 'The feature slug.', '%TEXTDOMAIN%' ),
 					'type'        => 'string',
@@ -295,7 +315,7 @@ class Feature_Controller extends WP_REST_Controller {
 					'readonly'    => true,
 					'context'     => [ 'view' ],
 				],
-				'documentation' => [
+				'documentation_url' => [
 					'description' => __( 'The URL to the feature documentation.', '%TEXTDOMAIN%' ),
 					'type'        => 'string',
 					'format'      => 'uri',
@@ -312,35 +332,6 @@ class Feature_Controller extends WP_REST_Controller {
 		];
 
 		return $this->add_additional_fields_schema( $this->schema );
-	}
-
-	/**
-	 * Gets the public schema for toggle responses.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return array<string, mixed>
-	 */
-	public function get_public_toggle_schema(): array {
-		return [
-			'$schema'    => 'http://json-schema.org/draft-04/schema#',
-			'title'      => 'feature-toggle',
-			'type'       => 'object',
-			'properties' => [
-				'slug'    => [
-					'description' => __( 'The feature slug.', '%TEXTDOMAIN%' ),
-					'type'        => 'string',
-					'readonly'    => true,
-					'context'     => [ 'view' ],
-				],
-				'enabled' => [
-					'description' => __( 'Whether the feature is currently enabled.', '%TEXTDOMAIN%' ),
-					'type'        => 'boolean',
-					'readonly'    => true,
-					'context'     => [ 'view' ],
-				],
-			],
-		];
 	}
 
 	/**
@@ -384,16 +375,8 @@ class Feature_Controller extends WP_REST_Controller {
 	 * @return array<string, mixed>
 	 */
 	private function prepare_feature_data( Feature $feature ): array {
-		return [
-			'slug'          => $feature->get_slug(),
-			'name'          => $feature->get_name(),
-			'description'   => $feature->get_description(),
-			'group'         => $feature->get_group(),
-			'tier'          => $feature->get_tier(),
-			'type'          => $feature->get_type(),
-			'is_available'  => $feature->is_available(),
-			'documentation' => $feature->get_documentation(),
-			'enabled'       => $this->manager->is_enabled( $feature->get_slug() ),
+		return $feature->to_array() + [
+			'enabled' => $this->manager->is_enabled( $feature->get_slug() ),
 		];
 	}
 

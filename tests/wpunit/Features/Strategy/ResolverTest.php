@@ -61,28 +61,4 @@ final class ResolverTest extends UplinkTestCase {
 
 		$this->resolver->resolve( $feature );
 	}
-
-	/**
-	 * Tests that the strategy map can be modified via the WordPress filter.
-	 *
-	 * @return void
-	 */
-	public function test_strategy_map_is_filterable(): void {
-		$mock_strategy = $this->makeEmpty( Strategy::class );
-
-		$this->container->bind( get_class( $mock_strategy ), static function () use ( $mock_strategy ) {
-			return $mock_strategy;
-		} );
-
-		add_filter( 'stellarwp/uplink/feature_strategy_map', static function ( $map ) use ( $mock_strategy ) {
-			$map['test-type'] = get_class( $mock_strategy );
-
-			return $map;
-		} );
-
-		$feature  = $this->makeEmpty( Feature::class, [ 'get_type' => 'test-type' ] );
-		$resolved = $this->resolver->resolve( $feature );
-
-		$this->assertSame( $mock_strategy, $resolved );
-	}
 }

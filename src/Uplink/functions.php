@@ -11,6 +11,7 @@ use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
 use StellarWP\Uplink\Auth\Auth_Url_Builder;
 use StellarWP\Uplink\Auth\Authorizer;
 use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
+use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Resources\Plugin;
@@ -19,6 +20,7 @@ use StellarWP\Uplink\Resources\Resource;
 use StellarWP\Uplink\Site\Data;
 use Throwable;
 use RuntimeException;
+use WP_Error;
 
 /**
  * Get the uplink container.
@@ -283,9 +285,9 @@ function get_plugins(): Collection {
  *
  * @param string $slug The feature slug.
  *
- * @return bool
+ * @return bool|WP_Error
  */
-function is_feature_enabled( string $slug ): bool {
+function is_feature_enabled( string $slug ) {
 	try {
 		return get_container()->get( Manager::class )->is_enabled( $slug );
 	} catch ( Throwable $e ) {
@@ -293,7 +295,7 @@ function is_feature_enabled( string $slug ): bool {
 			error_log( "Error checking feature enabled state: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
 		}
 
-		return false;
+		return new WP_Error( Error_Code::FEATURE_CHECK_FAILED, $e->getMessage() );
 	}
 }
 
@@ -304,9 +306,9 @@ function is_feature_enabled( string $slug ): bool {
  *
  * @param string $slug The feature slug.
  *
- * @return bool
+ * @return bool|WP_Error
  */
-function is_feature_available( string $slug ): bool {
+function is_feature_available( string $slug ) {
 	try {
 		return get_container()->get( Manager::class )->is_available( $slug );
 	} catch ( Throwable $e ) {
@@ -314,6 +316,6 @@ function is_feature_available( string $slug ): bool {
 			error_log( "Error checking feature availability: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
 		}
 
-		return false;
+		return new WP_Error( Error_Code::FEATURE_CHECK_FAILED, $e->getMessage() );
 	}
 }

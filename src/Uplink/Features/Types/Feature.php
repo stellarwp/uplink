@@ -2,6 +2,8 @@
 
 namespace StellarWP\Uplink\Features\Types;
 
+use StellarWP\Uplink\Utils\Cast;
+
 /**
  * Abstract base class for a Feature.
  *
@@ -13,102 +15,25 @@ namespace StellarWP\Uplink\Features\Types;
 abstract class Feature {
 
 	/**
-	 * The feature slug.
+	 * The feature attributes.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @var string
+	 * @var array<string, mixed>
 	 */
-	protected string $slug;
-
-	/**
-	 * The product group the feature belongs to (e.g. 'LearnDash', 'TEC').
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var string
-	 */
-	protected string $group;
-
-	/**
-	 * The feature tier (e.g. 'Tier 1', 'Tier 2').
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var string
-	 */
-	protected string $tier;
-
-	/**
-	 * The feature display name.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var string
-	 */
-	protected string $name;
-
-	/**
-	 * The feature description.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var string
-	 */
-	protected string $description;
-
-	/**
-	 * The feature type identifier (e.g. 'zip', 'built_in').
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var string
-	 */
-	protected string $type;
-
-	/**
-	 * Whether the feature is available for the current site.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var bool
-	 */
-	protected bool $is_available;
-
-	/**
-	 * The URL linking to the feature documentation or learn-more page.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var string
-	 */
-	protected string $documentation;
+	protected array $attributes = [];
 
 	/**
 	 * Constructor for a Feature object.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $slug          The feature slug.
-	 * @param string $group         The product group (e.g. 'LearnDash', 'TEC').
-	 * @param string $tier          The feature tier (e.g. 'Tier 1', 'Tier 2').
-	 * @param string $name          The feature display name.
-	 * @param string $description   The feature description.
-	 * @param string $type          The feature type identifier.
-	 * @param bool   $is_available  Whether the feature is available.
-	 * @param string $documentation The URL to the feature documentation.
+	 * @param array<string, mixed> $attributes The feature attributes.
 	 *
 	 * @return void
 	 */
-	public function __construct( string $slug, string $group, string $tier, string $name, string $description, string $type, bool $is_available, string $documentation = '' ) {
-		$this->slug          = $slug;
-		$this->group         = $group;
-		$this->tier          = $tier;
-		$this->name          = $name;
-		$this->description   = $description;
-		$this->type          = $type;
-		$this->is_available  = $is_available;
-		$this->documentation = $documentation;
+	public function __construct( array $attributes ) {
+		$this->attributes = $attributes;
 	}
 
 	/**
@@ -122,6 +47,16 @@ abstract class Feature {
 	 */
 	abstract public static function from_array( array $data );
 
+	/**
+	 * Converts the feature to an associative array.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function to_array(): array {
+		return $this->attributes;
+	}
 
 	/**
 	 * Gets the feature slug.
@@ -131,7 +66,7 @@ abstract class Feature {
 	 * @return string
 	 */
 	public function get_slug(): string {
-		return $this->slug;
+		return Cast::to_string( $this->attributes['slug'] ?? '' );
 	}
 
 	/**
@@ -142,7 +77,7 @@ abstract class Feature {
 	 * @return string
 	 */
 	public function get_group(): string {
-		return $this->group;
+		return Cast::to_string( $this->attributes['group'] ?? '' );
 	}
 
 	/**
@@ -153,7 +88,7 @@ abstract class Feature {
 	 * @return string
 	 */
 	public function get_tier(): string {
-		return $this->tier;
+		return Cast::to_string( $this->attributes['tier'] ?? '' );
 	}
 
 	/**
@@ -164,7 +99,7 @@ abstract class Feature {
 	 * @return string
 	 */
 	public function get_name(): string {
-		return $this->name;
+		return Cast::to_string( $this->attributes['name'] ?? '' );
 	}
 
 	/**
@@ -175,7 +110,7 @@ abstract class Feature {
 	 * @return string
 	 */
 	public function get_description(): string {
-		return $this->description;
+		return Cast::to_string( $this->attributes['description'] ?? '' );
 	}
 
 	/**
@@ -186,7 +121,7 @@ abstract class Feature {
 	 * @return string
 	 */
 	public function get_type(): string {
-		return $this->type;
+		return Cast::to_string( $this->attributes['type'] ?? '' );
 	}
 
 	/**
@@ -197,7 +132,7 @@ abstract class Feature {
 	 * @return bool
 	 */
 	public function is_available(): bool {
-		return $this->is_available;
+		return Cast::to_bool( $this->attributes['is_available'] ?? false );
 	}
 
 	/**
@@ -207,7 +142,20 @@ abstract class Feature {
 	 *
 	 * @return string
 	 */
-	public function get_documentation(): string {
-		return $this->documentation;
+	public function get_documentation_url(): string {
+		return Cast::to_string( $this->attributes['documentation_url'] ?? '' );
+	}
+
+	/**
+	 * Gets an attribute by name.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $key The attribute name.
+	 *
+	 * @return mixed
+	 */
+	protected function get_attribute( string $key ) {
+		return $this->attributes[ $key ] ?? null;
 	}
 }

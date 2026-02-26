@@ -60,6 +60,7 @@ class Uplink {
 				$container->get( Auth\Provider::class )->register();
 			}
 
+			// TODO: Register to only the newest instance.
 			$container->get( Features\Provider::class )->register();
 
 			static::register_cross_instance_hooks( $container );

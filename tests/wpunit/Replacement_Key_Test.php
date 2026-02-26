@@ -122,7 +122,7 @@ class Replacement_Key_Test extends UplinkTestCase {
 		$this->assertEquals( $replacement_key, $this->resource->get_license_key() );
 	}
 
-	public function test_replacemnt_key_update_in_multisite_context(): void {
+	public function test_replacement_key_update_in_multisite_context(): void {
 
 	}
 }

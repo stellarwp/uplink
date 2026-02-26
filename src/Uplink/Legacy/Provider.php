@@ -21,15 +21,15 @@ class Provider extends Abstract_Provider {
 	 */
 	public function register(): void {
 		$this->container->singleton(
-			LegacyManager::class,
+			Legacy_Manager::class,
 			function () {
-				return new LegacyManager(
+				return new Legacy_Manager(
 					$this->container->get( Collection::class )
 				);
 			}
 		);
 
-		$this->container->singleton( LicenseRepository::class, LicenseRepository::class );
+		$this->container->singleton( License_Repository::class, License_Repository::class );
 
 		add_action( 'admin_init', [ $this, 'handle_legacy' ], 1, 0 );
 	}

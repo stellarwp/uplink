@@ -11,7 +11,7 @@ use StellarWP\Uplink\Resources\Resource;
  *
  * @since 3.0.0
  */
-class LegacyManager {
+class Legacy_Manager {
 
 	/**
 	 * @var Collection
@@ -27,7 +27,7 @@ class LegacyManager {
 
 	/**
 	 * Run suppression for all resources in this instance that
-	 * registered a suppressor via LegacyConfig::suppress().
+	 * registered a suppressor via Legacy_Config::suppress().
 	 *
 	 * @since 3.0.0
 	 *
@@ -49,7 +49,7 @@ class LegacyManager {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @return LegacyLicense[]
+	 * @return Legacy_License[]
 	 */
 	public function collect_licenses(): array {
 		$licenses = [];

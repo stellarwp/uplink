@@ -7,7 +7,7 @@ namespace StellarWP\Uplink\Legacy;
  *
  * @since 3.0.0
  */
-class LegacyLicense {
+class Legacy_License {
 
 	/**
 	 * @var string

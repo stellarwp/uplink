@@ -147,7 +147,7 @@ class Uplink {
 			static function ( array $licenses ) use ( $container ): array {
 				return array_merge(
 					$licenses,
-					$container->get( Legacy\LegacyManager::class )->collect_licenses()
+					$container->get( Legacy\Legacy_Manager::class )->collect_licenses()
 				);
 			}
 		);
@@ -155,7 +155,7 @@ class Uplink {
 		add_action(
 			'stellarwp/uplink/suppress_legacy',
 			static function () use ( $container ): void {
-				$container->get( Legacy\LegacyManager::class )->suppress();
+				$container->get( Legacy\Legacy_Manager::class )->suppress();
 			}
 		);
 	}

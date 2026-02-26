@@ -7,7 +7,7 @@ use StellarWP\Uplink\API;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Exceptions;
-use StellarWP\Uplink\Legacy\LegacyConfig;
+use StellarWP\Uplink\Legacy\Legacy_Config;
 use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Utils;
 
@@ -147,7 +147,7 @@ abstract class Resource {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @var LegacyConfig|null
+	 * @var Legacy_Config|null
 	 */
 	protected $legacy_config;
 
@@ -547,11 +547,11 @@ abstract class Resource {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @return LegacyConfig
+	 * @return Legacy_Config
 	 */
-	public function legacy(): LegacyConfig {
+	public function legacy(): Legacy_Config {
 		if ( ! $this->legacy_config ) {
-			$this->legacy_config = new LegacyConfig();
+			$this->legacy_config = new Legacy_Config();
 		}
 
 		return $this->legacy_config;
@@ -573,9 +573,9 @@ abstract class Resource {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @return LegacyConfig|null
+	 * @return Legacy_Config|null
 	 */
-	public function get_legacy_config(): ?LegacyConfig {
+	public function get_legacy_config(): ?Legacy_Config {
 		return $this->legacy_config;
 	}
 

@@ -8,14 +8,14 @@ namespace StellarWP\Uplink\Legacy;
  *
  * @since 3.0.0
  */
-class LicenseRepository {
+class License_Repository {
 
 	/**
 	 * Get all legacy licenses reported across all Uplink instances.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @return LegacyLicense[]
+	 * @return Legacy_License[]
 	 */
 	public function all(): array {
 		return (array) apply_filters( 'stellarwp/uplink/legacy_licenses', [] );
@@ -28,9 +28,9 @@ class LicenseRepository {
 	 *
 	 * @param string $slug
 	 *
-	 * @return LegacyLicense|null
+	 * @return Legacy_License|null
 	 */
-	public function find( string $slug ): ?LegacyLicense {
+	public function find( string $slug ): ?Legacy_License {
 		foreach ( $this->all() as $license ) {
 			if ( $license->resource_slug === $slug ) {
 				return $license;

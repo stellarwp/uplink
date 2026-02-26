@@ -8,7 +8,7 @@ namespace StellarWP\Uplink\Legacy;
  *
  * @since 3.0.0
  */
-class LegacyConfig {
+class Legacy_Config {
 
 	/**
 	 * Condition callback that determines whether suppression should run.
@@ -29,7 +29,7 @@ class LegacyConfig {
 	protected $suppress_handle;
 
 	/**
-	 * Callable that returns LegacyLicense[] from existing storage.
+	 * Callable that returns Legacy_License[] from existing storage.
 	 *
 	 * @var callable|null
 	 */
@@ -41,11 +41,11 @@ class LegacyConfig {
 	 * These are reported to the cross-instance filter so the Uplink
 	 * leader can discover all legacy licenses across all products.
 	 *
-	 * The callable receives no arguments and must return LegacyLicense[].
+	 * The callable receives no arguments and must return Legacy_License[].
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param callable(): LegacyLicense[] $provider
+	 * @param callable(): Legacy_License[] $provider
 	 *
 	 * @return $this
 	 */
@@ -116,7 +116,7 @@ class LegacyConfig {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @return LegacyLicense[]
+	 * @return Legacy_License[]
 	 */
 	public function get_licenses(): array {
 		if ( ! $this->license_provider ) {

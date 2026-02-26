@@ -81,6 +81,9 @@ class Resolver {
 			);
 		}
 
-		return $this->container->get( $class );
+		/** @var Strategy $strategy */
+		$strategy = $this->container->get( $class );
+
+		return $strategy;
 	}
 }

@@ -5,6 +5,7 @@ namespace StellarWP\Uplink\Features\REST;
 use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Features\Types\Feature;
+use StellarWP\Uplink\Utils\Cast;
 use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Request;
@@ -149,7 +150,12 @@ class Feature_Controller extends WP_REST_Controller {
 		$type      = $request->get_param( 'type' );
 
 		if ( $group !== null || $tier !== null || $available !== null || $type !== null ) {
-			$features = $features->filter( $group, $tier, $available, $type );
+			$features = $features->filter(
+				$group !== null ? Cast::to_string( $group ) : null,
+				$tier !== null ? Cast::to_string( $tier ) : null,
+				$available !== null ? Cast::to_bool( $available ) : null,
+				$type !== null ? Cast::to_string( $type ) : null
+			);
 		}
 
 		$data = [];
@@ -171,7 +177,7 @@ class Feature_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function get_item( $request ) {
-		$slug     = $request->get_param( 'slug' );
+		$slug     = Cast::to_string( $request->get_param( 'slug' ) );
 		$features = $this->manager->get_features();
 
 		if ( is_wp_error( $features ) ) {
@@ -201,7 +207,7 @@ class Feature_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function enable( WP_REST_Request $request ) {
-		$slug    = $request->get_param( 'slug' );
+		$slug    = Cast::to_string( $request->get_param( 'slug' ) );
 		$feature = $this->manager->get_feature( $slug );
 
 		if ( ! $feature ) {
@@ -233,7 +239,7 @@ class Feature_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function disable( WP_REST_Request $request ) {
-		$slug    = $request->get_param( 'slug' );
+		$slug    = Cast::to_string( $request->get_param( 'slug' ) );
 		$feature = $this->manager->get_feature( $slug );
 
 		if ( ! $feature ) {
@@ -264,6 +270,7 @@ class Feature_Controller extends WP_REST_Controller {
 	 */
 	public function get_item_schema(): array {
 		if ( $this->schema ) {
+			/** @var array<string, mixed> */
 			return $this->add_additional_fields_schema( $this->schema );
 		}
 
@@ -331,6 +338,7 @@ class Feature_Controller extends WP_REST_Controller {
 			],
 		];
 
+		/** @var array<string, mixed> */
 		return $this->add_additional_fields_schema( $this->schema );
 	}
 
@@ -393,8 +401,8 @@ class Feature_Controller extends WP_REST_Controller {
 				'required'          => true,
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
-				'validate_callback' => function ( $slug ) {
-					return $this->manager->is_available( $slug );
+				'validate_callback' => function ( $slug ): bool {
+					return Cast::to_bool( $this->manager->is_available( Cast::to_string( $slug ) ) );
 				},
 			],
 		];

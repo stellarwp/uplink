@@ -4,6 +4,7 @@ namespace StellarWP\Uplink\Features\API;
 
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Types\Feature;
+use StellarWP\Uplink\Utils\Cast;
 use WP_Error;
 
 /**
@@ -134,15 +135,15 @@ class Client {
 		$collection = new Feature_Collection();
 
 		foreach ( $response as $entry ) {
-			$type  = $entry['type'] ?? null;
-			$class = $this->type_map[ $type ] ?? null;
+			$type  = isset( $entry['type'] ) && is_string( $entry['type'] ) ? $entry['type'] : null;
+			$class = $type !== null ? ( $this->type_map[ $type ] ?? null ) : null;
 
 			if ( $class === null ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 					error_log( sprintf(
 						"Uplink: Unknown feature type '%s' for slug '%s'",
 						$type ?? '(null)',
-						$entry['slug'] ?? '(unknown)'
+						Cast::to_string( $entry['slug'] ?? '(unknown)' )
 					) );
 				}
 				continue;

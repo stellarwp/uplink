@@ -28,7 +28,7 @@ class Feature_Collection extends Collection {
 			$this->offsetSet( $feature->get_slug(), $feature );
 		}
 
-		return $this->offsetGet( $feature->get_slug() );
+		return $this->offsetGet( $feature->get_slug() ) ?? $feature;
 	}
 
 	/**

@@ -291,11 +291,13 @@ function is_feature_enabled( string $slug ) {
 	try {
 		return get_container()->get( Manager::class )->is_enabled( $slug );
 	} catch ( Throwable $e ) {
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		if ( $e instanceof \Exception && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( "Error checking feature enabled state: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
 		}
 
-		return new WP_Error( Error_Code::FEATURE_CHECK_FAILED, $e->getMessage() );
+		$message = $e instanceof \Exception ? $e->getMessage() : 'An unexpected error occurred.';
+
+		return new WP_Error( Error_Code::FEATURE_CHECK_FAILED, $message );
 	}
 }
 
@@ -312,10 +314,12 @@ function is_feature_available( string $slug ) {
 	try {
 		return get_container()->get( Manager::class )->is_available( $slug );
 	} catch ( Throwable $e ) {
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		if ( $e instanceof \Exception && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( "Error checking feature availability: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
 		}
 
-		return new WP_Error( Error_Code::FEATURE_CHECK_FAILED, $e->getMessage() );
+		$message = $e instanceof \Exception ? $e->getMessage() : 'An unexpected error occurred.';
+
+		return new WP_Error( Error_Code::FEATURE_CHECK_FAILED, $message );
 	}
 }

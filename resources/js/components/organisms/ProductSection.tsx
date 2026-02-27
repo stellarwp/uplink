@@ -25,7 +25,7 @@ interface ProductSectionProps {
 }
 
 /**
- * @since TBD
+ * @since 3.0.0
  */
 export function ProductSection( { product, onAddLicense }: ProductSectionProps ) {
     const { getLicenseForProduct, getTierForProduct, productEnabled, toggleProduct } =

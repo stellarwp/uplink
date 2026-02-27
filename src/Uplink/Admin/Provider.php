@@ -10,7 +10,7 @@ class Provider extends Abstract_Provider {
 	/**
 	 * Register the service provider.
 	 *
-	 * @since TBD added Feature_Manager_Page.
+	 * @since 3.0.0 added Feature_Manager_Page.
 	 * @since 1.0.0
 	 *
 	 * @return void
@@ -62,7 +62,7 @@ class Provider extends Abstract_Provider {
 	 * Registers the unified feature manager page if this instance
 	 * has the highest Uplink version among all active instances.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return void
 	 */

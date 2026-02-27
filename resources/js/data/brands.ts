@@ -10,7 +10,7 @@ import { Heart, CalendarDays, GraduationCap, Layers } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 /**
- * @since TBD
+ * @since 3.0.0
  */
 export interface BrandConfig {
     /** Lucide icon component */
@@ -25,7 +25,7 @@ export interface BrandConfig {
 /**
  * Icon and color config per product slug.
  *
- * @since TBD
+ * @since 3.0.0
  */
 export const BRAND_CONFIGS: Record<string, BrandConfig> = {
     givewp: {

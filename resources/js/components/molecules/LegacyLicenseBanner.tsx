@@ -8,7 +8,7 @@ import { AlertTriangle } from 'lucide-react';
 import { useLicenseStore } from '@/stores/license-store';
 
 /**
- * @since TBD
+ * @since 3.0.0
  */
 export function LegacyLicenseBanner() {
     const hasLegacyLicense = useLicenseStore( ( s ) => s.hasLegacyLicense() );

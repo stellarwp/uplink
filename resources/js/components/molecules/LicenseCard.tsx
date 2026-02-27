@@ -18,7 +18,7 @@ interface LicenseCardProps {
 }
 
 /**
- * @since TBD
+ * @since 3.0.0
  */
 export function LicenseCard( { license }: LicenseCardProps ) {
     const [ detailOpen, setDetailOpen ] = useState( false );

@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
 type Tab = 'my-products' | 'licenses';
 
 /**
- * @since TBD
+ * @since 3.0.0
  */
 export function AppShell() {
     const [ activeTab, setActiveTab ] = useState<Tab>( 'my-products' );

@@ -21,7 +21,7 @@ interface LicenseKeyInputProps {
 }
 
 /**
- * @since TBD
+ * @since 3.0.0
  */
 export function LicenseKeyInput( { onSuccess, prefillKey }: LicenseKeyInputProps ) {
     const [ key, setKey ] = useState( '' );

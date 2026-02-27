@@ -9,7 +9,7 @@ interface BrandIconProps {
 }
 
 /**
- * @since TBD
+ * @since 3.0.0
  */
 export function BrandIcon( { icon: IconComponent, colorClass }: BrandIconProps ) {
     return (

@@ -12,7 +12,7 @@ interface PurchaseLinkProps {
 }
 
 /**
- * @since TBD
+ * @since 3.0.0
  */
 export function PurchaseLink( { tierName, upgradeUrl, mode = 'upgrade' }: PurchaseLinkProps ) {
     const label =

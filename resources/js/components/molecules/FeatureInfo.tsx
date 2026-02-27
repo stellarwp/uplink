@@ -8,7 +8,7 @@ interface FeatureInfoProps {
 }
 
 /**
- * @since TBD
+ * @since 3.0.0
  */
 export function FeatureInfo( { name, description, isLocked }: FeatureInfoProps ) {
     return (

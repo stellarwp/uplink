@@ -23,7 +23,7 @@ interface FeatureRowProps {
 }
 
 /**
- * @since TBD
+ * @since 3.0.0
  */
 export function FeatureRow( { feature, product }: FeatureRowProps ) {
     const { getTierForProduct, isFeatureEnabled, toggleFeature, productEnabled } =

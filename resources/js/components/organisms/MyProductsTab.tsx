@@ -16,7 +16,7 @@ interface MyProductsTabProps {
 }
 
 /**
- * @since TBD
+ * @since 3.0.0
  */
 export function MyProductsTab( { onAddLicense }: MyProductsTabProps ) {
     return (

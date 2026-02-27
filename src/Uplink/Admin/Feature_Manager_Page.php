@@ -8,7 +8,7 @@ use StellarWP\Uplink\Utils\Version;
 /**
  * Manages the unified feature manager admin page.
  *
- * @since TBD
+ * @since 3.0.0
  *
  * @package StellarWP\Uplink
  */
@@ -18,7 +18,7 @@ class Feature_Manager_Page {
 	 * Hook suffix returned by add_menu_page().
 	 * Empty string until the page is registered.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @var string
 	 */
@@ -27,7 +27,7 @@ class Feature_Manager_Page {
 	/**
 	 * Registers the unified feature manager page if this instance is the version leader.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return void
 	 */
@@ -56,7 +56,7 @@ class Feature_Manager_Page {
 	 * $this->page_hook — the value returned by add_menu_page() — to ensure
 	 * the React bundle is loaded only on this specific admin page.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @param string $hook_suffix Current admin page hook suffix.
 	 *
@@ -82,7 +82,7 @@ class Feature_Manager_Page {
 	 *   dirname(dirname(__DIR__))             → src
 	 *   dirname(dirname(dirname(__DIR__)))    → plugin root (uplink/)
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return void
 	 */
@@ -131,7 +131,7 @@ class Feature_Manager_Page {
 	 * The .uplink-ui class activates CSS scoping for Tailwind styles,
 	 * preventing conflicts with WordPress Admin global styles.
 	 *
-	 * @since TBD
+	 * @since 3.0.0
 	 *
 	 * @return void
 	 */

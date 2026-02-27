@@ -24,7 +24,7 @@ interface LicenseListProps {
 }
 
 /**
- * @since TBD
+ * @since 3.0.0
  */
 export function LicenseList( { openAddDialog = false, onAddDialogClose }: LicenseListProps = {} ) {
     const [ addOpen, setAddOpen ] = useState( false );

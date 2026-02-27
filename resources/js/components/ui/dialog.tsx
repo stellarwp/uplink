@@ -21,7 +21,7 @@ interface DialogProps {
 
 /**
  * Dialog overlay + panel. Traps focus via the backdrop click handler.
- * @since TBD
+ * @since 3.0.0
  */
 export function Dialog( { open, onClose, children, maxWidth = 'max-w-lg' }: DialogProps ) {
     // Close on Escape key

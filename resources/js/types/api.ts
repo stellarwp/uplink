@@ -10,18 +10,18 @@
 
 /**
  * The license and activation state of a feature entry.
- * @since TBD
+ * @since 3.0.0
  */
 export type FeatureLicenseState = 'active' | 'inactive' | 'not_included';
 
 /**
  * Activation status of the master license key itself.
- * @since TBD
+ * @since 3.0.0
  */
 export type LicenseStatus = 'active' | 'expired' | 'invalid' | 'idle';
 
 /**
- * @since TBD
+ * @since 3.0.0
  * @deprecated Use the new id-based Feature type from the new data model.
  */
 export interface LegacyFeature {
@@ -48,13 +48,13 @@ export interface LegacyFeature {
 
 /**
  * Plan tier for a product.
- * @since TBD
+ * @since 3.0.0
  */
 export type TierSlug = 'starter' | 'pro' | 'agency';
 
 /**
  * A plan tier definition.
- * @since TBD
+ * @since 3.0.0
  */
 export interface Tier {
     slug: TierSlug;
@@ -68,7 +68,7 @@ export interface Tier {
 
 /**
  * A feature belonging to a product tier.
- * @since TBD
+ * @since 3.0.0
  */
 export interface ProductFeature {
     /** Numeric feature ID */
@@ -85,7 +85,7 @@ export interface ProductFeature {
 
 /**
  * A product with tiered plans and features.
- * @since TBD
+ * @since 3.0.0
  */
 export interface Product {
     /** Unique product slug (e.g. "givewp") */
@@ -102,7 +102,7 @@ export interface Product {
 
 /**
  * A license key entry.
- * @since TBD
+ * @since 3.0.0
  */
 export interface License {
     /** The license key string */
@@ -127,7 +127,7 @@ export interface License {
 
 /**
  * Per-product activation record stored in the license store.
- * @since TBD
+ * @since 3.0.0
  */
 export interface LicenseProduct {
     productSlug: string;
@@ -137,7 +137,7 @@ export interface LicenseProduct {
 
 /**
  * Runtime toggle state for an individual feature.
- * @since TBD
+ * @since 3.0.0
  */
 export interface FeatureState {
     featureId: number;

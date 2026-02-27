@@ -1,7 +1,7 @@
 import { CheckCircle, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-/** @since TBD */
+/** @since 3.0.0 */
 export type LicenseMessageType = 'success' | 'error' | 'idle';
 
 interface LicenseStatusMessageProps {
@@ -10,7 +10,7 @@ interface LicenseStatusMessageProps {
 }
 
 /**
- * @since TBD
+ * @since 3.0.0
  */
 export function LicenseStatusMessage( { type, message }: LicenseStatusMessageProps ) {
     if ( type === 'idle' ) {

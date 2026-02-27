@@ -20,7 +20,7 @@ function getLabel( isLocked: boolean, isChecked: boolean ): string {
 }
 
 /**
- * @since TBD
+ * @since 3.0.0
  */
 export function FeatureSwitch( { state, onToggle }: FeatureToggleProps ) {
     const isLocked  = state === 'not_included';

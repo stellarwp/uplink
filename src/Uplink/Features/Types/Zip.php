@@ -76,7 +76,11 @@ final class Zip extends Feature {
 	public function get_authors(): array {
 		$authors = $this->attributes['authors'] ?? [];
 
-		return is_array( $authors ) ? $authors : [];
+		if ( ! is_array( $authors ) ) {
+			return [];
+		}
+
+		return array_values( array_filter( $authors, 'is_string' ) );
 	}
 
 	/**

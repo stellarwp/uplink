@@ -4,6 +4,7 @@ namespace StellarWP\Uplink\Features\Strategy;
 
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Zip;
+use StellarWP\Uplink\Utils\Cast;
 use WP_Error;
 use Throwable;
 use WP_Ajax_Upgrader_Skin;
@@ -170,7 +171,7 @@ class Zip_Strategy extends Abstract_Strategy {
 		// Verify the plugin is actually inactive now. This catches edge cases
 		// where a deactivation hook re-activates the plugin or WordPress's
 		// plugin state is otherwise inconsistent.
-		// @phpstan-ignore if.alwaysTrue (deactivate_plugins() changes active state via DB side effects invisible to static analysis)
+		// @phpstan-ignore-next-line if.alwaysTrue -- (deactivate_plugins() changes active state via DB side effects invisible to static analysis).
 		if ( $this->is_plugin_active( $plugin_file ) ) {
 			return new WP_Error(
 				'deactivation_failed',
@@ -375,10 +376,13 @@ class Zip_Strategy extends Abstract_Strategy {
 		require_once ABSPATH . 'wp-admin/includes/class-wp-ajax-upgrader-skin.php';
 		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 
-		$plugin_info = plugins_api( 'plugin_information', [
-			'slug'   => sanitize_key( $feature->get_plugin_slug() ),
-			'fields' => [ 'sections' => false ],
-		] );
+		$plugin_info = plugins_api(
+			'plugin_information',
+			[
+				'slug'   => sanitize_key( $feature->get_plugin_slug() ),
+				'fields' => [ 'sections' => false ],
+			]
+		);
 
 		if ( is_wp_error( $plugin_info ) ) {
 			return new WP_Error(
@@ -401,7 +405,7 @@ class Zip_Strategy extends Abstract_Strategy {
 		$skin     = new WP_Ajax_Upgrader_Skin();
 		$upgrader = new Plugin_Upgrader( $skin );
 
-		$result = $upgrader->install( $plugin_info->download_link );
+		$result = $upgrader->install( Cast::to_string( $plugin_info->download_link ) );
 
 		// Plugin_Upgrader::install() returns true on success or WP_Error on
 		// failure. The skin may also collect errors separately.
@@ -526,7 +530,7 @@ class Zip_Strategy extends Abstract_Strategy {
 				sprintf(
 					'Fatal error during activation of "%s": %s',
 					$plugin_file,
-					$e->getMessage()
+					Cast::to_string( $e->getMessage() )
 				)
 			);
 		}
@@ -688,7 +692,9 @@ class Zip_Strategy extends Abstract_Strategy {
 			return null;
 		}
 
-		return ( $this->feature_resolver )( $plugin_file );
+		$resolved = ( $this->feature_resolver )( $plugin_file );
+
+		return $resolved instanceof Zip ? $resolved : null;
 	}
 
 	/**
@@ -707,5 +713,4 @@ class Zip_Strategy extends Abstract_Strategy {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 	}
-
 }

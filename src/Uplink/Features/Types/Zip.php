@@ -55,6 +55,21 @@ final class Zip extends Feature {
 	}
 
 	/**
+	 * Converts the feature to an associative array.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function to_array(): array {
+		return parent::to_array() + [
+			'installed_version' => $this->get_installed_version(),
+			'new_version'       => $this->get_new_version(),
+			'has_update'        => $this->has_update(),
+		];
+	}
+
+	/**
 	 * Gets the plugin file path relative to the plugins directory.
 	 *
 	 * @since 3.0.0
@@ -102,5 +117,67 @@ final class Zip extends Feature {
 		$plugin_data = get_plugin_data( trailingslashit( WP_PLUGIN_DIR ) . $this->get_plugin_file() ); // @phpstan-ignore-line
 
 		return $plugin_data['Version'] ?? null;
+	}
+
+	/**
+	 * Checks whether an update is available for this Zip feature's plugin.
+	 *
+	 * Reads the update_plugins site transient populated by the consolidated
+	 * update Handler, and compares the new version against the installed version.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return bool
+	 */
+	public function has_update(): bool {
+		$installed_version = $this->get_installed_version();
+
+		if ( $installed_version === null ) {
+			return false;
+		}
+
+		$new_version = $this->get_new_version();
+
+		if ( $new_version === null ) {
+			return false;
+		}
+
+		return version_compare( $new_version, $installed_version, '>' );
+	}
+
+	/**
+	 * Gets the new version available via plugins_api().
+	 *
+	 * The Handler filters the plugins_api response for Zip features,
+	 * returning update data from the consolidation server.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string|null The new version string, or null if unavailable.
+	 */
+	public function get_new_version(): ?string {
+		$slug = $this->get_slug();
+
+		if ( empty( $slug ) ) {
+			return null;
+		}
+
+		if ( ! function_exists( 'plugins_api' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin-install.php'; // @phpstan-ignore-line -- ABSPATH exists.
+		}
+
+		$response = plugins_api(
+			'plugin_information',
+			[
+				'fields' => [ 'sections' => false ],
+				'slug'   => $slug,
+			]
+		);
+
+		if ( is_wp_error( $response ) || ! is_object( $response ) ) {
+			return null;
+		}
+
+		return $response->version ?? null;
 	}
 }

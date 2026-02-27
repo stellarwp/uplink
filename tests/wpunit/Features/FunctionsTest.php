@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\Tests\Features;
 
-use StellarWP\Uplink\Features\API\Client;
+use StellarWP\Uplink\Features\API\Feature_Client;
 use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Contracts\Strategy;
@@ -44,7 +44,7 @@ final class FunctionsTest extends UplinkTestCase {
 		);
 
 		$catalog = $this->makeEmpty(
-			Client::class,
+			Feature_Client::class,
 			[
 				'get_features' => $collection,
 			] 
@@ -105,7 +105,7 @@ final class FunctionsTest extends UplinkTestCase {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
 		$catalog = $this->makeEmpty(
-			Client::class,
+			Feature_Client::class,
 			[
 				'get_features' => $error,
 			] 
@@ -136,7 +136,7 @@ final class FunctionsTest extends UplinkTestCase {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
 		$catalog = $this->makeEmpty(
-			Client::class,
+			Feature_Client::class,
 			[
 				'get_features' => $error,
 			] 

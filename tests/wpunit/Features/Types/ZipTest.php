@@ -136,4 +136,64 @@ final class ZipTest extends UplinkTestCase {
 
 		$this->assertSame( 'zip', $feature->get_type() );
 	}
+
+	/**
+	 * Tests is_installed returns false when the plugin file does not exist.
+	 *
+	 * @return void
+	 */
+	public function test_is_installed_returns_false_when_plugin_missing(): void {
+		$feature = Zip::from_array(
+			[
+				'slug'         => 'nonexistent-plugin',
+				'group'        => 'LearnDash',
+				'tier'         => 'Tier 2',
+				'name'         => 'Nonexistent Plugin',
+				'plugin_file'  => 'nonexistent-plugin/nonexistent-plugin.php',
+				'is_available' => true,
+			]
+		);
+
+		$this->assertFalse( $feature->is_installed() );
+	}
+
+	/**
+	 * Tests is_installed returns false when the plugin_file is empty.
+	 *
+	 * @return void
+	 */
+	public function test_is_installed_returns_false_when_plugin_file_empty(): void {
+		$feature = Zip::from_array(
+			[
+				'slug'         => 'no-file',
+				'group'        => 'LearnDash',
+				'tier'         => 'Tier 2',
+				'name'         => 'No File',
+				'plugin_file'  => '',
+				'is_available' => true,
+			]
+		);
+
+		$this->assertFalse( $feature->is_installed() );
+	}
+
+	/**
+	 * Tests get_installed_version returns null when not installed.
+	 *
+	 * @return void
+	 */
+	public function test_get_installed_version_returns_null_when_not_installed(): void {
+		$feature = Zip::from_array(
+			[
+				'slug'         => 'nonexistent-plugin',
+				'group'        => 'LearnDash',
+				'tier'         => 'Tier 2',
+				'name'         => 'Nonexistent Plugin',
+				'plugin_file'  => 'nonexistent-plugin/nonexistent-plugin.php',
+				'is_available' => true,
+			]
+		);
+
+		$this->assertNull( $feature->get_installed_version() );
+	}
 }

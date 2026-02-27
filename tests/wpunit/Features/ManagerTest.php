@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\Tests\Features;
 
-use StellarWP\Uplink\Features\API\Client;
+use StellarWP\Uplink\Features\API\Feature_Client;
 use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Contracts\Strategy;
@@ -47,7 +47,7 @@ final class ManagerTest extends UplinkTestCase {
 		$this->collection->add( $this->makeEmpty( Feature::class, [ 'get_slug' => 'test-feature' ] ) );
 
 		$catalog = $this->makeEmpty(
-			Client::class,
+			Feature_Client::class,
 			[
 				'get_features' => $this->collection,
 			] 
@@ -283,7 +283,7 @@ final class ManagerTest extends UplinkTestCase {
 		);
 
 		$catalog = $this->makeEmpty(
-			Client::class,
+			Feature_Client::class,
 			[
 				'get_features' => $this->collection,
 			] 
@@ -329,7 +329,7 @@ final class ManagerTest extends UplinkTestCase {
 		);
 
 		$catalog = $this->makeEmpty(
-			Client::class,
+			Feature_Client::class,
 			[
 				'get_features' => $this->collection,
 			] 
@@ -361,7 +361,7 @@ final class ManagerTest extends UplinkTestCase {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
 		$catalog = $this->makeEmpty(
-			Client::class,
+			Feature_Client::class,
 			[
 				'get_features' => $error,
 			] 
@@ -383,7 +383,7 @@ final class ManagerTest extends UplinkTestCase {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
 		$catalog = $this->makeEmpty(
-			Client::class,
+			Feature_Client::class,
 			[
 				'get_features' => $error,
 			] 
@@ -407,7 +407,7 @@ final class ManagerTest extends UplinkTestCase {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
 		$catalog = $this->makeEmpty(
-			Client::class,
+			Feature_Client::class,
 			[
 				'get_features' => $error,
 			] 
@@ -431,7 +431,7 @@ final class ManagerTest extends UplinkTestCase {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
 		$catalog = $this->makeEmpty(
-			Client::class,
+			Feature_Client::class,
 			[
 				'get_features' => $error,
 			] 
@@ -455,7 +455,7 @@ final class ManagerTest extends UplinkTestCase {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
 		$catalog = $this->makeEmpty(
-			Client::class,
+			Feature_Client::class,
 			[
 				'get_features' => $error,
 			] 

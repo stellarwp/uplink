@@ -103,10 +103,28 @@ class Handler {
 		/** @var string $slug */
 		$slug = $args->slug;
 
+		// Check whether the requested slug belongs to a known Zip feature.
+		$features = $this->feature_client->get_features();
+
+		if ( is_wp_error( $features ) || $features->get( $slug ) === null ) {
+			return $result;
+		}
+
 		$products = $this->collect_products();
 
-		if ( empty( $products['versions'] ) ) {
-			return $result;
+		/**
+		 * Include the requested slug even when the plugin is not installed,
+		 * so the consolidation server can return info for features that
+		 * have not been downloaded yet.
+		 */
+		if ( ! isset( $products['versions'][ $slug ] ) ) {
+			$feature = $features->get( $slug );
+
+			$installed = ( $feature instanceof Zip )
+				? ( $feature->get_installed_version() ?? '0.0.0' )
+				: '0.0.0';
+
+			$products['versions'][ $slug ] = $installed;
 		}
 
 		$domain   = $this->site_data->get_domain();

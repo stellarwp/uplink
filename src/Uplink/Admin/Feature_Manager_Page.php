@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink\Admin;
 
 use StellarWP\Uplink\Uplink;
+use StellarWP\Uplink\Utils\Version;
 
 /**
  * Manages the unified feature manager admin page.
@@ -24,44 +25,16 @@ class Feature_Manager_Page {
 	private string $page_hook = '';
 
 	/**
-	 * Evaluates whether this Uplink instance is the highest version and should
-	 * own rendering of the unified feature manager page.
-	 *
-	 * Uses a shared, non-prefixed filter so every active Uplink instance
-	 * participates in the version election regardless of vendor prefix.
-	 *
-	 * @since TBD
-	 *
-	 * @return bool
-	 */
-	public function should_render(): bool {
-		$highest = apply_filters( 'stellarwp/uplink/highest_version', '0.0.0' );
-		$highest = is_string( $highest ) ? $highest : '0.0.0';
-
-		if ( version_compare( Uplink::VERSION, $highest, '<' ) ) {
-			return false;
-		}
-
-		if ( did_action( 'stellarwp/uplink/unified_ui_registered' ) ) {
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Registers the unified feature manager page if this instance wins the version election.
+	 * Registers the unified feature manager page if this instance is the version leader.
 	 *
 	 * @since TBD
 	 *
 	 * @return void
 	 */
 	public function maybe_register_page(): void {
-		if ( ! $this->should_render() ) {
+		if ( ! Version::should_handle( 'admin_page' ) ) {
 			return;
 		}
-
-		do_action( 'stellarwp/uplink/unified_ui_registered' );
 
 		$this->page_hook = add_menu_page(
 			__( 'Liquid Web Software', '%TEXTDOMAIN%' ),

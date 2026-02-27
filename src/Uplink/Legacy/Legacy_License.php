@@ -13,7 +13,6 @@ use StellarWP\Uplink\Utils\Cast;
  */
 class Legacy_License
 {
-
     /**
      * @var string
      */
@@ -23,7 +22,6 @@ class Legacy_License
      * @var string
      */
     public $slug;
-
 
     /**
      * @var string
@@ -63,9 +61,18 @@ class Legacy_License
         $this->page_url = $page_url;
     }
 
+    /**
+     * Undocumented function
+     *
+     * @param array $data
+     * @return self
+     */
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function fromData(array $data): self
     {
-        return new static(
+        return new self(
             Cast::to_string($data['key'] ?? ''),
             Cast::to_string($data['slug'] ?? ''),
             Cast::to_string($data['name'] ?? ''),

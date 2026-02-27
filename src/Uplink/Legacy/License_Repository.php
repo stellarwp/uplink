@@ -25,7 +25,7 @@ class License_Repository {
 		foreach ( $filtered_licenses as $license ) {
 			if ( is_array( $license ) ) {
 				/** @var array<string, mixed> $license */
-				$licenses[] = Legacy_License::fromData( $license );
+				$licenses[] = Legacy_License::from_data( $license );
 			}
 		}
 

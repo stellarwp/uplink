@@ -10,18 +10,18 @@ use StellarWP\Uplink\Tests\UplinkTestCase;
  */
 final class Legacy_LicenseTest extends UplinkTestCase {
 
-	/**
-	 * @test
-	 */
+    /**
+     * @since 3.0.0
+     */
 	public function it_sets_properties_via_constructor(): void {
-		$license = new Legacy_License(
-			'key-123',
-			'my-plugin',
-			'My Plugin',
-			'StellarWP',
-			'valid',
-			'https://example.com/licenses'
-		);
+		$license = Legacy_License::from_data([
+			'key' => 'key-123',
+			'slug' => 'my-plugin',
+			'name' => 'My Plugin',
+			'brand' => 'StellarWP',
+			'status' => 'valid',
+			'page_url' => 'https://example.com/licenses'
+		]);
 
 		$this->assertSame( 'key-123', $license->key );
 		$this->assertSame( 'my-plugin', $license->slug );
@@ -32,19 +32,24 @@ final class Legacy_LicenseTest extends UplinkTestCase {
 	}
 
 	/**
-	 * @test
+	 * @since 3.0.0
 	 */
 	public function it_uses_default_status_and_page_url_when_omitted(): void {
-		$license = new Legacy_License( 'key-456', 'slug', 'Name', 'Brand' );
+		$license = Legacy_License::from_data([
+			'key' => 'key-456',
+			'slug' => 'slug',
+			'name' => 'Name',
+			'brand' => 'Brand'
+		]);
 
 		$this->assertSame( 'unknown', $license->status );
 		$this->assertSame( '', $license->page_url );
 	}
 
 	/**
-	 * @test
+	 * @since 3.0.0
 	 */
-	public function it_creates_instance_from_array_via_fromData(): void {
+	public function it_creates_instance_from_array_via_from_data(): void {
 		$data = [
 			'key'      => 'key-from-array',
 			'slug'     => 'give-recurring',
@@ -54,7 +59,7 @@ final class Legacy_LicenseTest extends UplinkTestCase {
 			'page_url' => 'https://site.com/wp-admin/licenses',
 		];
 
-		$license = Legacy_License::fromData( $data );
+		$license = Legacy_License::from_data( $data );
 
 		$this->assertInstanceOf( Legacy_License::class, $license );
 		$this->assertSame( 'key-from-array', $license->key );
@@ -66,10 +71,10 @@ final class Legacy_LicenseTest extends UplinkTestCase {
 	}
 
 	/**
-	 * @test
+	 * @since 3.0.0
 	 */
 	public function it_uses_defaults_for_missing_array_keys(): void {
-		$license = Legacy_License::fromData( [] );
+		$license = Legacy_License::from_data( [] );
 
 		$this->assertSame( '', $license->key );
 		$this->assertSame( '', $license->slug );
@@ -80,10 +85,10 @@ final class Legacy_LicenseTest extends UplinkTestCase {
 	}
 
 	/**
-	 * @test
+	 * @since 3.0.0
 	 */
-	public function it_casts_non_string_values_to_string_in_fromData(): void {
-		$license = Legacy_License::fromData( [
+	public function it_casts_non_string_values_to_string_in_from_data(): void {
+		$license = Legacy_License::from_data( [
 			'key'   => 12345,
 			'slug'  => 'num-slug',
 			'name'  => 'Name',

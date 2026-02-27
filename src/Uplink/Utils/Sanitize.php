@@ -33,5 +33,4 @@ class Sanitize {
 	public static function sanitize_title_with_hyphens( string $title, string $context = 'save' ): string {
 		return str_replace( '-', '_', sanitize_title_with_dashes( $title, '', $context ) );
 	}
-
 }

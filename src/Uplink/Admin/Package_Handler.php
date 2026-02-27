@@ -24,11 +24,11 @@ class Package_Handler {
 	/**
 	 * Filters the package download step to store the downloaded file with a shorter file name.
 	 *
-	 * @param  bool|WP_Error  $reply        Whether to bail without returning the package.
-	 *                                      Default false.
-	 * @param  string|null    $package      The package file name or URL.
-	 * @param  WP_Upgrader    $upgrader     The WP_Upgrader instance.
-	 * @param  array          $hook_extra   Extra arguments passed to hooked filters.
+	 * @param bool|WP_Error $reply        Whether to bail without returning the package.
+	 *                                     Default false.
+	 * @param string|null   $package      The package file name or URL.
+	 * @param WP_Upgrader   $upgrader     The WP_Upgrader instance.
+	 * @param array         $hook_extra   Extra arguments passed to hooked filters.
 	 *
 	 * @return string|bool|WP_Error
 	 */
@@ -52,7 +52,7 @@ class Package_Handler {
 	/**
 	 * Filters the source file location.
 	 *
-	 * @since  1.0.0
+	 * @since 1.0.0
 	 *
 	 * @param array<mixed> $result   Result of the upgrader process.
 	 * @param array<mixed> $extras   Extra args for the upgrader process.
@@ -100,7 +100,7 @@ class Package_Handler {
 	 *
 	 * @return bool
 	 */
-	protected function is_uplink_package( string $plugin ) : bool {
+	protected function is_uplink_package( string $plugin ): bool {
 		if ( empty( $plugin ) ) {
 			return false;
 		}
@@ -119,7 +119,7 @@ class Package_Handler {
 	 *
 	 * @return bool
 	 */
-	protected function is_uplink_package_url( string $package, $hook_extra ) : bool {
+	protected function is_uplink_package_url( string $package, $hook_extra ): bool {
 		if ( empty( $hook_extra['plugin'] ) ) {
 			return false;
 		}
@@ -211,11 +211,9 @@ class Package_Handler {
 	 *
 	 * @return string The absolute path to a shorter name version of the downloaded file.
 	 */
-	protected function get_short_filename( string $download_file ) : string {
+	protected function get_short_filename( string $download_file ): string {
 		$extension = pathinfo( $download_file, PATHINFO_EXTENSION );
 		$filename  = substr( md5( $download_file ), 0, 5 );
-		$file      = dirname( $download_file ) . '/' . $filename . '.' . $extension;
-
-		return $file;
+		return dirname( $download_file ) . '/' . $filename . '.' . $extension;
 	}
 }

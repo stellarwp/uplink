@@ -45,11 +45,13 @@ function get_container(): ContainerInterface {
 function render_authorize_button( string $slug, string $domain = '', string $license = '' ): void {
 	try {
 		get_container()->get( Authorize_Button_Controller::class )
-			->render( [
-				'slug'    => $slug,
-				'domain'  => $domain,
-				'license' => $license,
-			] );
+			->render(
+				[
+					'slug'    => $slug,
+					'domain'  => $domain,
+					'license' => $license,
+				] 
+			);
 	} catch ( Throwable $e ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( "Unable to render authorize button: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
@@ -60,7 +62,7 @@ function render_authorize_button( string $slug, string $domain = '', string $lic
 /**
  * Get the stored authorization token, automatically detects multisite.
  *
- * @param  string  $slug  The plugin/service slug to use to determine if we use network/single site token storage.
+ * @param string $slug  The plugin/service slug to use to determine if we use network/single site token storage.
  *
  * @throws \RuntimeException
  *
@@ -77,10 +79,10 @@ function get_authorization_token( string $slug ): ?string {
  *
  * @note This response may be cached.
  *
- * @param  string  $license  The license key.
- * @param  string  $slug     The plugin/service slug.
- * @param  string  $token    The stored token.
- * @param  string  $domain   The user's license domain.
+ * @param string $license  The license key.
+ * @param string $slug     The plugin/service slug.
+ * @param string $token    The stored token.
+ * @param string $domain   The user's license domain.
  *
  * @return bool
  */
@@ -114,13 +116,13 @@ function is_user_authorized(): bool {
 /**
  * Build a brand's authorization URL, with the uplink_callback base64 query variable.
  *
- * @param  string  $slug  The Product slug to render the button for.
- * @param  string  $domain  An optional domain associated with a license key to pass along.
- * @param  string  $license  An optional license key to pass along.
+ * @param string $slug  The Product slug to render the button for.
+ * @param string $domain  An optional domain associated with a license key to pass along.
+ * @param string $license  An optional license key to pass along.
  *
  * @return string
  */
-function build_auth_url( string $slug, string $domain = '', string $license = ''): string {
+function build_auth_url( string $slug, string $domain = '', string $license = '' ): string {
 	try {
 		return Config::get_container()->get( Auth_Url_Builder::class )
 			->set_license( $license )
@@ -137,7 +139,7 @@ function build_auth_url( string $slug, string $domain = '', string $license = ''
 /**
  * Get a resource (plugin/service) from the collection.
  *
- * @param  string  $slug  The resource slug to find.
+ * @param string $slug  The resource slug to find.
  *
  * @throws \RuntimeException
  *
@@ -150,8 +152,8 @@ function get_resource( string $slug ) {
 /**
  * Get a resource's license key.
  *
- * @param  string  $slug  The plugin/service slug.
- * @param  string  $type  The type of key to get (any, network, local, default).
+ * @param string $slug  The plugin/service slug.
+ * @param string $type  The type of key to get (any, network, local, default).
  *
  * @throws \RuntimeException
  *
@@ -170,9 +172,9 @@ function get_license_key( string $slug, string $type = 'any' ): string {
 /**
  * Set a resource's license key.
  *
- * @param  string  $slug The plugin/service slug.
- * @param  string  $license The license key to store.
- * @param  string  $type  The type of key to set (any, network, local, default).
+ * @param string $slug The plugin/service slug.
+ * @param string $license The license key to store.
+ * @param string $type  The type of key to set (any, network, local, default).
  *
  * @throws \RuntimeException
  *
@@ -196,7 +198,7 @@ function set_license_key( string $slug, string $license, string $type = 'local' 
 /**
  * Get the disconnect token URL.
  *
- * @param  string  $slug The plugin/service slug.
+ * @param string $slug The plugin/service slug.
  *
  * @throws \RuntimeException
  *
@@ -215,7 +217,7 @@ function get_disconnect_url( string $slug ): string {
 /**
  * Retrieve an Origin's auth url, if it exists.
  *
- * @param  string  $slug The product/service slug.
+ * @param string $slug The product/service slug.
  *
  * @throws \RuntimeException
  *
@@ -239,7 +241,7 @@ function get_license_domain(): string {
 /**
  * Get the field object for a resource's slug.
  *
- * @param  string  $slug  The resource's slug to get the field for.
+ * @param string $slug  The resource's slug to get the field for.
  *
  * @throws RuntimeException
  *
@@ -291,11 +293,14 @@ function is_feature_enabled( string $slug ) {
 	try {
 		return get_container()->get( Manager::class )->is_enabled( $slug );
 	} catch ( Throwable $e ) {
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		if ( $e instanceof \Exception && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
 			error_log( "Error checking feature enabled state: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
 		}
 
-		return new WP_Error( Error_Code::FEATURE_CHECK_FAILED, $e->getMessage() );
+		$message = $e instanceof \Exception ? $e->getMessage() : 'An unexpected error occurred.';
+
+		return new WP_Error( Error_Code::FEATURE_CHECK_FAILED, $message );
 	}
 }
 
@@ -312,10 +317,13 @@ function is_feature_available( string $slug ) {
 	try {
 		return get_container()->get( Manager::class )->is_available( $slug );
 	} catch ( Throwable $e ) {
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		if ( $e instanceof \Exception && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
 			error_log( "Error checking feature availability: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
 		}
 
-		return new WP_Error( Error_Code::FEATURE_CHECK_FAILED, $e->getMessage() );
+		$message = $e instanceof \Exception ? $e->getMessage() : 'An unexpected error occurred.';
+
+		return new WP_Error( Error_Code::FEATURE_CHECK_FAILED, $message );
 	}
 }

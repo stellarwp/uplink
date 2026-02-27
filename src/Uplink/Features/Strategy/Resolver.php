@@ -56,7 +56,7 @@ class Resolver {
 	 *
 	 * @return void
 	 */
-	public function register( string $type, string $strategy_class ): void {
+	public function register( string $type, string $strategy_class ): void { // phpcs:ignore Squiz.Commenting.FunctionComment.IncorrectTypeHint -- class-string<Strategy> is a PHPStan type narrowing.
 		$this->map[ $type ] = $strategy_class;
 	}
 
@@ -81,6 +81,9 @@ class Resolver {
 			);
 		}
 
-		return $this->container->get( $class );
+		/** @var Strategy $strategy */
+		$strategy = $this->container->get( $class );
+
+		return $strategy;
 	}
 }

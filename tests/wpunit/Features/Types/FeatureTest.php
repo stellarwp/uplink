@@ -41,16 +41,18 @@ final class FeatureTest extends UplinkTestCase {
 			 * @return static
 			 */
 			public static function from_array( array $data ) {
-				return new self( [
-					'slug'              => $data['slug'],
-					'group'             => $data['group'],
-					'tier'              => $data['tier'],
-					'name'              => $data['name'],
-					'description'       => $data['description'] ?? '',
-					'type'              => $data['type'] ?? 'test-type',
-					'is_available'      => $data['is_available'],
-					'documentation_url' => $data['documentation_url'] ?? '',
-				] );
+				return new self(
+					[
+						'slug'              => $data['slug'],
+						'group'             => $data['group'],
+						'tier'              => $data['tier'],
+						'name'              => $data['name'],
+						'description'       => $data['description'] ?? '',
+						'type'              => $data['type'] ?? 'test-type',
+						'is_available'      => $data['is_available'],
+						'documentation_url' => $data['documentation_url'] ?? '',
+					] 
+				);
 			}
 		};
 	}
@@ -135,16 +137,19 @@ final class FeatureTest extends UplinkTestCase {
 	public function test_to_array(): void {
 		$result = $this->feature->to_array();
 
-		$this->assertSame( [
-			'slug'              => 'test-feature',
-			'group'             => 'TEC',
-			'tier'              => 'Tier 1',
-			'name'              => 'Test Feature',
-			'description'       => 'A test feature.',
-			'type'              => 'test-type',
-			'is_available'      => true,
-			'documentation_url' => 'https://example.com/docs',
-		], $result );
+		$this->assertSame(
+			[
+				'slug'              => 'test-feature',
+				'group'             => 'TEC',
+				'tier'              => 'Tier 1',
+				'name'              => 'Test Feature',
+				'description'       => 'A test feature.',
+				'type'              => 'test-type',
+				'is_available'      => true,
+				'documentation_url' => 'https://example.com/docs',
+			],
+			$result 
+		);
 	}
 
 	/**
@@ -153,16 +158,18 @@ final class FeatureTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_from_array(): void {
-		$feature = $this->feature::from_array( [
-			'slug'              => 'from-array-feature',
-			'group'             => 'LearnDash',
-			'tier'              => 'Tier 2',
-			'name'              => 'From Array',
-			'description'       => 'Hydrated from array.',
-			'type'              => 'custom-type',
-			'is_available'      => false,
-			'documentation_url' => 'https://example.com/learn-more',
-		] );
+		$feature = $this->feature::from_array(
+			[
+				'slug'              => 'from-array-feature',
+				'group'             => 'LearnDash',
+				'tier'              => 'Tier 2',
+				'name'              => 'From Array',
+				'description'       => 'Hydrated from array.',
+				'type'              => 'custom-type',
+				'is_available'      => false,
+				'documentation_url' => 'https://example.com/learn-more',
+			] 
+		);
 
 		$this->assertInstanceOf( Feature::class, $feature );
 		$this->assertSame( 'from-array-feature', $feature->get_slug() );

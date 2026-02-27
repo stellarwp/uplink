@@ -13,15 +13,17 @@ final class BuiltInTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_creates_from_array(): void {
-		$feature = Built_In::from_array( [
-			'slug'              => 'test-feature',
-			'group'             => 'TEC',
-			'tier'              => 'Tier 1',
-			'name'              => 'Test Feature',
-			'description'       => 'Test feature description.',
-			'is_available'      => true,
-			'documentation_url' => 'https://example.com/docs',
-		] );
+		$feature = Built_In::from_array(
+			[
+				'slug'              => 'test-feature',
+				'group'             => 'TEC',
+				'tier'              => 'Tier 1',
+				'name'              => 'Test Feature',
+				'description'       => 'Test feature description.',
+				'is_available'      => true,
+				'documentation_url' => 'https://example.com/docs',
+			] 
+		);
 
 		$this->assertInstanceOf( Built_In::class, $feature );
 		$this->assertSame( 'test-feature', $feature->get_slug() );
@@ -40,26 +42,31 @@ final class BuiltInTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_to_array(): void {
-		$feature = new Built_In( [
-			'slug'              => 'test-feature',
-			'group'             => 'TEC',
-			'tier'              => 'Tier 1',
-			'name'              => 'Test Feature',
-			'description'       => 'Test feature description.',
-			'is_available'      => true,
-			'documentation_url' => 'https://example.com/docs',
-		] );
+		$feature = new Built_In(
+			[
+				'slug'              => 'test-feature',
+				'group'             => 'TEC',
+				'tier'              => 'Tier 1',
+				'name'              => 'Test Feature',
+				'description'       => 'Test feature description.',
+				'is_available'      => true,
+				'documentation_url' => 'https://example.com/docs',
+			] 
+		);
 
-		$this->assertSame( [
-			'slug'              => 'test-feature',
-			'group'             => 'TEC',
-			'tier'              => 'Tier 1',
-			'name'              => 'Test Feature',
-			'description'       => 'Test feature description.',
-			'is_available'      => true,
-			'documentation_url' => 'https://example.com/docs',
-			'type'              => 'built_in',
-		], $feature->to_array() );
+		$this->assertSame(
+			[
+				'slug'              => 'test-feature',
+				'group'             => 'TEC',
+				'tier'              => 'Tier 1',
+				'name'              => 'Test Feature',
+				'description'       => 'Test feature description.',
+				'is_available'      => true,
+				'documentation_url' => 'https://example.com/docs',
+				'type'              => 'built_in',
+			],
+			$feature->to_array() 
+		);
 	}
 
 	/**
@@ -90,13 +97,15 @@ final class BuiltInTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_defaults_description_to_empty_string(): void {
-		$feature = Built_In::from_array( [
-			'slug'         => 'test-feature',
-			'group'        => 'TEC',
-			'tier'         => 'Tier 1',
-			'name'         => 'Test Feature',
-			'is_available' => true,
-		] );
+		$feature = Built_In::from_array(
+			[
+				'slug'         => 'test-feature',
+				'group'        => 'TEC',
+				'tier'         => 'Tier 1',
+				'name'         => 'Test Feature',
+				'is_available' => true,
+			] 
+		);
 
 		$this->assertSame( '', $feature->get_description() );
 	}
@@ -107,14 +116,16 @@ final class BuiltInTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_always_has_built_in_type(): void {
-		$feature = new Built_In( [
-			'slug'         => 'test-feature',
-			'group'        => 'TEC',
-			'tier'         => 'Tier 1',
-			'name'         => 'Test Feature',
-			'description'  => 'Test feature description.',
-			'is_available' => true,
-		] );
+		$feature = new Built_In(
+			[
+				'slug'         => 'test-feature',
+				'group'        => 'TEC',
+				'tier'         => 'Tier 1',
+				'name'         => 'Test Feature',
+				'description'  => 'Test feature description.',
+				'is_available' => true,
+			] 
+		);
 
 		$this->assertSame( 'built_in', $feature->get_type() );
 	}

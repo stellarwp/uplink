@@ -17,12 +17,14 @@ class Uplink {
 	public const VERSION = '3.0.0';
 
 	public const UPLINK_ADMIN_VIEWS_PATH = 'uplink.admin-views.path';
-	public const UPLINK_ASSETS_URI = 'uplink.assets.uri';
+	public const UPLINK_ASSETS_URI       = 'uplink.assets.uri';
 
 	/**
 	 * Initializes the service provider.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @throws RuntimeException If the container has not been configured.
 	 *
 	 * @return void
 	 */
@@ -87,38 +89,56 @@ class Uplink {
 			return $container->get( Resources\Collection::class )->get( $slug );
 		};
 
-		add_filter( 'stellarwp/uplink/highest_version', static function ( string $current_highest ) {
-			if ( version_compare( self::VERSION, $current_highest, '>' ) ) {
-				return self::VERSION;
-			}
-			return $current_highest;
-		} );
+		add_filter(
+			'stellarwp/uplink/highest_version',
+			static function ( string $current_highest ) {
+				if ( version_compare( self::VERSION, $current_highest, '>' ) ) {
+					return self::VERSION;
+				}
+				return $current_highest;
+			} 
+		);
 
-		add_filter( 'stellarwp/uplink/validate_license', static function ( $result, string $slug, string $key ) use ( $get_resource ) {
-			$resource = $get_resource( $slug );
-			if ( ! $resource ) {
-				return $result;
-			}
-			return $resource->validate_license( $key );
-		}, 10, 3 );
+		add_filter(
+			'stellarwp/uplink/validate_license',
+			static function ( $result, string $slug, string $key ) use ( $get_resource ) {
+				$resource = $get_resource( $slug );
+				if ( ! $resource ) {
+					return $result;
+				}
+				return $resource->validate_license( $key );
+			},
+			10,
+			3 
+		);
 
-		add_filter( 'stellarwp/uplink/set_license_key', static function ( $result, string $slug, string $key, string $type ) use ( $get_resource ) {
-			$resource = $get_resource( $slug );
-			if ( ! $resource ) {
-				return $result;
-			}
-			$resource->set_license_key( $key, $type );
-			$resource->validate_license( $key, $type === 'network' );
-			return true;
-		}, 10, 4 );
+		add_filter(
+			'stellarwp/uplink/set_license_key',
+			static function ( $result, string $slug, string $key, string $type ) use ( $get_resource ) {
+				$resource = $get_resource( $slug );
+				if ( ! $resource ) {
+					return $result;
+				}
+				$resource->set_license_key( $key, $type );
+				$resource->validate_license( $key, $type === 'network' );
+				return true;
+			},
+			10,
+			4 
+		);
 
-		add_filter( 'stellarwp/uplink/delete_license_key', static function ( $result, string $slug, string $type ) use ( $get_resource ) {
-			$resource = $get_resource( $slug );
-			if ( ! $resource ) {
-				return $result;
-			}
-			return $resource->delete_license_key( $type );
-		}, 10, 3 );
+		add_filter(
+			'stellarwp/uplink/delete_license_key',
+			static function ( $result, string $slug, string $type ) use ( $get_resource ) {
+				$resource = $get_resource( $slug );
+				if ( ! $resource ) {
+					return $result;
+				}
+				return $resource->delete_license_key( $type );
+			},
+			10,
+			3 
+		);
 	}
 
 	/**
@@ -128,7 +148,7 @@ class Uplink {
 	 *
 	 * @return bool
 	 */
-	public static function is_disabled() : bool {
+	public static function is_disabled(): bool {
 		$is_pue_disabled       = defined( 'TRIBE_DISABLE_PUE' ) && TRIBE_DISABLE_PUE;
 		$is_licensing_disabled = defined( 'STELLARWP_LICENSING_DISABLED' ) && STELLARWP_LICENSING_DISABLED;
 
@@ -142,7 +162,7 @@ class Uplink {
 	 *
 	 * @return bool
 	 */
-	public static function is_enabled() : bool {
+	public static function is_enabled(): bool {
 		return ! static::is_disabled();
 	}
 }

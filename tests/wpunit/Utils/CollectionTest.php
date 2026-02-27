@@ -70,10 +70,12 @@ final class CollectionTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_iterates_over_items(): void {
-		$collection = new Collection( [
-			'key-a' => 'value-a',
-			'key-b' => 'value-b',
-		] );
+		$collection = new Collection(
+			[
+				'key-a' => 'value-a',
+				'key-b' => 'value-b',
+			] 
+		);
 
 		$keys = [];
 
@@ -108,10 +110,12 @@ final class CollectionTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_accepts_an_array(): void {
-		$collection = new Collection( [
-			'key-a' => 'value-a',
-			'key-b' => 'value-b',
-		] );
+		$collection = new Collection(
+			[
+				'key-a' => 'value-a',
+				'key-b' => 'value-b',
+			] 
+		);
 
 		$this->assertSame( 2, $collection->count() );
 	}

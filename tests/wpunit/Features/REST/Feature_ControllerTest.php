@@ -41,75 +41,99 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		parent::setUp();
 
 		$collection = new Feature_Collection();
-		$collection->add( $this->makeEmpty( Feature::class, [
-			'get_slug'          => 'feature-alpha',
-			'get_name'          => 'Feature Alpha',
-			'get_description'   => 'Alpha description',
-			'get_group'         => 'GroupA',
-			'get_tier'          => 'Tier 1',
-			'get_type'          => 'zip',
-			'is_available'      => true,
-			'get_documentation_url' => 'https://example.com/alpha',
-			'to_array'              => [
-				'slug'              => 'feature-alpha',
-				'group'             => 'GroupA',
-				'tier'              => 'Tier 1',
-				'name'              => 'Feature Alpha',
-				'description'       => 'Alpha description',
-				'type'              => 'zip',
-				'is_available'      => true,
-				'documentation_url' => 'https://example.com/alpha',
-			],
-		] ) );
-		$collection->add( $this->makeEmpty( Feature::class, [
-			'get_slug'          => 'feature-beta',
-			'get_name'          => 'Feature Beta',
-			'get_description'   => 'Beta description',
-			'get_group'         => 'GroupB',
-			'get_tier'          => 'Tier 2',
-			'get_type'          => 'built_in',
-			'is_available'      => false,
-			'get_documentation_url' => 'https://example.com/beta',
-			'to_array'              => [
-				'slug'              => 'feature-beta',
-				'group'             => 'GroupB',
-				'tier'              => 'Tier 2',
-				'name'              => 'Feature Beta',
-				'description'       => 'Beta description',
-				'type'              => 'built_in',
-				'is_available'      => false,
-				'documentation_url' => 'https://example.com/beta',
-			],
-		] ) );
+		$collection->add(
+			$this->makeEmpty(
+				Feature::class,
+				[
+					'get_slug'              => 'feature-alpha',
+					'get_name'              => 'Feature Alpha',
+					'get_description'       => 'Alpha description',
+					'get_group'             => 'GroupA',
+					'get_tier'              => 'Tier 1',
+					'get_type'              => 'zip',
+					'is_available'          => true,
+					'get_documentation_url' => 'https://example.com/alpha',
+					'to_array'              => [
+						'slug'              => 'feature-alpha',
+						'group'             => 'GroupA',
+						'tier'              => 'Tier 1',
+						'name'              => 'Feature Alpha',
+						'description'       => 'Alpha description',
+						'type'              => 'zip',
+						'is_available'      => true,
+						'documentation_url' => 'https://example.com/alpha',
+					],
+				] 
+			) 
+		);
+		$collection->add(
+			$this->makeEmpty(
+				Feature::class,
+				[
+					'get_slug'              => 'feature-beta',
+					'get_name'              => 'Feature Beta',
+					'get_description'       => 'Beta description',
+					'get_group'             => 'GroupB',
+					'get_tier'              => 'Tier 2',
+					'get_type'              => 'built_in',
+					'is_available'          => false,
+					'get_documentation_url' => 'https://example.com/beta',
+					'to_array'              => [
+						'slug'              => 'feature-beta',
+						'group'             => 'GroupB',
+						'tier'              => 'Tier 2',
+						'name'              => 'Feature Beta',
+						'description'       => 'Beta description',
+						'type'              => 'built_in',
+						'is_available'      => false,
+						'documentation_url' => 'https://example.com/beta',
+					],
+				] 
+			) 
+		);
 
-		$mock_strategy = $this->makeEmpty( Strategy::class, [
-			'enable'    => true,
-			'disable'   => true,
-			'is_active' => false,
-		] );
+		$mock_strategy = $this->makeEmpty(
+			Strategy::class,
+			[
+				'enable'    => true,
+				'disable'   => true,
+				'is_active' => false,
+			] 
+		);
 
-		$resolver = $this->makeEmpty( Resolver::class, [
-			'resolve' => $mock_strategy,
-		] );
+		$resolver = $this->makeEmpty(
+			Resolver::class,
+			[
+				'resolve' => $mock_strategy,
+			] 
+		);
 
-		$catalog = $this->makeEmpty( Client::class, [
-			'get_features' => $collection,
-		] );
+		$catalog = $this->makeEmpty(
+			Client::class,
+			[
+				'get_features' => $collection,
+			] 
+		);
 
 		$this->manager = new Manager( $catalog, $resolver );
 
 		/** @var WP_REST_Server $wp_rest_server */
 		global $wp_rest_server;
-		$this->server = $wp_rest_server = new WP_REST_Server();
+		$wp_rest_server   = new WP_REST_Server();
+		$this->server     = $wp_rest_server;
 
 		// Allow registering routes outside of the rest_api_init hook.
-		$this->set_fn_return( 'did_action', function ( $hook_name ) {
-			if ( $hook_name !== 'rest_api_init' ) {
-				return \did_action( $hook_name );
-			}
+		$this->set_fn_return(
+			'did_action',
+			function ( $hook_name ) {
+				if ( $hook_name !== 'rest_api_init' ) {
+					return \did_action( $hook_name );
+				}
 
-			return true;
-		}, true );
+				return true;
+			},
+			true 
+		);
 
 		$controller = new Feature_Controller( $this->manager );
 		$controller->register_routes();

@@ -4,7 +4,6 @@ namespace StellarWP\Uplink\Tests\Auth\Admin;
 
 use StellarWP\Uplink\Auth\Action_Manager;
 use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
-use StellarWP\Uplink\Auth\Nonce;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Register;
@@ -13,7 +12,6 @@ use StellarWP\Uplink\Tests\Sample_Plugin;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use StellarWP\Uplink\Uplink;
 use WP_Error;
-use WP_Screen;
 
 final class DisconnectControllerTest extends UplinkTestCase {
 
@@ -157,9 +155,14 @@ final class DisconnectControllerTest extends UplinkTestCase {
 		wp_set_current_user( 1 );
 
 		// Mock our sample plugin is network activated, otherwise license key check fails.
-		$this->assertTrue( update_site_option( 'active_sitewide_plugins', [
-			'uplink/index.php' => time(),
-		] ) );
+		$this->assertTrue(
+			update_site_option(
+				'active_sitewide_plugins',
+				[
+					'uplink/index.php' => time(),
+				] 
+			) 
+		);
 		$this->assertEquals( $this->token, $this->token_manager->get( $this->plugin ) );
 		$this->assertEquals( '123456', $this->plugin->get_license_key( 'network' ) );
 
@@ -220,5 +223,4 @@ final class DisconnectControllerTest extends UplinkTestCase {
 		$this->assertEquals( 1, did_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/' . $this->slug . '/disconnected' ) );
 		$this->assertEquals( 1, did_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/disconnected' ) );
 	}
-
 }

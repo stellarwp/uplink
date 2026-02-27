@@ -30,21 +30,29 @@ final class Zip extends Feature {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Creates a Feature instance from an associative array.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param array<string, mixed> $data The feature data from the API response.
+	 *
+	 * @return static
 	 */
 	public static function from_array( array $data ) {
-		return new self( [
-			'slug'              => $data['slug'],
-			'group'             => $data['group'],
-			'tier'              => $data['tier'],
-			'name'              => $data['name'],
-			'description'       => $data['description'] ?? '',
-			'type'              => 'zip',
-			'plugin_file'       => $data['plugin_file'],
-			'is_available'      => $data['is_available'],
-			'documentation_url' => $data['documentation_url'] ?? '',
-			'authors'           => $data['authors'] ?? [],
-		] );
+		return new self(
+			[
+				'slug'              => $data['slug'],
+				'group'             => $data['group'],
+				'tier'              => $data['tier'],
+				'name'              => $data['name'],
+				'description'       => $data['description'] ?? '',
+				'type'              => 'zip',
+				'plugin_file'       => $data['plugin_file'],
+				'is_available'      => $data['is_available'],
+				'documentation_url' => $data['documentation_url'] ?? '',
+				'authors'           => $data['authors'] ?? [],
+			]
+		);
 	}
 
 	/**

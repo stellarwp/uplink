@@ -5,6 +5,7 @@ namespace StellarWP\Uplink\Features\REST;
 use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Features\Types\Feature;
+use StellarWP\Uplink\Utils\Cast;
 use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Request;
@@ -69,51 +70,67 @@ class Feature_Controller extends WP_REST_Controller {
 	 * @return void
 	 */
 	public function register_routes(): void {
-		register_rest_route( $this->namespace, '/' . $this->rest_base, [
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base,
 			[
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'get_items' ],
-				'permission_callback' => [ $this, 'check_permissions' ],
-				'args'                => $this->get_collection_params(),
-			],
-			'schema' => [ $this, 'get_public_item_schema' ],
-		] );
+				[
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => [ $this, 'get_items' ],
+					'permission_callback' => [ $this, 'check_permissions' ],
+					'args'                => $this->get_collection_params(),
+				],
+				'schema' => [ $this, 'get_public_item_schema' ],
+			] 
+		);
 
-		register_rest_route( $this->namespace, '/' . $this->rest_base . '/(?P<slug>[a-zA-Z0-9_-]+)', [
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<slug>[a-zA-Z0-9_-]+)',
 			[
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => [ $this, 'get_item' ],
-				'permission_callback' => [ $this, 'check_permissions' ],
-				'args'                => [
-					'slug' => [
-						'required'          => true,
-						'type'              => 'string',
-						'sanitize_callback' => 'sanitize_text_field',
+				[
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => [ $this, 'get_item' ],
+					'permission_callback' => [ $this, 'check_permissions' ],
+					'args'                => [
+						'slug' => [
+							'required'          => true,
+							'type'              => 'string',
+							'sanitize_callback' => 'sanitize_text_field',
+						],
 					],
 				],
-			],
-			'schema' => [ $this, 'get_public_item_schema' ],
-		] );
+				'schema' => [ $this, 'get_public_item_schema' ],
+			] 
+		);
 
-		register_rest_route( $this->namespace, '/' . $this->rest_base . '/(?P<slug>[a-zA-Z0-9_-]+)/enable', [
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<slug>[a-zA-Z0-9_-]+)/enable',
 			[
-				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => [ $this, 'enable' ],
-				'permission_callback' => [ $this, 'check_permissions' ],
-				'args'                => $this->get_slug_args(),
-			],
-			'schema' => [ $this, 'get_public_item_schema' ],
-		] );
+				[
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => [ $this, 'enable' ],
+					'permission_callback' => [ $this, 'check_permissions' ],
+					'args'                => $this->get_slug_args(),
+				],
+				'schema' => [ $this, 'get_public_item_schema' ],
+			] 
+		);
 
-		register_rest_route( $this->namespace, '/' . $this->rest_base . '/(?P<slug>[a-zA-Z0-9_-]+)/disable', [
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<slug>[a-zA-Z0-9_-]+)/disable',
 			[
-				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => [ $this, 'disable' ],
-				'permission_callback' => [ $this, 'check_permissions' ],
-				'args'                => $this->get_slug_args(),
-			],
-			'schema' => [ $this, 'get_public_item_schema' ],
-		] );
+				[
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => [ $this, 'disable' ],
+					'permission_callback' => [ $this, 'check_permissions' ],
+					'args'                => $this->get_slug_args(),
+				],
+				'schema' => [ $this, 'get_public_item_schema' ],
+			] 
+		);
 	}
 
 	/**
@@ -149,7 +166,12 @@ class Feature_Controller extends WP_REST_Controller {
 		$type      = $request->get_param( 'type' );
 
 		if ( $group !== null || $tier !== null || $available !== null || $type !== null ) {
-			$features = $features->filter( $group, $tier, $available, $type );
+			$features = $features->filter(
+				$group !== null ? Cast::to_string( $group ) : null,
+				$tier !== null ? Cast::to_string( $tier ) : null,
+				$available !== null ? Cast::to_bool( $available ) : null,
+				$type !== null ? Cast::to_string( $type ) : null
+			);
 		}
 
 		$data = [];
@@ -171,7 +193,7 @@ class Feature_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function get_item( $request ) {
-		$slug     = $request->get_param( 'slug' );
+		$slug     = Cast::to_string( $request->get_param( 'slug' ) );
 		$features = $this->manager->get_features();
 
 		if ( is_wp_error( $features ) ) {
@@ -201,7 +223,7 @@ class Feature_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function enable( WP_REST_Request $request ) {
-		$slug    = $request->get_param( 'slug' );
+		$slug    = Cast::to_string( $request->get_param( 'slug' ) );
 		$feature = $this->manager->get_feature( $slug );
 
 		if ( ! $feature ) {
@@ -218,9 +240,11 @@ class Feature_Controller extends WP_REST_Controller {
 			return $result;
 		}
 
-		return new WP_REST_Response( $feature->to_array() + [
-			'enabled' => true,
-		] );
+		return new WP_REST_Response(
+			$feature->to_array() + [
+				'enabled' => true,
+			] 
+		);
 	}
 
 	/**
@@ -233,7 +257,7 @@ class Feature_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function disable( WP_REST_Request $request ) {
-		$slug    = $request->get_param( 'slug' );
+		$slug    = Cast::to_string( $request->get_param( 'slug' ) );
 		$feature = $this->manager->get_feature( $slug );
 
 		if ( ! $feature ) {
@@ -250,9 +274,11 @@ class Feature_Controller extends WP_REST_Controller {
 			return $result;
 		}
 
-		return new WP_REST_Response( $feature->to_array() + [
-			'enabled' => false,
-		] );
+		return new WP_REST_Response(
+			$feature->to_array() + [
+				'enabled' => false,
+			] 
+		);
 	}
 
 	/**
@@ -264,6 +290,7 @@ class Feature_Controller extends WP_REST_Controller {
 	 */
 	public function get_item_schema(): array {
 		if ( $this->schema ) {
+			/** @var array<string, mixed> */
 			return $this->add_additional_fields_schema( $this->schema );
 		}
 
@@ -273,43 +300,43 @@ class Feature_Controller extends WP_REST_Controller {
 			'type'                 => 'object',
 			'additionalProperties' => true,
 			'properties'           => [
-				'slug'          => [
+				'slug'              => [
 					'description' => __( 'The feature slug.', '%TEXTDOMAIN%' ),
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => [ 'view' ],
 				],
-				'name'          => [
+				'name'              => [
 					'description' => __( 'The feature display name.', '%TEXTDOMAIN%' ),
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => [ 'view' ],
 				],
-				'description'   => [
+				'description'       => [
 					'description' => __( 'The feature description.', '%TEXTDOMAIN%' ),
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => [ 'view' ],
 				],
-				'group'         => [
+				'group'             => [
 					'description' => __( 'The product group the feature belongs to.', '%TEXTDOMAIN%' ),
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => [ 'view' ],
 				],
-				'tier'          => [
+				'tier'              => [
 					'description' => __( 'The feature tier.', '%TEXTDOMAIN%' ),
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => [ 'view' ],
 				],
-				'type'          => [
+				'type'              => [
 					'description' => __( 'The feature type identifier.', '%TEXTDOMAIN%' ),
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => [ 'view' ],
 				],
-				'is_available'  => [
+				'is_available'      => [
 					'description' => __( 'Whether the feature is available for the current site.', '%TEXTDOMAIN%' ),
 					'type'        => 'boolean',
 					'readonly'    => true,
@@ -322,7 +349,7 @@ class Feature_Controller extends WP_REST_Controller {
 					'readonly'    => true,
 					'context'     => [ 'view' ],
 				],
-				'enabled'       => [
+				'enabled'           => [
 					'description' => __( 'Whether the feature is currently enabled.', '%TEXTDOMAIN%' ),
 					'type'        => 'boolean',
 					'readonly'    => true,
@@ -331,6 +358,7 @@ class Feature_Controller extends WP_REST_Controller {
 			],
 		];
 
+		/** @var array<string, mixed> */
 		return $this->add_additional_fields_schema( $this->schema );
 	}
 
@@ -393,8 +421,8 @@ class Feature_Controller extends WP_REST_Controller {
 				'required'          => true,
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
-				'validate_callback' => function ( $slug ) {
-					return $this->manager->is_available( $slug );
+				'validate_callback' => function ( $slug ): bool {
+					return Cast::to_bool( $this->manager->is_available( Cast::to_string( $slug ) ) );
 				},
 			],
 		];

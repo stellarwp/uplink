@@ -95,7 +95,7 @@ class License {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param Resource $resource The resource instance.
+	 * @param Resource                $resource The resource instance.
 	 * @param ContainerInterface|null $container Container instance.
 	 */
 	public function __construct( Resource $resource, $container = null ) {
@@ -162,7 +162,7 @@ class License {
 		 * @param string|null $key The license key.
 		 * @param Resource $resource The resource instance.
 		 */
-		$filtered_key = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_get_key', $this->key, $this->resource );
+		$filtered_key = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/license_get_key', $this->key, $this->resource );
 
 		/**
 		 * Filter the license key.
@@ -174,7 +174,7 @@ class License {
 		 * @param string|null $key The license key.
 		 * @param Resource $resource The resource instance.
 		 */
-		$filtered_key = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/' . $this->resource->get_slug() . '/license_get_key', $filtered_key, $this->resource );
+		$filtered_key = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/' . $this->resource->get_slug() . '/license_get_key', $filtered_key, $this->resource );
 
 		if ( $filtered_key !== $this->key ) {
 			$this->key = $filtered_key;
@@ -313,6 +313,18 @@ class License {
 	}
 
 	/**
+	 * Get the license key origin.
+	 * Returns null if the key origin is not set.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string|null
+	 */
+	public function get_key_origin(): ?string {
+		return $this->key_origin;
+	}
+
+	/**
 	 * Get the license key origin code.
 	 *
 	 * @since 1.0.0
@@ -334,7 +346,7 @@ class License {
 			'site_option'    => 'm',
 		];
 
-		$this->key_origin_code = $origin_map[ $this->key_origin ] ?? 'o';
+		$this->key_origin_code = $origin_map[ $this->get_key_origin() ] ?? 'o';
 
 		return $this->key_origin_code;
 	}
@@ -369,7 +381,7 @@ class License {
 		/** @var Data */
 		$data = $this->container->get( Data::class );
 
-		return static::$key_status_option_prefix . $this->resource->get_slug() . '_'. $data->get_site_domain();
+		return static::$key_status_option_prefix . $this->resource->get_slug() . '_' . $data->get_site_domain();
 	}
 
 	/**

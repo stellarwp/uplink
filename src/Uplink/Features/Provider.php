@@ -11,6 +11,7 @@ use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Strategy\Zip_Strategy;
 use StellarWP\Uplink\Features\Types\Built_In;
 use StellarWP\Uplink\Features\Types\Zip;
+use StellarWP\Uplink\Utils\Version;
 
 /**
  * Registers the Features subsystem in the DI container and hooks.
@@ -25,24 +26,35 @@ class Provider extends Abstract_Provider {
 	public function register(): void {
 		$this->container->singleton( Client::class, Client::class );
 
-		$this->container->singleton( Resolver::class, static function ( $c ) {
-			return new Resolver( $c->get( ContainerInterface::class ) );
-		} );
+		$this->container->singleton(
+			Resolver::class,
+			static function ( ContainerInterface $c ) {
+				$container = $c->get( ContainerInterface::class );
+
+				return new Resolver( $container );
+			}
+		);
 
 		$this->container->singleton( Feature_Collection::class, Feature_Collection::class );
 
-		$this->container->singleton( Manager::class, static function ( $c ) {
-			return new Manager(
-				$c->get( Client::class ),
-				$c->get( Resolver::class )
-			);
-		} );
+		$this->container->singleton(
+			Manager::class,
+			static function ( ContainerInterface $c ) {
+				$client   = $c->get( Client::class );
+				$resolver = $c->get( Resolver::class );
 
-		$this->container->singleton( Feature_Controller::class, static function ( $c ) {
-			return new Feature_Controller(
-				$c->get( Manager::class )
-			);
-		} );
+				return new Manager( $client, $resolver );
+			}
+		);
+
+		$this->container->singleton(
+			Feature_Controller::class,
+			static function ( ContainerInterface $c ) {
+				$manager = $c->get( Manager::class );
+
+				return new Feature_Controller( $manager );
+			}
+		);
 
 		$this->register_default_types();
 		$this->register_default_strategies();
@@ -97,6 +109,10 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	public function register_rest_routes(): void {
+		if ( ! Version::should_handle( 'features_rest_routes' ) ) {
+			return;
+		}
+
 		$this->container->get( Feature_Controller::class )->register_routes();
 	}
 }

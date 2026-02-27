@@ -27,25 +27,37 @@ final class FunctionsTest extends UplinkTestCase {
 		$collection = new Feature_Collection();
 		$collection->add( $this->makeEmpty( Feature::class, [ 'get_slug' => 'test-feature' ] ) );
 
-		$mock_strategy = $this->makeEmpty( Strategy::class, [
-			'enable'    => true,
-			'disable'   => true,
-			'is_active' => true,
-		] );
+		$mock_strategy = $this->makeEmpty(
+			Strategy::class,
+			[
+				'enable'    => true,
+				'disable'   => true,
+				'is_active' => true,
+			] 
+		);
 
-		$resolver = $this->makeEmpty( Resolver::class, [
-			'resolve' => $mock_strategy,
-		] );
+		$resolver = $this->makeEmpty(
+			Resolver::class,
+			[
+				'resolve' => $mock_strategy,
+			] 
+		);
 
-		$catalog = $this->makeEmpty( Client::class, [
-			'get_features' => $collection,
-		] );
+		$catalog = $this->makeEmpty(
+			Client::class,
+			[
+				'get_features' => $collection,
+			] 
+		);
 
 		$manager = new Manager( $catalog, $resolver );
 
-		$this->container->bind( Manager::class, static function () use ( $manager ) {
-			return $manager;
-		} );
+		$this->container->bind(
+			Manager::class,
+			static function () use ( $manager ) {
+				return $manager;
+			} 
+		);
 	}
 
 	/**
@@ -92,17 +104,23 @@ final class FunctionsTest extends UplinkTestCase {
 	public function test_is_feature_enabled_returns_wp_error_when_catalog_errors(): void {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
-		$catalog = $this->makeEmpty( Client::class, [
-			'get_features' => $error,
-		] );
+		$catalog = $this->makeEmpty(
+			Client::class,
+			[
+				'get_features' => $error,
+			] 
+		);
 
 		$resolver = $this->makeEmpty( Resolver::class );
 
 		$manager = new Manager( $catalog, $resolver );
 
-		$this->container->bind( Manager::class, static function () use ( $manager ) {
-			return $manager;
-		} );
+		$this->container->bind(
+			Manager::class,
+			static function () use ( $manager ) {
+				return $manager;
+			} 
+		);
 
 		$result = is_feature_enabled( 'test-feature' );
 		$this->assertInstanceOf( WP_Error::class, $result );
@@ -117,17 +135,23 @@ final class FunctionsTest extends UplinkTestCase {
 	public function test_is_feature_available_returns_wp_error_when_catalog_errors(): void {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
-		$catalog = $this->makeEmpty( Client::class, [
-			'get_features' => $error,
-		] );
+		$catalog = $this->makeEmpty(
+			Client::class,
+			[
+				'get_features' => $error,
+			] 
+		);
 
 		$resolver = $this->makeEmpty( Resolver::class );
 
 		$manager = new Manager( $catalog, $resolver );
 
-		$this->container->bind( Manager::class, static function () use ( $manager ) {
-			return $manager;
-		} );
+		$this->container->bind(
+			Manager::class,
+			static function () use ( $manager ) {
+				return $manager;
+			} 
+		);
 
 		$result = is_feature_available( 'test-feature' );
 		$this->assertInstanceOf( WP_Error::class, $result );

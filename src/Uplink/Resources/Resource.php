@@ -155,7 +155,7 @@ abstract class Resource {
 	 * @param string|null $license_class Class with a KEY/DATA constant, or path to a PHP file that returns the key.
 	 * @param bool|int    $oauth         Whether the resource uses OAuth, and if so, the OAuth options.
 	 */
-	public function __construct( $slug, $name, $version, $path, $class, string $license_class = null, $oauth = false) {
+	public function __construct( $slug, $name, $version, $path, $class, string $license_class = null, $oauth = false ) {
 		$this->name          = $name;
 		$this->slug          = $slug;
 		$this->path          = $path;
@@ -365,7 +365,7 @@ abstract class Resource {
 		 *
 		 * @param string $slug Resource slug.
 		 */
-		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/resource_get_slug', $this->slug );
+		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/resource_get_slug', $this->slug );
 	}
 
 	/**
@@ -413,7 +413,7 @@ abstract class Resource {
 		 *
 		 * @param string $version Resource version.
 		 */
-		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/resource_get_version', $this->version );
+		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/resource_get_version', $this->version );
 	}
 
 	public function get_home_url(): ?string {
@@ -443,7 +443,7 @@ abstract class Resource {
 			return false;
 		}
 
-		if( ! function_exists( 'get_plugin_data' ) ) {
+		if ( ! function_exists( 'get_plugin_data' ) ) {
 			// @phpstan-ignore-next-line The file will exist in a WordPress installation.
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
@@ -473,8 +473,8 @@ abstract class Resource {
 	 * @param string      $version       Resource version.
 	 * @param string      $class         Resource class.
 	 * @param string|null $license_class Class with a KEY/DATA constant, or path to a PHP file that returns the key.
-	 * @param bool|int $oauth            Either a boolean or an integer representing whether the resource uses OAuth,
-	 *                                   and if so, the OAuth options.
+	 * @param bool|int    $oauth            Either a boolean or an integer representing whether the resource uses OAuth,
+	 *                                      and if so, the OAuth options.
 	 *
 	 * @return Resource
 	 */
@@ -512,7 +512,7 @@ abstract class Resource {
 		 *
 		 * @param Resource $resource Resource instance.
 		 */
-		$resource = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/resource_register_before_collection', $resource );
+		$resource = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/resource_register_before_collection', $resource );
 
 		if ( ! empty( $collection[ $resource->get_slug() ] ) ) {
 			throw new Exceptions\ResourceAlreadyRegisteredException( $resource->get_slug() );
@@ -527,7 +527,7 @@ abstract class Resource {
 		 *
 		 * @param Resource $resource Resource instance.
 		 */
-		$resource = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/resource_register', $resource );
+		$resource = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/resource_register', $resource );
 
 		return $resource;
 	}
@@ -576,7 +576,7 @@ abstract class Resource {
 	 * @since 1.0.0
 	 *
 	 * @param string|null $key License key.
-	 * @param bool $do_network_validate Validate the key as a network key.
+	 * @param bool        $do_network_validate Validate the key as a network key.
 	 *
 	 * @return API\Validation_Response
 	 */

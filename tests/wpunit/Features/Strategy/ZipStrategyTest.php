@@ -394,12 +394,14 @@ final class ZipStrategyTest extends UplinkTestCase {
 	 * on_plugin_activated updates stored state to true for a known feature.
 	 */
 	public function test_on_plugin_activated_updates_state_for_known_feature(): void {
-		$strategy = new Zip_Strategy( function ( string $plugin_file ): ?Zip {
-			if ( $plugin_file === self::PLUGIN_FILE ) {
-				return $this->make_zip_feature();
+		$strategy = new Zip_Strategy(
+			function ( string $plugin_file ): ?Zip {
+				if ( $plugin_file === self::PLUGIN_FILE ) {
+						return $this->make_zip_feature();
+				}
+				return null;
 			}
-			return null;
-		} );
+		);
 
 		$strategy->on_plugin_activated( self::PLUGIN_FILE, false );
 
@@ -410,9 +412,11 @@ final class ZipStrategyTest extends UplinkTestCase {
 	 * on_plugin_activated ignores unknown plugins (resolver returns null).
 	 */
 	public function test_on_plugin_activated_ignores_unknown_plugin(): void {
-		$strategy = new Zip_Strategy( function ( string $plugin_file ): ?Zip {
-			return null;
-		} );
+		$strategy = new Zip_Strategy(
+			function ( string $plugin_file ): ?Zip {
+				return null;
+			}
+		);
 
 		$strategy->on_plugin_activated( 'unknown/unknown.php', false );
 
@@ -437,12 +441,14 @@ final class ZipStrategyTest extends UplinkTestCase {
 		// Start with active stored state.
 		update_option( self::OPTION_KEY, '1', true );
 
-		$strategy = new Zip_Strategy( function ( string $plugin_file ): ?Zip {
-			if ( $plugin_file === self::PLUGIN_FILE ) {
-				return $this->make_zip_feature();
+		$strategy = new Zip_Strategy(
+			function ( string $plugin_file ): ?Zip {
+				if ( $plugin_file === self::PLUGIN_FILE ) {
+						return $this->make_zip_feature();
+				}
+				return null;
 			}
-			return null;
-		} );
+		);
 
 		$strategy->on_plugin_deactivated( self::PLUGIN_FILE, false );
 
@@ -453,9 +459,11 @@ final class ZipStrategyTest extends UplinkTestCase {
 	 * on_plugin_deactivated ignores unknown plugins (resolver returns null).
 	 */
 	public function test_on_plugin_deactivated_ignores_unknown_plugin(): void {
-		$strategy = new Zip_Strategy( function ( string $plugin_file ): ?Zip {
-			return null;
-		} );
+		$strategy = new Zip_Strategy(
+			function ( string $plugin_file ): ?Zip {
+				return null;
+			}
+		);
 
 		update_option( self::OPTION_KEY, '1', true );
 
@@ -652,11 +660,14 @@ final class ZipStrategyTest extends UplinkTestCase {
 			$feature = $this->make_zip_feature( 'test-feature', self::PLUGIN_FILE, [ $expected_author ] );
 			$result  = $this->strategy->enable( $feature );
 
-			$this->assertTrue( $result, sprintf(
-				'Expected author "%s" should match actual author "%s".',
-				$expected_author,
-				$actual_author
-			) );
+			$this->assertTrue(
+				$result,
+				sprintf(
+					'Expected author "%s" should match actual author "%s".',
+					$expected_author,
+					$actual_author
+				)
+			);
 		} finally {
 			deactivate_plugins( self::PLUGIN_FILE );
 			if ( file_exists( $plugin_path ) ) {
@@ -675,12 +686,12 @@ final class ZipStrategyTest extends UplinkTestCase {
 	 */
 	public function author_normalization_provider(): array {
 		return [
-			'exact match'           => [ 'StellarWP', 'StellarWP' ],
-			'case difference'       => [ 'stellarwp', 'StellarWP' ],
-			'uppercase expected'    => [ 'STELLARWP', 'StellarWP' ],
-			'leading whitespace'    => [ ' StellarWP', 'StellarWP' ],
-			'trailing whitespace'   => [ 'StellarWP ', 'StellarWP' ],
-			'both have whitespace'  => [ ' StellarWP ', ' StellarWP ' ],
+			'exact match'          => [ 'StellarWP', 'StellarWP' ],
+			'case difference'      => [ 'stellarwp', 'StellarWP' ],
+			'uppercase expected'   => [ 'STELLARWP', 'StellarWP' ],
+			'leading whitespace'   => [ ' StellarWP', 'StellarWP' ],
+			'trailing whitespace'  => [ 'StellarWP ', 'StellarWP' ],
+			'both have whitespace' => [ ' StellarWP ', ' StellarWP ' ],
 		];
 	}
 
@@ -741,16 +752,18 @@ final class ZipStrategyTest extends UplinkTestCase {
 		string $plugin_file = self::PLUGIN_FILE,
 		array $authors = [ 'StellarWP' ]
 	): Zip {
-		return new Zip( [
-			'slug'         => $slug,
-			'group'        => 'Test',
-			'tier'         => 'Tier 1',
-			'name'         => 'Test Feature',
-			'description'  => 'A test feature for unit tests.',
-			'plugin_file'  => $plugin_file,
-			'is_available' => true,
-			'authors'      => $authors,
-		] );
+		return new Zip(
+			[
+				'slug'         => $slug,
+				'group'        => 'Test',
+				'tier'         => 'Tier 1',
+				'name'         => 'Test Feature',
+				'description'  => 'A test feature for unit tests.',
+				'plugin_file'  => $plugin_file,
+				'is_available' => true,
+				'authors'      => $authors,
+			]
+		);
 	}
 
 	/**
@@ -762,7 +775,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 	 * @return Feature
 	 */
 	private function create_non_zip_feature(): Feature {
-		return new class ( [
+		return new class( [
 			'slug'         => 'non-zip',
 			'group'        => 'Test',
 			'tier'         => 'Tier 1',
@@ -780,5 +793,4 @@ final class ZipStrategyTest extends UplinkTestCase {
 			}
 		};
 	}
-
 }

@@ -199,14 +199,16 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 	 * affect the other.
 	 */
 	public function test_features_have_independent_state(): void {
-		$other = new Built_In( [
-			'slug'         => 'other-feature',
-			'group'        => 'TEC',
-			'tier'         => 'Tier 1',
-			'name'         => 'Other',
-			'description'  => 'Another feature.',
-			'is_available' => true,
-		] );
+		$other = new Built_In(
+			[
+				'slug'         => 'other-feature',
+				'group'        => 'TEC',
+				'tier'         => 'Tier 1',
+				'name'         => 'Other',
+				'description'  => 'Another feature.',
+				'is_available' => true,
+			]
+		);
 
 		$this->strategy->enable( $this->feature );
 
@@ -235,14 +237,16 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 		string $name = 'Advanced Tickets',
 		string $description = 'Unlock advanced ticketing features.'
 	): Built_In {
-		return new Built_In( [
-			'slug'         => $slug,
-			'group'        => 'TEC',
-			'tier'         => 'Tier 1',
-			'name'         => $name,
-			'description'  => $description,
-			'is_available' => true,
-		] );
+		return new Built_In(
+			[
+				'slug'         => $slug,
+				'group'        => 'TEC',
+				'tier'         => 'Tier 1',
+				'name'         => $name,
+				'description'  => $description,
+				'is_available' => true,
+			]
+		);
 	}
 
 	/**
@@ -254,7 +258,7 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 	 * @return Feature
 	 */
 	private function create_non_built_in_feature(): Feature {
-		return new class ( [
+		return new class( [
 			'slug'         => 'not-built-in',
 			'group'        => 'Test',
 			'tier'         => 'Tier 1',
@@ -272,5 +276,4 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 			}
 		};
 	}
-
 }

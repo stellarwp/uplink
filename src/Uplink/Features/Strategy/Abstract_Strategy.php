@@ -92,5 +92,4 @@ abstract class Abstract_Strategy implements Strategy {
 
 		return (bool) $raw;
 	}
-
 }

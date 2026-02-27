@@ -88,5 +88,4 @@ class Built_In_Strategy extends Abstract_Strategy {
 
 		return $this->get_stored_state( $feature->get_slug() ) === true;
 	}
-
 }

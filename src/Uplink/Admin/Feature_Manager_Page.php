@@ -2,7 +2,6 @@
 
 namespace StellarWP\Uplink\Admin;
 
-use StellarWP\Uplink\Uplink;
 use StellarWP\Uplink\Utils\Version;
 
 /**

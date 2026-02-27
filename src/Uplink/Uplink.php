@@ -49,6 +49,7 @@ class Uplink {
 		$container->singleton( Notice\Provider::class, Notice\Provider::class );
 		$container->singleton( Admin\Provider::class, Admin\Provider::class );
 		$container->singleton( Auth\Provider::class, Auth\Provider::class );
+		$container->singleton( Legacy\Provider::class, Legacy\Provider::class );
 		$container->singleton( Features\Provider::class, Features\Provider::class );
 
 		if ( static::is_enabled() ) {
@@ -57,6 +58,7 @@ class Uplink {
 			$container->get( API\V3\Provider::class )->register();
 			$container->get( Notice\Provider::class )->register();
 			$container->get( Admin\Provider::class )->register();
+			$container->get( Legacy\Provider::class )->register();
 
 			if ( $container->has( Config::TOKEN_OPTION_NAME ) ) {
 				$container->get( Auth\Provider::class )->register();
@@ -96,7 +98,7 @@ class Uplink {
 					return self::VERSION;
 				}
 				return $current_highest;
-			} 
+			}
 		);
 
 		add_filter(
@@ -109,7 +111,7 @@ class Uplink {
 				return $resource->validate_license( $key );
 			},
 			10,
-			3 
+			3
 		);
 
 		add_filter(
@@ -124,7 +126,7 @@ class Uplink {
 				return true;
 			},
 			10,
-			4 
+			4
 		);
 
 		add_filter(
@@ -137,7 +139,7 @@ class Uplink {
 				return $resource->delete_license_key( $type );
 			},
 			10,
-			3 
+			3
 		);
 	}
 

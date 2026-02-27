@@ -7,7 +7,7 @@ use StellarWP\Uplink\Contracts\Abstract_Provider;
 /**
  * Registers services for legacy license discovery.
  *
- * @since 3.1.0
+ * @since 3.0.0
  */
 class Provider extends Abstract_Provider {
 

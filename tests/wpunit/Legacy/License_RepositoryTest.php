@@ -7,7 +7,7 @@ use StellarWP\Uplink\Legacy\Legacy_License;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
 /**
- * @since 3.1.0
+ * @since 3.0.0
  */
 final class License_RepositoryTest extends UplinkTestCase {
 

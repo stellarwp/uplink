@@ -313,6 +313,18 @@ class License {
 	}
 
 	/**
+	 * Get the license key origin.
+	 * Returns null if the key origin is not set.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string|null
+	 */
+	public function get_key_origin(): ?string {
+		return $this->key_origin;
+	}
+
+	/**
 	 * Get the license key origin code.
 	 *
 	 * @since 1.0.0
@@ -334,7 +346,7 @@ class License {
 			'site_option'    => 'm',
 		];
 
-		$this->key_origin_code = $origin_map[ $this->key_origin ] ?? 'o';
+		$this->key_origin_code = $origin_map[ $this->get_key_origin() ] ?? 'o';
 
 		return $this->key_origin_code;
 	}

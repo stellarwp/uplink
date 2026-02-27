@@ -10,7 +10,7 @@ class Provider extends Abstract_Provider {
 	/**
 	 * Register the service provider.
 	 *
-	 * @since 3.0.0 added Plugin_Manager_Page
+	 * @since 3.0.0 added Feature_Manager_Page.
 	 * @since 1.0.0
 	 *
 	 * @return void
@@ -23,7 +23,7 @@ class Provider extends Abstract_Provider {
 		$this->container->singleton( Package_Handler::class, Package_Handler::class );
 		$this->container->singleton( Update_Prevention::class, Update_Prevention::class );
 		$this->container->singleton( Group::class, Group::class );
-		$this->container->singleton( Plugin_Manager_Page::class, Plugin_Manager_Page::class );
+		$this->container->singleton( Feature_Manager_Page::class, Feature_Manager_Page::class );
 		$this->container->singleton(
 			Asset_Manager::class,
 			static function ( $c ) {
@@ -51,7 +51,7 @@ class Provider extends Abstract_Provider {
 		$action = sprintf( 'wp_ajax_pue-validate-key-uplink-%s', Config::get_hook_prefix_underscored() );
 		add_action( $action, [ $this, 'ajax_validate_license' ], 10, 0 );
 		add_action( 'admin_init', [ $this, 'admin_init' ], 10, 0 );
-		add_action( 'admin_menu', [ $this, 'register_unified_plugin_manager_page' ], 20, 0 );
+		add_action( 'admin_menu', [ $this, 'register_unified_feature_manager_page' ], 20, 0 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'display_plugin_messages' ], 1, 1 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'register_assets' ], 10, 0 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'store_admin_notices' ], 10, 1 );
@@ -59,15 +59,15 @@ class Provider extends Abstract_Provider {
 	}
 
 	/**
-	 * Registers the unified plugin manager page if this instance
+	 * Registers the unified feature manager page if this instance
 	 * has the highest Uplink version among all active instances.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @return void
 	 */
-	public function register_unified_plugin_manager_page(): void {
-		$this->container->get( Plugin_Manager_Page::class )->maybe_register_page();
+	public function register_unified_feature_manager_page(): void {
+		$this->container->get( Feature_Manager_Page::class )->maybe_register_page();
 	}
 
 	/**

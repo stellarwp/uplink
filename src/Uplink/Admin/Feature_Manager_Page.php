@@ -97,7 +97,10 @@ class Feature_Manager_Page {
 		$asset_file = $plugin_root_dir . '/' . $build_dir . '/index.asset.php';
 
 		/** @var array{dependencies: array<string>, version: string} $asset_data */
-		$asset_data = file_exists( $asset_file ) ? require $asset_file : [ 'dependencies' => [], 'version' => null ];
+		$asset_data = file_exists( $asset_file ) ? require $asset_file : [
+			'dependencies' => [],
+			'version'      => null,
+		];
 
 		wp_register_script(
 			$handle,

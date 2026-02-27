@@ -310,7 +310,7 @@ class Zip_Strategy extends Abstract_Strategy {
 	private function ensure_installed( Zip $feature ) {
 		$plugin_file = $feature->get_plugin_file();
 
-		// Already on disk — verify ownership before treating it as "ours."
+		// Already on disk — verify ownership before treating it as "ours".
 		if ( $this->is_plugin_installed( $plugin_file ) ) {
 			return $this->verify_plugin_ownership( $feature );
 		}
@@ -340,7 +340,7 @@ class Zip_Strategy extends Abstract_Strategy {
 			// Post-install verification: the ZIP's directory structure might not
 			// match the expected plugin_file path. Catch this early with a clear
 			// error rather than a confusing "plugin not found" during activation.
-			// @phpstan-ignore booleanNot.alwaysTrue (install_plugin() creates files on disk; side effects invisible to static analysis)
+			// @phpstan-ignore-next-line booleanNot.alwaysTrue -- (install_plugin() creates files on disk; side effects invisible to static analysis).
 			if ( ! $this->is_plugin_installed( $plugin_file ) ) {
 				return new WP_Error(
 					'plugin_not_found',

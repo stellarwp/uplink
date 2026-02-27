@@ -37,7 +37,7 @@ class License_Repository {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $slug
+	 * @param string $slug The resource slug.
 	 *
 	 * @return Legacy_License|null
 	 */

@@ -15,43 +15,57 @@ class Legacy_License {
 
 	/**
 	 * @since 3.0.0
+	 *
+	 * @var string
 	 */
 	public string $key;
 
 	/**
 	 * @since 3.0.0
+	 *
+	 * @var string
 	 */
 	public string $slug;
 
 	/**
 	 * @since 3.0.0
+	 *
+	 * @var string
 	 */
 	public string $name;
 
 	/**
 	 * @since 3.0.0
+	 *
+	 * @var string
 	 */
 	public string $brand;
 
 	/**
 	 * @since 3.0.0
+	 *
+	 * @var string
 	 */
 	public string $status;
 
 	/**
 	 * @since 3.0.0
+	 *
+	 * @var string
 	 */
 	public string $page_url;
 
 	/**
 	 * @since 3.0.0
+	 *
+	 * @var string
 	 */
 	public string $expires_at;
 
 	/**
 	 * @since 3.0.0
 	 *
-	 * @param array<string, mixed> $data
+	 * @param array<string, mixed> $data The legacy license data.
 	 */
 	public static function from_data( array $data ): Legacy_License {
 		$self = new self();

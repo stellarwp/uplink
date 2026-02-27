@@ -51,7 +51,7 @@ class Plugin_Manager_Page {
         } else {
             echo '<ul>';
             foreach ( $licenses as $license ) {
-                echo '<li>' . '<strong>' . esc_html( $license->resource_slug ) . '</strong>: ' . esc_html( $license->key ) . ' <a href="' . esc_url( $license->license_page_url ) . '">' . esc_html__( 'Manage', '%TEXTDOMAIN%' ) . '</a></li>';
+                echo '<li>' . '<strong>' . esc_html( $license->slug ) . '</strong>: ' . esc_html( $license->key ) . ' <a href="' . esc_url( $license->page_url ) . '">' . esc_html__( 'Manage', '%TEXTDOMAIN%' ) . '</a></li>';
                 }
                 echo '</ul>';
             }

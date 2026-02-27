@@ -142,15 +142,6 @@ class Uplink {
 			3
 		);
 
-		add_filter(
-			'stellarwp/uplink/legacy_licenses',
-			static function ( array $licenses ) use ( $container ): array {
-				return array_merge(
-					$licenses,
-					$container->get( Legacy\Legacy_Manager::class )->collect_licenses()
-				);
-			}
-		);
 	}
 
 	/**

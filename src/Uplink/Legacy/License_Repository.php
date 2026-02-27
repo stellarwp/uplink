@@ -18,7 +18,17 @@ class License_Repository {
 	 * @return Legacy_License[]
 	 */
 	public function all(): array {
-		return (array) apply_filters( 'stellarwp/uplink/legacy_licenses', [] );
+		$filtered_licenses = (array) apply_filters( 'stellarwp/uplink/legacy_licenses', [] );
+
+		$licenses = [];
+
+		foreach ( $filtered_licenses as $license ) {
+			if ( is_array( $license ) ) {
+				$licenses[] = Legacy_License::fromData( $license );
+			}
+		}
+
+		return $licenses;
 	}
 
 	/**

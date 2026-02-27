@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace StellarWP\Uplink\Legacy;
 
+use StellarWP\Uplink\Utils\Cast;
+
 /**
  * Represents a license key discovered from a plugin's legacy storage.
  *
@@ -64,12 +66,12 @@ class Legacy_License
     public static function fromData(array $data): self
     {
         return new static(
-            $data['key'] ?? '',
-            $data['slug'] ?? '',
-            $data['name'] ?? '',
-            $data['brand'] ?? '',
-            $data['status'] ?? 'unknown',
-            $data['page_url'] ?? ''
+            Cast::to_string($data['key'] ?? ''),
+            Cast::to_string($data['slug'] ?? ''),
+            Cast::to_string($data['name'] ?? ''),
+            Cast::to_string($data['brand'] ?? ''),
+            Cast::to_string($data['status'] ?? 'unknown'),
+            Cast::to_string($data['page_url'] ?? '')
         );
     }
 }

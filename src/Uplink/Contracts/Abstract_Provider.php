@@ -20,5 +20,4 @@ abstract class Abstract_Provider implements Provider_Interface {
 	public function __construct( $container = null ) {
 		$this->container = $container ?: Config::get_container();
 	}
-
 }

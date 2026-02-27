@@ -25,7 +25,7 @@ final class Disconnector {
 	private $storage;
 
 	/**
-	 * @param  Token_Manager  $token_manager  The Token Manager.
+	 * @param Token_Manager $token_manager  The Token Manager.
 	 */
 	public function __construct(
 		Token_Manager $token_manager,
@@ -40,8 +40,8 @@ final class Disconnector {
 	/**
 	 * Delete a token if the current user is allowed to.
 	 *
-	 * @param  string  $slug       The plugin or service slug.
-	 * @param  string  $cache_key  The token cache key.
+	 * @param string $slug       The plugin or service slug.
+	 * @param string $cache_key  The token cache key.
 	 *
 	 * @return bool
 	 */
@@ -61,5 +61,4 @@ final class Disconnector {
 
 		return $result;
 	}
-
 }

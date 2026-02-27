@@ -24,7 +24,7 @@ interface Token_Manager {
 	/**
 	 * Validates a token is in the accepted UUIDv4 format.
 	 *
-	 * @param  string  $token
+	 * @param string $token
 	 *
 	 * @return bool
 	 */
@@ -33,8 +33,8 @@ interface Token_Manager {
 	/**
 	 * Stores the token in the database.
 	 *
-	 * @param  string    $token
-	 * @param  Resource  $plugin
+	 * @param string   $token
+	 * @param Resource $plugin
 	 *
 	 * @return bool
 	 */
@@ -45,7 +45,7 @@ interface Token_Manager {
 	 *
 	 * @note This will return a single legacy token if one exists in the database.
 	 *
-	 * @param  Resource  $plugin
+	 * @param Resource $plugin
 	 *
 	 * @return string
 	 */
@@ -65,7 +65,7 @@ interface Token_Manager {
 	/**
 	 * Deletes the token from the database.
 	 *
-	 * @param  string  $slug
+	 * @param string $slug
 	 *
 	 * @return bool
 	 */

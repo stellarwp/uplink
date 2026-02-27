@@ -6,3 +6,13 @@ vendor/
 node_modules/
 
 local-scripts/
+
+# Frontend build outputs
+/build/
+/build-dev/
+
+# OS
+.DS_Store
+
+# PHPStan cache
+phpstan-cache

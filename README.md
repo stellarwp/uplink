@@ -22,75 +22,77 @@ Initializing the StellarWP Uplink library should be done within the `plugins_loa
 use StellarWP\Uplink\Uplink;
 
 add_action( 'plugins_loaded', function() {
-	/**
-	 * Configure the container.
-	 *
-	 * The container must be compatible with stellarwp/container-contract.
-	 * See here: https://github.com/stellarwp/container-contract#usage.
-	 *
-	 * If you do not have a container, we recommend https://github.com/lucatume/di52
-	 * and the corresponding wrapper:
-	 * https://github.com/stellarwp/container-contract/blob/main/examples/di52/Container.php
-	 */
-	$container = new Container();
-	Config::set_container( $container );
-	Config::set_hook_prefix( 'my-custom-prefix' );
+ /**
+  * Configure the container.
+  *
+  * The container must be compatible with stellarwp/container-contract.
+  * See here: https://github.com/stellarwp/container-contract#usage.
+  *
+  * If you do not have a container, we recommend https://github.com/lucatume/di52
+  * and the corresponding wrapper:
+  * https://github.com/stellarwp/container-contract/blob/main/examples/di52/Container.php
+  */
+ $container = new Container();
+ Config::set_container( $container );
+ Config::set_hook_prefix( 'my-custom-prefix' );
 
-	/*
-	 * If you wish to allow a customer to authorize their product, set your Token Auth Prefix.
-	 *
-	 * This will allow storage of a unique token associated with the customer's license/domain.
-	 *
-	 * Important: The Token auth prefix should be the same across all of your products.
-	 */
-	Config::set_token_auth_prefix( 'my_origin' );
+ /*
+  * If you wish to allow a customer to authorize their product, set your Token Auth Prefix.
+  *
+  * This will allow storage of a unique token associated with the customer's license/domain.
+  *
+  * Important: The Token auth prefix should be the same across all of your products.
+  */
+ Config::set_token_auth_prefix( 'my_origin' );
 
-	// Optionally, change the default auth token caching.
-	Config::set_auth_cache_expiration( WEEK_IN_SECONDS );
+ // Optionally, change the default auth token caching.
+ Config::set_auth_cache_expiration( WEEK_IN_SECONDS );
 
-	// Or, disable it completely.
-	Config::set_auth_cache_expiration( -1 );
+ // Or, disable it completely.
+ Config::set_auth_cache_expiration( -1 );
 
-	Uplink::init();
+ Uplink::init();
 }, 0 );
 ```
 
 ## Translation
 
 Package is using `__( 'Invalid request: nonce field is expired. Please try again.', '%TEXTDOMAIN%' )` function for translation. In order to change domain placeholder `'%TEXTDOMAIN%'` to your plugin translation domain run
+
 ```bash
 ./bin/stellar-uplink domain=<your-plugin-domain>
 ```
+
 or
+
 ```bash
 ./bin/stellar-uplink
 ```
+
 and prompt the plugin domain
 You can also add lines below to your composer file in order to run command automatically
+
 ```json
 "scripts": {
-	"stellar-uplink": [
-	  "vendor/bin/stellar-uplink domain=<your-plugin-domain>"
-	],
-	"post-install-cmd": [
-	  "@stellar-uplink"
-	],
-	"post-update-cmd": [
-	  "@stellar-uplink"
-	]
+ "stellar-uplink": [
+   "vendor/bin/stellar-uplink domain=<your-plugin-domain>"
+ ],
+ "post-install-cmd": [
+   "@stellar-uplink"
+ ],
+ "post-update-cmd": [
+   "@stellar-uplink"
+ ]
   }
 ```
 
 ## Embedding a license in your plugin
 
-StellarWP Uplink plugins are downloaded with an embedded license key so that users do not need to manually enter the key when activating their plugin. To make this possible, the class must be in a specific location so that the licensing server can find it.
+StellarWP Uplink plugins are downloaded with an embedded license key so that users do not need to manually enter the key when activating their plugin. There are two ways to embed a license key: using a **class constant** or using a **simple license file**.
 
-```bash
-# The class file should be in this path:
-src/Uplink/Helper.php
-```
-> [!NOTE]  
-> While the default is `src/Uplink/Helper.php`, the licensing server supports embedding the license in [any file path defined on the server](https://github.com/stellarwp/licensing/blob/e8b0fe1c32065fde198e9d10b9de5c04eda45a9d/src/Licensing/Tables/Products.php#L53).
+### Class constant (default)
+
+The class file can be placed anywhere in your plugin. The default convention is `src/Uplink/Helper.php`, but you can use any path as long as you pass the corresponding class as the `$license_class` parameter when registering.
 
 The file should match the following - keeping the `KEY` constant set to a blank string, or, if you want a default license key, set it to that.:
 
@@ -100,9 +102,36 @@ The file should match the following - keeping the `KEY` constant set to a blank 
 namespace Whatever\Namespace\Uplink;
 
 final class Helper {
-	public const KEY = '';
+ public const KEY = '';
 }
 ```
+
+The `DATA` constant is also supported as an alternative to `KEY`.
+
+### Simple license file
+
+Some products use a simple PHP file that returns the license key directly instead of a class constant. This is common for products that use files like `auth-token.php` or `PLUGIN_LICENSE.php`.
+
+The file should return the license key as a string:
+
+```php
+<?php return 'your-license-key-here';
+```
+
+When registering your plugin, pass the file path (relative to your plugin's root directory) as the `$license_class` parameter:
+
+```php
+Register::plugin(
+ 'my-plugin',
+ 'My Plugin',
+ '1.0.0',
+ 'my-plugin/my-plugin.php',
+ MyPlugin::class,
+ 'auth-token.php' // Relative to the plugin directory.
+);
+```
+
+Subdirectory paths are also supported (e.g. `config/license.php`).
 
 ## Registering a plugin
 
@@ -119,13 +148,13 @@ $plugin_class   = MyPlugin::class;
 $license_class  = MyPlugin\Uplink\Helper::class;
 
 Register::plugin(
-	$plugin_slug,
-	$plugin_name,
-	$plugin_version,
-	$plugin_path,
-	$plugin_class,
-	$license_class, // This is optional.
-	false // Whether this is an oAuth plugin. Default false.
+ $plugin_slug,
+ $plugin_name,
+ $plugin_version,
+ $plugin_path,
+ $plugin_class,
+ $license_class, // This is optional.
+ false // Whether this is an oAuth plugin. Default false.
 );
 ```
 
@@ -143,13 +172,13 @@ $plugin_path     = 'my-plugin/my-plugin.php';
 $plugin_class    = MyPlugin::class;
 
 Register::service(
-	$service_slug,
-	$service_name,
-	$service_version,
-	$plugin_path,
-	$plugin_class,
-	null,
-	false
+ $service_slug,
+ $service_name,
+ $service_version,
+ $plugin_path,
+ $plugin_class,
+ null,
+ false
 );
 ```
 
@@ -166,10 +195,10 @@ $form = UplinkNamespace\get_form();
 $plugins = UplinkNamespace\get_plugins();
 
 foreach ( $plugins as $plugin ) {
-	$field = UplinkNamespace\get_field( $plugin->get_slug() );
-	// Tha name property of the input field.
-	$field->set_field_name( 'field-' . $slug );
-	$form->add_field( $field );
+ $field = UplinkNamespace\get_field( $plugin->get_slug() );
+ // Tha name property of the input field.
+ $field->set_field_name( 'field-' . $slug );
+ $form->add_field( $field );
 }
 
 $form->render();
@@ -215,19 +244,19 @@ use StellarWP\Uplink as UplinkNamespace;
 
 function render_settings_page() {
     // ...
-	$form = UplinkNamespace\get_form();
-	$plugins = UplinkNamespace\get_plugins();
+ $form = UplinkNamespace\get_form();
+ $plugins = UplinkNamespace\get_plugins();
 
-	foreach ( $plugins as $plugin ) {
-		$field = UplinkNamespace\get_field( $plugin->get_slug() );
-		// Tha name property of the input field.
-		$field->set_field_name( 'field-' . $slug );
-		$form->add_field( $field );
-	}
+ foreach ( $plugins as $plugin ) {
+  $field = UplinkNamespace\get_field( $plugin->get_slug() );
+  // Tha name property of the input field.
+  $field->set_field_name( 'field-' . $slug );
+  $form->add_field( $field );
+ }
 
-	$form->show_button( true, __( 'Submit', 'text-domain' ) );
+ $form->show_button( true, __( 'Submit', 'text-domain' ) );
 
-	$form->render();
+ $form->render();
 
     //....
 }
@@ -287,7 +316,7 @@ $license_key = \StellarWP\Uplink\get_license_key( 'my-plugin-slug' );
 $domain      = \StellarWP\Uplink\get_license_domain();
 
 if ( ! $token || ! $license_key || ! $domain ) {
-	return; // or, log/show errors.
+ return; // or, log/show errors.
 }
 
 $is_authorized = \StellarWP\Uplink\is_authorized( $license_key, 'my-plugin-slug', $token, $domain );

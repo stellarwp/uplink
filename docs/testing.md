@@ -4,9 +4,9 @@ This repository uses Codeception for automated testing and leverages [`slic`](ht
 
 ## Pre-requisites
 
-* Docker
-* A system-level PHP installation with MySQL libraries
-* [`slic`](https://github.com/stellarwp/slic) set up and usable on your system (follow setup instructions in that repo)
+- Docker
+- A system-level PHP installation with MySQL libraries
+- [`slic`](https://github.com/stellarwp/slic) set up and usable on your system (follow setup instructions in that repo)
 
 ## Running tests
 
@@ -16,7 +16,7 @@ To run tests for the first time, there are a couple of things you need to do:
 
 1. Run `slic here` in the parent directory from where this library is cloned. (e.g. If you ran `git clone` in your `wp-content/plugins` directory, run `slic here` from `wp-content/plugins`)
 2. Run `slic use uplink` to tell `slic` to point to the uplink library.
-2. Run `slic composer install` to bring in all the dependencies.
+3. Run `slic composer install` to bring in all the dependencies.
 
 ### Running the tests
 

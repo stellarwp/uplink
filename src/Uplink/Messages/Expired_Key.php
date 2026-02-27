@@ -1,6 +1,7 @@
 <?php
 
 namespace StellarWP\Uplink\Messages;
+
 use StellarWP\Uplink\Config;
 
 class Expired_Key extends Message_Abstract {
@@ -28,7 +29,8 @@ class Expired_Key extends Message_Abstract {
 				'event-automator',
 				'tec-seating',
 			],
-			true ) ? 'https://evnt.is/195y' : '';
+			true 
+		) ? 'https://evnt.is/195y' : '';
 
 		$message_link        = (string) apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/messages/expired_key_link', $default_link );
 		$renew_label         = __( 'Renew Your License Now', '%TEXTDOMAIN%' );
@@ -74,9 +76,9 @@ class Expired_Key extends Message_Abstract {
 			],
 		];
 
-		$message = '<div class="notice notice-warning">';
+		$message  = '<div class="notice notice-warning">';
 		$message .= wp_kses( $message_content, $allowed_html );
-        $message .= '</div>';
+		$message .= '</div>';
 
 		return $message;
 	}

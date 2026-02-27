@@ -73,5 +73,4 @@ final class ConfigTest extends UplinkTestCase {
 
 		$this->assertSame( Transient_Storage::class, Config::get_storage_driver() );
 	}
-
 }

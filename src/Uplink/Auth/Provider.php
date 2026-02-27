@@ -48,9 +48,12 @@ final class Provider extends Abstract_Provider {
 		$expiration = apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/auth/nonce_expiration', 2100 );
 		$expiration = absint( $expiration );
 
-		$this->container->singleton( Nonce::class, static function( $c ) use ( $expiration ) {
-			return new Nonce( $c->get( Storage::class ), $expiration );
-		} );
+		$this->container->singleton(
+			Nonce::class,
+			static function ( $c ) use ( $expiration ) {
+				return new Nonce( $c->get( Storage::class ), $expiration );
+			} 
+		);
 	}
 
 	/**
@@ -71,5 +74,4 @@ final class Provider extends Abstract_Provider {
 		// Execute the above actions when an uplink_slug query variable.
 		add_action( 'admin_init', [ $action_manager, 'do_action' ], 9 );
 	}
-
 }

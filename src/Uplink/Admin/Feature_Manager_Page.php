@@ -95,7 +95,9 @@ class Feature_Manager_Page {
 
 		// Load asset file for dependencies and version.
 		$asset_file = $plugin_root_dir . '/' . $build_dir . '/index.asset.php';
-		$asset_data = file_exists( $asset_file ) ? require $asset_file : [];
+
+		/** @var array{dependencies: array<string>, version: string} $asset_data */
+		$asset_data = file_exists( $asset_file ) ? require $asset_file : [ 'dependencies' => [], 'version' => null ];
 
 		wp_register_script(
 			$handle,

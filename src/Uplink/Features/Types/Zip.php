@@ -178,6 +178,6 @@ final class Zip extends Feature {
 			return null;
 		}
 
-		return $response->version ?? null;
+		return Cast::to_string( $response->version ) ?? null;
 	}
 }

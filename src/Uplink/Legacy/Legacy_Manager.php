@@ -9,7 +9,7 @@ use StellarWP\Uplink\Resources\Resource;
  * Manages legacy license collection for a single Uplink instance's
  * resources.
  *
- * @since 3.1.0
+ * @since 3.0.0
  */
 class Legacy_Manager {
 
@@ -29,7 +29,7 @@ class Legacy_Manager {
 	 * Collect legacy licenses from all resources in this instance
 	 * that have a license provider.
 	 *
-	 * @since 3.1.0
+	 * @since 3.0.0
 	 *
 	 * @return Legacy_License[]
 	 */
@@ -50,7 +50,7 @@ class Legacy_Manager {
 	/**
 	 * Get all resources that have a legacy config.
 	 *
-	 * @since 3.1.0
+	 * @since 3.0.0
 	 *
 	 * @return Resource[]
 	 */

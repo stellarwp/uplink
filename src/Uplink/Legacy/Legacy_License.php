@@ -1,4 +1,6 @@
-<?php declare( strict_types=1 );
+<?php
+
+declare(strict_types=1);
 
 namespace StellarWP\Uplink\Legacy;
 
@@ -7,38 +9,67 @@ namespace StellarWP\Uplink\Legacy;
  *
  * @since 3.0.0
  */
-class Legacy_License {
+class Legacy_License
+{
 
-	/**
-	 * @var string
-	 */
-	public $key;
+    /**
+     * @var string
+     */
+    public $key;
 
-	/**
-	 * @var string
-	 */
-	public $resource_slug;
+    /**
+     * @var string
+     */
+    public $slug;
 
-	/**
-	 * @var string
-	 */
-	public $status;
 
-	/**
-	 * @var string
-	 */
-	public $license_page_url;
+    /**
+     * @var string
+     */
+    public $name;
 
-	/**
-	 * @param string $key              The license key.
-	 * @param string $resource_slug    The Uplink resource slug this key belongs to.
-	 * @param string $status           The license status (e.g. 'valid', 'expired', 'invalid').
-	 * @param string $license_page_url URL to the plugin's legacy license management page.
-	 */
-	public function __construct( string $key, string $resource_slug, string $status = 'unknown', string $license_page_url = '' ) {
-		$this->key              = $key;
-		$this->resource_slug    = $resource_slug;
-		$this->status           = $status;
-		$this->license_page_url = $license_page_url;
-	}
+    /**
+     * @var string
+     */
+    public $brand;
+
+    /**
+     * @var string
+     */
+    public $status;
+
+    /**
+     * @var string
+     */
+    public $page_url;
+
+    /**
+     * @var string
+     */
+    public $expires_at;
+
+    /**
+     * @since 3.0.0
+     */
+    public function __construct(string $key, string $slug, string $name, string $brand, string $status = 'unknown', string $page_url = '')
+    {
+        $this->key = $key;
+        $this->slug = $slug;
+        $this->name = $name;
+        $this->brand = $brand;
+        $this->status = $status;
+        $this->page_url = $page_url;
+    }
+
+    public static function fromData(array $data): self
+    {
+        return new static(
+            $data['key'] ?? '',
+            $data['slug'] ?? '',
+            $data['name'] ?? '',
+            $data['brand'] ?? '',
+            $data['status'] ?? 'unknown',
+            $data['page_url'] ?? ''
+        );
+    }
 }

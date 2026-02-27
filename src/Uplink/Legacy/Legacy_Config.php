@@ -5,7 +5,7 @@ namespace StellarWP\Uplink\Legacy;
 /**
  * Fluent builder that holds a resource's legacy license provider.
  *
- * @since 3.1.0
+ * @since 3.0.0
  */
 class Legacy_Config {
 
@@ -24,7 +24,7 @@ class Legacy_Config {
 	 *
 	 * The callable receives no arguments and must return Legacy_License[].
 	 *
-	 * @since 3.1.0
+	 * @since 3.0.0
 	 *
 	 * @param callable(): Legacy_License[] $provider
 	 *
@@ -39,7 +39,7 @@ class Legacy_Config {
 	/**
 	 * Whether this config has a license provider.
 	 *
-	 * @since 3.1.0
+	 * @since 3.0.0
 	 *
 	 * @return bool
 	 */
@@ -50,7 +50,7 @@ class Legacy_Config {
 	/**
 	 * Get the legacy licenses from this resource.
 	 *
-	 * @since 3.1.0
+	 * @since 3.0.0
 	 *
 	 * @return Legacy_License[]
 	 */

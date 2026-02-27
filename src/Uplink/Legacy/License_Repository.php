@@ -32,7 +32,7 @@ class License_Repository {
 	 */
 	public function find( string $slug ): ?Legacy_License {
 		foreach ( $this->all() as $license ) {
-			if ( $license->resource_slug === $slug ) {
+			if ( $license->slug === $slug ) {
 				return $license;
 			}
 		}

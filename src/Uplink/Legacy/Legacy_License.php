@@ -11,60 +11,59 @@ use StellarWP\Uplink\Utils\Cast;
  *
  * @since 3.0.0
  */
-class Legacy_License
-{
-    /**
-     * @since 3.0.0
-     */
-    public string $key;
+class Legacy_License {
 
-    /**
-     * @since 3.0.0
-     */
-    public string $slug;
+	/**
+	 * @since 3.0.0
+	 */
+	public string $key;
 
-    /**
-     * @since 3.0.0
-     */
-    public string $name;
+	/**
+	 * @since 3.0.0
+	 */
+	public string $slug;
 
-    /**
-     * @since 3.0.0
-     */
-    public string $brand;
+	/**
+	 * @since 3.0.0
+	 */
+	public string $name;
 
-    /**
-     * @since 3.0.0
-     */
-    public string $status;
+	/**
+	 * @since 3.0.0
+	 */
+	public string $brand;
 
-    /**
-     * @since 3.0.0
-     */
-    public string $page_url;
+	/**
+	 * @since 3.0.0
+	 */
+	public string $status;
 
-    /**
-     * @since 3.0.0
-     */
-    public string $expires_at;
+	/**
+	 * @since 3.0.0
+	 */
+	public string $page_url;
 
-    /**
-     * @since 3.0.0
-     *
-     * @param array<string, mixed> $data
-     */
-    public static function from_data(array $data): Legacy_License
-    {
-        $self = new self();
+	/**
+	 * @since 3.0.0
+	 */
+	public string $expires_at;
 
-        $self->key = Cast::to_string($data['key'] ?? '');
-        $self->slug = Cast::to_string($data['slug'] ?? '');
-        $self->name = Cast::to_string($data['name'] ?? '');
-        $self->brand = Cast::to_string($data['brand'] ?? '');
-        $self->status = Cast::to_string($data['status'] ?? 'unknown');
-        $self->page_url = Cast::to_string($data['page_url'] ?? '');
-        $self->expires_at = Cast::to_string($data['expires_at'] ?? '');
+	/**
+	 * @since 3.0.0
+	 *
+	 * @param array<string, mixed> $data
+	 */
+	public static function from_data( array $data ): Legacy_License {
+		$self = new self();
 
-        return $self;
-    }
+		$self->key        = Cast::to_string( $data['key'] ?? '' );
+		$self->slug       = Cast::to_string( $data['slug'] ?? '' );
+		$self->name       = Cast::to_string( $data['name'] ?? '' );
+		$self->brand      = Cast::to_string( $data['brand'] ?? '' );
+		$self->status     = Cast::to_string( $data['status'] ?? 'unknown' );
+		$self->page_url   = Cast::to_string( $data['page_url'] ?? '' );
+		$self->expires_at = Cast::to_string( $data['expires_at'] ?? '' );
+
+		return $self;
+	}
 }

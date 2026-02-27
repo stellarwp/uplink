@@ -40,16 +40,19 @@ final class License_RepositoryTest extends UplinkTestCase {
 		add_filter(
 			'stellarwp/uplink/legacy_licenses',
 			static function ( array $licenses ) {
-				return array_merge( $licenses, [
+				return array_merge(
+					$licenses,
 					[
-						'key'      => 'key-1',
-						'slug'     => 'plugin-one',
-						'name'     => 'Plugin One',
-						'brand'    => 'Brand',
-						'status'   => 'valid',
-						'page_url' => 'https://example.com/license',
-					],
-				] );
+						[
+							'key'      => 'key-1',
+							'slug'     => 'plugin-one',
+							'name'     => 'Plugin One',
+							'brand'    => 'Brand',
+							'status'   => 'valid',
+							'page_url' => 'https://example.com/license',
+						],
+					] 
+				);
 			}
 		);
 
@@ -68,27 +71,33 @@ final class License_RepositoryTest extends UplinkTestCase {
 		add_filter(
 			'stellarwp/uplink/legacy_licenses',
 			static function ( array $licenses ) {
-				return array_merge( $licenses, [
+				return array_merge(
+					$licenses,
 					[
-						'key'   => 'key-a',
-						'slug'  => 'plugin-a',
-						'name'  => 'A',
-						'brand' => 'Brand',
-					],
-				] );
+						[
+							'key'   => 'key-a',
+							'slug'  => 'plugin-a',
+							'name'  => 'A',
+							'brand' => 'Brand',
+						],
+					] 
+				);
 			}
 		);
 		add_filter(
 			'stellarwp/uplink/legacy_licenses',
 			static function ( array $licenses ) {
-				return array_merge( $licenses, [
+				return array_merge(
+					$licenses,
 					[
-						'key'   => 'key-b',
-						'slug'  => 'plugin-b',
-						'name'  => 'B',
-						'brand' => 'Brand',
-					],
-				] );
+						[
+							'key'   => 'key-b',
+							'slug'  => 'plugin-b',
+							'name'  => 'B',
+							'brand' => 'Brand',
+						],
+					] 
+				);
 			}
 		);
 
@@ -131,11 +140,29 @@ final class License_RepositoryTest extends UplinkTestCase {
 		add_filter(
 			'stellarwp/uplink/legacy_licenses',
 			static function ( array $licenses ) {
-				return array_merge( $licenses, [
-					[ 'key' => 'k1', 'slug' => 'first', 'name' => 'First', 'brand' => 'B' ],
-					[ 'key' => 'k2', 'slug' => 'target', 'name' => 'Target', 'brand' => 'B' ],
-					[ 'key' => 'k3', 'slug' => 'third', 'name' => 'Third', 'brand' => 'B' ],
-				] );
+				return array_merge(
+					$licenses,
+					[
+						[
+							'key'   => 'k1',
+							'slug'  => 'first',
+							'name'  => 'First',
+							'brand' => 'B',
+						],
+						[
+							'key'   => 'k2',
+							'slug'  => 'target',
+							'name'  => 'Target',
+							'brand' => 'B',
+						],
+						[
+							'key'   => 'k3',
+							'slug'  => 'third',
+							'name'  => 'Third',
+							'brand' => 'B',
+						],
+					] 
+				);
 			}
 		);
 
@@ -153,9 +180,17 @@ final class License_RepositoryTest extends UplinkTestCase {
 		add_filter(
 			'stellarwp/uplink/legacy_licenses',
 			static function ( array $licenses ) {
-				return array_merge( $licenses, [
-					[ 'key' => 'k1', 'slug' => 'only-one', 'name' => 'Only', 'brand' => 'B' ],
-				] );
+				return array_merge(
+					$licenses,
+					[
+						[
+							'key'   => 'k1',
+							'slug'  => 'only-one',
+							'name'  => 'Only',
+							'brand' => 'B',
+						],
+					] 
+				);
 			}
 		);
 
@@ -176,9 +211,17 @@ final class License_RepositoryTest extends UplinkTestCase {
 		add_filter(
 			'stellarwp/uplink/legacy_licenses',
 			static function ( array $licenses ) {
-				return array_merge( $licenses, [
-					[ 'key' => 'k1', 'slug' => 's1', 'name' => 'N', 'brand' => 'B' ],
-				] );
+				return array_merge(
+					$licenses,
+					[
+						[
+							'key'   => 'k1',
+							'slug'  => 's1',
+							'name'  => 'N',
+							'brand' => 'B',
+						],
+					] 
+				);
 			}
 		);
 

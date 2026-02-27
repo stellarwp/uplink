@@ -10,18 +10,20 @@ use StellarWP\Uplink\Tests\UplinkTestCase;
  */
 final class Legacy_LicenseTest extends UplinkTestCase {
 
-    /**
-     * @since 3.0.0
-     */
+	/**
+	 * @since 3.0.0
+	 */
 	public function it_sets_properties_via_constructor(): void {
-		$license = Legacy_License::from_data([
-			'key' => 'key-123',
-			'slug' => 'my-plugin',
-			'name' => 'My Plugin',
-			'brand' => 'StellarWP',
-			'status' => 'valid',
-			'page_url' => 'https://example.com/licenses'
-		]);
+		$license = Legacy_License::from_data(
+			[
+				'key'      => 'key-123',
+				'slug'     => 'my-plugin',
+				'name'     => 'My Plugin',
+				'brand'    => 'StellarWP',
+				'status'   => 'valid',
+				'page_url' => 'https://example.com/licenses',
+			]
+		);
 
 		$this->assertSame( 'key-123', $license->key );
 		$this->assertSame( 'my-plugin', $license->slug );
@@ -35,12 +37,14 @@ final class Legacy_LicenseTest extends UplinkTestCase {
 	 * @since 3.0.0
 	 */
 	public function it_uses_default_status_and_page_url_when_omitted(): void {
-		$license = Legacy_License::from_data([
-			'key' => 'key-456',
-			'slug' => 'slug',
-			'name' => 'Name',
-			'brand' => 'Brand'
-		]);
+		$license = Legacy_License::from_data(
+			[
+				'key'   => 'key-456',
+				'slug'  => 'slug',
+				'name'  => 'Name',
+				'brand' => 'Brand',
+			]
+		);
 
 		$this->assertSame( 'unknown', $license->status );
 		$this->assertSame( '', $license->page_url );
@@ -88,12 +92,14 @@ final class Legacy_LicenseTest extends UplinkTestCase {
 	 * @since 3.0.0
 	 */
 	public function it_casts_non_string_values_to_string_in_from_data(): void {
-		$license = Legacy_License::from_data( [
-			'key'   => 12345,
-			'slug'  => 'num-slug',
-			'name'  => 'Name',
-			'brand' => 'Brand',
-		] );
+		$license = Legacy_License::from_data(
+			[
+				'key'   => 12345,
+				'slug'  => 'num-slug',
+				'name'  => 'Name',
+				'brand' => 'Brand',
+			] 
+		);
 
 		$this->assertSame( '12345', $license->key );
 		$this->assertSame( 'num-slug', $license->slug );

@@ -119,9 +119,33 @@ class Client {
 	 * @phpstan-ignore-next-line return.unusedType -- Remove once the API request is implemented.
 	 */
 	private function request() {
-		// TODO: Implement the actual API request to Commerce Portal.
+		// TODO: Replace this mock data with the actual API request to Commerce Portal.
 		// Should send site domain + license keys and return the feature catalog.
-		return [];
+		// The mock entries below allow end-to-end testing of the Manager → Strategy stack.
+		return [
+			[
+				'slug'              => 'built-in-feature',
+				'group'             => 'TEC',
+				'tier'              => 'Tier 1',
+				'name'              => 'Built-In Feature',
+				'description'       => 'A feature built in to the plugin, toggled via a DB flag.',
+				'type'              => 'built_in',
+				'is_available'      => true,
+				'documentation_url' => '',
+			],
+			[
+				'slug'              => 'zip-feature',
+				'group'             => 'TEC',
+				'tier'              => 'Tier 1',
+				'name'              => 'Zip Feature',
+				'description'       => 'A feature delivered as a standalone plugin ZIP.',
+				'type'              => 'zip',
+				'plugin_file'       => 'zip-feature/zip-feature.php',
+				'is_available'      => true,
+				'documentation_url' => '',
+				'authors'           => [ 'StellarWP' ],
+			],
+		];
 	}
 
 	/**

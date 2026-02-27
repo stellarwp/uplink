@@ -9,6 +9,8 @@ use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Types\Feature;
+use StellarWP\Uplink\Features\Types\Built_In;
+use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
 
@@ -70,6 +72,18 @@ final class ManagerTest extends UplinkTestCase {
 		);
 
 		$this->manager = new Manager( $catalog, $resolver );
+	}
+
+	/**
+	 * Cleans up integration-test state after each test.
+	 *
+	 * @return void
+	 */
+	protected function tearDown(): void {
+		delete_option( 'stellarwp_uplink_feature_built-in-feature_active' );
+		delete_transient( 'stellarwp_uplink_feature_catalog' );
+
+		parent::tearDown();
 	}
 
 	/**
@@ -164,6 +178,43 @@ final class ManagerTest extends UplinkTestCase {
 
 		$this->assertInstanceOf( Feature_Collection::class, $features );
 		$this->assertSame( 1, $features->count() );
+	}
+
+	/**
+	 * Tests get_feature resolves typed features from the catalog.
+	 *
+	 * @return void
+	 */
+	public function test_get_feature_resolves_typed_features_from_catalog(): void {
+		$manager = $this->container->get( Manager::class );
+
+		$built_in = $manager->get_feature( 'built-in-feature' );
+		$this->assertInstanceOf( Built_In::class, $built_in );
+		$this->assertSame( 'built-in-feature', $built_in->get_slug() );
+
+		$zip = $manager->get_feature( 'zip-feature' );
+		$this->assertInstanceOf( Zip::class, $zip );
+		$this->assertSame( 'zip-feature', $zip->get_slug() );
+	}
+
+	/**
+	 * Tests enable and disable write and clear the DB flag.
+	 *
+	 * @return void
+	 */
+	public function test_enable_and_disable_write_db_flags(): void {
+		$manager    = $this->container->get( Manager::class );
+		$option_key = 'stellarwp_uplink_feature_built-in-feature_active';
+
+		// Enable — DB flag set, is_enabled agrees.
+		$this->assertTrue( $manager->enable( 'built-in-feature' ) );
+		$this->assertSame( '1', get_option( $option_key ) );
+		$this->assertTrue( $manager->is_enabled( 'built-in-feature' ) );
+
+		// Disable — DB flag cleared, is_enabled agrees.
+		$this->assertTrue( $manager->disable( 'built-in-feature' ) );
+		$this->assertSame( '0', get_option( $option_key ) );
+		$this->assertFalse( $manager->is_enabled( 'built-in-feature' ) );
 	}
 
 	/**
@@ -469,4 +520,5 @@ final class ManagerTest extends UplinkTestCase {
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 	}
+
 }

@@ -6,7 +6,9 @@ use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\Features\API\Client;
 use StellarWP\Uplink\Features\REST\Feature_Controller;
+use StellarWP\Uplink\Features\Strategy\Built_In_Strategy;
 use StellarWP\Uplink\Features\Strategy\Resolver;
+use StellarWP\Uplink\Features\Strategy\Zip_Strategy;
 use StellarWP\Uplink\Features\Types\Built_In;
 use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Utils\Version;
@@ -30,7 +32,7 @@ class Provider extends Abstract_Provider {
 				$container = $c->get( ContainerInterface::class );
 
 				return new Resolver( $container );
-			} 
+			}
 		);
 
 		$this->container->singleton( Feature_Collection::class, Feature_Collection::class );
@@ -42,7 +44,7 @@ class Provider extends Abstract_Provider {
 				$resolver = $c->get( Resolver::class );
 
 				return new Manager( $client, $resolver );
-			} 
+			}
 		);
 
 		$this->container->singleton(
@@ -51,7 +53,7 @@ class Provider extends Abstract_Provider {
 				$manager = $c->get( Manager::class );
 
 				return new Feature_Controller( $manager );
-			} 
+			}
 		);
 
 		$this->register_default_types();
@@ -75,20 +77,17 @@ class Provider extends Abstract_Provider {
 	/**
 	 * Registers the default feature type strategies.
 	 *
-	 * Strategy implementations are not yet created, so this is a
-	 * placeholder for when Zip_Strategy and Built_In_Strategy are added.
-	 *
 	 * @since 3.0.0
 	 *
 	 * @return void
 	 */
 	private function register_default_strategies(): void {
-		// phpcs:disable Squiz.PHP.CommentedOutCode.Found, Squiz.Commenting.InlineComment.InvalidEndChar -- Placeholder for future strategy registration.
-		// TODO: Register default strategies once implemented.
-		// $resolver = $this->container->get( Resolver::class );
-		// $resolver->register( 'zip', Zip_Strategy::class );
-		// $resolver->register( 'built_in', Built_In_Strategy::class );
-		// phpcs:enable Squiz.PHP.CommentedOutCode.Found, Squiz.Commenting.InlineComment.InvalidEndChar
+		$this->container->singleton( Zip_Strategy::class, Zip_Strategy::class );
+		$this->container->singleton( Built_In_Strategy::class, Built_In_Strategy::class );
+
+		$resolver = $this->container->get( Resolver::class );
+		$resolver->register( 'zip', Zip_Strategy::class );
+		$resolver->register( 'built_in', Built_In_Strategy::class );
 	}
 
 	/**

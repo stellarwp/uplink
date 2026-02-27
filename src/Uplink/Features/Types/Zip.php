@@ -7,8 +7,8 @@ use StellarWP\Uplink\Utils\Cast;
 /**
  * A Feature delivered as a standalone WordPress plugin ZIP.
  *
- * The download URL is resolved at install time through the existing
- * plugins_api filter, not stored on the object.
+ * The Zip_Strategy installs the plugin via plugins_api() + Plugin_Upgrader,
+ * and uses plugin_file to activate/deactivate it.
  *
  * @since 3.0.0
  */
@@ -50,7 +50,8 @@ final class Zip extends Feature {
 				'plugin_file'       => $data['plugin_file'],
 				'is_available'      => $data['is_available'],
 				'documentation_url' => $data['documentation_url'] ?? '',
-			] 
+				'authors'           => $data['authors'] ?? [],
+			]
 		);
 	}
 
@@ -63,5 +64,36 @@ final class Zip extends Feature {
 	 */
 	public function get_plugin_file(): string {
 		return Cast::to_string( $this->attributes['plugin_file'] ?? '' );
+	}
+
+	/**
+	 * Gets the expected plugin authors for ownership verification.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string[]
+	 */
+	public function get_authors(): array {
+		$authors = $this->attributes['authors'] ?? [];
+
+		if ( ! is_array( $authors ) ) {
+			return [];
+		}
+
+		return array_values( array_filter( $authors, 'is_string' ) );
+	}
+
+	/**
+	 * Gets the plugin slug (directory name) derived from the plugin file path.
+	 *
+	 * For "stellar-export/stellar-export.php" this returns "stellar-export".
+	 * Used as a unique identifier for transient locks and directory checks.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string
+	 */
+	public function get_plugin_slug(): string {
+		return dirname( $this->get_plugin_file() );
 	}
 }

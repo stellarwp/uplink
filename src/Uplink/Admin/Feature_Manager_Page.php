@@ -87,16 +87,21 @@ class Feature_Manager_Page {
 	 */
 	private function enqueue_assets(): void {
 		$build_dir       = ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? 'build-dev' : 'build';
+		$plugin_root_dir = dirname( dirname( dirname( __DIR__ ) ) );
 		$plugin_root_url = trailingslashit(
-			plugin_dir_url( dirname( dirname( dirname( __DIR__ ) ) ) . '/index.php' )
+			plugin_dir_url( $plugin_root_dir . '/index.php' )
 		);
 		$handle = 'stellarwp-uplink-ui';
+
+		// Load asset file for dependencies and version.
+		$asset_file = $plugin_root_dir . '/' . $build_dir . '/index.asset.php';
+		$asset_data = file_exists( $asset_file ) ? require $asset_file : [];
 
 		wp_register_script(
 			$handle,
 			$plugin_root_url . $build_dir . '/index.js',
-			[ 'wp-element' ],  // wp-element provides React + ReactDOM from WP Core.
-			null,              // null = no ?ver= query string; cache busting via contenthash.
+			$asset_data['dependencies'],
+			$asset_data['version'],
 			[ 'in_footer' => true ]
 		);
 

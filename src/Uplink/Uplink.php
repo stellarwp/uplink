@@ -151,13 +151,6 @@ class Uplink {
 				);
 			}
 		);
-
-		add_action(
-			'stellarwp/uplink/suppress_legacy',
-			static function () use ( $container ): void {
-				$container->get( Legacy\Legacy_Manager::class )->suppress();
-			}
-		);
 	}
 
 	/**

@@ -6,10 +6,10 @@ use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Resources\Resource;
 
 /**
- * Manages legacy suppression and license collection for a single
- * Uplink instance's resources.
+ * Manages legacy license collection for a single Uplink instance's
+ * resources.
  *
- * @since 3.0.0
+ * @since 3.1.0
  */
 class Legacy_Manager {
 
@@ -26,28 +26,10 @@ class Legacy_Manager {
 	}
 
 	/**
-	 * Run suppression for all resources in this instance that
-	 * registered a suppressor via Legacy_Config::suppress().
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return void
-	 */
-	public function suppress(): void {
-		foreach ( $this->get_legacy_resources() as $resource ) {
-			$config = $resource->get_legacy_config();
-
-			if ( $config ) {
-				$config->run_suppressor();
-			}
-		}
-	}
-
-	/**
 	 * Collect legacy licenses from all resources in this instance
 	 * that have a license provider.
 	 *
-	 * @since 3.0.0
+	 * @since 3.1.0
 	 *
 	 * @return Legacy_License[]
 	 */
@@ -68,7 +50,7 @@ class Legacy_Manager {
 	/**
 	 * Get all resources that have a legacy config.
 	 *
-	 * @since 3.0.0
+	 * @since 3.1.0
 	 *
 	 * @return Resource[]
 	 */

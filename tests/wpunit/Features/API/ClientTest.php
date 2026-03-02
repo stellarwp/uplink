@@ -141,8 +141,8 @@ final class ClientTest extends UplinkTestCase {
 
 		$this->client = new Client();
 
-        $this->client->register_type( 'zip', Zip::class );
-        $this->client->register_type( 'built_in', Built_In::class );
+		$this->client->register_type( 'zip', Zip::class );
+		$this->client->register_type( 'built_in', Built_In::class );
 
 		$features = $this->client->get_features();
 

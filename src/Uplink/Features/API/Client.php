@@ -3,9 +3,7 @@
 namespace StellarWP\Uplink\Features\API;
 
 use StellarWP\Uplink\Features\Feature_Collection;
-use StellarWP\Uplink\Features\Types\Built_In;
 use StellarWP\Uplink\Features\Types\Feature;
-use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Utils\Cast;
 use WP_Error;
 

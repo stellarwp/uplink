@@ -192,9 +192,9 @@ final class ManagerTest extends UplinkTestCase {
 		$this->assertInstanceOf( Built_In::class, $built_in );
 		$this->assertSame( 'built-in-feature', $built_in->get_slug() );
 
-		$zip = $manager->get_feature( 'zip-feature' );
+		$zip = $manager->get_feature( 'valid-zip-feature' );
 		$this->assertInstanceOf( Zip::class, $zip );
-		$this->assertSame( 'zip-feature', $zip->get_slug() );
+		$this->assertSame( 'valid-zip-feature', $zip->get_slug() );
 	}
 
 	/**

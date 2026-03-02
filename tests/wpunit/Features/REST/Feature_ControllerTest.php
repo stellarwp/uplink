@@ -92,12 +92,24 @@ final class Feature_ControllerTest extends UplinkTestCase {
 			)
 		);
 
+		$active = false;
+
 		$mock_strategy = $this->makeEmpty(
 			Strategy::class,
 			[
-				'enable'    => true,
-				'disable'   => true,
-				'is_active' => false,
+				'enable'    => static function () use ( &$active ) {
+					$active = true;
+
+					return true;
+				},
+				'disable'   => static function () use ( &$active ) {
+					$active = false;
+
+					return true;
+				},
+				'is_active' => static function () use ( &$active ) {
+					return $active;
+				},
 			]
 		);
 

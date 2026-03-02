@@ -109,12 +109,12 @@ final class ClientTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_uses_fixture_catalog_when_enabled(): void {
-		define( 'STELLARWP_UPLINK_FEATURES_USE_FIXTURE_CATALOG', true );
+		define( 'STELLARWP_UPLINK_FEATURES_USE_FIXTURE_DATA', true );
 
 		add_filter(
-			'stellarwp_uplink_features_fixture_catalog',
-			function ( array $catalog ): array {
-				return Fixture::create(
+			'stellarwp_uplink_features_fixture_data',
+			function ( array $data ): array {
+				$data = Fixture::create(
 					[
 						Fixture::entry(
 							'give-recurring-donations',
@@ -131,7 +131,9 @@ final class ClientTest extends UplinkTestCase {
 							'Let donors cover processing fees',
 						),
 					]
-				)->all();
+                );
+
+				return $data->get();
 			}
 		);
 

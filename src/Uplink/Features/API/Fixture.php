@@ -42,13 +42,13 @@ class Fixture {
 	}
 
 	/**
-	 * Returns the complete feature catalog with all features available.
+	 * Returns the feature data.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @return array<int, array<string, mixed>>
 	 */
-	public function all(): array {
+	public function get(): array {
 		return $this->features;
 	}
 

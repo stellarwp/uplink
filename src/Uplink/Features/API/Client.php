@@ -121,16 +121,16 @@ class Client {
 		return $collection;
 	}
 
-	/**
-	 * Returns a fixture feature catalog for development.
-	 *
-	 * @todo Replace with a real HTTP request to the Commerce Portal API that sends
-	 *       the site domain and license keys and returns the live feature catalog.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return array<int, array<string, mixed>> The feature catalog entries.
-	 */
+    /**
+     * Performs the HTTP request to the Commerce Portal API.
+     *
+     * @todo Replace with a real HTTP request to the Commerce Portal API that sends
+     *       the site domain and license keys and returns the live feature catalog.
+     *
+     * @since 3.0.0
+     *
+     * @return array<int, array<string, mixed>> The feature catalog entries.
+     */
 	private function request(): array {
         if (defined( 'STELLARWP_UPLINK_FEATURES_USE_FIXTURE_CATALOG' ) && STELLARWP_UPLINK_FEATURES_USE_FIXTURE_CATALOG) {
             return apply_filters('stellarwp_uplink_features_fixture_catalog', Fixture::create()->all());

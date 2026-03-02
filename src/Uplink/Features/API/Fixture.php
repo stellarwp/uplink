@@ -32,7 +32,7 @@ class Fixture
     {
         $self = new self();
 
-        if ($merge || empty($features)) {
+        if ($merge && !empty($features)) {
             $self->features = array_merge($self->catalog(), $features);
         } else {
             $self->features = $features;

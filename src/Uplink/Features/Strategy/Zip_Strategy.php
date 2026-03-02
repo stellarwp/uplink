@@ -627,6 +627,8 @@ class Zip_Strategy extends Abstract_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
+	 * TODO: We probably should move it to another place so we can use it during the WP plugins update setup as well.
+	 *
 	 * @param Zip $feature The feature whose plugin to verify.
 	 *
 	 * @return true|WP_Error True if ownership matches, WP_Error on mismatch.

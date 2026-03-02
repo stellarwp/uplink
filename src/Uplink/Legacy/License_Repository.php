@@ -40,7 +40,9 @@ class License_Repository {
 			}
 		}
 
-		return $this->cache = $licenses;
+		$this->cache = $licenses;
+
+		return $licenses;
 	}
 
 	/**

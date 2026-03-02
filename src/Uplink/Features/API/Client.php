@@ -78,9 +78,9 @@ class Client {
 	public function get_features() {
 		$cached = get_transient( self::TRANSIENT_KEY );
 
-        if ($cached instanceof Feature_Collection || is_wp_error($cached)) {
-            return $cached;
-        }
+		if ( $cached instanceof Feature_Collection || is_wp_error( $cached ) ) {
+			return $cached;
+		}
 
 		return $this->fetch_features();
 	}
@@ -108,11 +108,11 @@ class Client {
 	private function fetch_features() {
 		$response = $this->request();
 
-        if (is_wp_error($response)) {
-            set_transient(self::TRANSIENT_KEY, $response, self::DEFAULT_CACHE_DURATION);
+		if ( is_wp_error( $response ) ) {
+			set_transient( self::TRANSIENT_KEY, $response, self::DEFAULT_CACHE_DURATION );
 
-            return $response;
-        }
+			return $response;
+		}
 
 		$collection = $this->hydrate( $response );
 

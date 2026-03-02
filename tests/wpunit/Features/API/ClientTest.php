@@ -5,7 +5,9 @@ namespace StellarWP\Uplink\Tests\Features\API;
 use StellarWP\Uplink\Features\API\Client;
 use StellarWP\Uplink\Features\API\Fixture;
 use StellarWP\Uplink\Features\Feature_Collection;
+use StellarWP\Uplink\Features\Types\Built_In;
 use StellarWP\Uplink\Features\Types\Feature;
+use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
 final class ClientTest extends UplinkTestCase {
@@ -138,6 +140,9 @@ final class ClientTest extends UplinkTestCase {
 		);
 
 		$this->client = new Client();
+
+        $this->client->register_type( 'zip', Zip::class );
+        $this->client->register_type( 'built_in', Built_In::class );
 
 		$features = $this->client->get_features();
 

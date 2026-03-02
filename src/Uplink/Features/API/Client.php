@@ -45,16 +45,6 @@ class Client {
 	private array $type_map = [];
 
 	/**
-	 * Registers the built-in feature types.
-	 *
-	 * @since 3.0.0
-	 */
-	public function __construct() {
-		$this->register_type( 'zip', Zip::class );
-		$this->register_type( 'built_in', Built_In::class );
-	}
-
-	/**
 	 * Registers a Feature subclass for a given type string.
 	 *
 	 * @since 3.0.0

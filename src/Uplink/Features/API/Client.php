@@ -78,9 +78,9 @@ class Client {
 	public function get_features() {
 		$cached = get_transient( self::TRANSIENT_KEY );
 
-		if ( $cached instanceof Feature_Collection || is_wp_error( $cached ) ) {
-			return $cached;
-		}
+        if ($cached instanceof Feature_Collection || is_wp_error($cached)) {
+            return $cached;
+        }
 
 		return $this->fetch_features();
 	}
@@ -108,11 +108,11 @@ class Client {
 	private function fetch_features() {
 		$response = $this->request();
 
-		if ( is_wp_error( $response ) ) {
-			set_transient( self::TRANSIENT_KEY, $response, self::DEFAULT_CACHE_DURATION );
+        if (is_wp_error($response)) {
+            set_transient(self::TRANSIENT_KEY, $response, self::DEFAULT_CACHE_DURATION);
 
-			return $response;
-		}
+            return $response;
+        }
 
 		$collection = $this->hydrate( $response );
 
@@ -121,20 +121,27 @@ class Client {
 		return $collection;
 	}
 
-    /**
-     * Performs the HTTP request to the Commerce Portal API.
-     *
-     * @todo Replace with a real HTTP request to the Commerce Portal API that sends
-     *       the site domain and license keys and returns the live feature catalog.
-     *
-     * @since 3.0.0
-     *
-     * @return array<int, array<string, mixed>> The feature catalog entries.
-     */
-	private function request(): array {
-        if (defined( 'STELLARWP_UPLINK_FEATURES_USE_FIXTURE_CATALOG' ) && STELLARWP_UPLINK_FEATURES_USE_FIXTURE_CATALOG) {
-            return apply_filters('stellarwp_uplink_features_fixture_catalog', Fixture::create()->all());
-        }
+	/**
+	 * Performs the HTTP request to the Commerce Portal API.
+	 *
+	 * @todo Replace with a real HTTP request to the Commerce Portal API that sends
+	 *       the site domain and license keys and returns the live feature catalog.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return array<int, array<string, mixed>>|WP_Error The feature catalog entries, or a WP_Error on failure.
+	 */
+	private function request() {
+		if ( defined( 'STELLARWP_UPLINK_FEATURES_USE_FIXTURE_DATA' ) && STELLARWP_UPLINK_FEATURES_USE_FIXTURE_DATA ) {
+			/** @var array<int, array<string, mixed>> $catalog */
+			$catalog = apply_filters( 'stellarwp_uplink_features_fixture_data', Fixture::create()->all() );
+
+			if ( is_array( $catalog ) ) {
+				return $catalog;
+			}
+
+			return new WP_Error( 'invalid_catalog', 'Feature catalog filter must return an array.' );
+		}
 
 		return [];
 	}

@@ -102,6 +102,9 @@ class Provider extends Abstract_Provider {
 		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
 
 		add_filter( 'plugins_api', [ $this, 'mock_plugins_api_for_zip_features' ], 5, 3 );
+
+		// TODO: Remove this once the real plugins_api filter is implemented.
+		add_filter( 'upgrader_pre_download', [ $this, 'serve_local_zip_for_upgrader' ], 10, 3 );
 	}
 
 	/**
@@ -228,5 +231,44 @@ class Provider extends Abstract_Provider {
 		$zip->close();
 
 		return $zip_path;
+	}
+
+	/**
+	 * Serve local ZIP files directly to the upgrader, bypassing HTTP download.
+	 *
+	 * Intercepts download requests for test zip feature URLs and copies the
+	 * local ZIP to a temp file, avoiding SSL and loopback issues.
+	 *
+	 * TODO: Remove this method once the real plugins_api filter is implemented.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param bool|WP_Error $reply    Whether to bail without returning the package. Default false.
+	 * @param string        $package  The package file name or URL.
+	 * @param \WP_Upgrader  $upgrader The WP_Upgrader instance.
+	 *
+	 * @return bool|string|WP_Error The local file path or the original $reply.
+	 */
+	public function serve_local_zip_for_upgrader( $reply, $package, $upgrader ) {
+		$uplink_dir = WP_PLUGIN_DIR . '/uplink';
+		$zips_dir   = $uplink_dir . '/tests/_data/Features/Zips/';
+		$zips_url   = plugins_url( 'tests/_data/Features/Zips/', $uplink_dir . '/index.php' );
+
+		if ( strpos( $package, $zips_url ) !== 0 ) {
+			return $reply;
+		}
+
+		$filename = basename( $package );
+		$local    = $zips_dir . $filename;
+
+		if ( ! file_exists( $local ) ) {
+			return $reply;
+		}
+
+		// Copy to a temp file so the upgrader can move/delete it freely.
+		$tmp = wp_tempnam( $filename );
+		copy( $local, $tmp );
+
+		return $tmp;
 	}
 }

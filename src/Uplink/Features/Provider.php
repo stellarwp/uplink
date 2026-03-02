@@ -11,6 +11,7 @@ use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Strategy\Zip_Strategy;
 use StellarWP\Uplink\Features\Types\Built_In;
 use StellarWP\Uplink\Features\Types\Zip;
+use StellarWP\Uplink\Utils\Cast;
 use StellarWP\Uplink\Utils\Version;
 
 /**
@@ -134,14 +135,14 @@ class Provider extends Abstract_Provider {
 	 * @param string                    $action The type of information being requested.
 	 * @param object                    $args   Plugin API arguments.
 	 *
-	 * @return false|object
+	 * @return false|object|array<mixed>
 	 */
 	public function mock_plugins_api_for_zip_features( $result, $action, $args ) {
 		if ( $action !== 'plugin_information' ) {
 			return $result;
 		}
 
-		$slug       = $args->slug ?? '';
+		$slug       = Cast::to_string( $args->slug ?? '' );
 		$uplink_dir = WP_PLUGIN_DIR . '/uplink';
 		$source_dir = $uplink_dir . '/tests/_data/Features/Zips/' . $slug;
 

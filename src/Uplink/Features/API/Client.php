@@ -133,11 +133,11 @@ class Client {
 	 */
 	private function request() {
 		if ( defined( 'STELLARWP_UPLINK_FEATURES_USE_FIXTURE_DATA' ) && STELLARWP_UPLINK_FEATURES_USE_FIXTURE_DATA ) {
-			/** @var array<int, array<string, mixed>> $catalog */
-			$catalog = apply_filters( 'stellarwp_uplink_features_fixture_data', Fixture::create()->all() );
+			/** @var array<int, array<string, mixed>> $data */
+			$data = apply_filters( 'stellarwp_uplink_features_fixture_data', Fixture::create()->get() );
 
-			if ( is_array( $catalog ) ) {
-				return $catalog;
+			if ( is_array( $data ) ) {
+				return $data;
 			}
 
 			return new WP_Error( 'invalid_catalog', 'Feature catalog filter must return an array.' );

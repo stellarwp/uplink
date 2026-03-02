@@ -110,17 +110,20 @@ class Client {
 	}
 
 	/**
-	 * Performs the HTTP request to the Commerce Portal API.
+	 * Returns a fixture feature catalog for development.
+	 *
+	 * @todo Replace with a real HTTP request to the Commerce Portal API that sends
+	 *       the site domain and license keys and returns the live feature catalog.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @return array<int, array<string, mixed>>|WP_Error The decoded response entries or an error.
-	 *
-	 * @phpstan-ignore-next-line return.unusedType -- Remove once the API request is implemented.
+	 * @return array<int, array<string, mixed>> The feature catalog entries.
 	 */
-	private function request() {
-		// TODO: Implement the actual API request to Commerce Portal.
-		// Should send site domain + license keys and return the feature catalog.
+	private function request(): array {
+        if (defined( 'STELLARWP_UPLINK_FEATURES_USE_FIXTURE_CATALOG' ) && STELLARWP_UPLINK_FEATURES_USE_FIXTURE_CATALOG) {
+            return Fixture::all();
+        }
+
 		return [];
 	}
 

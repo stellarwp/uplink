@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace StellarWP\Uplink\Features\API;
 
+use StellarWP\Uplink\Features\Types\Built_In;
+use StellarWP\Uplink\Features\Types\Zip;
+
 /**
  * Fixture feature catalog for development and testing.
  *
@@ -87,6 +90,7 @@ class Fixture {
 	 * @param string $type              Feature type ('built_in', 'zip').
 	 * @param bool   $is_available      Whether the feature is available on this site.
 	 * @param string $documentation_url URL to documentation or learn-more page.
+	 * @param string $plugin_file       Path to the plugin file (only used for zip features).
 	 *
 	 * @return array<string, mixed>
 	 */
@@ -98,18 +102,33 @@ class Fixture {
 		string $description = '',
 		string $type = 'zip',
 		bool $is_available = true,
-		string $documentation_url = ''
+		string $documentation_url = '',
+		string $plugin_file = ''
 	): array {
-		return [
+		$data = [
 			'slug'              => $slug,
 			'group'             => $group,
 			'tier'              => $tier,
 			'name'              => $name,
 			'description'       => $description,
-			'type'              => $type,
 			'is_available'      => $is_available,
 			'documentation_url' => $documentation_url,
 		];
+
+		if ( $type === 'built_in' ) {
+			$feature = Built_In::from_array( $data );
+
+			return $feature->to_array();
+		}
+
+		if ( $type === 'zip' ) {
+			$data['plugin_file'] = $plugin_file;
+			$feature             = Zip::from_array( $data );
+
+			return $feature->to_array();
+		}
+
+		return $data;
 	}
 
 	/**
@@ -134,6 +153,10 @@ class Fixture {
 				'starter',
 				'Stripe Gateway',
 				'Accept payments via Stripe',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'give-stripe-gateway.zip',
 			),
 			self::entry(
 				'give-paypal-standard',
@@ -141,6 +164,10 @@ class Fixture {
 				'starter',
 				'PayPal Standard',
 				'Accept payments via PayPal',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'give-paypal-standard.zip',
 			),
 
 			// Pro.
@@ -150,6 +177,10 @@ class Fixture {
 				'pro',
 				'Recurring Donations',
 				'Monthly and annual subscriptions',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'give-recurring-donations.zip',
 			),
 			self::entry(
 				'give-fee-recovery',
@@ -157,6 +188,10 @@ class Fixture {
 				'pro',
 				'Fee Recovery',
 				'Let donors cover processing fees',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'give-fee-recovery.zip',
 			),
 			self::entry(
 				'give-stripe-checkout',
@@ -178,6 +213,10 @@ class Fixture {
 				'pro',
 				'Tributes & Dedications',
 				'Honor someone with a donation',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'give-tributes-dedications.zip',
 			),
 			self::entry(
 				'give-form-field-manager',
@@ -185,6 +224,10 @@ class Fixture {
 				'pro',
 				'Form Field Manager',
 				'Custom fields on donation forms',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'give-form-field-manager.zip',
 			),
 
 			// Agency.
@@ -194,6 +237,10 @@ class Fixture {
 				'agency',
 				'Peer-to-Peer Fundraising',
 				'Crowdfunding and team pages',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'give-peer-to-peer.zip',
 			),
 			self::entry(
 				'give-virtual-terminal',
@@ -201,6 +248,10 @@ class Fixture {
 				'agency',
 				'Virtual Terminal',
 				'Accept donations over the phone',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'give-virtual-terminal.zip',
 			),
 			self::entry(
 				'give-funds-designations',
@@ -208,6 +259,10 @@ class Fixture {
 				'agency',
 				'Funds & Designations',
 				'Restrict donations to specific funds',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'give-funds-designations.zip',
 			),
 
 			// ── The Events Calendar ───────────────────────────────────────────────
@@ -219,6 +274,10 @@ class Fixture {
 				'starter',
 				'Event Calendar View',
 				'Monthly calendar grid display',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'tec-event-calendar-view.zip',
 			),
 			self::entry(
 				'tec-list-view',
@@ -226,6 +285,10 @@ class Fixture {
 				'starter',
 				'List View',
 				'Upcoming events in list format',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'tec-list-view.zip',
 			),
 			self::entry(
 				'tec-event-search',
@@ -233,6 +296,10 @@ class Fixture {
 				'starter',
 				'Event Search',
 				'Search and filter events',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'tec-event-search.zip',
 			),
 			self::entry(
 				'tec-google-maps',
@@ -240,6 +307,10 @@ class Fixture {
 				'starter',
 				'Google Maps Integration',
 				'Show venue on a map',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'tec-google-maps.zip',
 			),
 			self::entry(
 				'tec-organizer-profiles',
@@ -247,6 +318,10 @@ class Fixture {
 				'starter',
 				'Organizer Profiles',
 				'Dedicated organizer pages',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'tec-organizer-profiles.zip',
 			),
 
 			// Pro.
@@ -256,6 +331,10 @@ class Fixture {
 				'pro',
 				'Recurring Events',
 				'Weekly, monthly, custom recurrence',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'tec-recurring-events.zip',
 			),
 			self::entry(
 				'tec-event-tickets',
@@ -263,6 +342,10 @@ class Fixture {
 				'pro',
 				'Event Tickets',
 				'Free and paid ticketing',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'tec-event-tickets.zip',
 			),
 			self::entry(
 				'tec-rsvp',
@@ -270,6 +353,10 @@ class Fixture {
 				'pro',
 				'RSVP',
 				'Attendee RSVP management',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'tec-rsvp.zip',
 			),
 			self::entry(
 				'tec-week-day-views',
@@ -277,6 +364,10 @@ class Fixture {
 				'pro',
 				'Week & Day Views',
 				'Additional calendar view modes',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'tec-week-day-views.zip',
 			),
 			self::entry(
 				'tec-photo-view',
@@ -284,6 +375,10 @@ class Fixture {
 				'pro',
 				'Photo View',
 				'Image-focused event layout',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'tec-photo-view.zip',
 			),
 			self::entry(
 				'tec-map-view',
@@ -291,6 +386,10 @@ class Fixture {
 				'pro',
 				'Map View',
 				'Geospatial event map', // cspell:ignore Geospatial.
+				'zip',
+				true,
+				'https://example.com/docs',
+				'tec-map-view.zip',
 			),
 			self::entry(
 				'tec-ical-export',
@@ -298,6 +397,10 @@ class Fixture {
 				'pro',
 				'iCal Export',
 				'Export events to calendar apps',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'tec-ical-export.zip',
 			),
 
 			// Agency.
@@ -307,6 +410,10 @@ class Fixture {
 				'agency',
 				'Event Aggregator',
 				'Import events from Meetup, Eventbrite',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'tec-event-aggregator.zip',
 			),
 			self::entry(
 				'tec-filter-bar',
@@ -314,6 +421,10 @@ class Fixture {
 				'agency',
 				'Filter Bar',
 				'Advanced event filtering UI',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'tec-filter-bar.zip',
 			),
 			self::entry(
 				'tec-community-events',
@@ -321,6 +432,10 @@ class Fixture {
 				'agency',
 				'Community Events',
 				'Let visitors submit events',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'tec-community-events.zip',
 			),
 			self::entry(
 				'tec-unlimited-sites',
@@ -328,6 +443,10 @@ class Fixture {
 				'agency',
 				'Unlimited Sites',
 				'Use on any number of WordPress sites',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'tec-unlimited-sites.zip',
 			),
 
 			// ── LearnDash ─────────────────────────────────────────────────────────
@@ -339,6 +458,10 @@ class Fixture {
 				'starter',
 				'Course Builder',
 				'Drag-and-drop course creation',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'learndash-course-builder.zip',
 			),
 			self::entry(
 				'learndash-quizzes-assignments',
@@ -346,6 +469,10 @@ class Fixture {
 				'starter',
 				'Quizzes & Assignments',
 				'Assessments with auto-grading',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'learndash-quizzes-assignments.zip',
 			),
 			self::entry(
 				'learndash-certificates',
@@ -353,6 +480,10 @@ class Fixture {
 				'starter',
 				'Certificates',
 				'Customizable completion certificates',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'learndash-certificates.zip',
 			),
 			self::entry(
 				'learndash-course-access-expiry',
@@ -360,6 +491,10 @@ class Fixture {
 				'starter',
 				'Course Access Expiry',
 				'Time-limited course enrollment',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'learndash-course-access-expiry.zip',
 			),
 			self::entry(
 				'learndash-drip-content',
@@ -367,6 +502,10 @@ class Fixture {
 				'starter',
 				'Drip Content',
 				'Schedule lesson availability',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'learndash-drip-content.zip',
 			),
 
 			// Pro.
@@ -376,6 +515,10 @@ class Fixture {
 				'pro',
 				'Groups & Teams',
 				'Group enrollments and team management',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'learndash-groups-teams.zip',
 			),
 			self::entry(
 				'learndash-course-points',
@@ -383,6 +526,10 @@ class Fixture {
 				'pro',
 				'Course Points',
 				'Gamification points system',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'learndash-course-points.zip',
 			),
 			self::entry(
 				'learndash-woocommerce',
@@ -390,6 +537,10 @@ class Fixture {
 				'pro',
 				'WooCommerce Integration',
 				'Sell courses via WooCommerce',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'learndash-woocommerce.zip',
 			),
 			self::entry(
 				'learndash-stripe',
@@ -397,6 +548,10 @@ class Fixture {
 				'pro',
 				'Stripe Integration',
 				'Built-in course payments',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'learndash-stripe.zip',
 			),
 			self::entry(
 				'learndash-course-grid',
@@ -404,6 +559,10 @@ class Fixture {
 				'pro',
 				'Course Grid',
 				'Visual course catalog layout',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'learndash-course-grid.zip',
 			),
 			self::entry(
 				'learndash-buddypress',
@@ -411,6 +570,10 @@ class Fixture {
 				'pro',
 				'BuddyPress Integration',
 				'Social learning community',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'learndash-buddypress.zip',
 			),
 			self::entry(
 				'learndash-video-progression',
@@ -418,6 +581,10 @@ class Fixture {
 				'pro',
 				'Video Progression',
 				'Require video completion to advance',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'learndash-video-progression.zip',
 			),
 
 			// Agency.
@@ -427,6 +594,10 @@ class Fixture {
 				'agency',
 				'ProPanel',
 				'Advanced reporting and analytics',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'learndash-propanel.zip',
 			),
 			self::entry(
 				'learndash-tin-canny-reporting',
@@ -434,6 +605,10 @@ class Fixture {
 				'agency',
 				'Tin Canny Reporting',
 				'SCORM/xAPI tracking', // cspell:ignore SCORM xAPI.
+				'zip',
+				true,
+				'https://example.com/docs',
+				'learndash-tin-canny-reporting.zip',
 			),
 			self::entry(
 				'learndash-assignment-grading',
@@ -441,6 +616,10 @@ class Fixture {
 				'agency',
 				'Assignment Grading',
 				'Manual assignment review workflow',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'learndash-assignment-grading.zip',
 			),
 			self::entry(
 				'learndash-unlimited-sites',
@@ -448,6 +627,10 @@ class Fixture {
 				'agency',
 				'Unlimited Sites',
 				'Use on any number of WordPress sites',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'learndash-unlimited-sites.zip',
 			),
 
 			// ── Kadence ───────────────────────────────────────────────────────────
@@ -459,6 +642,10 @@ class Fixture {
 				'starter',
 				'Kadence Theme',
 				'Lightweight, fast WordPress theme',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'kadence-theme.zip',
 			),
 			self::entry(
 				'kadence-row-layout-block',
@@ -466,6 +653,9 @@ class Fixture {
 				'starter',
 				'Row Layout Block',
 				'Advanced column and section layouts',
+				'built_in',
+				true,
+				'https://example.com/docs',
 			),
 			self::entry(
 				'kadence-advanced-button-block',
@@ -473,6 +663,9 @@ class Fixture {
 				'starter',
 				'Advanced Button Block',
 				'Button groups with icons and styles',
+				'built_in',
+				true,
+				'https://example.com/docs',
 			),
 			self::entry(
 				'kadence-icon-block',
@@ -480,6 +673,9 @@ class Fixture {
 				'starter',
 				'Icon Block',
 				'SVG icon library',
+				'built_in',
+				true,
+				'https://example.com/docs',
 			),
 			self::entry(
 				'kadence-info-box-block',
@@ -487,6 +683,9 @@ class Fixture {
 				'starter',
 				'Info Box Block',
 				'Icon + title + text cards',
+				'built_in',
+				true,
+				'https://example.com/docs',
 			),
 
 			// Pro.
@@ -496,6 +695,9 @@ class Fixture {
 				'pro',
 				'Advanced Header Builder',
 				'Drag-and-drop header with sticky behavior',
+				'built_in',
+				true,
+				'https://example.com/docs',
 			),
 			self::entry(
 				'kadence-mega-menu',
@@ -503,6 +705,9 @@ class Fixture {
 				'pro',
 				'Mega Menu',
 				'Multi-column navigation menus',
+				'built_in',
+				true,
+				'https://example.com/docs',
 			),
 			self::entry(
 				'kadence-animations-effects',
@@ -510,6 +715,9 @@ class Fixture {
 				'pro',
 				'Animations & Effects',
 				'Scroll and entrance animations',
+				'built_in',
+				true,
+				'https://example.com/docs',
 			),
 			self::entry(
 				'kadence-custom-fonts',
@@ -517,6 +725,9 @@ class Fixture {
 				'pro',
 				'Custom Fonts',
 				'Upload and use any web font',
+				'built_in',
+				true,
+				'https://example.com/docs',
 			),
 			self::entry(
 				'kadence-conditional-headers',
@@ -524,6 +735,9 @@ class Fixture {
 				'pro',
 				'Conditional Headers/Footers',
 				'Different headers per page type',
+				'built_in',
+				true,
+				'https://example.com/docs',
 			),
 			self::entry(
 				'kadence-modal-block',
@@ -531,6 +745,9 @@ class Fixture {
 				'pro',
 				'Modal Block',
 				'Popup and lightbox content',
+				'built_in',
+				true,
+				'https://example.com/docs',
 			),
 			self::entry(
 				'kadence-form-block',
@@ -538,6 +755,9 @@ class Fixture {
 				'pro',
 				'Form Block',
 				'Advanced forms with conditional logic',
+				'built_in',
+				true,
+				'https://example.com/docs',
 			),
 			self::entry(
 				'kadence-woocommerce-blocks',
@@ -545,6 +765,9 @@ class Fixture {
 				'pro',
 				'WooCommerce Blocks',
 				'Styled shop, cart, and product blocks',
+				'built_in',
+				true,
+				'https://example.com/docs',
 			),
 
 			// Agency.
@@ -554,6 +777,10 @@ class Fixture {
 				'agency',
 				'Starter Templates',
 				'200+ professionally designed templates',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'kadence-starter-templates.zip',
 			),
 			self::entry(
 				'kadence-white-label',
@@ -561,6 +788,10 @@ class Fixture {
 				'agency',
 				'White Label',
 				'Rebrand Kadence for your clients',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'kadence-white-label.zip',
 			),
 			self::entry(
 				'kadence-user-role-control',
@@ -568,6 +799,10 @@ class Fixture {
 				'agency',
 				'User Role Control',
 				'Per-role block restrictions',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'kadence-user-role-control.zip',
 			),
 			self::entry(
 				'kadence-unlimited-sites',
@@ -575,6 +810,10 @@ class Fixture {
 				'agency',
 				'Unlimited Sites',
 				'Use on any number of WordPress sites',
+				'zip',
+				true,
+				'https://example.com/docs',
+				'kadence-unlimited-sites.zip',
 			),
 
 		];

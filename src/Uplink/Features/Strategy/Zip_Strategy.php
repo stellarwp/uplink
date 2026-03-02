@@ -11,6 +11,19 @@ use Throwable;
 use WP_Ajax_Upgrader_Skin;
 use Plugin_Upgrader;
 
+use function activate_plugin;
+use function deactivate_plugins;
+use function delete_transient;
+use function get_plugin_data;
+use function get_transient;
+use function is_plugin_active;
+use function is_plugin_active_for_network;
+use function plugins_api;
+use function sanitize_key;
+use function set_transient;
+use function validate_plugin;
+use function validate_plugin_requirements;
+
 /**
  * Zip Strategy — installs, activates, and deactivates WordPress plugins as
  * "features" using ZIP file downloads.
@@ -708,9 +721,18 @@ class Zip_Strategy extends Abstract_Strategy {
 	private function load_wp_admin_includes(): void {
 		if ( ! function_exists( 'is_plugin_active' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
-			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-			require_once ABSPATH . 'wp-admin/includes/class-wp-ajax-upgrader-skin.php';
+		}
+
+		if ( ! function_exists( 'plugins_api' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+		}
+
+		if ( ! class_exists( 'Plugin_Upgrader' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+		}
+
+		if ( ! class_exists( 'WP_Ajax_Upgrader_Skin' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/class-wp-ajax-upgrader-skin.php';
 		}
 	}
 }

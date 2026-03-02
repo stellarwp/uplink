@@ -7,14 +7,39 @@ namespace StellarWP\Uplink\Features\API;
 /**
  * Fixture feature catalog for development and testing.
  *
- * Mirrors the feature data defined in resources/js/data/products.ts.
- * Use the static factory methods to obtain pre-shaped variations,
- * e.g. only one product group, or with certain features unavailable.
- *
  * @since 3.0.0
  */
 class Fixture
 {
+
+    /**
+     * @since 3.0.0
+     *
+     * @var array
+     */
+    private array $features = [];
+
+    /**
+     * Creates a new Fixture instance.
+     *
+     * @since 3.0.0
+     *
+     * @param array $features Additional features to add to the catalog.
+     *
+     * @return self
+     */
+    public static function create(array $features = [], bool $merge = true): self
+    {
+        $self = new self();
+
+        if ($merge) {
+            $self->features = array_merge($self->features, $self->catalog(), $features);
+        } else {
+            $self->features = $features;
+        }
+
+        return $self;
+    }
 
     /**
      * Returns the complete feature catalog with all features available.
@@ -23,67 +48,26 @@ class Fixture
      *
      * @return array<int, array<string, mixed>>
      */
-    public static function all(): array
+    public function all(): array
     {
-        return self::catalog();
+        return $this->features;
     }
 
     /**
-     * Returns only the features belonging to the given product group.
+     * Returns the full catalog filtered by the given key and value.
      *
      * @since 3.0.0
      *
-     * @param string $group The product group slug (e.g. 'givewp', 'learndash').
+     * @param string $key The key to filter by.
+     * @param mixed $value The value to filter by.
      *
      * @return array<int, array<string, mixed>>
      */
-    public static function for_group(string $group): array
+    public function filter_by(string $key, mixed $value): array
     {
-        return array_values(
-            array_filter(
-                self::catalog(),
-                static fn(array $f): bool => $f['group'] === $group
-            )
-        );
-    }
-
-    /**
-     * Returns the full catalog with specific feature slugs marked as unavailable.
-     *
-     * @since 3.0.0
-     *
-     * @param string ...$slugs Feature slugs to mark as unavailable.
-     *
-     * @return array<int, array<string, mixed>>
-     */
-    public static function with_unavailable(string ...$slugs): array
-    {
-        return array_map(
-            static function (array $f) use ($slugs): array {
-                if (in_array($f['slug'], $slugs, true)) {
-                    $f['is_available'] = false;
-                }
-                return $f;
-            },
-            self::catalog()
-        );
-    }
-
-    /**
-     * Returns the full catalog with every feature marked as unavailable.
-     *
-     * @since 3.0.0
-     *
-     * @return array<int, array<string, mixed>>
-     */
-    public static function all_unavailable(): array
-    {
-        return array_map(
-            static function (array $f): array {
-                $f['is_available'] = false;
-                return $f;
-            },
-            self::catalog()
+        return array_filter(
+            $this->features,
+            static fn(array $f): bool => $f[$key] === $value
         );
     }
 
@@ -106,13 +90,13 @@ class Fixture
      *
      * @return array<string, mixed>
      */
-    private static function entry(
+    public static function entry(
         string $slug,
         string $group,
         string $tier,
         string $name,
-        string $description,
-        string $type = 'built_in',
+        string $description = '',
+        string $type = 'zip',
         bool $is_available = true,
         string $documentation_url = ''
     ): array {
@@ -138,51 +122,23 @@ class Fixture
      *
      * @return array<int, array<string, mixed>>
      */
-    private static function catalog(): array
+    public function catalog(): array
     {
         return [
 
-            // ── GiveWP ────────────────────────────────────────────────────────────
+            // ── give ────────────────────────────────────────────────────────────
 
-            // Starter
+            // give features
             self::entry(
-                'givewp-donation-forms',
-                'givewp',
-                'starter',
-                'Donation Forms',
-                'Create unlimited donation forms',
-            ),
-            self::entry(
-                'givewp-donor-management',
-                'givewp',
-                'starter',
-                'Donor Management',
-                'View and manage your donors',
-            ),
-            self::entry(
-                'givewp-email-notifications',
-                'givewp',
-                'starter',
-                'Email Notifications',
-                'Automated donor and admin emails',
-            ),
-            self::entry(
-                'givewp-reports-analytics',
-                'givewp',
-                'starter',
-                'Reports & Analytics',
-                'Donation reports and insights',
-            ),
-            self::entry(
-                'givewp-stripe-gateway',
-                'givewp',
+                'give-stripe-gateway',
+                'give',
                 'starter',
                 'Stripe Gateway',
                 'Accept payments via Stripe',
             ),
             self::entry(
-                'givewp-paypal-standard',
-                'givewp',
+                'give-paypal-standard',
+                'give',
                 'starter',
                 'PayPal Standard',
                 'Accept payments via PayPal',
@@ -190,90 +146,69 @@ class Fixture
 
             // Pro
             self::entry(
-                'givewp-recurring-donations',
-                'givewp',
+                'give-recurring-donations',
+                'give',
                 'pro',
                 'Recurring Donations',
                 'Monthly and annual subscriptions',
             ),
             self::entry(
-                'givewp-fee-recovery',
-                'givewp',
+                'give-fee-recovery',
+                'give',
                 'pro',
                 'Fee Recovery',
                 'Let donors cover processing fees',
             ),
             self::entry(
-                'givewp-stripe-checkout',
-                'givewp',
+                'give-stripe-checkout',
+                'give',
                 'pro',
                 'Stripe Checkout',
                 'Hosted Stripe checkout experience',
             ),
             self::entry(
-                'givewp-pdf-receipts',
-                'givewp',
+                'give-pdf-receipts',
+                'give',
                 'pro',
                 'PDF Receipts',
                 'Downloadable donation receipts',
             ),
             self::entry(
-                'givewp-import-export',
-                'givewp',
-                'pro',
-                'Import & Export',
-                'Bulk donor and donation import/export',
-            ),
-            self::entry(
-                'givewp-tributes-dedications',
-                'givewp',
+                'give-tributes-dedications',
+                'give',
                 'pro',
                 'Tributes & Dedications',
                 'Honor someone with a donation',
             ),
             self::entry(
-                'givewp-form-field-manager',
-                'givewp',
+                'give-form-field-manager',
+                'give',
                 'pro',
                 'Form Field Manager',
                 'Custom fields on donation forms',
             ),
-            self::entry(
-                'givewp-donation-upsells', // cspell:ignore Upsells
-                'givewp',
-                'pro',
-                'Donation Upsells',
-                'Suggest recurring at checkout',
-            ),
 
             // Agency
             self::entry(
-                'givewp-peer-to-peer',
-                'givewp',
+                'give-peer-to-peer',
+                'give',
                 'agency',
                 'Peer-to-Peer Fundraising',
                 'Crowdfunding and team pages',
             ),
             self::entry(
-                'givewp-virtual-terminal',
-                'givewp',
+                'give-virtual-terminal',
+                'give',
                 'agency',
                 'Virtual Terminal',
                 'Accept donations over the phone',
             ),
             self::entry(
-                'givewp-funds-designations',
-                'givewp',
+                'give-funds-designations',
+                'give',
                 'agency',
                 'Funds & Designations',
                 'Restrict donations to specific funds',
-            ),
-            self::entry(
-                'givewp-unlimited-sites',
-                'givewp',
-                'agency',
-                'Unlimited Sites',
-                'Use on any number of WordPress sites',
             ),
 
             // ── The Events Calendar ───────────────────────────────────────────────

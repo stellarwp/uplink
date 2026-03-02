@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink\Tests\Features\API;
 
 use StellarWP\Uplink\Features\API\Client;
+use StellarWP\Uplink\Features\API\Fixture;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Tests\UplinkTestCase;
@@ -99,4 +100,45 @@ final class ClientTest extends UplinkTestCase {
 		$this->assertCount( 1, $result );
 		$this->assertSame( 'cached-feature', $result['cached-feature']->get_slug() );
 	}
+
+    /**
+     * Tests that the fixture catalog is used when the STELLARWP_UPLINK_FEATURES_USE_FIXTURE_CATALOG constant is defined.
+     *
+     * @since 3.0.0
+     *
+     * @return void
+     */
+    public function test_it_uses_fixture_catalog_when_enabled(): void {
+        define( 'STELLARWP_UPLINK_FEATURES_USE_FIXTURE_CATALOG', true );
+
+        add_filter('stellarwp_uplink_features_fixture_catalog', function(array $catalog): array {
+            return Fixture::create([
+                Fixture::entry(
+                    'give-recurring-donations',
+                    'give',
+                    'starter',
+                    'Recurring Donations',
+                    'Monthly and annual subscriptions',
+                ),
+                Fixture::entry(
+                    'give-fee-recovery',
+                    'give',
+                    'pro',
+                    'Fee Recovery',
+                    'Let donors cover processing fees',
+                ),
+            ])->all();
+        });
+
+        $this->client = new Client();
+
+        $features = $this->client->get_features();
+
+        $this->assertInstanceOf( Feature_Collection::class, $features );
+
+        $this->assertCount( 2, $features );
+        $this->assertSame( 'give-recurring-donations', $features->get( 'give-recurring-donations' )->get_slug() );
+        $this->assertSame( 'give-fee-recovery', $features->get( 'give-fee-recovery' )->get_slug() );
+
+    }
 }

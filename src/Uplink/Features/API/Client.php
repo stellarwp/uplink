@@ -121,7 +121,7 @@ class Client {
 	 */
 	private function request(): array {
         if (defined( 'STELLARWP_UPLINK_FEATURES_USE_FIXTURE_CATALOG' ) && STELLARWP_UPLINK_FEATURES_USE_FIXTURE_CATALOG) {
-            return Fixture::all();
+            return apply_filters('stellarwp_uplink_features_fixture_catalog', Fixture::create()->all());
         }
 
 		return [];

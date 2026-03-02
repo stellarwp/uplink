@@ -188,7 +188,7 @@ class Provider extends Abstract_Provider {
 
 		// Skip rebuild if ZIP exists and is newer than all source files.
 		if ( file_exists( $zip_path ) ) {
-			$zip_mtime    = filemtime( $zip_path );
+			$zip_mtime     = filemtime( $zip_path );
 			$needs_rebuild = false;
 
 			/** @var \SplFileInfo $file */

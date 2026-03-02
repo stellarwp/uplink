@@ -8,6 +8,7 @@
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
 	<exclude-pattern>*/phpstan-cache/*</exclude-pattern>
 	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>tests/_data/*</exclude-pattern>
 
 	<!-- Formats of the report -->
 	<arg name="report" value="full,summary,source"/>

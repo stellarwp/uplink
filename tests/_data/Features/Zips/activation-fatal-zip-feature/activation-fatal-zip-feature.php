@@ -12,6 +12,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-register_activation_hook( __FILE__, function () {
-	throw new \RuntimeException( 'Intentional activation hook fatal for Uplink Zip Strategy testing.' );
-} );
+register_activation_hook(
+	__FILE__,
+	function () {
+		throw new \RuntimeException( 'Intentional activation hook fatal for Uplink Zip Strategy testing.' );
+	}
+);

@@ -12,6 +12,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-register_deactivation_hook( __FILE__, function () {
-	activate_plugin( plugin_basename( __FILE__ ) );
-} );
+register_deactivation_hook(
+	__FILE__,
+	function () {
+		activate_plugin( plugin_basename( __FILE__ ) );
+	}
+);

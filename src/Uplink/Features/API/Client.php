@@ -126,7 +126,8 @@ class Client {
 			$data = (array) apply_filters( 'stellarwp_uplink_features_fixture_data', Fixture::create()->get() );
 
 			if ( isset( $data['error'] ) ) {
-				$error_message = $data['error_message'] ?? $data['error'];
+				$raw_message   = $data['error_message'] ?? $data['error'];
+				$error_message = is_string( $raw_message ) ? $raw_message : '';
 
 				return new WP_Error( Error_Code::FEATURE_REQUEST_FAILED, $error_message );
 			}

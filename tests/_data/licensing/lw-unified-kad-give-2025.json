@@ -1,0 +1,34 @@
+{
+  "products": [
+    {
+      "product_slug": "kadence",
+      "tier": "pro",
+      "pending_tier": null,
+      "status": "active",
+      "expires": "2026-12-31 23:59:59",
+      "activations": {
+        "site_limit": 3,
+        "active_count": 1,
+        "over_limit": false
+      },
+      "installed_here": true,
+      "validation_status": "valid",
+      "is_valid": true
+    },
+    {
+      "product_slug": "give",
+      "tier": "pro",
+      "pending_tier": null,
+      "status": "active",
+      "expires": "2026-12-31 23:59:59",
+      "activations": {
+        "site_limit": 3,
+        "active_count": 2,
+        "over_limit": false
+      },
+      "installed_here": true,
+      "validation_status": "valid",
+      "is_valid": true
+    }
+  ]
+}

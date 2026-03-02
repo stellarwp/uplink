@@ -13,6 +13,7 @@ use StellarWP\Uplink\Features\Types\Built_In;
 use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Utils\Cast;
 use StellarWP\Uplink\Utils\Version;
+use WP_Error;
 
 /**
  * Registers the Features subsystem in the DI container and hooks.

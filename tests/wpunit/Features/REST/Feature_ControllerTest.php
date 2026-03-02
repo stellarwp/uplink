@@ -63,8 +63,8 @@ final class Feature_ControllerTest extends UplinkTestCase {
 						'is_available'      => true,
 						'documentation_url' => 'https://example.com/alpha',
 					],
-				] 
-			) 
+				]
+			)
 		);
 		$collection->add(
 			$this->makeEmpty(
@@ -88,8 +88,8 @@ final class Feature_ControllerTest extends UplinkTestCase {
 						'is_available'      => false,
 						'documentation_url' => 'https://example.com/beta',
 					],
-				] 
-			) 
+				]
+			)
 		);
 
 		$mock_strategy = $this->makeEmpty(
@@ -98,29 +98,29 @@ final class Feature_ControllerTest extends UplinkTestCase {
 				'enable'    => true,
 				'disable'   => true,
 				'is_active' => false,
-			] 
+			]
 		);
 
 		$resolver = $this->makeEmpty(
 			Resolver::class,
 			[
 				'resolve' => $mock_strategy,
-			] 
+			]
 		);
 
 		$catalog = $this->makeEmpty(
 			Client::class,
 			[
 				'get_features' => $collection,
-			] 
+			]
 		);
 
 		$this->manager = new Manager( $catalog, $resolver );
 
 		/** @var WP_REST_Server $wp_rest_server */
 		global $wp_rest_server;
-		$wp_rest_server   = new WP_REST_Server();
-		$this->server     = $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
+		$this->server   = $wp_rest_server;
 
 		// Allow registering routes outside of the rest_api_init hook.
 		$this->set_fn_return(
@@ -132,7 +132,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 
 				return true;
 			},
-			true 
+			true
 		);
 
 		$controller = new Feature_Controller( $this->manager );
@@ -322,7 +322,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$this->assertSame( 'zip', $data['type'] );
 		$this->assertTrue( $data['is_available'] );
 		$this->assertSame( 'https://example.com/alpha', $data['documentation_url'] );
-		$this->assertArrayHasKey( 'enabled', $data );
+		$this->assertArrayHasKey( 'is_enabled', $data );
 	}
 
 	/**
@@ -385,7 +385,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$data = $response->get_data();
 
 		$this->assertSame( 'feature-alpha', $data['slug'] );
-		$this->assertTrue( $data['enabled'] );
+		$this->assertTrue( $data['is_enabled'] );
 	}
 
 	/**
@@ -455,7 +455,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$data = $response->get_data();
 
 		$this->assertSame( 'feature-alpha', $data['slug'] );
-		$this->assertFalse( $data['enabled'] );
+		$this->assertFalse( $data['is_enabled'] );
 	}
 
 	/**
@@ -521,7 +521,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$this->assertArrayHasKey( 'properties', $schema );
 		$this->assertTrue( $schema['additionalProperties'], 'Schema should allow additional properties for type-specific fields.' );
 
-		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'enabled' ];
+		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled' ];
 
 		foreach ( $expected as $property ) {
 			$this->assertArrayHasKey( $property, $schema['properties'], "Missing schema property: {$property}" );
@@ -541,7 +541,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 
 		$this->assertArrayHasKey( 'properties', $schema );
 
-		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'enabled' ];
+		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled' ];
 
 		foreach ( $expected as $property ) {
 			$this->assertArrayHasKey( $property, $schema['properties'], "Missing schema property: {$property}" );

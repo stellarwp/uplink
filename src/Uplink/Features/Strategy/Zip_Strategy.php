@@ -183,7 +183,7 @@ class Zip_Strategy extends Abstract_Strategy {
 			);
 		}
 
-		$this->update_stored_state( $feature->get_slug(), false ); // @phpstan-ignore deadCode.unreachable -- The check above is a double check.
+		$this->update_stored_state( $feature->get_slug(), false ); // @phpstan-ignore deadCode.unreachable (The check above is a double check)
 
 		return true;
 	}

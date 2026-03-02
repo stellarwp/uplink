@@ -139,6 +139,5 @@ final class ClientTest extends UplinkTestCase {
         $this->assertCount( 2, $features );
         $this->assertSame( 'give-recurring-donations', $features->get( 'give-recurring-donations' )->get_slug() );
         $this->assertSame( 'give-fee-recovery', $features->get( 'give-fee-recovery' )->get_slug() );
-
     }
 }

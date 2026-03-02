@@ -3,7 +3,9 @@
 namespace StellarWP\Uplink\Features\API;
 
 use StellarWP\Uplink\Features\Feature_Collection;
+use StellarWP\Uplink\Features\Types\Built_In;
 use StellarWP\Uplink\Features\Types\Feature;
+use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Utils\Cast;
 use WP_Error;
 
@@ -41,6 +43,16 @@ class Client {
 	 * @var array<string, class-string<Feature>>
 	 */
 	private array $type_map = [];
+
+	/**
+	 * Registers the built-in feature types.
+	 *
+	 * @since 3.0.0
+	 */
+	public function __construct() {
+		$this->register_type( 'zip', Zip::class );
+		$this->register_type( 'built_in', Built_In::class );
+	}
 
 	/**
 	 * Registers a Feature subclass for a given type string.

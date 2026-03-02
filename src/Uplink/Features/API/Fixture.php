@@ -28,12 +28,12 @@ class Fixture
      *
      * @return self
      */
-    public static function create(array $features = [], bool $merge = true): self
+    public static function create(array $features = [], bool $merge = false): self
     {
         $self = new self();
 
-        if ($merge) {
-            $self->features = array_merge($self->features, $self->catalog(), $features);
+        if ($merge || empty($features)) {
+            $self->features = array_merge($self->catalog(), $features);
         } else {
             $self->features = $features;
         }

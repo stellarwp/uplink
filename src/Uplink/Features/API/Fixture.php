@@ -25,6 +25,7 @@ class Fixture {
 	 * @since 3.0.0
 	 *
 	 * @param array<int, array<string, mixed>> $features Additional features to add to the catalog.
+	 * @param bool                             $merge Whether to merge the features with the default catalog.
 	 *
 	 * @return self
 	 */
@@ -126,7 +127,7 @@ class Fixture {
 
 			// ── give ────────────────────────────────────────────────────────────
 
-			// give features
+			// give features.
 			self::entry(
 				'give-stripe-gateway',
 				'give',
@@ -142,7 +143,7 @@ class Fixture {
 				'Accept payments via PayPal',
 			),
 
-			// Pro
+			// Pro.
 			self::entry(
 				'give-recurring-donations',
 				'give',
@@ -186,7 +187,7 @@ class Fixture {
 				'Custom fields on donation forms',
 			),
 
-			// Agency
+			// Agency.
 			self::entry(
 				'give-peer-to-peer',
 				'give',
@@ -211,7 +212,7 @@ class Fixture {
 
 			// ── The Events Calendar ───────────────────────────────────────────────
 
-			// Starter
+			// Starter.
 			self::entry(
 				'tec-event-calendar-view',
 				'the-events-calendar',
@@ -248,7 +249,7 @@ class Fixture {
 				'Dedicated organizer pages',
 			),
 
-			// Pro
+			// Pro.
 			self::entry(
 				'tec-recurring-events',
 				'the-events-calendar',
@@ -289,7 +290,7 @@ class Fixture {
 				'the-events-calendar',
 				'pro',
 				'Map View',
-				'Geospatial event map', // cspell:ignore Geospatial
+				'Geospatial event map', // cspell:ignore Geospatial.
 			),
 			self::entry(
 				'tec-ical-export',
@@ -299,7 +300,7 @@ class Fixture {
 				'Export events to calendar apps',
 			),
 
-			// Agency
+			// Agency.
 			self::entry(
 				'tec-event-aggregator',
 				'the-events-calendar',
@@ -331,7 +332,7 @@ class Fixture {
 
 			// ── LearnDash ─────────────────────────────────────────────────────────
 
-			// Starter
+			// Starter.
 			self::entry(
 				'learndash-course-builder',
 				'learndash',
@@ -368,7 +369,7 @@ class Fixture {
 				'Schedule lesson availability',
 			),
 
-			// Pro
+			// Pro.
 			self::entry(
 				'learndash-groups-teams',
 				'learndash',
@@ -419,9 +420,9 @@ class Fixture {
 				'Require video completion to advance',
 			),
 
-			// Agency
+			// Agency.
 			self::entry(
-				'learndash-propanel', // cspell:ignore ProPanel
+				'learndash-propanel', // cspell:ignore ProPanel.
 				'learndash',
 				'agency',
 				'ProPanel',
@@ -432,7 +433,7 @@ class Fixture {
 				'learndash',
 				'agency',
 				'Tin Canny Reporting',
-				'SCORM/xAPI tracking', // cspell:ignore SCORM xAPI
+				'SCORM/xAPI tracking', // cspell:ignore SCORM xAPI.
 			),
 			self::entry(
 				'learndash-assignment-grading',
@@ -451,7 +452,7 @@ class Fixture {
 
 			// ── Kadence ───────────────────────────────────────────────────────────
 
-			// Starter
+			// Starter.
 			self::entry(
 				'kadence-theme',
 				'kadence',
@@ -488,7 +489,7 @@ class Fixture {
 				'Icon + title + text cards',
 			),
 
-			// Pro
+			// Pro.
 			self::entry(
 				'kadence-advanced-header',
 				'kadence',
@@ -546,7 +547,7 @@ class Fixture {
 				'Styled shop, cart, and product blocks',
 			),
 
-			// Agency
+			// Agency.
 			self::entry(
 				'kadence-starter-templates',
 				'kadence',

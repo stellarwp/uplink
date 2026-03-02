@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Features\Strategy;
 
+use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Types\Built_In;
 use StellarWP\Uplink\Features\Types\Feature;
 use WP_Error;
@@ -35,8 +36,8 @@ class Built_In_Strategy extends Abstract_Strategy {
 	public function enable( Feature $feature ) {
 		if ( ! $feature instanceof Built_In ) {
 			return new WP_Error(
-				'feature_type_mismatch',
-				'Built_In_Strategy can only enable Built_In instances.'
+				Error_Code::FEATURE_TYPE_MISMATCH,
+				'This feature type is not supported by the Built-In strategy.'
 			);
 		}
 
@@ -59,8 +60,8 @@ class Built_In_Strategy extends Abstract_Strategy {
 	public function disable( Feature $feature ) {
 		if ( ! $feature instanceof Built_In ) {
 			return new WP_Error(
-				'feature_type_mismatch',
-				'Built_In_Strategy can only disable Built_In instances.'
+				Error_Code::FEATURE_TYPE_MISMATCH,
+				'This feature type is not supported by the Built-In strategy.'
 			);
 		}
 

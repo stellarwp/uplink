@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Tests\Features\Strategy;
 
+use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Strategy\Built_In_Strategy;
 use StellarWP\Uplink\Features\Types\Built_In;
 use StellarWP\Uplink\Features\Types\Feature;
@@ -63,7 +64,7 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 		$result = $this->strategy->enable( $non_built_in );
 
 		$this->assertWPError( $result );
-		$this->assertSame( 'feature_type_mismatch', $result->get_error_code() );
+		$this->assertSame( Error_Code::FEATURE_TYPE_MISMATCH, $result->get_error_code() );
 	}
 
 	/**
@@ -113,7 +114,7 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 		$result = $this->strategy->disable( $non_built_in );
 
 		$this->assertWPError( $result );
-		$this->assertSame( 'feature_type_mismatch', $result->get_error_code() );
+		$this->assertSame( Error_Code::FEATURE_TYPE_MISMATCH, $result->get_error_code() );
 	}
 
 	/**

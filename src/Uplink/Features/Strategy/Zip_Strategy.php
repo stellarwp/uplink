@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Features\Strategy;
 
+use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Utils\Cast;
@@ -43,7 +44,7 @@ class Zip_Strategy extends Abstract_Strategy {
 	 *
 	 * @since 3.0.0
 	 */
-	private const LOCK_TTL = 120;
+	private const LOCK_TTL = MINUTE_IN_SECONDS * 2;
 
 	/**
 	 * Transient key prefix for install locks.
@@ -97,8 +98,8 @@ class Zip_Strategy extends Abstract_Strategy {
 		// Type-guard: Zip_Strategy only handles Zip instances.
 		if ( ! $feature instanceof Zip ) {
 			return new WP_Error(
-				'feature_type_mismatch',
-				'Zip_Strategy can only enable Zip instances.'
+				Error_Code::FEATURE_TYPE_MISMATCH,
+				'This feature type is not supported by the Zip installer.'
 			);
 		}
 
@@ -148,8 +149,8 @@ class Zip_Strategy extends Abstract_Strategy {
 		// Type-guard: Zip_Strategy only handles Zip instances.
 		if ( ! $feature instanceof Zip ) {
 			return new WP_Error(
-				'feature_type_mismatch',
-				'Zip_Strategy can only disable Zip instances.'
+				Error_Code::FEATURE_TYPE_MISMATCH,
+				'This feature type is not supported by the Zip installer.'
 			);
 		}
 
@@ -174,15 +175,15 @@ class Zip_Strategy extends Abstract_Strategy {
 		// @phpstan-ignore-next-line if.alwaysTrue -- (deactivate_plugins() changes active state via DB side effects invisible to static analysis).
 		if ( $this->is_plugin_active( $plugin_file ) ) {
 			return new WP_Error(
-				'deactivation_failed',
+				Error_Code::DEACTIVATION_FAILED,
 				sprintf(
-					'Plugin "%s" is still active after deactivation attempt.',
+					'Could not deactivate "%s". The plugin may have been reactivated by another process.',
 					$plugin_file
 				)
 			);
 		}
 
-		$this->update_stored_state( $feature->get_slug(), false ); // @phpstan-ignore deadCode.unreachable
+		$this->update_stored_state( $feature->get_slug(), false ); // @phpstan-ignore deadCode.unreachable -- The check above is a double check.
 
 		return true;
 	}
@@ -322,9 +323,9 @@ class Zip_Strategy extends Abstract_Strategy {
 
 		if ( ! $this->acquire_lock( $lock_key ) ) {
 			return new WP_Error(
-				'install_locked',
+				Error_Code::INSTALL_LOCKED,
 				sprintf(
-					'Another install is in progress for "%s". Try again in a moment.',
+					'Another installation is already in progress for "%s". Please try again in a few moments.',
 					$feature->get_slug()
 				)
 			);
@@ -343,10 +344,10 @@ class Zip_Strategy extends Abstract_Strategy {
 			// @phpstan-ignore-next-line booleanNot.alwaysTrue -- (install_plugin() creates files on disk; side effects invisible to static analysis).
 			if ( ! $this->is_plugin_installed( $plugin_file ) ) {
 				return new WP_Error(
-					'plugin_not_found',
+					Error_Code::PLUGIN_NOT_FOUND_AFTER_INSTALL,
 					sprintf(
-						'Plugin file "%s" not found after install. The ZIP may contain a different directory name.',
-						$plugin_file
+						'The plugin file was not found after installation of "%s". The downloaded package may have an unexpected directory structure.',
+						$feature->get_slug()
 					)
 				);
 			}
@@ -372,10 +373,6 @@ class Zip_Strategy extends Abstract_Strategy {
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
 	private function install_plugin( Zip $feature ) {
-		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-		require_once ABSPATH . 'wp-admin/includes/class-wp-ajax-upgrader-skin.php';
-		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
-
 		$plugin_info = plugins_api(
 			'plugin_information',
 			[
@@ -386,9 +383,9 @@ class Zip_Strategy extends Abstract_Strategy {
 
 		if ( is_wp_error( $plugin_info ) ) {
 			return new WP_Error(
-				'plugins_api_failed',
+				Error_Code::PLUGINS_API_FAILED,
 				sprintf(
-					'plugins_api() failed for "%s": %s',
+					'Could not retrieve download information for "%s": %s',
 					$feature->get_slug(),
 					$plugin_info->get_error_message()
 				)
@@ -397,8 +394,8 @@ class Zip_Strategy extends Abstract_Strategy {
 
 		if ( empty( $plugin_info->download_link ) ) {
 			return new WP_Error(
-				'download_link_empty',
-				sprintf( 'plugins_api() returned no download_link for "%s".', $feature->get_slug() )
+				Error_Code::DOWNLOAD_LINK_MISSING,
+				sprintf( 'No download link is available for "%s".', $feature->get_slug() )
 			);
 		}
 
@@ -411,9 +408,9 @@ class Zip_Strategy extends Abstract_Strategy {
 		// failure. The skin may also collect errors separately.
 		if ( is_wp_error( $result ) ) {
 			return new WP_Error(
-				'install_failed',
+				Error_Code::INSTALL_FAILED,
 				sprintf(
-					'Plugin install failed for "%s": %s',
+					'Could not install "%s": %s',
 					$feature->get_slug(),
 					$result->get_error_message()
 				)
@@ -425,11 +422,11 @@ class Zip_Strategy extends Abstract_Strategy {
 			$skin_errors = $skin->get_errors();
 			$message     = $skin_errors->has_errors()
 				? $skin_errors->get_error_message()
-				: 'Unknown install failure.';
+				: 'An unknown error occurred during installation.';
 
 			return new WP_Error(
-				'install_failed',
-				sprintf( 'Plugin install failed for "%s": %s', $feature->get_slug(), $message )
+				Error_Code::INSTALL_FAILED,
+				sprintf( 'Could not install "%s": %s', $feature->get_slug(), $message )
 			);
 		}
 
@@ -480,9 +477,9 @@ class Zip_Strategy extends Abstract_Strategy {
 
 		if ( is_wp_error( $valid ) ) {
 			return new WP_Error(
-				'preflight_invalid_plugin',
+				Error_Code::PREFLIGHT_INVALID_PLUGIN,
 				sprintf(
-					'Pre-flight check failed for "%s": %s',
+					'The plugin "%s" failed validation: %s',
 					$plugin_file,
 					$valid->get_error_message()
 				)
@@ -494,9 +491,9 @@ class Zip_Strategy extends Abstract_Strategy {
 
 			if ( is_wp_error( $requirements ) ) {
 				return new WP_Error(
-					'preflight_requirements_not_met',
+					Error_Code::PREFLIGHT_REQUIREMENTS_NOT_MET,
 					sprintf(
-						'Requirements not met for "%s": %s',
+						'The plugin "%s" does not meet the system requirements: %s',
 						$plugin_file,
 						$requirements->get_error_message()
 					)
@@ -526,9 +523,9 @@ class Zip_Strategy extends Abstract_Strategy {
 			$result = activate_plugin( $plugin_file );
 		} catch ( Throwable $e ) {
 			return new WP_Error(
-				'activation_fatal',
+				Error_Code::ACTIVATION_FATAL,
 				sprintf(
-					'Fatal error during activation of "%s": %s',
+					'A fatal error occurred while activating "%s": %s',
 					$plugin_file,
 					Cast::to_string( $e->getMessage() )
 				)
@@ -537,9 +534,9 @@ class Zip_Strategy extends Abstract_Strategy {
 
 		if ( is_wp_error( $result ) ) {
 			return new WP_Error(
-				'activation_failed',
+				Error_Code::ACTIVATION_FAILED,
 				sprintf(
-					'Activation failed for "%s": %s',
+					'Could not activate "%s": %s',
 					$plugin_file,
 					$result->get_error_message()
 				)
@@ -548,9 +545,9 @@ class Zip_Strategy extends Abstract_Strategy {
 
 		if ( ! $this->is_plugin_active( $plugin_file ) ) {
 			return new WP_Error(
-				'activation_failed',
+				Error_Code::ACTIVATION_FAILED,
 				sprintf(
-					'Plugin "%s" is not active after activation attempt.',
+					'The plugin "%s" did not activate successfully. Please try again.',
 					$plugin_file
 				)
 			);
@@ -575,7 +572,7 @@ class Zip_Strategy extends Abstract_Strategy {
 	 * @return bool
 	 */
 	private function is_plugin_active( string $plugin_file ): bool {
-		return \is_plugin_active( $plugin_file )
+		return is_plugin_active( $plugin_file )
 			|| is_plugin_active_for_network( $plugin_file );
 	}
 
@@ -625,9 +622,9 @@ class Zip_Strategy extends Abstract_Strategy {
 		}
 
 		return new WP_Error(
-			'plugin_ownership_mismatch',
+			Error_Code::PLUGIN_OWNERSHIP_MISMATCH,
 			sprintf(
-				'Plugin at "%s" belongs to a different developer (expected Author: "%s", found: "%s").',
+				'The installed plugin at "%s" appears to belong to a different developer (expected "%s", found "%s") and cannot be managed as a feature.',
 				$feature->get_plugin_file(),
 				implode( '" or "', $expected_authors ),
 				$actual_author
@@ -711,6 +708,9 @@ class Zip_Strategy extends Abstract_Strategy {
 	private function load_wp_admin_includes(): void {
 		if ( ! function_exists( 'is_plugin_active' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+			require_once ABSPATH . 'wp-admin/includes/class-wp-ajax-upgrader-skin.php';
+			require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 		}
 	}
 }

@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Tests\Features\Strategy;
 
+use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Strategy\Zip_Strategy;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Zip;
@@ -87,7 +88,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 		$result = $this->strategy->enable( $non_zip );
 
 		$this->assertWPError( $result );
-		$this->assertSame( 'feature_type_mismatch', $result->get_error_code() );
+		$this->assertSame( Error_Code::FEATURE_TYPE_MISMATCH, $result->get_error_code() );
 	}
 
 	/**
@@ -138,7 +139,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 			$result = $this->strategy->enable( $this->feature );
 
 			$this->assertWPError( $result );
-			$this->assertSame( 'plugins_api_failed', $result->get_error_code() );
+			$this->assertSame( Error_Code::PLUGINS_API_FAILED, $result->get_error_code() );
 		} finally {
 			remove_filter( 'plugins_api', $filter, 10 );
 		}
@@ -164,7 +165,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 			$result = $this->strategy->enable( $this->feature );
 
 			$this->assertWPError( $result );
-			$this->assertSame( 'download_link_empty', $result->get_error_code() );
+			$this->assertSame( Error_Code::DOWNLOAD_LINK_MISSING, $result->get_error_code() );
 		} finally {
 			remove_filter( 'plugins_api', $filter, 10 );
 		}
@@ -181,7 +182,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 		$result = $this->strategy->enable( $this->feature );
 
 		$this->assertWPError( $result );
-		$this->assertSame( 'install_locked', $result->get_error_code() );
+		$this->assertSame( Error_Code::INSTALL_LOCKED, $result->get_error_code() );
 	}
 
 	/**
@@ -279,7 +280,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 		$result = $this->strategy->disable( $non_zip );
 
 		$this->assertWPError( $result );
-		$this->assertSame( 'feature_type_mismatch', $result->get_error_code() );
+		$this->assertSame( Error_Code::FEATURE_TYPE_MISMATCH, $result->get_error_code() );
 	}
 
 	/**
@@ -495,7 +496,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 			$result  = $this->strategy->enable( $feature );
 
 			$this->assertWPError( $result );
-			$this->assertSame( 'plugin_ownership_mismatch', $result->get_error_code() );
+			$this->assertSame( Error_Code::PLUGIN_OWNERSHIP_MISMATCH, $result->get_error_code() );
 			$this->assertStringContainsString( 'Foreign Developer', $result->get_error_message() );
 		} finally {
 			deactivate_plugins( self::PLUGIN_FILE );
@@ -528,7 +529,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 			$result  = $this->strategy->enable( $feature );
 
 			$this->assertWPError( $result );
-			$this->assertSame( 'plugin_ownership_mismatch', $result->get_error_code() );
+			$this->assertSame( Error_Code::PLUGIN_OWNERSHIP_MISMATCH, $result->get_error_code() );
 			// Stored state should NOT have been updated.
 			$this->assertFalse( get_option( self::OPTION_KEY, false ) );
 		} finally {
@@ -723,7 +724,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 			$result = $this->strategy->enable( $feature );
 
 			$this->assertWPError( $result );
-			$this->assertSame( 'preflight_requirements_not_met', $result->get_error_code() );
+			$this->assertSame( Error_Code::PREFLIGHT_REQUIREMENTS_NOT_MET, $result->get_error_code() );
 		} finally {
 			if ( file_exists( $plugin_path ) ) {
 				unlink( $plugin_path );

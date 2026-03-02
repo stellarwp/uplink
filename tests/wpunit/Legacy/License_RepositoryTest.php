@@ -27,14 +27,14 @@ final class License_RepositoryTest extends UplinkTestCase {
 	}
 
 	/**
-	 * @test
+	 * @since 3.0.0
 	 */
 	public function it_returns_empty_array_when_no_filter_adds_licenses(): void {
 		$this->assertSame( [], $this->repository->all() );
 	}
 
 	/**
-	 * @test
+	 * @since 3.0.0
 	 */
 	public function it_normalizes_array_items_to_legacy_license_instances(): void {
 		add_filter(
@@ -51,7 +51,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 							'status'   => 'valid',
 							'page_url' => 'https://example.com/license',
 						],
-					] 
+					]
 				);
 			}
 		);
@@ -65,7 +65,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 	}
 
 	/**
-	 * @test
+	 * @since 3.0.0
 	 */
 	public function it_merges_licenses_from_multiple_filter_callbacks(): void {
 		add_filter(
@@ -80,7 +80,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 							'name'  => 'A',
 							'brand' => 'Brand',
 						],
-					] 
+					]
 				);
 			}
 		);
@@ -96,7 +96,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 							'name'  => 'B',
 							'brand' => 'Brand',
 						],
-					] 
+					]
 				);
 			}
 		);
@@ -109,7 +109,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 	}
 
 	/**
-	 * @test
+	 * @since 3.0.0
 	 */
 	public function it_ignores_non_array_items(): void {
 		add_filter(
@@ -134,7 +134,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 	}
 
 	/**
-	 * @test
+	 * @since 3.0.0
 	 */
 	public function it_finds_license_by_slug(): void {
 		add_filter(
@@ -161,7 +161,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 							'name'  => 'Third',
 							'brand' => 'B',
 						],
-					] 
+					]
 				);
 			}
 		);
@@ -174,7 +174,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 	}
 
 	/**
-	 * @test
+	 * @since 3.0.0
 	 */
 	public function it_returns_null_when_slug_not_found(): void {
 		add_filter(
@@ -189,7 +189,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 							'name'  => 'Only',
 							'brand' => 'B',
 						],
-					] 
+					]
 				);
 			}
 		);
@@ -198,14 +198,47 @@ final class License_RepositoryTest extends UplinkTestCase {
 	}
 
 	/**
-	 * @test
+	 * @since 3.0.0
+	 */
+	public function it_caches_results_across_multiple_calls(): void {
+		$call_count = 0;
+
+		add_filter(
+			'stellarwp/uplink/legacy_licenses',
+			static function ( array $licenses ) use ( &$call_count ) {
+				$call_count++;
+
+				return array_merge(
+					$licenses,
+					[
+						[
+							'key'   => 'k1',
+							'slug'  => 's1',
+							'name'  => 'N',
+							'brand' => 'B',
+						],
+					]
+				);
+			}
+		);
+
+		$this->repository->all();
+		$this->repository->all();
+		$this->repository->find( 's1' );
+		$this->repository->has_any();
+
+		$this->assertSame( 1, $call_count, 'Filter should only be applied once per request cycle.' );
+	}
+
+	/**
+	 * @since 3.0.0
 	 */
 	public function it_returns_false_for_has_any_when_empty(): void {
 		$this->assertFalse( $this->repository->has_any() );
 	}
 
 	/**
-	 * @test
+	 * @since 3.0.0
 	 */
 	public function it_returns_true_for_has_any_when_licenses_exist(): void {
 		add_filter(
@@ -220,7 +253,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 							'name'  => 'N',
 							'brand' => 'B',
 						],
-					] 
+					]
 				);
 			}
 		);

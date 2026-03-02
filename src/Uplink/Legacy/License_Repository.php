@@ -11,6 +11,13 @@ namespace StellarWP\Uplink\Legacy;
 class License_Repository {
 
 	/**
+	 * In-memory cache for the current request cycle.
+	 *
+	 * @var Legacy_License[]|null
+	 */
+	private ?array $cache = null;
+
+	/**
 	 * Get all legacy licenses reported across all Uplink instances.
 	 *
 	 * @since 3.0.0
@@ -18,6 +25,10 @@ class License_Repository {
 	 * @return Legacy_License[]
 	 */
 	public function all(): array {
+		if ( $this->cache !== null ) {
+			return $this->cache;
+		}
+
 		$filtered_licenses = (array) apply_filters( 'stellarwp/uplink/legacy_licenses', [] );
 
 		$licenses = [];
@@ -29,7 +40,7 @@ class License_Repository {
 			}
 		}
 
-		return $licenses;
+		return $this->cache = $licenses;
 	}
 
 	/**

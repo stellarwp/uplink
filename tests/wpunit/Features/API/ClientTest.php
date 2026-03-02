@@ -131,7 +131,7 @@ final class ClientTest extends UplinkTestCase {
 							'Let donors cover processing fees',
 						),
 					]
-                );
+				);
 
 				return $data->get();
 			}

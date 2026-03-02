@@ -544,6 +544,99 @@ final class ZipStrategyTest extends UplinkTestCase {
 	}
 
 	/**
+	 * enable() returns a plugin_ownership_mismatch error when the folder exists
+	 * with a different developer's plugin under a different file name.
+	 *
+	 * Example: folder "test-feature/" exists with "other-plugin.php" by
+	 * "Foreign Developer", but the feature expects "test-feature/test-feature.php".
+	 */
+	public function test_enable_returns_ownership_mismatch_for_folder_occupied_by_different_file(): void {
+		$plugin_dir  = WP_PLUGIN_DIR . '/test-feature';
+		$foreign_file = $plugin_dir . '/other-plugin.php';
+
+		if ( ! is_dir( $plugin_dir ) ) {
+			mkdir( $plugin_dir, 0755, true );
+		}
+		// A different plugin by a different developer in the same folder.
+		file_put_contents( $foreign_file, "<?php\n/**\n * Plugin Name: Other Plugin\n * Author: Foreign Developer\n */\n" );
+
+		try {
+			// Our feature expects test-feature/test-feature.php, which doesn't exist.
+			$feature = $this->make_zip_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP' ] );
+			$result  = $this->strategy->enable( $feature );
+
+			$this->assertWPError( $result );
+			$this->assertSame( Error_Code::PLUGIN_OWNERSHIP_MISMATCH, $result->get_error_code() );
+			$this->assertStringContainsString( 'Foreign Developer', $result->get_error_message() );
+			$this->assertStringContainsString( 'Other Plugin', $result->get_error_message() );
+		} finally {
+			if ( file_exists( $foreign_file ) ) {
+				unlink( $foreign_file );
+			}
+			if ( is_dir( $plugin_dir ) ) {
+				rmdir( $plugin_dir );
+			}
+		}
+	}
+
+	/**
+	 * enable() succeeds when the folder exists with a different file name but
+	 * the plugin belongs to an expected author — no ownership conflict.
+	 */
+	public function test_enable_no_conflict_when_folder_has_same_author_different_file(): void {
+		$plugin_dir   = WP_PLUGIN_DIR . '/test-feature';
+		$other_file   = $plugin_dir . '/other-plugin.php';
+		$plugin_path  = $plugin_dir . '/test-feature.php';
+
+		if ( ! is_dir( $plugin_dir ) ) {
+			mkdir( $plugin_dir, 0755, true );
+		}
+		// Another plugin by the SAME developer in the folder.
+		file_put_contents( $other_file, "<?php\n/**\n * Plugin Name: Other Plugin\n * Author: StellarWP\n */\n" );
+
+		// Make plugins_api() return a download link so it reaches the install step,
+		// but the install will fail. The key assertion is that the ownership check passes.
+		$filter = static function ( $result, $action, $args ) {
+			if ( 'plugin_information' === $action && $args->slug === 'test-feature' ) {
+				return (object) [
+					'slug'          => 'test-feature',
+					'download_link' => 'https://example.com/test-feature.zip',
+				];
+			}
+			return $result;
+		};
+		add_filter( 'plugins_api', $filter, 10, 3 );
+
+		try {
+			$ob_level = ob_get_level();
+			$feature  = $this->make_zip_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP' ] );
+			$result   = $this->strategy->enable( $feature );
+
+			while ( ob_get_level() > $ob_level ) {
+				ob_end_clean();
+			}
+
+			// The ownership check should pass (same author). The result will be
+			// an install error because the download URL is fake — but NOT an
+			// ownership mismatch.
+			if ( is_wp_error( $result ) ) {
+				$this->assertNotSame( Error_Code::PLUGIN_OWNERSHIP_MISMATCH, $result->get_error_code() );
+			}
+		} finally {
+			remove_filter( 'plugins_api', $filter, 10 );
+			if ( file_exists( $other_file ) ) {
+				unlink( $other_file );
+			}
+			if ( file_exists( $plugin_path ) ) {
+				unlink( $plugin_path );
+			}
+			if ( is_dir( $plugin_dir ) ) {
+				rmdir( $plugin_dir );
+			}
+		}
+	}
+
+	/**
 	 * enable() succeeds when the installed plugin's Author header matches
 	 * one of the expected authors on the feature.
 	 */

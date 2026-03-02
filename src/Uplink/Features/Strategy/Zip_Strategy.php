@@ -324,9 +324,17 @@ class Zip_Strategy extends Abstract_Strategy {
 	private function ensure_installed( Zip $feature ) {
 		$plugin_file = $feature->get_plugin_file();
 
-		// Already on disk — verify ownership before treating it as "ours".
+		// Verify ownership — handles both "exact file exists with wrong author"
+		// and "folder occupied by a different developer's plugin".
+		$ownership = $this->verify_plugin_ownership( $feature );
+
+		if ( is_wp_error( $ownership ) ) {
+			return $ownership;
+		}
+
+		// Already on disk — ownership verified above, ready for activation.
 		if ( $this->is_plugin_installed( $plugin_file ) ) {
-			return $this->verify_plugin_ownership( $feature );
+			return true;
 		}
 
 		// Acquire a per-slug transient lock to prevent concurrent installs.
@@ -605,12 +613,17 @@ class Zip_Strategy extends Abstract_Strategy {
 	}
 
 	/**
-	 * Verify that an installed plugin belongs to an expected author.
+	 * Verify that the plugin directory is not occupied by a different developer.
 	 *
-	 * Reads the plugin's Author header from disk and compares it against the
-	 * expected authors from the Zip feature. Any single match is sufficient.
-	 * This prevents activating a different developer's plugin that happens to
-	 * share the same directory slug.
+	 * Handles three cases:
+	 * 1. The exact plugin file exists — checks its Author header.
+	 * 2. The folder exists but the expected file doesn't — scans for other
+	 *    plugin files in the folder and checks their Author headers.
+	 * 3. Neither exists — no conflict, returns true (fresh install).
+	 *
+	 * This prevents both activating a different developer's plugin that shares
+	 * the same file path AND installing over a different developer's plugin
+	 * that occupies the same directory with a different main file.
 	 *
 	 * @since 3.0.0
 	 *
@@ -625,7 +638,39 @@ class Zip_Strategy extends Abstract_Strategy {
 			return true;
 		}
 
-		$plugin_data   = get_plugin_data( WP_PLUGIN_DIR . '/' . $feature->get_plugin_file(), false, false );
+		$plugin_file = $feature->get_plugin_file();
+		$full_path   = WP_PLUGIN_DIR . '/' . $plugin_file;
+
+		// Case 1: the exact file exists — check its author directly.
+		if ( file_exists( $full_path ) ) {
+			return $this->check_file_author( $full_path, $plugin_file, $expected_authors );
+		}
+
+		// Case 2: the folder exists but our specific file doesn't.
+		// Another developer's plugin may occupy the same directory.
+		$plugin_dir = WP_PLUGIN_DIR . '/' . $feature->get_plugin_slug();
+
+		if ( is_dir( $plugin_dir ) ) {
+			return $this->check_folder_for_foreign_plugins( $plugin_dir, $feature->get_plugin_slug(), $expected_authors );
+		}
+
+		// Case 3: neither the file nor the folder exists — no conflict.
+		return true;
+	}
+
+	/**
+	 * Check whether a specific plugin file's Author header matches expected authors.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string   $full_path        Absolute path to the plugin file.
+	 * @param string   $plugin_file      Plugin file path relative to plugins directory.
+	 * @param string[] $expected_authors  Expected author names.
+	 *
+	 * @return true|WP_Error True if author matches, WP_Error on mismatch.
+	 */
+	private function check_file_author( string $full_path, string $plugin_file, array $expected_authors ) {
+		$plugin_data   = get_plugin_data( $full_path, false, false );
 		$actual_author = trim( $plugin_data['Author'] );
 
 		foreach ( $expected_authors as $expected ) {
@@ -638,11 +683,67 @@ class Zip_Strategy extends Abstract_Strategy {
 			Error_Code::PLUGIN_OWNERSHIP_MISMATCH,
 			sprintf(
 				'The installed plugin at "%s" appears to belong to a different developer (expected "%s", found "%s") and cannot be managed as a feature.',
-				$feature->get_plugin_file(),
+				$plugin_file,
 				implode( '" or "', $expected_authors ),
 				$actual_author
 			)
 		);
+	}
+
+	/**
+	 * Scan a plugin directory for plugin files from a different developer.
+	 *
+	 * Used when the expected plugin file doesn't exist but the folder does,
+	 * indicating another plugin may occupy the directory.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string   $plugin_dir       Absolute path to the plugin directory.
+	 * @param string   $plugin_slug      The plugin directory slug (e.g. "test-feature").
+	 * @param string[] $expected_authors  Expected author names.
+	 *
+	 * @return true|WP_Error True if no foreign plugins found, WP_Error on conflict.
+	 */
+	private function check_folder_for_foreign_plugins( string $plugin_dir, string $plugin_slug, array $expected_authors ) {
+		$php_files = glob( $plugin_dir . '/*.php' );
+
+		if ( $php_files === false ) {
+			return true;
+		}
+
+		foreach ( $php_files as $php_file ) {
+			$data = get_plugin_data( $php_file, false, false );
+
+			// Skip files without a Plugin Name header — they aren't plugins.
+			if ( empty( $data['Name'] ) ) {
+				continue;
+			}
+
+			$actual_author = trim( $data['Author'] );
+			$is_owned      = false;
+
+			foreach ( $expected_authors as $expected ) {
+				if ( strcasecmp( trim( $expected ), $actual_author ) === 0 ) {
+					$is_owned = true;
+					break;
+				}
+			}
+
+			if ( ! $is_owned ) {
+				return new WP_Error(
+					Error_Code::PLUGIN_OWNERSHIP_MISMATCH,
+					sprintf(
+						'The folder "%s" is already occupied by a plugin from a different developer (found "%s" by "%s", expected author "%s"). The feature cannot be installed here.',
+						$plugin_slug,
+						$data['Name'],
+						$actual_author,
+						implode( '" or "', $expected_authors )
+					)
+				);
+			}
+		}
+
+		return true;
 	}
 
 	/**

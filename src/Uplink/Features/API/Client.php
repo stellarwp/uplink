@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Features\API;
 
+use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Utils\Cast;
@@ -122,13 +123,15 @@ class Client {
 	private function request() {
 		if ( defined( 'STELLARWP_UPLINK_FEATURES_USE_FIXTURE_DATA' ) && STELLARWP_UPLINK_FEATURES_USE_FIXTURE_DATA ) {
 			/** @var array<int, array<string, mixed>> $data */
-			$data = apply_filters( 'stellarwp_uplink_features_fixture_data', Fixture::create()->get() );
+			$data = (array) apply_filters( 'stellarwp_uplink_features_fixture_data', Fixture::create()->get() );
 
-			if ( is_array( $data ) ) {
-				return $data;
-			}
+            if ( isset( $data['error'] ) ) {
+                $error_message = isset( $data['error_message'] ) ? $data['error_message'] : $data['error'];
 
-			return new WP_Error( 'invalid_catalog', 'Feature catalog filter must return an array.' );
+                return new WP_Error( Error_Code::FEATURE_REQUEST_FAILED, $error_message );
+            }
+
+			return $data;
 		}
 
 		return [];

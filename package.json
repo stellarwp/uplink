@@ -2,7 +2,7 @@
   "name": "@stellarwp/uplink",
   "private": true,
   "scripts": {
-    "build": "BUILD_MODE=prod NODE_ENV=production wp-scripts build",
+    "build": "bun run build:dev && bun run build:prod",
     "build:dev": "BUILD_MODE=dev NODE_ENV=development wp-scripts build",
     "build:prod": "BUILD_MODE=prod NODE_ENV=production wp-scripts build",
     "start": "BUILD_MODE=dev NODE_ENV=development wp-scripts start",

@@ -16,7 +16,7 @@ import { BrandIcon } from '@/components/atoms/BrandIcon';
 import { FeatureRow } from '@/components/molecules/FeatureRow';
 import { BRAND_CONFIGS } from '@/data/brands';
 import { useLicenseStore } from '@/stores/license-store';
-import { useToastStore } from '@/stores/toast-store';
+import { useToast } from '@/context/toast-context';
 import { store as uplinkStore } from '@/store';
 import type { Feature, Product } from '@/types/api';
 
@@ -32,7 +32,7 @@ interface ProductSectionProps {
 export function ProductSection( { product, onAddLicense }: ProductSectionProps ) {
     const { getLicenseForProduct, getTierForProduct, productEnabled, toggleProduct } =
         useLicenseStore();
-    const { addToast } = useToastStore();
+    const { addToast } = useToast();
 
     const license = getLicenseForProduct( product.slug );
     const tier = getTierForProduct( product.slug );

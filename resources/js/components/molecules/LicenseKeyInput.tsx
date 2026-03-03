@@ -11,7 +11,7 @@ import { KeyRound, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useLicenseStore } from '@/stores/license-store';
-import { useToastStore } from '@/stores/toast-store';
+import { useToast } from '@/context/toast-context';
 
 interface LicenseKeyInputProps {
     /** Called on successful activation (dialog can close) */
@@ -29,7 +29,7 @@ export function LicenseKeyInput( { onSuccess, prefillKey }: LicenseKeyInputProps
     const [ isVerifying, setIsVerifying ] = useState( false );
 
     const { activateLicense } = useLicenseStore();
-    const { addToast } = useToastStore();
+    const { addToast } = useToast();
 
     useEffect( () => {
         if ( prefillKey ) {

@@ -1,8 +1,6 @@
 /**
  * Selectors for the stellarwp/uplink @wordpress/data store.
  *
- * isFeatureEnabled and getFeatureError added in the next commit.
- *
  * @see .plans/wp-data-store-features.md
  * @package StellarWP\Uplink
  */
@@ -21,4 +19,10 @@ export const selectors = {
 
     getFeature: ( state: State, slug: string ): Feature | null =>
         state.features[ slug ] ?? null,
+
+    isFeatureEnabled: ( state: State, slug: string ): boolean =>
+        state.features[ slug ]?.enabled ?? false,
+
+    getFeatureError: ( state: State, slug: string ): string | null =>
+        state.errors[ `feature:${ slug }` ] ?? null,
 };

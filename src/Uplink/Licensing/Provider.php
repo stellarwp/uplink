@@ -2,7 +2,6 @@
 
 namespace StellarWP\Uplink\Licensing;
 
-use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\Licensing\Contracts\Licensing_Client;
 
@@ -26,11 +25,6 @@ final class Provider extends Abstract_Provider {
 			}
 		);
 
-		$this->container->singleton(
-			Product_Repository::class,
-			static function ( ContainerInterface $c ) {
-				return new Product_Repository( $c->get( Licensing_Client::class ) );
-			}
-		);
+		$this->container->singleton( Product_Repository::class, Product_Repository::class );
 	}
 }

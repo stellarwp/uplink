@@ -3,7 +3,6 @@
 namespace StellarWP\Uplink\Tests\Licensing\Results;
 
 use DateTimeImmutable;
-use StellarWP\Uplink\Licensing\Enums\Validation_Status;
 use StellarWP\Uplink\Licensing\Results\Product_Entry;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
@@ -15,12 +14,12 @@ final class Product_EntryTest extends UplinkTestCase {
 	 * @var array<string, mixed>
 	 */
 	private array $valid_data = [
-		'product_slug' => 'kadence',
-		'tier'         => 'professional',
-		'pending_tier' => null,
-		'status'       => 'active',
-		'expires'      => '2026-12-31 23:59:59',
-		'activations'  => [
+		'product_slug'      => 'kadence',
+		'tier'              => 'professional',
+		'pending_tier'      => null,
+		'status'            => 'active',
+		'expires'           => '2026-12-31 23:59:59',
+		'activations'       => [
 			'site_limit'   => 5,
 			'active_count' => 3,
 			'over_limit'   => false,
@@ -104,10 +103,13 @@ final class Product_EntryTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_is_valid_returns_false_for_non_valid_status(): void {
-		$data = array_merge( $this->valid_data, [
-			'validation_status' => 'expired',
-			'is_valid'          => false,
-		] );
+		$data = array_merge(
+			$this->valid_data,
+			[
+				'validation_status' => 'expired',
+				'is_valid'          => false,
+			]
+		);
 
 		$entry = Product_Entry::from_array( $data );
 
@@ -134,7 +136,7 @@ final class Product_EntryTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_is_over_limit_when_exceeded(): void {
-		$data = $this->valid_data;
+		$data                                = $this->valid_data;
 		$data['activations']['active_count'] = 6;
 
 		$entry = Product_Entry::from_array( $data );
@@ -159,7 +161,7 @@ final class Product_EntryTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_is_over_limit_returns_false_for_unlimited(): void {
-		$data = $this->valid_data;
+		$data                                = $this->valid_data;
 		$data['activations']['site_limit']   = 0;
 		$data['activations']['active_count'] = 100;
 

@@ -56,5 +56,4 @@ final class ProviderTest extends UplinkTestCase {
 
 		$this->assertSame( $first, $second );
 	}
-
 }

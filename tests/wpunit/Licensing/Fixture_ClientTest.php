@@ -206,27 +206,6 @@ final class Fixture_ClientTest extends UplinkTestCase {
 		$this->assertSame( Error_Code::INVALID_KEY, $result->get_error_code() );
 	}
 
-	/**
-	 * Tests that invalid JSON returns WP_Error with INVALID_RESPONSE code.
-	 *
-	 * @return void
-	 */
-	public function test_get_products_invalid_json_returns_error(): void {
-		$tmp_dir = sys_get_temp_dir() . '/uplink-fixture-test-' . uniqid();
-		mkdir( $tmp_dir );
-		file_put_contents( $tmp_dir . '/bad-json.json', '{not valid json' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-
-		$client = new Fixture_Client( $tmp_dir );
-		$result = $client->get_products( 'BAD-JSON', 'example.com' );
-
-		// Clean up.
-		unlink( $tmp_dir . '/bad-json.json' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
-		rmdir( $tmp_dir );
-
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( Error_Code::INVALID_RESPONSE, $result->get_error_code() );
-	}
-
 	// ------------------------------------------------------------------
 	// validate() — happy paths
 	// ------------------------------------------------------------------

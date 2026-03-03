@@ -72,36 +72,44 @@ final class Fixture_Client implements Licensing_Client {
 		$file = $this->fixture_dir . '/' . $cache_key . '.json';
 
 		if ( ! file_exists( $file ) ) {
-			return $this->cache[ $cache_key ] = new WP_Error(
+			$this->cache[ $cache_key ] = new WP_Error(
 				Error_Code::INVALID_KEY,
 				sprintf( 'License key not recognized: %s', $key )
 			);
+
+			return $this->cache[ $cache_key ];
 		}
 
 		$json = file_get_contents( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 
 		if ( $json === false ) {
-			return $this->cache[ $cache_key ] = new WP_Error(
+			$this->cache[ $cache_key ] = new WP_Error(
 				Error_Code::INVALID_RESPONSE,
 				sprintf( 'License response could not be read: %s', $file )
 			);
+
+			return $this->cache[ $cache_key ];
 		}
 
 		$data = json_decode( $json, true );
 
 		if ( ! is_array( $data ) || ! isset( $data['products'] ) || ! is_array( $data['products'] ) ) {
-			return $this->cache[ $cache_key ] = new WP_Error(
+			$this->cache[ $cache_key ] = new WP_Error(
 				Error_Code::INVALID_RESPONSE,
 				sprintf( 'License response could not be decoded: %s', $file )
 			);
+
+			return $this->cache[ $cache_key ];
 		}
 
 		/** @var FixtureData $data */
 
-		return $this->cache[ $cache_key ] = array_map(
+		$this->cache[ $cache_key ] = array_map(
 			[ Product_Entry::class, 'from_array' ],
 			$data['products']
 		);
+
+		return $this->cache[ $cache_key ];
 	}
 
 	/**

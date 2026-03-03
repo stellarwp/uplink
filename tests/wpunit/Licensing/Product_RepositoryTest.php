@@ -104,12 +104,18 @@ final class Product_RepositoryTest extends UplinkTestCase {
 	 */
 	public function test_get_serves_from_transient(): void {
 		// Pre-populate the transient with a known collection.
-		$collection = Product_Collection::from_array( [ Product_Entry::from_array( [
-			'product_slug' => 'cached-product',
-			'tier'         => 'pro',
-			'status'       => 'active',
-			'expires'      => '2026-12-31 23:59:59',
-		] ) ] );
+		$collection = Product_Collection::from_array(
+			[
+				Product_Entry::from_array(
+					[
+						'product_slug' => 'cached-product',
+						'tier'         => 'pro',
+						'status'       => 'active',
+						'expires'      => '2026-12-31 23:59:59',
+					] 
+				),
+			] 
+		);
 
 		set_transient( Product_Repository::TRANSIENT_KEY, $collection );
 
@@ -168,12 +174,18 @@ final class Product_RepositoryTest extends UplinkTestCase {
 	 */
 	public function test_refresh_clears_and_refetches(): void {
 		// Prime the cache with a stale collection.
-		$stale = Product_Collection::from_array( [ Product_Entry::from_array( [
-			'product_slug' => 'stale-product',
-			'tier'         => 'pro',
-			'status'       => 'active',
-			'expires'      => '2026-12-31 23:59:59',
-		] ) ] );
+		$stale = Product_Collection::from_array(
+			[
+				Product_Entry::from_array(
+					[
+						'product_slug' => 'stale-product',
+						'tier'         => 'pro',
+						'status'       => 'active',
+						'expires'      => '2026-12-31 23:59:59',
+					] 
+				),
+			] 
+		);
 
 		set_transient( Product_Repository::TRANSIENT_KEY, $stale );
 

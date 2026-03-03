@@ -119,18 +119,22 @@ final class ClientTest extends UplinkTestCase {
 				$data = Fixture::create(
 					[
 						Fixture::entry(
-							'give-recurring-donations',
-							'give',
-							'starter',
-							'Recurring Donations',
-							'Monthly and annual subscriptions',
+							[
+								'slug'        => 'give-recurring-donations',
+								'group'       => 'give',
+								'tier'        => 'starter',
+								'name'        => 'Recurring Donations',
+								'description' => 'Monthly and annual subscriptions',
+							]
 						),
 						Fixture::entry(
-							'give-fee-recovery',
-							'give',
-							'pro',
-							'Fee Recovery',
-							'Let donors cover processing fees',
+							[
+								'slug'        => 'give-fee-recovery',
+								'group'       => 'give',
+								'tier'        => 'pro',
+								'name'        => 'Fee Recovery',
+								'description' => 'Let donors cover processing fees',
+							]
 						),
 					]
 				);

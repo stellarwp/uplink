@@ -5,9 +5,6 @@ namespace StellarWP\Uplink\Licensing\Enums;
 /**
  * Validation status constants mirroring the v4 licensing API.
  *
- * PHP 7.4 does not support native enums, so string
- * constants serve as the next-best compile-time guard.
- *
  * @since 3.0.0
  *
  * @see \StellarWP\Licensing\V4\Domain\Enums\Validation_Status (licensing service)

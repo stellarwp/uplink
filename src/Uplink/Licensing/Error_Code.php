@@ -5,9 +5,6 @@ namespace StellarWP\Uplink\Licensing;
 /**
  * WP_Error codes for the Licensing system.
  *
- * PHP 7.4 does not support native enums, so string
- * constants serve as the next-best compile-time guard.
- *
  * @since 3.0.0
  */
 final class Error_Code {

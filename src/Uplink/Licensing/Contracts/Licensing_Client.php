@@ -14,7 +14,7 @@ use WP_Error;
 interface Licensing_Client {
 
 	/**
-	 * Fetch the product catalog for a license key.
+	 * Fetch the products associated with a license and domain.
 	 *
 	 * @since 3.0.0
 	 *

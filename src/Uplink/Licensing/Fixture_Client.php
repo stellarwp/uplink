@@ -132,7 +132,8 @@ final class Fixture_Client implements Licensing_Client {
 			return $products;
 		}
 
-		$entry = $this->find_product( $products, $product_slug );
+		$collection = Product_Collection::from_array( $products );
+		$entry      = $collection->get( $product_slug );
 
 		if ( $entry === null ) {
 			return new WP_Error(
@@ -142,26 +143,6 @@ final class Fixture_Client implements Licensing_Client {
 		}
 
 		return Validation_Result::from_array( $this->build_validation_data( $entry, $key, $domain ) );
-	}
-
-	/**
-	 * Find a product entry by slug.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param Product_Entry[] $products     The product entries to search.
-	 * @param string          $product_slug The product slug to find.
-	 *
-	 * @return Product_Entry|null
-	 */
-	protected function find_product( array $products, string $product_slug ): ?Product_Entry {
-		foreach ( $products as $entry ) {
-			if ( $entry->get_product_slug() === $product_slug ) {
-				return $entry;
-			}
-		}
-
-		return null;
 	}
 
 	/**

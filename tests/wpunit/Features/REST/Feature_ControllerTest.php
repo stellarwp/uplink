@@ -284,6 +284,80 @@ final class Feature_ControllerTest extends UplinkTestCase {
 	}
 
 	/**
+	 * Tests filtering by multiple params simultaneously narrows results.
+	 *
+	 * @return void
+	 */
+	public function test_list_filters_by_combined_group_and_tier(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$request = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/features' );
+		$request->set_param( 'group', 'GroupA' );
+		$request->set_param( 'tier', 'Tier 1' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+
+		$data = $response->get_data();
+
+		$this->assertCount( 1, $data );
+		$this->assertSame( 'feature-alpha', $data[0]['slug'] );
+	}
+
+	/**
+	 * Tests that contradicting combined filters return an empty array.
+	 *
+	 * @return void
+	 */
+	public function test_list_combined_filters_no_match(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$request = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/features' );
+		$request->set_param( 'group', 'GroupA' );
+		$request->set_param( 'tier', 'Tier 2' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertCount( 0, $response->get_data() );
+	}
+
+	/**
+	 * Tests filtering by available=false returns only unavailable features.
+	 *
+	 * @return void
+	 */
+	public function test_list_filters_available_false_returns_unavailable(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$request = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/features' );
+		$request->set_param( 'available', false );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+
+		$data = $response->get_data();
+
+		$this->assertCount( 1, $data );
+		$this->assertSame( 'feature-beta', $data[0]['slug'] );
+	}
+
+	/**
+	 * Tests that every feature in the list includes the is_enabled field.
+	 *
+	 * @return void
+	 */
+	public function test_list_includes_is_enabled_for_each_feature(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$request  = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/features' );
+		$response = $this->server->dispatch( $request );
+
+		foreach ( $response->get_data() as $feature ) {
+			$this->assertArrayHasKey( 'is_enabled', $feature, "Feature {$feature['slug']} missing is_enabled." );
+		}
+	}
+
+	/**
 	 * Tests that listing features requires the manage_options capability.
 	 *
 	 * @return void
@@ -381,6 +455,55 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$this->assertSame( 401, $response->get_status() );
 	}
 
+	/**
+	 * Tests that get single feature returns the correct is_enabled boolean value.
+	 *
+	 * @return void
+	 */
+	public function test_get_single_feature_returns_correct_is_enabled_value(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$request  = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/features/feature-alpha' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertFalse( $response->get_data()['is_enabled'] );
+	}
+
+	/**
+	 * Tests that a catalog error on get_item returns a mapped HTTP status.
+	 *
+	 * @return void
+	 */
+	public function test_get_item_catalog_error_has_http_status(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$catalog = $this->makeEmpty(
+			Client::class,
+			[
+				'get_features' => new WP_Error(
+					Error_Code::FEATURE_REQUEST_FAILED,
+					'Upstream API failed.'
+				),
+			]
+		);
+
+		$resolver = $this->makeEmpty( Resolver::class );
+		$manager  = new Manager( $catalog, $resolver );
+
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
+		$this->server   = $wp_rest_server;
+
+		$controller = new Feature_Controller( $manager );
+		$controller->register_routes();
+
+		$request  = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/features/feature-alpha' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 502, $response->get_status() );
+	}
+
 	// ── Enable (POST /features/{slug}/enable) ───────────────────────────
 
 	/**
@@ -451,6 +574,32 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$this->assertSame( 400, $response->get_status() );
 	}
 
+	/**
+	 * Tests that the enable response contains all expected feature fields.
+	 *
+	 * @return void
+	 */
+	public function test_enable_returns_complete_feature_data(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$request  = new WP_REST_Request( 'POST', '/stellarwp/uplink/v1/features/feature-alpha/enable' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+
+		$data = $response->get_data();
+
+		$this->assertSame( 'feature-alpha', $data['slug'] );
+		$this->assertSame( 'Feature Alpha', $data['name'] );
+		$this->assertSame( 'Alpha description', $data['description'] );
+		$this->assertSame( 'GroupA', $data['group'] );
+		$this->assertSame( 'Tier 1', $data['tier'] );
+		$this->assertSame( 'zip', $data['type'] );
+		$this->assertTrue( $data['is_available'] );
+		$this->assertSame( 'https://example.com/alpha', $data['documentation_url'] );
+		$this->assertTrue( $data['is_enabled'] );
+	}
+
 	// ── Disable (POST /features/{slug}/disable) ─────────────────────────
 
 	/**
@@ -519,6 +668,69 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 400, $response->get_status() );
+	}
+
+	/**
+	 * Tests that the disable response contains all expected feature fields.
+	 *
+	 * @return void
+	 */
+	public function test_disable_returns_complete_feature_data(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$request  = new WP_REST_Request( 'POST', '/stellarwp/uplink/v1/features/feature-alpha/disable' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+
+		$data = $response->get_data();
+
+		$this->assertSame( 'feature-alpha', $data['slug'] );
+		$this->assertSame( 'Feature Alpha', $data['name'] );
+		$this->assertSame( 'Alpha description', $data['description'] );
+		$this->assertSame( 'GroupA', $data['group'] );
+		$this->assertSame( 'Tier 1', $data['tier'] );
+		$this->assertSame( 'zip', $data['type'] );
+		$this->assertTrue( $data['is_available'] );
+		$this->assertSame( 'https://example.com/alpha', $data['documentation_url'] );
+		$this->assertFalse( $data['is_enabled'] );
+	}
+
+	// ── Enable/Disable lifecycle ────────────────────────────────────────
+
+	/**
+	 * Tests that enable and disable round-trip correctly updates is_enabled state.
+	 *
+	 * @return void
+	 */
+	public function test_enable_disable_round_trip_updates_is_enabled(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$get = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/features/feature-alpha' );
+
+		// Initially disabled.
+		$response = $this->server->dispatch( $get );
+		$this->assertFalse( $response->get_data()['is_enabled'] );
+
+		// Enable.
+		$enable   = new WP_REST_Request( 'POST', '/stellarwp/uplink/v1/features/feature-alpha/enable' );
+		$response = $this->server->dispatch( $enable );
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertTrue( $response->get_data()['is_enabled'] );
+
+		// GET reflects enabled state.
+		$response = $this->server->dispatch( $get );
+		$this->assertTrue( $response->get_data()['is_enabled'] );
+
+		// Disable.
+		$disable  = new WP_REST_Request( 'POST', '/stellarwp/uplink/v1/features/feature-alpha/disable' );
+		$response = $this->server->dispatch( $disable );
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertFalse( $response->get_data()['is_enabled'] );
+
+		// GET reflects disabled state.
+		$response = $this->server->dispatch( $get );
+		$this->assertFalse( $response->get_data()['is_enabled'] );
 	}
 
 	// ── Error status mapping ────────────────────────────────────────────
@@ -592,6 +804,82 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 502, $response->get_status() );
+	}
+
+	/**
+	 * Tests that a WP_Error from Manager::disable() gets an HTTP status code.
+	 *
+	 * @return void
+	 */
+	public function test_disable_strategy_error_has_http_status(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$error_strategy = $this->makeEmpty(
+			Strategy::class,
+			[
+				'enable'    => true,
+				'disable'   => new WP_Error(
+					Error_Code::DEACTIVATION_FAILED,
+					'Plugin deactivation did not take effect.'
+				),
+				'is_active' => true,
+			]
+		);
+
+		$resolver = $this->makeEmpty( Resolver::class, [ 'resolve' => $error_strategy ] );
+		$catalog  = $this->makeEmpty( Client::class, [ 'get_features' => $this->manager->get_features() ] );
+		$manager  = new Manager( $catalog, $resolver );
+
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
+		$this->server   = $wp_rest_server;
+
+		$controller = new Feature_Controller( $manager );
+		$controller->register_routes();
+
+		$request  = new WP_REST_Request( 'POST', '/stellarwp/uplink/v1/features/feature-alpha/disable' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 409, $response->get_status() );
+	}
+
+	/**
+	 * Tests that an error with a pre-existing HTTP status is not overridden.
+	 *
+	 * @return void
+	 */
+	public function test_error_with_existing_status_is_preserved(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$error_strategy = $this->makeEmpty(
+			Strategy::class,
+			[
+				'enable'    => new WP_Error(
+					Error_Code::INSTALL_FAILED,
+					'Install failed.',
+					[ 'status' => 503 ]
+				),
+				'disable'   => true,
+				'is_active' => false,
+			]
+		);
+
+		$resolver = $this->makeEmpty( Resolver::class, [ 'resolve' => $error_strategy ] );
+		$catalog  = $this->makeEmpty( Client::class, [ 'get_features' => $this->manager->get_features() ] );
+		$manager  = new Manager( $catalog, $resolver );
+
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
+		$this->server   = $wp_rest_server;
+
+		$controller = new Feature_Controller( $manager );
+		$controller->register_routes();
+
+		$request  = new WP_REST_Request( 'POST', '/stellarwp/uplink/v1/features/feature-alpha/enable' );
+		$response = $this->server->dispatch( $request );
+
+		// The original 503 status should be preserved, not overridden by the error code mapping (422).
+		$this->assertSame( 503, $response->get_status() );
 	}
 
 	// ── Schema ──────────────────────────────────────────────────────────

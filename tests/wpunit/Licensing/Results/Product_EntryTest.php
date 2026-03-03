@@ -8,11 +8,6 @@ use StellarWP\Uplink\Tests\UplinkTestCase;
 
 final class Product_EntryTest extends UplinkTestCase {
 
-	/**
-	 * A complete API response array for a valid product entry.
-	 *
-	 * @var array<string, mixed>
-	 */
 	private array $valid_data = [
 		'product_slug'      => 'kadence',
 		'tier'              => 'professional',
@@ -29,11 +24,6 @@ final class Product_EntryTest extends UplinkTestCase {
 		'is_valid'          => true,
 	];
 
-	/**
-	 * Tests that from_array() hydrates all fields correctly.
-	 *
-	 * @return void
-	 */
 	public function test_from_array_hydrates_all_fields(): void {
 		$entry = Product_Entry::from_array( $this->valid_data );
 
@@ -49,11 +39,6 @@ final class Product_EntryTest extends UplinkTestCase {
 		$this->assertSame( 'valid', $entry->get_validation_status() );
 	}
 
-	/**
-	 * Tests that to_array() produces the API response shape with nested activations.
-	 *
-	 * @return void
-	 */
 	public function test_to_array_produces_api_shape(): void {
 		$entry  = Product_Entry::from_array( $this->valid_data );
 		$result = $entry->to_array();
@@ -74,11 +59,6 @@ final class Product_EntryTest extends UplinkTestCase {
 		$this->assertTrue( $result['is_valid'] );
 	}
 
-	/**
-	 * Tests that from_array(to_array()) round-trips to identical output.
-	 *
-	 * @return void
-	 */
 	public function test_round_trip(): void {
 		$entry  = Product_Entry::from_array( $this->valid_data );
 		$second = Product_Entry::from_array( $entry->to_array() );
@@ -86,22 +66,12 @@ final class Product_EntryTest extends UplinkTestCase {
 		$this->assertSame( $entry->to_array(), $second->to_array() );
 	}
 
-	/**
-	 * Tests that is_valid() returns true when validation_status is 'valid'.
-	 *
-	 * @return void
-	 */
 	public function test_is_valid_returns_true_for_valid_status(): void {
 		$entry = Product_Entry::from_array( $this->valid_data );
 
 		$this->assertTrue( $entry->is_valid() );
 	}
 
-	/**
-	 * Tests that is_valid() returns false for non-valid statuses.
-	 *
-	 * @return void
-	 */
 	public function test_is_valid_returns_false_for_non_valid_status(): void {
 		$data = array_merge(
 			$this->valid_data,
@@ -116,11 +86,6 @@ final class Product_EntryTest extends UplinkTestCase {
 		$this->assertFalse( $entry->is_valid() );
 	}
 
-	/**
-	 * Tests that is_valid() returns false when validation_status is null.
-	 *
-	 * @return void
-	 */
 	public function test_is_valid_returns_false_when_status_is_null(): void {
 		$data = $this->valid_data;
 		unset( $data['validation_status'], $data['is_valid'] );
@@ -130,11 +95,6 @@ final class Product_EntryTest extends UplinkTestCase {
 		$this->assertFalse( $entry->is_valid() );
 	}
 
-	/**
-	 * Tests that is_over_limit() returns true when active_count exceeds site_limit.
-	 *
-	 * @return void
-	 */
 	public function test_is_over_limit_when_exceeded(): void {
 		$data                                = $this->valid_data;
 		$data['activations']['active_count'] = 6;
@@ -144,22 +104,12 @@ final class Product_EntryTest extends UplinkTestCase {
 		$this->assertTrue( $entry->is_over_limit() );
 	}
 
-	/**
-	 * Tests that is_over_limit() returns false when within limits.
-	 *
-	 * @return void
-	 */
 	public function test_is_over_limit_when_within_limit(): void {
 		$entry = Product_Entry::from_array( $this->valid_data );
 
 		$this->assertFalse( $entry->is_over_limit() );
 	}
 
-	/**
-	 * Tests that is_over_limit() returns false when site_limit is 0 (unlimited).
-	 *
-	 * @return void
-	 */
 	public function test_is_over_limit_returns_false_for_unlimited(): void {
 		$data                                = $this->valid_data;
 		$data['activations']['site_limit']   = 0;
@@ -170,11 +120,6 @@ final class Product_EntryTest extends UplinkTestCase {
 		$this->assertFalse( $entry->is_over_limit() );
 	}
 
-	/**
-	 * Tests that optional fields are omitted from to_array() when null.
-	 *
-	 * @return void
-	 */
 	public function test_optional_fields_omitted_when_null(): void {
 		$data = $this->valid_data;
 		unset( $data['installed_here'], $data['validation_status'], $data['is_valid'] );
@@ -187,11 +132,6 @@ final class Product_EntryTest extends UplinkTestCase {
 		$this->assertArrayNotHasKey( 'is_valid', $result );
 	}
 
-	/**
-	 * Tests that from_array() handles missing optional fields gracefully.
-	 *
-	 * @return void
-	 */
 	public function test_from_array_handles_missing_optional_fields(): void {
 		$data = [
 			'product_slug' => 'givewp',
@@ -213,11 +153,6 @@ final class Product_EntryTest extends UplinkTestCase {
 		$this->assertNull( $entry->get_validation_status() );
 	}
 
-	/**
-	 * Tests that from_array() handles a completely missing activations key.
-	 *
-	 * @return void
-	 */
 	public function test_from_array_handles_missing_activations(): void {
 		$data = [
 			'product_slug' => 'kadence',
@@ -232,11 +167,6 @@ final class Product_EntryTest extends UplinkTestCase {
 		$this->assertSame( 0, $entry->get_active_count() );
 	}
 
-	/**
-	 * Tests that get_pending_tier() returns a string when set.
-	 *
-	 * @return void
-	 */
 	public function test_get_pending_tier_returns_string_when_set(): void {
 		$data                 = $this->valid_data;
 		$data['pending_tier'] = 'starter';

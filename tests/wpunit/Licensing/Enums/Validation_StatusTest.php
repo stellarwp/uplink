@@ -7,11 +7,6 @@ use StellarWP\Uplink\Tests\UplinkTestCase;
 
 final class Validation_StatusTest extends UplinkTestCase {
 
-	/**
-	 * Tests that all 10 expected constants exist with the correct string values.
-	 *
-	 * @return void
-	 */
 	public function test_constants_match_licensing_service(): void {
 		$this->assertSame( 'valid', Validation_Status::VALID );
 		$this->assertSame( 'expired', Validation_Status::EXPIRED );
@@ -25,11 +20,6 @@ final class Validation_StatusTest extends UplinkTestCase {
 		$this->assertSame( 'invalid_key', Validation_Status::INVALID_KEY );
 	}
 
-	/**
-	 * Tests that all() returns exactly 10 values.
-	 *
-	 * @return void
-	 */
 	public function test_all_returns_all_statuses(): void {
 		$all = Validation_Status::all();
 
@@ -46,11 +36,6 @@ final class Validation_StatusTest extends UplinkTestCase {
 		$this->assertContains( 'invalid_key', $all );
 	}
 
-	/**
-	 * Tests that is_valid() returns true for known status values.
-	 *
-	 * @return void
-	 */
 	public function test_is_valid_returns_true_for_known_values(): void {
 		foreach ( Validation_Status::all() as $status ) {
 			$this->assertTrue(
@@ -60,11 +45,6 @@ final class Validation_StatusTest extends UplinkTestCase {
 		}
 	}
 
-	/**
-	 * Tests that is_valid() returns false for unknown values.
-	 *
-	 * @return void
-	 */
 	public function test_is_valid_returns_false_for_unknown_values(): void {
 		$this->assertFalse( Validation_Status::is_valid( '' ) );
 		$this->assertFalse( Validation_Status::is_valid( 'unknown' ) );

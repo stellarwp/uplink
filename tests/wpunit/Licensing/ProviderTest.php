@@ -9,11 +9,6 @@ use StellarWP\Uplink\Tests\UplinkTestCase;
 
 final class ProviderTest extends UplinkTestCase {
 
-	/**
-	 * Tests that the Licensing_Client resolves to Fixture_Client.
-	 *
-	 * @return void
-	 */
 	public function test_it_registers_licensing_client(): void {
 		$this->assertInstanceOf(
 			Fixture_Client::class,
@@ -21,11 +16,6 @@ final class ProviderTest extends UplinkTestCase {
 		);
 	}
 
-	/**
-	 * Tests that the Product_Repository is registered.
-	 *
-	 * @return void
-	 */
 	public function test_it_registers_product_repository(): void {
 		$this->assertInstanceOf(
 			Product_Repository::class,
@@ -33,11 +23,6 @@ final class ProviderTest extends UplinkTestCase {
 		);
 	}
 
-	/**
-	 * Tests that the Licensing_Client is a singleton.
-	 *
-	 * @return void
-	 */
 	public function test_client_is_singleton(): void {
 		$first  = $this->container->get( Licensing_Client::class );
 		$second = $this->container->get( Licensing_Client::class );
@@ -45,11 +30,6 @@ final class ProviderTest extends UplinkTestCase {
 		$this->assertSame( $first, $second );
 	}
 
-	/**
-	 * Tests that the Product_Repository is a singleton.
-	 *
-	 * @return void
-	 */
 	public function test_repository_is_singleton(): void {
 		$first  = $this->container->get( Product_Repository::class );
 		$second = $this->container->get( Product_Repository::class );

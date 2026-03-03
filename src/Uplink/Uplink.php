@@ -51,6 +51,8 @@ class Uplink {
 		$container->singleton( Auth\Provider::class, Auth\Provider::class );
 		$container->singleton( Legacy\Provider::class, Legacy\Provider::class );
 		$container->singleton( Features\Provider::class, Features\Provider::class );
+		$container->singleton( Licensing\Provider::class, Licensing\Provider::class );
+		$container->singleton( Catalog\Provider::class, Catalog\Provider::class );
 
 		if ( static::is_enabled() ) {
 			$container->get( Storage\Provider::class )->register();
@@ -66,6 +68,8 @@ class Uplink {
 
 			// TODO: Register to only the newest instance.
 			$container->get( Features\Provider::class )->register();
+			$container->get( Licensing\Provider::class )->register();
+			$container->get( Catalog\Provider::class )->register();
 
 			static::register_cross_instance_hooks( $container );
 		}

@@ -18,6 +18,7 @@
     "phpstan-baseline.neon",
     "phpstan-cache",
     "phpstan.neon.dist",
+    "tests/_data",
     "tests/_support/_generated",
     "vendor",
     "Fixture.php"
@@ -58,6 +59,7 @@
     "nonce",
     "nosniff",
     "nums",
+    "patchstack",
     "pagenow",
     "phpbrowser",
     "phpcbf",

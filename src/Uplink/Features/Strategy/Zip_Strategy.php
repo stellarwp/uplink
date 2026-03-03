@@ -21,6 +21,7 @@ use function is_plugin_active_for_network;
 use function plugins_api;
 use function sanitize_key;
 use function set_transient;
+use function wp_json_encode;
 /**
  * Zip Strategy — installs, activates, and deactivates WordPress plugins as
  * "features" using ZIP file downloads.
@@ -202,6 +203,13 @@ class Zip_Strategy extends Abstract_Strategy {
 
 		$this->load_wp_admin_includes();
 
+		// Refuse to touch a plugin that belongs to a different developer.
+		$ownership = $this->verify_plugin_ownership( $feature );
+
+		if ( is_wp_error( $ownership ) ) {
+			return $ownership;
+		}
+
 		$plugin_file = $feature->get_plugin_file();
 
 		// Idempotent: if already inactive, update stored state and bail.
@@ -223,8 +231,8 @@ class Zip_Strategy extends Abstract_Strategy {
 			return new WP_Error(
 				Error_Code::DEACTIVATION_FAILED,
 				sprintf(
-					'Could not deactivate "%s". The plugin may have been reactivated by another process.',
-					$plugin_file
+					'"%s" could not be deactivated. The plugin may have been reactivated by another process.',
+					$feature->get_name()
 				)
 			);
 		}
@@ -373,7 +381,7 @@ class Zip_Strategy extends Abstract_Strategy {
 				Error_Code::INSTALL_LOCKED,
 				sprintf(
 					'Another installation is already in progress for "%s". Please try again in a few moments.',
-					$feature->get_slug()
+					$feature->get_name()
 				)
 			);
 		}
@@ -393,8 +401,8 @@ class Zip_Strategy extends Abstract_Strategy {
 				return new WP_Error(
 					Error_Code::PLUGIN_NOT_FOUND_AFTER_INSTALL,
 					sprintf(
-						'The plugin file was not found after installation of "%s". The downloaded package may have an unexpected directory structure.',
-						$feature->get_slug()
+						'The plugin file was not found after installing "%s". The downloaded package may have an unexpected directory structure.',
+						$feature->get_name()
 					)
 				);
 			}
@@ -433,7 +441,7 @@ class Zip_Strategy extends Abstract_Strategy {
 				Error_Code::PLUGINS_API_FAILED,
 				sprintf(
 					'Could not retrieve download information for "%s": %s',
-					$feature->get_slug(),
+					$feature->get_name(),
 					$plugin_info->get_error_message()
 				)
 			);
@@ -442,7 +450,7 @@ class Zip_Strategy extends Abstract_Strategy {
 		if ( empty( $plugin_info->download_link ) ) {
 			return new WP_Error(
 				Error_Code::DOWNLOAD_LINK_MISSING,
-				sprintf( 'No download link is available for "%s".', $feature->get_slug() )
+				sprintf( 'No download link is available for "%s".', $feature->get_name() )
 			);
 		}
 
@@ -457,8 +465,8 @@ class Zip_Strategy extends Abstract_Strategy {
 			return new WP_Error(
 				Error_Code::INSTALL_FAILED,
 				sprintf(
-					'Could not install "%s": %s',
-					$feature->get_slug(),
+					'Installation of "%s" failed: %s',
+					$feature->get_name(),
 					$result->get_error_message()
 				)
 			);
@@ -485,7 +493,7 @@ class Zip_Strategy extends Abstract_Strategy {
 
 			return new WP_Error(
 				$error_code,
-				sprintf( 'Could not install "%s": %s', $feature->get_slug(), $message )
+				sprintf( 'Installation of "%s" failed: %s', $feature->get_name(), $message )
 			);
 		}
 
@@ -496,7 +504,8 @@ class Zip_Strategy extends Abstract_Strategy {
 	 * Activate the plugin for a Zip feature with fatal error protection.
 	 *
 	 * Uses try/catch Throwable to catch PHP Error subclasses
-	 * (ParseError, TypeError, etc.).
+	 * (ParseError, TypeError, etc.) and a shutdown function with output
+	 * buffering to handle die()/exit() calls during plugin activation.
 	 *
 	 * @since 3.0.0
 	 *
@@ -506,18 +515,87 @@ class Zip_Strategy extends Abstract_Strategy {
 	 */
 	private function activate_plugin( Zip $feature ) {
 		$plugin_file = $feature->get_plugin_file();
+		$completed   = false;
+		$die_output  = '';
+
+		// Register a shutdown function to handle die()/exit() during activation.
+		// PHP runs shutdown functions after die(), so we can capture the output
+		// and send a proper JSON error response instead of raw text.
+		register_shutdown_function( static function () use ( $plugin_file, &$completed, &$die_output ) {
+			if ( $completed ) {
+				return;
+			}
+
+			// Pick up anything from buffers that wp_ob_end_flush_all didn't reach.
+			while ( ob_get_level() > 0 ) {
+				$die_output .= ob_get_clean() ?: '';
+			}
+
+			if ( ! headers_sent() ) {
+				http_response_code( 500 );
+				header( 'Content-Type: application/json; charset=UTF-8' );
+			}
+
+			$message = sprintf(
+				'The plugin "%s" called exit/die during activation and terminated the process.',
+				$plugin_file
+			);
+
+			if ( $die_output !== '' ) {
+				$message .= ' Output: ' . substr( $die_output, 0, 500 );
+			}
+
+			echo wp_json_encode( [
+				'code'    => Error_Code::ACTIVATION_FATAL,
+				'message' => $message,
+				'data'    => [ 'status' => 500 ],
+			] );
+		} );
+
+		// Start output buffering with a callback to intercept die() output.
+		// WordPress registers wp_ob_end_flush_all as a shutdown function
+		// (before ours), which flushes all buffer levels. Without a callback,
+		// the die() output would reach the client before our shutdown function
+		// runs. The callback intercepts the flush, captures the output, and
+		// returns '' to suppress it.
+		$ob_level_before = ob_get_level();
+
+		ob_start( static function ( $buffer ) use ( &$completed, &$die_output ) {
+			if ( $completed ) {
+				return $buffer;
+			}
+
+			$die_output .= $buffer;
+
+			return '';
+		} );
 
 		try {
 			$result = activate_plugin( $plugin_file );
 		} catch ( Throwable $e ) {
+			$completed = true;
+
+			// Clean any buffers added during activation (e.g. WordPress's own
+			// ob_start inside activate_plugin()) plus our own buffer.
+			while ( ob_get_level() > $ob_level_before ) {
+				ob_end_clean();
+			}
+
 			return new WP_Error(
 				Error_Code::ACTIVATION_FATAL,
 				sprintf(
 					'A fatal error occurred while activating "%s": %s',
-					$plugin_file,
+					$feature->get_name(),
 					Cast::to_string( $e->getMessage() )
 				)
 			);
+		}
+
+		$completed = true;
+
+		// Clean any buffers added during activation plus our own buffer.
+		while ( ob_get_level() > $ob_level_before ) {
+			ob_end_clean();
 		}
 
 		if ( is_wp_error( $result ) ) {
@@ -528,8 +606,8 @@ class Zip_Strategy extends Abstract_Strategy {
 			return new WP_Error(
 				$error_code,
 				sprintf(
-					'Could not activate "%s": %s',
-					$plugin_file,
+					'Activation of "%s" failed: %s',
+					$feature->get_name(),
 					wp_strip_all_tags( $result->get_error_message() )
 				)
 			);
@@ -539,8 +617,8 @@ class Zip_Strategy extends Abstract_Strategy {
 			return new WP_Error(
 				Error_Code::ACTIVATION_FAILED,
 				sprintf(
-					'The plugin "%s" did not activate successfully. Please try again.',
-					$plugin_file
+					'"%s" did not activate successfully. Please try again.',
+					$feature->get_name()
 				)
 			);
 		}

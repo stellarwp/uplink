@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink\Tests\Features\REST;
 
 use StellarWP\Uplink\Features\API\Client;
+use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Manager;
@@ -11,6 +12,7 @@ use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Tests\Traits\With_Uopz;
 use StellarWP\Uplink\Tests\UplinkTestCase;
+use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
 
@@ -517,6 +519,79 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 400, $response->get_status() );
+	}
+
+	// ── Error status mapping ────────────────────────────────────────────
+
+	/**
+	 * Tests that a WP_Error from Manager::enable() gets an HTTP status code.
+	 *
+	 * @return void
+	 */
+	public function test_enable_strategy_error_has_http_status(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$error_strategy = $this->makeEmpty(
+			Strategy::class,
+			[
+				'enable'    => new WP_Error(
+					Error_Code::INSTALL_LOCKED,
+					'Concurrent install in progress.'
+				),
+				'disable'   => true,
+				'is_active' => false,
+			]
+		);
+
+		$resolver = $this->makeEmpty( Resolver::class, [ 'resolve' => $error_strategy ] );
+		$catalog  = $this->makeEmpty( Client::class, [ 'get_features' => $this->manager->get_features() ] );
+		$manager  = new Manager( $catalog, $resolver );
+
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
+		$this->server   = $wp_rest_server;
+
+		$controller = new Feature_Controller( $manager );
+		$controller->register_routes();
+
+		$request  = new WP_REST_Request( 'POST', '/stellarwp/uplink/v1/features/feature-alpha/enable' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 409, $response->get_status() );
+	}
+
+	/**
+	 * Tests that a WP_Error from Manager::get_features() gets an HTTP status code on list.
+	 *
+	 * @return void
+	 */
+	public function test_list_catalog_error_has_http_status(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$catalog = $this->makeEmpty(
+			Client::class,
+			[
+				'get_features' => new WP_Error(
+					Error_Code::FEATURE_REQUEST_FAILED,
+					'Upstream API failed.'
+				),
+			]
+		);
+
+		$resolver = $this->makeEmpty( Resolver::class );
+		$manager  = new Manager( $catalog, $resolver );
+
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
+		$this->server   = $wp_rest_server;
+
+		$controller = new Feature_Controller( $manager );
+		$controller->register_routes();
+
+		$request  = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/features' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 502, $response->get_status() );
 	}
 
 	// ── Schema ──────────────────────────────────────────────────────────

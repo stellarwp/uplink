@@ -137,4 +137,48 @@ class Error_Code {
 	 * @var string
 	 */
 	public const REQUIREMENTS_NOT_MET = 'stellarwp-uplink-requirements-not-met';
+
+	/**
+	 * Maps an error code to its recommended HTTP status code.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $code An Error_Code constant value.
+	 *
+	 * @return int The HTTP status code (defaults to 422 for unknown codes).
+	 */
+	public static function http_status( string $code ): int {
+		/** @var array<string, int> */
+		static $map = [
+			// 400 Bad Request — the feature type cannot be handled by the resolved strategy.
+			self::FEATURE_TYPE_MISMATCH          => 400,
+
+			// 404 Not Found — the requested feature slug does not exist in the catalog.
+			self::FEATURE_NOT_FOUND              => 404,
+
+			// 409 Conflict — a concurrent install is in progress, a plugin ownership
+			// check failed, or a deactivation was undone by another process.
+			self::INSTALL_LOCKED                 => 409,
+			self::PLUGIN_OWNERSHIP_MISMATCH      => 409,
+			self::DEACTIVATION_FAILED            => 409,
+
+			// 422 Unprocessable Entity — the request was understood but the operation
+			// could not be completed (requirements not met, install/activation failure,
+			// missing download link, or unexpected package structure).
+			self::REQUIREMENTS_NOT_MET           => 422,
+			self::INSTALL_FAILED                 => 422,
+			self::ACTIVATION_FATAL               => 422,
+			self::ACTIVATION_FAILED              => 422,
+			self::PLUGIN_NOT_FOUND_AFTER_INSTALL => 422,
+			self::DOWNLOAD_LINK_MISSING          => 422,
+
+			// 502 Bad Gateway — an upstream service (feature API, plugins_api) returned an error.
+			self::FEATURE_CHECK_FAILED           => 502,
+			self::FEATURE_REQUEST_FAILED         => 502,
+			self::PLUGINS_API_FAILED             => 502,
+		];
+
+		// Default to 422 for unknown codes.
+		return $map[ $code ] ?? 422;
+	}
 }

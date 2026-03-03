@@ -521,36 +521,40 @@ class Zip_Strategy extends Abstract_Strategy {
 		// Register a shutdown function to handle die()/exit() during activation.
 		// PHP runs shutdown functions after die(), so we can capture the output
 		// and send a proper JSON error response instead of raw text.
-		register_shutdown_function( static function () use ( $plugin_file, &$completed, &$die_output ) {
-			if ( $completed ) {
-				return;
+		register_shutdown_function(
+			static function () use ( $plugin_file, &$completed, &$die_output ) {
+				if ( $completed ) { // @phpstan-ignore-line booleanNot.alwaysFalse -- completed is set to true in the try block.
+					return;
+				}
+
+				// Pick up anything from buffers that wp_ob_end_flush_all didn't reach.
+				while ( ob_get_level() > 0 ) {
+					$die_output .= ob_get_clean() ?: '';
+				}
+
+				if ( ! headers_sent() ) {
+					http_response_code( 500 );
+					header( 'Content-Type: application/json; charset=UTF-8' );
+				}
+
+				$message = sprintf(
+					'The plugin "%s" called exit/die during activation and terminated the process.',
+					$plugin_file
+				);
+
+				if ( $die_output !== '' ) {
+					$message .= ' Output: ' . substr( $die_output, 0, 500 );
+				}
+
+				echo wp_json_encode(
+					[
+						'code'    => Error_Code::ACTIVATION_FATAL,
+						'message' => $message,
+						'data'    => [ 'status' => 500 ],
+					]
+				);
 			}
-
-			// Pick up anything from buffers that wp_ob_end_flush_all didn't reach.
-			while ( ob_get_level() > 0 ) {
-				$die_output .= ob_get_clean() ?: '';
-			}
-
-			if ( ! headers_sent() ) {
-				http_response_code( 500 );
-				header( 'Content-Type: application/json; charset=UTF-8' );
-			}
-
-			$message = sprintf(
-				'The plugin "%s" called exit/die during activation and terminated the process.',
-				$plugin_file
-			);
-
-			if ( $die_output !== '' ) {
-				$message .= ' Output: ' . substr( $die_output, 0, 500 );
-			}
-
-			echo wp_json_encode( [
-				'code'    => Error_Code::ACTIVATION_FATAL,
-				'message' => $message,
-				'data'    => [ 'status' => 500 ],
-			] );
-		} );
+		);
 
 		// Start output buffering with a callback to intercept die() output.
 		// WordPress registers wp_ob_end_flush_all as a shutdown function
@@ -560,15 +564,17 @@ class Zip_Strategy extends Abstract_Strategy {
 		// returns '' to suppress it.
 		$ob_level_before = ob_get_level();
 
-		ob_start( static function ( $buffer ) use ( &$completed, &$die_output ) {
-			if ( $completed ) {
-				return $buffer;
+		ob_start(
+			static function ( $buffer ) use ( &$completed, &$die_output ) {
+				if ( $completed ) { // @phpstan-ignore-line booleanNot.alwaysFalse -- completed is set to true in the try block.
+					return $buffer;
+				}
+
+				$die_output .= Cast::to_string( $buffer );
+
+				return '';
 			}
-
-			$die_output .= $buffer;
-
-			return '';
-		} );
+		);
 
 		try {
 			$result = activate_plugin( $plugin_file );

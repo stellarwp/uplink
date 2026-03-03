@@ -427,7 +427,8 @@ class Feature_Controller extends WP_REST_Controller {
 
 		$status = Error_Code::http_status( (string) $error->get_error_code() );
 
-		$error->add_data( is_array( $data )
+		$error->add_data(
+			is_array( $data )
 			? array_merge( $data, [ 'status' => $status ] )
 			: [ 'status' => $status ]
 		);

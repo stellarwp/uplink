@@ -11,6 +11,7 @@ Features REST endpoints (`stellarwp/uplink/v1/features`).
 > `@see` JSDoc comments throughout the codebase; update those as files are
 > migrated.
 
+<!-- cspell:ignore SCON -->
 Three branches (`base/SCON-115`, `base/SCON-141`, `feature/SCON-206`) already
 implement the Features REST endpoints used here.
 

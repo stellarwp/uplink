@@ -12,7 +12,7 @@ use StellarWP\Uplink\Utils\Collection;
  *
  * @extends Collection<Product_Catalog>
  */
-class Catalog_Collection extends Collection {
+final class Catalog_Collection extends Collection {
 
 	/**
 	 * Adds a product catalog to the collection.

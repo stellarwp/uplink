@@ -13,7 +13,7 @@ use WP_REST_Server;
  *
  * @since 3.0.0
  */
-class Catalog_Controller extends WP_REST_Controller {
+final class Catalog_Controller extends WP_REST_Controller {
 
 	/**
 	 * The REST API namespace.

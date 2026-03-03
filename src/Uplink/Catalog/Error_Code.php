@@ -7,7 +7,7 @@ namespace StellarWP\Uplink\Catalog;
  *
  * @since 3.0.0
  */
-class Error_Code {
+final class Error_Code {
 
 	/**
 	 * The requested product slug was not found in the catalog.

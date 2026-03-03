@@ -13,7 +13,7 @@ use WP_Error;
  *
  * @since 3.0.0
  */
-class Catalog_Repository {
+final class Catalog_Repository {
 
 	/**
 	 * Transient key for the cached catalog.

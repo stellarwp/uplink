@@ -12,7 +12,7 @@ use StellarWP\Uplink\Utils\Version;
  *
  * @since 3.0.0
  */
-class Provider extends Abstract_Provider {
+final class Provider extends Abstract_Provider {
 
 	/**
 	 * @inheritDoc

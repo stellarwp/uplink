@@ -18,7 +18,7 @@ use StellarWP\Uplink\Utils\Cast;
  *     purchase_url: string,
  * }
  */
-class Catalog_Tier {
+final class Catalog_Tier {
 
 	/**
 	 * The tier attributes.

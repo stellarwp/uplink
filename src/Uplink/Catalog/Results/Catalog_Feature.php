@@ -23,7 +23,7 @@ use StellarWP\Uplink\Utils\Cast;
  *     category: string,
  * }
  */
-class Catalog_Feature {
+final class Catalog_Feature {
 
 	/**
 	 * The feature attributes.

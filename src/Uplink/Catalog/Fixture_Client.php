@@ -11,7 +11,7 @@ use WP_Error;
  *
  * @since 3.0.0
  */
-class Fixture_Client implements Catalog_Client {
+final class Fixture_Client implements Catalog_Client {
 
 	/**
 	 * The path to the fixture JSON file.

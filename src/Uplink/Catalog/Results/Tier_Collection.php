@@ -11,7 +11,7 @@ use StellarWP\Uplink\Utils\Collection;
  *
  * @extends Collection<Catalog_Tier>
  */
-class Tier_Collection extends Collection {
+final class Tier_Collection extends Collection {
 
 	/**
 	 * Adds a tier to the collection.

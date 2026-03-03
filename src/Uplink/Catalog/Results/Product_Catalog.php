@@ -11,7 +11,7 @@ use StellarWP\Uplink\Utils\Cast;
  *
  * @since 3.0.0
  */
-class Product_Catalog {
+final class Product_Catalog {
 
 	/**
 	 * The product slug.

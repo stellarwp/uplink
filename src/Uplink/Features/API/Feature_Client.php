@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Features\API;
 
+use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Utils\Cast;
@@ -112,15 +113,28 @@ class Feature_Client {
 	/**
 	 * Performs the HTTP request to the Commerce Portal API.
 	 *
+	 * @todo Replace with a real HTTP request to the Commerce Portal API that sends
+	 *       the site domain and license keys and returns the live feature catalog.
+	 *
 	 * @since 3.0.0
 	 *
-	 * @return array<int, array<string, mixed>>|WP_Error The decoded response entries or an error.
-	 *
-	 * @phpstan-ignore-next-line return.unusedType -- Remove once the API request is implemented.
+	 * @return array<int, array<string, mixed>>|WP_Error The feature catalog entries, or a WP_Error on failure.
 	 */
 	private function request() {
-		// TODO: Implement the actual API request to Commerce Portal.
-		// Should send site domain + license keys and return the feature catalog.
+		if ( defined( 'STELLARWP_UPLINK_FEATURES_USE_FIXTURE_DATA' ) && STELLARWP_UPLINK_FEATURES_USE_FIXTURE_DATA ) {
+			/** @var array<int, array<string, mixed>> $data */
+			$data = (array) apply_filters( 'stellarwp_uplink_features_fixture_data', Fixture::create()->get() );
+
+			if ( isset( $data['error'] ) ) {
+				$raw_message   = $data['error_message'] ?? $data['error'];
+				$error_message = is_string( $raw_message ) ? $raw_message : '';
+
+				return new WP_Error( Error_Code::FEATURE_REQUEST_FAILED, $error_message );
+			}
+
+			return $data;
+		}
+
 		return [];
 	}
 

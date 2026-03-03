@@ -49,8 +49,11 @@ class Uplink {
 		$container->singleton( Notice\Provider::class, Notice\Provider::class );
 		$container->singleton( Admin\Provider::class, Admin\Provider::class );
 		$container->singleton( Auth\Provider::class, Auth\Provider::class );
+		$container->singleton( Legacy\Provider::class, Legacy\Provider::class );
 		$container->singleton( Features\Provider::class, Features\Provider::class );
 		$container->singleton( Features\Update\Provider::class, Features\Update\Provider::class );
+		$container->singleton( Licensing\Provider::class, Licensing\Provider::class );
+		$container->singleton( Catalog\Provider::class, Catalog\Provider::class );
 
 		if ( static::is_enabled() ) {
 			$container->get( Storage\Provider::class )->register();
@@ -58,6 +61,7 @@ class Uplink {
 			$container->get( API\V3\Provider::class )->register();
 			$container->get( Notice\Provider::class )->register();
 			$container->get( Admin\Provider::class )->register();
+			$container->get( Legacy\Provider::class )->register();
 
 			if ( $container->has( Config::TOKEN_OPTION_NAME ) ) {
 				$container->get( Auth\Provider::class )->register();
@@ -65,6 +69,8 @@ class Uplink {
 
 			$container->get( Features\Provider::class )->register();
 			$container->get( Features\Update\Provider::class )->register();
+			$container->get( Licensing\Provider::class )->register();
+			$container->get( Catalog\Provider::class )->register();
 
 			static::register_cross_instance_hooks( $container );
 		}

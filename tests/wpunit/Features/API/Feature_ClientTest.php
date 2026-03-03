@@ -3,8 +3,11 @@
 namespace StellarWP\Uplink\Tests\Features\API;
 
 use StellarWP\Uplink\Features\API\Feature_Client;
+use StellarWP\Uplink\Features\API\Fixture;
 use StellarWP\Uplink\Features\Feature_Collection;
+use StellarWP\Uplink\Features\Types\Built_In;
 use StellarWP\Uplink\Features\Types\Feature;
+use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
 final class Feature_ClientTest extends UplinkTestCase {
@@ -98,5 +101,59 @@ final class Feature_ClientTest extends UplinkTestCase {
 
 		$this->assertCount( 1, $result );
 		$this->assertSame( 'cached-feature', $result['cached-feature']->get_slug() );
+	}
+
+	/**
+	 * Tests that the fixture catalog is used when the STELLARWP_UPLINK_FEATURES_USE_FIXTURE_CATALOG constant is defined.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return void
+	 */
+	public function test_it_uses_fixture_catalog_when_enabled(): void {
+		define( 'STELLARWP_UPLINK_FEATURES_USE_FIXTURE_DATA', true );
+
+		add_filter(
+			'stellarwp_uplink_features_fixture_data',
+			function ( array $data ): array {
+				$data = Fixture::create(
+					[
+						Fixture::entry(
+							[
+								'slug'        => 'give-recurring-donations',
+								'group'       => 'give',
+								'tier'        => 'starter',
+								'name'        => 'Recurring Donations',
+								'description' => 'Monthly and annual subscriptions',
+							]
+						),
+						Fixture::entry(
+							[
+								'slug'        => 'give-fee-recovery',
+								'group'       => 'give',
+								'tier'        => 'pro',
+								'name'        => 'Fee Recovery',
+								'description' => 'Let donors cover processing fees',
+							]
+						),
+					]
+				);
+
+				return $data->get();
+			}
+		);
+
+		$this->client = new Feature_Client();
+
+		$this->client->register_type( 'zip', Zip::class );
+		$this->client->register_type( 'built_in', Built_In::class );
+
+		$features = $this->client->get_features();
+
+		$this->assertInstanceOf( Feature_Collection::class, $features );
+
+		$this->assertCount( 2, $features );
+		$this->assertSame( 'give-recurring-donations', $features->get( 'give-recurring-donations' )->get_slug() );
+		$this->assertSame( 'give-fee-recovery', $features->get( 'give-fee-recovery' )->get_slug() );
 	}
 }

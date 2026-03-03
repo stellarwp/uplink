@@ -38,4 +38,13 @@ class Error_Code {
 	 * @var string
 	 */
 	public const FEATURE_REQUEST_FAILED = 'stellarwp-uplink-feature-request-failed';
+
+	/**
+	 * The feature catalog response was invalid or could not be parsed.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const INVALID_RESPONSE = 'stellarwp-uplink-feature-invalid-response';
 }

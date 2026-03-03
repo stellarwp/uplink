@@ -2,7 +2,8 @@
 
 namespace StellarWP\Uplink\Tests\Features;
 
-use StellarWP\Uplink\Features\API\Client;
+use StellarWP\Uplink\Features\Contracts\Feature_Client;
+use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Features\Provider;
 use StellarWP\Uplink\Features\REST\Feature_Controller;
@@ -12,12 +13,21 @@ use StellarWP\Uplink\Tests\UplinkTestCase;
 final class ProviderTest extends UplinkTestCase {
 
 	/**
-	 * Tests that the API Client is registered as a singleton in the container.
+	 * Tests that the Feature_Client contract is registered as a singleton in the container.
 	 *
 	 * @return void
 	 */
 	public function test_it_registers_client(): void {
-		$this->assertInstanceOf( Client::class, $this->container->get( Client::class ) );
+		$this->assertInstanceOf( Feature_Client::class, $this->container->get( Feature_Client::class ) );
+	}
+
+	/**
+	 * Tests that the Feature_Repository is registered as a singleton in the container.
+	 *
+	 * @return void
+	 */
+	public function test_it_registers_repository(): void {
+		$this->assertInstanceOf( Feature_Repository::class, $this->container->get( Feature_Repository::class ) );
 	}
 
 	/**
@@ -72,7 +82,7 @@ final class ProviderTest extends UplinkTestCase {
 				'register_routes' => static function () use ( &$called ) {
 					$called++;
 				},
-			] 
+			]
 		);
 
 		$this->container->singleton( Feature_Controller::class, $mock );
@@ -95,7 +105,7 @@ final class ProviderTest extends UplinkTestCase {
 				'register_routes' => static function () use ( &$called ) {
 					$called = true;
 				},
-			] 
+			]
 		);
 
 		$this->container->singleton( Feature_Controller::class, $mock );
@@ -125,7 +135,7 @@ final class ProviderTest extends UplinkTestCase {
 				'register_routes' => static function () use ( &$called ) {
 					$called = true;
 				},
-			] 
+			]
 		);
 
 		$this->container->singleton( Feature_Controller::class, $mock );
@@ -150,7 +160,7 @@ final class ProviderTest extends UplinkTestCase {
 				'register_routes' => static function () use ( &$called ) {
 					$called++;
 				},
-			] 
+			]
 		);
 
 		$this->container->singleton( Feature_Controller::class, $mock );

@@ -2,7 +2,6 @@
 
 namespace StellarWP\Uplink\Features;
 
-use StellarWP\Uplink\Features\API\Client;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Error_Code;
@@ -19,13 +18,13 @@ use WP_Error;
 class Manager {
 
 	/**
-	 * The client for fetching available features.
+	 * The repository for fetching available features.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @var Client
+	 * @var Feature_Repository
 	 */
-	private Client $client;
+	private Feature_Repository $repository;
 
 	/**
 	 * The strategy resolver for determining how to toggle features.
@@ -41,14 +40,14 @@ class Manager {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Client   $client   The client for fetching available features.
-	 * @param Resolver $resolver The strategy resolver.
+	 * @param Feature_Repository $repository The repository for fetching available features.
+	 * @param Resolver           $resolver   The strategy resolver.
 	 *
 	 * @return void
 	 */
-	public function __construct( Client $client, Resolver $resolver ) {
-		$this->client   = $client;
-		$this->resolver = $resolver;
+	public function __construct( Feature_Repository $repository, Resolver $resolver ) {
+		$this->repository = $repository;
+		$this->resolver   = $resolver;
 	}
 
 	/**
@@ -215,7 +214,7 @@ class Manager {
 	 * @return bool|WP_Error
 	 */
 	public function is_enabled( string $slug ) {
-		$features = $this->client->get_features();
+		$features = $this->repository->get();
 
 		if ( is_wp_error( $features ) ) {
 			return new WP_Error(
@@ -245,7 +244,7 @@ class Manager {
 	 * @return bool|WP_Error
 	 */
 	public function is_available( string $slug ) {
-		$features = $this->client->get_features();
+		$features = $this->repository->get();
 
 		if ( is_wp_error( $features ) ) {
 			return new WP_Error(
@@ -265,7 +264,7 @@ class Manager {
 	 * @return Feature_Collection|WP_Error
 	 */
 	public function get_features() {
-		return $this->client->get_features();
+		return $this->repository->get();
 	}
 
 	/**
@@ -281,7 +280,7 @@ class Manager {
 	 * @return Feature|null
 	 */
 	public function get_feature( string $slug ): ?Feature {
-		$features = $this->client->get_features();
+		$features = $this->repository->get();
 
 		if ( is_wp_error( $features ) ) {
 			return null;

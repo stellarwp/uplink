@@ -2,9 +2,9 @@
 
 namespace StellarWP\Uplink\Tests\Features;
 
-use StellarWP\Uplink\Features\API\Client;
 use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Feature_Collection;
+use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Features\Strategy\Resolver;
@@ -46,11 +46,11 @@ final class ManagerTest extends UplinkTestCase {
 		$this->collection = new Feature_Collection();
 		$this->collection->add( $this->makeEmpty( Feature::class, [ 'get_slug' => 'test-feature' ] ) );
 
-		$catalog = $this->makeEmpty(
-			Client::class,
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
 			[
-				'get_features' => $this->collection,
-			] 
+				'get' => $this->collection,
+			]
 		);
 
 		$this->mock_strategy = $this->makeEmpty(
@@ -59,17 +59,17 @@ final class ManagerTest extends UplinkTestCase {
 				'enable'    => true,
 				'disable'   => true,
 				'is_active' => true,
-			] 
+			]
 		);
 
 		$resolver = $this->makeEmpty(
 			Resolver::class,
 			[
 				'resolve' => $this->mock_strategy,
-			] 
+			]
 		);
 
-		$this->manager = new Manager( $catalog, $resolver );
+		$this->manager = new Manager( $repository, $resolver );
 	}
 
 	/**
@@ -181,28 +181,28 @@ final class ManagerTest extends UplinkTestCase {
 			'stellarwp/uplink/feature_enabling',
 			static function () use ( &$enabling_fired ) {
 				$enabling_fired = true;
-			} 
+			}
 		);
 
 		add_action(
 			'stellarwp/uplink/feature_enabled',
 			static function () use ( &$enabled_fired ) {
 				$enabled_fired = true;
-			} 
+			}
 		);
 
 		add_action(
 			'stellarwp/uplink/test-feature/feature_enabling',
 			static function () use ( &$slug_enabling_fired ) {
 				$slug_enabling_fired = true;
-			} 
+			}
 		);
 
 		add_action(
 			'stellarwp/uplink/test-feature/feature_enabled',
 			static function () use ( &$slug_enabled_fired ) {
 				$slug_enabled_fired = true;
-			} 
+			}
 		);
 
 		$this->manager->enable( 'test-feature' );
@@ -228,28 +228,28 @@ final class ManagerTest extends UplinkTestCase {
 			'stellarwp/uplink/feature_disabling',
 			static function () use ( &$disabling_fired ) {
 				$disabling_fired = true;
-			} 
+			}
 		);
 
 		add_action(
 			'stellarwp/uplink/feature_disabled',
 			static function () use ( &$disabled_fired ) {
 				$disabled_fired = true;
-			} 
+			}
 		);
 
 		add_action(
 			'stellarwp/uplink/test-feature/feature_disabling',
 			static function () use ( &$slug_disabling_fired ) {
 				$slug_disabling_fired = true;
-			} 
+			}
 		);
 
 		add_action(
 			'stellarwp/uplink/test-feature/feature_disabled',
 			static function () use ( &$slug_disabled_fired ) {
 				$slug_disabled_fired = true;
-			} 
+			}
 		);
 
 		$this->manager->disable( 'test-feature' );
@@ -272,24 +272,24 @@ final class ManagerTest extends UplinkTestCase {
 			Strategy::class,
 			[
 				'enable' => $error,
-			] 
+			]
 		);
 
 		$resolver = $this->makeEmpty(
 			Resolver::class,
 			[
 				'resolve' => $strategy,
-			] 
+			]
 		);
 
-		$catalog = $this->makeEmpty(
-			Client::class,
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
 			[
-				'get_features' => $this->collection,
-			] 
+				'get' => $this->collection,
+			]
 		);
 
-		$manager = new Manager( $catalog, $resolver );
+		$manager = new Manager( $repository, $resolver );
 
 		$enabled_fired = false;
 
@@ -297,7 +297,7 @@ final class ManagerTest extends UplinkTestCase {
 			'stellarwp/uplink/feature_enabled',
 			static function () use ( &$enabled_fired ) {
 				$enabled_fired = true;
-			} 
+			}
 		);
 
 		$result = $manager->enable( 'test-feature' );
@@ -318,24 +318,24 @@ final class ManagerTest extends UplinkTestCase {
 			Strategy::class,
 			[
 				'disable' => $error,
-			] 
+			]
 		);
 
 		$resolver = $this->makeEmpty(
 			Resolver::class,
 			[
 				'resolve' => $strategy,
-			] 
+			]
 		);
 
-		$catalog = $this->makeEmpty(
-			Client::class,
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
 			[
-				'get_features' => $this->collection,
-			] 
+				'get' => $this->collection,
+			]
 		);
 
-		$manager = new Manager( $catalog, $resolver );
+		$manager = new Manager( $repository, $resolver );
 
 		$disabled_fired = false;
 
@@ -343,7 +343,7 @@ final class ManagerTest extends UplinkTestCase {
 			'stellarwp/uplink/feature_disabled',
 			static function () use ( &$disabled_fired ) {
 				$disabled_fired = true;
-			} 
+			}
 		);
 
 		$result = $manager->disable( 'test-feature' );
@@ -360,16 +360,16 @@ final class ManagerTest extends UplinkTestCase {
 	public function test_get_features_returns_wp_error_when_catalog_errors(): void {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
-		$catalog = $this->makeEmpty(
-			Client::class,
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
 			[
-				'get_features' => $error,
-			] 
+				'get' => $error,
+			]
 		);
 
 		$resolver = $this->makeEmpty( Resolver::class );
 
-		$manager = new Manager( $catalog, $resolver );
+		$manager = new Manager( $repository, $resolver );
 
 		$this->assertInstanceOf( WP_Error::class, $manager->get_features() );
 	}
@@ -382,16 +382,16 @@ final class ManagerTest extends UplinkTestCase {
 	public function test_is_enabled_returns_wp_error_when_catalog_errors(): void {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
-		$catalog = $this->makeEmpty(
-			Client::class,
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
 			[
-				'get_features' => $error,
-			] 
+				'get' => $error,
+			]
 		);
 
 		$resolver = $this->makeEmpty( Resolver::class );
 
-		$manager = new Manager( $catalog, $resolver );
+		$manager = new Manager( $repository, $resolver );
 
 		$result = $manager->is_enabled( 'test-feature' );
 		$this->assertInstanceOf( WP_Error::class, $result );
@@ -406,16 +406,16 @@ final class ManagerTest extends UplinkTestCase {
 	public function test_is_available_returns_wp_error_when_catalog_errors(): void {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
-		$catalog = $this->makeEmpty(
-			Client::class,
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
 			[
-				'get_features' => $error,
-			] 
+				'get' => $error,
+			]
 		);
 
 		$resolver = $this->makeEmpty( Resolver::class );
 
-		$manager = new Manager( $catalog, $resolver );
+		$manager = new Manager( $repository, $resolver );
 
 		$result = $manager->is_available( 'test-feature' );
 		$this->assertInstanceOf( WP_Error::class, $result );
@@ -430,16 +430,16 @@ final class ManagerTest extends UplinkTestCase {
 	public function test_enable_returns_wp_error_when_catalog_errors(): void {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
-		$catalog = $this->makeEmpty(
-			Client::class,
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
 			[
-				'get_features' => $error,
-			] 
+				'get' => $error,
+			]
 		);
 
 		$resolver = $this->makeEmpty( Resolver::class );
 
-		$manager = new Manager( $catalog, $resolver );
+		$manager = new Manager( $repository, $resolver );
 
 		$result = $manager->enable( 'test-feature' );
 
@@ -454,16 +454,16 @@ final class ManagerTest extends UplinkTestCase {
 	public function test_disable_returns_wp_error_when_catalog_errors(): void {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
-		$catalog = $this->makeEmpty(
-			Client::class,
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
 			[
-				'get_features' => $error,
-			] 
+				'get' => $error,
+			]
 		);
 
 		$resolver = $this->makeEmpty( Resolver::class );
 
-		$manager = new Manager( $catalog, $resolver );
+		$manager = new Manager( $repository, $resolver );
 
 		$result = $manager->disable( 'test-feature' );
 

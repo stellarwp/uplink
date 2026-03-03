@@ -2,8 +2,8 @@
 
 namespace StellarWP\Uplink\Tests\Features\REST;
 
-use StellarWP\Uplink\Features\API\Client;
 use StellarWP\Uplink\Features\Feature_Collection;
+use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Features\REST\Feature_Controller;
@@ -108,14 +108,14 @@ final class Feature_ControllerTest extends UplinkTestCase {
 			] 
 		);
 
-		$catalog = $this->makeEmpty(
-			Client::class,
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
 			[
-				'get_features' => $collection,
-			] 
+				'get' => $collection,
+			]
 		);
 
-		$this->manager = new Manager( $catalog, $resolver );
+		$this->manager = new Manager( $repository, $resolver );
 
 		/** @var WP_REST_Server $wp_rest_server */
 		global $wp_rest_server;

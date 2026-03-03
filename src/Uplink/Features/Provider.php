@@ -4,7 +4,8 @@ namespace StellarWP\Uplink\Features;
 
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
-use StellarWP\Uplink\Features\API\Client;
+use StellarWP\Uplink\Features\API\Fixture_Client;
+use StellarWP\Uplink\Features\Contracts\Feature_Client;
 use StellarWP\Uplink\Features\REST\Feature_Controller;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Types\Built_In;
@@ -19,10 +20,21 @@ use StellarWP\Uplink\Utils\Version;
 class Provider extends Abstract_Provider {
 
 	/**
-	 * @inheritDoc
+	 * Registers singletons, binds the Feature_Client contract, and hooks.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return void
 	 */
 	public function register(): void {
-		$this->container->singleton( Client::class, Client::class );
+		$this->container->singleton(
+			Feature_Client::class,
+			static function () {
+				return new Fixture_Client(
+					dirname( __DIR__, 3 ) . '/tests/_data/features.json'
+				);
+			}
+		);
 
 		$this->container->singleton(
 			Resolver::class,
@@ -30,7 +42,16 @@ class Provider extends Abstract_Provider {
 				$container = $c->get( ContainerInterface::class );
 
 				return new Resolver( $container );
-			} 
+			}
+		);
+
+		$this->container->singleton(
+			Feature_Repository::class,
+			static function ( ContainerInterface $c ) {
+				return new Feature_Repository(
+					$c->get( Feature_Client::class )
+				);
+			}
 		);
 
 		$this->container->singleton( Feature_Collection::class, Feature_Collection::class );
@@ -38,11 +59,11 @@ class Provider extends Abstract_Provider {
 		$this->container->singleton(
 			Manager::class,
 			static function ( ContainerInterface $c ) {
-				$client   = $c->get( Client::class );
-				$resolver = $c->get( Resolver::class );
+				$repository = $c->get( Feature_Repository::class );
+				$resolver   = $c->get( Resolver::class );
 
-				return new Manager( $client, $resolver );
-			} 
+				return new Manager( $repository, $resolver );
+			}
 		);
 
 		$this->container->singleton(
@@ -51,7 +72,7 @@ class Provider extends Abstract_Provider {
 				$manager = $c->get( Manager::class );
 
 				return new Feature_Controller( $manager );
-			} 
+			}
 		);
 
 		$this->register_default_types();
@@ -67,7 +88,8 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	private function register_default_types(): void {
-		$client = $this->container->get( Client::class );
+		/** @var Fixture_Client $client */
+		$client = $this->container->get( Feature_Client::class );
 		$client->register_type( 'zip', Zip::class );
 		$client->register_type( 'built_in', Built_In::class );
 	}

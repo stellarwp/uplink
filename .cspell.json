@@ -13,6 +13,8 @@
     "bun.lockb",
     "composer.json",
     "composer.lock",
+    "docs/postman",
+    "Fixture.php",
     "LICENSE",
     "node_modules",
     "phpstan-baseline.neon",
@@ -21,7 +23,6 @@
     "tests/_data",
     "tests/_support/_generated",
     "vendor",
-    "Fixture.php"
   ],
   "words": [
     "absint",

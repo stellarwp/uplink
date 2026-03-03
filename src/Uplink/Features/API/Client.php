@@ -133,8 +133,6 @@ class Client {
 			 */
 			$data = (array) apply_filters( 'stellarwp_uplink_features_fixture_data', Fixture::create()->get() );
 
-			error_log( 'data: ' . print_r( $data, true ) );
-
 			if ( isset( $data['error'] ) ) {
 				$raw_message   = $data['error_message'] ?? $data['error'];
 				$error_message = is_string( $raw_message ) ? $raw_message : '';

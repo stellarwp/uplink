@@ -2,46 +2,27 @@
  * Registers the stellarwp/uplink @wordpress/data store.
  *
  * Call registerUplinkStore() once before createRoot() in index.tsx.
- * Consumers import STORE_NAME and use useSelect / useDispatch.
+ * Consumers import the store descriptor and use useSelect / useDispatch.
  *
- * @see .plans/wp-data-store-features.md
  * @package StellarWP\Uplink
  */
 import { createReduxStore, register } from '@wordpress/data';
-import { reducer }   from './reducer';
-import { actions }   from './actions';
-import { selectors } from './selectors';
-import { resolvers } from './resolvers';
+import reducer, { initializeDefaultState } from './reducer';
+import * as actions from './actions';
+import * as selectors from './selectors';
+import * as resolvers from './resolvers';
 import { STORE_NAME } from './constants';
 
 export const store = createReduxStore( STORE_NAME, {
-    reducer,
-    actions,
-    selectors,
-    resolvers,
+	reducer,
+	actions,
+	selectors,
+	resolvers,
+	initialState: initializeDefaultState(),
 } );
 
 export function registerUplinkStore(): void {
-    register( store );
+	register( store );
 }
 
 export { STORE_NAME };
-
-// ---------------------------------------------------------------------------
-// Type augmentation — teaches useSelect / useDispatch about this store.
-// ---------------------------------------------------------------------------
-
-/** Selector interface exposed to useSelect consumers. */
-export type StoreSelectors = typeof selectors & {
-    /** @wordpress/data meta-selector — true once the resolver has finished. */
-    hasFinishedResolution: ( selectorName: string, args?: unknown[] ) => boolean;
-    /** @wordpress/data meta-selector — true while the resolver is running. */
-    isResolving: ( selectorName: string, args?: unknown[] ) => boolean;
-};
-
-declare module '@wordpress/data' {
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    function select( storeName: typeof STORE_NAME ): StoreSelectors;
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    function dispatch( storeName: typeof STORE_NAME ): typeof actions;
-}

@@ -1,28 +1,52 @@
 /**
  * Selectors for the stellarwp/uplink @wordpress/data store.
  *
- * @see .plans/wp-data-store-features.md
  * @package StellarWP\Uplink
  */
-import type { State } from './reducer';
+import { createSelector } from '@wordpress/data';
+import type UplinkError from '@/errors/uplink-error';
 import type { Feature } from '@/types/api';
+import type { State } from './types';
 
-export const selectors = {
-    getError: ( state: State, key: string ): string | null =>
-        state.errors[ key ] ?? null,
+// ---------------------------------------------------------------------------
+// Updating
+// ---------------------------------------------------------------------------
 
-    getFeatures: ( state: State ): Feature[] =>
-        Object.values( state.features ),
+export function isFeatureUpdating( state: State, slug: string ): boolean {
+	return state.features.isUpdating[ slug ] ?? false;
+}
 
-    getFeaturesByGroup: ( state: State, group: string ): Feature[] =>
-        Object.values( state.features ).filter( ( f ) => f.group === group ),
+// ---------------------------------------------------------------------------
+// Features — memoized (creates new arrays)
+// ---------------------------------------------------------------------------
 
-    getFeature: ( state: State, slug: string ): Feature | null =>
-        state.features[ slug ] ?? null,
+export const getFeatures = createSelector(
+	( state: State ): Feature[] => Object.values( state.features.bySlug ),
+	( state: State ) => [ state.features.bySlug ],
+);
 
-    isFeatureEnabled: ( state: State, slug: string ): boolean =>
-        state.features[ slug ]?.is_enabled ?? false,
+export const getFeaturesByGroup = createSelector(
+	( state: State, group: string ): Feature[] =>
+		Object.values( state.features.bySlug ).filter( ( f ) => f.group === group ),
+	( state: State, group: string ) => [ state.features.bySlug, group ],
+);
 
-    getFeatureError: ( state: State, slug: string ): string | null =>
-        state.errors[ `feature:${ slug }` ] ?? null,
-};
+// ---------------------------------------------------------------------------
+// Features — direct state access (stable references)
+// ---------------------------------------------------------------------------
+
+export function getFeature( state: State, slug: string ): Feature | null {
+	return state.features.bySlug[ slug ] ?? null;
+}
+
+export function isFeatureEnabled( state: State, slug: string ): boolean {
+	return state.features.bySlug[ slug ]?.is_enabled ?? false;
+}
+
+// ---------------------------------------------------------------------------
+// Errors
+// ---------------------------------------------------------------------------
+
+export function getFeatureError( state: State, slug: string ): UplinkError | null {
+	return state.features.errorBySlug[ slug ] ?? null;
+}

@@ -47,7 +47,7 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
     // Surface store errors as error toasts.
     useEffect( () => {
         if ( featureError ) {
-            addToast( featureError, 'error' );
+            addToast( featureError.message, 'error' );
         }
     }, [ featureError, addToast ] );
 

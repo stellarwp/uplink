@@ -1,93 +1,57 @@
 /**
  * Action creators for the stellarwp/uplink @wordpress/data store.
  *
- * Plain action creators (returning objects) are handled by the reducer.
- * Thunk action creators (returning async functions) are handled by the
- * @wordpress/data thunk middleware — automatically included in v10+.
+ * Plain action creators return objects handled by the reducer.
+ * Thunk action creators return async functions handled by the
+ * @wordpress/data thunk middleware.
  *
- * @see .plans/wp-data-store-features.md
  * @package StellarWP\Uplink
  */
 import apiFetch from '@wordpress/api-fetch';
+import { UplinkError } from '@/errors';
 import type { Feature } from '@/types/api';
+import type { Action, UplinkThunk } from './types';
 
 // ---------------------------------------------------------------------------
-// Discriminated union for plain (reducer-handled) actions only.
-// Thunk actions are not part of this union.
+// Plain action creators (used by resolvers)
 // ---------------------------------------------------------------------------
 
-export type Action =
-    | { type: 'SET_ERROR';        key: string; message: string }
-    | { type: 'CLEAR_ERROR';      key: string }
-    | { type: 'RECEIVE_FEATURES'; features: Feature[] }
-    | { type: 'PATCH_FEATURE';    slug: string; enabled: boolean };
+export function receiveFeatures( features: Feature[] ): Action {
+	return { type: 'RECEIVE_FEATURES', features };
+}
 
 // ---------------------------------------------------------------------------
-// Thunk dispatch interface — the object passed to thunk action bodies.
+// Thunk action creators
 // ---------------------------------------------------------------------------
 
-type ThunkDispatch = {
-    setError:          ( key: string, message: string ) => void;
-    clearError:        ( key: string ) => void;
-    setFeatureEnabled: ( slug: string, enabled: boolean ) => void;
-};
+export const enableFeature =
+	( slug: string ): UplinkThunk =>
+	async ( { dispatch } ) => {
+		dispatch( { type: 'PATCH_FEATURE_START', slug, enabled: true } );
+		try {
+			const feature = await apiFetch< Feature >( {
+				path: `/stellarwp/uplink/v1/features/${ slug }/enable`,
+				method: 'POST',
+			} );
+			dispatch( { type: 'PATCH_FEATURE_FINISHED', feature } );
+		} catch ( err ) {
+			const error = UplinkError.from( err );
+			dispatch( { type: 'PATCH_FEATURE_FAILED', slug, enabled: false, error } );
+		}
+	};
 
-// ---------------------------------------------------------------------------
-// Action creators
-// ---------------------------------------------------------------------------
-
-export const actions = {
-    // -- Plain action creators (synchronous) --
-
-    setError: ( key: string, message: string ) =>
-        ( { type: 'SET_ERROR' as const, key, message } ),
-
-    clearError: ( key: string ) =>
-        ( { type: 'CLEAR_ERROR' as const, key } ),
-
-    receiveFeatures: ( features: Feature[] ) =>
-        ( { type: 'RECEIVE_FEATURES' as const, features } ),
-
-    setFeatureEnabled: ( slug: string, enabled: boolean ) =>
-        ( { type: 'PATCH_FEATURE' as const, slug, enabled } ),
-
-    // -- Thunk action creators (async, with optimistic update + rollback) --
-
-    /**
-     * Enable a feature: optimistic update → POST to REST API → rollback on error.
-     * @since 3.0.0
-     */
-    enableFeature: ( slug: string ) =>
-        async ( { dispatch }: { dispatch: ThunkDispatch } ): Promise<void> => {
-            dispatch.clearError( `feature:${ slug }` );
-            dispatch.setFeatureEnabled( slug, true );
-            try {
-                await apiFetch<void>( {
-                    path:   `/stellarwp/uplink/v1/features/${ slug }/enable`,
-                    method: 'POST',
-                } );
-            } catch ( err ) {
-                dispatch.setFeatureEnabled( slug, false );
-                dispatch.setError( `feature:${ slug }`, ( err as Error ).message );
-            }
-        },
-
-    /**
-     * Disable a feature: optimistic update → POST to REST API → rollback on error.
-     * @since 3.0.0
-     */
-    disableFeature: ( slug: string ) =>
-        async ( { dispatch }: { dispatch: ThunkDispatch } ): Promise<void> => {
-            dispatch.clearError( `feature:${ slug }` );
-            dispatch.setFeatureEnabled( slug, false );
-            try {
-                await apiFetch<void>( {
-                    path:   `/stellarwp/uplink/v1/features/${ slug }/disable`,
-                    method: 'POST',
-                } );
-            } catch ( err ) {
-                dispatch.setFeatureEnabled( slug, true );
-                dispatch.setError( `feature:${ slug }`, ( err as Error ).message );
-            }
-        },
-};
+export const disableFeature =
+	( slug: string ): UplinkThunk =>
+	async ( { dispatch } ) => {
+		dispatch( { type: 'PATCH_FEATURE_START', slug, enabled: false } );
+		try {
+			const feature = await apiFetch< Feature >( {
+				path: `/stellarwp/uplink/v1/features/${ slug }/disable`,
+				method: 'POST',
+			} );
+			dispatch( { type: 'PATCH_FEATURE_FINISHED', feature } );
+		} catch ( err ) {
+			const error = UplinkError.from( err );
+			dispatch( { type: 'PATCH_FEATURE_FAILED', slug, enabled: true, error } );
+		}
+	};

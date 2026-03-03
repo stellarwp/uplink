@@ -178,6 +178,8 @@ final class Zip extends Feature {
 			return null;
 		}
 
-		return Cast::to_string( $response->version ) ?? null;
+		$version = $response->version ?? null; // @phpstan-ignore property.notFound -- plugins_api() returns a dynamic stdClass.
+
+		return $version !== null ? Cast::to_string( $version ) : null;
 	}
 }

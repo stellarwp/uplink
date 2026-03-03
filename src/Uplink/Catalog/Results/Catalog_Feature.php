@@ -35,15 +35,15 @@ final class Catalog_Feature {
 	 * @var FeatureAttributes
 	 */
 	protected array $attributes = [
-		'feature_slug' => '',
-		'type'         => '',
-		'minimum_tier' => '',
-		'plugin_file'  => null,
-		'is_dot_org'   => false,
-		'download_url' => null,
-		'name'         => '',
-		'description'  => '',
-		'category'     => '',
+		'feature_slug'      => '',
+		'type'              => '',
+		'minimum_tier'      => '',
+		'plugin_file'       => null,
+		'is_dot_org'        => false,
+		'download_url'      => null,
+		'name'              => '',
+		'description'       => '',
+		'category'          => '',
 		'authors'           => [],
 		'documentation_url' => '',
 	];
@@ -75,15 +75,15 @@ final class Catalog_Feature {
 	public static function from_array( array $data ): self {
 		return new self(
 			[
-				'feature_slug' => Cast::to_string( $data['feature_slug'] ?? '' ),
-				'type'         => Cast::to_string( $data['type'] ?? '' ),
-				'minimum_tier' => Cast::to_string( $data['minimum_tier'] ?? '' ),
-				'plugin_file'  => isset( $data['plugin_file'] ) ? Cast::to_string( $data['plugin_file'] ) : null,
-				'is_dot_org'   => Cast::to_bool( $data['is_dot_org'] ?? false ),
-				'download_url' => isset( $data['download_url'] ) ? Cast::to_string( $data['download_url'] ) : null,
-				'name'         => Cast::to_string( $data['name'] ?? '' ),
-				'description'  => Cast::to_string( $data['description'] ?? '' ),
-				'category'     => Cast::to_string( $data['category'] ?? '' ),
+				'feature_slug'      => Cast::to_string( $data['feature_slug'] ?? '' ),
+				'type'              => Cast::to_string( $data['type'] ?? '' ),
+				'minimum_tier'      => Cast::to_string( $data['minimum_tier'] ?? '' ),
+				'plugin_file'       => isset( $data['plugin_file'] ) ? Cast::to_string( $data['plugin_file'] ) : null,
+				'is_dot_org'        => Cast::to_bool( $data['is_dot_org'] ?? false ),
+				'download_url'      => isset( $data['download_url'] ) ? Cast::to_string( $data['download_url'] ) : null,
+				'name'              => Cast::to_string( $data['name'] ?? '' ),
+				'description'       => Cast::to_string( $data['description'] ?? '' ),
+				'category'          => Cast::to_string( $data['category'] ?? '' ),
 				'authors'           => isset( $data['authors'] ) && is_array( $data['authors'] )
 					? array_map( [ Cast::class, 'to_string' ], array_values( $data['authors'] ) )
 					: [],

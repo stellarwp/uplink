@@ -8,15 +8,15 @@ use StellarWP\Uplink\Tests\UplinkTestCase;
 final class Catalog_FeatureTest extends UplinkTestCase {
 
 	private array $plugin_data = [
-		'feature_slug' => 'kadence-security',
-		'type'         => 'plugin',
-		'minimum_tier' => 'kadence-pro',
-		'plugin_file'  => 'kadence-security-pro/kadence-security-pro.php',
-		'is_dot_org'   => false,
-		'download_url' => 'https://licensing.stellarwp.com/api/plugins/kadence-security',
-		'name'         => 'Kadence Security Pro',
-		'description'  => 'WordPress security hardening and monitoring.',
-		'category'     => 'security',
+		'feature_slug'      => 'kadence-security',
+		'type'              => 'plugin',
+		'minimum_tier'      => 'kadence-pro',
+		'plugin_file'       => 'kadence-security-pro/kadence-security-pro.php',
+		'is_dot_org'        => false,
+		'download_url'      => 'https://licensing.stellarwp.com/api/plugins/kadence-security',
+		'name'              => 'Kadence Security Pro',
+		'description'       => 'WordPress security hardening and monitoring.',
+		'category'          => 'security',
 		'authors'           => [ 'KadenceWP' ],
 		'documentation_url' => 'https://www.kadencewp.com/help-center/',
 	];

@@ -169,22 +169,22 @@ final class Catalog_Controller extends WP_REST_Controller {
 					'items'       => [
 						'type'       => 'object',
 						'properties' => [
-							'feature_slug' => [
+							'feature_slug'      => [
 								'type' => 'string',
 							],
-							'type'         => [
+							'type'              => [
 								'type' => 'string',
 							],
-							'minimum_tier' => [
+							'minimum_tier'      => [
 								'type' => 'string',
 							],
-							'name'         => [
+							'name'              => [
 								'type' => 'string',
 							],
-							'description'  => [
+							'description'       => [
 								'type' => 'string',
 							],
-							'category'     => [
+							'category'          => [
 								'type' => 'string',
 							],
 							'authors'           => [

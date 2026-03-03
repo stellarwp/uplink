@@ -87,6 +87,7 @@ class Fixture {
 	 * @return array<string, mixed>
 	 */
 	public static function entry( array $attributes ): array {
+		/** @var array<string, mixed> $attributes */
 		$attributes = wp_parse_args(
 			$attributes,
 			[

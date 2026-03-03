@@ -122,8 +122,18 @@ class Client {
 	 */
 	private function request() {
 		if ( defined( 'STELLARWP_UPLINK_FEATURES_USE_FIXTURE_DATA' ) && STELLARWP_UPLINK_FEATURES_USE_FIXTURE_DATA ) {
-			/** @var array<int, array<string, mixed>> $data */
+			/**
+			 * Filters the feature catalog data used in development and testing.
+			 *
+			 * @since 3.0.0
+			 *
+			 * @param array<int, array<string, mixed>> $data The feature catalog data used in development and testing.
+			 *
+			 * @return array<int, array<string, mixed>> The feature catalog data used in development and testing.
+			 */
 			$data = (array) apply_filters( 'stellarwp_uplink_features_fixture_data', Fixture::create()->get() );
+
+			error_log( 'data: ' . print_r( $data, true ) );
 
 			if ( isset( $data['error'] ) ) {
 				$raw_message   = $data['error_message'] ?? $data['error'];

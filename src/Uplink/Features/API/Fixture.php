@@ -516,15 +516,15 @@ class Fixture {
 			),
 			self::entry(
 				[
-					'slug'              => 'learndash-certificates',
+					'slug'              => 'learndash-certificate-builder',
 					'group'             => 'learndash',
 					'tier'              => 'starter',
-					'name'              => 'Certificates',
-					'description'       => 'Customizable completion certificates',
+					'name'              => 'Learndash Certificate Builder',
+					'description'       => 'LearnDash certificate builder allows you build certificates for your courses using the Gutenberg WordPress block editor.',
 					'type'              => 'zip',
 					'is_available'      => true,
 					'documentation_url' => 'https://example.com/docs',
-					'plugin_file'       => 'learndash-certificates.zip',
+					'plugin_file'       => 'learndash-certificate-builder/learndash-certificate-builder.php',
 				]
 			),
 			self::entry(

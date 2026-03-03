@@ -10,8 +10,22 @@ final class Tier_CollectionTest extends UplinkTestCase {
 
 	public function test_it_adds_and_gets_tiers(): void {
 		$collection = new Tier_Collection();
-		$basic      = Catalog_Tier::from_array( [ 'slug' => 'basic', 'name' => 'Basic', 'rank' => 1, 'purchase_url' => '' ] );
-		$pro        = Catalog_Tier::from_array( [ 'slug' => 'pro', 'name' => 'Pro', 'rank' => 2, 'purchase_url' => '' ] );
+		$basic      = Catalog_Tier::from_array(
+			[
+				'slug'         => 'basic',
+				'name'         => 'Basic',
+				'rank'         => 1,
+				'purchase_url' => '',
+			]
+		);
+		$pro        = Catalog_Tier::from_array(
+			[
+				'slug'         => 'pro',
+				'name'         => 'Pro',
+				'rank'         => 2,
+				'purchase_url' => '',
+			]
+		);
 
 		$collection->add( $basic );
 		$collection->add( $pro );
@@ -23,8 +37,22 @@ final class Tier_CollectionTest extends UplinkTestCase {
 
 	public function test_it_does_not_duplicate_tiers_with_same_slug(): void {
 		$collection = new Tier_Collection();
-		$first      = Catalog_Tier::from_array( [ 'slug' => 'basic', 'name' => 'First', 'rank' => 1, 'purchase_url' => '' ] );
-		$second     = Catalog_Tier::from_array( [ 'slug' => 'basic', 'name' => 'Second', 'rank' => 1, 'purchase_url' => '' ] );
+		$first      = Catalog_Tier::from_array(
+			[
+				'slug'         => 'basic',
+				'name'         => 'First',
+				'rank'         => 1,
+				'purchase_url' => '',
+			]
+		);
+		$second     = Catalog_Tier::from_array(
+			[
+				'slug'         => 'basic',
+				'name'         => 'Second',
+				'rank'         => 1,
+				'purchase_url' => '',
+			]
+		);
 
 		$collection->add( $first );
 		$collection->add( $second );
@@ -41,8 +69,26 @@ final class Tier_CollectionTest extends UplinkTestCase {
 
 	public function test_it_iterates_over_tiers(): void {
 		$collection = new Tier_Collection();
-		$collection->add( Catalog_Tier::from_array( [ 'slug' => 'basic', 'name' => 'Basic', 'rank' => 1, 'purchase_url' => '' ] ) );
-		$collection->add( Catalog_Tier::from_array( [ 'slug' => 'pro', 'name' => 'Pro', 'rank' => 2, 'purchase_url' => '' ] ) );
+		$collection->add(
+			Catalog_Tier::from_array(
+				[
+					'slug'         => 'basic',
+					'name'         => 'Basic',
+					'rank'         => 1,
+					'purchase_url' => '',
+				]
+			)
+		);
+		$collection->add(
+			Catalog_Tier::from_array(
+				[
+					'slug'         => 'pro',
+					'name'         => 'Pro',
+					'rank'         => 2,
+					'purchase_url' => '',
+				]
+			)
+		);
 
 		$slugs = [];
 
@@ -58,7 +104,16 @@ final class Tier_CollectionTest extends UplinkTestCase {
 
 		$this->assertSame( 0, $collection->count() );
 
-		$collection->add( Catalog_Tier::from_array( [ 'slug' => 'basic', 'name' => 'Basic', 'rank' => 1, 'purchase_url' => '' ] ) );
+		$collection->add(
+			Catalog_Tier::from_array(
+				[
+					'slug'         => 'basic',
+					'name'         => 'Basic',
+					'rank'         => 1,
+					'purchase_url' => '',
+				]
+			)
+		);
 
 		$this->assertSame( 1, $collection->count() );
 	}

@@ -13,9 +13,24 @@ final class Product_CatalogTest extends UplinkTestCase {
 	private array $valid_data = [
 		'product_slug' => 'kadence',
 		'tiers'        => [
-			[ 'slug' => 'kadence-basic', 'name' => 'Basic', 'rank' => 1, 'purchase_url' => 'https://software.liquidweb.com/kadence?tier=basic' ],
-			[ 'slug' => 'kadence-pro', 'name' => 'Pro', 'rank' => 2, 'purchase_url' => 'https://software.liquidweb.com/kadence?tier=pro' ],
-			[ 'slug' => 'kadence-agency', 'name' => 'Agency', 'rank' => 3, 'purchase_url' => 'https://software.liquidweb.com/kadence?tier=agency' ],
+			[
+				'slug'         => 'kadence-basic',
+				'name'         => 'Basic',
+				'rank'         => 1,
+				'purchase_url' => 'https://software.liquidweb.com/kadence?tier=basic',
+			],
+			[
+				'slug'         => 'kadence-pro',
+				'name'         => 'Pro',
+				'rank'         => 2,
+				'purchase_url' => 'https://software.liquidweb.com/kadence?tier=pro',
+			],
+			[
+				'slug'         => 'kadence-agency',
+				'name'         => 'Agency',
+				'rank'         => 3,
+				'purchase_url' => 'https://software.liquidweb.com/kadence?tier=agency',
+			],
 		],
 		'features'     => [
 			[
@@ -23,7 +38,7 @@ final class Product_CatalogTest extends UplinkTestCase {
 				'type'         => 'plugin',
 				'minimum_tier' => 'kadence-basic',
 				'plugin_file'  => 'kadence-blocks-pro/kadence-blocks-pro.php',
-				'is_dot_org'       => false,
+				'is_dot_org'   => false,
 				'download_url' => 'https://licensing.stellarwp.com/api/plugins/kad-blocks-pro',
 				'name'         => 'Blocks Pro',
 				'description'  => 'Premium Gutenberg blocks for advanced page building.',
@@ -33,7 +48,7 @@ final class Product_CatalogTest extends UplinkTestCase {
 				'feature_slug' => 'kad-pattern-hub',
 				'type'         => 'flag',
 				'minimum_tier' => 'kadence-basic',
-				'is_dot_org'       => false,
+				'is_dot_org'   => false,
 				'name'         => 'Pattern Hub',
 				'description'  => 'Access to premium design patterns and starter templates.',
 				'category'     => 'design',
@@ -121,15 +136,32 @@ final class Product_CatalogTest extends UplinkTestCase {
 	}
 
 	public function test_get_tiers_sorts_by_rank(): void {
-		$catalog = Product_Catalog::from_array( [
-			'product_slug' => 'test',
-			'tiers'        => [
-				[ 'slug' => 'agency', 'name' => 'Agency', 'rank' => 3, 'purchase_url' => '' ],
-				[ 'slug' => 'basic', 'name' => 'Basic', 'rank' => 1, 'purchase_url' => '' ],
-				[ 'slug' => 'pro', 'name' => 'Pro', 'rank' => 2, 'purchase_url' => '' ],
-			],
-			'features'     => [],
-		] );
+		$catalog = Product_Catalog::from_array(
+			[
+				'product_slug' => 'test',
+				'tiers'        => [
+					[
+						'slug'         => 'agency',
+						'name'         => 'Agency',
+						'rank'         => 3,
+						'purchase_url' => '',
+					],
+					[
+						'slug'         => 'basic',
+						'name'         => 'Basic',
+						'rank'         => 1,
+						'purchase_url' => '',
+					],
+					[
+						'slug'         => 'pro',
+						'name'         => 'Pro',
+						'rank'         => 2,
+						'purchase_url' => '',
+					],
+				],
+				'features'     => [],
+			]
+		);
 
 		$slugs = array_keys( iterator_to_array( $catalog->get_tiers() ) );
 
@@ -137,14 +169,26 @@ final class Product_CatalogTest extends UplinkTestCase {
 	}
 
 	public function test_get_tier_by_slug_returns_tier(): void {
-		$catalog = Product_Catalog::from_array( [
-			'product_slug' => 'test',
-			'tiers'        => [
-				[ 'slug' => 'basic', 'name' => 'Basic', 'rank' => 1, 'purchase_url' => '' ],
-				[ 'slug' => 'pro', 'name' => 'Pro', 'rank' => 2, 'purchase_url' => '' ],
-			],
-			'features'     => [],
-		] );
+		$catalog = Product_Catalog::from_array(
+			[
+				'product_slug' => 'test',
+				'tiers'        => [
+					[
+						'slug'         => 'basic',
+						'name'         => 'Basic',
+						'rank'         => 1,
+						'purchase_url' => '',
+					],
+					[
+						'slug'         => 'pro',
+						'name'         => 'Pro',
+						'rank'         => 2,
+						'purchase_url' => '',
+					],
+				],
+				'features'     => [],
+			]
+		);
 
 		$tier = $catalog->get_tier_by_slug( 'pro' );
 
@@ -154,13 +198,20 @@ final class Product_CatalogTest extends UplinkTestCase {
 	}
 
 	public function test_get_tier_by_slug_returns_null_for_unknown(): void {
-		$catalog = Product_Catalog::from_array( [
-			'product_slug' => 'test',
-			'tiers'        => [
-				[ 'slug' => 'basic', 'name' => 'Basic', 'rank' => 1, 'purchase_url' => '' ],
-			],
-			'features'     => [],
-		] );
+		$catalog = Product_Catalog::from_array(
+			[
+				'product_slug' => 'test',
+				'tiers'        => [
+					[
+						'slug'         => 'basic',
+						'name'         => 'Basic',
+						'rank'         => 1,
+						'purchase_url' => '',
+					],
+				],
+				'features'     => [],
+			]
+		);
 
 		$this->assertNull( $catalog->get_tier_by_slug( 'enterprise' ) );
 	}

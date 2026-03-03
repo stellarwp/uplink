@@ -119,5 +119,4 @@ final class Fixture_ClientTest extends UplinkTestCase {
 
 		$this->assertSame( $first, $second );
 	}
-
 }

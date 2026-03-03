@@ -51,11 +51,22 @@ final class Catalog_RepositoryTest extends UplinkTestCase {
 
 	public function test_get_serves_from_transient(): void {
 		$stale = new Catalog_Collection();
-		$stale->add( Product_Catalog::from_array( [
-			'product_slug' => 'cached-product',
-			'tiers'        => [ [ 'slug' => 'basic', 'name' => 'Basic', 'rank' => 1, 'purchase_url' => '' ] ],
-			'features'     => [],
-		] ) );
+		$stale->add(
+			Product_Catalog::from_array(
+				[
+					'product_slug' => 'cached-product',
+					'tiers'        => [
+						[
+							'slug'         => 'basic',
+							'name'         => 'Basic',
+							'rank'         => 1,
+							'purchase_url' => '',
+						],
+					],
+					'features'     => [],
+				]
+			)
+		);
 
 		set_transient( Catalog_Repository::TRANSIENT_KEY, $stale );
 
@@ -90,11 +101,15 @@ final class Catalog_RepositoryTest extends UplinkTestCase {
 
 	public function test_refresh_clears_and_refetches(): void {
 		$stale = new Catalog_Collection();
-		$stale->add( Product_Catalog::from_array( [
-			'product_slug' => 'stale-product',
-			'tiers'        => [],
-			'features'     => [],
-		] ) );
+		$stale->add(
+			Product_Catalog::from_array(
+				[
+					'product_slug' => 'stale-product',
+					'tiers'        => [],
+					'features'     => [],
+				]
+			)
+		);
 
 		set_transient( Catalog_Repository::TRANSIENT_KEY, $stale );
 

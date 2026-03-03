@@ -21,9 +21,6 @@ use function is_plugin_active_for_network;
 use function plugins_api;
 use function sanitize_key;
 use function set_transient;
-use function validate_plugin;
-use function validate_plugin_requirements;
-
 /**
  * Zip Strategy — installs, activates, and deactivates WordPress plugins as
  * "features" using ZIP file downloads.
@@ -135,11 +132,29 @@ class Zip_Strategy extends Abstract_Strategy {
 			return true;
 		}
 
+		// Verify ownership before attempting installation. This catches
+		// cases where the plugin folder is already occupied by a different
+		// developer's plugin. If nothing is on disk yet, this returns true
+		// (no conflict) and we proceed to install.
+		$ownership = $this->verify_plugin_ownership( $feature );
+
+		if ( is_wp_error( $ownership ) ) {
+			return $ownership;
+		}
+
 		// Ensure the plugin is on disk — install from ZIP if needed.
 		$ensure_result = $this->ensure_installed( $feature );
 
 		if ( is_wp_error( $ensure_result ) ) {
 			return $ensure_result;
+		}
+
+		// Verify ownership after installation. A fresh download may contain
+		// a plugin from an unexpected author.
+		$ownership = $this->verify_plugin_ownership( $feature );
+
+		if ( is_wp_error( $ownership ) ) {
+			return $ownership;
 		}
 
 		// Activate the plugin and update stored state.
@@ -324,15 +339,8 @@ class Zip_Strategy extends Abstract_Strategy {
 	private function ensure_installed( Zip $feature ) {
 		$plugin_file = $feature->get_plugin_file();
 
-		// Verify ownership — handles both "exact file exists with wrong author"
-		// and "folder occupied by a different developer's plugin".
-		$ownership = $this->verify_plugin_ownership( $feature );
-
-		if ( is_wp_error( $ownership ) ) {
-			return $ownership;
-		}
-
-		// Already on disk — ownership verified above, ready for activation.
+		// Already on disk — ready for activation. Ownership is verified
+		// by the caller (enable()) after this method returns.
 		if ( $this->is_plugin_installed( $plugin_file ) ) {
 			return true;
 		}
@@ -373,7 +381,7 @@ class Zip_Strategy extends Abstract_Strategy {
 				);
 			}
 
-			return true; // @phpstan-ignore deadCode.unreachable
+			return true; // @phpstan-ignore deadCode.unreachable (The check above is a double check)
 		} finally {
 			// Always release the lock, even on early returns or exceptions.
 			$this->release_lock( $lock_key );
@@ -457,8 +465,7 @@ class Zip_Strategy extends Abstract_Strategy {
 	/**
 	 * Activate the plugin for a Zip feature with fatal error protection.
 	 *
-	 * Runs pre-flight checks (cheap validation) followed by in-process
-	 * activation with try/catch Throwable to catch PHP Error subclasses
+	 * Uses try/catch Throwable to catch PHP Error subclasses
 	 * (ParseError, TypeError, etc.).
 	 *
 	 * @since 3.0.0
@@ -468,61 +475,7 @@ class Zip_Strategy extends Abstract_Strategy {
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
 	private function activate_plugin( Zip $feature ) {
-		$plugin_file = $feature->get_plugin_file();
-
-		// Pre-flight: cheap validation — fail fast before include.
-		$preflight = $this->pre_flight_checks( $plugin_file );
-
-		if ( is_wp_error( $preflight ) ) {
-			return $preflight;
-		}
-
-		// In-process activation with try/catch Throwable.
 		return $this->activate_plugin_in_process( $feature );
-	}
-
-	/**
-	 * Run cheap pre-flight checks before attempting activation.
-	 *
-	 * Validates that the plugin file exists and meets WordPress requirements
-	 * (PHP version, WP version) without actually loading the plugin.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param string $plugin_file Plugin file path relative to plugins directory.
-	 *
-	 * @return true|WP_Error True if checks pass, WP_Error on failure.
-	 */
-	private function pre_flight_checks( string $plugin_file ) {
-		$valid = validate_plugin( $plugin_file );
-
-		if ( is_wp_error( $valid ) ) {
-			return new WP_Error(
-				Error_Code::PREFLIGHT_INVALID_PLUGIN,
-				sprintf(
-					'The plugin "%s" failed validation: %s',
-					$plugin_file,
-					$valid->get_error_message()
-				)
-			);
-		}
-
-		if ( function_exists( 'validate_plugin_requirements' ) ) {
-			$requirements = validate_plugin_requirements( $plugin_file );
-
-			if ( is_wp_error( $requirements ) ) {
-				return new WP_Error(
-					Error_Code::PREFLIGHT_REQUIREMENTS_NOT_MET,
-					sprintf(
-						'The plugin "%s" does not meet the system requirements: %s',
-						$plugin_file,
-						$requirements->get_error_message()
-					)
-				);
-			}
-		}
-
-		return true;
 	}
 
 	/**

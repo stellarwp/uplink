@@ -94,24 +94,6 @@ class Error_Code {
 	public const INSTALL_FAILED = 'stellarwp-uplink-install-failed';
 
 	/**
-	 * Pre-flight validation of the plugin file failed.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var string
-	 */
-	public const PREFLIGHT_INVALID_PLUGIN = 'stellarwp-uplink-preflight-invalid-plugin';
-
-	/**
-	 * The plugin does not meet PHP or WordPress version requirements.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var string
-	 */
-	public const PREFLIGHT_REQUIREMENTS_NOT_MET = 'stellarwp-uplink-preflight-requirements-not-met';
-
-	/**
 	 * A fatal PHP error (Throwable) occurred during plugin activation.
 	 *
 	 * @since 3.0.0

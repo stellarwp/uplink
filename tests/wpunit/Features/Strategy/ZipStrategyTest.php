@@ -790,45 +790,6 @@ final class ZipStrategyTest extends UplinkTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// Pre-flight check tests
-	// -------------------------------------------------------------------------
-
-	/**
-	 * enable() rejects a plugin with unmet requirements in pre-flight checks
-	 * before attempting activation.
-	 */
-	public function test_enable_preflight_rejects_invalid_plugin(): void {
-		$plugin_dir  = WP_PLUGIN_DIR . '/bad-plugin';
-		$plugin_path = $plugin_dir . '/bad-plugin.php';
-
-		if ( ! is_dir( $plugin_dir ) ) {
-			mkdir( $plugin_dir, 0755, true );
-		}
-		// Write a plugin requiring PHP 99.0 — validate_plugin_requirements() will reject it.
-		// Include Author header to pass ownership verification so pre-flight runs.
-		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Bad Plugin\n * Author: StellarWP\n * Requires PHP: 99.0\n */\n" );
-
-		try {
-			$feature = $this->make_zip_feature(
-				'bad-plugin',
-				'bad-plugin/bad-plugin.php'
-			);
-
-			$result = $this->strategy->enable( $feature );
-
-			$this->assertWPError( $result );
-			$this->assertSame( Error_Code::PREFLIGHT_REQUIREMENTS_NOT_MET, $result->get_error_code() );
-		} finally {
-			if ( file_exists( $plugin_path ) ) {
-				unlink( $plugin_path );
-			}
-			if ( is_dir( $plugin_dir ) ) {
-				rmdir( $plugin_dir );
-			}
-		}
-	}
-
-	// -------------------------------------------------------------------------
 	// Helpers
 	// -------------------------------------------------------------------------
 

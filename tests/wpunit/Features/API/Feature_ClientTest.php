@@ -9,6 +9,7 @@ use StellarWP\Uplink\Features\Types\Built_In;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Tests\UplinkTestCase;
+use stdClass;
 
 final class Feature_ClientTest extends UplinkTestCase {
 
@@ -111,6 +112,17 @@ final class Feature_ClientTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_uses_fixture_catalog_when_enabled(): void {
+		add_filter( 'plugins_api', static function ( $result, $action ) {
+			if ( $action === 'plugin_information' ) {
+				$response          = new stdClass();
+				$response->version = '1.0.0';
+
+				return $response;
+			}
+
+			return $result;
+		}, 10, 2 );
+
 		define( 'STELLARWP_UPLINK_FEATURES_USE_FIXTURE_DATA', true );
 
 		add_filter(

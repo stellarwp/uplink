@@ -4,8 +4,29 @@ namespace StellarWP\Uplink\Tests\Features\Types;
 
 use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Tests\UplinkTestCase;
+use stdClass;
 
 final class ZipTest extends UplinkTestCase {
+
+	/**
+	 * Mocks plugins_api to prevent HTTP requests in the test environment.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+
+		add_filter( 'plugins_api', static function ( $result, $action ) {
+			if ( $action === 'plugin_information' ) {
+				$response          = new stdClass();
+				$response->version = '2.0.0';
+
+				return $response;
+			}
+
+			return $result;
+		}, 10, 2 );
+	}
 
 	/**
 	 * Tests a Zip feature can be hydrated from an associative array.
@@ -68,8 +89,11 @@ final class ZipTest extends UplinkTestCase {
 				'is_available'      => true,
 				'documentation_url' => 'https://example.com/docs',
 				'type'              => 'zip',
+				'installed_version' => null,
+				'new_version'       => '2.0.0',
+				'has_update'        => false,
 			],
-			$feature->to_array() 
+			$feature->to_array()
 		);
 	}
 
@@ -93,7 +117,13 @@ final class ZipTest extends UplinkTestCase {
 
 		$feature = Zip::from_array( $data );
 
-		$this->assertSame( $data, $feature->to_array() );
+		$expected = $data + [
+			'installed_version' => null,
+			'new_version'       => '2.0.0',
+			'has_update'        => false,
+		];
+
+		$this->assertSame( $expected, $feature->to_array() );
 	}
 
 	/**

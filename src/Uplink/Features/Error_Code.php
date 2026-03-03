@@ -119,4 +119,13 @@ class Error_Code {
 	 * @var string
 	 */
 	public const PLUGIN_OWNERSHIP_MISMATCH = 'stellarwp-uplink-plugin-ownership-mismatch';
+
+	/**
+	 * The server's PHP or WordPress version does not meet the plugin's requirements.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const REQUIREMENTS_NOT_MET = 'stellarwp-uplink-requirements-not-met';
 }

@@ -66,6 +66,24 @@ class Zip_Strategy extends Abstract_Strategy {
 	private const LOCK_PREFIX = 'stellarwp_uplink_install_lock_';
 
 	/**
+	 * WordPress error codes that indicate PHP or WP version requirements are not met.
+	 *
+	 * Install path: emitted by Plugin_Upgrader::check_package() and captured by the skin.
+	 * Activation path: returned directly by activate_plugin() via validate_plugin_requirements().
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string[]
+	 */
+	private const REQUIREMENTS_ERROR_CODES = [
+		'incompatible_php_required_version',
+		'incompatible_wp_required_version',
+		'plugin_php_incompatible',
+		'plugin_wp_incompatible',
+		'plugin_wp_php_incompatible',
+	];
+
+	/**
 	 * Optional callable that resolves a plugin_file string to a Zip feature.
 	 *
 	 * Signature: fn(string $plugin_file): ?Zip
@@ -448,13 +466,25 @@ class Zip_Strategy extends Abstract_Strategy {
 
 		if ( $result !== true ) {
 			// Defensive: covers any unexpected falsy return not typed in stubs.
+			// When check_package() rejects a plugin for PHP/WP version requirements,
+			// Plugin_Upgrader::install() returns a falsy value (empty array) rather
+			// than a WP_Error. The specific error is captured in the skin.
 			$skin_errors = $skin->get_errors();
-			$message     = $skin_errors->has_errors()
-				? $skin_errors->get_error_message()
+			$error_code  = Error_Code::INSTALL_FAILED;
+
+			if ( $skin_errors->has_errors() && array_intersect( $skin_errors->get_error_codes(), self::REQUIREMENTS_ERROR_CODES ) ) {
+				$error_code = Error_Code::REQUIREMENTS_NOT_MET;
+			}
+
+			// Use the skin's get_error_messages() which concatenates the error
+			// message with its data, providing the specific reason (e.g.
+			// "The PHP version on your server is X, however the plugin requires Y").
+			$message = $skin_errors->has_errors()
+				? $skin->get_error_messages()
 				: 'An unknown error occurred during installation.';
 
 			return new WP_Error(
-				Error_Code::INSTALL_FAILED,
+				$error_code,
 				sprintf( 'Could not install "%s": %s', $feature->get_slug(), $message )
 			);
 		}
@@ -491,12 +521,16 @@ class Zip_Strategy extends Abstract_Strategy {
 		}
 
 		if ( is_wp_error( $result ) ) {
+			$error_code = in_array( $result->get_error_code(), self::REQUIREMENTS_ERROR_CODES, true )
+				? Error_Code::REQUIREMENTS_NOT_MET
+				: Error_Code::ACTIVATION_FAILED;
+
 			return new WP_Error(
-				Error_Code::ACTIVATION_FAILED,
+				$error_code,
 				sprintf(
 					'Could not activate "%s": %s',
 					$plugin_file,
-					$result->get_error_message()
+					wp_strip_all_tags( $result->get_error_message() )
 				)
 			);
 		}

@@ -790,6 +790,78 @@ final class ZipStrategyTest extends UplinkTestCase {
 	}
 
 	// -------------------------------------------------------------------------
+	// Requirements tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * enable() returns REQUIREMENTS_NOT_MET when an already-installed plugin
+	 * requires an impossibly high PHP version (detected during activation via
+	 * validate_plugin_requirements).
+	 */
+	public function test_enable_returns_requirements_not_met_for_high_php_requirement(): void {
+		$plugin_slug = 'high-php-req-zip-feature';
+		$plugin_file = $plugin_slug . '/' . $plugin_slug . '.php';
+		$plugin_dir  = WP_PLUGIN_DIR . '/' . $plugin_slug;
+		$source_dir  = codecept_data_dir( 'Features/Zips/' . $plugin_slug );
+
+		if ( ! is_dir( $plugin_dir ) ) {
+			mkdir( $plugin_dir, 0755, true );
+		}
+		copy( $source_dir . '/' . $plugin_slug . '.php', $plugin_dir . '/' . $plugin_slug . '.php' );
+
+		try {
+			$feature = $this->make_zip_feature( $plugin_slug, $plugin_file, [ 'StellarWP' ] );
+			$result  = $this->strategy->enable( $feature );
+
+			$this->assertWPError( $result );
+			$this->assertSame( Error_Code::REQUIREMENTS_NOT_MET, $result->get_error_code() );
+			$this->assertStringContainsString( 'PHP', $result->get_error_message() );
+		} finally {
+			deactivate_plugins( $plugin_file );
+			if ( file_exists( $plugin_dir . '/' . $plugin_slug . '.php' ) ) {
+				unlink( $plugin_dir . '/' . $plugin_slug . '.php' );
+			}
+			if ( is_dir( $plugin_dir ) ) {
+				rmdir( $plugin_dir );
+			}
+		}
+	}
+
+	/**
+	 * enable() returns REQUIREMENTS_NOT_MET when an already-installed plugin
+	 * requires an impossibly high WordPress version (detected during activation
+	 * via validate_plugin_requirements).
+	 */
+	public function test_enable_returns_requirements_not_met_for_high_wp_requirement(): void {
+		$plugin_slug = 'high-wp-req-zip-feature';
+		$plugin_file = $plugin_slug . '/' . $plugin_slug . '.php';
+		$plugin_dir  = WP_PLUGIN_DIR . '/' . $plugin_slug;
+		$source_dir  = codecept_data_dir( 'Features/Zips/' . $plugin_slug );
+
+		if ( ! is_dir( $plugin_dir ) ) {
+			mkdir( $plugin_dir, 0755, true );
+		}
+		copy( $source_dir . '/' . $plugin_slug . '.php', $plugin_dir . '/' . $plugin_slug . '.php' );
+
+		try {
+			$feature = $this->make_zip_feature( $plugin_slug, $plugin_file, [ 'StellarWP' ] );
+			$result  = $this->strategy->enable( $feature );
+
+			$this->assertWPError( $result );
+			$this->assertSame( Error_Code::REQUIREMENTS_NOT_MET, $result->get_error_code() );
+			$this->assertStringContainsString( 'WordPress', $result->get_error_message() );
+		} finally {
+			deactivate_plugins( $plugin_file );
+			if ( file_exists( $plugin_dir . '/' . $plugin_slug . '.php' ) ) {
+				unlink( $plugin_dir . '/' . $plugin_slug . '.php' );
+			}
+			if ( is_dir( $plugin_dir ) ) {
+				rmdir( $plugin_dir );
+			}
+		}
+	}
+
+	// -------------------------------------------------------------------------
 	// Helpers
 	// -------------------------------------------------------------------------
 

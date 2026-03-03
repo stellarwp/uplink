@@ -62,17 +62,20 @@ final class Error_CodeTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_all_constants_are_mapped(): void {
-		$reflection = new \ReflectionClass( Error_Code::class );
-		$constants  = $reflection->getConstants();
+		// Arrange.
+
+		$reflection     = new \ReflectionClass( Error_Code::class );
+		$constants      = $reflection->getConstants();
+		$provider_codes = array_column( $this->known_code_provider(), 0 );
+
+		// Assert.
 
 		foreach ( $constants as $name => $value ) {
-			$status = Error_Code::http_status( $value );
-
-			$this->assertNotSame(
-				422,
-				$status,
+			$this->assertContains(
+				$value,
+				$provider_codes,
 				sprintf(
-					'Error_Code::%s ("%s") is not mapped in http_status() — it falls through to the default 422. Add an explicit entry.',
+					'Error_Code::%s ("%s") is not covered by known_code_provider() — add an explicit entry for its expected HTTP status.',
 					$name,
 					$value
 				)

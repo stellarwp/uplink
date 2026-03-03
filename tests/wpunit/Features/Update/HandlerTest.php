@@ -5,6 +5,7 @@ namespace StellarWP\Uplink\Tests\Features\Update;
 use StellarWP\Uplink\Features\API\Feature_Client;
 use StellarWP\Uplink\Features\API\Update_Client;
 use StellarWP\Uplink\Features\Feature_Collection;
+use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Update\Handler;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Resources\Plugin;
@@ -64,8 +65,11 @@ final class HandlerTest extends UplinkTestCase {
 
 		$collection = new Collection( [ 'my-plugin' => $plugin ] );
 
+		$features = new Feature_Collection();
+		$features->add( $this->makeEmpty( Feature::class, [ 'get_slug' => 'my-plugin' ] ) );
+
 		$update_client  = $this->makeEmpty( Update_Client::class, [ 'check_updates' => $check_updates_return ] );
-		$feature_client = $this->makeEmpty( Feature_Client::class, [ 'get_features' => new Feature_Collection() ] );
+		$feature_client = $this->makeEmpty( Feature_Client::class, [ 'get_features' => $features ] );
 
 		return new Handler(
 			$update_client,

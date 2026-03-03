@@ -50,15 +50,15 @@ final class ProviderTest extends UplinkTestCase {
 		$provider->register_hooks();
 
 		$this->assertSame(
-			5,
+			15,
 			has_filter( 'plugins_api', [ $this->container->get( Handler::class ), 'filter_plugins_api' ] ),
-			'plugins_api should have a callback at priority 5.'
+			'plugins_api should have a callback at priority 15.'
 		);
 
 		$this->assertSame(
-			5,
+			15,
 			has_filter( 'pre_set_site_transient_update_plugins', [ $this->container->get( Handler::class ), 'filter_update_check' ] ),
-			'pre_set_site_transient_update_plugins should have a callback at priority 5.'
+			'pre_set_site_transient_update_plugins should have a callback at priority 15.'
 		);
 	}
 

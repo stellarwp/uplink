@@ -21,7 +21,7 @@ export const selectors = {
         state.features[ slug ] ?? null,
 
     isFeatureEnabled: ( state: State, slug: string ): boolean =>
-        state.features[ slug ]?.enabled ?? false,
+        state.features[ slug ]?.is_enabled ?? false,
 
     getFeatureError: ( state: State, slug: string ): string | null =>
         state.errors[ `feature:${ slug }` ] ?? null,

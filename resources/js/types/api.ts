@@ -40,7 +40,7 @@ export interface Feature {
     /** URL to documentation or learn-more page */
     documentation_url: string;
     /** Whether the feature is currently enabled (persisted server-side) */
-    enabled:           boolean;
+    is_enabled:        boolean;
     /** Plugin file path relative to the plugins directory (zip type only) */
     plugin_file?:      string;
 }

@@ -37,7 +37,7 @@ export function reducer( state: State = DEFAULT_STATE, action: Action ): State {
                 ...state,
                 features: {
                     ...state.features,
-                    [ action.slug ]: { ...state.features[ action.slug ], enabled: action.enabled },
+                    [ action.slug ]: { ...state.features[ action.slug ], is_enabled: action.enabled },
                 },
             };
         default:

@@ -101,7 +101,7 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
         );
     }
 
-    const featureEnabled = feature.enabled;
+    const featureEnabled = feature.is_enabled;
 
     const handleToggle = async ( checked: boolean ) => {
         setIsPending( true );

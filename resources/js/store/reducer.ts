@@ -1,17 +1,15 @@
 /**
  * Reducer for the stellarwp/uplink @wordpress/data store.
  *
- * State slices are added per phase:
- *   Phase 2 — features (Record<string, Feature>)
- *
  * @see .plans/wp-data-store-features.md
  * @package StellarWP\Uplink
  */
 import type { Action } from './actions';
+import type { Feature } from '@/types/api';
 
 export interface State {
-    /** Feature objects keyed by slug — populated in Phase 2 */
-    features: Record<string, unknown>;
+    /** Feature objects keyed by slug — populated by the getFeatures resolver */
+    features: Record<string, Feature>;
     /** Action-scoped error messages, e.g. `feature:give-stripe-gateway` */
     errors:   Record<string, string>;
 }
@@ -29,6 +27,19 @@ export function reducer( state: State = DEFAULT_STATE, action: Action ): State {
             const { [ action.key ]: _, ...rest } = state.errors;
             return { ...state, errors: rest };
         }
+        case 'RECEIVE_FEATURES':
+            return {
+                ...state,
+                features: Object.fromEntries( action.features.map( ( f ) => [ f.slug, f ] ) ),
+            };
+        case 'PATCH_FEATURE':
+            return {
+                ...state,
+                features: {
+                    ...state.features,
+                    [ action.slug ]: { ...state.features[ action.slug ], enabled: action.enabled },
+                },
+            };
         default:
             return state;
     }

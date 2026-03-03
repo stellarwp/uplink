@@ -26,3 +26,22 @@ export function registerUplinkStore(): void {
 }
 
 export { STORE_NAME };
+
+// ---------------------------------------------------------------------------
+// Type augmentation — teaches useSelect / useDispatch about this store.
+// ---------------------------------------------------------------------------
+
+/** Selector interface exposed to useSelect consumers. */
+export type StoreSelectors = typeof selectors & {
+    /** @wordpress/data meta-selector — true once the resolver has finished. */
+    hasFinishedResolution: ( selectorName: string, args?: unknown[] ) => boolean;
+    /** @wordpress/data meta-selector — true while the resolver is running. */
+    isResolving: ( selectorName: string, args?: unknown[] ) => boolean;
+};
+
+declare module '@wordpress/data' {
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    function select( storeName: typeof STORE_NAME ): StoreSelectors;
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    function dispatch( storeName: typeof STORE_NAME ): typeof actions;
+}

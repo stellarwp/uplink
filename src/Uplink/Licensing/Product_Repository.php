@@ -11,6 +11,9 @@ use WP_Error;
  * This is the public API that the rest of Uplink uses — it never
  * exposes the client directly.
  *
+ * Only one unified license key exists per site, so the cache stores
+ * a single catalog keyed by a fixed transient name.
+ *
  * @since 3.0.0
  */
 class Product_Repository {

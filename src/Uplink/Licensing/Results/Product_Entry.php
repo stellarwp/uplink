@@ -40,7 +40,7 @@ class Product_Entry {
 		'tier'              => '',
 		'pending_tier'      => null,
 		'status'            => '',
-		'expires'           => '',
+		'expires'           => '1970-01-01 00:00:00',
 		'site_limit'        => 0,
 		'active_count'      => 0,
 		'installed_here'    => null,

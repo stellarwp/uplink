@@ -475,22 +475,6 @@ class Zip_Strategy extends Abstract_Strategy {
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
 	private function activate_plugin( Zip $feature ) {
-		return $this->activate_plugin_in_process( $feature );
-	}
-
-	/**
-	 * Activate a plugin in-process with try/catch Throwable protection.
-	 *
-	 * Catches PHP Error subclasses (ParseError, TypeError, etc.) but cannot
-	 * catch exit()/die()/OOM.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param Zip $feature The feature whose plugin to activate.
-	 *
-	 * @return true|WP_Error True on success, WP_Error on failure.
-	 */
-	private function activate_plugin_in_process( Zip $feature ) {
 		$plugin_file = $feature->get_plugin_file();
 
 		try {

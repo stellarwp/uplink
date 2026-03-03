@@ -31,6 +31,15 @@ class Error_Code {
 	public const FEATURE_CHECK_FAILED = 'stellarwp-uplink-feature-check-failed';
 
 	/**
+	 * A feature request failed due to an unexpected error.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const FEATURE_REQUEST_FAILED = 'stellarwp-uplink-feature-request-failed';
+
+	/**
 	 * A feature was passed to a strategy that does not support its type.
 	 *
 	 * @since 3.0.0

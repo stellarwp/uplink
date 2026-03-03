@@ -19,7 +19,8 @@
     "phpstan-cache",
     "phpstan.neon.dist",
     "tests/_support/_generated",
-    "vendor"
+    "vendor",
+    "Fixture.php"
   ],
   "words": [
     "absint",

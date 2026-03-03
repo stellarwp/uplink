@@ -57,8 +57,13 @@ export function ProductSection( { product, onAddLicense }: ProductSectionProps )
     };
 
     // Features come from the REST API via the store resolver.
+    // Calling getFeatures() inside useSelect triggers the resolver;
+    // getFeaturesByGroup then filters the cached result for this product.
     const features = useSelect(
-        ( select ) => select( uplinkStore ).getFeaturesByGroup( product.slug ),
+        ( select ) => {
+            select( uplinkStore ).getFeatures();
+            return select( uplinkStore ).getFeaturesByGroup( product.slug );
+        },
         [ product.slug ],
     );
 

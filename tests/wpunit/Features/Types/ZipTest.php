@@ -16,16 +16,21 @@ final class ZipTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		add_filter( 'plugins_api', static function ( $result, $action ) {
-			if ( $action === 'plugin_information' ) {
-				$response          = new stdClass();
-				$response->version = '2.0.0';
+		add_filter(
+			'plugins_api',
+			static function ( $result, $action ) {
+				if ( $action === 'plugin_information' ) {
+					$response          = new stdClass();
+					$response->version = '2.0.0';
 
-				return $response;
-			}
+					return $response;
+				}
 
-			return $result;
-		}, 10, 2 );
+				return $result;
+			},
+			10,
+			2 
+		);
 	}
 
 	/**

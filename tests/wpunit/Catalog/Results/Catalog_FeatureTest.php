@@ -17,6 +17,8 @@ final class Catalog_FeatureTest extends UplinkTestCase {
 		'name'         => 'Kadence Security Pro',
 		'description'  => 'WordPress security hardening and monitoring.',
 		'category'     => 'security',
+		'authors'           => [ 'KadenceWP' ],
+		'documentation_url' => 'https://www.kadencewp.com/help-center/',
 	];
 
 	public function test_from_array_hydrates_all_fields(): void {
@@ -31,6 +33,8 @@ final class Catalog_FeatureTest extends UplinkTestCase {
 		$this->assertSame( 'Kadence Security Pro', $feature->get_name() );
 		$this->assertSame( 'WordPress security hardening and monitoring.', $feature->get_description() );
 		$this->assertSame( 'security', $feature->get_category() );
+		$this->assertSame( [ 'KadenceWP' ], $feature->get_authors() );
+		$this->assertSame( 'https://www.kadencewp.com/help-center/', $feature->get_documentation_url() );
 	}
 
 	public function test_to_array_produces_expected_shape(): void {

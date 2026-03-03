@@ -43,6 +43,8 @@ final class Product_CatalogTest extends UplinkTestCase {
 				'name'         => 'Blocks Pro',
 				'description'  => 'Premium Gutenberg blocks for advanced page building.',
 				'category'     => 'blocks',
+				'authors'           => [ 'KadenceWP' ],
+				'documentation_url' => 'https://www.kadencewp.com/help-center/',
 			],
 			[
 				'feature_slug' => 'kad-pattern-hub',
@@ -52,6 +54,8 @@ final class Product_CatalogTest extends UplinkTestCase {
 				'name'         => 'Pattern Hub',
 				'description'  => 'Access to premium design patterns and starter templates.',
 				'category'     => 'design',
+				'authors'           => [ 'KadenceWP' ],
+				'documentation_url' => 'https://www.kadencewp.com/help-center/',
 			],
 		],
 	];

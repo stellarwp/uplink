@@ -29,7 +29,11 @@
         "is_dot_org": true,
         "name": "Kadence Theme",
         "description": "A lightweight, performant WordPress theme for site building.",
-        "category": "theme"
+        "category": "theme",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "kad-blocks-pro",
@@ -40,7 +44,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/kad-blocks-pro",
         "name": "Blocks Pro",
         "description": "Premium Gutenberg blocks for advanced page building.",
-        "category": "blocks"
+        "category": "blocks",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "kad-theme-kit-pro",
@@ -51,7 +59,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/kad-theme-kit-pro",
         "name": "Theme Kit Pro",
         "description": "Advanced theme customization options and header/footer builder.",
-        "category": "theme"
+        "category": "theme",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "kad-shop-kit",
@@ -61,8 +73,12 @@
         "is_dot_org": false,
         "download_url": "https://licensing.stellarwp.com/api/plugins/kad-shop-kit",
         "name": "Shop Kit",
-        "description": "WooCommerce enhancements — product galleries, swatches, quick view, and more.",
-        "category": "woocommerce"
+        "description": "WooCommerce enhancements \u2014 product galleries, swatches, quick view, and more.",
+        "category": "woocommerce",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "kad-creative-kit",
@@ -73,7 +89,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/kad-creative-kit",
         "name": "Creative Kit",
         "description": "Advanced design tools including animations and effects.",
-        "category": "design"
+        "category": "design",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "kad-insights",
@@ -84,7 +104,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/kad-insights",
         "name": "Insights (A/B Testing)",
         "description": "Run A/B tests on your content to optimize conversions.",
-        "category": "analytics"
+        "category": "analytics",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "kad-pattern-hub",
@@ -93,7 +117,11 @@
         "is_dot_org": false,
         "name": "Pattern Hub",
         "description": "Access to premium design patterns and starter templates.",
-        "category": "design"
+        "category": "design",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "kad-conversions",
@@ -104,7 +132,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/kad-conversions",
         "name": "Conversions",
         "description": "Popups, slide-ins, and banners for conversion optimization.",
-        "category": "marketing"
+        "category": "marketing",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "kad-galleries",
@@ -115,7 +147,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/kad-galleries",
         "name": "Galleries",
         "description": "Advanced image and video gallery blocks.",
-        "category": "blocks"
+        "category": "blocks",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "kad-captcha",
@@ -124,7 +160,11 @@
         "is_dot_org": false,
         "name": "Captcha",
         "description": "Spam protection for forms with reCAPTCHA and hCaptcha.",
-        "category": "forms"
+        "category": "forms",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "kad-simple-share",
@@ -133,7 +173,11 @@
         "is_dot_org": false,
         "name": "Simple Share",
         "description": "Social sharing buttons for posts and pages.",
-        "category": "social"
+        "category": "social",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "kad-custom-fonts",
@@ -142,7 +186,11 @@
         "is_dot_org": false,
         "name": "Custom Fonts",
         "description": "Upload and use custom fonts across your site.",
-        "category": "design"
+        "category": "design",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "kad-reading-time",
@@ -151,7 +199,11 @@
         "is_dot_org": false,
         "name": "Reading Time",
         "description": "Display estimated reading time on posts.",
-        "category": "content"
+        "category": "content",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "solid-security",
@@ -162,7 +214,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/solid-security",
         "name": "Solid Security Pro",
         "description": "Comprehensive WordPress security with malware scanning, 2FA, and brute force protection.",
-        "category": "security"
+        "category": "security",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "solid-backups",
@@ -173,7 +229,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/solid-backups",
         "name": "Solid Backups",
         "description": "Automated WordPress backups with cloud storage and one-click restore.",
-        "category": "security"
+        "category": "security",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "solid-central",
@@ -184,7 +244,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/solid-central",
         "name": "Solid Central",
         "description": "Manage multiple WordPress sites from one dashboard.",
-        "category": "management"
+        "category": "management",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "solid-performance",
@@ -195,7 +259,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/solid-performance",
         "name": "Solid Performance",
         "description": "Caching and performance optimization for WordPress.",
-        "category": "performance"
+        "category": "performance",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "solid-mail",
@@ -206,7 +274,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/solid-mail",
         "name": "Solid Mail",
         "description": "Reliable email delivery with SMTP and email logging.",
-        "category": "email"
+        "category": "email",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "iconic-flux",
@@ -217,7 +289,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/iconic-flux",
         "name": "Flux Checkout",
         "description": "Streamlined, fast WooCommerce checkout experience.",
-        "category": "woocommerce"
+        "category": "woocommerce",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "iconic-delivery-slots",
@@ -228,7 +304,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/iconic-delivery-slots",
         "name": "WooCommerce Delivery Slots",
         "description": "Let customers choose delivery dates and time slots.",
-        "category": "woocommerce"
+        "category": "woocommerce",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "iconic-woothumbs",
@@ -239,7 +319,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/iconic-woothumbs",
         "name": "WooThumbs",
         "description": "Advanced product image gallery with zoom and video support.",
-        "category": "woocommerce"
+        "category": "woocommerce",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "iconic-swatches",
@@ -250,7 +334,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/iconic-swatches",
         "name": "Attribute Swatches",
         "description": "Visual color and image swatches for product variations.",
-        "category": "woocommerce"
+        "category": "woocommerce",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "iconic-single-variations",
@@ -261,7 +349,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/iconic-single-variations",
         "name": "Show Single Variations",
         "description": "Display product variations as individual products in shop listings.",
-        "category": "woocommerce"
+        "category": "woocommerce",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "iconic-sales-booster",
@@ -272,7 +364,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/iconic-sales-booster",
         "name": "Iconic Sales Booster",
         "description": "Cross-sells, upsells, and order bumps to increase average order value.",
-        "category": "woocommerce"
+        "category": "woocommerce",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "iconic-image-swap",
@@ -283,7 +379,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/iconic-image-swap",
         "name": "Image Swap for WooCommerce",
         "description": "Swap product images on hover in shop listings.",
-        "category": "woocommerce"
+        "category": "woocommerce",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "iconic-linked-variations",
@@ -294,7 +394,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/iconic-linked-variations",
         "name": "Linked Variations",
         "description": "Link product variations across different products.",
-        "category": "woocommerce"
+        "category": "woocommerce",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "iconic-configurator",
@@ -305,7 +409,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/iconic-configurator",
         "name": "Product Configurator",
         "description": "Visual step-by-step product builder for complex products.",
-        "category": "woocommerce"
+        "category": "woocommerce",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "iconic-quickview",
@@ -316,7 +424,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/iconic-quickview",
         "name": "Quickview",
         "description": "Quick product preview popup without leaving the shop page.",
-        "category": "woocommerce"
+        "category": "woocommerce",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "iconic-wishlist",
@@ -327,7 +439,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/iconic-wishlist",
         "name": "Wishlist for WooCommerce",
         "description": "Let customers save products to wishlists.",
-        "category": "woocommerce"
+        "category": "woocommerce",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "iconic-account-pages",
@@ -338,7 +454,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/iconic-account-pages",
         "name": "Account Pages",
         "description": "Customize WooCommerce My Account pages.",
-        "category": "woocommerce"
+        "category": "woocommerce",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "iconic-custom-fields",
@@ -349,7 +469,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/iconic-custom-fields",
         "name": "Custom Fields for Variations",
         "description": "Add custom data fields to product variations.",
-        "category": "woocommerce"
+        "category": "woocommerce",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "iconic-bundled",
@@ -360,7 +484,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/iconic-bundled",
         "name": "Bundled Products",
         "description": "Create product bundles and kits with flexible pricing.",
-        "category": "woocommerce"
+        "category": "woocommerce",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       }
     ]
   },
@@ -394,7 +522,11 @@
         "is_dot_org": false,
         "name": "Instructor Role",
         "description": "Allow multiple instructors to create and manage their own courses.",
-        "category": "core"
+        "category": "core",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/"
       },
       {
         "feature_slug": "ld-ratings-reviews",
@@ -403,7 +535,11 @@
         "is_dot_org": false,
         "name": "Ratings, Reviews & Feedback",
         "description": "Enable students to rate and review courses.",
-        "category": "core"
+        "category": "core",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/"
       },
       {
         "feature_slug": "ld-propanel",
@@ -414,7 +550,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/ld-propanel",
         "name": "ProPanel",
         "description": "Real-time reporting dashboard for course activity and student progress.",
-        "category": "reporting"
+        "category": "reporting",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/"
       },
       {
         "feature_slug": "ld-notes",
@@ -423,7 +563,11 @@
         "is_dot_org": false,
         "name": "Notes",
         "description": "Allow students to take and save notes within lessons.",
-        "category": "core"
+        "category": "core",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/"
       },
       {
         "feature_slug": "ld-gradebook",
@@ -432,7 +576,11 @@
         "is_dot_org": false,
         "name": "Gradebook",
         "description": "Comprehensive gradebook for tracking student performance across courses.",
-        "category": "reporting"
+        "category": "reporting",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/"
       },
       {
         "feature_slug": "ld-groups-management",
@@ -441,7 +589,11 @@
         "is_dot_org": false,
         "name": "Groups Management",
         "description": "Organize learners into groups with group leaders and bulk enrollment.",
-        "category": "management"
+        "category": "management",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/"
       },
       {
         "feature_slug": "ld-memberdash",
@@ -452,7 +604,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/ld-memberdash",
         "name": "MemberDash",
         "description": "Membership and content restriction functionality.",
-        "category": "membership"
+        "category": "membership",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/"
       }
     ]
   },
@@ -488,7 +644,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-recurring",
         "name": "Recurring Donations",
         "description": "Accept recurring donations on a schedule.",
-        "category": "core"
+        "category": "core",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-fee-recovery",
@@ -499,7 +659,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-fee-recovery",
         "name": "Fee Recovery",
         "description": "Optionally pass processing fees to donors.",
-        "category": "core"
+        "category": "core",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-form-field-manager",
@@ -510,7 +674,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-form-field-manager",
         "name": "Form Field Manager",
         "description": "Add custom fields to donation forms.",
-        "category": "core"
+        "category": "core",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-annual-receipts",
@@ -521,7 +689,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-annual-receipts",
         "name": "Annual Receipts",
         "description": "Generate annual tax-deductible receipts for donors.",
-        "category": "core"
+        "category": "core",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-funds",
@@ -532,7 +704,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-funds",
         "name": "Funds & Designations",
         "description": "Allow donors to designate gifts to specific funds.",
-        "category": "core"
+        "category": "core",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-tributes",
@@ -543,7 +719,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-tributes",
         "name": "Tributes",
         "description": "Allow donors to make tribute donations in honor of someone.",
-        "category": "core"
+        "category": "core",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-pdf-receipts",
@@ -554,7 +734,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-pdf-receipts",
         "name": "PDF Receipts",
         "description": "Generate downloadable PDF donation receipts.",
-        "category": "core"
+        "category": "core",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-manual-donations",
@@ -565,7 +749,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-manual-donations",
         "name": "Manual Donations",
         "description": "Record offline or manual donations in the system.",
-        "category": "core"
+        "category": "core",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-peer-to-peer",
@@ -576,7 +764,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-peer-to-peer",
         "name": "Peer-to-Peer",
         "description": "Enable supporters to create their own fundraising pages.",
-        "category": "campaigns"
+        "category": "campaigns",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-text-to-give",
@@ -587,7 +779,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-text-to-give",
         "name": "Text to Give",
         "description": "Accept donations via SMS text messages.",
-        "category": "campaigns"
+        "category": "campaigns",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-stripe",
@@ -598,7 +794,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-stripe",
         "name": "Stripe Gateway",
         "description": "Accept donations through Stripe.",
-        "category": "gateway"
+        "category": "gateway",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-authorize",
@@ -609,7 +809,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-authorize",
         "name": "Authorize.net",
         "description": "Accept donations through Authorize.net.",
-        "category": "gateway"
+        "category": "gateway",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-square",
@@ -620,7 +824,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-square",
         "name": "Square",
         "description": "Accept donations through Square.",
-        "category": "gateway"
+        "category": "gateway",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-paypal",
@@ -631,7 +839,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-paypal",
         "name": "PayPal Commerce",
         "description": "Accept donations through PayPal Commerce.",
-        "category": "gateway"
+        "category": "gateway",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-mollie",
@@ -642,7 +854,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-mollie",
         "name": "Mollie",
         "description": "Accept donations through Mollie.",
-        "category": "gateway"
+        "category": "gateway",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-razorpay",
@@ -653,7 +869,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-razorpay",
         "name": "RazorPay",
         "description": "Accept donations through RazorPay.",
-        "category": "gateway"
+        "category": "gateway",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-gocardless",
@@ -664,7 +884,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-gocardless",
         "name": "GoCardless",
         "description": "Accept donations through GoCardless direct debit.",
-        "category": "gateway"
+        "category": "gateway",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-braintree",
@@ -675,7 +899,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-braintree",
         "name": "Braintree",
         "description": "Accept donations through Braintree.",
-        "category": "gateway"
+        "category": "gateway",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-currency-switcher",
@@ -686,7 +914,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-currency-switcher",
         "name": "Currency Switcher",
         "description": "Allow donors to give in their local currency.",
-        "category": "integration"
+        "category": "integration",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-salesforce",
@@ -697,7 +929,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-salesforce",
         "name": "Salesforce",
         "description": "Sync donation data with Salesforce CRM.",
-        "category": "integration"
+        "category": "integration",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-gift-aid",
@@ -708,7 +944,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-gift-aid",
         "name": "Gift Aid",
         "description": "UK Gift Aid declarations for tax-efficient giving.",
-        "category": "integration"
+        "category": "integration",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-webhooks",
@@ -719,7 +959,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-webhooks",
         "name": "Webhooks",
         "description": "Send donation events to external services via webhooks.",
-        "category": "integration"
+        "category": "integration",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-mailchimp",
@@ -730,7 +974,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-mailchimp",
         "name": "MailChimp",
         "description": "Sync donors with MailChimp email lists.",
-        "category": "integration"
+        "category": "integration",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-activecampaign",
@@ -741,7 +989,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-activecampaign",
         "name": "ActiveCampaign",
         "description": "Sync donors with ActiveCampaign.",
-        "category": "integration"
+        "category": "integration",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-zapier",
@@ -752,7 +1004,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-zapier",
         "name": "Zapier",
         "description": "Connect donations to 5000+ apps via Zapier.",
-        "category": "integration"
+        "category": "integration",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-constant-contact",
@@ -763,7 +1019,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-constant-contact",
         "name": "Constant Contact",
         "description": "Sync donors with Constant Contact.",
-        "category": "integration"
+        "category": "integration",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-convertkit",
@@ -774,7 +1034,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-convertkit",
         "name": "ConvertKit",
         "description": "Sync donors with ConvertKit.",
-        "category": "integration"
+        "category": "integration",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-ga-tracking",
@@ -785,7 +1049,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-ga-tracking",
         "name": "Google Analytics Tracking",
         "description": "Track donation events in Google Analytics.",
-        "category": "integration"
+        "category": "integration",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-woo-upsells",
@@ -796,7 +1064,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-woo-upsells",
         "name": "WooCommerce Upsells",
         "description": "Offer products as upsells during donations.",
-        "category": "integration"
+        "category": "integration",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       },
       {
         "feature_slug": "give-double-the-donations",
@@ -807,7 +1079,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/give-double-the-donations",
         "name": "Double the Donations",
         "description": "Corporate gift matching integration.",
-        "category": "integration"
+        "category": "integration",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
       }
     ]
   },
@@ -841,7 +1117,11 @@
         "is_dot_org": false,
         "name": "Calendar",
         "description": "Full-featured event calendar with multiple views.",
-        "category": "core"
+        "category": "core",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": "https://theeventscalendar.com/knowledgebase/"
       },
       {
         "feature_slug": "tec-tickets-rsvp",
@@ -852,7 +1132,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/tec-tickets-rsvp",
         "name": "Tickets & RSVP",
         "description": "Sell tickets and collect RSVPs for events.",
-        "category": "core"
+        "category": "core",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": "https://theeventscalendar.com/knowledgebase/"
       },
       {
         "feature_slug": "tec-event-aggregator",
@@ -863,7 +1147,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/tec-event-aggregator",
         "name": "Event Aggregator",
         "description": "Import events from other calendars, Meetup, and more.",
-        "category": "import"
+        "category": "import",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": "https://theeventscalendar.com/knowledgebase/"
       },
       {
         "feature_slug": "tec-community",
@@ -874,7 +1162,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/tec-community",
         "name": "Community",
         "description": "Allow community members to submit events from the frontend.",
-        "category": "community"
+        "category": "community",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": "https://theeventscalendar.com/knowledgebase/"
       },
       {
         "feature_slug": "tec-promoter",
@@ -885,7 +1177,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/tec-promoter",
         "name": "Promoter",
         "description": "Automated email marketing for events and attendees.",
-        "category": "marketing"
+        "category": "marketing",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": "https://theeventscalendar.com/knowledgebase/"
       },
       {
         "feature_slug": "tec-seating",
@@ -896,7 +1192,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/tec-seating",
         "name": "Seating",
         "description": "Assigned seating charts and seat selection for events.",
-        "category": "ticketing"
+        "category": "ticketing",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": "https://theeventscalendar.com/knowledgebase/"
       },
       {
         "feature_slug": "tec-filter-bar",
@@ -907,7 +1207,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/tec-filter-bar",
         "name": "Filter Bar",
         "description": "Advanced filtering for event calendars by category, venue, and more.",
-        "category": "core"
+        "category": "core",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": "https://theeventscalendar.com/knowledgebase/"
       },
       {
         "feature_slug": "tec-eventbrite",
@@ -918,7 +1222,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/tec-eventbrite",
         "name": "Eventbrite Tickets",
         "description": "Sync events and tickets with Eventbrite.",
-        "category": "integration"
+        "category": "integration",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": "https://theeventscalendar.com/knowledgebase/"
       },
       {
         "feature_slug": "tec-schedule-manager",
@@ -929,7 +1237,11 @@
         "download_url": "https://licensing.stellarwp.com/api/plugins/tec-schedule-manager",
         "name": "Event Schedule Manager",
         "description": "Create multi-track schedules for conferences and multi-day events.",
-        "category": "management"
+        "category": "management",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": "https://theeventscalendar.com/knowledgebase/"
       }
     ]
   }

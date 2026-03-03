@@ -187,6 +187,15 @@ final class Catalog_Controller extends WP_REST_Controller {
 							'category'     => [
 								'type' => 'string',
 							],
+							'authors'           => [
+								'type'  => 'array',
+								'items' => [
+									'type' => 'string',
+								],
+							],
+							'documentation_url' => [
+								'type' => 'string',
+							],
 						],
 					],
 				],

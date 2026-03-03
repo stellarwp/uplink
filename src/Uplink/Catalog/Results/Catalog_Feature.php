@@ -21,6 +21,8 @@ use StellarWP\Uplink\Utils\Cast;
  *     name: string,
  *     description: string,
  *     category: string,
+ *     authors: list<string>,
+ *     documentation_url: string,
  * }
  */
 final class Catalog_Feature {
@@ -37,11 +39,13 @@ final class Catalog_Feature {
 		'type'         => '',
 		'minimum_tier' => '',
 		'plugin_file'  => null,
-		'is_dot_org'       => false,
+		'is_dot_org'   => false,
 		'download_url' => null,
 		'name'         => '',
 		'description'  => '',
 		'category'     => '',
+		'authors'           => [],
+		'documentation_url' => '',
 	];
 
 	/**
@@ -75,11 +79,15 @@ final class Catalog_Feature {
 				'type'         => Cast::to_string( $data['type'] ?? '' ),
 				'minimum_tier' => Cast::to_string( $data['minimum_tier'] ?? '' ),
 				'plugin_file'  => isset( $data['plugin_file'] ) ? Cast::to_string( $data['plugin_file'] ) : null,
-				'is_dot_org'       => Cast::to_bool( $data['is_dot_org'] ?? false ),
+				'is_dot_org'   => Cast::to_bool( $data['is_dot_org'] ?? false ),
 				'download_url' => isset( $data['download_url'] ) ? Cast::to_string( $data['download_url'] ) : null,
 				'name'         => Cast::to_string( $data['name'] ?? '' ),
 				'description'  => Cast::to_string( $data['description'] ?? '' ),
 				'category'     => Cast::to_string( $data['category'] ?? '' ),
+				'authors'           => isset( $data['authors'] ) && is_array( $data['authors'] )
+					? array_map( [ Cast::class, 'to_string' ], array_values( $data['authors'] ) )
+					: [],
+				'documentation_url' => Cast::to_string( $data['documentation_url'] ?? '' ),
 			]
 		);
 	}
@@ -192,5 +200,27 @@ final class Catalog_Feature {
 	 */
 	public function get_category(): string {
 		return $this->attributes['category'];
+	}
+
+	/**
+	 * Gets the author/brand names.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string[]
+	 */
+	public function get_authors(): array {
+		return $this->attributes['authors'];
+	}
+
+	/**
+	 * Gets the documentation URL.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string
+	 */
+	public function get_documentation_url(): string {
+		return $this->attributes['documentation_url'];
 	}
 }

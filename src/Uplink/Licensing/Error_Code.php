@@ -10,7 +10,7 @@ namespace StellarWP\Uplink\Licensing;
  *
  * @since 3.0.0
  */
-class Error_Code {
+final class Error_Code {
 
 	/**
 	 * The license key is not recognized.

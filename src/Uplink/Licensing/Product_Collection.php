@@ -12,7 +12,7 @@ use StellarWP\Uplink\Utils\Collection;
  *
  * @extends Collection<Product_Entry>
  */
-class Product_Collection extends Collection {
+final class Product_Collection extends Collection {
 
 	/**
 	 * Adds a product entry to the collection, keyed by its slug.

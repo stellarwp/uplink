@@ -23,7 +23,7 @@ use StellarWP\Uplink\Utils\Cast;
  *     activation: ?ActivationData,
  * }
  */
-class Validation_Result {
+final class Validation_Result {
 
 	/**
 	 * The validation result attributes.

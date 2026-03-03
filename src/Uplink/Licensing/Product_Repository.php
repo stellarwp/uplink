@@ -16,7 +16,7 @@ use WP_Error;
  *
  * @since 3.0.0
  */
-class Product_Repository {
+final class Product_Repository {
 
 	/**
 	 * Transient key for the cached product catalog.

@@ -12,7 +12,7 @@ namespace StellarWP\Uplink\Licensing\Enums;
  *
  * @see \StellarWP\Licensing\V4\Domain\Enums\Validation_Status (licensing service)
  */
-class Validation_Status {
+final class Validation_Status {
 
 	/**
 	 * The license is valid and the product is activated on this domain.

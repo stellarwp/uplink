@@ -19,7 +19,7 @@ use WP_Error;
  * @phpstan-import-type ProductAttributes from Product_Entry
  * @phpstan-type FixtureData array{products: list<array<string, mixed>>}
  */
-class Fixture_Client implements Licensing_Client {
+final class Fixture_Client implements Licensing_Client {
 
 	/**
 	 * The directory containing fixture JSON files.

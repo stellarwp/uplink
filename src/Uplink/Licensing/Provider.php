@@ -11,7 +11,7 @@ use StellarWP\Uplink\Licensing\Contracts\Licensing_Client;
  *
  * @since 3.0.0
  */
-class Provider extends Abstract_Provider {
+final class Provider extends Abstract_Provider {
 
 	/**
 	 * @inheritDoc

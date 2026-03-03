@@ -26,7 +26,7 @@ use StellarWP\Uplink\Utils\Cast;
  *     validation_status: ?string,
  * }
  */
-class Product_Entry {
+final class Product_Entry {
 
 	/**
 	 * The product entry attributes.

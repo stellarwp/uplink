@@ -2,6 +2,8 @@
 
 namespace StellarWP\Uplink\Features\API;
 
+use StellarWP\Uplink\Catalog\Contracts\Catalog_Client;
+use StellarWP\Uplink\Config;
 use WP_Error;
 
 /**
@@ -85,29 +87,38 @@ class Update_Client {
 	 * @return array<string, array<string, mixed>>|WP_Error Keyed by slug, each entry contains update fields.
 	 */
 	private function fetch_updates( string $unified_key, string $domain, array $products ) {
-		$response = $this->request( $unified_key, $domain, $products );
+		$client   = Config::get_container()->get( Catalog_Client::class );
+		$response = $client->get_catalog();
 
-		set_transient( self::TRANSIENT_KEY, $response, self::DEFAULT_CACHE_DURATION );
+		if ( is_wp_error( $response ) ) {
+			set_transient( self::TRANSIENT_KEY, $response, self::DEFAULT_CACHE_DURATION );
 
-		return $response;
-	}
+			return $response;
+		}
 
-	/**
-	 * Performs the HTTP request to the server.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param string                $unified_key The unified license key.
-	 * @param string                $domain      The site domain.
-	 * @param array<string, string> $products    Map of slug => installed_version.
-	 *
-	 * @return array<string, array<string, mixed>>|WP_Error Keyed by slug, each entry contains update fields.
-	 *
-	 * @phpstan-ignore-next-line return.unusedType -- Remove once the API request is implemented.
-	 */
-	private function request( string $unified_key, string $domain, array $products ) {
-		// TODO: Implement the actual HTTP request once the server contract is known.
-		// Should send unified license key, site domain, and product versions.
-		return [];
+		$updates = [];
+
+		foreach ( $response as $product_catalog ) {
+			foreach ( $product_catalog->get_features() as $feature ) {
+				$slug = $feature->get_feature_slug();
+
+				$updates[ $slug ] = [
+					'name'        => $feature->get_name(),
+					'slug'        => $slug,
+					'new_version' => '',
+					'package'     => $feature->get_download_url() ?? '',
+					'url'         => $feature->get_documentation_url(),
+					'author'      => implode( ', ', $feature->get_authors() ),
+					'plugin_file' => $feature->get_plugin_file() ?? '',
+					'sections'    => [
+						'description' => $feature->get_description(),
+					],
+				];
+			}
+		}
+
+		set_transient( self::TRANSIENT_KEY, $updates, self::DEFAULT_CACHE_DURATION );
+
+		return $updates;
 	}
 }

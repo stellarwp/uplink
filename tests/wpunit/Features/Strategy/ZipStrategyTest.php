@@ -551,7 +551,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 	 * "Foreign Developer", but the feature expects "test-feature/test-feature.php".
 	 */
 	public function test_enable_returns_ownership_mismatch_for_folder_occupied_by_different_file(): void {
-		$plugin_dir  = WP_PLUGIN_DIR . '/test-feature';
+		$plugin_dir   = WP_PLUGIN_DIR . '/test-feature';
 		$foreign_file = $plugin_dir . '/other-plugin.php';
 
 		if ( ! is_dir( $plugin_dir ) ) {
@@ -584,9 +584,9 @@ final class ZipStrategyTest extends UplinkTestCase {
 	 * the plugin belongs to an expected author — no ownership conflict.
 	 */
 	public function test_enable_no_conflict_when_folder_has_same_author_different_file(): void {
-		$plugin_dir   = WP_PLUGIN_DIR . '/test-feature';
-		$other_file   = $plugin_dir . '/other-plugin.php';
-		$plugin_path  = $plugin_dir . '/test-feature.php';
+		$plugin_dir  = WP_PLUGIN_DIR . '/test-feature';
+		$other_file  = $plugin_dir . '/other-plugin.php';
+		$plugin_path = $plugin_dir . '/test-feature.php';
 
 		if ( ! is_dir( $plugin_dir ) ) {
 			mkdir( $plugin_dir, 0755, true );

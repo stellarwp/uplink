@@ -533,7 +533,7 @@ class Zip_Strategy extends Abstract_Strategy {
 				}
 
 				if ( ! headers_sent() ) {
-					http_response_code( 500 );
+					http_response_code( 422 );
 					header( 'Content-Type: application/json; charset=UTF-8' );
 				}
 
@@ -550,7 +550,7 @@ class Zip_Strategy extends Abstract_Strategy {
 					[
 						'code'    => Error_Code::ACTIVATION_FATAL,
 						'message' => $message,
-						'data'    => [ 'status' => 500 ],
+						'data'    => [ 'status' => 422 ],
 					]
 				);
 			}

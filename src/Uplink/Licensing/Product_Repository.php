@@ -34,7 +34,7 @@ final class Product_Repository {
 	 *
 	 * @var int
 	 */
-	private const CACHE_DURATION = 43200;
+	private const CACHE_DURATION = HOUR_IN_SECONDS * 12;
 
 	/**
 	 * The licensing client.

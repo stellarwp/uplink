@@ -102,7 +102,7 @@ final class Product_Entry {
 			'tier'         => $this->get_tier(),
 			'pending_tier' => $this->get_pending_tier(),
 			'status'       => $this->get_status(),
-			'expires'      => $this->attributes['expires'],
+			'expires'      => $this->get_expires()->format( 'Y-m-d H:i:s' ),
 			'activations'  => [
 				'site_limit'   => $this->get_site_limit(),
 				'active_count' => $this->get_active_count(),

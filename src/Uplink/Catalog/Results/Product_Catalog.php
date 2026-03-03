@@ -172,40 +172,6 @@ class Product_Catalog {
 	}
 
 	/**
-	 * Checks whether a user's tier grants access to a feature.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param string $feature_slug   The feature slug to check.
-	 * @param string $user_tier_slug The user's licensed tier slug.
-	 *
-	 * @return bool
-	 */
-	public function has_access( string $feature_slug, string $user_tier_slug ): bool {
-		$user_tier = $this->tiers->get( $user_tier_slug );
-
-		if ( ! $user_tier ) {
-			return false;
-		}
-
-		foreach ( $this->features as $feature ) {
-			if ( $feature->get_feature_slug() !== $feature_slug ) {
-				continue;
-			}
-
-			$min_tier = $this->tiers->get( $feature->get_minimum_tier() );
-
-			if ( ! $min_tier ) {
-				return false;
-			}
-
-			return $user_tier->get_rank() >= $min_tier->get_rank();
-		}
-
-		return false;
-	}
-
-	/**
 	 * Gets the hydrated feature objects.
 	 *
 	 * @since 3.0.0

@@ -35,7 +35,9 @@ class Fixture {
 	public static function create( array $features = [], bool $merge = false ): self {
 		$self = new self();
 
-		if ( $merge && ! empty( $features ) ) {
+		if ( empty( $features ) ) {
+			$self->features = $self->catalog();
+		} elseif ( $merge ) {
 			$self->features = array_merge( $self->catalog(), $features );
 		} else {
 			$self->features = $features;

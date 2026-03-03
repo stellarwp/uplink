@@ -365,8 +365,6 @@ class Zip_Strategy extends Abstract_Strategy {
 	private function ensure_installed( Zip $feature ) {
 		$plugin_file = $feature->get_plugin_file();
 
-		error_log( 'plugin_file: ' . $plugin_file );
-
 		// Already on disk — ready for activation. Ownership is verified
 		// by the caller (enable()) after this method returns.
 		if ( $this->is_plugin_installed( $plugin_file ) ) {

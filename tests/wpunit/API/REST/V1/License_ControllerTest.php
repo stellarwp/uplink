@@ -3,7 +3,9 @@
 namespace StellarWP\Uplink\Tests\API\REST\V1;
 
 use StellarWP\Uplink\Licensing\Error_Code;
+use StellarWP\Uplink\Licensing\Fixture_Client;
 use StellarWP\Uplink\Licensing\License_Manager;
+use StellarWP\Uplink\Licensing\Product_Repository;
 use StellarWP\Uplink\Licensing\Registry\Product_Registry;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
 use StellarWP\Uplink\API\REST\V1\License_Controller;
@@ -23,10 +25,14 @@ final class License_ControllerTest extends UplinkTestCase {
 		parent::setUp();
 
 		delete_option( License_Repository::OPTION_NAME );
+		delete_transient( Product_Repository::TRANSIENT_KEY );
 
-		$repository    = new License_Repository();
-		$registry      = new Product_Registry();
-		$this->manager = new License_Manager( $repository, $registry );
+		$repository         = new License_Repository();
+		$registry           = new Product_Registry();
+		$product_repository = new Product_Repository(
+			new Fixture_Client( codecept_data_dir( 'licensing' ) )
+		);
+		$this->manager      = new License_Manager( $repository, $registry, $product_repository );
 
 		/** @var WP_REST_Server $wp_rest_server */
 		global $wp_rest_server;
@@ -54,6 +60,7 @@ final class License_ControllerTest extends UplinkTestCase {
 		$wp_rest_server = null;
 
 		delete_option( License_Repository::OPTION_NAME );
+		delete_transient( Product_Repository::TRANSIENT_KEY );
 
 		parent::tearDown();
 	}
@@ -196,6 +203,28 @@ final class License_ControllerTest extends UplinkTestCase {
 
 		$this->assertArrayHasKey( 'properties', $schema );
 		$this->assertArrayHasKey( 'key', $schema['properties'] );
+	}
+
+	public function test_store_rejects_key_not_recognized_by_api(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$request = new WP_REST_Request( 'POST', '/stellarwp/uplink/v1/license' );
+		$request->set_param( 'key', 'LWSW-NOT-A-REAL-KEY' );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 422, $response->get_status() );
+	}
+
+	public function test_store_does_not_persist_key_not_recognized_by_api(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$request = new WP_REST_Request( 'POST', '/stellarwp/uplink/v1/license' );
+		$request->set_param( 'key', 'LWSW-NOT-A-REAL-KEY' );
+
+		$this->server->dispatch( $request );
+
+		$this->assertEmpty( get_option( License_Repository::OPTION_NAME ) );
 	}
 
 	// -------------------------------------------------------------------------

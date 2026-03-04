@@ -2,7 +2,7 @@
   "products": [
     {
       "product_slug": "give",
-      "tier": "pro",
+      "tier": "give-pro",
       "pending_tier": null,
       "status": "expired",
       "expires": "2025-01-01 00:00:00",
@@ -17,7 +17,7 @@
     },
     {
       "product_slug": "the-events-calendar",
-      "tier": "pro",
+      "tier": "the-events-calendar-pro",
       "pending_tier": null,
       "status": "expired",
       "expires": "2025-01-01 00:00:00",
@@ -32,7 +32,7 @@
     },
     {
       "product_slug": "learndash",
-      "tier": "pro",
+      "tier": "learndash-pro",
       "pending_tier": null,
       "status": "expired",
       "expires": "2025-01-01 00:00:00",
@@ -47,7 +47,7 @@
     },
     {
       "product_slug": "kadence",
-      "tier": "pro",
+      "tier": "kadence-pro",
       "pending_tier": null,
       "status": "expired",
       "expires": "2025-01-01 00:00:00",

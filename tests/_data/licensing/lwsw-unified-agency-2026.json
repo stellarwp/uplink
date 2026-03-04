@@ -2,7 +2,7 @@
   "products": [
     {
       "product_slug": "give",
-      "tier": "agency",
+      "tier": "give-agency",
       "pending_tier": null,
       "status": "active",
       "expires": "2026-12-31 23:59:59",
@@ -17,7 +17,7 @@
     },
     {
       "product_slug": "the-events-calendar",
-      "tier": "agency",
+      "tier": "the-events-calendar-agency",
       "pending_tier": null,
       "status": "active",
       "expires": "2026-12-31 23:59:59",
@@ -32,7 +32,7 @@
     },
     {
       "product_slug": "learndash",
-      "tier": "agency",
+      "tier": "learndash-agency",
       "pending_tier": null,
       "status": "active",
       "expires": "2026-12-31 23:59:59",
@@ -47,7 +47,7 @@
     },
     {
       "product_slug": "kadence",
-      "tier": "agency",
+      "tier": "kadence-agency",
       "pending_tier": null,
       "status": "active",
       "expires": "2026-12-31 23:59:59",

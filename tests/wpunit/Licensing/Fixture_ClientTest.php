@@ -48,18 +48,20 @@ final class Fixture_ClientTest extends UplinkTestCase {
 		$products = $this->client->get_products( 'LWSW-UNIFIED-PRO-2026', 'example.com' );
 
 		foreach ( $products as $entry ) {
-			$this->assertSame( 'pro', $entry->get_tier(), sprintf( '%s should be pro tier', $entry->get_product_slug() ) );
+			$expected = $entry->get_product_slug() . '-pro';
+			$this->assertSame( $expected, $entry->get_tier(), sprintf( '%s should be %s tier', $entry->get_product_slug(), $expected ) );
 		}
 	}
 
-	public function test_get_products_unified_basic_all_tiers_are_starter(): void {
+	public function test_get_products_unified_basic_all_tiers_are_basic(): void {
 		$products = $this->client->get_products( 'LWSW-UNIFIED-BASIC-2026', 'example.com' );
 
 		$this->assertIsArray( $products );
 		$this->assertCount( 4, $products );
 
 		foreach ( $products as $entry ) {
-			$this->assertSame( 'starter', $entry->get_tier(), sprintf( '%s should be starter tier', $entry->get_product_slug() ) );
+			$expected = $entry->get_product_slug() . '-basic';
+			$this->assertSame( $expected, $entry->get_tier(), sprintf( '%s should be %s tier', $entry->get_product_slug(), $expected ) );
 		}
 	}
 
@@ -69,7 +71,8 @@ final class Fixture_ClientTest extends UplinkTestCase {
 		$this->assertIsArray( $products );
 
 		foreach ( $products as $entry ) {
-			$this->assertSame( 'agency', $entry->get_tier() );
+			$expected = $entry->get_product_slug() . '-agency';
+			$this->assertSame( $expected, $entry->get_tier() );
 			$this->assertSame( 0, $entry->get_site_limit(), sprintf( '%s should have unlimited seats', $entry->get_product_slug() ) );
 			$this->assertFalse( $entry->is_over_limit() );
 		}
@@ -94,7 +97,7 @@ final class Fixture_ClientTest extends UplinkTestCase {
 		$this->assertIsArray( $products );
 		$this->assertCount( 1, $products );
 		$this->assertSame( 'kadence', $products[0]->get_product_slug() );
-		$this->assertSame( 'pro', $products[0]->get_tier() );
+		$this->assertSame( 'kadence-pro', $products[0]->get_tier() );
 	}
 
 	public function test_get_products_two_product_key(): void {
@@ -165,7 +168,7 @@ final class Fixture_ClientTest extends UplinkTestCase {
 
 		$this->assertNotNull( $subscription );
 		$this->assertSame( 'kadence', $subscription['product_slug'] );
-		$this->assertSame( 'pro', $subscription['tier'] );
+		$this->assertSame( 'kadence-pro', $subscription['tier'] );
 		$this->assertSame( 3, $subscription['site_limit'] );
 		$this->assertSame( 'active', $subscription['status'] );
 	}

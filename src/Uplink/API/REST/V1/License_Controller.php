@@ -137,16 +137,15 @@ final class License_Controller extends WP_REST_Controller {
 		/** @var string $key */
 		$key     = $request->get_param( 'key' );
 		$network = (bool) $request->get_param( 'network' );
+		$domain  = (string) wp_parse_url( get_site_url(), PHP_URL_HOST );
 
-		// TODO: Validate the license key.
-		// Context: John was moving fast, but if you could evolve the Products_Repository into something that might be more appropriate, like a resolver... (or just call Products_Repository::get for now), but what we should do here is grab the license from licensing and verify it's good before we store the key. And since this already maps to the fixture data, we have a list of difference licensing situations we can work with.
+		$result = $this->manager->validate_and_store( $key, $domain, $network );
 
-		if ( ! $this->manager->store( $key, $network ) ) {
-			return new WP_Error(
-				Error_Code::STORE_FAILED,
-				__( 'The license key could not be stored.', '%TEXTDOMAIN%' ),
-				[ 'status' => 500 ]
-			);
+		if ( is_wp_error( $result ) ) {
+			$status = $result->get_error_code() === Error_Code::INVALID_KEY ? 422 : 500;
+			$result->add_data( [ 'status' => $status ] );
+
+			return $result;
 		}
 
 		return new WP_REST_Response( [ 'key' => $this->manager->get() ] );

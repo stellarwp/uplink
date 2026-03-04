@@ -8,6 +8,52 @@ use StellarWP\Uplink\Tests\UplinkTestCase;
 final class ZipTest extends UplinkTestCase {
 
 	/**
+	 * Standard test values.
+	 */
+	private const SLUG        = 'stellar-export';
+	private const GROUP       = 'LearnDash';
+	private const TIER        = 'Tier 1';
+	private const NAME        = 'Stellar Export';
+	private const DESCRIPTION = 'Export your data.';
+	private const PLUGIN_FILE = 'stellar-export/stellar-export.php';
+
+	/**
+	 * Create a Zip feature with configurable values.
+	 *
+	 * @param string   $slug        Feature slug.
+	 * @param string   $name        Display name.
+	 * @param string   $description Description.
+	 * @param string   $plugin_file Plugin file path.
+	 * @param string[] $authors     Expected plugin authors.
+	 *
+	 * @return Zip
+	 */
+	private function make_feature(
+		string $slug = self::SLUG,
+		string $name = self::NAME,
+		string $description = self::DESCRIPTION,
+		string $plugin_file = self::PLUGIN_FILE,
+		array $authors = [ 'StellarWP' ]
+	): Zip {
+		return new Zip(
+			[
+				'slug'         => $slug,
+				'group'        => self::GROUP,
+				'tier'         => self::TIER,
+				'name'         => $name,
+				'description'  => $description,
+				'plugin_file'  => $plugin_file,
+				'is_available' => true,
+				'authors'      => $authors,
+			]
+		);
+	}
+
+	// -------------------------------------------------------------------------
+	// from_array() tests
+	// -------------------------------------------------------------------------
+
+	/**
 	 * Tests a Zip feature can be hydrated from an associative array.
 	 *
 	 * @return void
@@ -23,7 +69,8 @@ final class ZipTest extends UplinkTestCase {
 				'plugin_file'       => 'test-feature/test-feature.php',
 				'is_available'      => true,
 				'documentation_url' => 'https://example.com/docs',
-			] 
+				'authors'           => [ 'StellarWP' ],
+			]
 		);
 
 		$this->assertInstanceOf( Zip::class, $feature );
@@ -36,6 +83,7 @@ final class ZipTest extends UplinkTestCase {
 		$this->assertSame( 'test-feature/test-feature.php', $feature->get_plugin_file() );
 		$this->assertTrue( $feature->is_available() );
 		$this->assertSame( 'https://example.com/docs', $feature->get_documentation_url() );
+		$this->assertSame( [ 'StellarWP' ], $feature->get_authors() );
 	}
 
 	/**
@@ -54,7 +102,8 @@ final class ZipTest extends UplinkTestCase {
 				'plugin_file'       => 'test-feature/test-feature.php',
 				'is_available'      => true,
 				'documentation_url' => 'https://example.com/docs',
-			] 
+				'authors'           => [ 'StellarWP' ],
+			]
 		);
 
 		$this->assertSame(
@@ -67,9 +116,10 @@ final class ZipTest extends UplinkTestCase {
 				'plugin_file'       => 'test-feature/test-feature.php',
 				'is_available'      => true,
 				'documentation_url' => 'https://example.com/docs',
+				'authors'           => [ 'StellarWP' ],
 				'type'              => 'zip',
 			],
-			$feature->to_array() 
+			$feature->to_array()
 		);
 	}
 
@@ -89,6 +139,7 @@ final class ZipTest extends UplinkTestCase {
 			'plugin_file'       => 'test-feature/test-feature.php',
 			'is_available'      => true,
 			'documentation_url' => 'https://example.com/docs',
+			'authors'           => [ 'StellarWP' ],
 		];
 
 		$feature = Zip::from_array( $data );
@@ -110,11 +161,35 @@ final class ZipTest extends UplinkTestCase {
 				'name'         => 'Test Feature',
 				'plugin_file'  => 'test-feature/test-feature.php',
 				'is_available' => false,
-			] 
+			]
 		);
 
 		$this->assertSame( '', $feature->get_description() );
 	}
+
+	/**
+	 * Tests that authors defaults to an empty array when omitted from the array.
+	 *
+	 * @return void
+	 */
+	public function test_it_defaults_authors_to_empty_array(): void {
+		$feature = Zip::from_array(
+			[
+				'slug'         => 'test-feature',
+				'group'        => 'LearnDash',
+				'tier'         => 'Tier 1',
+				'name'         => 'Test Feature',
+				'plugin_file'  => 'test-feature/test-feature.php',
+				'is_available' => true,
+			]
+		);
+
+		$this->assertSame( [], $feature->get_authors() );
+	}
+
+	// -------------------------------------------------------------------------
+	// Hard-coded type
+	// -------------------------------------------------------------------------
 
 	/**
 	 * Tests that the type is always "zip" regardless of constructor arguments.
@@ -131,9 +206,152 @@ final class ZipTest extends UplinkTestCase {
 				'description'  => 'Test feature description.',
 				'plugin_file'  => 'test-feature/test-feature.php',
 				'is_available' => true,
-			] 
+			]
 		);
 
 		$this->assertSame( 'zip', $feature->get_type() );
+	}
+
+	// -------------------------------------------------------------------------
+	// Zip-specific getters
+	// -------------------------------------------------------------------------
+
+	/**
+	 * get_plugin_file() returns the plugin file path passed to the constructor.
+	 */
+	public function test_get_plugin_file_returns_constructor_value(): void {
+		$feature = $this->make_feature(
+			self::SLUG,
+			self::NAME,
+			self::DESCRIPTION,
+			'my-plugin/my-plugin.php'
+		);
+
+		$this->assertSame( 'my-plugin/my-plugin.php', $feature->get_plugin_file() );
+	}
+
+	// -------------------------------------------------------------------------
+	// get_authors() — ownership verification field
+	// -------------------------------------------------------------------------
+
+	/**
+	 * get_authors() returns the array passed to the constructor.
+	 */
+	public function test_get_authors_returns_constructor_value(): void {
+		$feature = $this->make_feature(
+			self::SLUG,
+			self::NAME,
+			self::DESCRIPTION,
+			self::PLUGIN_FILE,
+			[ 'StellarWP' ]
+		);
+
+		$this->assertSame( [ 'StellarWP' ], $feature->get_authors() );
+	}
+
+	/**
+	 * get_authors() allows an empty array (strategy skips verification).
+	 */
+	public function test_get_authors_allows_empty_array(): void {
+		$feature = $this->make_feature(
+			self::SLUG,
+			self::NAME,
+			self::DESCRIPTION,
+			self::PLUGIN_FILE,
+			[]
+		);
+
+		$this->assertSame( [], $feature->get_authors() );
+	}
+
+	/**
+	 * get_authors() supports multiple author values.
+	 */
+	public function test_get_authors_supports_multiple_values(): void {
+		$authors = [ 'StellarWP', 'The Events Calendar' ];
+		$feature = $this->make_feature(
+			self::SLUG,
+			self::NAME,
+			self::DESCRIPTION,
+			self::PLUGIN_FILE,
+			$authors
+		);
+
+		$this->assertSame( $authors, $feature->get_authors() );
+	}
+
+	// -------------------------------------------------------------------------
+	// get_plugin_slug() — derived from plugin_file
+	// -------------------------------------------------------------------------
+
+	/**
+	 * get_plugin_slug() returns the directory name from the plugin file path.
+	 *
+	 * @dataProvider plugin_slug_provider
+	 *
+	 * @param string $plugin_file    Input plugin file path.
+	 * @param string $expected_slug  Expected directory name.
+	 */
+	public function test_get_plugin_slug_returns_directory_name(
+		string $plugin_file,
+		string $expected_slug
+	): void {
+		$feature = $this->make_feature(
+			self::SLUG,
+			self::NAME,
+			self::DESCRIPTION,
+			$plugin_file
+		);
+
+		$this->assertSame( $expected_slug, $feature->get_plugin_slug() );
+	}
+
+	/**
+	 * Data provider for get_plugin_slug() tests.
+	 *
+	 * @return array<string, array{string, string}>
+	 */
+	public function plugin_slug_provider(): array {
+		return [
+			'standard path'         => [ 'stellar-export/stellar-export.php', 'stellar-export' ],
+			'different file name'   => [ 'my-plugin/main.php', 'my-plugin' ],
+			'underscored directory' => [ 'my_plugin/my_plugin.php', 'my_plugin' ],
+			'single file no dir'    => [ 'plugin.php', '.' ],
+		];
+	}
+
+	// -------------------------------------------------------------------------
+	// Full round-trip
+	// -------------------------------------------------------------------------
+
+	/**
+	 * All getters return the correct values from a single constructor call.
+	 */
+	public function test_all_getters_return_correct_values(): void {
+		$feature = new Zip(
+			[
+				'slug'              => 'the-slug',
+				'group'             => 'LearnDash',
+				'tier'              => 'Tier 1',
+				'name'              => 'The Name',
+				'description'       => 'The description.',
+				'plugin_file'       => 'the-slug/the-slug.php',
+				'is_available'      => true,
+				'documentation_url' => 'https://example.com/docs',
+				'authors'           => [ 'StellarWP', 'The Events Calendar' ],
+			]
+		);
+
+		$this->assertSame( 'the-slug', $feature->get_slug() );
+		$this->assertSame( 'LearnDash', $feature->get_group() );
+		$this->assertSame( 'Tier 1', $feature->get_tier() );
+		$this->assertSame( 'The Name', $feature->get_name() );
+		$this->assertSame( 'The description.', $feature->get_description() );
+		$this->assertSame( 'zip', $feature->get_type() );
+		$this->assertTrue( $feature->is_available() );
+		$this->assertSame( 'https://example.com/docs', $feature->get_documentation_url() );
+		$this->assertSame( 'the-slug/the-slug.php', $feature->get_plugin_file() );
+		$this->assertSame( [ 'StellarWP', 'The Events Calendar' ], $feature->get_authors() );
+		$this->assertSame( 'the-slug', $feature->get_plugin_slug() );
 	}
 }

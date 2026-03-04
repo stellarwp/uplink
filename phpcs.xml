@@ -8,6 +8,7 @@
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
 	<exclude-pattern>*/phpstan-cache/*</exclude-pattern>
 	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>tests/_data/*</exclude-pattern>
 
 	<!-- Formats of the report -->
 	<arg name="report" value="full,summary,source"/>
@@ -90,6 +91,14 @@
 	</rule>
 
 	<rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.directory_mkdir">
+		<exclude-pattern>*/tests/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.directory_rmdir">
+		<exclude-pattern>*/tests/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_unlink">
 		<exclude-pattern>*/tests/*</exclude-pattern>
 	</rule>
 

@@ -37,6 +37,7 @@ parameters:
 
 	excludePaths:
 		analyseAndScan:
+			- vendor/codeception/codeception/autoload.php
 			- vendor/lucatume/wp-browser/includes/core-phpunit/includes/object-cache.php
 			- vendor/lucatume/wp-browser/includes/pluggables
 			- '**/node_modules/**'

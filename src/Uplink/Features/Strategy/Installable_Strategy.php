@@ -94,22 +94,22 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $identifier The WP identifier (plugin_file or stylesheet).
+	 * @param string $wp_identifier The WP identifier (plugin_file or stylesheet).
 	 *
 	 * @return bool
 	 */
-	abstract protected function is_extension_active( string $identifier ): bool;
+	abstract protected function check_active( string $wp_identifier ): bool;
 
 	/**
 	 * Check whether the extension is installed on disk.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $identifier The WP identifier (plugin_file or stylesheet).
+	 * @param string $wp_identifier The WP identifier (plugin_file or stylesheet).
 	 *
 	 * @return bool
 	 */
-	abstract protected function is_extension_installed( string $identifier ): bool;
+	abstract protected function check_installed( string $wp_identifier ): bool;
 
 	/**
 	 * Install the extension from its download source.
@@ -213,7 +213,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 		$identifier = $feature->get_wp_identifier();
 
 		// Idempotent: if the extension is already active, verify ownership and bail.
-		if ( $this->is_extension_active( $identifier ) ) {
+		if ( $this->check_active( $identifier ) ) {
 			$ownership = $this->verify_ownership( $feature );
 
 			if ( is_wp_error( $ownership ) ) {
@@ -311,7 +311,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 		$this->load_wp_admin_includes();
 
 		/** @var Feature&Installable $feature */
-		$live_active   = $this->is_extension_active( $feature->get_wp_identifier() );
+		$live_active   = $this->check_active( $feature->get_wp_identifier() );
 		$stored_active = $this->get_stored_state( $feature->get_slug() );
 
 		// Self-heal: if stored state doesn't match live state, correct it.
@@ -357,7 +357,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 
 		// Already on disk — ready for activation. Ownership is verified
 		// by the caller (enable()) after this method returns.
-		if ( $this->is_extension_installed( $identifier ) ) {
+		if ( $this->check_installed( $identifier ) ) {
 			return true;
 		}
 
@@ -387,7 +387,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 			// match the expected path. Catch this early with a clear error rather than
 			// a confusing "not found" during activation.
 			// @phpstan-ignore-next-line booleanNot.alwaysTrue -- (do_install() creates files on disk; side effects invisible to static analysis).
-			if ( ! $this->is_extension_installed( $identifier ) ) {
+			if ( ! $this->check_installed( $identifier ) ) {
 				return new WP_Error(
 					$this->get_not_found_after_install_error_code(),
 					sprintf(

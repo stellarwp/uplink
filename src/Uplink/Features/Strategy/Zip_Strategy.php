@@ -84,15 +84,16 @@ class Zip_Strategy extends Installable_Strategy {
 	/**
 	 * @inheritDoc
 	 */
-	protected function is_extension_active( string $identifier ): bool {
-		return $this->is_plugin_active( $identifier );
+	protected function check_active( string $wp_identifier ): bool {
+		return is_plugin_active( $wp_identifier )
+			|| is_plugin_active_for_network( $wp_identifier );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	protected function is_extension_installed( string $identifier ): bool {
-		return $this->is_plugin_installed( $identifier );
+	protected function check_installed( string $wp_identifier ): bool {
+		return file_exists( WP_PLUGIN_DIR . '/' . $wp_identifier );
 	}
 
 	/**
@@ -468,39 +469,6 @@ class Zip_Strategy extends Installable_Strategy {
 		$this->update_stored_state( $feature->get_slug(), true );
 
 		return true;
-	}
-
-	/**
-	 * Check whether a plugin is currently active in WordPress.
-	 *
-	 * Checks both single-site and network activation to handle multisite
-	 * environments correctly. A network-activated plugin would be missed by
-	 * is_plugin_active() alone.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param string $plugin_file Plugin file path relative to plugins directory.
-	 *
-	 * @return bool
-	 */
-	private function is_plugin_active( string $plugin_file ): bool {
-		return is_plugin_active( $plugin_file )
-			|| is_plugin_active_for_network( $plugin_file );
-	}
-
-	/**
-	 * Check whether a plugin is installed on disk.
-	 *
-	 * Looks for the main plugin file in the WordPress plugins directory.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param string $plugin_file Plugin file path relative to plugins directory.
-	 *
-	 * @return bool
-	 */
-	private function is_plugin_installed( string $plugin_file ): bool {
-		return file_exists( WP_PLUGIN_DIR . '/' . $plugin_file );
 	}
 
 	/**

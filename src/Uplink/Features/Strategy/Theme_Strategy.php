@@ -57,15 +57,15 @@ class Theme_Strategy extends Installable_Strategy {
 	/**
 	 * @inheritDoc
 	 */
-	protected function is_extension_active( string $identifier ): bool {
-		return $this->is_theme_active( $identifier );
+	protected function check_active( string $wp_identifier ): bool {
+		return get_stylesheet() === $wp_identifier;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	protected function is_extension_installed( string $identifier ): bool {
-		return $this->is_theme_installed( $identifier );
+	protected function check_installed( string $wp_identifier ): bool {
+		return wp_get_theme( $wp_identifier )->exists();
 	}
 
 	/**
@@ -269,34 +269,6 @@ class Theme_Strategy extends Installable_Strategy {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Check whether a theme is currently active in WordPress.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param string $stylesheet Theme stylesheet (directory name).
-	 *
-	 * @return bool
-	 */
-	private function is_theme_active( string $stylesheet ): bool {
-		return get_stylesheet() === $stylesheet;
-	}
-
-	/**
-	 * Check whether a theme is installed on disk.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param string $stylesheet Theme stylesheet (directory name).
-	 *
-	 * @return bool
-	 */
-	private function is_theme_installed( string $stylesheet ): bool {
-		$theme = wp_get_theme( $stylesheet );
-
-		return $theme->exists();
 	}
 
 	/**

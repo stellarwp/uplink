@@ -281,20 +281,58 @@ final class ZipTest extends UplinkTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// get_plugin_slug() — derived from plugin_file
+	// get_plugin_slug() — explicit or falls back to directory
 	// -------------------------------------------------------------------------
 
 	/**
-	 * get_plugin_slug() returns the directory name from the plugin file path.
-	 *
-	 * @dataProvider plugin_slug_provider
-	 *
-	 * @param string $plugin_file    Input plugin file path.
-	 * @param string $expected_slug  Expected directory name.
+	 * get_plugin_slug() returns the explicit plugin_slug attribute when set.
 	 */
-	public function test_get_plugin_slug_returns_directory_name(
+	public function test_get_plugin_slug_returns_explicit_slug(): void {
+		$feature = new Zip(
+			[
+				'slug'        => 'feature-slug',
+				'group'       => self::GROUP,
+				'tier'        => self::TIER,
+				'name'        => self::NAME,
+				'description' => self::DESCRIPTION,
+				'plugin_file' => 'the-directory/the-directory.php',
+				'plugin_slug' => 'custom-slug',
+				'is_available' => true,
+			]
+		);
+
+		$this->assertSame( 'custom-slug', $feature->get_plugin_slug() );
+	}
+
+	/**
+	 * get_plugin_slug() falls back to the directory name when plugin_slug is not set.
+	 */
+	public function test_get_plugin_slug_falls_back_to_directory(): void {
+		$feature = $this->make_feature(
+			self::SLUG,
+			self::NAME,
+			self::DESCRIPTION,
+			'my-plugin/main.php'
+		);
+
+		$this->assertSame( 'my-plugin', $feature->get_plugin_slug() );
+	}
+
+	// -------------------------------------------------------------------------
+	// get_plugin_directory() — derived from plugin_file
+	// -------------------------------------------------------------------------
+
+	/**
+	 * get_plugin_directory() returns the directory name from the plugin file path.
+	 *
+	 * @dataProvider plugin_directory_provider
+	 *
+	 * @param string $plugin_file        Input plugin file path.
+	 * @param string $expected_directory  Expected directory name.
+	 */
+	public function test_get_plugin_directory_returns_directory_name(
 		string $plugin_file,
-		string $expected_slug
+		string $expected_directory
 	): void {
 		$feature = $this->make_feature(
 			self::SLUG,
@@ -303,15 +341,15 @@ final class ZipTest extends UplinkTestCase {
 			$plugin_file
 		);
 
-		$this->assertSame( $expected_slug, $feature->get_plugin_slug() );
+		$this->assertSame( $expected_directory, $feature->get_plugin_directory() );
 	}
 
 	/**
-	 * Data provider for get_plugin_slug() tests.
+	 * Data provider for get_plugin_directory() tests.
 	 *
 	 * @return array<string, array{string, string}>
 	 */
-	public function plugin_slug_provider(): array {
+	public function plugin_directory_provider(): array {
 		return [
 			'standard path'         => [ 'stellar-export/stellar-export.php', 'stellar-export' ],
 			'different file name'   => [ 'my-plugin/main.php', 'my-plugin' ],
@@ -335,7 +373,8 @@ final class ZipTest extends UplinkTestCase {
 				'tier'              => 'Tier 1',
 				'name'              => 'The Name',
 				'description'       => 'The description.',
-				'plugin_file'       => 'the-slug/the-slug.php',
+				'plugin_file'       => 'the-directory/the-directory.php',
+				'plugin_slug'       => 'the-slug',
 				'is_available'      => true,
 				'documentation_url' => 'https://example.com/docs',
 				'authors'           => [ 'StellarWP', 'The Events Calendar' ],
@@ -350,8 +389,9 @@ final class ZipTest extends UplinkTestCase {
 		$this->assertSame( 'zip', $feature->get_type() );
 		$this->assertTrue( $feature->is_available() );
 		$this->assertSame( 'https://example.com/docs', $feature->get_documentation_url() );
-		$this->assertSame( 'the-slug/the-slug.php', $feature->get_plugin_file() );
+		$this->assertSame( 'the-directory/the-directory.php', $feature->get_plugin_file() );
 		$this->assertSame( [ 'StellarWP', 'The Events Calendar' ], $feature->get_authors() );
 		$this->assertSame( 'the-slug', $feature->get_plugin_slug() );
+		$this->assertSame( 'the-directory', $feature->get_plugin_directory() );
 	}
 }

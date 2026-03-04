@@ -185,12 +185,17 @@ final class License_Repository {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @return Product_Collection|null Cached value, or null on miss.
+	 * @return Product_Collection|WP_Error|null Cached value, WP_Error on error, or null on miss.
 	 */
-	public function get_products(): ?Product_Collection {
+	public function get_products() {
+		/** @var Product_Collection|WP_Error|null $products */
 		$products = get_transient( self::PRODUCTS_TRANSIENT_KEY );
 
-		if ( $products instanceof Product_Collection || is_wp_error( $products ) ) {
+		if ( is_wp_error( $products ) ) {
+			return $products;
+		}
+
+		if ( $products instanceof Product_Collection ) {
 			return $products;
 		}
 

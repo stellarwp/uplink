@@ -97,7 +97,12 @@ class Resolve_Feature_Collection {
 			return $catalog;
 		}
 
-		$products   = $this->licensing->get( $key, $domain );
+		$products = $this->licensing->get( $key, $domain );
+
+		if ( is_wp_error( $products ) ) {
+			return $products;
+		}
+
 		$collection = new Feature_Collection();
 
 		foreach ( $catalog as $product ) {

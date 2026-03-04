@@ -222,7 +222,7 @@ final class Feature_CollectionTest extends UplinkTestCase {
 	public function test_filter_by_type(): void {
 		$collection = $this->build_collection();
 
-		$filtered = $collection->filter( null, null, null, 'zip' );
+		$filtered = $collection->filter( null, null, null, 'plugin' );
 
 		$this->assertSame( 1, $filtered->count() );
 		$this->assertNotNull( $filtered->get( 'ld-feature-1' ) );
@@ -286,7 +286,7 @@ final class Feature_CollectionTest extends UplinkTestCase {
 	 *
 	 * - tec-feature-1: group=TEC, tier=Tier 1, available=true, type=built_in
 	 * - tec-feature-2: group=TEC, tier=Tier 2, available=false, type=built_in
-	 * - ld-feature-1:  group=LearnDash, tier=Tier 1, available=true, type=zip
+	 * - ld-feature-1:  group=LearnDash, tier=Tier 1, available=true, type=plugin
 	 *
 	 * @return Feature_Collection
 	 */
@@ -326,7 +326,7 @@ final class Feature_CollectionTest extends UplinkTestCase {
 					'get_slug'     => 'ld-feature-1',
 					'get_group'    => 'LearnDash',
 					'get_tier'     => 'Tier 1',
-					'get_type'     => 'zip',
+					'get_type'     => 'plugin',
 					'is_available' => true,
 				] 
 			) 

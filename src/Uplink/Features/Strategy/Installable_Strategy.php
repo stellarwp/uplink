@@ -9,7 +9,7 @@ use function set_transient;
 /**
  * Abstract base for strategies that install extensions (plugins, themes) from ZIP files.
  *
- * Provides shared infrastructure used by both Zip_Strategy (plugins) and
+ * Provides shared infrastructure used by both Plugin_Strategy (plugins) and
  * Theme_Strategy (themes):
  * - Transient-based per-slug locking to prevent concurrent installs.
  * - A feature resolver callable for sync-hook lookups.
@@ -45,7 +45,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	 * Optional callable that resolves an identifier string to a Feature.
 	 *
 	 * The concrete type returned depends on the subclass:
-	 * - Zip_Strategy: fn(string $plugin_file): ?Zip
+	 * - Plugin_Strategy: fn(string $plugin_file): ?Plugin
 	 * - Theme_Strategy: fn(string $stylesheet): ?Theme
 	 *
 	 * The Provider layer wires this to the Feature Collection. Until then,
@@ -74,7 +74,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	 *
 	 * Returns null if no resolver is configured or if the identifier doesn't
 	 * correspond to a known feature. Subclasses should wrap this with a
-	 * type-specific check (e.g. instanceof Zip).
+	 * type-specific check (e.g. instanceof Plugin).
 	 *
 	 * @since 3.0.0
 	 *

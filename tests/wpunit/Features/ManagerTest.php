@@ -10,7 +10,7 @@ use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Built_In;
-use StellarWP\Uplink\Features\Types\Zip;
+use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
 
@@ -198,9 +198,9 @@ final class ManagerTest extends UplinkTestCase {
 		$this->assertInstanceOf( Built_In::class, $built_in );
 		$this->assertSame( 'built-in-feature', $built_in->get_slug() );
 
-		$zip = $manager->get_feature( 'valid-zip-feature' );
-		$this->assertInstanceOf( Zip::class, $zip );
-		$this->assertSame( 'valid-zip-feature', $zip->get_slug() );
+		$zip = $manager->get_feature( 'valid-plugin-feature' );
+		$this->assertInstanceOf( Plugin::class, $zip );
+		$this->assertSame( 'valid-plugin-feature', $zip->get_slug() );
 	}
 
 	/**

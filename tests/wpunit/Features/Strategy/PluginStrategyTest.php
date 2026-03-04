@@ -3,23 +3,23 @@
 namespace StellarWP\Uplink\Tests\Features\Strategy;
 
 use StellarWP\Uplink\Features\Error_Code;
-use StellarWP\Uplink\Features\Strategy\Zip_Strategy;
+use StellarWP\Uplink\Features\Strategy\Plugin_Strategy;
 use StellarWP\Uplink\Features\Types\Feature;
-use StellarWP\Uplink\Features\Types\Zip;
+use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
 
 /**
- * Tests for the Zip_Strategy feature-gating strategy.
+ * Tests for the Plugin_Strategy feature-gating strategy.
  *
  * These tests exercise the strategy's logic against real WordPress state
  * (active_plugins option, wp_options, transients) via the WPLoader module.
  * Plugin installation is not tested here — it requires actual filesystem and
  * HTTP operations better suited to integration tests with a real ZIP URL.
  *
- * @see Zip_Strategy
+ * @see Plugin_Strategy
  */
-final class ZipStrategyTest extends UplinkTestCase {
+final class PluginStrategyTest extends UplinkTestCase {
 
 	/**
 	 * Test plugin file path used across tests.
@@ -43,12 +43,12 @@ final class ZipStrategyTest extends UplinkTestCase {
 	private const LOCK_KEY = 'stellarwp_uplink_install_lock_test-feature';
 
 	/**
-	 * @var Zip_Strategy
+	 * @var Plugin_Strategy
 	 */
 	private $strategy;
 
 	/**
-	 * @var Zip
+	 * @var Plugin
 	 */
 	private $feature;
 
@@ -58,8 +58,8 @@ final class ZipStrategyTest extends UplinkTestCase {
 		// Load plugin.php so is_plugin_active() etc. are available.
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
-		$this->strategy = new Zip_Strategy();
-		$this->feature  = $this->make_zip_feature();
+		$this->strategy = new Plugin_Strategy();
+		$this->feature  = $this->make_plugin_feature();
 	}
 
 	protected function tearDown(): void {
@@ -80,12 +80,12 @@ final class ZipStrategyTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * enable() must reject non-Zip instances with a type mismatch error.
+	 * enable() must reject non-Plugin instances with a type mismatch error.
 	 */
-	public function test_enable_returns_type_mismatch_error_for_non_zip_feature(): void {
-		$non_zip = $this->create_non_zip_feature();
+	public function test_enable_returns_type_mismatch_error_for_non_plugin_feature(): void {
+		$non_plugin = $this->create_non_plugin_feature();
 
-		$result = $this->strategy->enable( $non_zip );
+		$result = $this->strategy->enable( $non_plugin );
 
 		$this->assertWPError( $result );
 		$this->assertSame( Error_Code::FEATURE_TYPE_MISMATCH, $result->get_error_code() );
@@ -272,12 +272,12 @@ final class ZipStrategyTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * disable() must reject non-Zip instances with a type mismatch error.
+	 * disable() must reject non-Plugin instances with a type mismatch error.
 	 */
-	public function test_disable_returns_type_mismatch_error_for_non_zip_feature(): void {
-		$non_zip = $this->create_non_zip_feature();
+	public function test_disable_returns_type_mismatch_error_for_non_plugin_feature(): void {
+		$non_plugin = $this->create_non_plugin_feature();
 
-		$result = $this->strategy->disable( $non_zip );
+		$result = $this->strategy->disable( $non_plugin );
 
 		$this->assertWPError( $result );
 		$this->assertSame( Error_Code::FEATURE_TYPE_MISMATCH, $result->get_error_code() );
@@ -316,12 +316,12 @@ final class ZipStrategyTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * is_active() returns false for non-Zip instances.
+	 * is_active() returns false for non-Plugin instances.
 	 */
-	public function test_is_active_returns_false_for_non_zip_feature(): void {
-		$non_zip = $this->create_non_zip_feature();
+	public function test_is_active_returns_false_for_non_plugin_feature(): void {
+		$non_plugin = $this->create_non_plugin_feature();
 
-		$this->assertFalse( $this->strategy->is_active( $non_zip ) );
+		$this->assertFalse( $this->strategy->is_active( $non_plugin ) );
 	}
 
 	/**
@@ -395,10 +395,10 @@ final class ZipStrategyTest extends UplinkTestCase {
 	 * on_plugin_activated updates stored state to true for a known feature.
 	 */
 	public function test_on_plugin_activated_updates_state_for_known_feature(): void {
-		$strategy = new Zip_Strategy(
-			function ( string $plugin_file ): ?Zip {
+		$strategy = new Plugin_Strategy(
+			function ( string $plugin_file ): ?Plugin {
 				if ( $plugin_file === self::PLUGIN_FILE ) {
-						return $this->make_zip_feature();
+						return $this->make_plugin_feature();
 				}
 				return null;
 			}
@@ -413,8 +413,8 @@ final class ZipStrategyTest extends UplinkTestCase {
 	 * on_plugin_activated ignores unknown plugins (resolver returns null).
 	 */
 	public function test_on_plugin_activated_ignores_unknown_plugin(): void {
-		$strategy = new Zip_Strategy(
-			function ( string $plugin_file ): ?Zip {
+		$strategy = new Plugin_Strategy(
+			function ( string $plugin_file ): ?Plugin {
 				return null;
 			}
 		);
@@ -442,10 +442,10 @@ final class ZipStrategyTest extends UplinkTestCase {
 		// Start with active stored state.
 		update_option( self::OPTION_KEY, '1', true );
 
-		$strategy = new Zip_Strategy(
-			function ( string $plugin_file ): ?Zip {
+		$strategy = new Plugin_Strategy(
+			function ( string $plugin_file ): ?Plugin {
 				if ( $plugin_file === self::PLUGIN_FILE ) {
-						return $this->make_zip_feature();
+						return $this->make_plugin_feature();
 				}
 				return null;
 			}
@@ -460,8 +460,8 @@ final class ZipStrategyTest extends UplinkTestCase {
 	 * on_plugin_deactivated ignores unknown plugins (resolver returns null).
 	 */
 	public function test_on_plugin_deactivated_ignores_unknown_plugin(): void {
-		$strategy = new Zip_Strategy(
-			function ( string $plugin_file ): ?Zip {
+		$strategy = new Plugin_Strategy(
+			function ( string $plugin_file ): ?Plugin {
 				return null;
 			}
 		);
@@ -492,7 +492,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Test Feature\n * Author: Foreign Developer\n */\n" );
 
 		try {
-			$feature = $this->make_zip_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP' ] );
+			$feature = $this->make_plugin_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP' ] );
 			$result  = $this->strategy->enable( $feature );
 
 			$this->assertWPError( $result );
@@ -525,7 +525,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 		try {
 			$this->mock_activate_plugin( self::PLUGIN_FILE );
 
-			$feature = $this->make_zip_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP' ] );
+			$feature = $this->make_plugin_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP' ] );
 			$result  = $this->strategy->enable( $feature );
 
 			$this->assertWPError( $result );
@@ -562,7 +562,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 
 		try {
 			// Our feature expects test-feature/test-feature.php, which doesn't exist.
-			$feature = $this->make_zip_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP' ] );
+			$feature = $this->make_plugin_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP' ] );
 			$result  = $this->strategy->enable( $feature );
 
 			$this->assertWPError( $result );
@@ -609,7 +609,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 
 		try {
 			$ob_level = ob_get_level();
-			$feature  = $this->make_zip_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP' ] );
+			$feature  = $this->make_plugin_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP' ] );
 			$result   = $this->strategy->enable( $feature );
 
 			while ( ob_get_level() > $ob_level ) {
@@ -650,7 +650,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Test Feature\n * Author: StellarWP\n */\n" );
 
 		try {
-			$feature = $this->make_zip_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP' ] );
+			$feature = $this->make_plugin_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP' ] );
 			$result  = $this->strategy->enable( $feature );
 
 			$this->assertTrue( $result );
@@ -681,7 +681,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Test Feature\n * Author: The Events Calendar\n */\n" );
 
 		try {
-			$feature = $this->make_zip_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP', 'The Events Calendar' ] );
+			$feature = $this->make_plugin_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP', 'The Events Calendar' ] );
 			$result  = $this->strategy->enable( $feature );
 
 			$this->assertTrue( $result );
@@ -713,7 +713,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 
 		try {
 			// Empty authors array — ownership check should be skipped.
-			$feature = $this->make_zip_feature( 'test-feature', self::PLUGIN_FILE, [] );
+			$feature = $this->make_plugin_feature( 'test-feature', self::PLUGIN_FILE, [] );
 			$result  = $this->strategy->enable( $feature );
 
 			$this->assertTrue( $result );
@@ -735,7 +735,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 	 *
 	 * @dataProvider author_normalization_provider
 	 *
-	 * @param string $expected_author Author value on the Zip feature.
+	 * @param string $expected_author Author value on the Plugin feature.
 	 * @param string $actual_author   Author header in the plugin file.
 	 */
 	public function test_enable_normalizes_author_comparison(
@@ -751,7 +751,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Test Feature\n * Author: {$actual_author}\n */\n" );
 
 		try {
-			$feature = $this->make_zip_feature( 'test-feature', self::PLUGIN_FILE, [ $expected_author ] );
+			$feature = $this->make_plugin_feature( 'test-feature', self::PLUGIN_FILE, [ $expected_author ] );
 			$result  = $this->strategy->enable( $feature );
 
 			$this->assertTrue(
@@ -799,10 +799,10 @@ final class ZipStrategyTest extends UplinkTestCase {
 	 * validate_plugin_requirements).
 	 */
 	public function test_enable_returns_requirements_not_met_for_high_php_requirement(): void {
-		$plugin_slug = 'high-php-req-zip-feature';
+		$plugin_slug = 'high-php-req-plugin-feature';
 		$plugin_file = $plugin_slug . '/' . $plugin_slug . '.php';
 		$plugin_dir  = WP_PLUGIN_DIR . '/' . $plugin_slug;
-		$source_dir  = codecept_data_dir( 'Features/Zips/' . $plugin_slug );
+		$source_dir  = codecept_data_dir( 'Features/Plugins/' . $plugin_slug );
 
 		if ( ! is_dir( $plugin_dir ) ) {
 			mkdir( $plugin_dir, 0755, true );
@@ -810,7 +810,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 		copy( $source_dir . '/' . $plugin_slug . '.php', $plugin_dir . '/' . $plugin_slug . '.php' );
 
 		try {
-			$feature = $this->make_zip_feature( $plugin_slug, $plugin_file, [ 'StellarWP' ] );
+			$feature = $this->make_plugin_feature( $plugin_slug, $plugin_file, [ 'StellarWP' ] );
 			$result  = $this->strategy->enable( $feature );
 
 			$this->assertWPError( $result );
@@ -833,10 +833,10 @@ final class ZipStrategyTest extends UplinkTestCase {
 	 * via validate_plugin_requirements).
 	 */
 	public function test_enable_returns_requirements_not_met_for_high_wp_requirement(): void {
-		$plugin_slug = 'high-wp-req-zip-feature';
+		$plugin_slug = 'high-wp-req-plugin-feature';
 		$plugin_file = $plugin_slug . '/' . $plugin_slug . '.php';
 		$plugin_dir  = WP_PLUGIN_DIR . '/' . $plugin_slug;
-		$source_dir  = codecept_data_dir( 'Features/Zips/' . $plugin_slug );
+		$source_dir  = codecept_data_dir( 'Features/Plugins/' . $plugin_slug );
 
 		if ( ! is_dir( $plugin_dir ) ) {
 			mkdir( $plugin_dir, 0755, true );
@@ -844,7 +844,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 		copy( $source_dir . '/' . $plugin_slug . '.php', $plugin_dir . '/' . $plugin_slug . '.php' );
 
 		try {
-			$feature = $this->make_zip_feature( $plugin_slug, $plugin_file, [ 'StellarWP' ] );
+			$feature = $this->make_plugin_feature( $plugin_slug, $plugin_file, [ 'StellarWP' ] );
 			$result  = $this->strategy->enable( $feature );
 
 			$this->assertWPError( $result );
@@ -866,20 +866,20 @@ final class ZipStrategyTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Create a standard Zip feature for testing.
+	 * Create a standard Plugin feature for testing.
 	 *
 	 * @param string   $slug         Feature slug.
 	 * @param string   $plugin_file  Plugin file path.
 	 * @param string[] $authors      Expected plugin authors.
 	 *
-	 * @return Zip
+	 * @return Plugin
 	 */
-	private function make_zip_feature(
+	private function make_plugin_feature(
 		string $slug = 'test-feature',
 		string $plugin_file = self::PLUGIN_FILE,
 		array $authors = [ 'StellarWP' ]
-	): Zip {
-		return new Zip(
+	): Plugin {
+		return new Plugin(
 			[
 				'slug'         => $slug,
 				'group'        => 'Test',
@@ -894,20 +894,20 @@ final class ZipStrategyTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Create a non-Zip Feature subclass for type-guard testing.
+	 * Create a non-Plugin Feature subclass for type-guard testing.
 	 *
 	 * Uses an anonymous class to avoid creating a whole new file for a test-
 	 * only concrete subclass.
 	 *
 	 * @return Feature
 	 */
-	private function create_non_zip_feature(): Feature {
+	private function create_non_plugin_feature(): Feature {
 		return new class( [
-			'slug'         => 'non-zip',
+			'slug'         => 'non-plugin',
 			'group'        => 'Test',
 			'tier'         => 'Tier 1',
-			'name'         => 'Non-Zip Feature',
-			'description'  => 'Not a zip.',
+			'name'         => 'Non-Plugin Feature',
+			'description'  => 'Not a plugin.',
 			'type'         => 'other',
 			'is_available' => true,
 		] ) extends Feature {

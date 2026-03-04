@@ -91,7 +91,7 @@ class Feature_Manager_Page {
 		$plugin_root_url = trailingslashit(
 			plugin_dir_url( $plugin_root_dir . '/index.php' )
 		);
-		$handle          = 'stellarwp-uplink-ui';
+		$handle = 'stellarwp-uplink-ui';
 
 		// Load asset file for dependencies and version.
 		$asset_file = $plugin_root_dir . '/' . $build_dir . '/index.asset.php';

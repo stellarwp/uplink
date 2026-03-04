@@ -129,7 +129,14 @@ final class License_Repository {
 		$result = (bool) update_option( self::KEY_OPTION_NAME, $key, false );
 
 		if ( $result ) {
-			/** This action is documented in License_Repository::store() */
+			/**
+			 * Fires when the unified license key is changed.
+			 *
+			 * @since 3.0.0
+			 *
+			 * @param string $new_key The new license key.
+			 * @param string $old_key The previous license key.
+			 */
 			do_action( 'stellarwp/uplink/unified_license_key_changed', $key, $current );
 		}
 
@@ -155,7 +162,14 @@ final class License_Repository {
 		}
 
 		if ( $result && $old_key !== '' ) {
-			/** This action is documented in License_Repository::store() */
+			/**
+			 * Fires when the unified license key is changed.
+			 *
+			 * @since 3.0.0
+			 *
+			 * @param string $new_key The new license key.
+			 * @param string $old_key The previous license key.
+			 */
 			do_action( 'stellarwp/uplink/unified_license_key_changed', '', $old_key );
 		}
 

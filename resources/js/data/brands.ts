@@ -28,7 +28,7 @@ export interface BrandConfig {
  * @since 3.0.0
  */
 export const BRAND_CONFIGS: Record<string, BrandConfig> = {
-    givewp: {
+    give: {
         icon: Heart,
         colorClass: 'bg-green-100 text-green-600',
     },

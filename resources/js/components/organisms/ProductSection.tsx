@@ -9,14 +9,16 @@
 import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { Loader2 } from 'lucide-react';
+import { useSelect } from '@wordpress/data';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BrandIcon } from '@/components/atoms/BrandIcon';
 import { FeatureRow } from '@/components/molecules/FeatureRow';
 import { BRAND_CONFIGS } from '@/data/brands';
 import { useLicenseStore } from '@/stores/license-store';
-import { useToastStore } from '@/stores/toast-store';
-import type { Product } from '@/types/api';
+import { useToast } from '@/context/toast-context';
+import { store as uplinkStore } from '@/store';
+import type { Feature, Product } from '@/types/api';
 
 interface ProductSectionProps {
     product: Product;
@@ -30,7 +32,7 @@ interface ProductSectionProps {
 export function ProductSection( { product, onAddLicense }: ProductSectionProps ) {
     const { getLicenseForProduct, getTierForProduct, productEnabled, toggleProduct } =
         useLicenseStore();
-    const { addToast } = useToastStore();
+    const { addToast } = useToast();
 
     const license = getLicenseForProduct( product.slug );
     const tier = getTierForProduct( product.slug );
@@ -53,6 +55,30 @@ export function ProductSection( { product, onAddLicense }: ProductSectionProps )
         addToast( msg, next ? 'success' : 'default' );
         setIsPending( false );
     };
+
+    // Features come from the REST API via the store resolver.
+    // Calling getFeatures() inside useSelect triggers the resolver;
+    // getFeaturesByGroup then filters the cached result for this product.
+    const features = useSelect(
+        ( select ) => {
+            select( uplinkStore ).getFeatures();
+            return select( uplinkStore ).getFeaturesByGroup( product.slug );
+        },
+        [ product.slug ],
+    );
+
+    // True while the getFeatures resolver has not yet completed.
+    // hasFinishedResolution is a @wordpress/data meta-selector injected at runtime
+    // but not present in the static selector types — cast through unknown to access it.
+    const isLoadingFeatures = useSelect(
+        ( select ) => {
+            const s = select( uplinkStore ) as unknown as {
+                hasFinishedResolution: ( name: string, args?: unknown[] ) => boolean;
+            };
+            return ! s.hasFinishedResolution( 'getFeatures', [] );
+        },
+        [],
+    );
 
     // Features are visible only when the product is licensed and enabled.
     const showFeatures = !! license && isEnabled;
@@ -127,13 +153,20 @@ export function ProductSection( { product, onAddLicense }: ProductSectionProps )
             {/* Feature list */}
             { showFeatures && (
                 <div className="divide-y divide-border">
-                    { product.features.map( ( feature ) => (
-                        <FeatureRow
-                            key={ feature.id }
-                            feature={ feature }
-                            product={ product }
-                        />
-                    ) ) }
+                    { isLoadingFeatures ? (
+                        <div className="flex items-center justify-center gap-2 px-4 py-6 text-sm text-muted-foreground">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            { __( 'Loading features…', '%TEXTDOMAIN%' ) }
+                        </div>
+                    ) : (
+                        features.map( ( feature ) => (
+                            <FeatureRow
+                                key={ feature.slug }
+                                feature={ feature }
+                                product={ product }
+                            />
+                        ) )
+                    ) }
                 </div>
             ) }
 

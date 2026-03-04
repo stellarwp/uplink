@@ -190,7 +190,7 @@ final class License_Repository {
 	public function get_products(): ?Product_Collection {
 		$products = get_transient( self::PRODUCTS_TRANSIENT_KEY );
 
-		if ( $products instanceof Product_Collection ) {
+		if ( $products instanceof Product_Collection || is_wp_error( $products ) ) {
 			return $products;
 		}
 

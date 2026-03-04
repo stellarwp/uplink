@@ -110,7 +110,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	public function test_get_products_returns_false_on_cache_miss(): void {
-		$this->assertFalse( $this->repository->get_products() );
+		$this->assertNull( $this->repository->get_products() );
 	}
 
 	public function test_set_and_get_products_round_trip(): void {
@@ -142,8 +142,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 
 		$result = $this->repository->get_products();
 
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'Bad key', $result->get_error_message() );
+		$this->assertNull( $result );
 	}
 
 	public function test_delete_products_clears_cache(): void {
@@ -163,7 +162,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 		$this->repository->set_products( $collection );
 		$this->repository->delete_products();
 
-		$this->assertFalse( $this->repository->get_products() );
+		$this->assertNull( $this->repository->get_products() );
 	}
 
 	// -------------------------------------------------------------------------
@@ -349,7 +348,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 			2
 		);
 
-		$this->repository->store( 'LWSW-FIRST-KEY' );
+		$this->repository->store_key( 'LWSW-FIRST-KEY' );
 
 		$this->assertCount( 1, $fired );
 		$this->assertSame( 'LWSW-FIRST-KEY', $fired[0][0] );
@@ -357,7 +356,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 	}
 
 	public function test_store_does_not_fire_action_when_key_unchanged(): void {
-		$this->repository->store( 'LWSW-SAME-KEY' );
+		$this->repository->store_key( 'LWSW-SAME-KEY' );
 
 		$fired = false;
 
@@ -368,13 +367,13 @@ final class License_RepositoryTest extends UplinkTestCase {
 			}
 		);
 
-		$this->repository->store( 'LWSW-SAME-KEY' );
+		$this->repository->store_key( 'LWSW-SAME-KEY' );
 
 		$this->assertFalse( $fired );
 	}
 
 	public function test_store_fires_action_with_old_key_on_overwrite(): void {
-		$this->repository->store( 'LWSW-OLD-KEY' );
+		$this->repository->store_key( 'LWSW-OLD-KEY' );
 
 		$fired = [];
 
@@ -387,7 +386,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 			2
 		);
 
-		$this->repository->store( 'LWSW-NEW-KEY' );
+		$this->repository->store_key( 'LWSW-NEW-KEY' );
 
 		$this->assertCount( 1, $fired );
 		$this->assertSame( 'LWSW-NEW-KEY', $fired[0][0] );
@@ -395,7 +394,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 	}
 
 	public function test_delete_fires_action_when_key_existed(): void {
-		$this->repository->store( 'LWSW-DELETE-ME' );
+		$this->repository->store_key( 'LWSW-DELETE-ME' );
 
 		$fired = [];
 
@@ -408,7 +407,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 			2
 		);
 
-		$this->repository->delete();
+		$this->repository->delete_key();
 
 		$this->assertCount( 1, $fired );
 		$this->assertSame( '', $fired[0][0] );
@@ -425,7 +424,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 			}
 		);
 
-		$this->repository->delete();
+		$this->repository->delete_key();
 
 		$this->assertFalse( $fired );
 	}

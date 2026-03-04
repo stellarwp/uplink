@@ -2,11 +2,10 @@
 
 namespace StellarWP\Uplink\Tests\Features\API;
 
-use StellarWP\Uplink\Catalog\Catalog_Collection;
-use StellarWP\Uplink\Catalog\Contracts\Catalog_Client;
-use StellarWP\Uplink\Catalog\Results\Product_Catalog;
-use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Features\API\Update_Client;
+use StellarWP\Uplink\Features\Feature_Collection;
+use StellarWP\Uplink\Features\Feature_Repository;
+use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
 
@@ -27,9 +26,7 @@ final class Update_ClientTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->bind_fixture_catalog_client();
-
-		$this->client = new Update_Client();
+		$this->client = new Update_Client( $this->make_repository( $this->build_feature_collection() ) );
 
 		delete_transient( 'stellarwp_uplink_update_check' );
 	}
@@ -76,6 +73,54 @@ final class Update_ClientTest extends UplinkTestCase {
 	}
 
 	/**
+	 * Tests that only available features are included in the result.
+	 *
+	 * @return void
+	 */
+	public function test_it_only_includes_available_features(): void {
+		$collection = new Feature_Collection();
+
+		$collection->add(
+			new Zip(
+				[
+					'slug'         => 'available-feature',
+					'group'        => 'kadence',
+					'tier'         => 'kadence-basic',
+					'name'         => 'Available Feature',
+					'description'  => 'An available feature.',
+					'plugin_file'  => 'available-feature/available-feature.php',
+					'download_url' => 'https://example.com/available.zip',
+					'is_available' => true,
+					'authors'      => [ 'StellarWP' ],
+				]
+			)
+		);
+
+		$collection->add(
+			new Zip(
+				[
+					'slug'         => 'unavailable-feature',
+					'group'        => 'kadence',
+					'tier'         => 'kadence-pro',
+					'name'         => 'Unavailable Feature',
+					'description'  => 'An unavailable feature.',
+					'plugin_file'  => 'unavailable-feature/unavailable-feature.php',
+					'download_url' => 'https://example.com/unavailable.zip',
+					'is_available' => false,
+					'authors'      => [ 'StellarWP' ],
+				]
+			)
+		);
+
+		$client = new Update_Client( $this->make_repository( $collection ) );
+		$result = $client->check_updates( 'test-key', 'example.com', [] );
+
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( 'available-feature', $result );
+		$this->assertArrayNotHasKey( 'unavailable-feature', $result );
+	}
+
+	/**
 	 * Tests that the fetched data is stored in a WordPress transient.
 	 *
 	 * @return void
@@ -104,7 +149,7 @@ final class Update_ClientTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Tests refresh clears the cache and returns fresh data from the Catalog_Client.
+	 * Tests refresh clears the cache and returns fresh data from the Feature_Repository.
 	 *
 	 * @return void
 	 */
@@ -121,19 +166,14 @@ final class Update_ClientTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Tests that a WP_Error from the Catalog_Client is cached and returned.
+	 * Tests that a WP_Error from the Feature_Repository is cached and returned.
 	 *
 	 * @return void
 	 */
 	public function test_it_caches_wp_error(): void {
 		$error = new WP_Error( 'test_error', 'API unavailable.' );
 
-		Config::get_container()->singleton(
-			Catalog_Client::class,
-			$this->make_client( $error )
-		);
-
-		$client = new Update_Client();
+		$client = new Update_Client( $this->make_repository( $error ) );
 		$result = $client->check_updates( 'test-key', 'example.com', [ 'my-plugin' => '1.0.0' ] );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
@@ -159,48 +199,45 @@ final class Update_ClientTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Binds a mock Catalog_Client backed by the fixture JSON into the container.
+	 * Builds a Feature_Collection with a Zip feature matching the catalog fixture data.
 	 *
-	 * @return void
+	 * @return Feature_Collection
 	 */
-	private function bind_fixture_catalog_client(): void {
-		Config::get_container()->singleton(
-			Catalog_Client::class,
-			$this->make_client( $this->build_catalog_from_fixture() )
+	private function build_feature_collection(): Feature_Collection {
+		$collection = new Feature_Collection();
+
+		$collection->add(
+			new Zip(
+				[
+					'slug'              => 'kad-blocks-pro',
+					'group'             => 'kadence',
+					'tier'              => 'kadence-basic',
+					'name'              => 'Blocks Pro',
+					'description'       => 'Premium Gutenberg blocks for advanced page building.',
+					'plugin_file'       => 'kadence-blocks-pro/kadence-blocks-pro.php',
+					'download_url'      => 'https://licensing.stellarwp.com/api/plugins/kad-blocks-pro',
+					'is_available'      => true,
+					'documentation_url' => 'https://www.kadencewp.com/help-center/',
+					'authors'           => [ 'KadenceWP' ],
+				]
+			)
 		);
-	}
-
-	/**
-	 * Builds a Catalog_Collection from the fixture JSON file.
-	 *
-	 * @return Catalog_Collection
-	 */
-	private function build_catalog_from_fixture(): Catalog_Collection {
-		$json = file_get_contents( codecept_data_dir( 'catalog/default.json' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		$data = json_decode( $json, true );
-
-		$collection = new Catalog_Collection();
-
-		foreach ( $data as $item ) {
-			/** @var array<string, mixed> $item */
-			$collection->add( Product_Catalog::from_array( $item ) );
-		}
 
 		return $collection;
 	}
 
 	/**
-	 * Creates a mock Catalog_Client that returns the given result.
+	 * Creates a mock Feature_Repository that returns the given result.
 	 *
-	 * @param Catalog_Collection|WP_Error $result The result to return from get_catalog().
+	 * @param Feature_Collection|WP_Error $result The result to return from get().
 	 *
-	 * @return Catalog_Client
+	 * @return Feature_Repository
 	 */
-	private function make_client( $result ): Catalog_Client {
+	private function make_repository( $result ): Feature_Repository {
 		return $this->makeEmpty(
-			Catalog_Client::class,
+			Feature_Repository::class,
 			[
-				'get_catalog' => $result,
+				'get' => $result,
 			]
 		);
 	}

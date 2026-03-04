@@ -2,12 +2,12 @@
 
 namespace StellarWP\Uplink\Features\API;
 
-use StellarWP\Uplink\Catalog\Contracts\Catalog_Client;
-use StellarWP\Uplink\Config;
+use StellarWP\Uplink\Features\Feature_Repository;
+use StellarWP\Uplink\Features\Types\Zip;
 use WP_Error;
 
 /**
- * Queries the server for available updates and
+ * Queries the Feature_Repository for available updates and
  * caches the result as a WordPress transient.
  *
  * @since 3.0.0
@@ -31,6 +31,26 @@ class Update_Client {
 	 * @var int
 	 */
 	private const DEFAULT_CACHE_DURATION = HOUR_IN_SECONDS * 12;
+
+	/**
+	 * The feature repository.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var Feature_Repository
+	 */
+	private Feature_Repository $feature_repository;
+
+	/**
+	 * Constructor.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param Feature_Repository $feature_repository The feature repository.
+	 */
+	public function __construct( Feature_Repository $feature_repository ) {
+		$this->feature_repository = $feature_repository;
+	}
 
 	/**
 	 * Gets the update data, using the transient cache when available.
@@ -59,7 +79,7 @@ class Update_Client {
 	}
 
 	/**
-	 * Deletes the transient cache and re-fetches from the API.
+	 * Deletes the transient cache and re-fetches from the Feature_Repository.
 	 *
 	 * @since 3.0.0
 	 *
@@ -76,7 +96,11 @@ class Update_Client {
 	}
 
 	/**
-	 * Fetches updates from the server and caches the result.
+	 * Fetches available Zip features from the Feature_Repository
+	 * and transforms them into WordPress-compatible update data.
+	 *
+	 * Only features where is_available() returns true are included,
+	 * ensuring plugins_api() only serves updates the site is licensed for.
 	 *
 	 * @since 3.0.0
 	 *
@@ -87,34 +111,37 @@ class Update_Client {
 	 * @return array<string, array<string, mixed>>|WP_Error Keyed by slug, each entry contains update fields.
 	 */
 	private function fetch_updates( string $unified_key, string $domain, array $products ) {
-		$client   = Config::get_container()->get( Catalog_Client::class );
-		$response = $client->get_catalog();
+		$features = $this->feature_repository->get( $unified_key, $domain );
 
-		if ( is_wp_error( $response ) ) {
-			set_transient( self::TRANSIENT_KEY, $response, self::DEFAULT_CACHE_DURATION );
+		if ( is_wp_error( $features ) ) {
+			set_transient( self::TRANSIENT_KEY, $features, self::DEFAULT_CACHE_DURATION );
 
-			return $response;
+			return $features;
 		}
+
+		$available_zips = $features->filter( null, null, true, 'zip' );
 
 		$updates = [];
 
-		foreach ( $response as $product_catalog ) {
-			foreach ( $product_catalog->get_features() as $feature ) {
-				$slug = $feature->get_feature_slug();
-
-				$updates[ $slug ] = [
-					'name'        => $feature->get_name(),
-					'slug'        => $slug,
-					'new_version' => '',
-					'package'     => $feature->get_download_url() ?? '',
-					'url'         => $feature->get_documentation_url(),
-					'author'      => implode( ', ', $feature->get_authors() ),
-					'plugin_file' => $feature->get_plugin_file() ?? '',
-					'sections'    => [
-						'description' => $feature->get_description(),
-					],
-				];
+		foreach ( $available_zips as $feature ) {
+			if ( ! $feature instanceof Zip ) {
+				continue;
 			}
+
+			$slug = $feature->get_slug();
+
+			$updates[ $slug ] = [
+				'name'        => $feature->get_name(),
+				'slug'        => $slug,
+				'new_version' => '',
+				'package'     => $feature->get_download_url(),
+				'url'         => $feature->get_documentation_url(),
+				'author'      => implode( ', ', $feature->get_authors() ),
+				'plugin_file' => $feature->get_plugin_file(),
+				'sections'    => [
+					'description' => $feature->get_description(),
+				],
+			];
 		}
 
 		set_transient( self::TRANSIENT_KEY, $updates, self::DEFAULT_CACHE_DURATION );

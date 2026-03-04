@@ -83,6 +83,17 @@ final class Zip extends Feature {
 	}
 
 	/**
+	 * Gets the download URL for this Zip feature.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string
+	 */
+	public function get_download_url(): string {
+		return Cast::to_string( $this->attributes['download_url'] ?? '' );
+	}
+
+	/**
 	 * Gets the expected plugin authors for ownership verification.
 	 *
 	 * @since 3.0.0

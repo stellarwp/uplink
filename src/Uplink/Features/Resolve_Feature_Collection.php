@@ -201,6 +201,8 @@ class Resolve_Feature_Collection {
 			'is_available'      => $is_available,
 			'documentation_url' => $catalog_feature->get_documentation_url(),
 			'plugin_file'       => $catalog_feature->get_plugin_file() ?? '',
+			'download_url'      => $catalog_feature->get_download_url() ?? '',
+			'authors'           => $catalog_feature->get_authors(),
 		];
 
 		return $class::from_array( $data );

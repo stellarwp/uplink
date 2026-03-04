@@ -26,7 +26,14 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	public function register(): void {
-		$this->container->singleton( Update_Client::class, Update_Client::class );
+		$this->container->singleton(
+			Update_Client::class,
+			static function ( ContainerInterface $c ) {
+				return new Update_Client(
+					$c->get( Feature_Repository::class )
+				);
+			}
+		);
 
 		$this->container->singleton(
 			Handler::class,

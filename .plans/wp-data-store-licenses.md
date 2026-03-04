@@ -57,7 +57,7 @@ a key exists.
 `stellarwp/uplink/unified_license_key_changed` whenever the key is stored or
 deleted. Three listeners (in the Catalog, Features, and Licensing providers)
 immediately delete their respective PHP transient caches. This means the
-next call to `GET /features` after an activate or deactivate will always
+next call to `GET /features` after an activate or delete will always
 return freshly-resolved data — the frontend `invalidateResolution('getFeatures', [])`
 approach in the store thunks is safe and correct.
 
@@ -103,9 +103,9 @@ import type UplinkError from '@/errors/uplink-error';
 export interface LicenseState {
     key:             string | null;
     isActivating:    boolean;
-    isDeactivating:  boolean;
+    isDeleting:  boolean;
     activateError:   UplinkError | null;
-    deactivateError: UplinkError | null;
+    deleteError: UplinkError | null;
 }
 
 // Add to State:
@@ -119,9 +119,9 @@ export interface State {
 | { type: 'ACTIVATE_LICENSE_START' }
 | { type: 'ACTIVATE_LICENSE_FINISHED'; key: string }
 | { type: 'ACTIVATE_LICENSE_FAILED';   error: UplinkError }
-| { type: 'DEACTIVATE_LICENSE_START' }
-| { type: 'DEACTIVATE_LICENSE_FINISHED' }
-| { type: 'DEACTIVATE_LICENSE_FAILED';  error: UplinkError }
+| { type: 'DELETE_LICENSE_START' }
+| { type: 'DELETE_LICENSE_FINISHED' }
+| { type: 'DELETE_LICENSE_FAILED';  error: UplinkError }
 ```
 
 #### `store/reducer.ts` — add `license` sub-reducer via `combineReducers`
@@ -130,9 +130,9 @@ export interface State {
 const LICENSE_DEFAULT: LicenseState = {
     key:             null,
     isActivating:    false,
-    isDeactivating:  false,
+    isDeleting:  false,
     activateError:   null,
-    deactivateError: null,
+    deleteError: null,
 };
 
 function license( state = LICENSE_DEFAULT, action: Action ): LicenseState {
@@ -145,12 +145,12 @@ function license( state = LICENSE_DEFAULT, action: Action ): LicenseState {
             return { ...state, isActivating: false, key: action.key };
         case 'ACTIVATE_LICENSE_FAILED':
             return { ...state, isActivating: false, activateError: action.error };
-        case 'DEACTIVATE_LICENSE_START':
-            return { ...state, isDeactivating: true, deactivateError: null };
-        case 'DEACTIVATE_LICENSE_FINISHED':
-            return { ...state, isDeactivating: false, key: null };
-        case 'DEACTIVATE_LICENSE_FAILED':
-            return { ...state, isDeactivating: false, deactivateError: action.error };
+        case 'DELETE_LICENSE_START':
+            return { ...state, isDeleting: true, deleteError: null };
+        case 'DELETE_LICENSE_FINISHED':
+            return { ...state, isDeleting: false, key: null };
+        case 'DELETE_LICENSE_FAILED':
+            return { ...state, isDeleting: false, deleteError: action.error };
         default:
             return state;
     }
@@ -195,20 +195,20 @@ export const activateLicense =
         }
     };
 
-export const deactivateLicense =
+export const deleteLicense =
     (): UplinkThunk =>
     async ( { dispatch, registry } ) => {
-        dispatch( { type: 'DEACTIVATE_LICENSE_START' } );
+        dispatch( { type: 'DELETE_LICENSE_START' } );
         try {
             await apiFetch( {
                 path:   '/stellarwp/uplink/v1/license',
                 method: 'DELETE',
             } );
-            dispatch( { type: 'DEACTIVATE_LICENSE_FINISHED' } );
+            dispatch( { type: 'DELETE_LICENSE_FINISHED' } );
             // Invalidate features resolver so is_available reflects removed license.
             registry.dispatch( STORE_NAME ).invalidateResolution( 'getFeatures', [] );
         } catch ( err ) {
-            dispatch( { type: 'DEACTIVATE_LICENSE_FAILED', error: UplinkError.from( err ) } );
+            dispatch( { type: 'DELETE_LICENSE_FAILED', error: UplinkError.from( err ) } );
         }
     };
 ```
@@ -243,15 +243,15 @@ export function isLicenseActivating( state: State ): boolean {
 }
 
 export function isLicenseDeactivating( state: State ): boolean {
-    return state.license.isDeactivating;
+    return state.license.isDeleting;
 }
 
 export function getActivateLicenseError( state: State ): UplinkError | null {
     return state.license.activateError;
 }
 
-export function getDeactivateLicenseError( state: State ): UplinkError | null {
-    return state.license.deactivateError;
+export function getDeleteLicenseError( state: State ): UplinkError | null {
+    return state.license.deleteError;
 }
 ```
 
@@ -262,7 +262,7 @@ export function getDeactivateLicenseError( state: State ): UplinkError | null {
 | Component | Before | After |
 |-----------|--------|-------|
 | `LicenseKeyInput` | `useLicenseStore().activateLicense(key)` | `useDispatch(uplinkStore).activateLicense(key)` + `useSelect → getActivateLicenseError` for inline error + `isLicenseActivating` for loading state |
-| `LicenseCard` | `useLicenseStore().removeLicense(key)` | `useDispatch(uplinkStore).deactivateLicense()` + `getDeactivateLicenseError` as toast |
+| `LicenseCard` | `useLicenseStore().removeLicense(key)` | `useDispatch(uplinkStore).deleteLicense()` + `getDeleteLicenseError` as toast |
 | `LicenseList` | Zustand `activeLicenses` (array) | `useSelect → getLicenseKey()` — now a single key; render one `LicenseCard` or empty state |
 | `LegacyLicenseBanner` | `useLicenseStore().hasLegacyLicense()` | Read `window.uplink.legacyLicenses` passed via `wp_localize_script`; no store selector needed yet |
 | `ProductSection` | Zustand `getLicenseForProduct`, `getTierForProduct` | Remove — feature availability comes from `feature.is_available` in the Features store |
@@ -284,7 +284,7 @@ export function getDeactivateLicenseError( state: State ): UplinkError | null {
 Use `UplinkError.from( err )` for all caught errors (matching PR #128 pattern).
 
 - `activateError` → displayed **inline** in `LicenseKeyInput` (not a toast)
-- `deactivateError` → displayed as a **toast** in `LicenseCard`
+- `deleteError` → displayed as a **toast** in `LicenseCard`
 
 ---
 
@@ -293,7 +293,7 @@ Use `UplinkError.from( err )` for all caught errors (matching PR #128 pattern).
 - Activate a valid key → `getLicenseKey()` updates, features re-fetch (`is_available` changes)
 - Deactivate → `getLicenseKey()` returns `null`, features re-fetch
 - Invalid key (wrong format, or valid format but not recognized by the licensing API) → 422 → inline error in `LicenseKeyInput`, no toast
-- API error on deactivate → toast via `getDeactivateLicenseError`
+- `deleteError` → displayed as a **toast** in `LicenseCard`
 - `bun run typecheck` passes
 
 ---
@@ -518,8 +518,8 @@ bun remove zustand
 4. WordPress admin → Feature Manager page loads without JS console errors
 5. All REST calls in Network tab — nonce header present on every request
 6. Manual test: activate license → `getLicenseKey()` updates, features re-fetch (availability changes)
-7. Manual test: deactivate license → key cleared, features re-fetch
+7. Manual test: delete license → key cleared, features re-fetch
 8. Manual test: invalid license key → inline error in `LicenseKeyInput`, no toast
-9. Manual test: API error on deactivate → error toast in `LicenseCard`
+9. Manual test: API error on delete → error toast in `LicenseCard`
 10. Manual test: enable/disable product → optimistic toggle, features list shows/hides
 11. Manual test: API error on product toggle → rollback, error toast

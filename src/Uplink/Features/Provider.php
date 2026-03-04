@@ -7,6 +7,7 @@ use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\Features\REST\Feature_Controller;
 use StellarWP\Uplink\Features\Strategy\Resolver;
+use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Product_Repository;
 use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Utils\Version;
@@ -53,7 +54,7 @@ class Provider extends Abstract_Provider {
 				return new Manager(
 					$c->get( Feature_Repository::class ),
 					$c->get( Resolver::class ),
-					'', // TODO: Unified license key lookup.
+					$c->get( License_Manager::class )->get() ?? '',
 					$c->get( Data::class )->get_domain()
 				);
 			}

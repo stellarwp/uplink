@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace StellarWP\Uplink\Licensing\REST;
+namespace StellarWP\Uplink\API\REST\V1;
 
 use StellarWP\Uplink\Licensing\Error_Code;
 use StellarWP\Uplink\Utils\License_Key;

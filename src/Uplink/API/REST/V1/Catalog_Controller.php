@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace StellarWP\Uplink\Catalog\REST;
+namespace StellarWP\Uplink\API\REST\V1;
 
 use StellarWP\Uplink\Catalog\Catalog_Repository;
 use WP_REST_Controller;

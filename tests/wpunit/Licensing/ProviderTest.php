@@ -8,7 +8,6 @@ use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Product_Repository;
 use StellarWP\Uplink\Licensing\Registry\Product_Registry;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
-use StellarWP\Uplink\Licensing\REST\License_Controller;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
 final class ProviderTest extends UplinkTestCase {
@@ -79,20 +78,6 @@ final class ProviderTest extends UplinkTestCase {
 	public function test_license_manager_is_singleton(): void {
 		$first  = $this->container->get( License_Manager::class );
 		$second = $this->container->get( License_Manager::class );
-
-		$this->assertSame( $first, $second );
-	}
-
-	public function test_it_registers_license_controller(): void {
-		$this->assertInstanceOf(
-			License_Controller::class,
-			$this->container->get( License_Controller::class )
-		);
-	}
-
-	public function test_license_controller_is_singleton(): void {
-		$first  = $this->container->get( License_Controller::class );
-		$second = $this->container->get( License_Controller::class );
 
 		$this->assertSame( $first, $second );
 	}

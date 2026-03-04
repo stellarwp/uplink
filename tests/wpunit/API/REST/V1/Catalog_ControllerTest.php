@@ -1,12 +1,12 @@
 <?php declare( strict_types=1 );
 
-namespace StellarWP\Uplink\Tests\Catalog\REST;
+namespace StellarWP\Uplink\Tests\API\REST\V1;
 
 use StellarWP\Uplink\Catalog\Catalog_Collection;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Catalog\Contracts\Catalog_Client;
 use StellarWP\Uplink\Catalog\Error_Code;
-use StellarWP\Uplink\Catalog\REST\Catalog_Controller;
+use StellarWP\Uplink\API\REST\V1\Catalog_Controller;
 use StellarWP\Uplink\Catalog\Results\Product_Catalog;
 use StellarWP\Uplink\Tests\Traits\With_Uopz;
 use StellarWP\Uplink\Tests\UplinkTestCase;

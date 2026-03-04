@@ -1,13 +1,13 @@
 <?php declare( strict_types=1 );
 
-namespace StellarWP\Uplink\Tests\Features\REST;
+namespace StellarWP\Uplink\Tests\API\REST\V1;
 
 use StellarWP\Uplink\Features\API\Client;
 use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Manager;
-use StellarWP\Uplink\Features\REST\Feature_Controller;
+use StellarWP\Uplink\API\REST\V1\Feature_Controller;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Tests\Traits\With_Uopz;

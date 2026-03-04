@@ -49,7 +49,7 @@ final class Product_RepositoryTest extends UplinkTestCase {
 
 		$this->assertInstanceOf( Product_Entry::class, $kadence );
 		$this->assertSame( 'kadence', $kadence->get_product_slug() );
-		$this->assertSame( 'pro', $kadence->get_tier() );
+		$this->assertSame( 'kadence-pro', $kadence->get_tier() );
 
 		$this->assertNull( $result->get( 'nonexistent' ) );
 	}

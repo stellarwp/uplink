@@ -3,13 +3,16 @@
 namespace StellarWP\Uplink\Features;
 
 use StellarWP\ContainerContract\ContainerInterface;
+use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
-use StellarWP\Uplink\Features\API\Client;
-use StellarWP\Uplink\Features\Strategy\Built_In_Strategy;
+use StellarWP\Uplink\Features\Strategy\Flag_Strategy;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Strategy\Zip_Strategy;
-use StellarWP\Uplink\Features\Types\Built_In;
+use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Features\Types\Zip;
+use StellarWP\Uplink\Licensing\License_Manager;
+use StellarWP\Uplink\Licensing\Product_Repository;
+use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Utils\Cast;
 use WP_Error;
 
@@ -21,11 +24,13 @@ use WP_Error;
 class Provider extends Abstract_Provider {
 
 	/**
-	 * @inheritDoc
+	 * Registers singletons and hooks for the Features subsystem.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return void
 	 */
 	public function register(): void {
-		$this->container->singleton( Client::class, Client::class );
-
 		$this->container->singleton(
 			Resolver::class,
 			static function ( ContainerInterface $c ) {
@@ -35,19 +40,43 @@ class Provider extends Abstract_Provider {
 			}
 		);
 
+		$this->container->singleton(
+			Resolve_Feature_Collection::class,
+			function ( ContainerInterface $c ) {
+				$resolver = new Resolve_Feature_Collection(
+					$c->get( Catalog_Repository::class ),
+					$c->get( Product_Repository::class )
+				);
+
+				$this->register_default_types( $resolver );
+
+				return $resolver;
+			}
+		);
+
+		$this->container->singleton(
+			Feature_Repository::class,
+			static function ( ContainerInterface $c ) {
+				return new Feature_Repository(
+					$c->get( Resolve_Feature_Collection::class )
+				);
+			}
+		);
+
 		$this->container->singleton( Feature_Collection::class, Feature_Collection::class );
 
 		$this->container->singleton(
 			Manager::class,
 			static function ( ContainerInterface $c ) {
-				$client   = $c->get( Client::class );
-				$resolver = $c->get( Resolver::class );
-
-				return new Manager( $client, $resolver );
+				return new Manager(
+					$c->get( Feature_Repository::class ),
+					$c->get( Resolver::class ),
+					$c->get( License_Manager::class )->get() ?? '',
+					$c->get( Data::class )->get_domain()
+				);
 			}
 		);
 
-		$this->register_default_types();
 		$this->register_default_strategies();
 		$this->register_hooks();
 	}
@@ -57,12 +86,14 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @since 3.0.0
 	 *
+	 * @param Resolve_Feature_Collection $resolver The feature collection resolver.
+	 *
 	 * @return void
 	 */
-	private function register_default_types(): void {
-		$client = $this->container->get( Client::class );
-		$client->register_type( 'zip', Zip::class );
-		$client->register_type( 'built_in', Built_In::class );
+	private function register_default_types( Resolve_Feature_Collection $resolver ): void {
+		$resolver->register_type( 'plugin', Zip::class ); // TODO: Will be replaced with Plugin Feature.
+		$resolver->register_type( 'flag', Flag::class );
+		$resolver->register_type( 'theme', Zip::class ); // TODO: Will be replaced with Theme Feature.
 	}
 
 	/**
@@ -73,12 +104,13 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	private function register_default_strategies(): void {
-		$this->container->singleton( Zip_Strategy::class, Zip_Strategy::class );
-		$this->container->singleton( Built_In_Strategy::class, Built_In_Strategy::class );
+		$this->container->singleton( Zip_Strategy::class, Zip_Strategy::class ); // TODO: Will be replaced with Plugin Strategy.
+		$this->container->singleton( Flag_Strategy::class, Flag_Strategy::class );
 
 		$resolver = $this->container->get( Resolver::class );
-		$resolver->register( 'zip', Zip_Strategy::class );
-		$resolver->register( 'built_in', Built_In_Strategy::class );
+		$resolver->register( 'zip', Zip_Strategy::class ); // TODO: Will be replaced with Plugin Strategy.
+		$resolver->register( 'flag', Flag_Strategy::class );
+		$resolver->register( 'theme', Zip_Strategy::class ); // TODO: Will be replaced with Theme Strategy.
 	}
 
 	/**

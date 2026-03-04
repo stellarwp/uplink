@@ -2,9 +2,9 @@
 
 namespace StellarWP\Uplink\Tests\API\REST\V1;
 
-use StellarWP\Uplink\Features\API\Client;
 use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Feature_Collection;
+use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\API\REST\V1\Feature_Controller;
@@ -77,7 +77,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 					'get_description'       => 'Beta description',
 					'get_group'             => 'GroupB',
 					'get_tier'              => 'Tier 2',
-					'get_type'              => 'built_in',
+					'get_type'              => 'flag',
 					'is_available'          => false,
 					'get_documentation_url' => 'https://example.com/beta',
 					'to_array'              => [
@@ -86,7 +86,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 						'tier'              => 'Tier 2',
 						'name'              => 'Feature Beta',
 						'description'       => 'Beta description',
-						'type'              => 'built_in',
+						'type'              => 'flag',
 						'is_available'      => false,
 						'documentation_url' => 'https://example.com/beta',
 					],
@@ -122,14 +122,14 @@ final class Feature_ControllerTest extends UplinkTestCase {
 			]
 		);
 
-		$catalog = $this->makeEmpty(
-			Client::class,
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
 			[
-				'get_features' => $collection,
+				'get' => $collection,
 			]
 		);
 
-		$this->manager = new Manager( $catalog, $resolver );
+		$this->manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		/** @var WP_REST_Server $wp_rest_server */
 		global $wp_rest_server;
@@ -256,7 +256,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
 
 		$request = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/features' );
-		$request->set_param( 'type', 'built_in' );
+		$request->set_param( 'type', 'flag' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 200, $response->get_status() );
@@ -478,10 +478,10 @@ final class Feature_ControllerTest extends UplinkTestCase {
 	public function test_get_item_catalog_error_has_http_status(): void {
 		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
 
-		$catalog = $this->makeEmpty(
-			Client::class,
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
 			[
-				'get_features' => new WP_Error(
+				'get' => new WP_Error(
 					Error_Code::FEATURE_REQUEST_FAILED,
 					'Upstream API failed.'
 				),
@@ -489,7 +489,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		);
 
 		$resolver = $this->makeEmpty( Resolver::class );
-		$manager  = new Manager( $catalog, $resolver );
+		$manager  = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
@@ -755,9 +755,9 @@ final class Feature_ControllerTest extends UplinkTestCase {
 			]
 		);
 
-		$resolver = $this->makeEmpty( Resolver::class, [ 'resolve' => $error_strategy ] );
-		$catalog  = $this->makeEmpty( Client::class, [ 'get_features' => $this->manager->get_features() ] );
-		$manager  = new Manager( $catalog, $resolver );
+		$resolver   = $this->makeEmpty( Resolver::class, [ 'resolve' => $error_strategy ] );
+		$repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => $this->manager->get_features() ] );
+		$manager    = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
@@ -780,10 +780,10 @@ final class Feature_ControllerTest extends UplinkTestCase {
 	public function test_list_catalog_error_has_http_status(): void {
 		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
 
-		$catalog = $this->makeEmpty(
-			Client::class,
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
 			[
-				'get_features' => new WP_Error(
+				'get' => new WP_Error(
 					Error_Code::FEATURE_REQUEST_FAILED,
 					'Upstream API failed.'
 				),
@@ -791,7 +791,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		);
 
 		$resolver = $this->makeEmpty( Resolver::class );
-		$manager  = new Manager( $catalog, $resolver );
+		$manager  = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
@@ -826,9 +826,9 @@ final class Feature_ControllerTest extends UplinkTestCase {
 			]
 		);
 
-		$resolver = $this->makeEmpty( Resolver::class, [ 'resolve' => $error_strategy ] );
-		$catalog  = $this->makeEmpty( Client::class, [ 'get_features' => $this->manager->get_features() ] );
-		$manager  = new Manager( $catalog, $resolver );
+		$resolver   = $this->makeEmpty( Resolver::class, [ 'resolve' => $error_strategy ] );
+		$repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => $this->manager->get_features() ] );
+		$manager    = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
@@ -864,9 +864,9 @@ final class Feature_ControllerTest extends UplinkTestCase {
 			]
 		);
 
-		$resolver = $this->makeEmpty( Resolver::class, [ 'resolve' => $error_strategy ] );
-		$catalog  = $this->makeEmpty( Client::class, [ 'get_features' => $this->manager->get_features() ] );
-		$manager  = new Manager( $catalog, $resolver );
+		$resolver   = $this->makeEmpty( Resolver::class, [ 'resolve' => $error_strategy ] );
+		$repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => $this->manager->get_features() ] );
+		$manager    = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();

@@ -2,7 +2,6 @@
 
 namespace StellarWP\Uplink\Features;
 
-use StellarWP\Uplink\Features\API\Client;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Error_Code;
@@ -19,13 +18,13 @@ use WP_Error;
 class Manager {
 
 	/**
-	 * The client for fetching available features.
+	 * The repository for fetching available features.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @var Client
+	 * @var Feature_Repository
 	 */
-	private Client $client;
+	private Feature_Repository $repository;
 
 	/**
 	 * The strategy resolver for determining how to toggle features.
@@ -37,18 +36,40 @@ class Manager {
 	private Resolver $resolver;
 
 	/**
+	 * The license key.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	private string $key;
+
+	/**
+	 * The site domain.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	private string $domain;
+
+	/**
 	 * Constructor for the central feature orchestrator.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Client   $client   The client for fetching available features.
-	 * @param Resolver $resolver The strategy resolver.
+	 * @param Feature_Repository $repository The repository for fetching available features.
+	 * @param Resolver           $resolver   The strategy resolver.
+	 * @param string             $key        The license key.
+	 * @param string             $domain     The site domain.
 	 *
 	 * @return void
 	 */
-	public function __construct( Client $client, Resolver $resolver ) {
-		$this->client   = $client;
-		$this->resolver = $resolver;
+	public function __construct( Feature_Repository $repository, Resolver $resolver, string $key, string $domain ) {
+		$this->repository = $repository;
+		$this->resolver   = $resolver;
+		$this->key        = $key;
+		$this->domain     = $domain;
 	}
 
 	/**
@@ -215,7 +236,7 @@ class Manager {
 	 * @return bool|WP_Error
 	 */
 	public function is_enabled( string $slug ) {
-		$features = $this->client->get_features();
+		$features = $this->repository->get( $this->key, $this->domain );
 
 		if ( is_wp_error( $features ) ) {
 			return new WP_Error(
@@ -245,7 +266,7 @@ class Manager {
 	 * @return bool|WP_Error
 	 */
 	public function is_available( string $slug ) {
-		$features = $this->client->get_features();
+		$features = $this->repository->get( $this->key, $this->domain );
 
 		if ( is_wp_error( $features ) ) {
 			return new WP_Error(
@@ -265,7 +286,7 @@ class Manager {
 	 * @return Feature_Collection|WP_Error
 	 */
 	public function get_features() {
-		return $this->client->get_features();
+		return $this->repository->get( $this->key, $this->domain );
 	}
 
 	/**
@@ -281,7 +302,7 @@ class Manager {
 	 * @return Feature|null
 	 */
 	public function get_feature( string $slug ): ?Feature {
-		$features = $this->client->get_features();
+		$features = $this->repository->get( $this->key, $this->domain );
 
 		if ( is_wp_error( $features ) ) {
 			return null;

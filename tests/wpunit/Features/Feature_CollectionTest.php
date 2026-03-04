@@ -284,8 +284,8 @@ final class Feature_CollectionTest extends UplinkTestCase {
 	/**
 	 * Builds a Feature_Collection with a known set of features for filter tests.
 	 *
-	 * - tec-feature-1: group=TEC, tier=Tier 1, available=true, type=built_in
-	 * - tec-feature-2: group=TEC, tier=Tier 2, available=false, type=built_in
+	 * - tec-feature-1: group=TEC, tier=Tier 1, available=true, type=flag
+	 * - tec-feature-2: group=TEC, tier=Tier 2, available=false, type=flag
 	 * - ld-feature-1:  group=LearnDash, tier=Tier 1, available=true, type=zip
 	 *
 	 * @return Feature_Collection
@@ -300,7 +300,7 @@ final class Feature_CollectionTest extends UplinkTestCase {
 					'get_slug'     => 'tec-feature-1',
 					'get_group'    => 'TEC',
 					'get_tier'     => 'Tier 1',
-					'get_type'     => 'built_in',
+					'get_type'     => 'flag',
 					'is_available' => true,
 				] 
 			) 
@@ -313,7 +313,7 @@ final class Feature_CollectionTest extends UplinkTestCase {
 					'get_slug'     => 'tec-feature-2',
 					'get_group'    => 'TEC',
 					'get_tier'     => 'Tier 2',
-					'get_type'     => 'built_in',
+					'get_type'     => 'flag',
 					'is_available' => false,
 				] 
 			) 

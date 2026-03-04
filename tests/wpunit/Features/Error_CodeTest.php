@@ -25,9 +25,11 @@ final class Error_CodeTest extends UplinkTestCase {
 			'ACTIVATION_FAILED'              => [ Error_Code::ACTIVATION_FAILED, 422 ],
 			'PLUGIN_NOT_FOUND_AFTER_INSTALL' => [ Error_Code::PLUGIN_NOT_FOUND_AFTER_INSTALL, 422 ],
 			'DOWNLOAD_LINK_MISSING'          => [ Error_Code::DOWNLOAD_LINK_MISSING, 422 ],
+			'INVALID_RESPONSE'               => [ Error_Code::INVALID_RESPONSE, 502 ],
 			'FEATURE_CHECK_FAILED'           => [ Error_Code::FEATURE_CHECK_FAILED, 502 ],
 			'FEATURE_REQUEST_FAILED'         => [ Error_Code::FEATURE_REQUEST_FAILED, 502 ],
 			'PLUGINS_API_FAILED'             => [ Error_Code::PLUGINS_API_FAILED, 502 ],
+			'UNKNOWN_FEATURE_TYPE'           => [ Error_Code::UNKNOWN_FEATURE_TYPE, 422 ],
 		];
 	}
 

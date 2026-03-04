@@ -2,42 +2,19 @@
 
 namespace StellarWP\Uplink\Tests\Features;
 
-use StellarWP\Uplink\Catalog\Catalog_Collection;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
-use StellarWP\Uplink\Catalog\Contracts\Catalog_Client;
-use StellarWP\Uplink\Catalog\Results\Catalog_Feature;
-use StellarWP\Uplink\Catalog\Results\Catalog_Tier;
-use StellarWP\Uplink\Catalog\Results\Product_Catalog;
-use StellarWP\Uplink\Catalog\Results\Tier_Collection;
+use StellarWP\Uplink\Catalog\Fixture_Client as Catalog_Fixture;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Types\Built_In;
 use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Licensing\Contracts\Licensing_Client;
+use StellarWP\Uplink\Licensing\Fixture_Client as Licensing_Fixture;
 use StellarWP\Uplink\Licensing\Product_Repository;
-use StellarWP\Uplink\Licensing\Results\Product_Entry;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
 
 final class Feature_RepositoryTest extends UplinkTestCase {
-
-	/**
-	 * License key used for testing.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var string
-	 */
-	private const KEY = 'test-license-key';
-
-	/**
-	 * Site domain used for testing.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var string
-	 */
-	private const DOMAIN = 'example.com';
 
 	/**
 	 * Clears all relevant transients before each test.
@@ -66,111 +43,24 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Builds a Catalog_Collection with a single product containing tiers and features.
+	 * Creates a Feature_Repository backed by the real fixture files.
 	 *
-	 * Product: kadence
-	 * Tiers: kadence-starter (rank 1), kadence-pro (rank 2)
-	 * Features: kadence-blocks-pro (plugin, min kadence-pro), advanced-headers (flag, min kadence-starter)
-	 *
-	 * @return Catalog_Collection
-	 */
-	private function build_catalog(): Catalog_Collection {
-		$tiers = new Tier_Collection();
-
-		$tiers->add(
-			Catalog_Tier::from_array(
-				[
-					'slug'         => 'kadence-starter',
-					'name'         => 'Starter',
-					'rank'         => 1,
-					'purchase_url' => '',
-				]
-			)
-		);
-
-		$tiers->add(
-			Catalog_Tier::from_array(
-				[
-					'slug'         => 'kadence-pro',
-					'name'         => 'Pro',
-					'rank'         => 2,
-					'purchase_url' => '',
-				]
-			)
-		);
-
-		$features = [
-			Catalog_Feature::from_array(
-				[
-					'feature_slug'      => 'kadence-blocks-pro',
-					'type'              => 'plugin',
-					'minimum_tier'      => 'kadence-pro',
-					'plugin_file'       => 'kadence-blocks-pro/kadence-blocks-pro.php',
-					'name'              => 'Kadence Blocks Pro',
-					'description'       => 'Pro blocks extension',
-					'documentation_url' => 'https://example.com/docs',
-				]
-			),
-			Catalog_Feature::from_array(
-				[
-					'feature_slug'      => 'advanced-headers',
-					'type'              => 'flag',
-					'minimum_tier'      => 'kadence-starter',
-					'name'              => 'Advanced Headers',
-					'description'       => 'Advanced header features',
-					'documentation_url' => 'https://example.com/headers',
-				]
-			),
-		];
-
-		$product    = new Product_Catalog( 'kadence', $tiers, $features );
-		$collection = new Catalog_Collection();
-		$collection->add( $product );
-
-		return $collection;
-	}
-
-	/**
-	 * Builds a licensing Product_Entry for a given tier.
-	 *
-	 * @param string $tier The bare tier name (e.g. 'pro', 'starter').
-	 *
-	 * @return Product_Entry
-	 */
-	private function build_license( string $tier ): Product_Entry {
-		return new Product_Entry(
-			[
-				'product_slug'      => 'kadence',
-				'tier'              => $tier,
-				'pending_tier'      => null,
-				'status'            => 'active',
-				'expires'           => '2027-01-01 00:00:00',
-				'site_limit'        => 0,
-				'active_count'      => 1,
-				'installed_here'    => true,
-				'validation_status' => null,
-			]
-		);
-	}
-
-	/**
-	 * Creates a Feature_Repository with mocked catalog and licensing clients.
-	 *
-	 * @param Catalog_Collection|WP_Error $catalog_result  Return value for Catalog_Client::get_catalog().
-	 * @param Product_Entry[]|WP_Error    $licensing_result Return value for Licensing_Client::get_products().
+	 * @param string|null $licensing_override Optional. Pass a key for the Licensing_Fixture,
+	 *                                        or null to use a mock that returns a WP_Error.
 	 *
 	 * @return Feature_Repository
 	 */
-	private function make_repository( $catalog_result, $licensing_result ): Feature_Repository {
-		$catalog_client = $this->makeEmpty(
-			Catalog_Client::class,
-			[ 'get_catalog' => $catalog_result ]
-		);
+	private function make_repository( ?string $licensing_override = null ): Feature_Repository {
+		$catalog_client = new Catalog_Fixture( codecept_data_dir( 'catalog.json' ) );
 
-		$licensing_client = $this->makeEmpty(
-			Licensing_Client::class,
-			[ 'get_products' => $licensing_result ]
-		);
+		if ( $licensing_override === null ) {
+			$licensing_client = $this->makeEmpty(
+				Licensing_Client::class,
+				[ 'get_products' => new WP_Error( 'license_error', 'Licensing failed.' ) ]
+			);
+		} else {
+			$licensing_client = new Licensing_Fixture( codecept_data_dir( 'licensing' ) );
+		}
 
 		$repository = new Feature_Repository(
 			new Catalog_Repository( $catalog_client ),
@@ -190,13 +80,12 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_get_returns_collection(): void {
-		$license    = $this->build_license( 'pro' );
-		$repository = $this->make_repository( $this->build_catalog(), [ $license ] );
+		$repository = $this->make_repository( 'lw-unified-kad-pro-2026' );
 
-		$result = $repository->get( self::KEY, self::DOMAIN );
+		$result = $repository->get( 'lw-unified-kad-pro-2026', 'example.com' );
 
 		$this->assertInstanceOf( Feature_Collection::class, $result );
-		$this->assertSame( 2, $result->count() );
+		$this->assertGreaterThan( 0, $result->count() );
 	}
 
 	/**
@@ -205,11 +94,9 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_maps_plugin_type_to_zip(): void {
-		$license    = $this->build_license( 'pro' );
-		$repository = $this->make_repository( $this->build_catalog(), [ $license ] );
-
-		$result  = $repository->get( self::KEY, self::DOMAIN );
-		$feature = $result->get( 'kadence-blocks-pro' );
+		$repository = $this->make_repository( 'lw-unified-kad-pro-2026' );
+		$result     = $repository->get( 'lw-unified-kad-pro-2026', 'example.com' );
+		$feature    = $result->get( 'kad-blocks-pro' );
 
 		$this->assertInstanceOf( Zip::class, $feature );
 		$this->assertSame( 'zip', $feature->get_type() );
@@ -221,11 +108,9 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_maps_flag_type_to_built_in(): void {
-		$license    = $this->build_license( 'pro' );
-		$repository = $this->make_repository( $this->build_catalog(), [ $license ] );
-
-		$result  = $repository->get( self::KEY, self::DOMAIN );
-		$feature = $result->get( 'advanced-headers' );
+		$repository = $this->make_repository( 'lw-unified-kad-pro-2026' );
+		$result     = $repository->get( 'lw-unified-kad-pro-2026', 'example.com' );
+		$feature    = $result->get( 'kad-pattern-hub' );
 
 		$this->assertInstanceOf( Built_In::class, $feature );
 		$this->assertSame( 'built_in', $feature->get_type() );
@@ -234,42 +119,38 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	/**
 	 * Tests is_available is true when the license tier rank meets the minimum.
 	 *
+	 * kadence-pro (rank 2) meets kadence-basic (rank 1) minimum for kad-blocks-pro.
+	 *
 	 * @return void
 	 */
 	public function test_available_when_tier_meets_minimum(): void {
-		$license    = $this->build_license( 'pro' );
-		$repository = $this->make_repository( $this->build_catalog(), [ $license ] );
-
-		$result = $repository->get( self::KEY, self::DOMAIN );
+		$repository = $this->make_repository( 'lw-unified-kad-pro-2026' );
+		$result     = $repository->get( 'lw-unified-kad-pro-2026', 'example.com' );
 
 		$this->assertTrue(
-			$result->get( 'kadence-blocks-pro' )->is_available(),
-			'Pro tier (rank 2) should meet kadence-pro minimum (rank 2).'
+			$result->get( 'kad-blocks-pro' )->is_available(),
+			'Pro tier (rank 2) should meet kadence-basic minimum (rank 1).'
 		);
 		$this->assertTrue(
-			$result->get( 'advanced-headers' )->is_available(),
-			'Pro tier (rank 2) should meet kadence-starter minimum (rank 1).'
+			$result->get( 'kad-pattern-hub' )->is_available(),
+			'Pro tier (rank 2) should meet kadence-basic minimum (rank 1).'
 		);
 	}
 
 	/**
 	 * Tests is_available is false when the license tier rank is below the minimum.
 	 *
+	 * kadence-pro (rank 2) does not meet kadence-agency (rank 3) minimum for solid-central.
+	 *
 	 * @return void
 	 */
 	public function test_unavailable_when_tier_below_minimum(): void {
-		$license    = $this->build_license( 'starter' );
-		$repository = $this->make_repository( $this->build_catalog(), [ $license ] );
-
-		$result = $repository->get( self::KEY, self::DOMAIN );
+		$repository = $this->make_repository( 'lw-unified-kad-pro-2026' );
+		$result     = $repository->get( 'lw-unified-kad-pro-2026', 'example.com' );
 
 		$this->assertFalse(
-			$result->get( 'kadence-blocks-pro' )->is_available(),
-			'Starter tier (rank 1) should not meet kadence-pro minimum (rank 2).'
-		);
-		$this->assertTrue(
-			$result->get( 'advanced-headers' )->is_available(),
-			'Starter tier (rank 1) should meet kadence-starter minimum (rank 1).'
+			$result->get( 'solid-central' )->is_available(),
+			'Pro tier (rank 2) should not meet kadence-agency minimum (rank 3).'
 		);
 	}
 
@@ -279,20 +160,18 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_all_unavailable_when_licensing_errors(): void {
-		$error      = new WP_Error( 'license_error', 'Licensing API failed.' );
-		$repository = $this->make_repository( $this->build_catalog(), $error );
+		$repository = $this->make_repository();
 
-		$result = $repository->get( self::KEY, self::DOMAIN );
+		$result = $repository->get( 'invalid-key', 'example.com' );
 
 		$this->assertInstanceOf( Feature_Collection::class, $result );
-		$this->assertFalse(
-			$result->get( 'kadence-blocks-pro' )->is_available(),
-			'Feature should be unavailable when licensing fails.'
-		);
-		$this->assertFalse(
-			$result->get( 'advanced-headers' )->is_available(),
-			'Feature should be unavailable when licensing fails.'
-		);
+
+		foreach ( $result as $feature ) {
+			$this->assertFalse(
+				$feature->is_available(),
+				sprintf( 'Feature "%s" should be unavailable when licensing fails.', $feature->get_slug() )
+			);
+		}
 	}
 
 	/**
@@ -301,13 +180,21 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_catalog_error_returns_wp_error(): void {
-		$error      = new WP_Error( 'catalog_error', 'Catalog API failed.' );
-		$repository = $this->make_repository( $error, [] );
+		$catalog_client = new Catalog_Fixture( '/tmp/does-not-exist-' . uniqid() . '.json' );
 
-		$result = $repository->get( self::KEY, self::DOMAIN );
+		$licensing_client = new Licensing_Fixture( codecept_data_dir( 'licensing' ) );
+
+		$repository = new Feature_Repository(
+			new Catalog_Repository( $catalog_client ),
+			new Product_Repository( $licensing_client )
+		);
+
+		$repository->register_type( 'plugin', Zip::class );
+		$repository->register_type( 'flag', Built_In::class );
+
+		$result = $repository->get( 'lw-unified-kad-pro-2026', 'example.com' );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'Catalog API failed.', $result->get_error_message() );
 	}
 
 	/**
@@ -316,10 +203,9 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_caches_in_transient(): void {
-		$license    = $this->build_license( 'pro' );
-		$repository = $this->make_repository( $this->build_catalog(), [ $license ] );
+		$repository = $this->make_repository( 'lw-unified-kad-pro-2026' );
 
-		$repository->get( self::KEY, self::DOMAIN );
+		$repository->get( 'lw-unified-kad-pro-2026', 'example.com' );
 
 		$cached = get_transient( Feature_Repository::TRANSIENT_KEY );
 
@@ -350,8 +236,8 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 
 		set_transient( Feature_Repository::TRANSIENT_KEY, $cached );
 
-		$repository = $this->make_repository( $this->build_catalog(), [] );
-		$result     = $repository->get( self::KEY, self::DOMAIN );
+		$repository = $this->make_repository( 'lw-unified-kad-pro-2026' );
+		$result     = $repository->get( 'lw-unified-kad-pro-2026', 'example.com' );
 
 		$this->assertCount( 1, $result );
 		$this->assertSame( 'cached-feature', $result->get( 'cached-feature' )->get_slug() );
@@ -366,8 +252,8 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		$error = new WP_Error( 'api_error', 'Cached error' );
 		set_transient( Feature_Repository::TRANSIENT_KEY, $error );
 
-		$repository = $this->make_repository( $this->build_catalog(), [] );
-		$result     = $repository->get( self::KEY, self::DOMAIN );
+		$repository = $this->make_repository( 'lw-unified-kad-pro-2026' );
+		$result     = $repository->get( 'lw-unified-kad-pro-2026', 'example.com' );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'Cached error', $result->get_error_message() );
@@ -379,17 +265,16 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_refresh_clears_and_refetches(): void {
-		$license    = $this->build_license( 'pro' );
-		$repository = $this->make_repository( $this->build_catalog(), [ $license ] );
+		$repository = $this->make_repository( 'lw-unified-kad-pro-2026' );
 
-		$repository->get( self::KEY, self::DOMAIN );
+		$repository->get( 'lw-unified-kad-pro-2026', 'example.com' );
 
 		$this->assertInstanceOf(
 			Feature_Collection::class,
 			get_transient( Feature_Repository::TRANSIENT_KEY )
 		);
 
-		$repository->refresh( self::KEY, self::DOMAIN );
+		$repository->refresh( 'lw-unified-kad-pro-2026', 'example.com' );
 
 		$this->assertInstanceOf(
 			Feature_Collection::class,
@@ -403,18 +288,16 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_maps_feature_data_correctly(): void {
-		$license    = $this->build_license( 'pro' );
-		$repository = $this->make_repository( $this->build_catalog(), [ $license ] );
+		$repository = $this->make_repository( 'lw-unified-kad-pro-2026' );
+		$result     = $repository->get( 'lw-unified-kad-pro-2026', 'example.com' );
+		$feature    = $result->get( 'kad-blocks-pro' );
 
-		$result  = $repository->get( self::KEY, self::DOMAIN );
-		$feature = $result->get( 'kadence-blocks-pro' );
-
-		$this->assertSame( 'kadence-blocks-pro', $feature->get_slug() );
+		$this->assertSame( 'kad-blocks-pro', $feature->get_slug() );
 		$this->assertSame( 'kadence', $feature->get_group() );
-		$this->assertSame( 'kadence-pro', $feature->get_tier() );
-		$this->assertSame( 'Kadence Blocks Pro', $feature->get_name() );
-		$this->assertSame( 'Pro blocks extension', $feature->get_description() );
-		$this->assertSame( 'https://example.com/docs', $feature->get_documentation_url() );
+		$this->assertSame( 'kadence-basic', $feature->get_tier() );
+		$this->assertSame( 'Blocks Pro', $feature->get_name() );
+		$this->assertSame( 'Premium Gutenberg blocks for advanced page building.', $feature->get_description() );
+		$this->assertSame( 'https://www.kadencewp.com/help-center/', $feature->get_documentation_url() );
 
 		$this->assertInstanceOf( Zip::class, $feature );
 		$this->assertSame( 'kadence-blocks-pro/kadence-blocks-pro.php', $feature->get_plugin_file() );

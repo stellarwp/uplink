@@ -306,17 +306,12 @@ final class ZipTest extends UplinkTestCase {
 	}
 
 	/**
-	 * get_plugin_slug() falls back to the directory name when plugin_slug is not set.
+	 * get_plugin_slug() returns empty string when plugin_slug is not set.
 	 */
-	public function test_get_plugin_slug_falls_back_to_directory(): void {
-		$feature = $this->make_feature(
-			self::SLUG,
-			self::NAME,
-			self::DESCRIPTION,
-			'my-plugin/main.php'
-		);
+	public function test_get_plugin_slug_returns_empty_when_not_set(): void {
+		$feature = $this->make_feature();
 
-		$this->assertSame( 'my-plugin', $feature->get_plugin_slug() );
+		$this->assertSame( '', $feature->get_plugin_slug() );
 	}
 
 	// -------------------------------------------------------------------------

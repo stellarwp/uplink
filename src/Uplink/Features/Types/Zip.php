@@ -89,16 +89,13 @@ final class Zip extends Feature {
 	 *
 	 * This may differ from the plugin directory name. For example, TEC plugins
 	 * and StellarSites use slugs that don't match their directory names.
-	 * Falls back to the directory name when no explicit slug is provided.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @return string
 	 */
 	public function get_plugin_slug(): string {
-		$slug = Cast::to_string( $this->attributes['plugin_slug'] ?? '' );
-
-		return $slug !== '' ? $slug : $this->get_plugin_directory();
+		return Cast::to_string( $this->attributes['plugin_slug'] ?? '' );
 	}
 
 	/**

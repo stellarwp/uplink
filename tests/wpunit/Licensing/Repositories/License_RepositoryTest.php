@@ -142,7 +142,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 
 		$result = $this->repository->get_products();
 
-		$this->assertNull( $result );
+		$this->assertInstanceOf( WP_Error::class, $result );
 	}
 
 	public function test_delete_products_clears_cache(): void {

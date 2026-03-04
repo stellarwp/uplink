@@ -321,6 +321,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		$product = new Product_Catalog( 'kadence', $tiers, [ $catalog_feature ] );
 
 		$method = new ReflectionMethod( Feature_Repository::class, 'hydrate_feature' );
+		$method->setAccessible( true ); // Required for PHP < 8.1.
 
 		$result = $method->invoke( $repository, $catalog_feature, $product, 1 );
 
@@ -362,6 +363,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		$product = new Product_Catalog( 'kadence', $tiers, [ $catalog_feature ] );
 
 		$method = new ReflectionMethod( Feature_Repository::class, 'hydrate_feature' );
+		$method->setAccessible( true ); // Required for PHP < 8.1.
 
 		$result = $method->invoke( $repository, $catalog_feature, $product, 1 );
 

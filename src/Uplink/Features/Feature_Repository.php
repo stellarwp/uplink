@@ -71,7 +71,11 @@ class Feature_Repository {
 				return $this->resolve( $key, $domain );
 			}
 
-			return $cached['data'];
+			$data = $cached['data'];
+
+			if ( $data instanceof Feature_Collection || is_wp_error( $data ) ) {
+				return $data;
+			}
 		}
 
 		return $this->resolve( $key, $domain );

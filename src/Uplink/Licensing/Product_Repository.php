@@ -69,7 +69,7 @@ final class Product_Repository {
 	public function get( string $key, string $domain ) {
 		$cached = get_transient( self::TRANSIENT_KEY );
 
-		if ( $cached instanceof Product_Collection || is_wp_error( $cached ) ) {
+		if ( $cached instanceof Product_Collection ) {
 			return $cached;
 		}
 
@@ -106,8 +106,6 @@ final class Product_Repository {
 		$result = $this->client->get_products( $key, $domain );
 
 		if ( is_wp_error( $result ) ) {
-			set_transient( self::TRANSIENT_KEY, $result, self::CACHE_DURATION );
-
 			return $result;
 		}
 

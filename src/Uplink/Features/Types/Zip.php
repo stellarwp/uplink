@@ -48,6 +48,7 @@ final class Zip extends Feature {
 				'description'       => $data['description'] ?? '',
 				'type'              => 'zip',
 				'plugin_file'       => $data['plugin_file'] ?? '',
+				'plugin_slug'       => $data['plugin_slug'] ?? '',
 				'is_available'      => $data['is_available'],
 				'documentation_url' => $data['documentation_url'] ?? '',
 				'authors'           => $data['authors'] ?? [],
@@ -84,16 +85,30 @@ final class Zip extends Feature {
 	}
 
 	/**
-	 * Gets the plugin slug (directory name) derived from the plugin file path.
+	 * Gets the plugin slug used for plugins_api() lookups and transient locks.
 	 *
-	 * For "stellar-export/stellar-export.php" this returns "stellar-export".
-	 * Used as a unique identifier for transient locks and directory checks.
+	 * This may differ from the plugin directory name. For example, TEC plugins
+	 * and StellarSites use slugs that don't match their directory names.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @return string
 	 */
 	public function get_plugin_slug(): string {
+		return Cast::to_string( $this->attributes['plugin_slug'] ?? '' );
+	}
+
+	/**
+	 * Gets the plugin directory name derived from the plugin file path.
+	 *
+	 * For "stellar-export/stellar-export.php" this returns "stellar-export".
+	 * Used for filesystem operations and ownership checks.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string
+	 */
+	public function get_plugin_directory(): string {
 		return dirname( $this->get_plugin_file() );
 	}
 }

@@ -41,16 +41,25 @@ class Provider extends Abstract_Provider {
 		);
 
 		$this->container->singleton(
-			Feature_Repository::class,
+			Resolve_Feature_Collection::class,
 			function ( ContainerInterface $c ) {
-				$repository = new Feature_Repository(
+				$resolver = new Resolve_Feature_Collection(
 					$c->get( Catalog_Repository::class ),
 					$c->get( Product_Repository::class )
 				);
 
-				$this->register_default_types( $repository );
+				$this->register_default_types( $resolver );
 
-				return $repository;
+				return $resolver;
+			}
+		);
+
+		$this->container->singleton(
+			Feature_Repository::class,
+			static function ( ContainerInterface $c ) {
+				return new Feature_Repository(
+					$c->get( Resolve_Feature_Collection::class )
+				);
 			}
 		);
 
@@ -77,14 +86,14 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature_Repository $repository The feature repository instance.
+	 * @param Resolve_Feature_Collection $resolver The feature collection resolver.
 	 *
 	 * @return void
 	 */
-	private function register_default_types( Feature_Repository $repository ): void {
-		$repository->register_type( 'plugin', Zip::class ); // TODO: Will be replaced with Plugin Feature.
-		$repository->register_type( 'flag', Flag::class );
-		$repository->register_type( 'theme', Zip::class ); // TODO: Will be replaced with Theme Feature.
+	private function register_default_types( Resolve_Feature_Collection $resolver ): void {
+		$resolver->register_type( 'plugin', Zip::class ); // TODO: Will be replaced with Plugin Feature.
+		$resolver->register_type( 'flag', Flag::class );
+		$resolver->register_type( 'theme', Zip::class ); // TODO: Will be replaced with Theme Feature.
 	}
 
 	/**

@@ -2,19 +2,10 @@
 
 namespace StellarWP\Uplink\Features;
 
-use StellarWP\Uplink\Catalog\Catalog_Repository;
-use StellarWP\Uplink\Catalog\Results\Catalog_Feature;
-use StellarWP\Uplink\Catalog\Results\Product_Catalog;
-use StellarWP\Uplink\Features\Types\Feature;
-use StellarWP\Uplink\Licensing\Product_Collection;
-use StellarWP\Uplink\Licensing\Product_Repository;
 use WP_Error;
 
 /**
- * Joins catalog and licensing data to produce a resolved Feature_Collection.
- *
- * For each catalog feature, the repository computes is_available by comparing
- * the site's licensed tier rank against the feature's minimum tier rank.
+ * Manages caching and delegates feature resolution to Resolve_Feature_Collection.
  *
  * @since 3.0.0
  */
@@ -39,64 +30,31 @@ class Feature_Repository {
 	private const CACHE_DURATION = HOUR_IN_SECONDS * 12;
 
 	/**
-	 * Map of catalog type strings to Feature subclass names.
+	 * The feature collection resolver.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @var array<string, class-string<Feature>>
+	 * @var Resolve_Feature_Collection
 	 */
-	private array $type_map = [];
-
-	/**
-	 * The catalog repository.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var Catalog_Repository
-	 */
-	private Catalog_Repository $catalog;
-
-	/**
-	 * The licensing product repository.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var Product_Repository
-	 */
-	private Product_Repository $licensing;
+	private Resolve_Feature_Collection $resolver;
 
 	/**
 	 * Constructor.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Catalog_Repository $catalog   The catalog repository.
-	 * @param Product_Repository $licensing  The licensing product repository.
+	 * @param Resolve_Feature_Collection $resolver The feature collection resolver.
 	 */
-	public function __construct( Catalog_Repository $catalog, Product_Repository $licensing ) {
-		$this->catalog   = $catalog;
-		$this->licensing = $licensing;
-	}
-
-	/**
-	 * Registers a Feature subclass for a given catalog type string.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param string                $type          The catalog type identifier (e.g. 'plugin', 'flag', 'theme').
-	 * @param class-string<Feature> $feature_class The Feature subclass FQCN.
-	 *
-	 * @return void
-	 */
-	public function register_type( string $type, string $feature_class ): void { // phpcs:ignore Squiz.Commenting.FunctionComment.IncorrectTypeHint -- class-string<Feature> is a PHPStan type narrowing.
-		$this->type_map[ $type ] = $feature_class;
+	public function __construct( Resolve_Feature_Collection $resolver ) {
+		$this->resolver = $resolver;
 	}
 
 	/**
 	 * Gets the resolved feature collection, using the transient cache when available.
 	 *
-	 * Joins catalog features with licensing data to compute is_available
-	 * based on the site's licensed tier rank.
+	 * The cache is keyed by a hash of the license key. If the key changes
+	 * (e.g. license upgrade or new key entered), the cache is automatically
+	 * invalidated and re-resolved.
 	 *
 	 * @since 3.0.0
 	 *
@@ -108,12 +66,16 @@ class Feature_Repository {
 	public function get( string $key, string $domain ) {
 		$cached = get_transient( self::TRANSIENT_KEY );
 
-		if ( is_wp_error( $cached ) ) {
-			return $cached;
-		}
+		if ( is_array( $cached ) && isset( $cached['key_hash'], $cached['data'] ) ) {
+			if ( $cached['key_hash'] !== self::hash_key( $key ) ) {
+				return $this->resolve( $key, $domain );
+			}
 
-		if ( $cached instanceof Feature_Collection ) {
-			return $cached;
+			$data = $cached['data'];
+
+			if ( $data instanceof Feature_Collection || is_wp_error( $data ) ) {
+				return $data;
+			}
 		}
 
 		return $this->resolve( $key, $domain );
@@ -136,7 +98,7 @@ class Feature_Repository {
 	}
 
 	/**
-	 * Resolves catalog and licensing data, joins them, and caches the result.
+	 * Delegates resolution to the resolver and caches the result.
 	 *
 	 * @since 3.0.0
 	 *
@@ -146,122 +108,30 @@ class Feature_Repository {
 	 * @return Feature_Collection|WP_Error
 	 */
 	protected function resolve( string $key, string $domain ) {
-		$catalog = $this->catalog->get();
+		$result = ( $this->resolver )( $key, $domain );
 
-		if ( is_wp_error( $catalog ) ) {
-			set_transient( self::TRANSIENT_KEY, $catalog, self::CACHE_DURATION );
+		set_transient(
+			self::TRANSIENT_KEY,
+			[
+				'key_hash' => self::hash_key( $key ),
+				'data'     => $result,
+			],
+			self::CACHE_DURATION
+		);
 
-			return $catalog;
-		}
-
-		$products = $this->licensing->get( $key, $domain );
-
-		$collection = new Feature_Collection();
-
-		foreach ( $catalog as $product ) {
-			if ( ! $product instanceof Product_Catalog ) {
-				continue;
-			}
-
-			$license_tier_rank = $this->resolve_license_tier_rank( $product, $products );
-
-			foreach ( $product->get_features() as $catalog_feature ) {
-				$feature = $this->hydrate_feature( $catalog_feature, $product, $license_tier_rank );
-
-				if ( is_wp_error( $feature ) ) {
-					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
-					error_log( sprintf( 'Uplink: %s', $feature->get_error_message() ) );
-					continue;
-				}
-
-				$collection->add( $feature );
-			}
-		}
-
-		set_transient( self::TRANSIENT_KEY, $collection, self::CACHE_DURATION );
-
-		return $collection;
+		return $result;
 	}
 
 	/**
-	 * Resolves the licensed tier rank for a given product.
-	 *
-	 * Looks up the license's tier slug directly in the product's tier collection.
-	 * Both the catalog and licensing fixtures use the same product-prefixed
-	 * tier slug convention (e.g. "kadence-pro").
+	 * Hashes a license key for cache comparison.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Product_Catalog             $product  The catalog product.
-	 * @param Product_Collection|WP_Error $products The licensing product collection, or WP_Error if unavailable.
+	 * @param string $key The license key.
 	 *
-	 * @return int The tier rank, or 0 if the product has no license.
+	 * @return string The hashed key.
 	 */
-	private function resolve_license_tier_rank( Product_Catalog $product, $products ): int {
-		if ( ! $products instanceof Product_Collection ) {
-			return 0;
-		}
-
-		$license = $products->get( $product->get_product_slug() );
-
-		if ( $license === null ) {
-			return 0;
-		}
-
-		$tier = $product->get_tier_by_slug( $license->get_tier() );
-
-		return $tier !== null ? $tier->get_rank() : 0;
-	}
-
-	/**
-	 * Hydrates a Feature object from a catalog feature entry.
-	 *
-	 * Maps catalog types (plugin, flag, theme) to Feature subclasses
-	 * (Zip, Flag) and computes is_available from tier rank comparison.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param Catalog_Feature $catalog_feature   The catalog feature entry.
-	 * @param Product_Catalog $product           The parent catalog product.
-	 * @param int             $license_tier_rank The resolved license tier rank.
-	 *
-	 * @return Feature|WP_Error The hydrated feature, or WP_Error for unknown types.
-	 */
-	private function hydrate_feature(
-		Catalog_Feature $catalog_feature,
-		Product_Catalog $product,
-		int $license_tier_rank
-	) {
-		$catalog_type = $catalog_feature->get_type();
-		$class        = $this->type_map[ $catalog_type ] ?? null;
-
-		if ( $class === null ) {
-			return new WP_Error(
-				Error_Code::UNKNOWN_FEATURE_TYPE,
-				sprintf(
-					'No Feature subclass registered for catalog type "%s" (feature: %s).',
-					$catalog_type,
-					$catalog_feature->get_feature_slug()
-				)
-			);
-		}
-
-		$minimum_tier = $product->get_tier_by_slug( $catalog_feature->get_minimum_tier() );
-		$minimum_rank = $minimum_tier !== null ? $minimum_tier->get_rank() : PHP_INT_MAX;
-		$is_available = $license_tier_rank >= $minimum_rank;
-
-		$data = [
-			'slug'              => $catalog_feature->get_feature_slug(),
-			'group'             => $product->get_product_slug(),
-			'tier'              => $catalog_feature->get_minimum_tier(),
-			'name'              => $catalog_feature->get_name(),
-			'description'       => $catalog_feature->get_description(),
-			'type'              => $catalog_type,
-			'is_available'      => $is_available,
-			'documentation_url' => $catalog_feature->get_documentation_url(),
-			'plugin_file'       => $catalog_feature->get_plugin_file() ?? '',
-		];
-
-		return $class::from_array( $data );
+	private static function hash_key( string $key ): string {
+		return md5( $key );
 	}
 }

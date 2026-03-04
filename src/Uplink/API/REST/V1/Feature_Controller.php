@@ -157,7 +157,7 @@ class Feature_Controller extends WP_REST_Controller {
 		$features = $this->manager->get_features();
 
 		if ( is_wp_error( $features ) ) {
-			return $features;
+			return $this->ensure_error_status( $features );
 		}
 
 		$group     = $request->get_param( 'group' );
@@ -197,7 +197,7 @@ class Feature_Controller extends WP_REST_Controller {
 		$features = $this->manager->get_features();
 
 		if ( is_wp_error( $features ) ) {
-			return $features;
+			return $this->ensure_error_status( $features );
 		}
 
 		$feature = $features->get( $slug );
@@ -237,13 +237,11 @@ class Feature_Controller extends WP_REST_Controller {
 		$result = $this->manager->enable( $slug );
 
 		if ( is_wp_error( $result ) ) {
-			return $result;
+			return $this->ensure_error_status( $result );
 		}
 
 		return new WP_REST_Response(
-			$feature->to_array() + [
-				'enabled' => true,
-			]
+			$this->prepare_feature_data( $feature )
 		);
 	}
 
@@ -271,13 +269,11 @@ class Feature_Controller extends WP_REST_Controller {
 		$result = $this->manager->disable( $slug );
 
 		if ( is_wp_error( $result ) ) {
-			return $result;
+			return $this->ensure_error_status( $result );
 		}
 
 		return new WP_REST_Response(
-			$feature->to_array() + [
-				'enabled' => false,
-			]
+			$this->prepare_feature_data( $feature )
 		);
 	}
 
@@ -349,7 +345,7 @@ class Feature_Controller extends WP_REST_Controller {
 					'readonly'    => true,
 					'context'     => [ 'view' ],
 				],
-				'enabled'           => [
+				'is_enabled'        => [
 					'description' => __( 'Whether the feature is currently enabled.', '%TEXTDOMAIN%' ),
 					'type'        => 'boolean',
 					'readonly'    => true,
@@ -404,8 +400,40 @@ class Feature_Controller extends WP_REST_Controller {
 	 */
 	private function prepare_feature_data( Feature $feature ): array {
 		return $feature->to_array() + [
-			'enabled' => $this->manager->is_enabled( $feature->get_slug() ),
+			'is_enabled' => $this->manager->is_enabled( $feature->get_slug() ),
 		];
+	}
+
+	/**
+	 * Ensures a WP_Error has an HTTP status code in its data.
+	 *
+	 * Errors from the Manager and its strategies do not carry HTTP
+	 * status codes.  This method maps known error codes to the most
+	 * appropriate HTTP status before the error reaches the REST
+	 * infrastructure (which defaults to 500 when no status is set).
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param WP_Error $error The error to enrich.
+	 *
+	 * @return WP_Error The same instance, with a status code guaranteed.
+	 */
+	private function ensure_error_status( WP_Error $error ): WP_Error {
+		$data = $error->get_error_data();
+
+		if ( is_array( $data ) && isset( $data['status'] ) ) {
+			return $error;
+		}
+
+		$status = Error_Code::http_status( (string) $error->get_error_code() );
+
+		$error->add_data(
+			is_array( $data )
+			? array_merge( $data, [ 'status' => $status ] )
+			: [ 'status' => $status ]
+		);
+
+		return $error;
 	}
 
 	/**

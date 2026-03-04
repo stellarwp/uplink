@@ -10,6 +10,7 @@ import { __ } from '@wordpress/i18n';
 import { Cloud } from 'lucide-react';
 import { MyProductsTab } from '@/components/organisms/MyProductsTab';
 import { LicenseList } from '@/components/organisms/LicenseList';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { cn } from '@/lib/utils';
 
 type Tab = 'my-products' | 'licenses';
@@ -78,10 +79,14 @@ export function AppShell() {
             {/* Tab Content */}
             <div role="tabpanel">
                 { activeTab === 'my-products' && (
-                    <MyProductsTab onAddLicense={ handleAddLicenseRequest } />
+                    <ErrorBoundary>
+                        <MyProductsTab onAddLicense={ handleAddLicenseRequest } />
+                    </ErrorBoundary>
                 ) }
                 { activeTab === 'licenses' && (
-                    <LicenseList openAddDialog={ addLicenseOpen } onAddDialogClose={ () => setAddLicenseOpen( false ) } />
+                    <ErrorBoundary>
+                        <LicenseList openAddDialog={ addLicenseOpen } onAddDialogClose={ () => setAddLicenseOpen( false ) } />
+                    </ErrorBoundary>
                 ) }
             </div>
         </div>

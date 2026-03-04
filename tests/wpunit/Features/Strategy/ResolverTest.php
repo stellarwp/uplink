@@ -40,7 +40,7 @@ final class ResolverTest extends UplinkTestCase {
 			get_class( $mock_strategy ),
 			static function () use ( $mock_strategy ) {
 				return $mock_strategy;
-			} 
+			}
 		);
 
 		$this->resolver->register( 'test-type', get_class( $mock_strategy ) );

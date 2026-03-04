@@ -9,7 +9,7 @@
 import { X, CheckCircle, AlertTriangle, Info } from 'lucide-react';
 import { __ } from '@wordpress/i18n';
 import { cn } from '@/lib/utils';
-import { useToastStore, type ToastVariant } from '@/stores/toast-store';
+import { useToast, type ToastVariant } from '@/context/toast-context';
 
 const VARIANT_STYLES: Record<ToastVariant, string> = {
     default: 'bg-background border border-border text-foreground',
@@ -30,7 +30,7 @@ function ToastIcon( { variant }: { variant: ToastVariant } ) {
  * @since 3.0.0
  */
 export function Toaster() {
-    const { toasts, removeToast } = useToastStore();
+    const { toasts, removeToast } = useToast();
 
     if ( toasts.length === 0 ) return null;
 

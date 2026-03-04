@@ -35,7 +35,9 @@ class Fixture {
 	public static function create( array $features = [], bool $merge = false ): self {
 		$self = new self();
 
-		if ( $merge && ! empty( $features ) ) {
+		if ( empty( $features ) ) {
+			$self->features = $self->catalog();
+		} elseif ( $merge ) {
 			$self->features = array_merge( $self->catalog(), $features );
 		} else {
 			$self->features = $features;
@@ -514,15 +516,15 @@ class Fixture {
 			),
 			self::entry(
 				[
-					'slug'              => 'learndash-certificates',
+					'slug'              => 'learndash-certificate-builder',
 					'group'             => 'learndash',
 					'tier'              => 'starter',
-					'name'              => 'Certificates',
-					'description'       => 'Customizable completion certificates',
+					'name'              => 'Learndash Certificate Builder',
+					'description'       => 'LearnDash certificate builder allows you build certificates for your courses using the Gutenberg WordPress block editor.',
 					'type'              => 'zip',
 					'is_available'      => true,
 					'documentation_url' => 'https://example.com/docs',
-					'plugin_file'       => 'learndash-certificates.zip',
+					'plugin_file'       => 'learndash-certificate-builder/learndash-certificate-builder.php',
 				]
 			),
 			self::entry(
@@ -913,6 +915,203 @@ class Fixture {
 					'is_available'      => true,
 					'documentation_url' => 'https://example.com/docs',
 					'plugin_file'       => 'kadence-unlimited-sites.zip',
+				]
+			),
+
+			// ── Zip Strategy Test Fixtures ────────────────────────────────────────
+
+			self::entry(
+				[
+					'slug'              => 'built-in-feature',
+					'group'             => 'Default',
+					'tier'              => 'Tier 1',
+					'name'              => 'Built-In Feature',
+					'description'       => 'A feature built in to the plugin, toggled via a DB flag.',
+					'type'              => 'built_in',
+					'is_available'      => true,
+					'documentation_url' => '',
+				]
+			),
+			self::entry(
+				[
+					'slug'              => 'valid-zip-feature',
+					'group'             => 'Default',
+					'tier'              => 'Tier 1',
+					'name'              => 'Valid Zip Feature',
+					'description'       => 'A feature delivered as a standalone plugin ZIP.',
+					'type'              => 'zip',
+					'plugin_file'       => 'valid-zip-feature/valid-zip-feature.php',
+					'is_available'      => true,
+					'documentation_url' => '',
+					'authors'           => [ 'StellarWP' ],
+				]
+			),
+			self::entry(
+				[
+					'slug'              => 'wrong-author-zip-feature',
+					'group'             => 'Default',
+					'tier'              => 'Tier 1',
+					'name'              => 'Wrong Author Zip Feature',
+					'description'       => 'Tests PLUGIN_OWNERSHIP_MISMATCH — plugin Author is "Foreign Developer" but feature expects "StellarWP".', // cspell:ignore PLUGIN_OWNERSHIP_MISMATCH.
+					'type'              => 'zip',
+					'plugin_file'       => 'wrong-author-zip-feature/wrong-author-zip-feature.php',
+					'is_available'      => true,
+					'documentation_url' => '',
+					'authors'           => [ 'StellarWP' ],
+				]
+			),
+			self::entry(
+				[
+					'slug'              => 'fatal-zip-feature',
+					'group'             => 'Default',
+					'tier'              => 'Tier 1',
+					'name'              => 'Fatal Zip Feature',
+					'description'       => 'Tests ACTIVATION_FATAL — plugin throws RuntimeException on include.', // cspell:ignore ACTIVATION_FATAL.
+					'type'              => 'zip',
+					'plugin_file'       => 'fatal-zip-feature/fatal-zip-feature.php',
+					'is_available'      => true,
+					'documentation_url' => '',
+					'authors'           => [ 'StellarWP' ],
+				]
+			),
+			self::entry(
+				[
+					'slug'              => 'high-php-req-zip-feature',
+					'group'             => 'Default',
+					'tier'              => 'Tier 1',
+					'name'              => 'High PHP Requirement Zip Feature',
+					'description'       => 'Tests PREFLIGHT_REQUIREMENTS_NOT_MET — requires PHP 99.0.', // cspell:ignore PREFLIGHT_REQUIREMENTS_NOT_MET.
+					'type'              => 'zip',
+					'plugin_file'       => 'high-php-req-zip-feature/high-php-req-zip-feature.php',
+					'is_available'      => true,
+					'documentation_url' => '',
+					'authors'           => [ 'StellarWP' ],
+				]
+			),
+			self::entry(
+				[
+					'slug'              => 'high-wp-req-zip-feature',
+					'group'             => 'Default',
+					'tier'              => 'Tier 1',
+					'name'              => 'High WP Requirement Zip Feature',
+					'description'       => 'Tests PREFLIGHT_REQUIREMENTS_NOT_MET — requires WordPress 99.0.',
+					'type'              => 'zip',
+					'plugin_file'       => 'high-wp-req-zip-feature/high-wp-req-zip-feature.php',
+					'is_available'      => true,
+					'documentation_url' => '',
+					'authors'           => [ 'StellarWP' ],
+				]
+			),
+			self::entry(
+				[
+					'slug'              => 'deactivation-fatal-zip-feature',
+					'group'             => 'Default',
+					'tier'              => 'Tier 1',
+					'name'              => 'Deactivation Fatal Zip Feature',
+					'description'       => 'Tests DEACTIVATION_FAILED — plugin re-activates itself on deactivation.', // cspell:ignore DEACTIVATION_FAILED.
+					'type'              => 'zip',
+					'plugin_file'       => 'deactivation-fatal-zip-feature/deactivation-fatal-zip-feature.php',
+					'is_available'      => true,
+					'documentation_url' => '',
+					'authors'           => [ 'StellarWP' ],
+				]
+			),
+			self::entry(
+				[
+					'slug'              => 'mismatched-dir-zip-feature',
+					'group'             => 'Default',
+					'tier'              => 'Tier 1',
+					'name'              => 'Mismatched Directory Zip Feature',
+					'description'       => 'Tests PLUGIN_NOT_FOUND_AFTER_INSTALL — ZIP extracts to a different directory than plugin_file expects.', // cspell:ignore PLUGIN_NOT_FOUND_AFTER_INSTALL.
+					'type'              => 'zip',
+					'plugin_file'       => 'mismatched-dir-zip-feature/mismatched-dir-zip-feature.php',
+					'is_available'      => true,
+					'documentation_url' => '',
+					'authors'           => [ 'StellarWP' ],
+				]
+			),
+			self::entry(
+				[
+					'slug'              => 'syntax-error-zip-feature',
+					'group'             => 'Default',
+					'tier'              => 'Tier 1',
+					'name'              => 'Syntax Error Zip Feature',
+					'description'       => 'Tests ACTIVATION_FATAL — plugin contains a PHP ParseError.', // cspell:ignore ParseError.
+					'type'              => 'zip',
+					'plugin_file'       => 'syntax-error-zip-feature/syntax-error-zip-feature.php',
+					'is_available'      => true,
+					'documentation_url' => '',
+					'authors'           => [ 'StellarWP' ],
+				]
+			),
+			self::entry(
+				[
+					'slug'              => 'die-on-include-zip-feature',
+					'group'             => 'Default',
+					'tier'              => 'Tier 1',
+					'name'              => 'Die On Include Zip Feature',
+					'description'       => 'Tests uncatchable fatal — plugin calls die() on include.',
+					'type'              => 'zip',
+					'plugin_file'       => 'die-on-include-zip-feature/die-on-include-zip-feature.php',
+					'is_available'      => true,
+					'documentation_url' => '',
+					'authors'           => [ 'StellarWP' ],
+				]
+			),
+			self::entry(
+				[
+					'slug'              => 'activation-fatal-zip-feature',
+					'group'             => 'Default',
+					'tier'              => 'Tier 1',
+					'name'              => 'Activation Fatal Zip Feature',
+					'description'       => 'Tests ACTIVATION_FATAL — activation hook throws RuntimeException.',
+					'type'              => 'zip',
+					'plugin_file'       => 'activation-fatal-zip-feature/activation-fatal-zip-feature.php',
+					'is_available'      => true,
+					'documentation_url' => '',
+					'authors'           => [ 'StellarWP' ],
+				]
+			),
+			self::entry(
+				[
+					'slug'              => 'no-header-zip-feature',
+					'group'             => 'Default',
+					'tier'              => 'Tier 1',
+					'name'              => 'No Header Zip Feature',
+					'description'       => 'Tests PREFLIGHT_INVALID_PLUGIN — plugin file has no Plugin Name header.', // cspell:ignore PREFLIGHT_INVALID_PLUGIN.
+					'type'              => 'zip',
+					'plugin_file'       => 'no-header-zip-feature/no-header-zip-feature.php',
+					'is_available'      => true,
+					'documentation_url' => '',
+					'authors'           => [ 'StellarWP' ],
+				]
+			),
+			self::entry(
+				[
+					'slug'              => 'no-source-zip-feature',
+					'group'             => 'Default',
+					'tier'              => 'Tier 1',
+					'name'              => 'No Source Zip Feature',
+					'description'       => 'Tests PLUGINS_API_FAILED — feature exists in catalog but has no ZIP source directory.', // cspell:ignore PLUGINS_API_FAILED.
+					'type'              => 'zip',
+					'plugin_file'       => 'no-source-zip-feature/no-source-zip-feature.php',
+					'is_available'      => true,
+					'documentation_url' => '',
+					'authors'           => [ 'StellarWP' ],
+				]
+			),
+			self::entry(
+				[
+					'slug'              => 'unavailable-zip-feature',
+					'group'             => 'Default',
+					'tier'              => 'Tier 1',
+					'name'              => 'Unavailable Zip Feature',
+					'description'       => 'Tests REST validation — is_available is false, rejected before reaching the strategy.',
+					'type'              => 'zip',
+					'plugin_file'       => 'unavailable-zip-feature/unavailable-zip-feature.php',
+					'is_available'      => false,
+					'documentation_url' => '',
+					'authors'           => [ 'StellarWP' ],
 				]
 			),
 

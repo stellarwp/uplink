@@ -177,6 +177,9 @@ export async function deactivateLicense(
  *
  * Persists a product's enabled / disabled state server-side.
  * In mock mode the Zustand persist middleware writes to localStorage automatically.
+ *
+ * @TODO Replace with a real apiFetch call once the PHP endpoint lands.
+ * @see .plans/wp-data-store-licenses.md — Phase 5
  */
 export async function updateProductStatus(
     _slug: string,

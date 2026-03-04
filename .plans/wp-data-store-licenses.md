@@ -298,171 +298,17 @@ Use `UplinkError.from( err )` for all caught errors (matching PR #128 pattern).
 
 ---
 
-## Phase 5 — Product Status
+## Phase 5 — Product Status _(awaiting API branch)_
 
-**Depends on:** Product enable/disable REST endpoint landing.
+**Depends on:** Product enable/disable REST endpoint landing. No PHP
+controller or route exists yet — the JS side is currently mocked in
+`resources/js/services/license-api.ts` (`updateProductStatus`).
 
 **Planned endpoint:**
 - `PUT /stellarwp/uplink/v1/products/{slug}/status` — `{ enabled: boolean }`
 
-### Store additions
-
-Follow PR #128 patterns throughout (individual exports, `combineReducers`,
-`UplinkThunk`, `UplinkError`, `START/FINISHED/FAILED`).
-
-#### `store/types.ts` — add `ProductStatusState` and new `Action` variants
-
-```ts
-export interface ProductStatusState {
-    enabledBySlug: Record<string, boolean>;
-    isUpdating:    Record<string, boolean>;
-    errorBySlug:   Record<string, UplinkError>;
-}
-
-// Add to State:
-export interface State {
-    features:      Features;
-    license:       LicenseState;
-    productStatus: ProductStatusState;
-}
-
-// Add to Action union:
-| { type: 'SET_PRODUCT_STATUS_START';    slug: string; enabled: boolean }
-| { type: 'SET_PRODUCT_STATUS_FINISHED'; slug: string; enabled: boolean }
-| { type: 'SET_PRODUCT_STATUS_FAILED';   slug: string; enabled: boolean; error: UplinkError }
-```
-
-#### `store/reducer.ts` — add `productStatus` sub-reducer
-
-```ts
-const PRODUCT_STATUS_DEFAULT: ProductStatusState = {
-    enabledBySlug: {},
-    isUpdating:    {},
-    errorBySlug:   {},
-};
-
-function productStatus(
-    state = PRODUCT_STATUS_DEFAULT,
-    action: Action
-): ProductStatusState {
-    switch ( action.type ) {
-        case 'SET_PRODUCT_STATUS_START': {
-            const { [ action.slug ]: _, ...restErrors } = state.errorBySlug;
-            return {
-                ...state,
-                enabledBySlug: { ...state.enabledBySlug, [ action.slug ]: action.enabled },
-                isUpdating:    { ...state.isUpdating,    [ action.slug ]: true },
-                errorBySlug:   restErrors,
-            };
-        }
-        case 'SET_PRODUCT_STATUS_FINISHED':
-            return {
-                ...state,
-                enabledBySlug: { ...state.enabledBySlug, [ action.slug ]: action.enabled },
-                isUpdating:    { ...state.isUpdating,    [ action.slug ]: false },
-            };
-        case 'SET_PRODUCT_STATUS_FAILED':
-            return {
-                ...state,
-                enabledBySlug: { ...state.enabledBySlug, [ action.slug ]: action.enabled },
-                isUpdating:    { ...state.isUpdating,    [ action.slug ]: false },
-                errorBySlug:   { ...state.errorBySlug,   [ action.slug ]: action.error },
-            };
-        default:
-            return state;
-    }
-}
-
-// Update combineReducers:
-export default combineReducers( { features, license, productStatus } );
-
-// Update initializeDefaultState:
-export function initializeDefaultState(): State {
-    return {
-        features:      { bySlug: {}, isUpdating: {}, errorBySlug: {} },
-        license:       LICENSE_DEFAULT,
-        productStatus: PRODUCT_STATUS_DEFAULT,
-    };
-}
-```
-
-#### `store/actions.ts` — add thunk actions
-
-```ts
-export const enableProduct =
-    ( slug: string ): UplinkThunk =>
-    async ( { dispatch, select } ) => {
-        const previous = select.isProductEnabled( slug );
-        dispatch( { type: 'SET_PRODUCT_STATUS_START', slug, enabled: true } );
-        try {
-            await apiFetch( {
-                path:   `/stellarwp/uplink/v1/products/${ encodeURIComponent( slug ) }/status`,
-                method: 'PUT',
-                data:   { enabled: true },
-            } );
-            dispatch( { type: 'SET_PRODUCT_STATUS_FINISHED', slug, enabled: true } );
-        } catch ( err ) {
-            dispatch( {
-                type:    'SET_PRODUCT_STATUS_FAILED',
-                slug,
-                enabled: previous,
-                error:   UplinkError.from( err ),
-            } );
-        }
-    };
-
-export const disableProduct =
-    ( slug: string ): UplinkThunk =>
-    async ( { dispatch, select } ) => {
-        const previous = select.isProductEnabled( slug );
-        dispatch( { type: 'SET_PRODUCT_STATUS_START', slug, enabled: false } );
-        try {
-            await apiFetch( {
-                path:   `/stellarwp/uplink/v1/products/${ encodeURIComponent( slug ) }/status`,
-                method: 'PUT',
-                data:   { enabled: false },
-            } );
-            dispatch( { type: 'SET_PRODUCT_STATUS_FINISHED', slug, enabled: false } );
-        } catch ( err ) {
-            dispatch( {
-                type:    'SET_PRODUCT_STATUS_FAILED',
-                slug,
-                enabled: previous,
-                error:   UplinkError.from( err ),
-            } );
-        }
-    };
-```
-
-#### `store/selectors.ts` — add
-
-```ts
-export function isProductEnabled( state: State, slug: string ): boolean {
-    return state.productStatus.enabledBySlug[ slug ] ?? false;
-}
-
-export function isProductStatusUpdating( state: State, slug: string ): boolean {
-    return state.productStatus.isUpdating[ slug ] ?? false;
-}
-
-export function getProductStatusError( state: State, slug: string ): UplinkError | null {
-    return state.productStatus.errorBySlug[ slug ] ?? null;
-}
-```
-
-### Component updates
-
-| Component | Before | After |
-|-----------|--------|-------|
-| `ProductSection` | Zustand `toggleProduct()`, `productEnabled[slug]` | `useDispatch(uplinkStore).enableProduct()` / `disableProduct()` + `useSelect → isProductEnabled()` + `isProductStatusUpdating` for disabled state |
-| `FeatureRow` | Zustand `productEnabled[slug]` | `useSelect → isProductEnabled( product.slug )` |
-
-### Verification
-
-- Enable/disable a product → optimistic toggle, server confirms
-- API error → rollback, error toast via `getProductStatusError`
-- Pending state while in-flight → button disabled
-- `bun run typecheck` passes
+Store additions and component design TBD once the PHP API shape is finalized.
+Follow the same PR #128 patterns used in Phase 4 when implementing.
 
 ---
 
@@ -521,5 +367,3 @@ bun remove zustand
 7. Manual test: delete license → key cleared, features re-fetch
 8. Manual test: invalid license key → inline error in `LicenseKeyInput`, no toast
 9. Manual test: API error on delete → error toast in `LicenseCard`
-10. Manual test: enable/disable product → optimistic toggle, features list shows/hides
-11. Manual test: API error on product toggle → rollback, error toast

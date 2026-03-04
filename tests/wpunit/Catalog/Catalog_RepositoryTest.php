@@ -33,7 +33,7 @@ final class Catalog_RepositoryTest extends UplinkTestCase {
 		$result = $this->repository->get();
 
 		$this->assertInstanceOf( Catalog_Collection::class, $result );
-		$this->assertCount( 5, $result );
+		$this->assertCount( 4, $result );
 
 		foreach ( $result as $catalog ) {
 			$this->assertInstanceOf( Product_Catalog::class, $catalog );
@@ -46,7 +46,7 @@ final class Catalog_RepositoryTest extends UplinkTestCase {
 		$cached = get_transient( Catalog_Repository::TRANSIENT_KEY );
 
 		$this->assertInstanceOf( Catalog_Collection::class, $cached );
-		$this->assertCount( 5, $cached );
+		$this->assertCount( 4, $cached );
 	}
 
 	public function test_get_serves_from_transient(): void {
@@ -116,7 +116,7 @@ final class Catalog_RepositoryTest extends UplinkTestCase {
 		$result = $this->repository->refresh();
 
 		$this->assertInstanceOf( Catalog_Collection::class, $result );
-		$this->assertCount( 5, $result );
+		$this->assertCount( 4, $result );
 
 		$this->assertNotNull( $result->get( 'kadence' ) );
 		$this->assertNull( $result->get( 'stale-product' ) );

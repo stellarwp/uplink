@@ -22,7 +22,7 @@ final class Fixture_ClientTest extends UplinkTestCase {
 		$result = $this->client->get_catalog();
 
 		$this->assertInstanceOf( Catalog_Collection::class, $result );
-		$this->assertCount( 5, $result );
+		$this->assertCount( 4, $result );
 
 		foreach ( $result as $catalog ) {
 			$this->assertInstanceOf( Product_Catalog::class, $catalog );

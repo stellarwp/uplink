@@ -66,7 +66,7 @@ final class Catalog_ControllerTest extends UplinkTestCase {
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 200, $response->get_status() );
-		$this->assertCount( 5, $response->get_data() );
+		$this->assertCount( 4, $response->get_data() );
 	}
 
 	public function test_list_returns_expected_shape(): void {

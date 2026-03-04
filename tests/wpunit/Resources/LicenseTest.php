@@ -474,5 +474,4 @@ final class LicenseTest extends UplinkTestCase {
 
 		$this->assertSame( 'o', $license->get_key_origin_code() );
 	}
-
 }

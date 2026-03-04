@@ -28,22 +28,22 @@ final class License_RepositoryTest extends UplinkTestCase {
 	}
 
 	public function test_store_and_get_round_trip(): void {
-		$this->repository->store( 'LW-UNIFIED-PRO-2026' );
+		$this->repository->store( 'LWSW-UNIFIED-PRO-2026' );
 
-		$this->assertSame( 'LW-UNIFIED-PRO-2026', $this->repository->get() );
+		$this->assertSame( 'LWSW-UNIFIED-PRO-2026', $this->repository->get() );
 	}
 
 	public function test_store_returns_true_on_success(): void {
-		$result = $this->repository->store( 'LW-UNIFIED-PRO-2026' );
+		$result = $this->repository->store( 'LWSW-UNIFIED-PRO-2026' );
 
 		$this->assertTrue( $result );
 	}
 
 	public function test_store_is_idempotent_when_key_unchanged(): void {
-		$this->repository->store( 'LW-UNIFIED-PRO-2026' );
+		$this->repository->store( 'LWSW-UNIFIED-PRO-2026' );
 
 		// Storing the same key again should still return true.
-		$this->assertTrue( $this->repository->store( 'LW-UNIFIED-PRO-2026' ) );
+		$this->assertTrue( $this->repository->store( 'LWSW-UNIFIED-PRO-2026' ) );
 	}
 
 	public function test_store_overwrites_existing_key(): void {
@@ -54,20 +54,20 @@ final class License_RepositoryTest extends UplinkTestCase {
 	}
 
 	public function test_store_sanitizes_key(): void {
-		$this->repository->store( 'LW-"UNIFIED\'-PRO`-2026' );
+		$this->repository->store( 'LWSW-"UNIFIED\'-PRO`-2026' );
 
-		$this->assertSame( 'LW-UNIFIED-PRO-2026', $this->repository->get() );
+		$this->assertSame( 'LWSW-UNIFIED-PRO-2026', $this->repository->get() );
 	}
 
 	public function test_delete_removes_stored_key(): void {
-		$this->repository->store( 'LW-UNIFIED-PRO-2026' );
+		$this->repository->store( 'LWSW-UNIFIED-PRO-2026' );
 		$this->repository->delete();
 
 		$this->assertNull( $this->repository->get() );
 	}
 
 	public function test_delete_returns_true_when_key_existed(): void {
-		$this->repository->store( 'LW-UNIFIED-PRO-2026' );
+		$this->repository->store( 'LWSW-UNIFIED-PRO-2026' );
 
 		$this->assertTrue( $this->repository->delete() );
 	}
@@ -77,13 +77,13 @@ final class License_RepositoryTest extends UplinkTestCase {
 	}
 
 	public function test_exists_returns_true_after_storing_key(): void {
-		$this->repository->store( 'LW-UNIFIED-PRO-2026' );
+		$this->repository->store( 'LWSW-UNIFIED-PRO-2026' );
 
 		$this->assertTrue( $this->repository->exists() );
 	}
 
 	public function test_exists_returns_false_after_deleting_key(): void {
-		$this->repository->store( 'LW-UNIFIED-PRO-2026' );
+		$this->repository->store( 'LWSW-UNIFIED-PRO-2026' );
 		$this->repository->delete();
 
 		$this->assertFalse( $this->repository->exists() );

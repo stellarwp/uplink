@@ -52,10 +52,6 @@ class Feature_Repository {
 	/**
 	 * Gets the resolved feature collection, using the transient cache when available.
 	 *
-	 * The cache is keyed by a hash of the license key. If the key changes
-	 * (e.g. license upgrade or new key entered), the cache is automatically
-	 * invalidated and re-resolved.
-	 *
 	 * @since 3.0.0
 	 *
 	 * @param string $key    License key.
@@ -66,16 +62,12 @@ class Feature_Repository {
 	public function get( string $key, string $domain ) {
 		$cached = get_transient( self::TRANSIENT_KEY );
 
-		if ( is_array( $cached ) && isset( $cached['key_hash'], $cached['data'] ) ) {
-			if ( $cached['key_hash'] !== self::hash_key( $key ) ) {
-				return $this->resolve( $key, $domain );
-			}
+		if ( is_wp_error( $cached ) ) {
+			return $cached;
+		}
 
-			$data = $cached['data'];
-
-			if ( $data instanceof Feature_Collection || is_wp_error( $data ) ) {
-				return $data;
-			}
+		if ( $cached instanceof Feature_Collection ) {
+			return $cached;
 		}
 
 		return $this->resolve( $key, $domain );
@@ -110,28 +102,8 @@ class Feature_Repository {
 	protected function resolve( string $key, string $domain ) {
 		$result = ( $this->resolver )( $key, $domain );
 
-		set_transient(
-			self::TRANSIENT_KEY,
-			[
-				'key_hash' => self::hash_key( $key ),
-				'data'     => $result,
-			],
-			self::CACHE_DURATION
-		);
+		set_transient( self::TRANSIENT_KEY, $result, self::CACHE_DURATION );
 
 		return $result;
-	}
-
-	/**
-	 * Hashes a license key for cache comparison.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param string $key The license key.
-	 *
-	 * @return string The hashed key.
-	 */
-	private static function hash_key( string $key ): string {
-		return md5( $key );
 	}
 }

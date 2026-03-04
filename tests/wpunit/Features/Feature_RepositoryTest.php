@@ -225,11 +225,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 
 		$cached = get_transient( Feature_Repository::TRANSIENT_KEY );
 
-		$this->assertIsArray( $cached );
-		$this->assertArrayHasKey( 'key_hash', $cached );
-		$this->assertArrayHasKey( 'data', $cached );
-		$this->assertSame( md5( 'lwsw-unified-kad-pro-2026' ), $cached['key_hash'] );
-		$this->assertInstanceOf( Feature_Collection::class, $cached['data'] );
+		$this->assertInstanceOf( Feature_Collection::class, $cached );
 	}
 
 	/**
@@ -238,8 +234,8 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_returns_cached_collection(): void {
-		$collection = new Feature_Collection();
-		$collection->add(
+		$cached = new Feature_Collection();
+		$cached->add(
 			Zip::from_array(
 				[
 					'slug'              => 'cached-feature',
@@ -254,13 +250,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 			)
 		);
 
-		set_transient(
-			Feature_Repository::TRANSIENT_KEY,
-			[
-				'key_hash' => md5( 'lwsw-unified-kad-pro-2026' ),
-				'data'     => $collection,
-			]
-		);
+		set_transient( Feature_Repository::TRANSIENT_KEY, $cached );
 
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
 		$result     = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
@@ -276,14 +266,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 */
 	public function test_it_returns_cached_wp_error(): void {
 		$error = new WP_Error( 'api_error', 'Cached error' );
-
-		set_transient(
-			Feature_Repository::TRANSIENT_KEY,
-			[
-				'key_hash' => md5( 'lwsw-unified-kad-pro-2026' ),
-				'data'     => $error,
-			]
-		);
+		set_transient( Feature_Repository::TRANSIENT_KEY, $error );
 
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
 		$result     = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
@@ -302,40 +285,17 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 
 		$repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
 
-		$cached = get_transient( Feature_Repository::TRANSIENT_KEY );
-		$this->assertInstanceOf( Feature_Collection::class, $cached['data'] );
+		$this->assertInstanceOf(
+			Feature_Collection::class,
+			get_transient( Feature_Repository::TRANSIENT_KEY )
+		);
 
 		$repository->refresh( 'lwsw-unified-kad-pro-2026', 'example.com' );
 
-		$refreshed = get_transient( Feature_Repository::TRANSIENT_KEY );
-		$this->assertInstanceOf( Feature_Collection::class, $refreshed['data'] );
-	}
-
-	/**
-	 * Tests that the cache is invalidated when a different license key is provided.
-	 *
-	 * @return void
-	 */
-	public function test_it_invalidates_cache_on_key_change(): void {
-		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
-
-		$result_a = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
-
-		$this->assertInstanceOf( Feature_Collection::class, $result_a );
-		$this->assertTrue(
-			$result_a->get( 'kad-blocks-pro' )->is_available(),
-			'Pro tier should grant access to kad-blocks-pro.'
+		$this->assertInstanceOf(
+			Feature_Collection::class,
+			get_transient( Feature_Repository::TRANSIENT_KEY )
 		);
-
-		$cached = get_transient( Feature_Repository::TRANSIENT_KEY );
-		$this->assertSame( md5( 'lwsw-unified-kad-pro-2026' ), $cached['key_hash'] );
-
-		$result_b = $repository->get( 'lwsw-unified-basic-2026', 'example.com' );
-
-		$this->assertInstanceOf( Feature_Collection::class, $result_b );
-
-		$refreshed = get_transient( Feature_Repository::TRANSIENT_KEY );
-		$this->assertSame( md5( 'lwsw-unified-basic-2026' ), $refreshed['key_hash'] );
 	}
 
 	/**

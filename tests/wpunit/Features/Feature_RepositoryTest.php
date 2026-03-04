@@ -179,23 +179,16 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Tests all features are unavailable when the licensing API returns a WP_Error.
+	 * Tests that a licensing error returns a WP_Error.
 	 *
 	 * @return void
 	 */
-	public function test_all_unavailable_when_licensing_errors(): void {
+	public function test_licensing_error_returns_wp_error(): void {
 		$repository = $this->make_repository();
 
 		$result = $repository->get( 'invalid-key', 'example.com' );
 
-		$this->assertInstanceOf( Feature_Collection::class, $result );
-
-		foreach ( $result as $feature ) {
-			$this->assertFalse(
-				$feature->is_available(),
-				sprintf( 'Feature "%s" should be unavailable when licensing fails.', $feature->get_slug() )
-			);
-		}
+		$this->assertInstanceOf( WP_Error::class, $result );
 	}
 
 	/**

@@ -3,21 +3,21 @@
 namespace StellarWP\Uplink\Tests\Features\Strategy;
 
 use StellarWP\Uplink\Features\Error_Code;
-use StellarWP\Uplink\Features\Strategy\Built_In_Strategy;
-use StellarWP\Uplink\Features\Types\Built_In;
+use StellarWP\Uplink\Features\Strategy\Flag_Strategy;
+use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
 /**
- * Tests for the Built_In_Strategy feature-gating strategy.
+ * Tests for the Flag_Strategy feature-gating strategy.
  *
  * These tests exercise the strategy's logic against real WordPress state
- * (wp_options) via the WPLoader module. Built-In features are toggled purely
+ * (wp_options) via the WPLoader module. Flag features are toggled purely
  * via a DB flag — there is no plugin installation or activation involved.
  *
- * @see Built_In_Strategy
+ * @see Flag_Strategy
  */
-final class BuiltInStrategyTest extends UplinkTestCase {
+final class FlagStrategyTest extends UplinkTestCase {
 
 	/**
 	 * The option key for the test feature's stored state.
@@ -29,20 +29,20 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 	private const OPTION_KEY = 'stellarwp_uplink_feature_advanced-tickets_active';
 
 	/**
-	 * @var Built_In_Strategy
+	 * @var Flag_Strategy
 	 */
 	private $strategy;
 
 	/**
-	 * @var Built_In
+	 * @var Flag
 	 */
 	private $feature;
 
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->strategy = new Built_In_Strategy();
-		$this->feature  = $this->make_built_in_feature();
+		$this->strategy = new Flag_Strategy();
+		$this->feature  = $this->make_flag_feature();
 	}
 
 	protected function tearDown(): void {
@@ -56,12 +56,12 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * enable() must reject non-Built_In instances with a type mismatch error.
+	 * enable() must reject non-Flag instances with a type mismatch error.
 	 */
-	public function test_enable_returns_type_mismatch_error_for_non_built_in_feature(): void {
-		$non_built_in = $this->create_non_built_in_feature();
+	public function test_enable_returns_type_mismatch_error_for_non_flag_feature(): void {
+		$non_flag = $this->create_non_flag_feature();
 
-		$result = $this->strategy->enable( $non_built_in );
+		$result = $this->strategy->enable( $non_flag );
 
 		$this->assertWPError( $result );
 		$this->assertSame( Error_Code::FEATURE_TYPE_MISMATCH, $result->get_error_code() );
@@ -106,12 +106,12 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * disable() must reject non-Built_In instances with a type mismatch error.
+	 * disable() must reject non-Flag instances with a type mismatch error.
 	 */
-	public function test_disable_returns_type_mismatch_error_for_non_built_in_feature(): void {
-		$non_built_in = $this->create_non_built_in_feature();
+	public function test_disable_returns_type_mismatch_error_for_non_flag_feature(): void {
+		$non_flag = $this->create_non_flag_feature();
 
-		$result = $this->strategy->disable( $non_built_in );
+		$result = $this->strategy->disable( $non_flag );
 
 		$this->assertWPError( $result );
 		$this->assertSame( Error_Code::FEATURE_TYPE_MISMATCH, $result->get_error_code() );
@@ -158,12 +158,12 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * is_active() returns false for non-Built_In instances.
+	 * is_active() returns false for non-Flag instances.
 	 */
-	public function test_is_active_returns_false_for_non_built_in_feature(): void {
-		$non_built_in = $this->create_non_built_in_feature();
+	public function test_is_active_returns_false_for_non_flag_feature(): void {
+		$non_flag = $this->create_non_flag_feature();
 
-		$this->assertFalse( $this->strategy->is_active( $non_built_in ) );
+		$this->assertFalse( $this->strategy->is_active( $non_flag ) );
 	}
 
 	/**
@@ -200,7 +200,7 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 	 * affect the other.
 	 */
 	public function test_features_have_independent_state(): void {
-		$other = new Built_In(
+		$other = new Flag(
 			[
 				'slug'         => 'other-feature',
 				'group'        => 'TEC',
@@ -225,20 +225,20 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Create a standard Built_In feature for testing.
+	 * Create a standard Flag feature for testing.
 	 *
 	 * @param string $slug        Feature slug.
 	 * @param string $name        Display name.
 	 * @param string $description Description.
 	 *
-	 * @return Built_In
+	 * @return Flag
 	 */
-	private function make_built_in_feature(
+	private function make_flag_feature(
 		string $slug = 'advanced-tickets',
 		string $name = 'Advanced Tickets',
 		string $description = 'Unlock advanced ticketing features.'
-	): Built_In {
-		return new Built_In(
+	): Flag {
+		return new Flag(
 			[
 				'slug'         => $slug,
 				'group'        => 'TEC',
@@ -251,26 +251,30 @@ final class BuiltInStrategyTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Create a non-Built_In Feature subclass for type-guard testing.
+	 * Create a non-Flag Feature subclass for type-guard testing.
 	 *
 	 * Uses an anonymous class to avoid creating a whole new file for a test-
 	 * only concrete subclass.
 	 *
 	 * @return Feature
 	 */
-	private function create_non_built_in_feature(): Feature {
+	private function create_non_flag_feature(): Feature {
 		return new class( [
-			'slug'         => 'not-built-in',
+			'slug'         => 'not-flag',
 			'group'        => 'Test',
 			'tier'         => 'Tier 1',
-			'name'         => 'Not Built-In',
-			'description'  => 'Not a built-in feature.',
+			'name'         => 'Not Flag',
+			'description'  => 'Not a flag feature.',
 			'type'         => 'other',
 			'is_available' => true,
 		] ) extends Feature {
 
 			/**
-			 * @inheritDoc
+			 * Creates a Feature instance from an associative array.
+			 *
+			 * @param array<string, mixed> $data The feature data.
+			 *
+			 * @return static
 			 */
 			public static function from_array( array $data ) {
 				return new self( $data );

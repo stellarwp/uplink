@@ -9,7 +9,7 @@ use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Types\Feature;
-use StellarWP\Uplink\Features\Types\Built_In;
+use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
@@ -194,9 +194,9 @@ final class ManagerTest extends UplinkTestCase {
 	public function test_get_feature_resolves_typed_features_from_catalog(): void {
 		$manager = $this->container->get( Manager::class );
 
-		$built_in = $manager->get_feature( 'kad-pattern-hub' );
-		$this->assertInstanceOf( Built_In::class, $built_in );
-		$this->assertSame( 'kad-pattern-hub', $built_in->get_slug() );
+		$flag = $manager->get_feature( 'kad-pattern-hub' );
+		$this->assertInstanceOf( Flag::class, $flag );
+		$this->assertSame( 'kad-pattern-hub', $flag->get_slug() );
 
 		$zip = $manager->get_feature( 'kad-blocks-pro' );
 		$this->assertInstanceOf( Zip::class, $zip );

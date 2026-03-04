@@ -33,7 +33,7 @@ The `docs/postman/` directory contains Postman collections for manual API testin
 This collection covers the Feature Toggling REST API (`/wp-json/stellarwp/uplink/v1/features`). It includes requests grouped by scenario:
 
 - **Features List** - list all features with optional filters (group, tier, available, type).
-- **Built-In Feature** - get, enable, and disable a built-in feature.
+- **Flag Feature** - get, enable, and disable a flag feature.
 - **Zip Feature - Valid Scenarios** - get, enable, and disable a valid zip feature.
 - **Zip Feature - Invalid Scenarios** - Invalid scenarios for the zip feature (fatal errors, requirements not met, ownership mismatch, etc.).
 - **Edge Cases** - Edge cases for the feature toggling API (nonexistent feature, invalid request, etc.).

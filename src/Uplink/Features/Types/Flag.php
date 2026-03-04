@@ -7,7 +7,7 @@ namespace StellarWP\Uplink\Features\Types;
  *
  * @since 3.0.0
  */
-final class Built_In extends Feature {
+final class Flag extends Feature {
 
 	/**
 	 * Constructor for a Feature built in to an existing plugin.
@@ -19,7 +19,7 @@ final class Built_In extends Feature {
 	 * @return void
 	 */
 	public function __construct( array $attributes ) {
-		$attributes['type'] = 'built_in';
+		$attributes['type'] = 'flag';
 
 		parent::__construct( $attributes );
 	}
@@ -41,10 +41,10 @@ final class Built_In extends Feature {
 				'tier'              => $data['tier'],
 				'name'              => $data['name'],
 				'description'       => $data['description'] ?? '',
-				'type'              => 'built_in',
+				'type'              => 'flag',
 				'is_available'      => $data['is_available'],
 				'documentation_url' => $data['documentation_url'] ?? '',
-			] 
+			]
 		);
 	}
 }

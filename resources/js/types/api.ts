@@ -12,7 +12,7 @@
  * Feature type identifier returned by the REST API.
  * @since 3.0.0
  */
-export type FeatureType = 'zip' | 'built_in';
+export type FeatureType = 'zip' | 'flag';
 
 /**
  * A feature as returned by GET /stellarwp/uplink/v1/features.

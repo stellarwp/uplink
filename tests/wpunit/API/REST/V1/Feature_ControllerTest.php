@@ -77,7 +77,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 					'get_description'       => 'Beta description',
 					'get_group'             => 'GroupB',
 					'get_tier'              => 'Tier 2',
-					'get_type'              => 'built_in',
+					'get_type'              => 'flag',
 					'is_available'          => false,
 					'get_documentation_url' => 'https://example.com/beta',
 					'to_array'              => [
@@ -86,7 +86,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 						'tier'              => 'Tier 2',
 						'name'              => 'Feature Beta',
 						'description'       => 'Beta description',
-						'type'              => 'built_in',
+						'type'              => 'flag',
 						'is_available'      => false,
 						'documentation_url' => 'https://example.com/beta',
 					],
@@ -256,7 +256,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
 
 		$request = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/features' );
-		$request->set_param( 'type', 'built_in' );
+		$request->set_param( 'type', 'flag' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 200, $response->get_status() );

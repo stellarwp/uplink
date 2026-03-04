@@ -3,12 +3,12 @@
 namespace StellarWP\Uplink\Features\Strategy;
 
 use StellarWP\Uplink\Features\Error_Code;
-use StellarWP\Uplink\Features\Types\Built_In;
+use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Features\Types\Feature;
 use WP_Error;
 
 /**
- * Built-In Strategy — toggles features via a wp_options flag.
+ * Flag Strategy — toggles features via a wp_options flag.
  *
  * This is the simplest strategy: enable/disable just sets a boolean option
  * in the database. The stored state IS the source of truth (unlike Zip_Strategy
@@ -20,24 +20,24 @@ use WP_Error;
  *
  * @since 3.0.0
  */
-class Built_In_Strategy extends Abstract_Strategy {
+class Flag_Strategy extends Abstract_Strategy {
 
 	/**
-	 * Enable a Built-In feature by setting its DB flag to active.
+	 * Enable a Flag feature by setting its DB flag to active.
 	 *
 	 * Idempotent: returns true if already active.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Must be a Built_In instance.
+	 * @param Feature $feature Must be a Flag instance.
 	 *
 	 * @return true|WP_Error True on success, WP_Error on type mismatch.
 	 */
 	public function enable( Feature $feature ) {
-		if ( ! $feature instanceof Built_In ) {
+		if ( ! $feature instanceof Flag ) {
 			return new WP_Error(
 				Error_Code::FEATURE_TYPE_MISMATCH,
-				'This feature type is not supported by the Built-In strategy.'
+				'This feature type is not supported by the Flag strategy.'
 			);
 		}
 
@@ -47,21 +47,21 @@ class Built_In_Strategy extends Abstract_Strategy {
 	}
 
 	/**
-	 * Disable a Built-In feature by setting its DB flag to inactive.
+	 * Disable a Flag feature by setting its DB flag to inactive.
 	 *
 	 * Idempotent: returns true if already inactive.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Must be a Built_In instance.
+	 * @param Feature $feature Must be a Flag instance.
 	 *
 	 * @return true|WP_Error True on success, WP_Error on type mismatch.
 	 */
 	public function disable( Feature $feature ) {
-		if ( ! $feature instanceof Built_In ) {
+		if ( ! $feature instanceof Flag ) {
 			return new WP_Error(
 				Error_Code::FEATURE_TYPE_MISMATCH,
-				'This feature type is not supported by the Built-In strategy.'
+				'This feature type is not supported by the Flag strategy.'
 			);
 		}
 
@@ -71,19 +71,19 @@ class Built_In_Strategy extends Abstract_Strategy {
 	}
 
 	/**
-	 * Check whether a Built-In feature is currently active.
+	 * Check whether a Flag feature is currently active.
 	 *
 	 * The stored DB flag is the source of truth. Defaults to false if no
 	 * state has been stored yet.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Must be a Built_In instance.
+	 * @param Feature $feature Must be a Flag instance.
 	 *
 	 * @return bool
 	 */
 	public function is_active( Feature $feature ): bool {
-		if ( ! $feature instanceof Built_In ) {
+		if ( ! $feature instanceof Flag ) {
 			return false;
 		}
 

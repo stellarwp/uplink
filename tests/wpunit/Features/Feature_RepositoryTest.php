@@ -6,7 +6,7 @@ use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Catalog\Fixture_Client as Catalog_Fixture;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Feature_Repository;
-use StellarWP\Uplink\Features\Types\Built_In;
+use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Licensing\Contracts\Licensing_Client;
 use StellarWP\Uplink\Licensing\Fixture_Client as Licensing_Fixture;
@@ -68,7 +68,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		);
 
 		$repository->register_type( 'plugin', Zip::class );
-		$repository->register_type( 'flag', Built_In::class );
+		$repository->register_type( 'flag', Flag::class );
 		$repository->register_type( 'theme', Zip::class );
 
 		return $repository;
@@ -103,17 +103,17 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Tests that catalog flag type maps to the Built_In Feature subclass.
+	 * Tests that catalog flag type maps to the Flag Feature subclass.
 	 *
 	 * @return void
 	 */
-	public function test_it_maps_flag_type_to_built_in(): void {
+	public function test_it_maps_flag_type_to_flag(): void {
 		$repository = $this->make_repository( 'lw-unified-kad-pro-2026' );
 		$result     = $repository->get( 'lw-unified-kad-pro-2026', 'example.com' );
 		$feature    = $result->get( 'kad-pattern-hub' );
 
-		$this->assertInstanceOf( Built_In::class, $feature );
-		$this->assertSame( 'built_in', $feature->get_type() );
+		$this->assertInstanceOf( Flag::class, $feature );
+		$this->assertSame( 'flag', $feature->get_type() );
 	}
 
 	/**
@@ -190,7 +190,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		);
 
 		$repository->register_type( 'plugin', Zip::class );
-		$repository->register_type( 'flag', Built_In::class );
+		$repository->register_type( 'flag', Flag::class );
 
 		$result = $repository->get( 'lw-unified-kad-pro-2026', 'example.com' );
 

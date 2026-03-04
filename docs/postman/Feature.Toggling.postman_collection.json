@@ -61,15 +61,15 @@
       ]
     },
     {
-      "name": "Built-In Feature",
+      "name": "Flag Feature",
       "item": [
         {
-          "name": "Get Built-In Feature",
+          "name": "Get Flag Feature",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/built-in-feature",
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/flag-feature",
               "host": [
                 "{{WP_SITE}}"
               ],
@@ -79,20 +79,20 @@
                 "uplink",
                 "v1",
                 "features",
-                "built-in-feature"
+                "flag-feature"
               ]
             },
-            "description": "Retrieves the built-in feature.\n\nExpected: HTTP 200 — Feature object with type \"built_in\" and is_enabled reflecting the current DB option state."
+            "description": "Retrieves the flag feature.\n\nExpected: HTTP 200 — Feature object with type \"flag\" and is_enabled reflecting the current DB option state."
           },
           "response": []
         },
         {
-          "name": "Enable Built-In Feature",
+          "name": "Enable Flag Feature",
           "request": {
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/built-in-feature/enable",
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/flag-feature/enable",
               "host": [
                 "{{WP_SITE}}"
               ],
@@ -102,21 +102,21 @@
                 "uplink",
                 "v1",
                 "features",
-                "built-in-feature",
+                "flag-feature",
                 "enable"
               ]
             },
-            "description": "Enables the built-in feature via DB option flag.\n\nExpected: HTTP 200 — Feature object with is_enabled: true. Idempotent (calling twice returns 200 both times)."
+            "description": "Enables the flag feature via DB option flag.\n\nExpected: HTTP 200 — Feature object with is_enabled: true. Idempotent (calling twice returns 200 both times)."
           },
           "response": []
         },
         {
-          "name": "Disable Built-In Feature",
+          "name": "Disable Flag Feature",
           "request": {
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/built-in-feature/disable",
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/flag-feature/disable",
               "host": [
                 "{{WP_SITE}}"
               ],
@@ -126,11 +126,11 @@
                 "uplink",
                 "v1",
                 "features",
-                "built-in-feature",
+                "flag-feature",
                 "disable"
               ]
             },
-            "description": "Disables the built-in feature via DB option flag.\n\nExpected: HTTP 200 — Feature object with is_enabled: false. Idempotent (calling twice returns 200 both times)."
+            "description": "Disables the flag feature via DB option flag.\n\nExpected: HTTP 200 — Feature object with is_enabled: false. Idempotent (calling twice returns 200 both times)."
           },
           "response": []
         }

@@ -213,7 +213,7 @@ class Feature_Repository {
 	 * Hydrates a Feature object from a catalog feature entry.
 	 *
 	 * Maps catalog types (plugin, flag, theme) to Feature subclasses
-	 * (Zip, Built_In) and computes is_available from tier rank comparison.
+	 * (Zip, Flag) and computes is_available from tier rank comparison.
 	 *
 	 * @since 3.0.0
 	 *

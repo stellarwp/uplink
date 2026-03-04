@@ -5,10 +5,10 @@ namespace StellarWP\Uplink\Features;
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
-use StellarWP\Uplink\Features\Strategy\Built_In_Strategy;
+use StellarWP\Uplink\Features\Strategy\Flag_Strategy;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Strategy\Zip_Strategy;
-use StellarWP\Uplink\Features\Types\Built_In;
+use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Product_Repository;
@@ -83,7 +83,7 @@ class Provider extends Abstract_Provider {
 	 */
 	private function register_default_types( Feature_Repository $repository ): void {
 		$repository->register_type( 'plugin', Zip::class );
-		$repository->register_type( 'flag', Built_In::class );
+		$repository->register_type( 'flag', Flag::class );
 		$repository->register_type( 'theme', Zip::class );
 	}
 
@@ -96,11 +96,11 @@ class Provider extends Abstract_Provider {
 	 */
 	private function register_default_strategies(): void {
 		$this->container->singleton( Zip_Strategy::class, Zip_Strategy::class );
-		$this->container->singleton( Built_In_Strategy::class, Built_In_Strategy::class );
+		$this->container->singleton( Flag_Strategy::class, Flag_Strategy::class );
 
 		$resolver = $this->container->get( Resolver::class );
 		$resolver->register( 'zip', Zip_Strategy::class );
-		$resolver->register( 'built_in', Built_In_Strategy::class );
+		$resolver->register( 'flag', Flag_Strategy::class );
 	}
 
 	/**

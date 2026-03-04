@@ -54,7 +54,7 @@ class Feature_Collection extends Collection {
 	 * @param string|null $group     Filter by product group (e.g. 'LearnDash', 'TEC').
 	 * @param string|null $tier      Filter by tier (e.g. 'Tier 1', 'Tier 2').
 	 * @param bool|null   $available Filter by availability (true/false).
-	 * @param string|null $type      Filter by feature type (e.g. 'zip', 'built_in').
+	 * @param string|null $type      Filter by feature type (e.g. 'zip', 'flag').
 	 *
 	 * @return Feature_Collection
 	 */

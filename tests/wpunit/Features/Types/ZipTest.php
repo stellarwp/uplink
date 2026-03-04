@@ -81,7 +81,7 @@ final class ZipTest extends UplinkTestCase {
 		$this->assertSame( 'Test Feature', $feature->get_name() );
 		$this->assertSame( 'Test feature description.', $feature->get_description() );
 		$this->assertSame( 'zip', $feature->get_type() );
-		$this->assertSame( 'test-feature/test-feature.php', $feature->get_plugin_file() );
+		$this->assertSame( 'test-feature/test-feature.php', $feature->get_wp_identifier() );
 		$this->assertTrue( $feature->is_available() );
 		$this->assertSame( 'https://example.com/docs', $feature->get_documentation_url() );
 		$this->assertSame( [ 'StellarWP' ], $feature->get_authors() );
@@ -215,24 +215,6 @@ final class ZipTest extends UplinkTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// Zip-specific getters
-	// -------------------------------------------------------------------------
-
-	/**
-	 * get_plugin_file() returns the plugin file path passed to the constructor.
-	 */
-	public function test_get_plugin_file_returns_constructor_value(): void {
-		$feature = $this->make_feature(
-			self::SLUG,
-			self::NAME,
-			self::DESCRIPTION,
-			'my-plugin/my-plugin.php'
-		);
-
-		$this->assertSame( 'my-plugin/my-plugin.php', $feature->get_plugin_file() );
-	}
-
-	// -------------------------------------------------------------------------
 	// get_authors() — ownership verification field
 	// -------------------------------------------------------------------------
 
@@ -283,46 +265,6 @@ final class ZipTest extends UplinkTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// get_plugin_slug() — derived from plugin_file
-	// -------------------------------------------------------------------------
-
-	/**
-	 * get_plugin_slug() returns the directory name from the plugin file path.
-	 *
-	 * @dataProvider plugin_slug_provider
-	 *
-	 * @param string $plugin_file    Input plugin file path.
-	 * @param string $expected_slug  Expected directory name.
-	 */
-	public function test_get_plugin_slug_returns_directory_name(
-		string $plugin_file,
-		string $expected_slug
-	): void {
-		$feature = $this->make_feature(
-			self::SLUG,
-			self::NAME,
-			self::DESCRIPTION,
-			$plugin_file
-		);
-
-		$this->assertSame( $expected_slug, $feature->get_plugin_slug() );
-	}
-
-	/**
-	 * Data provider for get_plugin_slug() tests.
-	 *
-	 * @return array<string, array{string, string}>
-	 */
-	public function plugin_slug_provider(): array {
-		return [
-			'standard path'         => [ 'stellar-export/stellar-export.php', 'stellar-export' ],
-			'different file name'   => [ 'my-plugin/main.php', 'my-plugin' ],
-			'underscored directory' => [ 'my_plugin/my_plugin.php', 'my_plugin' ],
-			'single file no dir'    => [ 'plugin.php', '.' ],
-		];
-	}
-
-	// -------------------------------------------------------------------------
 	// Installable interface
 	// -------------------------------------------------------------------------
 
@@ -336,9 +278,9 @@ final class ZipTest extends UplinkTestCase {
 	}
 
 	/**
-	 * get_wp_identifier() delegates to get_plugin_file().
+	 * get_wp_identifier() returns the plugin file path.
 	 */
-	public function test_get_wp_identifier_delegates_to_plugin_file(): void {
+	public function test_get_wp_identifier_returns_plugin_file(): void {
 		$feature = $this->make_feature(
 			self::SLUG,
 			self::NAME,
@@ -347,22 +289,42 @@ final class ZipTest extends UplinkTestCase {
 		);
 
 		$this->assertSame( 'my-plugin/my-plugin.php', $feature->get_wp_identifier() );
-		$this->assertSame( $feature->get_plugin_file(), $feature->get_wp_identifier() );
 	}
 
 	/**
-	 * get_extension_slug() delegates to get_plugin_slug().
+	 * get_extension_slug() returns the directory name from the plugin file path.
+	 *
+	 * @dataProvider extension_slug_provider
+	 *
+	 * @param string $plugin_file    Input plugin file path.
+	 * @param string $expected_slug  Expected directory name.
 	 */
-	public function test_get_extension_slug_delegates_to_plugin_slug(): void {
+	public function test_get_extension_slug_returns_directory_name(
+		string $plugin_file,
+		string $expected_slug
+	): void {
 		$feature = $this->make_feature(
 			self::SLUG,
 			self::NAME,
 			self::DESCRIPTION,
-			'my-plugin/my-plugin.php'
+			$plugin_file
 		);
 
-		$this->assertSame( 'my-plugin', $feature->get_extension_slug() );
-		$this->assertSame( $feature->get_plugin_slug(), $feature->get_extension_slug() );
+		$this->assertSame( $expected_slug, $feature->get_extension_slug() );
+	}
+
+	/**
+	 * Data provider for get_extension_slug() tests.
+	 *
+	 * @return array<string, array{string, string}>
+	 */
+	public function extension_slug_provider(): array {
+		return [
+			'standard path'         => [ 'stellar-export/stellar-export.php', 'stellar-export' ],
+			'different file name'   => [ 'my-plugin/main.php', 'my-plugin' ],
+			'underscored directory' => [ 'my_plugin/my_plugin.php', 'my_plugin' ],
+			'single file no dir'    => [ 'plugin.php', '.' ],
+		];
 	}
 
 	/**
@@ -442,8 +404,8 @@ final class ZipTest extends UplinkTestCase {
 		$this->assertSame( 'zip', $feature->get_type() );
 		$this->assertTrue( $feature->is_available() );
 		$this->assertSame( 'https://example.com/docs', $feature->get_documentation_url() );
-		$this->assertSame( 'the-slug/the-slug.php', $feature->get_plugin_file() );
+		$this->assertSame( 'the-slug/the-slug.php', $feature->get_wp_identifier() );
 		$this->assertSame( [ 'StellarWP', 'The Events Calendar' ], $feature->get_authors() );
-		$this->assertSame( 'the-slug', $feature->get_plugin_slug() );
+		$this->assertSame( 'the-slug', $feature->get_extension_slug() );
 	}
 }

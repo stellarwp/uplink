@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Features\Strategy;
 
+use StellarWP\Uplink\Features\Contracts\Installable;
 use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Theme;
@@ -77,7 +78,6 @@ class Theme_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error
 	 */
 	protected function do_install( Feature $feature ) {
-		/** @var Theme $feature */
 		return $this->install_theme( $feature );
 	}
 
@@ -91,8 +91,8 @@ class Theme_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error
 	 */
 	protected function do_activate( Feature $feature ) {
-		/** @var Theme $feature */
-		$stylesheet = $feature->get_stylesheet();
+		/** @var Feature&Installable $feature */
+		$stylesheet = $feature->get_wp_identifier();
 
 		switch_theme( $stylesheet );
 
@@ -128,8 +128,8 @@ class Theme_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error
 	 */
 	protected function do_deactivate( Feature $feature ) {
-		/** @var Theme $feature */
-		$stylesheet = $feature->get_stylesheet();
+		/** @var Feature&Installable $feature */
+		$stylesheet = $feature->get_wp_identifier();
 
 		// WordPress always needs an active theme — cannot deactivate.
 		if ( $this->is_theme_active( $stylesheet ) ) {
@@ -157,7 +157,6 @@ class Theme_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error
 	 */
 	protected function verify_ownership( Feature $feature ) {
-		/** @var Theme $feature */
 		return $this->verify_theme_ownership( $feature );
 	}
 
@@ -206,15 +205,16 @@ class Theme_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Theme $feature The feature whose theme to install.
+	 * @param Feature $feature The feature whose theme to install.
 	 *
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
-	private function install_theme( Theme $feature ) {
+	private function install_theme( Feature $feature ) {
+		/** @var Feature&Installable $feature */
 		$theme_info = themes_api(
 			'theme_information',
 			[
-				'slug'   => sanitize_key( $feature->get_stylesheet() ),
+				'slug'   => sanitize_key( $feature->get_extension_slug() ),
 				'fields' => [ 'sections' => false ],
 			]
 		);
@@ -304,18 +304,19 @@ class Theme_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Theme $feature The feature whose theme to verify.
+	 * @param Feature $feature The feature whose theme to verify.
 	 *
 	 * @return true|WP_Error True if ownership matches or no theme on disk, WP_Error on mismatch.
 	 */
-	private function verify_theme_ownership( Theme $feature ) {
+	private function verify_theme_ownership( Feature $feature ) {
+		/** @var Feature&Installable $feature */
 		$expected_authors = $feature->get_authors();
 
 		if ( $expected_authors === [] ) {
 			return true;
 		}
 
-		$stylesheet = $feature->get_stylesheet();
+		$stylesheet = $feature->get_wp_identifier();
 		$theme      = wp_get_theme( $stylesheet );
 
 		// Theme is not installed — no conflict.

@@ -311,10 +311,10 @@ final class ThemeStrategyTest extends UplinkTestCase {
 
 		$strategy = new Theme_Strategy(
 			function ( string $stylesheet ) use ( $old_feature, $new_feature ): ?Theme {
-				if ( $stylesheet === $old_feature->get_stylesheet() ) {
+				if ( $stylesheet === $old_feature->get_wp_identifier() ) {
 					return $old_feature;
 				}
-				if ( $stylesheet === $new_feature->get_stylesheet() ) {
+				if ( $stylesheet === $new_feature->get_wp_identifier() ) {
 					return $new_feature;
 				}
 				return null;

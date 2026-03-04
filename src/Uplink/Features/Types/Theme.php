@@ -58,14 +58,28 @@ final class Theme extends Feature implements Installable {
 	}
 
 	/**
-	 * Gets the theme stylesheet (directory name), the primary WP identifier.
+	 * Gets the primary WordPress identifier — the theme stylesheet
+	 * (directory name).
 	 *
 	 * @since 3.0.0
 	 *
 	 * @return string
 	 */
-	public function get_stylesheet(): string {
+	public function get_wp_identifier(): string {
 		return Cast::to_string( $this->attributes['stylesheet'] ?? '' );
+	}
+
+	/**
+	 * Gets the extension slug — the theme stylesheet.
+	 *
+	 * For themes the slug and the WP identifier are the same value.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string
+	 */
+	public function get_extension_slug(): string {
+		return $this->get_wp_identifier();
 	}
 
 	/**
@@ -83,28 +97,6 @@ final class Theme extends Feature implements Installable {
 		}
 
 		return array_values( array_filter( $authors, 'is_string' ) );
-	}
-
-	/**
-	 * Gets the primary WordPress identifier — the theme stylesheet.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return string
-	 */
-	public function get_wp_identifier(): string {
-		return $this->get_stylesheet();
-	}
-
-	/**
-	 * Gets the extension slug — the theme stylesheet.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return string
-	 */
-	public function get_extension_slug(): string {
-		return $this->get_stylesheet();
 	}
 
 	/**

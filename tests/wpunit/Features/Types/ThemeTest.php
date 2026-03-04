@@ -81,7 +81,7 @@ final class ThemeTest extends UplinkTestCase {
 		$this->assertSame( 'Test Theme', $feature->get_name() );
 		$this->assertSame( 'Test theme description.', $feature->get_description() );
 		$this->assertSame( 'theme', $feature->get_type() );
-		$this->assertSame( 'test-theme', $feature->get_stylesheet() );
+		$this->assertSame( 'test-theme', $feature->get_wp_identifier() );
 		$this->assertTrue( $feature->is_available() );
 		$this->assertSame( 'https://example.com/docs', $feature->get_documentation_url() );
 		$this->assertSame( [ 'StellarWP' ], $feature->get_authors() );
@@ -215,24 +215,6 @@ final class ThemeTest extends UplinkTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// Theme-specific getters
-	// -------------------------------------------------------------------------
-
-	/**
-	 * get_stylesheet() returns the stylesheet passed to the constructor.
-	 */
-	public function test_get_stylesheet_returns_constructor_value(): void {
-		$feature = $this->make_feature(
-			self::SLUG,
-			self::NAME,
-			self::DESCRIPTION,
-			'my-custom-theme'
-		);
-
-		$this->assertSame( 'my-custom-theme', $feature->get_stylesheet() );
-	}
-
-	// -------------------------------------------------------------------------
 	// get_authors() — ownership verification field
 	// -------------------------------------------------------------------------
 
@@ -296,9 +278,9 @@ final class ThemeTest extends UplinkTestCase {
 	}
 
 	/**
-	 * get_wp_identifier() delegates to get_stylesheet().
+	 * get_wp_identifier() returns the stylesheet.
 	 */
-	public function test_get_wp_identifier_delegates_to_stylesheet(): void {
+	public function test_get_wp_identifier_returns_stylesheet(): void {
 		$feature = $this->make_feature(
 			self::SLUG,
 			self::NAME,
@@ -307,13 +289,12 @@ final class ThemeTest extends UplinkTestCase {
 		);
 
 		$this->assertSame( 'my-custom-theme', $feature->get_wp_identifier() );
-		$this->assertSame( $feature->get_stylesheet(), $feature->get_wp_identifier() );
 	}
 
 	/**
-	 * get_extension_slug() delegates to get_stylesheet().
+	 * get_extension_slug() returns the stylesheet (same as wp_identifier for themes).
 	 */
-	public function test_get_extension_slug_delegates_to_stylesheet(): void {
+	public function test_get_extension_slug_returns_stylesheet(): void {
 		$feature = $this->make_feature(
 			self::SLUG,
 			self::NAME,
@@ -322,7 +303,7 @@ final class ThemeTest extends UplinkTestCase {
 		);
 
 		$this->assertSame( 'my-custom-theme', $feature->get_extension_slug() );
-		$this->assertSame( $feature->get_stylesheet(), $feature->get_extension_slug() );
+		$this->assertSame( $feature->get_wp_identifier(), $feature->get_extension_slug() );
 	}
 
 	/**
@@ -402,7 +383,7 @@ final class ThemeTest extends UplinkTestCase {
 		$this->assertSame( 'theme', $feature->get_type() );
 		$this->assertTrue( $feature->is_available() );
 		$this->assertSame( 'https://example.com/docs', $feature->get_documentation_url() );
-		$this->assertSame( 'the-stylesheet', $feature->get_stylesheet() );
+		$this->assertSame( 'the-stylesheet', $feature->get_wp_identifier() );
 		$this->assertSame( [ 'StellarWP', 'Starter Sites' ], $feature->get_authors() );
 	}
 }

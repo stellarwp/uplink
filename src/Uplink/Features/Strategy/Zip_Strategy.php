@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Features\Strategy;
 
+use StellarWP\Uplink\Features\Contracts\Installable;
 use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Zip;
@@ -104,7 +105,6 @@ class Zip_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error
 	 */
 	protected function do_install( Feature $feature ) {
-		/** @var Zip $feature */
 		return $this->install_plugin( $feature );
 	}
 
@@ -118,7 +118,6 @@ class Zip_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error
 	 */
 	protected function do_activate( Feature $feature ) {
-		/** @var Zip $feature */
 		return $this->activate_plugin( $feature );
 	}
 
@@ -135,8 +134,8 @@ class Zip_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error
 	 */
 	protected function do_deactivate( Feature $feature ) {
-		/** @var Zip $feature */
-		$plugin_file = $feature->get_plugin_file();
+		/** @var Feature&Installable $feature */
+		$plugin_file = $feature->get_wp_identifier();
 
 		// Idempotent: if already inactive, update stored state and bail.
 		if ( ! $this->is_plugin_active( $plugin_file ) ) {
@@ -178,7 +177,6 @@ class Zip_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error
 	 */
 	protected function verify_ownership( Feature $feature ) {
-		/** @var Zip $feature */
 		return $this->verify_plugin_ownership( $feature );
 	}
 
@@ -259,15 +257,16 @@ class Zip_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Zip $feature The feature whose plugin to install.
+	 * @param Feature $feature The feature whose plugin to install.
 	 *
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
-	private function install_plugin( Zip $feature ) {
+	private function install_plugin( Feature $feature ) {
+		/** @var Feature&Installable $feature */
 		$plugin_info = plugins_api(
 			'plugin_information',
 			[
-				'slug'   => sanitize_key( $feature->get_plugin_slug() ),
+				'slug'   => sanitize_key( $feature->get_extension_slug() ),
 				'fields' => [ 'sections' => false ],
 			]
 		);
@@ -337,7 +336,7 @@ class Zip_Strategy extends Installable_Strategy {
 	}
 
 	/**
-	 * Activate the plugin for a Zip feature with fatal error protection.
+	 * Activate the plugin for a feature with fatal error protection.
 	 *
 	 * Uses try/catch Throwable to catch PHP Error subclasses
 	 * (ParseError, TypeError, etc.) and a shutdown function with output
@@ -345,12 +344,13 @@ class Zip_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Zip $feature The feature whose plugin to activate.
+	 * @param Feature $feature The feature whose plugin to activate.
 	 *
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
-	private function activate_plugin( Zip $feature ) {
-		$plugin_file = $feature->get_plugin_file();
+	private function activate_plugin( Feature $feature ) {
+		/** @var Feature&Installable $feature */
+		$plugin_file = $feature->get_wp_identifier();
 		$completed   = false;
 		$die_output  = '';
 
@@ -520,18 +520,19 @@ class Zip_Strategy extends Installable_Strategy {
 	 *
 	 * TODO: We probably should move it to another place so we can use it during the WP plugins update setup as well.
 	 *
-	 * @param Zip $feature The feature whose plugin to verify.
+	 * @param Feature $feature The feature whose plugin to verify.
 	 *
 	 * @return true|WP_Error True if ownership matches, WP_Error on mismatch.
 	 */
-	private function verify_plugin_ownership( Zip $feature ) {
+	private function verify_plugin_ownership( Feature $feature ) {
+		/** @var Feature&Installable $feature */
 		$expected_authors = $feature->get_authors();
 
 		if ( $expected_authors === [] ) {
 			return true;
 		}
 
-		$plugin_file = $feature->get_plugin_file();
+		$plugin_file = $feature->get_wp_identifier();
 		$full_path   = WP_PLUGIN_DIR . '/' . $plugin_file;
 
 		// Case 1: the exact file exists — check its author directly.
@@ -541,10 +542,11 @@ class Zip_Strategy extends Installable_Strategy {
 
 		// Case 2: the folder exists but our specific file doesn't.
 		// Another developer's plugin may occupy the same directory.
-		$plugin_dir = WP_PLUGIN_DIR . '/' . $feature->get_plugin_slug();
+		$extension_slug = $feature->get_extension_slug();
+		$plugin_dir     = WP_PLUGIN_DIR . '/' . $extension_slug;
 
 		if ( is_dir( $plugin_dir ) ) {
-			return $this->check_folder_for_foreign_plugins( $plugin_dir, $feature->get_plugin_slug(), $expected_authors );
+			return $this->check_folder_for_foreign_plugins( $plugin_dir, $extension_slug, $expected_authors );
 		}
 
 		// Case 3: neither the file nor the folder exists — no conflict.

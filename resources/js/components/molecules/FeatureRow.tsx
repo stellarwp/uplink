@@ -5,7 +5,6 @@
  * Feature data, availability, and enable/disable actions all come from
  * the stellarwp/uplink @wordpress/data store.
  *
- * @see .plans/wp-data-store-licenses.md
  * @package StellarWP\\Uplink
  */
 import { useState, useEffect } from 'react';

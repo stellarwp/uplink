@@ -1,8 +1,6 @@
 /**
  * Reducer for the stellarwp/uplink @wordpress/data store.
  *
- * @see .plans/wp-data-store-features.md
- * @see .plans/wp-data-store-licenses.md
  * @package StellarWP\Uplink
  */
 import type { Action } from './actions';

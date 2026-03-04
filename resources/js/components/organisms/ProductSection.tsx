@@ -4,7 +4,6 @@
  * Renders for both licensed and unlicensed products.
  * License state and feature availability come from the stellarwp/uplink store.
  *
- * @see .plans/wp-data-store-licenses.md
  * @package StellarWP\\Uplink
  */
 import { __ } from '@wordpress/i18n';

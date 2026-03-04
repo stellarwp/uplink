@@ -4,7 +4,6 @@
  * Shows the single active unified license key (or an empty state) and
  * an "Add License" dialog with LicenseKeyInput.
  *
- * @see .plans/wp-data-store-licenses.md
  * @package StellarWP\\Uplink
  */
 import { useState, useEffect } from 'react';

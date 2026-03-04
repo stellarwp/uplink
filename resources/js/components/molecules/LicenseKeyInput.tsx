@@ -4,7 +4,6 @@
  * Wires activation to the stellarwp/uplink @wordpress/data store.
  * Inline error from store; success toast on completion.
  *
- * @see .plans/wp-data-store-licenses.md
  * @package StellarWP\\Uplink
  */
 import { useState, useEffect, useRef } from 'react';

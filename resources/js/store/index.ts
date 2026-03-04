@@ -4,7 +4,6 @@
  * Call registerUplinkStore() once before createRoot() in index.tsx.
  * Consumers import STORE_NAME and use useSelect / useDispatch.
  *
- * @see .plans/wp-data-store-features.md
  * @package StellarWP\Uplink
  */
 import { createReduxStore, register } from '@wordpress/data';

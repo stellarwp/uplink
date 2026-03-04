@@ -5,8 +5,6 @@
  * Thunk action creators (returning async functions) are handled by the
  * @wordpress/data thunk middleware — automatically included in v10+.
  *
- * @see .plans/wp-data-store-features.md
- * @see .plans/wp-data-store-licenses.md
  * @package StellarWP\Uplink
  */
 import apiFetch from '@wordpress/api-fetch';

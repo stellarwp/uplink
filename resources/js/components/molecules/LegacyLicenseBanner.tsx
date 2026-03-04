@@ -5,7 +5,6 @@
  * window.uplink.legacyLicenses. The banner is hidden until that data is
  * available (no REST endpoint exists yet).
  *
- * @see .plans/wp-data-store-licenses.md
  * @package StellarWP\\Uplink
  */
 import { __ } from '@wordpress/i18n';

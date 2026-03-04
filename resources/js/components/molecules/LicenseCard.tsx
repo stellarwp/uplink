@@ -4,7 +4,6 @@
  * Shows the stored unified key and provides a Remove button wired to the
  * stellarwp/uplink @wordpress/data store.
  *
- * @see .plans/wp-data-store-licenses.md
  * @package StellarWP\\Uplink
  */
 import { useEffect } from 'react';

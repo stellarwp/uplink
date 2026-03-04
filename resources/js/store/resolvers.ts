@@ -5,8 +5,6 @@
  * automatically the first time the matching selector is invoked, then marks
  * it as resolved so subsequent calls hit the cache.
  *
- * @see .plans/wp-data-store-features.md
- * @see .plans/wp-data-store-licenses.md
  * @package StellarWP\Uplink
  */
 import apiFetch from '@wordpress/api-fetch';

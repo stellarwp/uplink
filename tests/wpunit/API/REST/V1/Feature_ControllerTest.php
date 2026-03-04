@@ -1,12 +1,12 @@
 <?php declare( strict_types=1 );
 
-namespace StellarWP\Uplink\Tests\Features\REST;
+namespace StellarWP\Uplink\Tests\API\REST\V1;
 
 use StellarWP\Uplink\Features\API\Client;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Manager;
-use StellarWP\Uplink\Features\REST\Feature_Controller;
+use StellarWP\Uplink\API\REST\V1\Feature_Controller;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Tests\Traits\With_Uopz;
@@ -63,8 +63,8 @@ final class Feature_ControllerTest extends UplinkTestCase {
 						'is_available'      => true,
 						'documentation_url' => 'https://example.com/alpha',
 					],
-				] 
-			) 
+				]
+			)
 		);
 		$collection->add(
 			$this->makeEmpty(
@@ -88,8 +88,8 @@ final class Feature_ControllerTest extends UplinkTestCase {
 						'is_available'      => false,
 						'documentation_url' => 'https://example.com/beta',
 					],
-				] 
-			) 
+				]
+			)
 		);
 
 		$mock_strategy = $this->makeEmpty(
@@ -98,21 +98,21 @@ final class Feature_ControllerTest extends UplinkTestCase {
 				'enable'    => true,
 				'disable'   => true,
 				'is_active' => false,
-			] 
+			]
 		);
 
 		$resolver = $this->makeEmpty(
 			Resolver::class,
 			[
 				'resolve' => $mock_strategy,
-			] 
+			]
 		);
 
 		$catalog = $this->makeEmpty(
 			Client::class,
 			[
 				'get_features' => $collection,
-			] 
+			]
 		);
 
 		$this->manager = new Manager( $catalog, $resolver );
@@ -132,7 +132,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 
 				return true;
 			},
-			true 
+			true
 		);
 
 		$controller = new Feature_Controller( $this->manager );

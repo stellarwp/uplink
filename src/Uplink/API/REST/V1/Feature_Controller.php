@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace StellarWP\Uplink\Features\REST;
+namespace StellarWP\Uplink\API\REST\V1;
 
 use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Manager;
@@ -81,7 +81,7 @@ class Feature_Controller extends WP_REST_Controller {
 					'args'                => $this->get_collection_params(),
 				],
 				'schema' => [ $this, 'get_public_item_schema' ],
-			] 
+			]
 		);
 
 		register_rest_route(
@@ -101,7 +101,7 @@ class Feature_Controller extends WP_REST_Controller {
 					],
 				],
 				'schema' => [ $this, 'get_public_item_schema' ],
-			] 
+			]
 		);
 
 		register_rest_route(
@@ -115,7 +115,7 @@ class Feature_Controller extends WP_REST_Controller {
 					'args'                => $this->get_slug_args(),
 				],
 				'schema' => [ $this, 'get_public_item_schema' ],
-			] 
+			]
 		);
 
 		register_rest_route(
@@ -129,7 +129,7 @@ class Feature_Controller extends WP_REST_Controller {
 					'args'                => $this->get_slug_args(),
 				],
 				'schema' => [ $this, 'get_public_item_schema' ],
-			] 
+			]
 		);
 	}
 
@@ -243,7 +243,7 @@ class Feature_Controller extends WP_REST_Controller {
 		return new WP_REST_Response(
 			$feature->to_array() + [
 				'enabled' => true,
-			] 
+			]
 		);
 	}
 
@@ -277,7 +277,7 @@ class Feature_Controller extends WP_REST_Controller {
 		return new WP_REST_Response(
 			$feature->to_array() + [
 				'enabled' => false,
-			] 
+			]
 		);
 	}
 

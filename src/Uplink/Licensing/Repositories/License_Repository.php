@@ -76,7 +76,21 @@ final class License_Repository {
 				return true;
 			}
 
-			return (bool) update_network_option( null, self::OPTION_NAME, $key );
+			$result = (bool) update_network_option( null, self::OPTION_NAME, $key );
+
+			if ( $result ) {
+				/**
+				 * Fires when the unified license key is changed.
+				 *
+				 * @since 3.0.0
+				 *
+				 * @param string $new_key The new license key.
+				 * @param string $old_key The previous license key.
+				 */
+				do_action( 'stellarwp/uplink/unified_license_key_changed', $key, $current );
+			}
+
+			return $result;
 		}
 
 		/** @var string $current */
@@ -87,7 +101,14 @@ final class License_Repository {
 			return true;
 		}
 
-		return (bool) update_option( self::OPTION_NAME, $key, false );
+		$result = (bool) update_option( self::OPTION_NAME, $key, false );
+
+		if ( $result ) {
+			/** This action is documented in License_Repository::store() */
+			do_action( 'stellarwp/uplink/unified_license_key_changed', $key, $current );
+		}
+
+		return $result;
 	}
 
 	/**
@@ -100,11 +121,20 @@ final class License_Repository {
 	 * @return bool Whether the key was successfully deleted.
 	 */
 	public function delete( bool $network = false ): bool {
+		$old_key = $this->get() ?? '';
+
 		if ( $network && is_multisite() ) {
-			return delete_network_option( null, self::OPTION_NAME );
+			$result = delete_network_option( null, self::OPTION_NAME );
+		} else {
+			$result = delete_option( self::OPTION_NAME );
 		}
 
-		return delete_option( self::OPTION_NAME );
+		if ( $result && $old_key !== '' ) {
+			/** This action is documented in License_Repository::store() */
+			do_action( 'stellarwp/uplink/unified_license_key_changed', '', $old_key );
+		}
+
+		return $result;
 	}
 
 	/**

@@ -190,6 +190,7 @@ class Error_Code {
 			self::ACTIVATION_FAILED              => 422,
 			self::PLUGIN_NOT_FOUND_AFTER_INSTALL => 422,
 			self::DOWNLOAD_LINK_MISSING          => 422,
+			self::UNKNOWN_FEATURE_TYPE           => 422,
 
 			// 502 Bad Gateway — an upstream service (feature API, plugins_api) returned an error.
 			self::INVALID_RESPONSE               => 502,

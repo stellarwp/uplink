@@ -29,6 +29,7 @@ final class Error_CodeTest extends UplinkTestCase {
 			'FEATURE_CHECK_FAILED'           => [ Error_Code::FEATURE_CHECK_FAILED, 502 ],
 			'FEATURE_REQUEST_FAILED'         => [ Error_Code::FEATURE_REQUEST_FAILED, 502 ],
 			'PLUGINS_API_FAILED'             => [ Error_Code::PLUGINS_API_FAILED, 502 ],
+			'UNKNOWN_FEATURE_TYPE'           => [ Error_Code::UNKNOWN_FEATURE_TYPE, 422 ],
 		];
 	}
 

@@ -21,3 +21,5 @@ phpstan-cache
 diff.txt
 diffcs.txt
 phpcs.json
+
+tests/_data/Features/Zips/*.zip

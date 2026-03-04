@@ -7,8 +7,8 @@ use StellarWP\Uplink\Utils\Cast;
 /**
  * A Feature delivered as a standalone WordPress plugin ZIP.
  *
- * The download URL is resolved at install time through the existing
- * plugins_api filter, not stored on the object.
+ * The Zip_Strategy installs the plugin via plugins_api() + Plugin_Upgrader,
+ * and uses plugin_file to activate/deactivate it.
  *
  * @since 3.0.0
  */
@@ -48,8 +48,10 @@ final class Zip extends Feature {
 				'description'       => $data['description'] ?? '',
 				'type'              => 'zip',
 				'plugin_file'       => $data['plugin_file'] ?? '',
+				'plugin_slug'       => $data['plugin_slug'] ?? '',
 				'is_available'      => $data['is_available'],
 				'documentation_url' => $data['documentation_url'] ?? '',
+				'authors'           => $data['authors'] ?? [],
 			]
 		);
 	}
@@ -78,6 +80,51 @@ final class Zip extends Feature {
 	 */
 	public function get_plugin_file(): string {
 		return Cast::to_string( $this->attributes['plugin_file'] ?? '' );
+	}
+
+	/**
+	 * Gets the expected plugin authors for ownership verification.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string[]
+	 */
+	public function get_authors(): array {
+		$authors = $this->attributes['authors'] ?? [];
+
+		if ( ! is_array( $authors ) ) {
+			return [];
+		}
+
+		return array_values( array_filter( $authors, 'is_string' ) );
+	}
+
+	/**
+	 * Gets the plugin slug used for plugins_api() lookups and transient locks.
+	 *
+	 * This may differ from the plugin directory name. For example, TEC plugins
+	 * and StellarSites use slugs that don't match their directory names.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string
+	 */
+	public function get_plugin_slug(): string {
+		return Cast::to_string( $this->attributes['plugin_slug'] ?? '' );
+	}
+
+	/**
+	 * Gets the plugin directory name derived from the plugin file path.
+	 *
+	 * For "stellar-export/stellar-export.php" this returns "stellar-export".
+	 * Used for filesystem operations and ownership checks.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string
+	 */
+	public function get_plugin_directory(): string {
+		return dirname( $this->get_plugin_file() );
 	}
 
 	/**

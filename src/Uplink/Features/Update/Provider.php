@@ -4,8 +4,9 @@ namespace StellarWP\Uplink\Features\Update;
 
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
-use StellarWP\Uplink\Features\API\Feature_Client;
 use StellarWP\Uplink\Features\API\Update_Client;
+use StellarWP\Uplink\Features\Feature_Repository;
+use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Utils\Version;
@@ -32,9 +33,10 @@ class Provider extends Abstract_Provider {
 			static function ( ContainerInterface $c ) {
 				return new Handler(
 					$c->get( Update_Client::class ),
-					$c->get( Feature_Client::class ),
+					$c->get( Feature_Repository::class ),
 					$c->get( Collection::class ),
-					$c->get( Data::class )
+					$c->get( Data::class ),
+					$c->get( License_Manager::class )->get() ?? ''
 				);
 			}
 		);

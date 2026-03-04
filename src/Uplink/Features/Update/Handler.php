@@ -2,8 +2,8 @@
 
 namespace StellarWP\Uplink\Features\Update;
 
-use StellarWP\Uplink\Features\API\Feature_Client;
 use StellarWP\Uplink\Features\API\Update_Client;
+use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Site\Data;
@@ -29,13 +29,13 @@ class Handler {
 	private Update_Client $update_client;
 
 	/**
-	 * The feature catalog client.
+	 * The feature repository.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @var Feature_Client
+	 * @var Feature_Repository
 	 */
-	private Feature_Client $feature_client;
+	private Feature_Repository $feature_repository;
 
 	/**
 	 * The resource collection for this Uplink instance.
@@ -56,27 +56,39 @@ class Handler {
 	private Data $site_data;
 
 	/**
+	 * The license key.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	private string $key;
+
+	/**
 	 * Constructor for the consolidated update handler.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Update_Client  $update_client       The update API client.
-	 * @param Feature_Client $feature_client      The feature catalog client.
-	 * @param Collection     $resource_collection The resource collection.
-	 * @param Data           $site_data           The site data provider.
+	 * @param Update_Client      $update_client       The update API client.
+	 * @param Feature_Repository $feature_repository  The feature repository.
+	 * @param Collection         $resource_collection The resource collection.
+	 * @param Data               $site_data           The site data provider.
+	 * @param string             $key                 The license key.
 	 *
 	 * @return void
 	 */
 	public function __construct(
 		Update_Client $update_client,
-		Feature_Client $feature_client,
+		Feature_Repository $feature_repository,
 		Collection $resource_collection,
-		Data $site_data
+		Data $site_data,
+		string $key
 	) {
 		$this->update_client       = $update_client;
-		$this->feature_client      = $feature_client;
+		$this->feature_repository  = $feature_repository;
 		$this->resource_collection = $resource_collection;
 		$this->site_data           = $site_data;
+		$this->key                 = $key;
 	}
 
 	/**
@@ -104,7 +116,7 @@ class Handler {
 		$slug = $args->slug;
 
 		// Check whether the requested slug belongs to a known Zip feature.
-		$features = $this->feature_client->get_features();
+		$features = $this->feature_repository->get( $this->key, $this->site_data->get_domain() );
 
 		if ( is_wp_error( $features ) || $features->get( $slug ) === null ) {
 			return $result;
@@ -229,7 +241,7 @@ class Handler {
 		$plugin_files = [];
 
 		// Collect Zip features.
-		$features = $this->feature_client->get_features();
+		$features = $this->feature_repository->get( $this->key, $this->site_data->get_domain() );
 
 		if ( ! is_wp_error( $features ) ) {
 			$zip_features = $features->filter( null, null, null, 'zip' );

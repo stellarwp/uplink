@@ -15,7 +15,7 @@ final class Fixture_ClientTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->client = new Fixture_Client( codecept_data_dir( 'catalog.json' ) );
+		$this->client = new Fixture_Client( codecept_data_dir( 'catalog/default.json' ) );
 	}
 
 	public function test_get_catalog_returns_all_products(): void {

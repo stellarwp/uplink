@@ -2,8 +2,8 @@
 
 namespace StellarWP\Uplink\Tests\Features\Update;
 
-use StellarWP\Uplink\Features\API\Feature_Client;
 use StellarWP\Uplink\Features\API\Update_Client;
+use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Update\Handler;
@@ -31,16 +31,17 @@ final class HandlerTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$update_client  = $this->makeEmpty( Update_Client::class );
-		$feature_client = $this->makeEmpty( Feature_Client::class, [ 'get_features' => new Feature_Collection() ] );
-		$collection     = new Collection();
-		$site_data      = $this->makeEmpty( Data::class, [ 'get_domain' => 'example.com' ] );
+		$update_client      = $this->makeEmpty( Update_Client::class );
+		$feature_repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => new Feature_Collection() ] );
+		$collection         = new Collection();
+		$site_data          = $this->makeEmpty( Data::class, [ 'get_domain' => 'example.com' ] );
 
 		$this->handler = new Handler(
 			$update_client,
-			$feature_client,
+			$feature_repository,
 			$collection,
-			$site_data
+			$site_data,
+			'test-key'
 		);
 	}
 
@@ -68,14 +69,15 @@ final class HandlerTest extends UplinkTestCase {
 		$features = new Feature_Collection();
 		$features->add( $this->makeEmpty( Feature::class, [ 'get_slug' => 'my-plugin' ] ) );
 
-		$update_client  = $this->makeEmpty( Update_Client::class, [ 'check_updates' => $check_updates_return ] );
-		$feature_client = $this->makeEmpty( Feature_Client::class, [ 'get_features' => $features ] );
+		$update_client      = $this->makeEmpty( Update_Client::class, [ 'check_updates' => $check_updates_return ] );
+		$feature_repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => $features ] );
 
 		return new Handler(
 			$update_client,
-			$feature_client,
+			$feature_repository,
 			$collection,
-			$this->makeEmpty( Data::class, [ 'get_domain' => 'example.com' ] )
+			$this->makeEmpty( Data::class, [ 'get_domain' => 'example.com' ] ),
+			'test-key'
 		);
 	}
 

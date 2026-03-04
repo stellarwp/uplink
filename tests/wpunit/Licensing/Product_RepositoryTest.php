@@ -30,7 +30,7 @@ final class Product_RepositoryTest extends UplinkTestCase {
 	}
 
 	public function test_get_fetches_on_cache_miss(): void {
-		$result = $this->repository->get( 'LW-UNIFIED-PRO-2026', 'example.com' );
+		$result = $this->repository->get( 'LWSW-UNIFIED-PRO-2026', 'example.com' );
 
 		$this->assertInstanceOf( Product_Collection::class, $result );
 		$this->assertCount( 4, $result );
@@ -41,7 +41,7 @@ final class Product_RepositoryTest extends UplinkTestCase {
 	}
 
 	public function test_get_returns_collection_keyed_by_slug(): void {
-		$result = $this->repository->get( 'LW-UNIFIED-PRO-2026', 'example.com' );
+		$result = $this->repository->get( 'LWSW-UNIFIED-PRO-2026', 'example.com' );
 
 		$this->assertInstanceOf( Product_Collection::class, $result );
 
@@ -49,13 +49,13 @@ final class Product_RepositoryTest extends UplinkTestCase {
 
 		$this->assertInstanceOf( Product_Entry::class, $kadence );
 		$this->assertSame( 'kadence', $kadence->get_product_slug() );
-		$this->assertSame( 'pro', $kadence->get_tier() );
+		$this->assertSame( 'kadence-pro', $kadence->get_tier() );
 
 		$this->assertNull( $result->get( 'nonexistent' ) );
 	}
 
 	public function test_get_returns_cached_data(): void {
-		$this->repository->get( 'LW-UNIFIED-PRO-2026', 'example.com' );
+		$this->repository->get( 'LWSW-UNIFIED-PRO-2026', 'example.com' );
 
 		$cached = get_transient( Product_Repository::TRANSIENT_KEY );
 
@@ -79,7 +79,7 @@ final class Product_RepositoryTest extends UplinkTestCase {
 
 		set_transient( Product_Repository::TRANSIENT_KEY, $collection );
 
-		$result = $this->repository->get( 'LW-UNIFIED-PRO-2026', 'example.com' );
+		$result = $this->repository->get( 'LWSW-UNIFIED-PRO-2026', 'example.com' );
 
 		$this->assertInstanceOf( Product_Collection::class, $result );
 		$this->assertCount( 1, $result );
@@ -101,7 +101,7 @@ final class Product_RepositoryTest extends UplinkTestCase {
 		$error = new WP_Error( Error_Code::INVALID_KEY, 'Cached error' );
 		set_transient( Product_Repository::TRANSIENT_KEY, $error );
 
-		$result = $this->repository->get( 'LW-UNIFIED-PRO-2026', 'example.com' );
+		$result = $this->repository->get( 'LWSW-UNIFIED-PRO-2026', 'example.com' );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'Cached error', $result->get_error_message() );
@@ -123,7 +123,7 @@ final class Product_RepositoryTest extends UplinkTestCase {
 
 		set_transient( Product_Repository::TRANSIENT_KEY, $stale );
 
-		$result = $this->repository->refresh( 'LW-UNIFIED-PRO-2026', 'example.com' );
+		$result = $this->repository->refresh( 'LWSW-UNIFIED-PRO-2026', 'example.com' );
 
 		$this->assertInstanceOf( Product_Collection::class, $result );
 		$this->assertCount( 4, $result );

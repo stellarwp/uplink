@@ -1,0 +1,820 @@
+{
+  "info": {
+    "_postman_id": "4759d851-7ec8-469d-b485-5aaf3f7a20fd",
+    "name": "StellarWP Uplink - Feature Toggling",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "3863247",
+    "_collection_link": "https://go.postman.co/collection/3863247-4759d851-7ec8-469d-b485-5aaf3f7a20fd?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Features List",
+      "item": [
+        {
+          "name": "List All Features",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features"
+              ],
+              "query": [
+                {
+                  "key": "group",
+                  "value": "",
+                  "description": "Filter by product group",
+                  "disabled": true
+                },
+                {
+                  "key": "tier",
+                  "value": "",
+                  "description": "Filter by feature tier",
+                  "disabled": true
+                },
+                {
+                  "key": "available",
+                  "value": "true",
+                  "description": "Filter by availability (true/false)",
+                  "disabled": true
+                },
+                {
+                  "key": "type",
+                  "value": "",
+                  "description": "Filter by feature type",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Lists all registered features with optional filters.\n\nExpected: HTTP 200 — JSON array of feature objects, each containing slug, name, description, group, tier, type, is_available, documentation_url, and is_enabled."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Flag Feature",
+      "item": [
+        {
+          "name": "Get Flag Feature",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/flag-feature",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "flag-feature"
+              ]
+            },
+            "description": "Retrieves the flag feature.\n\nExpected: HTTP 200 — Feature object with type \"flag\" and is_enabled reflecting the current DB option state."
+          },
+          "response": []
+        },
+        {
+          "name": "Enable Flag Feature",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/flag-feature/enable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "flag-feature",
+                "enable"
+              ]
+            },
+            "description": "Enables the flag feature via DB option flag.\n\nExpected: HTTP 200 — Feature object with is_enabled: true. Idempotent (calling twice returns 200 both times)."
+          },
+          "response": []
+        },
+        {
+          "name": "Disable Flag Feature",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/flag-feature/disable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "flag-feature",
+                "disable"
+              ]
+            },
+            "description": "Disables the flag feature via DB option flag.\n\nExpected: HTTP 200 — Feature object with is_enabled: false. Idempotent (calling twice returns 200 both times)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Zip — Valid",
+      "item": [
+        {
+          "name": "Get Valid Zip Feature",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/valid-zip-feature",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "valid-zip-feature"
+              ]
+            },
+            "description": "Retrieves the valid zip feature.\n\nExpected: HTTP 200 — Feature object with type \"zip\" and is_enabled reflecting live WordPress plugin activation state."
+          },
+          "response": []
+        },
+        {
+          "name": "Enable Valid Zip Feature",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/valid-zip-feature/enable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "valid-zip-feature",
+                "enable"
+              ]
+            },
+            "description": "Installs and activates the valid zip plugin.\n\nExpected: HTTP 200 — Feature object with is_enabled: true.\n\nFirst call: downloads ZIP via plugins_api(), installs with Plugin_Upgrader, verifies ownership (Author matches \"StellarWP\"), activates the plugin.\nSecond call: plugin already active, ownership verified, returns 200 immediately (idempotent)."
+          },
+          "response": []
+        },
+        {
+          "name": "Disable Valid Zip Feature",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/valid-zip-feature/disable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "valid-zip-feature",
+                "disable"
+              ]
+            },
+            "description": "Deactivates the valid zip plugin. Does not delete plugin files.\n\nExpected: HTTP 200 — Feature object with is_enabled: false. Idempotent (calling when already inactive returns 200)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Zip — LearnDash certificate bulder",
+      "item": [
+        {
+          "name": "Get LearnDash certificate builder Feature",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/learndash-certificate-builder",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "learndash-certificate-builder"
+              ]
+            },
+            "description": "Retrieves the valid zip feature.\n\nExpected: HTTP 200 — Feature object with type \"zip\" and is_enabled reflecting live WordPress plugin activation state."
+          },
+          "response": []
+        },
+        {
+          "name": "Enable LearnDash certificate builder Feature",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/learndash-certificate-builder/enable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "learndash-certificate-builder",
+                "enable"
+              ]
+            },
+            "description": "Installs and activates the valid zip plugin.\n\nExpected: HTTP 200 — Feature object with is_enabled: true.\n\nFirst call: downloads ZIP via plugins_api(), installs with Plugin_Upgrader, verifies ownership (Author matches \"StellarWP\"), activates the plugin.\nSecond call: plugin already active, ownership verified, returns 200 immediately (idempotent)."
+          },
+          "response": []
+        },
+        {
+          "name": "Disable LearnDash certificate builder Feature",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/learndash-certificate-builder/disable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "learndash-certificate-builder",
+                "disable"
+              ]
+            },
+            "description": "Deactivates the valid zip plugin. Does not delete plugin files.\n\nExpected: HTTP 200 — Feature object with is_enabled: false. Idempotent (calling when already inactive returns 200)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Zip — Ownership Mismatch",
+      "item": [
+        {
+          "name": "Get Wrong Author Zip Feature",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/wrong-author-zip-feature",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "wrong-author-zip-feature"
+              ]
+            },
+            "description": "Retrieves the wrong-author feature definition.\n\nExpected: HTTP 200 — Feature object. The feature's catalog entry expects author \"StellarWP\", but the actual plugin's Author header is \"Foreign Developer\". This mismatch is only detected during enable/disable, not on GET."
+          },
+          "response": []
+        },
+        {
+          "name": "Enable Wrong Author (Fresh Install)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/wrong-author-zip-feature/enable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "wrong-author-zip-feature",
+                "enable"
+              ]
+            },
+            "description": "Tests PLUGIN_OWNERSHIP_MISMATCH on fresh install.\n\nExpected: HTTP 409 — Error code: PLUGIN_OWNERSHIP_MISMATCH\n\nFlow:\n1. Plugin not on disk → pre-install ownership check passes (nothing to check)\n2. ZIP is downloaded and plugin files are extracted to disk\n3. Post-install ownership check reads the plugin's Author header\n4. Author \"Foreign Developer\" does not match expected \"StellarWP\" → error\n\nAfter this call: plugin files ARE on disk, but the plugin was NOT activated. Run this FIRST before the other ownership mismatch tests."
+          },
+          "response": []
+        },
+        {
+          "name": "Enable Wrong Author (Already On Disk)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/wrong-author-zip-feature/enable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "wrong-author-zip-feature",
+                "enable"
+              ]
+            },
+            "description": "Tests PLUGIN_OWNERSHIP_MISMATCH when plugin files already exist on disk.\n\nExpected: HTTP 409 — Error code: PLUGIN_OWNERSHIP_MISMATCH\n\nFlow:\n1. Plugin not active but files exist from previous install attempt\n2. Pre-install ownership check reads the existing plugin's Author header\n3. Author \"Foreign Developer\" does not match expected \"StellarWP\" → error immediately\n4. No download or install attempt is made\n\nRequires: Run \"Enable Wrong Author (Fresh Install)\" first to get files on disk."
+          },
+          "response": []
+        },
+        {
+          "name": "Disable Wrong Author (Ownership Block)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/wrong-author-zip-feature/disable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "wrong-author-zip-feature",
+                "disable"
+              ]
+            },
+            "description": "Tests PLUGIN_OWNERSHIP_MISMATCH on disable path.\n\nExpected: HTTP 409 — Error code: PLUGIN_OWNERSHIP_MISMATCH\n\nFlow:\n1. Ownership check runs BEFORE any deactivation logic\n2. Plugin files on disk have Author \"Foreign Developer\" instead of expected \"StellarWP\"\n3. Error returned — the system refuses to manage (enable OR disable) a plugin from a different developer\n\nRequires: Run \"Enable Wrong Author (Fresh Install)\" first to get files on disk.\n\nCleanup: To remove the plugin files, manually delete the plugin via WP Admin > Plugins or the filesystem."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Zip — Fatal on Include",
+      "item": [
+        {
+          "name": "Enable Fatal Zip Feature (RuntimeException)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/fatal-zip-feature/enable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "fatal-zip-feature",
+                "enable"
+              ]
+            },
+            "description": "Tests ACTIVATION_FATAL — plugin throws RuntimeException on include.\n\nExpected: HTTP 422 — Error code: ACTIVATION_FATAL\n\nFlow: Plugin installs successfully, but when activate_plugin() includes the main file, it throws a RuntimeException. The try/catch Throwable in activate_plugin() catches it and returns a WP_Error. Plugin files remain on disk but are NOT activated."
+          },
+          "response": []
+        },
+        {
+          "name": "Enable Syntax Error Zip Feature (ParseError)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/syntax-error-zip-feature/enable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "syntax-error-zip-feature",
+                "enable"
+              ]
+            },
+            "description": "Tests ACTIVATION_FATAL — plugin has PHP syntax error (ParseError).\n\nExpected: HTTP 422 — Error code: ACTIVATION_FATAL\n\nFlow: Plugin installs successfully, but when activate_plugin() includes the main file, PHP throws a ParseError due to invalid syntax. The try/catch Throwable catches it and returns a WP_Error. Plugin files remain on disk but are NOT activated."
+          },
+          "response": []
+        },
+        {
+          "name": "Enable Die On Include Zip Feature (uncatchable)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/die-on-include-zip-feature/enable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "die-on-include-zip-feature",
+                "enable"
+              ]
+            },
+            "description": "WARNING: This kills the PHP process — uncatchable by try/catch.\n\nExpected: HTTP 500 — The response may be blank/broken OR a JSON error from the registered shutdown handler.\n\nFlow: Plugin installs successfully, but when activate_plugin() includes the main file, it calls die(). This terminates the PHP process immediately. A register_shutdown_function attempts to output a JSON error with code ACTIVATION_FATAL and status 500, but success depends on server/fastcgi configuration.\n\nNote: After this call, the WordPress site should remain functional — the die() only kills the current request."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Zip — Fatal on Activation Hook",
+      "item": [
+        {
+          "name": "Enable Activation Fatal Zip Feature",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/activation-fatal-zip-feature/enable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "activation-fatal-zip-feature",
+                "enable"
+              ]
+            },
+            "description": "Tests ACTIVATION_FATAL — activation hook callback throws RuntimeException.\n\nExpected: HTTP 422 — Error code: ACTIVATION_FATAL\n\nFlow: Plugin installs and the main file includes without error, but the register_activation_hook callback throws a RuntimeException during activate_plugin(). The try/catch Throwable catches it and returns a WP_Error. Plugin files remain on disk but are NOT activated."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Zip — Preflight Failures",
+      "item": [
+        {
+          "name": "Enable High PHP Req Zip Feature",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/high-php-req-zip-feature/enable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "high-php-req-zip-feature",
+                "enable"
+              ]
+            },
+            "description": "Tests REQUIREMENTS_NOT_MET — plugin requires PHP 99.0.\n\nExpected: HTTP 422 — Error code: REQUIREMENTS_NOT_MET\n\nFlow: During Plugin_Upgrader::install(), WordPress's check_package() detects the plugin's \"Requires PHP: 99.0\" header and rejects the install because the server's PHP version is lower. The skin captures the incompatible_php_required_version error, which is mapped to REQUIREMENTS_NOT_MET. Plugin files are NOT installed."
+          },
+          "response": []
+        },
+        {
+          "name": "Enable High WP Req Zip Feature",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/high-wp-req-zip-feature/enable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "high-wp-req-zip-feature",
+                "enable"
+              ]
+            },
+            "description": "Tests REQUIREMENTS_NOT_MET — plugin requires WordPress 99.0.\n\nExpected: HTTP 422 — Error code: REQUIREMENTS_NOT_MET\n\nFlow: During Plugin_Upgrader::install(), WordPress's check_package() detects the plugin's \"Requires at least: 99.0\" header and rejects the install because the site's WordPress version is lower. The skin captures the incompatible_wp_required_version error, which is mapped to REQUIREMENTS_NOT_MET. Plugin files are NOT installed."
+          },
+          "response": []
+        },
+        {
+          "name": "Enable No Header Zip Feature",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/no-header-zip-feature/enable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "no-header-zip-feature",
+                "enable"
+              ]
+            },
+            "description": "Tests a plugin with no Plugin Name header.\n\nExpected: HTTP 409 — Error code: PLUGIN_OWNERSHIP_MISMATCH\n\nFlow: Plugin installs successfully (WordPress doesn't require headers for install), but the post-install ownership check reads the Author header via get_plugin_data() and finds it empty. Since empty does not match expected \"StellarWP\", it returns PLUGIN_OWNERSHIP_MISMATCH. Plugin files are on disk but NOT activated.\n\nNote: The feature catalog describes this as PREFLIGHT_INVALID_PLUGIN, but the current code catches it via the ownership check since a missing Author header cannot match any expected author."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Zip — Post-Install Verification",
+      "item": [
+        {
+          "name": "Enable Mismatched Dir Zip Feature",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/mismatched-dir-zip-feature/enable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "mismatched-dir-zip-feature",
+                "enable"
+              ]
+            },
+            "description": "Tests PLUGIN_NOT_FOUND_AFTER_INSTALL — ZIP extracts with unexpected directory structure.\n\nExpected: HTTP 422 — Error code: PLUGIN_NOT_FOUND_AFTER_INSTALL\n\nFlow: Plugin installs via Plugin_Upgrader (download succeeds), but the ZIP extracts to a different directory than expected. The post-install verification checks file_exists(WP_PLUGIN_DIR . '/mismatched-dir-zip-feature/mismatched-dir-zip-feature.php') and finds it missing — the actual extracted path uses a different directory name. Returns a clear error instead of a confusing \"plugin not found\" during activation."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Zip — Deactivation Failure",
+      "item": [
+        {
+          "name": "Enable Deactivation Fatal Zip Feature",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/deactivation-fatal-zip-feature/enable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "deactivation-fatal-zip-feature",
+                "enable"
+              ]
+            },
+            "description": "Setup step: enable the plugin so it can be deactivated in the next test.\n\nExpected: HTTP 200 — Plugin installs and activates successfully. Run this BEFORE the disable test below."
+          },
+          "response": []
+        },
+        {
+          "name": "Disable Deactivation Fatal Zip Feature",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/deactivation-fatal-zip-feature/disable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "deactivation-fatal-zip-feature",
+                "disable"
+              ]
+            },
+            "description": "Tests DEACTIVATION_FAILED — plugin re-activates itself in its deactivation hook.\n\nExpected: HTTP 409 — Error code: DEACTIVATION_FAILED\n\nFlow: Ownership check passes (correct author). deactivate_plugins() is called, but the plugin's deactivation hook re-activates itself. The post-deactivation verification detects the plugin is STILL active and returns DEACTIVATION_FAILED.\n\nRequires: Run \"Enable Deactivation Fatal Zip Feature\" first."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Zip — No Source (PLUGINS_API_FAILED)",
+      "item": [
+        {
+          "name": "Enable No Source Zip Feature",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/no-source-zip-feature/enable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "no-source-zip-feature",
+                "enable"
+              ]
+            },
+            "description": "Tests PLUGINS_API_FAILED — feature exists in catalog but has no ZIP source directory.\n\nExpected: HTTP 502 — Error code: PLUGINS_API_FAILED\n\nFlow: Feature is registered in the catalog and passes validation. The enable flow calls plugins_api() to get the download link. The mock/filter has no source ZIP for this slug, so the call falls through to WordPress.org which returns \"Plugin not found.\" This is wrapped as PLUGINS_API_FAILED (HTTP 502 — upstream service error)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Zip — Unavailable Feature",
+      "item": [
+        {
+          "name": "Enable Unavailable Zip Feature",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/unavailable-zip-feature/enable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "unavailable-zip-feature",
+                "enable"
+              ]
+            },
+            "description": "Tests REST slug validation — feature exists but is_available is false.\n\nExpected: HTTP 400 — WP REST API validation error (not a feature error code)\n\nFlow: The enable/disable routes have a validate_callback on the slug parameter that calls Manager::is_available(). Since this feature has is_available: false, validation returns false and WP REST API rejects the request with HTTP 400 before it ever reaches the strategy. The error is a generic WP REST validation error, not a feature-specific error code."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Edge Cases — Nonexistent Feature",
+      "item": [
+        {
+          "name": "Enable Nonexistent Feature",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/does-not-exist/enable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "does-not-exist",
+                "enable"
+              ]
+            },
+            "description": "Tests enabling a feature slug that does not exist in the catalog.\n\nExpected: HTTP 400 — WP REST API validation error\n\nFlow: The slug validate_callback calls Manager::is_available() which returns false for unknown slugs. WP REST API rejects the request with HTTP 400 before reaching the enable callback."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Nonexistent Feature",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/does-not-exist",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "does-not-exist"
+              ]
+            },
+            "description": "Tests retrieving a feature slug that does not exist in the catalog.\n\nExpected: HTTP 404 — Error code: FEATURE_NOT_FOUND\n\nFlow: The GET route has no validate_callback (only sanitize), so the slug passes through to the get_item callback. The manager looks up the slug in the collection, finds nothing, and returns a WP_Error with FEATURE_NOT_FOUND (HTTP 404)."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "{{WP_USER}}",
+        "type": "string"
+      },
+      {
+        "key": "password",
+        "value": "{{WP_APPLICATION_PASSWORD}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "WP_SITE",
+      "value": "https://wp.test"
+    },
+    {
+      "key": "WP_USER",
+      "value": "admin"
+    },
+    {
+      "key": "WP_APPLICATION_PASSWORD",
+      "value": ""
+    }
+  ]
+}

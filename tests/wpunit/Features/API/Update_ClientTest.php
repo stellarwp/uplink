@@ -176,7 +176,7 @@ final class Update_ClientTest extends UplinkTestCase {
 	 * @return Catalog_Collection
 	 */
 	private function build_catalog_from_fixture(): Catalog_Collection {
-		$json = file_get_contents( codecept_data_dir( 'catalog.json' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$json = file_get_contents( codecept_data_dir( 'catalog/default.json' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		$data = json_decode( $json, true );
 
 		$collection = new Catalog_Collection();

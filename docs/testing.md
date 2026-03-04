@@ -21,3 +21,32 @@ To run tests for the first time, there are a couple of things you need to do:
 ### Running the tests
 
 You can simply run `slic run` or `slic run SUITE_YOU_WANT_TO_RUN` to quickly run automated tests for this library. If you want to use xdebug with your tests, you'll need to open a `slic ssh` session and turn xdebugging on (there's help text to show you how).
+
+## Postman collection
+
+The `docs/postman/` directory contains Postman collections for manual API testing.
+
+### Feature Toggling
+
+**File:** `Feature.Toggling.postman_collection.json`
+
+This collection covers the Feature Toggling REST API (`/wp-json/stellarwp/uplink/v1/features`). It includes requests grouped by scenario:
+
+- **Features List** - list all features with optional filters (group, tier, available, type).
+- **Built-In Feature** - get, enable, and disable a built-in feature.
+- **Zip Feature - Valid Scenarios** - get, enable, and disable a valid zip feature.
+- **Zip Feature - Invalid Scenarios** - Invalid scenarios for the zip feature (fatal errors, requirements not met, ownership mismatch, etc.).
+- **Edge Cases** - Edge cases for the feature toggling API (nonexistent feature, invalid request, etc.).
+
+### Setup
+
+1. Import the collection into Postman.
+2. Set the collection variables before running any requests:
+
+| Variable                  | Description                                       |
+| ------------------------- | ------------------------------------------------- |
+| `WP_SITE`                 | Your WordPress site URL (e.g. `https://wp.test`). |
+| `WP_USER`                 | An admin username.                                |
+| `WP_APPLICATION_PASSWORD` | A WordPress application password for that user.   |
+
+The collection uses **Basic Auth** with the credentials above, so make sure the [Application Passwords](https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/) feature is enabled on your site.

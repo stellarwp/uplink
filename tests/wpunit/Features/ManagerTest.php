@@ -9,6 +9,8 @@ use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Types\Feature;
+use StellarWP\Uplink\Features\Types\Built_In;
+use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
 
@@ -43,6 +45,12 @@ final class ManagerTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
+		if ( ! defined( 'STELLARWP_UPLINK_FEATURES_USE_FIXTURE_DATA' ) ) {
+			define( 'STELLARWP_UPLINK_FEATURES_USE_FIXTURE_DATA', true );
+		}
+
+		delete_transient( 'stellarwp_uplink_feature_catalog' );
+
 		$this->collection = new Feature_Collection();
 		$this->collection->add( $this->makeEmpty( Feature::class, [ 'get_slug' => 'test-feature' ] ) );
 
@@ -50,7 +58,7 @@ final class ManagerTest extends UplinkTestCase {
 			Client::class,
 			[
 				'get_features' => $this->collection,
-			] 
+			]
 		);
 
 		$this->mock_strategy = $this->makeEmpty(
@@ -59,17 +67,29 @@ final class ManagerTest extends UplinkTestCase {
 				'enable'    => true,
 				'disable'   => true,
 				'is_active' => true,
-			] 
+			]
 		);
 
 		$resolver = $this->makeEmpty(
 			Resolver::class,
 			[
 				'resolve' => $this->mock_strategy,
-			] 
+			]
 		);
 
 		$this->manager = new Manager( $catalog, $resolver );
+	}
+
+	/**
+	 * Cleans up integration-test state after each test.
+	 *
+	 * @return void
+	 */
+	protected function tearDown(): void {
+		delete_option( 'stellarwp_uplink_feature_built-in-feature_active' );
+		delete_transient( 'stellarwp_uplink_feature_catalog' );
+
+		parent::tearDown();
 	}
 
 	/**
@@ -167,6 +187,43 @@ final class ManagerTest extends UplinkTestCase {
 	}
 
 	/**
+	 * Tests get_feature resolves typed features from the catalog.
+	 *
+	 * @return void
+	 */
+	public function test_get_feature_resolves_typed_features_from_catalog(): void {
+		$manager = $this->container->get( Manager::class );
+
+		$built_in = $manager->get_feature( 'built-in-feature' );
+		$this->assertInstanceOf( Built_In::class, $built_in );
+		$this->assertSame( 'built-in-feature', $built_in->get_slug() );
+
+		$zip = $manager->get_feature( 'valid-zip-feature' );
+		$this->assertInstanceOf( Zip::class, $zip );
+		$this->assertSame( 'valid-zip-feature', $zip->get_slug() );
+	}
+
+	/**
+	 * Tests enable and disable write and clear the DB flag.
+	 *
+	 * @return void
+	 */
+	public function test_enable_and_disable_write_db_flags(): void {
+		$manager    = $this->container->get( Manager::class );
+		$option_key = 'stellarwp_uplink_feature_built-in-feature_active';
+
+		// Enable — DB flag set, is_enabled agrees.
+		$this->assertTrue( $manager->enable( 'built-in-feature' ) );
+		$this->assertSame( '1', get_option( $option_key ) );
+		$this->assertTrue( $manager->is_enabled( 'built-in-feature' ) );
+
+		// Disable — DB flag cleared, is_enabled agrees.
+		$this->assertTrue( $manager->disable( 'built-in-feature' ) );
+		$this->assertSame( '0', get_option( $option_key ) );
+		$this->assertFalse( $manager->is_enabled( 'built-in-feature' ) );
+	}
+
+	/**
 	 * Tests enabling a feature fires global and slug-specific WordPress actions.
 	 *
 	 * @return void
@@ -181,28 +238,28 @@ final class ManagerTest extends UplinkTestCase {
 			'stellarwp/uplink/feature_enabling',
 			static function () use ( &$enabling_fired ) {
 				$enabling_fired = true;
-			} 
+			}
 		);
 
 		add_action(
 			'stellarwp/uplink/feature_enabled',
 			static function () use ( &$enabled_fired ) {
 				$enabled_fired = true;
-			} 
+			}
 		);
 
 		add_action(
 			'stellarwp/uplink/test-feature/feature_enabling',
 			static function () use ( &$slug_enabling_fired ) {
 				$slug_enabling_fired = true;
-			} 
+			}
 		);
 
 		add_action(
 			'stellarwp/uplink/test-feature/feature_enabled',
 			static function () use ( &$slug_enabled_fired ) {
 				$slug_enabled_fired = true;
-			} 
+			}
 		);
 
 		$this->manager->enable( 'test-feature' );
@@ -228,28 +285,28 @@ final class ManagerTest extends UplinkTestCase {
 			'stellarwp/uplink/feature_disabling',
 			static function () use ( &$disabling_fired ) {
 				$disabling_fired = true;
-			} 
+			}
 		);
 
 		add_action(
 			'stellarwp/uplink/feature_disabled',
 			static function () use ( &$disabled_fired ) {
 				$disabled_fired = true;
-			} 
+			}
 		);
 
 		add_action(
 			'stellarwp/uplink/test-feature/feature_disabling',
 			static function () use ( &$slug_disabling_fired ) {
 				$slug_disabling_fired = true;
-			} 
+			}
 		);
 
 		add_action(
 			'stellarwp/uplink/test-feature/feature_disabled',
 			static function () use ( &$slug_disabled_fired ) {
 				$slug_disabled_fired = true;
-			} 
+			}
 		);
 
 		$this->manager->disable( 'test-feature' );
@@ -272,21 +329,21 @@ final class ManagerTest extends UplinkTestCase {
 			Strategy::class,
 			[
 				'enable' => $error,
-			] 
+			]
 		);
 
 		$resolver = $this->makeEmpty(
 			Resolver::class,
 			[
 				'resolve' => $strategy,
-			] 
+			]
 		);
 
 		$catalog = $this->makeEmpty(
 			Client::class,
 			[
 				'get_features' => $this->collection,
-			] 
+			]
 		);
 
 		$manager = new Manager( $catalog, $resolver );
@@ -297,7 +354,7 @@ final class ManagerTest extends UplinkTestCase {
 			'stellarwp/uplink/feature_enabled',
 			static function () use ( &$enabled_fired ) {
 				$enabled_fired = true;
-			} 
+			}
 		);
 
 		$result = $manager->enable( 'test-feature' );
@@ -318,21 +375,21 @@ final class ManagerTest extends UplinkTestCase {
 			Strategy::class,
 			[
 				'disable' => $error,
-			] 
+			]
 		);
 
 		$resolver = $this->makeEmpty(
 			Resolver::class,
 			[
 				'resolve' => $strategy,
-			] 
+			]
 		);
 
 		$catalog = $this->makeEmpty(
 			Client::class,
 			[
 				'get_features' => $this->collection,
-			] 
+			]
 		);
 
 		$manager = new Manager( $catalog, $resolver );
@@ -343,7 +400,7 @@ final class ManagerTest extends UplinkTestCase {
 			'stellarwp/uplink/feature_disabled',
 			static function () use ( &$disabled_fired ) {
 				$disabled_fired = true;
-			} 
+			}
 		);
 
 		$result = $manager->disable( 'test-feature' );
@@ -364,7 +421,7 @@ final class ManagerTest extends UplinkTestCase {
 			Client::class,
 			[
 				'get_features' => $error,
-			] 
+			]
 		);
 
 		$resolver = $this->makeEmpty( Resolver::class );
@@ -386,7 +443,7 @@ final class ManagerTest extends UplinkTestCase {
 			Client::class,
 			[
 				'get_features' => $error,
-			] 
+			]
 		);
 
 		$resolver = $this->makeEmpty( Resolver::class );
@@ -410,7 +467,7 @@ final class ManagerTest extends UplinkTestCase {
 			Client::class,
 			[
 				'get_features' => $error,
-			] 
+			]
 		);
 
 		$resolver = $this->makeEmpty( Resolver::class );
@@ -434,7 +491,7 @@ final class ManagerTest extends UplinkTestCase {
 			Client::class,
 			[
 				'get_features' => $error,
-			] 
+			]
 		);
 
 		$resolver = $this->makeEmpty( Resolver::class );
@@ -458,7 +515,7 @@ final class ManagerTest extends UplinkTestCase {
 			Client::class,
 			[
 				'get_features' => $error,
-			] 
+			]
 		);
 
 		$resolver = $this->makeEmpty( Resolver::class );

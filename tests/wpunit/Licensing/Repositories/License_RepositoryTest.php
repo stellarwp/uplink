@@ -98,9 +98,14 @@ final class License_RepositoryTest extends UplinkTestCase {
 	public function test_store_fires_action_when_key_changes(): void {
 		$fired = [];
 
-		add_action( 'stellarwp/uplink/unified_license_key_changed', static function ( string $new_key, string $old_key ) use ( &$fired ) {
-			$fired[] = [ $new_key, $old_key ];
-		}, 10, 2 );
+		add_action(
+			'stellarwp/uplink/unified_license_key_changed',
+			static function ( string $new_key, string $old_key ) use ( &$fired ) {
+				$fired[] = [ $new_key, $old_key ];
+			},
+			10,
+			2
+		);
 
 		$this->repository->store( 'LWSW-FIRST-KEY' );
 
@@ -114,9 +119,12 @@ final class License_RepositoryTest extends UplinkTestCase {
 
 		$fired = false;
 
-		add_action( 'stellarwp/uplink/unified_license_key_changed', static function () use ( &$fired ) {
-			$fired = true;
-		} );
+		add_action(
+			'stellarwp/uplink/unified_license_key_changed',
+			static function () use ( &$fired ) {
+				$fired = true;
+			}
+		);
 
 		$this->repository->store( 'LWSW-SAME-KEY' );
 
@@ -128,9 +136,14 @@ final class License_RepositoryTest extends UplinkTestCase {
 
 		$fired = [];
 
-		add_action( 'stellarwp/uplink/unified_license_key_changed', static function ( string $new_key, string $old_key ) use ( &$fired ) {
-			$fired[] = [ $new_key, $old_key ];
-		}, 10, 2 );
+		add_action(
+			'stellarwp/uplink/unified_license_key_changed',
+			static function ( string $new_key, string $old_key ) use ( &$fired ) {
+				$fired[] = [ $new_key, $old_key ];
+			},
+			10,
+			2
+		);
 
 		$this->repository->store( 'LWSW-NEW-KEY' );
 
@@ -144,9 +157,14 @@ final class License_RepositoryTest extends UplinkTestCase {
 
 		$fired = [];
 
-		add_action( 'stellarwp/uplink/unified_license_key_changed', static function ( string $new_key, string $old_key ) use ( &$fired ) {
-			$fired[] = [ $new_key, $old_key ];
-		}, 10, 2 );
+		add_action(
+			'stellarwp/uplink/unified_license_key_changed',
+			static function ( string $new_key, string $old_key ) use ( &$fired ) {
+				$fired[] = [ $new_key, $old_key ];
+			},
+			10,
+			2
+		);
 
 		$this->repository->delete();
 
@@ -158,9 +176,12 @@ final class License_RepositoryTest extends UplinkTestCase {
 	public function test_delete_does_not_fire_action_when_no_key_existed(): void {
 		$fired = false;
 
-		add_action( 'stellarwp/uplink/unified_license_key_changed', static function () use ( &$fired ) {
-			$fired = true;
-		} );
+		add_action(
+			'stellarwp/uplink/unified_license_key_changed',
+			static function () use ( &$fired ) {
+				$fired = true;
+			}
+		);
 
 		$this->repository->delete();
 

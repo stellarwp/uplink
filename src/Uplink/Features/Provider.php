@@ -49,6 +49,7 @@ class Provider extends Abstract_Provider {
 
 		$this->register_default_types();
 		$this->register_default_strategies();
+		$this->register_hooks();
 	}
 
 	/**

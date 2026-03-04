@@ -204,39 +204,36 @@ final class Zip extends Feature {
 	}
 
 	/**
-	 * Gets the new version available via plugins_api().
+	 * Gets the newest available version from the update_plugins site transient.
 	 *
-	 * The Handler filters the plugins_api response for Zip features,
-	 * returning update data from the consolidation server.
+	 * Reads the transient that WordPress populates via
+	 * pre_set_site_transient_update_plugins (filtered by the Handler).
+	 * This avoids per-feature plugins_api() calls which are expensive.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @return string|null The new version string, or null if unavailable.
 	 */
 	public function get_new_version(): ?string {
-		$slug = $this->get_slug();
+		$plugin_file = $this->get_plugin_file();
 
-		if ( empty( $slug ) ) {
+		if ( empty( $plugin_file ) ) {
 			return null;
 		}
 
-		if ( ! function_exists( 'plugins_api' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin-install.php'; // @phpstan-ignore-line -- ABSPATH exists.
-		}
+		$transient = get_site_transient( 'update_plugins' );
 
-		$response = plugins_api(
-			'plugin_information',
-			[
-				'fields' => [ 'sections' => false ],
-				'slug'   => $slug,
-			]
-		);
-
-		if ( is_wp_error( $response ) || ! is_object( $response ) ) {
+		if ( ! is_object( $transient ) ) {
 			return null;
 		}
 
-		$version = $response->version ?? null; // @phpstan-ignore-line -- plugins_api() returns a dynamic stdClass.
+		$update = $transient->response[ $plugin_file ] ?? $transient->no_update[ $plugin_file ] ?? null; // @phpstan-ignore property.notFound, offsetAccess.nonOffsetAccessible
+
+		if ( ! is_object( $update ) ) {
+			return null;
+		}
+
+		$version = $update->new_version ?? null; // @phpstan-ignore property.notFound
 
 		return $version !== null ? Cast::to_string( $version ) : null;
 	}

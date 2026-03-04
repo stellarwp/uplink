@@ -19,28 +19,25 @@ final class ZipTest extends UplinkTestCase {
 	private const PLUGIN_FILE = 'stellar-export/stellar-export.php';
 
 	/**
-	 * Mocks plugins_api to prevent HTTP requests in the test environment.
+	 * Sets up the update_plugins site transient so get_new_version()
+	 * can resolve version data without calling plugins_api().
 	 *
 	 * @return void
 	 */
 	protected function setUp(): void {
 		parent::setUp();
 
-		add_filter(
-			'plugins_api',
-			static function ( $result, $action ) {
-				if ( $action === 'plugin_information' ) {
-					$response          = new stdClass();
-					$response->version = '2.0.0';
+		$transient           = new stdClass();
+		$transient->response = [];
 
-					return $response;
-				}
+		$update              = new stdClass();
+		$update->new_version = '2.0.0';
 
-				return $result;
-			},
-			10,
-			2
-		);
+		$transient->no_update = [
+			'test-feature/test-feature.php' => $update,
+		];
+
+		set_site_transient( 'update_plugins', $transient );
 	}
 
 	/**

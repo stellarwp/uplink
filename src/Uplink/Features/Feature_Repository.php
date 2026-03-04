@@ -168,9 +168,13 @@ class Feature_Repository {
 			foreach ( $product->get_features() as $catalog_feature ) {
 				$feature = $this->hydrate_feature( $catalog_feature, $product, $license_tier_rank );
 
-				if ( $feature !== null ) {
-					$collection->add( $feature );
+				if ( is_wp_error( $feature ) ) {
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
+					error_log( sprintf( 'Uplink: %s', $feature->get_error_message() ) );
+					continue;
 				}
+
+				$collection->add( $feature );
 			}
 		}
 
@@ -221,18 +225,25 @@ class Feature_Repository {
 	 * @param Product_Catalog $product           The parent catalog product.
 	 * @param int             $license_tier_rank The resolved license tier rank.
 	 *
-	 * @return Feature|null The hydrated feature, or null for unknown types.
+	 * @return Feature|WP_Error The hydrated feature, or WP_Error for unknown types.
 	 */
 	private function hydrate_feature(
 		Catalog_Feature $catalog_feature,
 		Product_Catalog $product,
 		int $license_tier_rank
-	): ?Feature {
+	) {
 		$catalog_type = $catalog_feature->get_type();
 		$class        = $this->type_map[ $catalog_type ] ?? null;
 
 		if ( $class === null ) {
-			return null;
+			return new WP_Error(
+				Error_Code::UNKNOWN_FEATURE_TYPE,
+				sprintf(
+					'No Feature subclass registered for catalog type "%s" (feature: %s).',
+					$catalog_type,
+					$catalog_feature->get_feature_slug()
+				)
+			);
 		}
 
 		$minimum_tier = $product->get_tier_by_slug( $catalog_feature->get_minimum_tier() );

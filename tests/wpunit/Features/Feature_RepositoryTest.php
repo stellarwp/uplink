@@ -2,8 +2,14 @@
 
 namespace StellarWP\Uplink\Tests\Features;
 
+use ReflectionMethod;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Catalog\Fixture_Client as Catalog_Fixture;
+use StellarWP\Uplink\Catalog\Results\Catalog_Feature;
+use StellarWP\Uplink\Catalog\Results\Catalog_Tier;
+use StellarWP\Uplink\Catalog\Results\Product_Catalog;
+use StellarWP\Uplink\Catalog\Results\Tier_Collection;
+use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Types\Flag;
@@ -280,6 +286,73 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 			Feature_Collection::class,
 			get_transient( Feature_Repository::TRANSIENT_KEY )
 		);
+	}
+
+	/**
+	 * Tests that hydrate_feature returns a WP_Error for unregistered catalog types.
+	 *
+	 * @return void
+	 */
+	public function test_hydrate_feature_returns_wp_error_for_unknown_type(): void {
+		$repository = $this->make_repository( 'lw-unified-kad-pro-2026' );
+
+		// Do NOT register 'unknown_type' — only plugin/flag/theme are registered.
+		$catalog_feature = Catalog_Feature::from_array(
+			[
+				'feature_slug'      => 'test-feature',
+				'type'              => 'unknown_type',
+				'minimum_tier'      => 'kadence-basic',
+				'name'              => 'Test Feature',
+				'description'       => 'A feature with an unknown type.',
+				'documentation_url' => '',
+			]
+		);
+
+		$tiers = new Tier_Collection();
+		$tiers->add( Catalog_Tier::from_array( [ 'tier_slug' => 'kadence-basic', 'rank' => 1 ] ) );
+
+		$product = new Product_Catalog( 'kadence', $tiers, [ $catalog_feature ] );
+
+		$method = new ReflectionMethod( Feature_Repository::class, 'hydrate_feature' );
+
+		$result = $method->invoke( $repository, $catalog_feature, $product, 1 );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( Error_Code::UNKNOWN_FEATURE_TYPE, $result->get_error_code() );
+		$this->assertStringContainsString( 'unknown_type', $result->get_error_message() );
+		$this->assertStringContainsString( 'test-feature', $result->get_error_message() );
+	}
+
+	/**
+	 * Tests that hydrate_feature returns a Feature for registered types.
+	 *
+	 * @return void
+	 */
+	public function test_hydrate_feature_returns_feature_for_known_type(): void {
+		$repository = $this->make_repository( 'lw-unified-kad-pro-2026' );
+
+		$catalog_feature = Catalog_Feature::from_array(
+			[
+				'feature_slug'      => 'test-flag',
+				'type'              => 'flag',
+				'minimum_tier'      => 'kadence-basic',
+				'name'              => 'Test Flag',
+				'description'       => 'A flag feature.',
+				'documentation_url' => '',
+			]
+		);
+
+		$tiers = new Tier_Collection();
+		$tiers->add( Catalog_Tier::from_array( [ 'tier_slug' => 'kadence-basic', 'rank' => 1 ] ) );
+
+		$product = new Product_Catalog( 'kadence', $tiers, [ $catalog_feature ] );
+
+		$method = new ReflectionMethod( Feature_Repository::class, 'hydrate_feature' );
+
+		$result = $method->invoke( $repository, $catalog_feature, $product, 1 );
+
+		$this->assertInstanceOf( Flag::class, $result );
+		$this->assertSame( 'test-flag', $result->get_slug() );
 	}
 
 	/**

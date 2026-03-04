@@ -149,6 +149,15 @@ class Error_Code {
 	public const REQUIREMENTS_NOT_MET = 'stellarwp-uplink-requirements-not-met';
 
 	/**
+	 * A catalog feature has a type with no registered Feature subclass.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const UNKNOWN_FEATURE_TYPE = 'stellarwp-uplink-unknown-feature-type';
+
+	/**
 	 * Maps an error code to its recommended HTTP status code.
 	 *
 	 * @since 3.0.0

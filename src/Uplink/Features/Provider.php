@@ -125,6 +125,10 @@ class Provider extends Abstract_Provider {
 
 		// TODO: Remove this once the real plugins_api filter is implemented.
 		add_filter( 'upgrader_pre_download', [ $this, 'serve_local_zip_for_upgrader' ], 10, 3 );
+
+		add_action( 'stellarwp/uplink/unified_license_key_changed', static function () {
+			delete_transient( Feature_Repository::TRANSIENT_KEY );
+		} );
 	}
 
 	/**

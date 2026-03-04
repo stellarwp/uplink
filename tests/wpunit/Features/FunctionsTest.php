@@ -50,7 +50,7 @@ final class FunctionsTest extends UplinkTestCase {
 			]
 		);
 
-		$manager = new Manager( $repository, $resolver );
+		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		$this->container->bind(
 			Manager::class,
@@ -113,7 +113,7 @@ final class FunctionsTest extends UplinkTestCase {
 
 		$resolver = $this->makeEmpty( Resolver::class );
 
-		$manager = new Manager( $repository, $resolver );
+		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		$this->container->bind(
 			Manager::class,
@@ -144,7 +144,7 @@ final class FunctionsTest extends UplinkTestCase {
 
 		$resolver = $this->makeEmpty( Resolver::class );
 
-		$manager = new Manager( $repository, $resolver );
+		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		$this->container->bind(
 			Manager::class,

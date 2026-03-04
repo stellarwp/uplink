@@ -115,7 +115,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 			]
 		);
 
-		$this->manager = new Manager( $repository, $resolver );
+		$this->manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		/** @var WP_REST_Server $wp_rest_server */
 		global $wp_rest_server;

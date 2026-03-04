@@ -36,18 +36,40 @@ class Manager {
 	private Resolver $resolver;
 
 	/**
+	 * The license key.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	private string $key;
+
+	/**
+	 * The site domain.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	private string $domain;
+
+	/**
 	 * Constructor for the central feature orchestrator.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @param Feature_Repository $repository The repository for fetching available features.
 	 * @param Resolver           $resolver   The strategy resolver.
+	 * @param string             $key        The license key.
+	 * @param string             $domain     The site domain.
 	 *
 	 * @return void
 	 */
-	public function __construct( Feature_Repository $repository, Resolver $resolver ) {
+	public function __construct( Feature_Repository $repository, Resolver $resolver, string $key, string $domain ) {
 		$this->repository = $repository;
 		$this->resolver   = $resolver;
+		$this->key        = $key;
+		$this->domain     = $domain;
 	}
 
 	/**
@@ -214,7 +236,7 @@ class Manager {
 	 * @return bool|WP_Error
 	 */
 	public function is_enabled( string $slug ) {
-		$features = $this->repository->get();
+		$features = $this->repository->get( $this->key, $this->domain );
 
 		if ( is_wp_error( $features ) ) {
 			return new WP_Error(
@@ -244,7 +266,7 @@ class Manager {
 	 * @return bool|WP_Error
 	 */
 	public function is_available( string $slug ) {
-		$features = $this->repository->get();
+		$features = $this->repository->get( $this->key, $this->domain );
 
 		if ( is_wp_error( $features ) ) {
 			return new WP_Error(
@@ -264,7 +286,7 @@ class Manager {
 	 * @return Feature_Collection|WP_Error
 	 */
 	public function get_features() {
-		return $this->repository->get();
+		return $this->repository->get( $this->key, $this->domain );
 	}
 
 	/**
@@ -280,7 +302,7 @@ class Manager {
 	 * @return Feature|null
 	 */
 	public function get_feature( string $slug ): ?Feature {
-		$features = $this->repository->get();
+		$features = $this->repository->get( $this->key, $this->domain );
 
 		if ( is_wp_error( $features ) ) {
 			return null;

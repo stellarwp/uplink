@@ -69,7 +69,7 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$this->manager = new Manager( $repository, $resolver );
+		$this->manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 	}
 
 	/**
@@ -289,7 +289,7 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$manager = new Manager( $repository, $resolver );
+		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		$enabled_fired = false;
 
@@ -335,7 +335,7 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$manager = new Manager( $repository, $resolver );
+		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		$disabled_fired = false;
 
@@ -369,7 +369,7 @@ final class ManagerTest extends UplinkTestCase {
 
 		$resolver = $this->makeEmpty( Resolver::class );
 
-		$manager = new Manager( $repository, $resolver );
+		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		$this->assertInstanceOf( WP_Error::class, $manager->get_features() );
 	}
@@ -391,7 +391,7 @@ final class ManagerTest extends UplinkTestCase {
 
 		$resolver = $this->makeEmpty( Resolver::class );
 
-		$manager = new Manager( $repository, $resolver );
+		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		$result = $manager->is_enabled( 'test-feature' );
 		$this->assertInstanceOf( WP_Error::class, $result );
@@ -415,7 +415,7 @@ final class ManagerTest extends UplinkTestCase {
 
 		$resolver = $this->makeEmpty( Resolver::class );
 
-		$manager = new Manager( $repository, $resolver );
+		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		$result = $manager->is_available( 'test-feature' );
 		$this->assertInstanceOf( WP_Error::class, $result );
@@ -439,7 +439,7 @@ final class ManagerTest extends UplinkTestCase {
 
 		$resolver = $this->makeEmpty( Resolver::class );
 
-		$manager = new Manager( $repository, $resolver );
+		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		$result = $manager->enable( 'test-feature' );
 
@@ -463,7 +463,7 @@ final class ManagerTest extends UplinkTestCase {
 
 		$resolver = $this->makeEmpty( Resolver::class );
 
-		$manager = new Manager( $repository, $resolver );
+		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		$result = $manager->disable( 'test-feature' );
 

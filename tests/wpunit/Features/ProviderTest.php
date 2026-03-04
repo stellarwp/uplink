@@ -2,7 +2,6 @@
 
 namespace StellarWP\Uplink\Tests\Features;
 
-use StellarWP\Uplink\Features\Contracts\Feature_Client;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Features\Provider;
@@ -11,15 +10,6 @@ use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
 final class ProviderTest extends UplinkTestCase {
-
-	/**
-	 * Tests that the Feature_Client contract is registered as a singleton in the container.
-	 *
-	 * @return void
-	 */
-	public function test_it_registers_client(): void {
-		$this->assertInstanceOf( Feature_Client::class, $this->container->get( Feature_Client::class ) );
-	}
 
 	/**
 	 * Tests that the Feature_Repository is registered as a singleton in the container.

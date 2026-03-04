@@ -877,7 +877,8 @@ final class ZipStrategyTest extends UplinkTestCase {
 	private function make_zip_feature(
 		string $slug = 'test-feature',
 		string $plugin_file = self::PLUGIN_FILE,
-		array $authors = [ 'StellarWP' ]
+		array $authors = [ 'StellarWP' ],
+		?string $plugin_slug = null
 	): Zip {
 		return new Zip(
 			[
@@ -887,6 +888,7 @@ final class ZipStrategyTest extends UplinkTestCase {
 				'name'         => 'Test Feature',
 				'description'  => 'A test feature for unit tests.',
 				'plugin_file'  => $plugin_file,
+				'plugin_slug'  => $plugin_slug ?? $slug,
 				'is_available' => true,
 				'authors'      => $authors,
 			]

@@ -12,6 +12,7 @@ use StellarWP\Uplink\Catalog\Results\Tier_Collection;
 use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Feature_Repository;
+use StellarWP\Uplink\Features\Resolve_Feature_Collection;
 use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Licensing\Contracts\Licensing_Client;
@@ -49,6 +50,27 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	}
 
 	/**
+	 * Creates a Resolve_Feature_Collection with the given repository dependencies.
+	 *
+	 * @param Catalog_Repository $catalog  The catalog repository.
+	 * @param Product_Repository $licensing The licensing product repository.
+	 *
+	 * @return Resolve_Feature_Collection
+	 */
+	private function make_resolver(
+		Catalog_Repository $catalog,
+		Product_Repository $licensing
+	): Resolve_Feature_Collection {
+		$resolver = new Resolve_Feature_Collection( $catalog, $licensing );
+
+		$resolver->register_type( 'plugin', Zip::class );
+		$resolver->register_type( 'flag', Flag::class );
+		$resolver->register_type( 'theme', Zip::class );
+
+		return $resolver;
+	}
+
+	/**
 	 * Creates a Feature_Repository backed by the real fixture files.
 	 *
 	 * @param string|null $licensing_override Optional. Pass a key for the Licensing_Fixture,
@@ -68,16 +90,12 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 			$licensing_client = new Licensing_Fixture( codecept_data_dir( 'licensing' ) );
 		}
 
-		$repository = new Feature_Repository(
-			new Catalog_Repository( $catalog_client ),
-			new Product_Repository( $licensing_client )
+		$catalog  = new Catalog_Repository( $catalog_client );
+		$licensing = new Product_Repository( $licensing_client );
+
+		return new Feature_Repository(
+			$this->make_resolver( $catalog, $licensing )
 		);
-
-		$repository->register_type( 'plugin', Zip::class );
-		$repository->register_type( 'flag', Flag::class );
-		$repository->register_type( 'theme', Zip::class );
-
-		return $repository;
 	}
 
 	/**
@@ -190,13 +208,12 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 
 		$licensing_client = new Licensing_Fixture( codecept_data_dir( 'licensing' ) );
 
-		$repository = new Feature_Repository(
-			new Catalog_Repository( $catalog_client ),
-			new Product_Repository( $licensing_client )
-		);
+		$catalog   = new Catalog_Repository( $catalog_client );
+		$licensing = new Product_Repository( $licensing_client );
 
-		$repository->register_type( 'plugin', Zip::class );
-		$repository->register_type( 'flag', Flag::class );
+		$repository = new Feature_Repository(
+			$this->make_resolver( $catalog, $licensing )
+		);
 
 		$result = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
 
@@ -294,7 +311,10 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_hydrate_feature_returns_wp_error_for_unknown_type(): void {
-		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
+		$resolver = $this->make_resolver(
+			new Catalog_Repository( new Catalog_Fixture( codecept_data_dir( 'catalog.json' ) ) ),
+			new Product_Repository( new Licensing_Fixture( codecept_data_dir( 'licensing' ) ) )
+		);
 
 		// Do NOT register 'unknown_type' — only plugin/flag/theme are registered.
 		$catalog_feature = Catalog_Feature::from_array(
@@ -314,16 +334,16 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 				[
 					'tier_slug' => 'kadence-basic',
 					'rank'      => 1,
-				] 
-			) 
+				]
+			)
 		);
 
 		$product = new Product_Catalog( 'kadence', $tiers, [ $catalog_feature ] );
 
-		$method = new ReflectionMethod( Feature_Repository::class, 'hydrate_feature' );
+		$method = new ReflectionMethod( Resolve_Feature_Collection::class, 'hydrate_feature' );
 		$method->setAccessible( true ); // Required for PHP < 8.1.
 
-		$result = $method->invoke( $repository, $catalog_feature, $product, 1 );
+		$result = $method->invoke( $resolver, $catalog_feature, $product, 1 );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( Error_Code::UNKNOWN_FEATURE_TYPE, $result->get_error_code() );
@@ -337,7 +357,10 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_hydrate_feature_returns_feature_for_known_type(): void {
-		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
+		$resolver = $this->make_resolver(
+			new Catalog_Repository( new Catalog_Fixture( codecept_data_dir( 'catalog.json' ) ) ),
+			new Product_Repository( new Licensing_Fixture( codecept_data_dir( 'licensing' ) ) )
+		);
 
 		$catalog_feature = Catalog_Feature::from_array(
 			[
@@ -356,16 +379,16 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 				[
 					'tier_slug' => 'kadence-basic',
 					'rank'      => 1,
-				] 
-			) 
+				]
+			)
 		);
 
 		$product = new Product_Catalog( 'kadence', $tiers, [ $catalog_feature ] );
 
-		$method = new ReflectionMethod( Feature_Repository::class, 'hydrate_feature' );
+		$method = new ReflectionMethod( Resolve_Feature_Collection::class, 'hydrate_feature' );
 		$method->setAccessible( true ); // Required for PHP < 8.1.
 
-		$result = $method->invoke( $repository, $catalog_feature, $product, 1 );
+		$result = $method->invoke( $resolver, $catalog_feature, $product, 1 );
 
 		$this->assertInstanceOf( Flag::class, $result );
 		$this->assertSame( 'test-flag', $result->get_slug() );

@@ -2,18 +2,25 @@
 
 namespace StellarWP\Uplink\Licensing\Repositories;
 
+use StellarWP\Uplink\Licensing\Product_Collection;
+use StellarWP\Uplink\Licensing\Results\Product_Entry;
 use StellarWP\Uplink\Utils\Sanitize;
+use WP_Error;
 
 /**
- * Handles storage and CRUD operations for the unified license key.
+ * Handles all persistence for the unified licensing subsystem.
  *
- * Unlike the per-product license keys managed by Resources\License,
- * this stores a single key that applies across all StellarWP products
- * and will back the v4 licensing REST endpoint.
+ * Covers two storage layers:
+ *   - WordPress options: the unified license key (single key per site).
+ *   - WordPress transients: the product catalog cache (keyed by a fixed name).
  *
- * On multisite, get() checks the network option first and falls back
+ * This class is a pure data-access layer — it only reads from and writes to
+ * WordPress storage. It never calls external APIs or applies business logic.
+ * Use License_Manager for orchestrated fetching and key discovery.
+ *
+ * On multisite, get_key() checks the network option first and falls back
  * to the site option. Callers control the storage level explicitly
- * via the $network parameter on store() and delete().
+ * via the $network parameter on store_key() and delete_key().
  *
  * @since 3.0.0
  */
@@ -26,7 +33,25 @@ final class License_Repository {
 	 *
 	 * @var string
 	 */
-	public const OPTION_NAME = 'stellarwp_uplink_unified_license_key';
+	public const KEY_OPTION_NAME = 'stellarwp_uplink_unified_license_key';
+
+	/**
+	 * Transient key for the cached product catalog.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const PRODUCTS_TRANSIENT_KEY = 'stellarwp_uplink_licensing_products';
+
+	/**
+	 * Default cache duration in seconds (12 hours).
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var int
+	 */
+	public const CACHE_DURATION = HOUR_IN_SECONDS * 12;
 
 	/**
 	 * Get the stored unified license key.
@@ -38,10 +63,10 @@ final class License_Repository {
 	 *
 	 * @return ?string The license key, or null if not set.
 	 */
-	public function get(): ?string {
+	public function get_key(): ?string {
 		if ( is_multisite() ) {
 			/** @var string $key */
-			$key = get_network_option( null, self::OPTION_NAME, '' );
+			$key = get_network_option( null, self::KEY_OPTION_NAME, '' );
 
 			if ( ! empty( $key ) ) {
 				return $key;
@@ -49,7 +74,7 @@ final class License_Repository {
 		}
 
 		/** @var string $key */
-		$key = get_option( self::OPTION_NAME, '' );
+		$key = get_option( self::KEY_OPTION_NAME, '' );
 
 		return empty( $key ) ? null : $key;
 	}
@@ -64,30 +89,30 @@ final class License_Repository {
 	 *
 	 * @return bool Whether the key was successfully stored.
 	 */
-	public function store( string $key, bool $network = false ): bool {
+	public function store_key( string $key, bool $network = false ): bool {
 		$key = Sanitize::key( $key );
 
 		if ( $network && is_multisite() ) {
 			/** @var string $current */
-			$current = get_network_option( null, self::OPTION_NAME, '' );
+			$current = get_network_option( null, self::KEY_OPTION_NAME, '' );
 
 			// update_network_option() returns false when the value hasn't changed.
 			if ( $current === $key ) {
 				return true;
 			}
 
-			return (bool) update_network_option( null, self::OPTION_NAME, $key );
+			return (bool) update_network_option( null, self::KEY_OPTION_NAME, $key );
 		}
 
 		/** @var string $current */
-		$current = get_option( self::OPTION_NAME, '' );
+		$current = get_option( self::KEY_OPTION_NAME, '' );
 
 		// update_option() returns false when the value hasn't changed.
 		if ( $current === $key ) {
 			return true;
 		}
 
-		return (bool) update_option( self::OPTION_NAME, $key, false );
+		return (bool) update_option( self::KEY_OPTION_NAME, $key, false );
 	}
 
 	/**
@@ -99,25 +124,119 @@ final class License_Repository {
 	 *
 	 * @return bool Whether the key was successfully deleted.
 	 */
-	public function delete( bool $network = false ): bool {
+	public function delete_key( bool $network = false ): bool {
 		if ( $network && is_multisite() ) {
-			return delete_network_option( null, self::OPTION_NAME );
+			return delete_network_option( null, self::KEY_OPTION_NAME );
 		}
 
-		return delete_option( self::OPTION_NAME );
+		return delete_option( self::KEY_OPTION_NAME );
 	}
 
 	/**
 	 * Check whether a unified license key is stored.
 	 *
-	 * Follows the same precedence as get(): network-level on multisite,
+	 * Follows the same precedence as get_key(): network-level on multisite,
 	 * then site-level.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @return bool Whether a license key exists.
 	 */
-	public function exists(): bool {
-		return $this->get() !== null;
+	public function key_exists(): bool {
+		return $this->get_key() !== null;
+	}
+
+	/**
+	 * Read the cached product catalog from the transient.
+	 *
+	 * Returns null when no catalog has been cached yet. Use
+	 * License_Manager::get_products() for a call that will fetch from the
+	 * API on a cache miss.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return Product_Collection|null Cached value, or null on miss.
+	 */
+	public function get_products(): ?Product_Collection {
+		$products = get_transient( self::PRODUCTS_TRANSIENT_KEY );
+
+		if ( $products instanceof Product_Collection ) {
+			return $products;
+		}
+
+		return null;
+	}
+
+	/**
+	 * Write the product catalog to the transient cache.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param Product_Collection|WP_Error $data The catalog data to cache.
+	 *
+	 * @return void
+	 */
+	public function set_products( $data ): void {
+		set_transient( self::PRODUCTS_TRANSIENT_KEY, $data, self::CACHE_DURATION );
+	}
+
+	/**
+	 * Delete the cached product catalog.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return void
+	 */
+	public function delete_products(): void {
+		delete_transient( self::PRODUCTS_TRANSIENT_KEY );
+	}
+
+	/**
+	 * Get a specific product entry from the cached catalog.
+	 *
+	 * Returns null if no catalog is cached or the product is not found.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $slug Product slug.
+	 *
+	 * @return Product_Entry|null
+	 */
+	public function get_product( string $slug ): ?Product_Entry {
+		$products = $this->get_products();
+
+		if ( ! $products instanceof Product_Collection ) {
+			return null;
+		}
+
+		return $products->get( $slug );
+	}
+
+	/**
+	 * Whether a product exists in the cached catalog.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $slug Product slug.
+	 *
+	 * @return bool
+	 */
+	public function has_product( string $slug ): bool {
+		return $this->get_product( $slug ) !== null;
+	}
+
+	/**
+	 * Whether a product has a valid license status in the cached catalog.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $slug Product slug.
+	 *
+	 * @return bool
+	 */
+	public function is_product_valid( string $slug ): bool {
+		$product = $this->get_product( $slug );
+
+		return $product !== null && $product->is_valid();
 	}
 }

@@ -27,7 +27,6 @@ final class Provider extends Abstract_Provider {
 			}
 		);
 
-		$this->container->singleton( Product_Repository::class, Product_Repository::class );
 		$this->container->singleton( License_Repository::class, License_Repository::class );
 		$this->container->singleton( Product_Registry::class, Product_Registry::class );
 		$this->container->singleton( License_Manager::class, License_Manager::class );

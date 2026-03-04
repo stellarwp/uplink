@@ -17,7 +17,9 @@ use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Licensing\Contracts\Licensing_Client;
 use StellarWP\Uplink\Licensing\Fixture_Client as Licensing_Fixture;
-use StellarWP\Uplink\Licensing\Product_Repository;
+use StellarWP\Uplink\Licensing\License_Manager;
+use StellarWP\Uplink\Licensing\Registry\Product_Registry;
+use StellarWP\Uplink\Licensing\Repositories\License_Repository;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
 
@@ -33,7 +35,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 
 		delete_transient( Feature_Repository::TRANSIENT_KEY );
 		delete_transient( Catalog_Repository::TRANSIENT_KEY );
-		delete_transient( Product_Repository::TRANSIENT_KEY );
+		delete_transient( License_Repository::PRODUCTS_TRANSIENT_KEY );
 	}
 
 	/**
@@ -44,7 +46,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	protected function tearDown(): void {
 		delete_transient( Feature_Repository::TRANSIENT_KEY );
 		delete_transient( Catalog_Repository::TRANSIENT_KEY );
-		delete_transient( Product_Repository::TRANSIENT_KEY );
+		delete_transient( License_Repository::PRODUCTS_TRANSIENT_KEY );
 
 		parent::tearDown();
 	}
@@ -53,13 +55,13 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 * Creates a Resolve_Feature_Collection with the given repository dependencies.
 	 *
 	 * @param Catalog_Repository $catalog  The catalog repository.
-	 * @param Product_Repository $licensing The licensing product repository.
+	 * @param License_Repository $licensing The licensing repository.
 	 *
 	 * @return Resolve_Feature_Collection
 	 */
 	private function make_resolver(
 		Catalog_Repository $catalog,
-		Product_Repository $licensing
+		License_Manager $licensing
 	): Resolve_Feature_Collection {
 		$resolver = new Resolve_Feature_Collection( $catalog, $licensing );
 
@@ -90,8 +92,12 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 			$licensing_client = new Licensing_Fixture( codecept_data_dir( 'licensing' ) );
 		}
 
-		$catalog  = new Catalog_Repository( $catalog_client );
-		$licensing = new Product_Repository( $licensing_client );
+		$catalog   = new Catalog_Repository( $catalog_client );
+		$licensing = new License_Manager( new License_Repository(), new Product_Registry(), $licensing_client );
+
+		if ( $licensing_override !== null ) {
+			$licensing->store_key( $licensing_override );
+		}
 
 		return new Feature_Repository(
 			$this->make_resolver( $catalog, $licensing )
@@ -202,7 +208,8 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		$licensing_client = new Licensing_Fixture( codecept_data_dir( 'licensing' ) );
 
 		$catalog   = new Catalog_Repository( $catalog_client );
-		$licensing = new Product_Repository( $licensing_client );
+		$licensing = new License_Manager( new License_Repository(), new Product_Registry(), $licensing_client );
+		$licensing->store_key( 'lwsw-unified-kad-pro-2026' );
 
 		$repository = new Feature_Repository(
 			$this->make_resolver( $catalog, $licensing )
@@ -346,7 +353,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	public function test_hydrate_feature_returns_wp_error_for_unknown_type(): void {
 		$resolver = $this->make_resolver(
 			new Catalog_Repository( new Catalog_Fixture( codecept_data_dir( 'catalog.json' ) ) ),
-			new Product_Repository( new Licensing_Fixture( codecept_data_dir( 'licensing' ) ) )
+			new License_Manager( new License_Repository(), new Product_Registry(), new Licensing_Fixture( codecept_data_dir( 'licensing' ) ) )
 		);
 
 		// Do NOT register 'unknown_type' — only plugin/flag/theme are registered.
@@ -392,7 +399,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	public function test_hydrate_feature_returns_feature_for_known_type(): void {
 		$resolver = $this->make_resolver(
 			new Catalog_Repository( new Catalog_Fixture( codecept_data_dir( 'catalog.json' ) ) ),
-			new Product_Repository( new Licensing_Fixture( codecept_data_dir( 'licensing' ) ) )
+			new License_Manager( new License_Repository(), new Product_Registry(), new Licensing_Fixture( codecept_data_dir( 'licensing' ) ) )
 		);
 
 		$catalog_feature = Catalog_Feature::from_array(

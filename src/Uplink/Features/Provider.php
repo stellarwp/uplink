@@ -11,7 +11,6 @@ use StellarWP\Uplink\Features\Strategy\Zip_Strategy;
 use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Licensing\License_Manager;
-use StellarWP\Uplink\Licensing\Product_Repository;
 use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Utils\Cast;
 use WP_Error;
@@ -45,7 +44,7 @@ class Provider extends Abstract_Provider {
 			function ( ContainerInterface $c ) {
 				$resolver = new Resolve_Feature_Collection(
 					$c->get( Catalog_Repository::class ),
-					$c->get( Product_Repository::class )
+					$c->get( License_Manager::class )
 				);
 
 				$this->register_default_types( $resolver );
@@ -71,7 +70,7 @@ class Provider extends Abstract_Provider {
 				return new Manager(
 					$c->get( Feature_Repository::class ),
 					$c->get( Resolver::class ),
-					$c->get( License_Manager::class )->get() ?? '',
+					$c->get( License_Manager::class )->get_key() ?? '',
 					$c->get( Data::class )->get_domain()
 				);
 			}

@@ -51,7 +51,6 @@ class Error_Code {
 	/**
 	 * A feature was passed to a strategy that does not support its type.
 	 *
-	 *
 	 * @since 3.0.0
 	 *
 	 * @var string

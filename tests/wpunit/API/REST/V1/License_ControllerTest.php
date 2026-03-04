@@ -5,7 +5,6 @@ namespace StellarWP\Uplink\Tests\API\REST\V1;
 use StellarWP\Uplink\Licensing\Error_Code;
 use StellarWP\Uplink\Licensing\Fixture_Client;
 use StellarWP\Uplink\Licensing\License_Manager;
-use StellarWP\Uplink\Licensing\Product_Repository;
 use StellarWP\Uplink\Licensing\Registry\Product_Registry;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
 use StellarWP\Uplink\API\REST\V1\License_Controller;
@@ -24,15 +23,12 @@ final class License_ControllerTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		delete_option( License_Repository::OPTION_NAME );
-		delete_transient( Product_Repository::TRANSIENT_KEY );
+		delete_option( License_Repository::KEY_OPTION_NAME );
+		delete_transient( License_Repository::PRODUCTS_TRANSIENT_KEY );
 
-		$repository         = new License_Repository();
-		$registry           = new Product_Registry();
-		$product_repository = new Product_Repository(
-			new Fixture_Client( codecept_data_dir( 'licensing' ) )
-		);
-		$this->manager      = new License_Manager( $repository, $registry, $product_repository );
+		$repository    = new License_Repository();
+		$registry      = new Product_Registry();
+		$this->manager = new License_Manager( $repository, $registry, new Fixture_Client( codecept_data_dir( 'licensing' ) ) );
 
 		/** @var WP_REST_Server $wp_rest_server */
 		global $wp_rest_server;
@@ -59,8 +55,8 @@ final class License_ControllerTest extends UplinkTestCase {
 		global $wp_rest_server;
 		$wp_rest_server = null;
 
-		delete_option( License_Repository::OPTION_NAME );
-		delete_transient( Product_Repository::TRANSIENT_KEY );
+		delete_option( License_Repository::KEY_OPTION_NAME );
+		delete_transient( License_Repository::PRODUCTS_TRANSIENT_KEY );
 
 		parent::tearDown();
 	}
@@ -82,7 +78,7 @@ final class License_ControllerTest extends UplinkTestCase {
 	public function test_get_returns_stored_key(): void {
 		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
 
-		$this->manager->store( 'LWSW-UNIFIED-PRO-2026' );
+		$this->manager->store_key( 'LWSW-UNIFIED-PRO-2026' );
 
 		$request  = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/license' );
 		$response = $this->server->dispatch( $request );
@@ -133,7 +129,7 @@ final class License_ControllerTest extends UplinkTestCase {
 
 		$this->server->dispatch( $request );
 
-		$this->assertSame( 'LWSW-UNIFIED-PRO-2026', get_option( License_Repository::OPTION_NAME ) );
+		$this->assertSame( 'LWSW-UNIFIED-PRO-2026', get_option( License_Repository::KEY_OPTION_NAME ) );
 	}
 
 	public function test_store_requires_key_param(): void {
@@ -174,14 +170,14 @@ final class License_ControllerTest extends UplinkTestCase {
 	public function test_delete_removes_stored_key(): void {
 		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
 
-		$this->manager->store( 'LWSW-UNIFIED-PRO-2026' );
+		$this->manager->store_key( 'LWSW-UNIFIED-PRO-2026' );
 
 		$request  = new WP_REST_Request( 'DELETE', '/stellarwp/uplink/v1/license' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertTrue( $response->get_data()['deleted'] );
-		$this->assertNull( $this->manager->get() );
+		$this->assertNull( $this->manager->get_key() );
 	}
 
 	public function test_delete_requires_manage_options(): void {
@@ -224,7 +220,7 @@ final class License_ControllerTest extends UplinkTestCase {
 
 		$this->server->dispatch( $request );
 
-		$this->assertEmpty( get_option( License_Repository::OPTION_NAME ) );
+		$this->assertEmpty( get_option( License_Repository::KEY_OPTION_NAME ) );
 	}
 
 	// -------------------------------------------------------------------------

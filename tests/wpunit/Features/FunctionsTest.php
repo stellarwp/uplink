@@ -2,8 +2,8 @@
 
 namespace StellarWP\Uplink\Tests\Features;
 
-use StellarWP\Uplink\Features\API\Client;
 use StellarWP\Uplink\Features\Error_Code;
+use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Manager;
@@ -33,30 +33,30 @@ final class FunctionsTest extends UplinkTestCase {
 				'enable'    => true,
 				'disable'   => true,
 				'is_active' => true,
-			] 
+			]
 		);
 
 		$resolver = $this->makeEmpty(
 			Resolver::class,
 			[
 				'resolve' => $mock_strategy,
-			] 
+			]
 		);
 
-		$catalog = $this->makeEmpty(
-			Client::class,
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
 			[
-				'get_features' => $collection,
-			] 
+				'get' => $collection,
+			]
 		);
 
-		$manager = new Manager( $catalog, $resolver );
+		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		$this->container->bind(
 			Manager::class,
 			static function () use ( $manager ) {
 				return $manager;
-			} 
+			}
 		);
 	}
 
@@ -104,22 +104,22 @@ final class FunctionsTest extends UplinkTestCase {
 	public function test_is_feature_enabled_returns_wp_error_when_catalog_errors(): void {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
-		$catalog = $this->makeEmpty(
-			Client::class,
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
 			[
-				'get_features' => $error,
-			] 
+				'get' => $error,
+			]
 		);
 
 		$resolver = $this->makeEmpty( Resolver::class );
 
-		$manager = new Manager( $catalog, $resolver );
+		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		$this->container->bind(
 			Manager::class,
 			static function () use ( $manager ) {
 				return $manager;
-			} 
+			}
 		);
 
 		$result = is_feature_enabled( 'test-feature' );
@@ -135,22 +135,22 @@ final class FunctionsTest extends UplinkTestCase {
 	public function test_is_feature_available_returns_wp_error_when_catalog_errors(): void {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
-		$catalog = $this->makeEmpty(
-			Client::class,
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
 			[
-				'get_features' => $error,
-			] 
+				'get' => $error,
+			]
 		);
 
 		$resolver = $this->makeEmpty( Resolver::class );
 
-		$manager = new Manager( $catalog, $resolver );
+		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		$this->container->bind(
 			Manager::class,
 			static function () use ( $manager ) {
 				return $manager;
-			} 
+			}
 		);
 
 		$result = is_feature_available( 'test-feature' );

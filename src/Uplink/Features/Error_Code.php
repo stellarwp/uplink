@@ -40,6 +40,15 @@ class Error_Code {
 	public const FEATURE_REQUEST_FAILED = 'stellarwp-uplink-feature-request-failed';
 
 	/**
+	 * The feature catalog response was invalid or could not be parsed.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const INVALID_RESPONSE = 'stellarwp-uplink-feature-invalid-response';
+
+	/**
 	 * A feature was passed to a strategy that does not support its type.
 	 *
 	 * @since 3.0.0
@@ -175,6 +184,15 @@ class Error_Code {
 	public const THEME_OWNERSHIP_MISMATCH = 'stellarwp-uplink-theme-ownership-mismatch';
 
 	/**
+	 * A catalog feature has a type with no registered Feature subclass.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const UNKNOWN_FEATURE_TYPE = 'stellarwp-uplink-unknown-feature-type';
+
+	/**
 	 * Maps an error code to its recommended HTTP status code.
 	 *
 	 * @since 3.0.0
@@ -211,8 +229,10 @@ class Error_Code {
 			self::PLUGIN_NOT_FOUND_AFTER_INSTALL => 422,
 			self::THEME_NOT_FOUND_AFTER_INSTALL  => 422,
 			self::DOWNLOAD_LINK_MISSING          => 422,
+			self::UNKNOWN_FEATURE_TYPE           => 422,
 
 			// 502 Bad Gateway — an upstream service (feature API, plugins_api) returned an error.
+			self::INVALID_RESPONSE               => 502,
 			self::FEATURE_CHECK_FAILED           => 502,
 			self::FEATURE_REQUEST_FAILED         => 502,
 			self::PLUGINS_API_FAILED             => 502,

@@ -2,15 +2,18 @@
 
 namespace StellarWP\Uplink\Tests\Features;
 
-use StellarWP\Uplink\Features\API\Client;
+use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Feature_Collection;
+use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Types\Feature;
-use StellarWP\Uplink\Features\Types\Built_In;
+use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Features\Types\Zip;
+use StellarWP\Uplink\Licensing\Product_Repository;
+use StellarWP\Uplink\Licensing\Repositories\License_Repository;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
 
@@ -54,10 +57,10 @@ final class ManagerTest extends UplinkTestCase {
 		$this->collection = new Feature_Collection();
 		$this->collection->add( $this->makeEmpty( Feature::class, [ 'get_slug' => 'test-feature' ] ) );
 
-		$catalog = $this->makeEmpty(
-			Client::class,
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
 			[
-				'get_features' => $this->collection,
+				'get' => $this->collection,
 			]
 		);
 
@@ -77,7 +80,7 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$this->manager = new Manager( $catalog, $resolver );
+		$this->manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 	}
 
 	/**
@@ -86,8 +89,11 @@ final class ManagerTest extends UplinkTestCase {
 	 * @return void
 	 */
 	protected function tearDown(): void {
-		delete_option( 'stellarwp_uplink_feature_built-in-feature_active' );
-		delete_transient( 'stellarwp_uplink_feature_catalog' );
+		delete_option( 'stellarwp_uplink_feature_kad-pattern-hub_active' );
+		delete_option( License_Repository::OPTION_NAME );
+		delete_transient( Feature_Repository::TRANSIENT_KEY );
+		delete_transient( Catalog_Repository::TRANSIENT_KEY );
+		delete_transient( Product_Repository::TRANSIENT_KEY );
 
 		parent::tearDown();
 	}
@@ -192,15 +198,17 @@ final class ManagerTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_get_feature_resolves_typed_features_from_catalog(): void {
+		update_option( License_Repository::OPTION_NAME, 'lwsw-unified-kad-pro-2026' );
+
 		$manager = $this->container->get( Manager::class );
 
-		$built_in = $manager->get_feature( 'built-in-feature' );
-		$this->assertInstanceOf( Built_In::class, $built_in );
-		$this->assertSame( 'built-in-feature', $built_in->get_slug() );
+		$flag = $manager->get_feature( 'kad-pattern-hub' );
+		$this->assertInstanceOf( Flag::class, $flag );
+		$this->assertSame( 'kad-pattern-hub', $flag->get_slug() );
 
-		$zip = $manager->get_feature( 'valid-zip-feature' );
+		$zip = $manager->get_feature( 'kad-blocks-pro' );
 		$this->assertInstanceOf( Zip::class, $zip );
-		$this->assertSame( 'valid-zip-feature', $zip->get_slug() );
+		$this->assertSame( 'kad-blocks-pro', $zip->get_slug() );
 	}
 
 	/**
@@ -209,18 +217,20 @@ final class ManagerTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_enable_and_disable_write_db_flags(): void {
+		update_option( License_Repository::OPTION_NAME, 'lwsw-unified-kad-pro-2026' );
+
 		$manager    = $this->container->get( Manager::class );
-		$option_key = 'stellarwp_uplink_feature_built-in-feature_active';
+		$option_key = 'stellarwp_uplink_feature_kad-pattern-hub_active';
 
 		// Enable — DB flag set, is_enabled agrees.
-		$this->assertTrue( $manager->enable( 'built-in-feature' ) );
+		$this->assertTrue( $manager->enable( 'kad-pattern-hub' ) );
 		$this->assertSame( '1', get_option( $option_key ) );
-		$this->assertTrue( $manager->is_enabled( 'built-in-feature' ) );
+		$this->assertTrue( $manager->is_enabled( 'kad-pattern-hub' ) );
 
 		// Disable — DB flag cleared, is_enabled agrees.
-		$this->assertTrue( $manager->disable( 'built-in-feature' ) );
+		$this->assertTrue( $manager->disable( 'kad-pattern-hub' ) );
 		$this->assertSame( '0', get_option( $option_key ) );
-		$this->assertFalse( $manager->is_enabled( 'built-in-feature' ) );
+		$this->assertFalse( $manager->is_enabled( 'kad-pattern-hub' ) );
 	}
 
 	/**
@@ -339,14 +349,14 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$catalog = $this->makeEmpty(
-			Client::class,
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
 			[
-				'get_features' => $this->collection,
+				'get' => $this->collection,
 			]
 		);
 
-		$manager = new Manager( $catalog, $resolver );
+		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		$enabled_fired = false;
 
@@ -385,14 +395,14 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$catalog = $this->makeEmpty(
-			Client::class,
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
 			[
-				'get_features' => $this->collection,
+				'get' => $this->collection,
 			]
 		);
 
-		$manager = new Manager( $catalog, $resolver );
+		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		$disabled_fired = false;
 
@@ -417,16 +427,16 @@ final class ManagerTest extends UplinkTestCase {
 	public function test_get_features_returns_wp_error_when_catalog_errors(): void {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
-		$catalog = $this->makeEmpty(
-			Client::class,
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
 			[
-				'get_features' => $error,
+				'get' => $error,
 			]
 		);
 
 		$resolver = $this->makeEmpty( Resolver::class );
 
-		$manager = new Manager( $catalog, $resolver );
+		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		$this->assertInstanceOf( WP_Error::class, $manager->get_features() );
 	}
@@ -439,16 +449,16 @@ final class ManagerTest extends UplinkTestCase {
 	public function test_is_enabled_returns_wp_error_when_catalog_errors(): void {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
-		$catalog = $this->makeEmpty(
-			Client::class,
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
 			[
-				'get_features' => $error,
+				'get' => $error,
 			]
 		);
 
 		$resolver = $this->makeEmpty( Resolver::class );
 
-		$manager = new Manager( $catalog, $resolver );
+		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		$result = $manager->is_enabled( 'test-feature' );
 		$this->assertInstanceOf( WP_Error::class, $result );
@@ -463,16 +473,16 @@ final class ManagerTest extends UplinkTestCase {
 	public function test_is_available_returns_wp_error_when_catalog_errors(): void {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
-		$catalog = $this->makeEmpty(
-			Client::class,
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
 			[
-				'get_features' => $error,
+				'get' => $error,
 			]
 		);
 
 		$resolver = $this->makeEmpty( Resolver::class );
 
-		$manager = new Manager( $catalog, $resolver );
+		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		$result = $manager->is_available( 'test-feature' );
 		$this->assertInstanceOf( WP_Error::class, $result );
@@ -487,16 +497,16 @@ final class ManagerTest extends UplinkTestCase {
 	public function test_enable_returns_wp_error_when_catalog_errors(): void {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
-		$catalog = $this->makeEmpty(
-			Client::class,
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
 			[
-				'get_features' => $error,
+				'get' => $error,
 			]
 		);
 
 		$resolver = $this->makeEmpty( Resolver::class );
 
-		$manager = new Manager( $catalog, $resolver );
+		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		$result = $manager->enable( 'test-feature' );
 
@@ -511,16 +521,16 @@ final class ManagerTest extends UplinkTestCase {
 	public function test_disable_returns_wp_error_when_catalog_errors(): void {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
-		$catalog = $this->makeEmpty(
-			Client::class,
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
 			[
-				'get_features' => $error,
+				'get' => $error,
 			]
 		);
 
 		$resolver = $this->makeEmpty( Resolver::class );
 
-		$manager = new Manager( $catalog, $resolver );
+		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
 
 		$result = $manager->disable( 'test-feature' );
 

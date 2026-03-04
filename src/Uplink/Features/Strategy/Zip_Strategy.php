@@ -18,6 +18,7 @@ use function get_plugin_data;
 use function is_plugin_active;
 use function is_plugin_active_for_network;
 use function plugins_api;
+use function rest_convert_error_to_response;
 use function sanitize_key;
 use function wp_json_encode;
 
@@ -147,7 +148,7 @@ class Zip_Strategy extends Installable_Strategy {
 
 		// deactivate_plugins() returns void — it never errors. We verify the
 		// actual state afterward to confirm deactivation succeeded.
-		deactivate_plugins( $plugin_file, false, false );
+		deactivate_plugins( $plugin_file, false, is_plugin_active_for_network( $plugin_file ) );
 
 		// Verify the plugin is actually inactive now. This catches edge cases
 		// where a deactivation hook re-activates the plugin or WordPress's
@@ -369,27 +370,30 @@ class Zip_Strategy extends Installable_Strategy {
 					$die_output .= ob_get_clean() ?: '';
 				}
 
-				if ( ! headers_sent() ) {
-					http_response_code( 422 );
-					header( 'Content-Type: application/json; charset=UTF-8' );
-				}
-
-				$message = sprintf(
-					'The plugin "%s" called exit/die during activation and terminated the process.',
-					$plugin_file
+				$error = new WP_Error(
+					Error_Code::ACTIVATION_FATAL,
+					sprintf(
+						'The plugin "%s" called exit/die during activation and terminated the process.',
+						$plugin_file
+					),
+					[ 'status' => 422 ]
 				);
 
 				if ( $die_output !== '' ) {
-					$message .= ' Output: ' . substr( $die_output, 0, 500 );
+					$error->add(
+						Error_Code::ACTIVATION_FATAL,
+						substr( $die_output, 0, 500 )
+					);
 				}
 
-				echo wp_json_encode(
-					[
-						'code'    => Error_Code::ACTIVATION_FATAL,
-						'message' => $message,
-						'data'    => [ 'status' => 422 ],
-					]
-				);
+				$response = rest_convert_error_to_response( $error );
+
+				if ( ! headers_sent() ) {
+					http_response_code( $response->get_status() );
+					header( 'Content-Type: application/json; charset=UTF-8' );
+				}
+
+				echo wp_json_encode( $response->get_data() );
 			}
 		);
 

@@ -2,23 +2,27 @@
  * A single feature row in the product feature list.
  *
  * Div-based (not <tr>) — product sections use a divide-y list.
- * Connects to the license store and toast store.
+ * Feature data and enable/disable actions come from the stellarwp/uplink store (REST API).
+ * License/product state still comes from the Zustand store until Part 2.
  *
+ * @see .plans/wp-data-store-features.md
  * @package StellarWP\Uplink
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { cn } from '@/lib/utils';
 import { FeatureInfo } from '@/components/molecules/FeatureInfo';
 import { StatusBadge } from '@/components/atoms/StatusBadge';
 import { PurchaseLink } from '@/components/atoms/PurchaseLink';
 import { Switch } from '@/components/ui/switch';
 import { useLicenseStore, tierGte } from '@/stores/license-store';
-import { useToastStore } from '@/stores/toast-store';
-import type { ProductFeature, Product } from '@/types/api';
+import { useToast } from '@/context/toast-context';
+import { store as uplinkStore } from '@/store';
+import type { Feature, Product } from '@/types/api';
 
 interface FeatureRowProps {
-    feature: ProductFeature;
+    feature: Feature;
     product: Product;
 }
 
@@ -26,12 +30,26 @@ interface FeatureRowProps {
  * @since 3.0.0
  */
 export function FeatureRow( { feature, product }: FeatureRowProps ) {
-    const { getTierForProduct, isFeatureEnabled, toggleFeature, productEnabled } =
-        useLicenseStore();
-    const { addToast } = useToastStore();
+    const { getTierForProduct, productEnabled } = useLicenseStore();
+    const { addToast } = useToast();
+    const { enableFeature, disableFeature } = useDispatch( uplinkStore );
 
     const activeTier = getTierForProduct( product.slug );
     const isProductOn = productEnabled[ product.slug ] ?? false;
+
+    const featureError = useSelect(
+        ( select ) => select( uplinkStore ).getFeatureError( feature.slug ),
+        [ feature.slug ],
+    );
+
+    const [ isPending, setIsPending ] = useState( false );
+
+    // Surface store errors as error toasts.
+    useEffect( () => {
+        if ( featureError ) {
+            addToast( featureError, 'error' );
+        }
+    }, [ featureError, addToast ] );
 
     // Product manually disabled by the user — hide all its features.
     if ( activeTier !== null && ! isProductOn ) {
@@ -61,11 +79,11 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
         );
     }
 
-    const isAccessible = tierGte( activeTier, feature.requiredTier );
+    const isAccessible = tierGte( activeTier, feature.tier );
 
     if ( ! isAccessible ) {
-        const requiredTierObj = product.tiers.find( ( t ) => t.slug === feature.requiredTier );
-        const tierName = requiredTierObj?.name ?? feature.requiredTier;
+        const requiredTierObj = product.tiers.find( ( t ) => t.slug === feature.tier );
+        const tierName = requiredTierObj?.name ?? feature.tier;
         const upgradeUrl = requiredTierObj?.upgradeUrl ?? '#';
 
         return (
@@ -83,26 +101,27 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
         );
     }
 
-    const featureEnabled = isFeatureEnabled( feature.id, product.slug );
-    const [ isPending, setIsPending ] = useState( false );
+    const featureEnabled = feature.is_enabled;
 
     const handleToggle = async ( checked: boolean ) => {
         setIsPending( true );
-        await toggleFeature( feature.id, product.slug, checked );
-        const msg = checked
-            ? /* translators: %s is the name of the feature being enabled */
-              sprintf( __( '%s enabled', '%TEXTDOMAIN%' ), feature.name )
-            : /* translators: %s is the name of the feature being disabled */
-              sprintf( __( '%s disabled', '%TEXTDOMAIN%' ), feature.name );
-        addToast( msg, checked ? 'success' : 'default' );
+        if ( checked ) {
+            await enableFeature( feature.slug );
+            if ( ! featureError ) {
+                /* translators: %s is the name of the feature being enabled */
+                addToast( sprintf( __( '%s enabled', '%TEXTDOMAIN%' ), feature.name ), 'success' );
+            }
+        } else {
+            await disableFeature( feature.slug );
+            if ( ! featureError ) {
+                /* translators: %s is the name of the feature being disabled */
+                addToast( sprintf( __( '%s disabled', '%TEXTDOMAIN%' ), feature.name ), 'default' );
+            }
+        }
         setIsPending( false );
     };
 
-    // During the pending phase the store has already applied the optimistic update,
-    // so featureEnabled reflects the *new* value. Use that to pick the right label.
-    const badgeStatus = isPending
-        ? ( featureEnabled ? 'enabling' : 'disabling' )
-        : ( featureEnabled ? 'enabled' : 'available' );
+    const badgeStatus = featureEnabled ? 'enabled' : 'available';
 
     return (
         <div

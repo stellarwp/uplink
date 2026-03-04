@@ -42,6 +42,7 @@ final class Zip extends Feature implements Installable {
 	public static function from_array( array $data ) {
 		return new self( array_merge( self::base_attributes( $data ), [
 			'plugin_file' => $data['plugin_file'] ?? '',
+			'plugin_slug' => $data['plugin_slug'] ?? '',
 			'authors'     => $data['authors'] ?? [],
 			'is_dot_org'  => $data['is_dot_org'] ?? false,
 		] ) );
@@ -85,5 +86,33 @@ final class Zip extends Feature implements Installable {
 	 */
 	public function is_dot_org(): bool {
 		return Cast::to_bool( $this->attributes['is_dot_org'] ?? false );
+	}
+
+	/**
+	 * Gets the plugin slug used for plugins_api() lookups and transient locks.
+	 *
+	 * This may differ from the plugin directory name. For example, TEC plugins
+	 * and StellarSites use slugs that don't match their directory names.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string
+	 */
+	public function get_plugin_slug(): string {
+		return Cast::to_string( $this->attributes['plugin_slug'] ?? '' );
+	}
+
+	/**
+	 * Gets the plugin directory name derived from the plugin file path.
+	 *
+	 * For "stellar-export/stellar-export.php" this returns "stellar-export".
+	 * Used for filesystem operations and ownership checks.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string
+	 */
+	public function get_plugin_directory(): string {
+		return dirname( $this->get_wp_identifier() );
 	}
 }

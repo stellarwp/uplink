@@ -28,22 +28,22 @@ final class License_RepositoryTest extends UplinkTestCase {
 	}
 
 	public function test_store_and_get_round_trip(): void {
-		$this->repository->store( 'LW-UNIFIED-PRO-2026' );
+		$this->repository->store( 'LWSW-UNIFIED-PRO-2026' );
 
-		$this->assertSame( 'LW-UNIFIED-PRO-2026', $this->repository->get() );
+		$this->assertSame( 'LWSW-UNIFIED-PRO-2026', $this->repository->get() );
 	}
 
 	public function test_store_returns_true_on_success(): void {
-		$result = $this->repository->store( 'LW-UNIFIED-PRO-2026' );
+		$result = $this->repository->store( 'LWSW-UNIFIED-PRO-2026' );
 
 		$this->assertTrue( $result );
 	}
 
 	public function test_store_is_idempotent_when_key_unchanged(): void {
-		$this->repository->store( 'LW-UNIFIED-PRO-2026' );
+		$this->repository->store( 'LWSW-UNIFIED-PRO-2026' );
 
 		// Storing the same key again should still return true.
-		$this->assertTrue( $this->repository->store( 'LW-UNIFIED-PRO-2026' ) );
+		$this->assertTrue( $this->repository->store( 'LWSW-UNIFIED-PRO-2026' ) );
 	}
 
 	public function test_store_overwrites_existing_key(): void {
@@ -54,20 +54,20 @@ final class License_RepositoryTest extends UplinkTestCase {
 	}
 
 	public function test_store_sanitizes_key(): void {
-		$this->repository->store( 'LW-"UNIFIED\'-PRO`-2026' );
+		$this->repository->store( 'LWSW-"UNIFIED\'-PRO`-2026' );
 
-		$this->assertSame( 'LW-UNIFIED-PRO-2026', $this->repository->get() );
+		$this->assertSame( 'LWSW-UNIFIED-PRO-2026', $this->repository->get() );
 	}
 
 	public function test_delete_removes_stored_key(): void {
-		$this->repository->store( 'LW-UNIFIED-PRO-2026' );
+		$this->repository->store( 'LWSW-UNIFIED-PRO-2026' );
 		$this->repository->delete();
 
 		$this->assertNull( $this->repository->get() );
 	}
 
 	public function test_delete_returns_true_when_key_existed(): void {
-		$this->repository->store( 'LW-UNIFIED-PRO-2026' );
+		$this->repository->store( 'LWSW-UNIFIED-PRO-2026' );
 
 		$this->assertTrue( $this->repository->delete() );
 	}
@@ -77,13 +77,13 @@ final class License_RepositoryTest extends UplinkTestCase {
 	}
 
 	public function test_exists_returns_true_after_storing_key(): void {
-		$this->repository->store( 'LW-UNIFIED-PRO-2026' );
+		$this->repository->store( 'LWSW-UNIFIED-PRO-2026' );
 
 		$this->assertTrue( $this->repository->exists() );
 	}
 
 	public function test_exists_returns_false_after_deleting_key(): void {
-		$this->repository->store( 'LW-UNIFIED-PRO-2026' );
+		$this->repository->store( 'LWSW-UNIFIED-PRO-2026' );
 		$this->repository->delete();
 
 		$this->assertFalse( $this->repository->exists() );
@@ -93,5 +93,98 @@ final class License_RepositoryTest extends UplinkTestCase {
 		update_option( License_Repository::OPTION_NAME, '' );
 
 		$this->assertNull( $this->repository->get() );
+	}
+
+	public function test_store_fires_action_when_key_changes(): void {
+		$fired = [];
+
+		add_action(
+			'stellarwp/uplink/unified_license_key_changed',
+			static function ( string $new_key, string $old_key ) use ( &$fired ) {
+				$fired[] = [ $new_key, $old_key ];
+			},
+			10,
+			2
+		);
+
+		$this->repository->store( 'LWSW-FIRST-KEY' );
+
+		$this->assertCount( 1, $fired );
+		$this->assertSame( 'LWSW-FIRST-KEY', $fired[0][0] );
+		$this->assertSame( '', $fired[0][1] );
+	}
+
+	public function test_store_does_not_fire_action_when_key_unchanged(): void {
+		$this->repository->store( 'LWSW-SAME-KEY' );
+
+		$fired = false;
+
+		add_action(
+			'stellarwp/uplink/unified_license_key_changed',
+			static function () use ( &$fired ) {
+				$fired = true;
+			}
+		);
+
+		$this->repository->store( 'LWSW-SAME-KEY' );
+
+		$this->assertFalse( $fired );
+	}
+
+	public function test_store_fires_action_with_old_key_on_overwrite(): void {
+		$this->repository->store( 'LWSW-OLD-KEY' );
+
+		$fired = [];
+
+		add_action(
+			'stellarwp/uplink/unified_license_key_changed',
+			static function ( string $new_key, string $old_key ) use ( &$fired ) {
+				$fired[] = [ $new_key, $old_key ];
+			},
+			10,
+			2
+		);
+
+		$this->repository->store( 'LWSW-NEW-KEY' );
+
+		$this->assertCount( 1, $fired );
+		$this->assertSame( 'LWSW-NEW-KEY', $fired[0][0] );
+		$this->assertSame( 'LWSW-OLD-KEY', $fired[0][1] );
+	}
+
+	public function test_delete_fires_action_when_key_existed(): void {
+		$this->repository->store( 'LWSW-DELETE-ME' );
+
+		$fired = [];
+
+		add_action(
+			'stellarwp/uplink/unified_license_key_changed',
+			static function ( string $new_key, string $old_key ) use ( &$fired ) {
+				$fired[] = [ $new_key, $old_key ];
+			},
+			10,
+			2
+		);
+
+		$this->repository->delete();
+
+		$this->assertCount( 1, $fired );
+		$this->assertSame( '', $fired[0][0] );
+		$this->assertSame( 'LWSW-DELETE-ME', $fired[0][1] );
+	}
+
+	public function test_delete_does_not_fire_action_when_no_key_existed(): void {
+		$fired = false;
+
+		add_action(
+			'stellarwp/uplink/unified_license_key_changed',
+			static function () use ( &$fired ) {
+				$fired = true;
+			}
+		);
+
+		$this->repository->delete();
+
+		$this->assertFalse( $fired );
 	}
 }

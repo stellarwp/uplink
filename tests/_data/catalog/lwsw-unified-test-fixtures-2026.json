@@ -1,0 +1,238 @@
+[
+  {
+    "product_slug": "test-fixtures",
+    "tiers": [
+      {
+        "slug": "test-fixtures-basic",
+        "name": "Basic",
+        "rank": 1,
+        "purchase_url": ""
+      }
+    ],
+    "features": [
+      {
+        "feature_slug": "built-in-feature",
+        "type": "flag",
+        "minimum_tier": "test-fixtures-basic",
+        "is_dot_org": false,
+        "name": "Built-In Feature",
+        "description": "A feature built in to the plugin, toggled via a DB flag.",
+        "category": "test",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": ""
+      },
+      {
+        "feature_slug": "valid-zip-feature",
+        "type": "plugin",
+        "minimum_tier": "test-fixtures-basic",
+        "plugin_file": "valid-zip-feature/valid-zip-feature.php",
+        "is_dot_org": false,
+        "name": "Valid Zip Feature",
+        "description": "A feature delivered as a standalone plugin ZIP.",
+        "category": "test",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": ""
+      },
+      {
+        "feature_slug": "wrong-author-zip-feature",
+        "type": "plugin",
+        "minimum_tier": "test-fixtures-basic",
+        "plugin_file": "wrong-author-zip-feature/wrong-author-zip-feature.php",
+        "is_dot_org": false,
+        "name": "Wrong Author Zip Feature",
+        "description": "Tests PLUGIN_OWNERSHIP_MISMATCH — plugin Author is \"Foreign Developer\" but feature expects \"StellarWP\".",
+        "category": "test",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": ""
+      },
+      {
+        "feature_slug": "fatal-zip-feature",
+        "type": "plugin",
+        "minimum_tier": "test-fixtures-basic",
+        "plugin_file": "fatal-zip-feature/fatal-zip-feature.php",
+        "is_dot_org": false,
+        "name": "Fatal Zip Feature",
+        "description": "Tests ACTIVATION_FATAL — plugin throws RuntimeException on include.",
+        "category": "test",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": ""
+      },
+      {
+        "feature_slug": "high-php-req-zip-feature",
+        "type": "plugin",
+        "minimum_tier": "test-fixtures-basic",
+        "plugin_file": "high-php-req-zip-feature/high-php-req-zip-feature.php",
+        "is_dot_org": false,
+        "name": "High PHP Requirement Zip Feature",
+        "description": "Tests REQUIREMENTS_NOT_MET — requires PHP 99.0.",
+        "category": "test",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": ""
+      },
+      {
+        "feature_slug": "high-wp-req-zip-feature",
+        "type": "plugin",
+        "minimum_tier": "test-fixtures-basic",
+        "plugin_file": "high-wp-req-zip-feature/high-wp-req-zip-feature.php",
+        "is_dot_org": false,
+        "name": "High WP Requirement Zip Feature",
+        "description": "Tests REQUIREMENTS_NOT_MET — requires WordPress 99.0.",
+        "category": "test",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": ""
+      },
+      {
+        "feature_slug": "deactivation-fatal-zip-feature",
+        "type": "plugin",
+        "minimum_tier": "test-fixtures-basic",
+        "plugin_file": "deactivation-fatal-zip-feature/deactivation-fatal-zip-feature.php",
+        "is_dot_org": false,
+        "name": "Deactivation Fatal Zip Feature",
+        "description": "Tests DEACTIVATION_FAILED — plugin re-activates itself on deactivation.",
+        "category": "test",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": ""
+      },
+      {
+        "feature_slug": "mismatched-dir-zip-feature",
+        "type": "plugin",
+        "minimum_tier": "test-fixtures-basic",
+        "plugin_file": "mismatched-dir-zip-feature/mismatched-dir-zip-feature.php",
+        "is_dot_org": false,
+        "name": "Mismatched Directory Zip Feature",
+        "description": "Tests PLUGIN_NOT_FOUND_AFTER_INSTALL — ZIP extracts to a different directory than plugin_file expects.",
+        "category": "test",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": ""
+      },
+      {
+        "feature_slug": "syntax-error-zip-feature",
+        "type": "plugin",
+        "minimum_tier": "test-fixtures-basic",
+        "plugin_file": "syntax-error-zip-feature/syntax-error-zip-feature.php",
+        "is_dot_org": false,
+        "name": "Syntax Error Zip Feature",
+        "description": "Tests ACTIVATION_FATAL — plugin contains a PHP ParseError.",
+        "category": "test",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": ""
+      },
+      {
+        "feature_slug": "die-on-include-zip-feature",
+        "type": "plugin",
+        "minimum_tier": "test-fixtures-basic",
+        "plugin_file": "die-on-include-zip-feature/die-on-include-zip-feature.php",
+        "is_dot_org": false,
+        "name": "Die On Include Zip Feature",
+        "description": "Tests uncatchable fatal — plugin calls die() on include.",
+        "category": "test",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": ""
+      },
+      {
+        "feature_slug": "activation-fatal-zip-feature",
+        "type": "plugin",
+        "minimum_tier": "test-fixtures-basic",
+        "plugin_file": "activation-fatal-zip-feature/activation-fatal-zip-feature.php",
+        "is_dot_org": false,
+        "name": "Activation Fatal Zip Feature",
+        "description": "Tests ACTIVATION_FATAL — activation hook throws RuntimeException.",
+        "category": "test",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": ""
+      },
+      {
+        "feature_slug": "no-header-zip-feature",
+        "type": "plugin",
+        "minimum_tier": "test-fixtures-basic",
+        "plugin_file": "no-header-zip-feature/no-header-zip-feature.php",
+        "is_dot_org": false,
+        "name": "No Header Zip Feature",
+        "description": "Tests PREFLIGHT_INVALID_PLUGIN — plugin file has no Plugin Name header.",
+        "category": "test",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": ""
+      },
+      {
+        "feature_slug": "no-source-zip-feature",
+        "type": "plugin",
+        "minimum_tier": "test-fixtures-basic",
+        "plugin_file": "no-source-zip-feature/no-source-zip-feature.php",
+        "is_dot_org": false,
+        "name": "No Source Zip Feature",
+        "description": "Tests PLUGINS_API_FAILED — feature exists in catalog but has no ZIP source directory.",
+        "category": "test",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": ""
+      },
+      {
+        "feature_slug": "unavailable-zip-feature",
+        "type": "plugin",
+        "minimum_tier": "test-fixtures-pro",
+        "plugin_file": "unavailable-zip-feature/unavailable-zip-feature.php",
+        "is_dot_org": false,
+        "name": "Unavailable Zip Feature",
+        "description": "Tests REST validation — is_available is false, rejected before reaching the strategy.",
+        "category": "test",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": ""
+      },
+      {
+        "feature_slug": "valid-theme-feature",
+        "type": "theme",
+        "minimum_tier": "test-fixtures-basic",
+        "stylesheet": "valid-theme-feature",
+        "is_dot_org": false,
+        "name": "Valid Theme Feature",
+        "description": "A feature delivered as a standalone WordPress theme.",
+        "category": "test",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": ""
+      },
+      {
+        "feature_slug": "wrong-author-theme-feature",
+        "type": "theme",
+        "minimum_tier": "test-fixtures-basic",
+        "stylesheet": "wrong-author-theme-feature",
+        "is_dot_org": false,
+        "name": "Wrong Author Theme Feature",
+        "description": "Tests THEME_OWNERSHIP_MISMATCH — theme Author is \"Foreign Developer\" but feature expects \"StellarWP\".",
+        "category": "test",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": ""
+      }
+    ]
+  }
+]

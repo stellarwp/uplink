@@ -15,7 +15,6 @@
     "fix:md": "prettier --write '**/*.md' '!node_modules/**' '!vendor/**' && markdownlint '**/*.md' --ignore node_modules --ignore vendor --fix"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.90.10",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.575.0",
@@ -26,6 +25,8 @@
   "devDependencies": {
     "@stellarwp/changelogger": "^0.10.0",
     "@tailwindcss/postcss": "^4.1.17",
+    "@wordpress/api-fetch": "^7.40.0",
+    "@wordpress/data": "^10.40.0",
     "@wordpress/i18n": "^6.13.0",
     "@wordpress/scripts": "^31.1.0",
     "autoprefixer": "^10.4.22",

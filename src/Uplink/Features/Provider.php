@@ -3,18 +3,19 @@
 namespace StellarWP\Uplink\Features;
 
 use StellarWP\ContainerContract\ContainerInterface;
+use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
-use StellarWP\Uplink\Features\API\Client;
-use StellarWP\Uplink\Features\REST\Feature_Controller;
-use StellarWP\Uplink\Features\Strategy\Built_In_Strategy;
+use StellarWP\Uplink\Features\Strategy\Flag_Strategy;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Strategy\Theme_Strategy;
 use StellarWP\Uplink\Features\Strategy\Zip_Strategy;
-use StellarWP\Uplink\Features\Types\Built_In;
+use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Features\Types\Theme;
 use StellarWP\Uplink\Features\Types\Zip;
+use StellarWP\Uplink\Licensing\License_Manager;
+use StellarWP\Uplink\Licensing\Product_Repository;
+use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Utils\Cast;
-use StellarWP\Uplink\Utils\Version;
 use WP_Error;
 
 /**
@@ -25,11 +26,13 @@ use WP_Error;
 class Provider extends Abstract_Provider {
 
 	/**
-	 * @inheritDoc
+	 * Registers singletons and hooks for the Features subsystem.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return void
 	 */
 	public function register(): void {
-		$this->container->singleton( Client::class, Client::class );
-
 		$this->container->singleton(
 			Resolver::class,
 			static function ( ContainerInterface $c ) {
@@ -39,28 +42,43 @@ class Provider extends Abstract_Provider {
 			}
 		);
 
+		$this->container->singleton(
+			Resolve_Feature_Collection::class,
+			function ( ContainerInterface $c ) {
+				$resolver = new Resolve_Feature_Collection(
+					$c->get( Catalog_Repository::class ),
+					$c->get( Product_Repository::class )
+				);
+
+				$this->register_default_types( $resolver );
+
+				return $resolver;
+			}
+		);
+
+		$this->container->singleton(
+			Feature_Repository::class,
+			static function ( ContainerInterface $c ) {
+				return new Feature_Repository(
+					$c->get( Resolve_Feature_Collection::class )
+				);
+			}
+		);
+
 		$this->container->singleton( Feature_Collection::class, Feature_Collection::class );
 
 		$this->container->singleton(
 			Manager::class,
 			static function ( ContainerInterface $c ) {
-				$client   = $c->get( Client::class );
-				$resolver = $c->get( Resolver::class );
-
-				return new Manager( $client, $resolver );
+				return new Manager(
+					$c->get( Feature_Repository::class ),
+					$c->get( Resolver::class ),
+					$c->get( License_Manager::class )->get() ?? '',
+					$c->get( Data::class )->get_domain()
+				);
 			}
 		);
 
-		$this->container->singleton(
-			Feature_Controller::class,
-			static function ( ContainerInterface $c ) {
-				$manager = $c->get( Manager::class );
-
-				return new Feature_Controller( $manager );
-			}
-		);
-
-		$this->register_default_types();
 		$this->register_default_strategies();
 		$this->register_hooks();
 	}
@@ -70,13 +88,14 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @since 3.0.0
 	 *
+	 * @param Resolve_Feature_Collection $resolver The feature collection resolver.
+	 *
 	 * @return void
 	 */
-	private function register_default_types(): void {
-		$client = $this->container->get( Client::class );
-		$client->register_type( 'built_in', Built_In::class );
-		$client->register_type( 'zip', Zip::class );
-		$client->register_type( 'theme', Theme::class );
+	private function register_default_types( Resolve_Feature_Collection $resolver ): void {
+		$resolver->register_type( 'plugin', Zip::class ); // TODO: Will be replaced with Plugin Feature.
+		$resolver->register_type( 'flag', Flag::class );
+		$resolver->register_type( 'theme', Theme::class );
 	}
 
 	/**
@@ -87,13 +106,13 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	private function register_default_strategies(): void {
-		$this->container->singleton( Built_In_Strategy::class, Built_In_Strategy::class );
-		$this->container->singleton( Zip_Strategy::class, Zip_Strategy::class );
+		$this->container->singleton( Zip_Strategy::class, Zip_Strategy::class ); // TODO: Will be replaced with Plugin Strategy.
+		$this->container->singleton( Flag_Strategy::class, Flag_Strategy::class );
 		$this->container->singleton( Theme_Strategy::class, Theme_Strategy::class );
 
 		$resolver = $this->container->get( Resolver::class );
-		$resolver->register( 'built_in', Built_In_Strategy::class );
-		$resolver->register( 'zip', Zip_Strategy::class );
+		$resolver->register( 'zip', Zip_Strategy::class ); // TODO: Will be replaced with Plugin Strategy.
+		$resolver->register( 'flag', Flag_Strategy::class );
 		$resolver->register( 'theme', Theme_Strategy::class );
 	}
 
@@ -105,8 +124,6 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	private function register_hooks(): void {
-		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
-
 		add_filter( 'plugins_api', [ $this, 'mock_plugins_api_for_zip_features' ], 5, 3 );
 		add_filter( 'themes_api', [ $this, 'mock_themes_api_for_theme_features' ], 5, 3 );
 
@@ -115,21 +132,13 @@ class Provider extends Abstract_Provider {
 
 		// TODO: Remove this once the real switch_theme action is implemented.
 		add_action( 'switch_theme', [ $this, 'on_theme_switch' ], 10, 3 );
-	}
 
-	/**
-	 * Registers REST API routes.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return void
-	 */
-	public function register_rest_routes(): void {
-		if ( ! Version::should_handle( 'features_rest_routes' ) ) {
-			return;
-		}
-
-		$this->container->get( Feature_Controller::class )->register_routes();
+		add_action(
+			'stellarwp/uplink/unified_license_key_changed',
+			static function () {
+				delete_transient( Feature_Repository::TRANSIENT_KEY );
+			}
+		);
 	}
 
 	/**

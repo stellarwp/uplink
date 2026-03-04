@@ -2,11 +2,11 @@
  * A single feature row in the product feature list.
  *
  * Div-based (not <tr>) — product sections use a divide-y list.
- * Feature data and enable/disable actions come from the stellarwp/uplink store (REST API).
- * License/product state still comes from the Zustand store until Part 2.
+ * Feature data, availability, and enable/disable actions all come from
+ * the stellarwp/uplink @wordpress/data store.
  *
- * @see .plans/wp-data-store-features.md
- * @package StellarWP\Uplink
+ * @see .plans/wp-data-store-licenses.md
+ * @package StellarWP\\Uplink
  */
 import { useState, useEffect } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
@@ -16,7 +16,6 @@ import { FeatureInfo } from '@/components/molecules/FeatureInfo';
 import { StatusBadge } from '@/components/atoms/StatusBadge';
 import { PurchaseLink } from '@/components/atoms/PurchaseLink';
 import { Switch } from '@/components/ui/switch';
-import { useLicenseStore, tierGte } from '@/stores/license-store';
 import { useToast } from '@/context/toast-context';
 import { store as uplinkStore } from '@/store';
 import type { Feature, Product } from '@/types/api';
@@ -30,12 +29,8 @@ interface FeatureRowProps {
  * @since 3.0.0
  */
 export function FeatureRow( { feature, product }: FeatureRowProps ) {
-    const { getTierForProduct, productEnabled } = useLicenseStore();
     const { addToast } = useToast();
     const { enableFeature, disableFeature } = useDispatch( uplinkStore );
-
-    const activeTier = getTierForProduct( product.slug );
-    const isProductOn = productEnabled[ product.slug ] ?? false;
 
     const featureError = useSelect(
         ( select ) => select( uplinkStore ).getFeatureError( feature.slug ),
@@ -51,39 +46,10 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
         }
     }, [ featureError, addToast ] );
 
-    // Product manually disabled by the user — hide all its features.
-    if ( activeTier !== null && ! isProductOn ) {
-        return null;
-    }
-
-    // No license for this product — show every feature as not-licensed.
-    if ( activeTier === null ) {
-        const starterTier = product.tiers.find( ( t ) => t.slug === 'starter' ) ?? product.tiers[ 0 ];
-
-        return (
-            <div className="flex items-center justify-between px-4 py-3 bg-slate-50/50">
-                <FeatureInfo
-                    name={ feature.name }
-                    description={ feature.description }
-                    isLocked={ true }
-                />
-                <div className="flex items-center gap-3 shrink-0 ml-4">
-                    <StatusBadge status="not-licensed" />
-                    <PurchaseLink
-                        tierName={ starterTier.name }
-                        upgradeUrl={ starterTier.upgradeUrl }
-                        mode="learn-more"
-                    />
-                </div>
-            </div>
-        );
-    }
-
-    const isAccessible = tierGte( activeTier, feature.tier );
-
-    if ( ! isAccessible ) {
+    // Feature not available on this license — show locked/upgrade state.
+    if ( ! feature.is_available ) {
         const requiredTierObj = product.tiers.find( ( t ) => t.slug === feature.tier );
-        const tierName = requiredTierObj?.name ?? feature.tier;
+        const tierName   = requiredTierObj?.name   ?? feature.tier;
         const upgradeUrl = requiredTierObj?.upgradeUrl ?? '#';
 
         return (

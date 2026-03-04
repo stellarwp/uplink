@@ -12,7 +12,8 @@
 import { __ } from '@wordpress/i18n';
 import { findLicense } from '@/data/licenses';
 import { PRODUCTS } from '@/data/products';
-import type { License, FeatureState, TierSlug } from '@/types/api';
+import type { MockLicense } from '@/data/licenses';
+import type { FeatureState, TierSlug } from '@/types/api';
 
 // ---------------------------------------------------------------------------
 // Tier helpers
@@ -31,13 +32,13 @@ export function tierGte( a: TierSlug, b: TierSlug ): boolean {
 
 /** The subset of store state that the API reads and writes. */
 export interface LicenseState {
-    activeLicenses: License[];
+    activeLicenses: MockLicense[];
     featureStates:  FeatureState[];
     productEnabled: Record<string, boolean>;
 }
 
 export interface ActivateSuccess {
-    license:        License;
+    license:        MockLicense;
     featureStates:  FeatureState[];
     productEnabled: Record<string, boolean>;
 }

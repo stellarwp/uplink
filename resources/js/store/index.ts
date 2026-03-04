@@ -39,9 +39,15 @@ export type StoreSelectors = typeof selectors & {
     isResolving: ( selectorName: string, args?: unknown[] ) => boolean;
 };
 
+/** Dispatch interface exposed to useDispatch consumers. */
+export type StoreDispatch = typeof actions & {
+    /** @wordpress/data meta-dispatch — invalidates a resolver so it re-runs. */
+    invalidateResolution: ( selectorName: string, args?: unknown[] ) => void;
+};
+
 declare module '@wordpress/data' {
     // eslint-disable-next-line @typescript-eslint/no-shadow
     function select( storeName: typeof STORE_NAME ): StoreSelectors;
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    function dispatch( storeName: typeof STORE_NAME ): typeof actions;
+    function dispatch( storeName: typeof STORE_NAME ): StoreDispatch;
 }

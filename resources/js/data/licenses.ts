@@ -7,9 +7,18 @@
  *
  * @package StellarWP\Uplink
  */
-import type { License } from '@/types/api';
+/** @deprecated Mock data — deleted in Phase 6 cleanup. */
+export interface MockLicense {
+    key: string;
+    type: 'unified' | 'legacy';
+    tier: 'starter' | 'pro' | 'agency';
+    productSlugs: string[];
+    expires: string;
+    isExpired: boolean;
+    renewUrl: string;
+}
 
-export const MOCK_LICENSES: License[] = [
+export const MOCK_LICENSES: MockLicense[] = [
     // -----------------------------------------------------------------------
     // Unified — all products
     // -----------------------------------------------------------------------
@@ -123,6 +132,6 @@ export const MOCK_LICENSES: License[] = [
 ];
 
 /** Look up a license by key. Returns undefined if not found (invalid key). */
-export function findLicense( key: string ): License | undefined {
+export function findLicense( key: string ): MockLicense | undefined {
     return MOCK_LICENSES.find( ( l ) => l.key === key );
 }

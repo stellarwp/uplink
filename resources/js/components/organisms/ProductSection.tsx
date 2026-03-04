@@ -2,12 +2,12 @@
  * Product section: sticky header + feature list.
  *
  * Renders for both licensed and unlicensed products.
- * When no license is active, features show in a not-licensed state.
+ * License state and feature availability come from the stellarwp/uplink store.
  *
- * @package StellarWP\Uplink
+ * @see .plans/wp-data-store-licenses.md
+ * @package StellarWP\\Uplink
  */
-import { useState } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Loader2 } from 'lucide-react';
 import { useSelect } from '@wordpress/data';
 import { Badge } from '@/components/ui/badge';
@@ -15,10 +15,8 @@ import { Button } from '@/components/ui/button';
 import { BrandIcon } from '@/components/atoms/BrandIcon';
 import { FeatureRow } from '@/components/molecules/FeatureRow';
 import { BRAND_CONFIGS } from '@/data/brands';
-import { useLicenseStore } from '@/stores/license-store';
-import { useToast } from '@/context/toast-context';
 import { store as uplinkStore } from '@/store';
-import type { Feature, Product } from '@/types/api';
+import type { Product } from '@/types/api';
 
 interface ProductSectionProps {
     product: Product;
@@ -30,31 +28,16 @@ interface ProductSectionProps {
  * @since 3.0.0
  */
 export function ProductSection( { product, onAddLicense }: ProductSectionProps ) {
-    const { getLicenseForProduct, getTierForProduct, productEnabled, toggleProduct } =
-        useLicenseStore();
-    const { addToast } = useToast();
-
-    const license = getLicenseForProduct( product.slug );
-    const tier = getTierForProduct( product.slug );
-    const isEnabled = productEnabled[ product.slug ] ?? false;
     const config = BRAND_CONFIGS[ product.slug ];
-    const [ isPending, setIsPending ] = useState( false );
 
-    const tierName =
-        product.tiers.find( ( t ) => t.slug === tier )?.name ?? '';
-
-    const handleProductToggle = async () => {
-        const next = ! isEnabled;
-        setIsPending( true );
-        await toggleProduct( product.slug, next );
-        /* translators: %s is the name of the product being activated */
-        const msg = next
-            ? sprintf( __( '%s activated', '%TEXTDOMAIN%' ), product.name )
-            : /* translators: %s is the name of the product being deactivated */
-              sprintf( __( '%s deactivated', '%TEXTDOMAIN%' ), product.name );
-        addToast( msg, next ? 'success' : 'default' );
-        setIsPending( false );
-    };
+    // Calling getLicense() triggers the getLicense resolver.
+    const hasLicense = useSelect(
+        ( select ) => {
+            select( uplinkStore ).getLicense();
+            return select( uplinkStore ).hasLicense();
+        },
+        [],
+    );
 
     // Features come from the REST API via the store resolver.
     // Calling getFeatures() inside useSelect triggers the resolver;
@@ -68,8 +51,6 @@ export function ProductSection( { product, onAddLicense }: ProductSectionProps )
     );
 
     // True while the getFeatures resolver has not yet completed.
-    // hasFinishedResolution is a @wordpress/data meta-selector injected at runtime
-    // but not present in the static selector types — cast through unknown to access it.
     const isLoadingFeatures = useSelect(
         ( select ) => {
             const s = select( uplinkStore ) as unknown as {
@@ -79,23 +60,6 @@ export function ProductSection( { product, onAddLicense }: ProductSectionProps )
         },
         [],
     );
-
-    // Features are visible only when the product is licensed and enabled.
-    const showFeatures = !! license && isEnabled;
-
-    // During the pending phase the store has already applied the optimistic update,
-    // so isEnabled reflects the *new* value. Use that to pick the right label.
-    const buttonLabel = isPending
-        ? ( isEnabled
-            ? /* translators: %s is the name of the product being activated */
-              sprintf( __( 'Activating %s…', '%TEXTDOMAIN%' ), product.name )
-            : /* translators: %s is the name of the product being deactivated */
-              sprintf( __( 'Deactivating %s…', '%TEXTDOMAIN%' ), product.name ) )
-        : ( isEnabled
-            ? /* translators: %s is the name of the product to deactivate */
-              sprintf( __( 'Deactivate %s', '%TEXTDOMAIN%' ), product.name )
-            : /* translators: %s is the name of the product to activate */
-              sprintf( __( 'Activate %s', '%TEXTDOMAIN%' ), product.name ) );
 
     return (
         <div className="rounded-lg border border-border bg-background overflow-clip">
@@ -110,17 +74,10 @@ export function ProductSection( { product, onAddLicense }: ProductSectionProps )
                             <h3 className="text-base font-semibold text-foreground m-0">
                                 { product.name }
                             </h3>
-                            { license ? (
-                                <>
-                                    { tierName && (
-                                        <Badge variant="info">{ tierName }</Badge>
-                                    ) }
-                                    <Badge variant={ license.type === 'legacy' ? 'warning' : 'success' }>
-                                        { license.type === 'legacy'
-                                            ? __( 'Legacy', '%TEXTDOMAIN%' )
-                                            : __( 'Active license', '%TEXTDOMAIN%' ) }
-                                    </Badge>
-                                </>
+                            { hasLicense ? (
+                                <Badge variant="success">
+                                    { __( 'Active license', '%TEXTDOMAIN%' ) }
+                                </Badge>
                             ) : (
                                 <Badge variant="outline">
                                     { __( 'No license', '%TEXTDOMAIN%' ) }
@@ -133,25 +90,15 @@ export function ProductSection( { product, onAddLicense }: ProductSectionProps )
                     </div>
                 </div>
 
-                { license ? (
-                    <Button
-                        size="sm"
-                        variant={ isEnabled ? 'outline' : 'default' }
-                        onClick={ handleProductToggle }
-                        disabled={ isPending }
-                    >
-                        { isPending && <Loader2 className="w-3 h-3 animate-spin" /> }
-                        { buttonLabel }
-                    </Button>
-                ) : (
+                { ! hasLicense && (
                     <Button size="sm" onClick={ onAddLicense }>
                         { __( 'Add License', '%TEXTDOMAIN%' ) }
                     </Button>
                 ) }
             </div>
 
-            {/* Feature list */}
-            { showFeatures && (
+            {/* Feature list — visible when licensed */}
+            { hasLicense && (
                 <div className="divide-y divide-border">
                     { isLoadingFeatures ? (
                         <div className="flex items-center justify-center gap-2 px-4 py-6 text-sm text-muted-foreground">
@@ -170,14 +117,9 @@ export function ProductSection( { product, onAddLicense }: ProductSectionProps )
                 </div>
             ) }
 
-            { ! showFeatures && (
+            { ! hasLicense && (
                 <p className="px-4 py-6 text-sm text-muted-foreground text-center">
-                    { ! license
-                        ? /* translators: %s is the name of the product */
-                          sprintf( __( 'Add a license to unlock %s features.', '%TEXTDOMAIN%' ), product.name )
-                        : /* translators: %s is the name of the product that is deactivated */
-                          sprintf( __( '%s is deactivated. Activate it to manage features.', '%TEXTDOMAIN%' ), product.name )
-                    }
+                    { __( 'Add a license to unlock features.', '%TEXTDOMAIN%' ) }
                 </p>
             ) }
         </div>

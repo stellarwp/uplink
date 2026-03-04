@@ -11,7 +11,8 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import * as licenseApi from '@/services/license-api';
 import { licenseStorage } from '@/stores/license-storage';
-import type { License, FeatureState, TierSlug } from '@/types/api';
+import type { MockLicense } from '@/data/licenses';
+import type { FeatureState, TierSlug } from '@/types/api';
 
 // Re-export so existing callers (e.g. FeatureRow) don't need to change their imports.
 export { tierGte } from '@/services/license-api';
@@ -22,7 +23,7 @@ export { tierGte } from '@/services/license-api';
 
 interface LicenseStoreState {
     /** All currently activated license keys */
-    activeLicenses: License[];
+    activeLicenses: MockLicense[];
     /** Per-feature enabled/disabled toggles */
     featureStates: FeatureState[];
     /** Whether each product's main toggle is on */
@@ -35,7 +36,7 @@ interface LicenseStoreState {
     toggleProduct:    ( productSlug: string, enabled: boolean ) => Promise<void>;
 
     // Selectors
-    getLicenseForProduct: ( productSlug: string ) => License | null;
+    getLicenseForProduct: ( productSlug: string ) => MockLicense | null;
     getTierForProduct:    ( productSlug: string ) => TierSlug | null;
     isFeatureEnabled:     ( featureId: number, productSlug: string ) => boolean;
     hasLegacyLicense:     () => boolean;

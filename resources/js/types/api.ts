@@ -142,28 +142,12 @@ export interface Product {
 }
 
 /**
- * A license key entry.
+ * Unified license key as returned by GET/POST /stellarwp/uplink/v1/license.
  * @since 3.0.0
  */
 export interface License {
-    /** The license key string */
+    /** The stored unified license key */
     key: string;
-    /**
-     * License type:
-     * - unified: covers all products at the licensed tier
-     * - legacy: product-specific legacy key (shows amber banner)
-     */
-    type: 'unified' | 'legacy';
-    /** Tier this license grants access to */
-    tier: TierSlug;
-    /** Products this license applies to (slug list) */
-    productSlugs: string[];
-    /** Human-readable expiry date (e.g. "December 31, 2026") */
-    expires: string;
-    /** Whether this license is currently expired */
-    isExpired: boolean;
-    /** Renewal URL */
-    renewUrl: string;
 }
 
 /**

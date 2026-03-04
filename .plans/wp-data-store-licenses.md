@@ -21,10 +21,10 @@ removes all mock/localStorage code.
 
 | File | Role |
 |------|------|
-| `resources/js/stores/license-store.ts` | **Delete** in Phase 7 |
-| `resources/js/stores/license-storage.ts` | **Delete** in Phase 7 |
+| `resources/js/stores/license-store.ts` | **Delete** in Phase 6 |
+| `resources/js/stores/license-storage.ts` | **Delete** in Phase 6 |
 | `resources/js/services/license-api.ts` | Mock code removed; `tierGte` kept if still needed |
-| `resources/js/data/licenses.ts` | **Delete** in Phase 7 |
+| `resources/js/data/licenses.ts` | **Delete** in Phase 6 |
 | `resources/js/types/api.ts` | `License` aligned to real API shape |
 | `resources/js/store/types.ts` | `LicenseState` + new `Action` variants added |
 
@@ -298,21 +298,7 @@ Use `UplinkError.from( err )` for all caught errors (matching PR #128 pattern).
 
 ---
 
-## Phase 5 — Product Status _(awaiting API branch)_
-
-**Depends on:** Product enable/disable REST endpoint landing. No PHP
-controller or route exists yet — the JS side is currently mocked in
-`resources/js/services/license-api.ts` (`updateProductStatus`).
-
-**Planned endpoint:**
-- `PUT /stellarwp/uplink/v1/products/{slug}/status` — `{ enabled: boolean }`
-
-Store additions and component design TBD once the PHP API shape is finalized.
-Follow the same PR #128 patterns used in Phase 4 when implementing.
-
----
-
-## Phase 6 — Zip Install / Update _(awaiting API branch)_
+## Phase 5 — Zip Install / Update _(awaiting API branch)_
 
 **Depends on:** `base/SCON-115/implement-zip-strategy` and
 `base/SCON-141/plugin-updates` merging.
@@ -326,9 +312,9 @@ Store additions and component design TBD once the PHP API shape is finalized.
 
 ---
 
-## Phase 7 — Cleanup
+## Phase 6 — Cleanup
 
-Run after Phases 4–5 are complete and verified.
+Run after Phase 4 is complete and verified.
 
 ### Files to delete
 
@@ -347,8 +333,6 @@ bun remove zustand
 
 ### Other cleanup
 
-- Remove all `STELLARWP_UPLINK_FEATURES_USE_FIXTURE_DATA` fixture paths if
-  the real API is stable in production
 - Remove `@see .plans/wp-data-store-features.md` / `@see .plans/wp-data-store-licenses.md`
   JSDoc comments from files that no longer reference mock code
 - Remove deprecated types (`LicenseStatus`, `LicenseProduct`, `FeatureState`,

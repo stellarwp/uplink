@@ -309,7 +309,14 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		);
 
 		$tiers = new Tier_Collection();
-		$tiers->add( Catalog_Tier::from_array( [ 'tier_slug' => 'kadence-basic', 'rank' => 1 ] ) );
+		$tiers->add(
+			Catalog_Tier::from_array(
+				[
+					'tier_slug' => 'kadence-basic',
+					'rank'      => 1,
+				] 
+			) 
+		);
 
 		$product = new Product_Catalog( 'kadence', $tiers, [ $catalog_feature ] );
 
@@ -343,7 +350,14 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		);
 
 		$tiers = new Tier_Collection();
-		$tiers->add( Catalog_Tier::from_array( [ 'tier_slug' => 'kadence-basic', 'rank' => 1 ] ) );
+		$tiers->add(
+			Catalog_Tier::from_array(
+				[
+					'tier_slug' => 'kadence-basic',
+					'rank'      => 1,
+				] 
+			) 
+		);
 
 		$product = new Product_Catalog( 'kadence', $tiers, [ $catalog_feature ] );
 

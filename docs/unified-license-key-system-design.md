@@ -38,6 +38,7 @@ Licensing is the authority on what a key is entitled to. When a site presents it
 **Seat release** is a protected operation. It cannot be done programmatically from a site with just a license key, that would open the door to abuse. Seats are only freed through Portal, where the user has been authenticated.
 
 **Validation** serves two purposes:
+
 - When a product first connects to a key (activation, key entry), validation checks entitlements and may consume a seat
 - Periodically, the site checks the status of all its products against the key to confirm everything is still valid, this is read-only and does not consume seats
 
@@ -46,6 +47,7 @@ Licensing is the authority on what a key is entitled to. When a site presents it
 Portal is the customer-facing management interface. It is the only system that can perform administrative operations on a license.
 
 **Portal owns:**
+
 - Seat management: customers free seats by removing site activations
 - Key management: regeneration (for stolen keys), aliases
 - Multi-key scenarios: if business needs require sharing products across keys, Portal handles the associations on the Licensing side
@@ -91,14 +93,13 @@ Validation returns that no seats are available. The site shows the customer thei
 
 ## Boundaries
 
-| Concern | Owner | Why |
-|---------|-------|-----|
-| Storing the key on a site | Plugin (Uplink) | The site is the consumer |
-| Determining what a key covers | Licensing | Licensing is the authority |
-| Consuming a seat | Licensing | Side effect of first validation per domain |
-| Releasing a seat | Portal | Requires authenticated user, abuse prevention |
-| Managing key associations | Portal | Administrative operation |
-| Checking entitlement status | Licensing | Read-only periodic check |
-| Feature/addon catalog | Commerce Portal | Maps license entitlements to available features |
-| Product updates/releases | TBD | Separate concern, not covered here |
-
+| Concern                       | Owner           | Why                                              |
+|-------------------------------|-----------------|--------------------------------------------------|
+| Storing the key on a site     | Plugin (Uplink) | The site is the consumer                         |
+| Determining what a key covers | Licensing       | Licensing is the authority                       |
+| Consuming a seat              | Licensing       | Side effect of first validation per domain       |
+| Releasing a seat              | Portal          | Requires authenticated user, abuse prevention    |
+| Managing key associations     | Portal          | Administrative operation                         |
+| Checking entitlement status   | Licensing       | Read-only periodic check                         |
+| Feature/addon catalog         | Commerce Portal | Maps license entitlements to available features  |
+| Product updates/releases      | TBD             | Separate concern, not covered here               |

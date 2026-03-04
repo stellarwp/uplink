@@ -5,9 +5,7 @@ namespace StellarWP\Uplink\Features;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Catalog\Results\Catalog_Feature;
 use StellarWP\Uplink\Catalog\Results\Product_Catalog;
-use StellarWP\Uplink\Features\Types\Built_In;
 use StellarWP\Uplink\Features\Types\Feature;
-use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Licensing\Product_Collection;
 use StellarWP\Uplink\Licensing\Product_Repository;
 use WP_Error;
@@ -47,24 +45,7 @@ class Feature_Repository {
 	 *
 	 * @var array<string, class-string<Feature>>
 	 */
-	private const TYPE_MAP = [
-		'plugin' => Zip::class,
-		'flag'   => Built_In::class,
-		'theme'  => Zip::class,
-	];
-
-	/**
-	 * Map of catalog type strings to Feature type identifiers.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var array<string, string>
-	 */
-	private const TYPE_LABEL_MAP = [
-		'plugin' => 'zip',
-		'flag'   => 'built_in',
-		'theme'  => 'zip',
-	];
+	private array $type_map = [];
 
 	/**
 	 * The catalog repository.
@@ -95,6 +76,20 @@ class Feature_Repository {
 	public function __construct( Catalog_Repository $catalog, Product_Repository $licensing ) {
 		$this->catalog   = $catalog;
 		$this->licensing = $licensing;
+	}
+
+	/**
+	 * Registers a Feature subclass for a given catalog type string.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string                $type          The catalog type identifier (e.g. 'plugin', 'flag', 'theme').
+	 * @param class-string<Feature> $feature_class The Feature subclass FQCN.
+	 *
+	 * @return void
+	 */
+	public function register_type( string $type, string $feature_class ): void { // phpcs:ignore Squiz.Commenting.FunctionComment.IncorrectTypeHint -- class-string<Feature> is a PHPStan type narrowing.
+		$this->type_map[ $type ] = $feature_class;
 	}
 
 	/**
@@ -234,7 +229,7 @@ class Feature_Repository {
 		int $license_tier_rank
 	): ?Feature {
 		$catalog_type = $catalog_feature->get_type();
-		$class        = self::TYPE_MAP[ $catalog_type ] ?? null;
+		$class        = $this->type_map[ $catalog_type ] ?? null;
 
 		if ( $class === null ) {
 			return null;
@@ -250,7 +245,7 @@ class Feature_Repository {
 			'tier'              => $catalog_feature->get_minimum_tier(),
 			'name'              => $catalog_feature->get_name(),
 			'description'       => $catalog_feature->get_description(),
-			'type'              => self::TYPE_LABEL_MAP[ $catalog_type ],
+			'type'              => $catalog_type,
 			'is_available'      => $is_available,
 			'documentation_url' => $catalog_feature->get_documentation_url(),
 			'plugin_file'       => $catalog_feature->get_plugin_file() ?? '',

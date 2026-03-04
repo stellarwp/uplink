@@ -172,10 +172,16 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 			[ 'get_products' => $licensing_result ]
 		);
 
-		return new Feature_Repository(
+		$repository = new Feature_Repository(
 			new Catalog_Repository( $catalog_client ),
 			new Product_Repository( $licensing_client )
 		);
+
+		$repository->register_type( 'plugin', Zip::class );
+		$repository->register_type( 'flag', Built_In::class );
+		$repository->register_type( 'theme', Zip::class );
+
+		return $repository;
 	}
 
 	/**

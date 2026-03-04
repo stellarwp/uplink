@@ -7,6 +7,8 @@ use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\Features\REST\Feature_Controller;
 use StellarWP\Uplink\Features\Strategy\Resolver;
+use StellarWP\Uplink\Features\Types\Built_In;
+use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Product_Repository;
 use StellarWP\Uplink\Site\Data;
@@ -38,11 +40,15 @@ class Provider extends Abstract_Provider {
 
 		$this->container->singleton(
 			Feature_Repository::class,
-			static function ( ContainerInterface $c ) {
-				return new Feature_Repository(
+			function ( ContainerInterface $c ) {
+				$repository = new Feature_Repository(
 					$c->get( Catalog_Repository::class ),
 					$c->get( Product_Repository::class )
 				);
+
+				$this->register_default_types( $repository );
+
+				return $repository;
 			}
 		);
 
@@ -71,6 +77,21 @@ class Provider extends Abstract_Provider {
 
 		$this->register_default_strategies();
 		$this->register_hooks();
+	}
+
+	/**
+	 * Registers the default feature type to class mappings.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param Feature_Repository $repository The feature repository instance.
+	 *
+	 * @return void
+	 */
+	private function register_default_types( Feature_Repository $repository ): void {
+		$repository->register_type( 'plugin', Zip::class );
+		$repository->register_type( 'flag', Built_In::class );
+		$repository->register_type( 'theme', Zip::class );
 	}
 
 	/**

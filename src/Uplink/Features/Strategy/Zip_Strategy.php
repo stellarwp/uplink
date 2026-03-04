@@ -266,7 +266,7 @@ class Zip_Strategy extends Installable_Strategy {
 		$plugin_info = plugins_api(
 			'plugin_information',
 			[
-				'slug'   => sanitize_key( $feature->get_extension_slug() ),
+				'slug'   => sanitize_key( $feature->get_slug() ),
 				'fields' => [ 'sections' => false ],
 			]
 		);
@@ -542,11 +542,11 @@ class Zip_Strategy extends Installable_Strategy {
 
 		// Case 2: the folder exists but our specific file doesn't.
 		// Another developer's plugin may occupy the same directory.
-		$extension_slug = $feature->get_extension_slug();
-		$plugin_dir     = WP_PLUGIN_DIR . '/' . $extension_slug;
+		$plugin_dirname = dirname( $plugin_file );
+		$plugin_dir     = WP_PLUGIN_DIR . '/' . $plugin_dirname;
 
 		if ( is_dir( $plugin_dir ) ) {
-			return $this->check_folder_for_foreign_plugins( $plugin_dir, $extension_slug, $expected_authors );
+			return $this->check_folder_for_foreign_plugins( $plugin_dir, $plugin_dirname, $expected_authors );
 		}
 
 		// Case 3: neither the file nor the folder exists — no conflict.

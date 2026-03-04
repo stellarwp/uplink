@@ -292,21 +292,6 @@ final class ThemeTest extends UplinkTestCase {
 	}
 
 	/**
-	 * get_extension_slug() returns the stylesheet (same as wp_identifier for themes).
-	 */
-	public function test_get_extension_slug_returns_stylesheet(): void {
-		$feature = $this->make_feature(
-			self::SLUG,
-			self::NAME,
-			self::DESCRIPTION,
-			'my-custom-theme'
-		);
-
-		$this->assertSame( 'my-custom-theme', $feature->get_extension_slug() );
-		$this->assertSame( $feature->get_wp_identifier(), $feature->get_extension_slug() );
-	}
-
-	/**
 	 * is_dot_org() defaults to false.
 	 */
 	public function test_is_dot_org_defaults_to_false(): void {

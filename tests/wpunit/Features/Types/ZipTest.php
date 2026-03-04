@@ -292,42 +292,6 @@ final class ZipTest extends UplinkTestCase {
 	}
 
 	/**
-	 * get_extension_slug() returns the directory name from the plugin file path.
-	 *
-	 * @dataProvider extension_slug_provider
-	 *
-	 * @param string $plugin_file    Input plugin file path.
-	 * @param string $expected_slug  Expected directory name.
-	 */
-	public function test_get_extension_slug_returns_directory_name(
-		string $plugin_file,
-		string $expected_slug
-	): void {
-		$feature = $this->make_feature(
-			self::SLUG,
-			self::NAME,
-			self::DESCRIPTION,
-			$plugin_file
-		);
-
-		$this->assertSame( $expected_slug, $feature->get_extension_slug() );
-	}
-
-	/**
-	 * Data provider for get_extension_slug() tests.
-	 *
-	 * @return array<string, array{string, string}>
-	 */
-	public function extension_slug_provider(): array {
-		return [
-			'standard path'         => [ 'stellar-export/stellar-export.php', 'stellar-export' ],
-			'different file name'   => [ 'my-plugin/main.php', 'my-plugin' ],
-			'underscored directory' => [ 'my_plugin/my_plugin.php', 'my_plugin' ],
-			'single file no dir'    => [ 'plugin.php', '.' ],
-		];
-	}
-
-	/**
 	 * is_dot_org() defaults to false.
 	 */
 	public function test_is_dot_org_defaults_to_false(): void {
@@ -406,6 +370,5 @@ final class ZipTest extends UplinkTestCase {
 		$this->assertSame( 'https://example.com/docs', $feature->get_documentation_url() );
 		$this->assertSame( 'the-slug/the-slug.php', $feature->get_wp_identifier() );
 		$this->assertSame( [ 'StellarWP', 'The Events Calendar' ], $feature->get_authors() );
-		$this->assertSame( 'the-slug', $feature->get_extension_slug() );
 	}
 }

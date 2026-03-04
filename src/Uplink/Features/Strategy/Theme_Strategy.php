@@ -214,7 +214,7 @@ class Theme_Strategy extends Installable_Strategy {
 		$theme_info = themes_api(
 			'theme_information',
 			[
-				'slug'   => sanitize_key( $feature->get_extension_slug() ),
+				'slug'   => sanitize_key( $feature->get_slug() ),
 				'fields' => [ 'sections' => false ],
 			]
 		);

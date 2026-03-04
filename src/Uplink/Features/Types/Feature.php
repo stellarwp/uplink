@@ -147,6 +147,27 @@ abstract class Feature {
 	}
 
 	/**
+	 * Extracts the common base attributes shared by all feature types.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param array<string, mixed> $data The feature data from the API response.
+	 *
+	 * @return array<string, mixed>
+	 */
+	protected static function base_attributes( array $data ): array {
+		return [
+			'slug'              => $data['slug'],
+			'group'             => $data['group'],
+			'tier'              => $data['tier'],
+			'name'              => $data['name'],
+			'description'       => $data['description'] ?? '',
+			'is_available'      => $data['is_available'],
+			'documentation_url' => $data['documentation_url'] ?? '',
+		];
+	}
+
+	/**
 	 * Gets an attribute by name.
 	 *
 	 * @since 3.0.0

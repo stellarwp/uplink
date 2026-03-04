@@ -26,20 +26,6 @@ interface Installable {
 	public function get_wp_identifier(): string;
 
 	/**
-	 * Gets the extension slug (directory name).
-	 *
-	 * For plugins: dirname(plugin_file).
-	 * For themes: the stylesheet.
-	 *
-	 * Used for transient lock keys and API lookups.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return string
-	 */
-	public function get_extension_slug(): string;
-
-	/**
 	 * Gets the expected extension authors for ownership verification.
 	 *
 	 * @since 3.0.0

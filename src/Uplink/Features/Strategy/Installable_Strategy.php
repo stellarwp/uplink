@@ -364,7 +364,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 		// Acquire a per-slug transient lock to prevent concurrent installs.
 		// Two simultaneous requests could both see "not installed" and race
 		// the installer, causing file conflicts or corruption.
-		$lock_key = $this->build_lock_key( $feature->get_extension_slug() );
+		$lock_key = $this->build_lock_key( $feature->get_slug() );
 
 		if ( ! $this->acquire_lock( $lock_key ) ) {
 			return new WP_Error(

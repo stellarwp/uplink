@@ -40,21 +40,11 @@ final class Zip extends Feature implements Installable {
 	 * @return static
 	 */
 	public static function from_array( array $data ) {
-		return new self(
-			[
-				'slug'              => $data['slug'],
-				'group'             => $data['group'],
-				'tier'              => $data['tier'],
-				'name'              => $data['name'],
-				'description'       => $data['description'] ?? '',
-				'type'              => 'zip',
-				'plugin_file'       => $data['plugin_file'] ?? '',
-				'is_available'      => $data['is_available'],
-				'documentation_url' => $data['documentation_url'] ?? '',
-				'authors'           => $data['authors'] ?? [],
-				'is_dot_org'        => $data['is_dot_org'] ?? false,
-			]
-		);
+		return new self( array_merge( self::base_attributes( $data ), [
+			'plugin_file' => $data['plugin_file'] ?? '',
+			'authors'     => $data['authors'] ?? [],
+			'is_dot_org'  => $data['is_dot_org'] ?? false,
+		] ) );
 	}
 
 	/**
@@ -67,20 +57,6 @@ final class Zip extends Feature implements Installable {
 	 */
 	public function get_wp_identifier(): string {
 		return Cast::to_string( $this->attributes['plugin_file'] ?? '' );
-	}
-
-	/**
-	 * Gets the extension slug — the plugin directory name.
-	 *
-	 * For "stellar-export/stellar-export.php" this returns "stellar-export".
-	 * Used as a unique identifier for transient locks and directory checks.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return string
-	 */
-	public function get_extension_slug(): string {
-		return dirname( $this->get_wp_identifier() );
 	}
 
 	/**

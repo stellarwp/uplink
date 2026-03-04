@@ -2,10 +2,14 @@
 
 namespace StellarWP\Uplink\Tests\Licensing;
 
+use StellarWP\Uplink\Licensing\Error_Code;
+use StellarWP\Uplink\Licensing\Fixture_Client;
 use StellarWP\Uplink\Licensing\License_Manager;
+use StellarWP\Uplink\Licensing\Product_Repository;
 use StellarWP\Uplink\Licensing\Registry\Product_Registry;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
 use StellarWP\Uplink\Tests\UplinkTestCase;
+use WP_Error;
 
 /**
  * @since 3.0.0
@@ -16,13 +20,24 @@ final class License_ManagerTest extends UplinkTestCase {
 
 	protected function setUp(): void {
 		parent::setUp();
-		$this->manager = new License_Manager( new License_Repository(), new Product_Registry() );
+
+		$product_repository = new Product_Repository(
+			new Fixture_Client( codecept_data_dir( 'licensing' ) )
+		);
+
+		$this->manager = new License_Manager(
+			new License_Repository(),
+			new Product_Registry(),
+			$product_repository
+		);
+
 		delete_option( License_Repository::OPTION_NAME );
 	}
 
 	protected function tearDown(): void {
 		remove_all_filters( Product_Registry::FILTER );
 		delete_option( License_Repository::OPTION_NAME );
+		delete_transient( Product_Repository::TRANSIENT_KEY );
 		parent::tearDown();
 	}
 
@@ -178,9 +193,45 @@ final class License_ManagerTest extends UplinkTestCase {
 					'embedded_key' => 'LWSW-EMBEDDED-KEY',
 				];
 				return $products;
-			} 
+			}
 		);
 
 		$this->assertTrue( $this->manager->exists() );
+	}
+
+	// -------------------------------------------------------------------------
+	// validate_and_store()
+	// -------------------------------------------------------------------------
+
+	public function test_validate_and_store_returns_true_for_recognized_key(): void {
+		$result = $this->manager->validate_and_store( 'LWSW-UNIFIED-PRO-2026', 'example.com' );
+
+		$this->assertTrue( $result );
+	}
+
+	public function test_validate_and_store_persists_key_on_success(): void {
+		$this->manager->validate_and_store( 'LWSW-UNIFIED-PRO-2026', 'example.com' );
+
+		$this->assertSame( 'LWSW-UNIFIED-PRO-2026', get_option( License_Repository::OPTION_NAME ) );
+	}
+
+	public function test_validate_and_store_returns_error_for_unrecognized_key(): void {
+		$result = $this->manager->validate_and_store( 'LWSW-DOES-NOT-EXIST', 'example.com' );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( Error_Code::INVALID_KEY, $result->get_error_code() );
+	}
+
+	public function test_validate_and_store_does_not_persist_unrecognized_key(): void {
+		$this->manager->validate_and_store( 'LWSW-DOES-NOT-EXIST', 'example.com' );
+
+		$this->assertEmpty( get_option( License_Repository::OPTION_NAME ) );
+	}
+
+	public function test_validate_and_store_returns_error_for_invalid_format(): void {
+		$result = $this->manager->validate_and_store( 'INVALID-KEY', 'example.com' );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( Error_Code::INVALID_KEY, $result->get_error_code() );
 	}
 }

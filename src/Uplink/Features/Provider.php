@@ -5,7 +5,6 @@ namespace StellarWP\Uplink\Features;
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
-use StellarWP\Uplink\Features\REST\Feature_Controller;
 use StellarWP\Uplink\Features\Strategy\Built_In_Strategy;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Strategy\Zip_Strategy;
@@ -15,7 +14,6 @@ use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Product_Repository;
 use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Utils\Cast;
-use StellarWP\Uplink\Utils\Version;
 use WP_Error;
 
 /**
@@ -70,15 +68,6 @@ class Provider extends Abstract_Provider {
 			}
 		);
 
-		$this->container->singleton(
-			Feature_Controller::class,
-			static function ( ContainerInterface $c ) {
-				$manager = $c->get( Manager::class );
-
-				return new Feature_Controller( $manager );
-			}
-		);
-
 		$this->register_default_strategies();
 		$this->register_hooks();
 	}
@@ -122,27 +111,10 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	private function register_hooks(): void {
-		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
-
 		add_filter( 'plugins_api', [ $this, 'mock_plugins_api_for_zip_features' ], 5, 3 );
 
 		// TODO: Remove this once the real plugins_api filter is implemented.
 		add_filter( 'upgrader_pre_download', [ $this, 'serve_local_zip_for_upgrader' ], 10, 3 );
-	}
-
-	/**
-	 * Registers REST API routes.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return void
-	 */
-	public function register_rest_routes(): void {
-		if ( ! Version::should_handle( 'features_rest_routes' ) ) {
-			return;
-		}
-
-		$this->container->get( Feature_Controller::class )->register_routes();
 	}
 
 	/**

@@ -1,12 +1,12 @@
 <?php declare( strict_types=1 );
 
-namespace StellarWP\Uplink\Tests\Licensing\REST;
+namespace StellarWP\Uplink\Tests\API\REST\V1;
 
 use StellarWP\Uplink\Licensing\Error_Code;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Registry\Product_Registry;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
-use StellarWP\Uplink\Licensing\REST\License_Controller;
+use StellarWP\Uplink\API\REST\V1\License_Controller;
 use StellarWP\Uplink\Tests\Traits\With_Uopz;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_REST_Request;

@@ -1,0 +1,64 @@
+{
+  "products": [
+    {
+      "product_slug": "give",
+      "tier": "agency",
+      "pending_tier": null,
+      "status": "active",
+      "expires": "2026-12-31 23:59:59",
+      "activations": {
+        "site_limit": 0,
+        "active_count": 12,
+        "over_limit": false
+      },
+      "installed_here": true,
+      "validation_status": "valid",
+      "is_valid": true
+    },
+    {
+      "product_slug": "the-events-calendar",
+      "tier": "agency",
+      "pending_tier": null,
+      "status": "active",
+      "expires": "2026-12-31 23:59:59",
+      "activations": {
+        "site_limit": 0,
+        "active_count": 8,
+        "over_limit": false
+      },
+      "installed_here": true,
+      "validation_status": "valid",
+      "is_valid": true
+    },
+    {
+      "product_slug": "learndash",
+      "tier": "agency",
+      "pending_tier": null,
+      "status": "active",
+      "expires": "2026-12-31 23:59:59",
+      "activations": {
+        "site_limit": 0,
+        "active_count": 5,
+        "over_limit": false
+      },
+      "installed_here": true,
+      "validation_status": "valid",
+      "is_valid": true
+    },
+    {
+      "product_slug": "kadence",
+      "tier": "agency",
+      "pending_tier": null,
+      "status": "active",
+      "expires": "2026-12-31 23:59:59",
+      "activations": {
+        "site_limit": 0,
+        "active_count": 15,
+        "over_limit": false
+      },
+      "installed_here": true,
+      "validation_status": "valid",
+      "is_valid": true
+    }
+  ]
+}

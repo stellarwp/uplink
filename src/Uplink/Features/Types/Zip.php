@@ -47,10 +47,10 @@ final class Zip extends Feature {
 				'name'              => $data['name'],
 				'description'       => $data['description'] ?? '',
 				'type'              => 'zip',
-				'plugin_file'       => $data['plugin_file'],
+				'plugin_file'       => $data['plugin_file'] ?? '',
 				'is_available'      => $data['is_available'],
 				'documentation_url' => $data['documentation_url'] ?? '',
-			] 
+			]
 		);
 	}
 

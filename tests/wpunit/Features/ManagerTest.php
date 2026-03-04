@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Tests\Features;
 
+use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Feature_Repository;
@@ -11,6 +12,8 @@ use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Features\Types\Zip;
+use StellarWP\Uplink\Licensing\Product_Repository;
+use StellarWP\Uplink\Licensing\Repositories\License_Repository;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
 
@@ -87,7 +90,10 @@ final class ManagerTest extends UplinkTestCase {
 	 */
 	protected function tearDown(): void {
 		delete_option( 'stellarwp_uplink_feature_kad-pattern-hub_active' );
-		delete_transient( 'stellarwp_uplink_feature_catalog' );
+		delete_option( License_Repository::OPTION_NAME );
+		delete_transient( Feature_Repository::TRANSIENT_KEY );
+		delete_transient( Catalog_Repository::TRANSIENT_KEY );
+		delete_transient( Product_Repository::TRANSIENT_KEY );
 
 		parent::tearDown();
 	}
@@ -192,6 +198,8 @@ final class ManagerTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_get_feature_resolves_typed_features_from_catalog(): void {
+		update_option( License_Repository::OPTION_NAME, 'lwsw-unified-kad-pro-2026' );
+
 		$manager = $this->container->get( Manager::class );
 
 		$flag = $manager->get_feature( 'kad-pattern-hub' );
@@ -209,6 +217,8 @@ final class ManagerTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_enable_and_disable_write_db_flags(): void {
+		update_option( License_Repository::OPTION_NAME, 'lwsw-unified-kad-pro-2026' );
+
 		$manager    = $this->container->get( Manager::class );
 		$option_key = 'stellarwp_uplink_feature_kad-pattern-hub_active';
 

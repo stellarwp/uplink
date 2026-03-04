@@ -97,7 +97,12 @@ class Resolve_Feature_Collection {
 			return $catalog;
 		}
 
-		$products   = $this->licensing->get( $key, $domain );
+		$products = $this->licensing->get( $key, $domain );
+
+		if ( is_wp_error( $products ) ) {
+			return $products;
+		}
+
 		$collection = new Feature_Collection();
 
 		foreach ( $catalog as $product ) {
@@ -132,16 +137,12 @@ class Resolve_Feature_Collection {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Product_Catalog             $product  The catalog product.
-	 * @param Product_Collection|WP_Error $products The licensing product collection, or WP_Error if unavailable.
+	 * @param Product_Catalog    $product  The catalog product.
+	 * @param Product_Collection $products The licensing product collection.
 	 *
 	 * @return int The tier rank, or 0 if the product has no license.
 	 */
-	private function resolve_license_tier_rank( Product_Catalog $product, $products ): int {
-		if ( ! $products instanceof Product_Collection ) {
-			return 0;
-		}
-
+	private function resolve_license_tier_rank( Product_Catalog $product, Product_Collection $products ): int {
 		$license = $products->get( $product->get_product_slug() );
 
 		if ( $license === null ) {

@@ -11,6 +11,7 @@ use StellarWP\Uplink\Features\Strategy\Zip_Strategy;
 use StellarWP\Uplink\Features\Types\Built_In;
 use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Utils\Cast;
+use WP_Error;
 
 /**
  * Registers the Features subsystem in the DI container and hooks.
@@ -77,6 +78,20 @@ class Provider extends Abstract_Provider {
 		$resolver = $this->container->get( Resolver::class );
 		$resolver->register( 'zip', Zip_Strategy::class );
 		$resolver->register( 'built_in', Built_In_Strategy::class );
+	}
+
+	/**
+	 * Registers WordPress hooks for the Features subsystem.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return void
+	 */
+	private function register_hooks(): void {
+		add_filter( 'plugins_api', [ $this, 'mock_plugins_api_for_zip_features' ], 5, 3 );
+
+		// TODO: Remove this once the real plugins_api filter is implemented.
+		add_filter( 'upgrader_pre_download', [ $this, 'serve_local_zip_for_upgrader' ], 10, 3 );
 	}
 
 	/**

@@ -56,6 +56,8 @@ class Theme_Strategy extends Installable_Strategy {
 
 	/**
 	 * @inheritDoc
+	 *
+	 * @param string $wp_identifier The theme stylesheet (directory name).
 	 */
 	protected function check_active( string $wp_identifier ): bool {
 		return get_stylesheet() === $wp_identifier;
@@ -63,6 +65,8 @@ class Theme_Strategy extends Installable_Strategy {
 
 	/**
 	 * @inheritDoc
+	 *
+	 * @param string $wp_identifier The theme stylesheet (directory name).
 	 */
 	protected function check_installed( string $wp_identifier ): bool {
 		return wp_get_theme( $wp_identifier )->exists();

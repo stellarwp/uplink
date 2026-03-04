@@ -40,11 +40,16 @@ final class Theme extends Feature implements Installable {
 	 * @return static
 	 */
 	public static function from_array( array $data ) {
-		return new self( array_merge( self::base_attributes( $data ), [
-			'stylesheet' => $data['stylesheet'] ?? '',
-			'authors'    => $data['authors'] ?? [],
-			'is_dot_org' => $data['is_dot_org'] ?? false,
-		] ) );
+		return new self(
+			array_merge(
+				self::base_attributes( $data ),
+				[
+					'stylesheet' => $data['stylesheet'] ?? '',
+					'authors'    => $data['authors'] ?? [],
+					'is_dot_org' => $data['is_dot_org'] ?? false,
+				]
+			)
+		);
 	}
 
 	/**

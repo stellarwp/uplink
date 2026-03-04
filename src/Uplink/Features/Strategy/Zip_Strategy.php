@@ -84,6 +84,8 @@ class Zip_Strategy extends Installable_Strategy {
 
 	/**
 	 * @inheritDoc
+	 *
+	 * @param string $wp_identifier The plugin file path relative to the plugins directory.
 	 */
 	protected function check_active( string $wp_identifier ): bool {
 		return is_plugin_active( $wp_identifier )
@@ -92,6 +94,8 @@ class Zip_Strategy extends Installable_Strategy {
 
 	/**
 	 * @inheritDoc
+	 *
+	 * @param string $wp_identifier The plugin file path relative to the plugins directory.
 	 */
 	protected function check_installed( string $wp_identifier ): bool {
 		return file_exists( WP_PLUGIN_DIR . '/' . $wp_identifier );

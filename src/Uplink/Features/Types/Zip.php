@@ -40,12 +40,17 @@ final class Zip extends Feature implements Installable {
 	 * @return static
 	 */
 	public static function from_array( array $data ) {
-		return new self( array_merge( self::base_attributes( $data ), [
-			'plugin_file' => $data['plugin_file'] ?? '',
-			'plugin_slug' => $data['plugin_slug'] ?? '',
-			'authors'     => $data['authors'] ?? [],
-			'is_dot_org'  => $data['is_dot_org'] ?? false,
-		] ) );
+		return new self(
+			array_merge(
+				self::base_attributes( $data ),
+				[
+					'plugin_file' => $data['plugin_file'] ?? '',
+					'plugin_slug' => $data['plugin_slug'] ?? '',
+					'authors'     => $data['authors'] ?? [],
+					'is_dot_org'  => $data['is_dot_org'] ?? false,
+				]
+			)
+		);
 	}
 
 	/**

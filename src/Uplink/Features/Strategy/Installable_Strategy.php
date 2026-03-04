@@ -198,7 +198,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
 	final public function enable( Feature $feature ) {
-		if ( ! is_a( $feature, $this->get_feature_class() ) ) {
+		if ( ! $feature instanceof Installable ) {
 			return new WP_Error(
 				Error_Code::FEATURE_TYPE_MISMATCH,
 				$this->get_type_mismatch_message()
@@ -209,7 +209,6 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 		// loaded when called from REST API or AJAX contexts.
 		$this->load_wp_admin_includes();
 
-		/** @var Feature&Installable $feature */
 		$identifier = $feature->get_wp_identifier();
 
 		// Idempotent: if the extension is already active, verify ownership and bail.
@@ -268,7 +267,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
 	final public function disable( Feature $feature ) {
-		if ( ! is_a( $feature, $this->get_feature_class() ) ) {
+		if ( ! $feature instanceof Installable ) {
 			return new WP_Error(
 				Error_Code::FEATURE_TYPE_MISMATCH,
 				$this->get_type_mismatch_message()
@@ -304,13 +303,12 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	 */
 	final public function is_active( Feature $feature ): bool {
 		// Type-guard: non-matching features are never "active" from this strategy's perspective.
-		if ( ! is_a( $feature, $this->get_feature_class() ) ) {
+		if ( ! $feature instanceof Installable ) {
 			return false;
 		}
 
 		$this->load_wp_admin_includes();
 
-		/** @var Feature&Installable $feature */
 		$live_active   = $this->check_active( $feature->get_wp_identifier() );
 		$stored_active = $this->get_stored_state( $feature->get_slug() );
 

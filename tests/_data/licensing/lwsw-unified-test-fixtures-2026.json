@@ -2,7 +2,7 @@
   "products": [
     {
       "product_slug": "test-fixtures",
-      "tier": "basic",
+      "tier": "test-fixtures-basic",
       "pending_tier": null,
       "status": "active",
       "expires": "2026-12-31 23:59:59",

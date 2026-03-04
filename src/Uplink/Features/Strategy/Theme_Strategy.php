@@ -101,8 +101,7 @@ class Theme_Strategy extends Installable_Strategy {
 		switch_theme( $stylesheet );
 
 		// Verify switch took effect.
-		// @phpstan-ignore-next-line booleanNot.alwaysTrue -- (switch_theme() changes active state via DB side effects invisible to static analysis).
-		if ( ! $this->is_theme_active( $stylesheet ) ) {
+		if ( ! $this->check_active( $stylesheet ) ) {
 			return new WP_Error(
 				Error_Code::ACTIVATION_FAILED,
 				sprintf(
@@ -136,7 +135,7 @@ class Theme_Strategy extends Installable_Strategy {
 		$stylesheet = $feature->get_wp_identifier();
 
 		// WordPress always needs an active theme — cannot deactivate.
-		if ( $this->is_theme_active( $stylesheet ) ) {
+		if ( $this->check_active( $stylesheet ) ) {
 			return new WP_Error(
 				Error_Code::THEME_IS_ACTIVE,
 				sprintf(

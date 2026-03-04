@@ -144,7 +144,7 @@ class Zip_Strategy extends Installable_Strategy {
 		$plugin_file = $feature->get_wp_identifier();
 
 		// Idempotent: if already inactive, update stored state and bail.
-		if ( ! $this->is_plugin_active( $plugin_file ) ) {
+		if ( ! $this->check_active( $plugin_file ) ) {
 			$this->update_stored_state( $feature->get_slug(), false );
 
 			return true;
@@ -158,7 +158,7 @@ class Zip_Strategy extends Installable_Strategy {
 		// where a deactivation hook re-activates the plugin or WordPress's
 		// plugin state is otherwise inconsistent.
 		// @phpstan-ignore-next-line if.alwaysTrue -- (deactivate_plugins() changes active state via DB side effects invisible to static analysis).
-		if ( $this->is_plugin_active( $plugin_file ) ) {
+		if ( $this->check_active( $plugin_file ) ) {
 			return new WP_Error(
 				Error_Code::DEACTIVATION_FAILED,
 				sprintf(
@@ -464,7 +464,7 @@ class Zip_Strategy extends Installable_Strategy {
 			);
 		}
 
-		if ( ! $this->is_plugin_active( $plugin_file ) ) {
+		if ( ! $this->check_active( $plugin_file ) ) {
 			return new WP_Error(
 				Error_Code::ACTIVATION_FAILED,
 				sprintf(

@@ -82,9 +82,9 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	private function register_default_types( Feature_Repository $repository ): void {
-		$repository->register_type( 'plugin', Zip::class );
+		$repository->register_type( 'plugin', Zip::class ); // TODO: Will be replaced with Plugin Feature.
 		$repository->register_type( 'flag', Flag::class );
-		$repository->register_type( 'theme', Zip::class );
+		$repository->register_type( 'theme', Zip::class ); // TODO: Will be replaced with Theme Feature.
 	}
 
 	/**
@@ -95,12 +95,13 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	private function register_default_strategies(): void {
-		$this->container->singleton( Zip_Strategy::class, Zip_Strategy::class );
+		$this->container->singleton( Zip_Strategy::class, Zip_Strategy::class ); // TODO: Will be replaced with Plugin Strategy.
 		$this->container->singleton( Flag_Strategy::class, Flag_Strategy::class );
 
 		$resolver = $this->container->get( Resolver::class );
-		$resolver->register( 'zip', Zip_Strategy::class );
+		$resolver->register( 'zip', Zip_Strategy::class ); // TODO: Will be replaced with Plugin Strategy.
 		$resolver->register( 'flag', Flag_Strategy::class );
+		$resolver->register( 'theme', Zip_Strategy::class ); // TODO: Will be replaced with Theme Strategy.
 	}
 
 	/**

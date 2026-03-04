@@ -13,16 +13,15 @@ use Plugin_Upgrader;
 
 use function activate_plugin;
 use function deactivate_plugins;
-use function delete_transient;
 use function get_plugin_data;
-use function get_transient;
 use function is_plugin_active;
 use function is_plugin_active_for_network;
 use function plugins_api;
 use function sanitize_key;
-use function set_transient;
 use function wp_json_encode;
 /**
+ * TODO: Rename to Plugin_Strategy in a separate PR.
+ *
  * Zip Strategy — installs, activates, and deactivates WordPress plugins as
  * "features" using ZIP file downloads.
  *
@@ -45,26 +44,7 @@ use function wp_json_encode;
  *
  * @since 3.0.0
  */
-class Zip_Strategy extends Abstract_Strategy {
-
-	/**
-	 * Transient lock TTL in seconds.
-	 *
-	 * 120 seconds is generous enough to cover slow downloads on shared hosting,
-	 * but short enough that a crashed install won't block retries for long.
-	 *
-	 * @since 3.0.0
-	 */
-	private const LOCK_TTL = MINUTE_IN_SECONDS * 2;
-
-	/**
-	 * Transient key prefix for install locks.
-	 *
-	 * Full key: stellarwp_uplink_install_lock_{slug}
-	 *
-	 * @since 3.0.0
-	 */
-	private const LOCK_PREFIX = 'stellarwp_uplink_install_lock_';
+class Zip_Strategy extends Installable_Strategy {
 
 	/**
 	 * WordPress error codes that indicate PHP or WP version requirements are not met.
@@ -83,33 +63,6 @@ class Zip_Strategy extends Abstract_Strategy {
 		'plugin_wp_incompatible',
 		'plugin_wp_php_incompatible',
 	];
-
-	/**
-	 * Optional callable that resolves a plugin_file string to a Zip feature.
-	 *
-	 * Signature: fn(string $plugin_file): ?Zip
-	 *
-	 * The Provider layer wires this to the Feature Collection. Until then,
-	 * sync hook callbacks (on_plugin_activated / on_plugin_deactivated) will
-	 * silently no-op because the resolver returns null.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var callable|null
-	 */
-	private $feature_resolver;
-
-	/**
-	 * Construct the Zip_Strategy.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param callable|null $feature_resolver Optional. Resolves a plugin_file
-	 *                                        string to a Zip instance.
-	 */
-	public function __construct( ?callable $feature_resolver = null ) {
-		$this->feature_resolver = $feature_resolver;
-	}
 
 	/**
 	 * Enable a Zip feature: install (if needed) and activate the plugin.
@@ -310,7 +263,7 @@ class Zip_Strategy extends Abstract_Strategy {
 	 * @return void
 	 */
 	public function on_plugin_activated( string $plugin, bool $network_wide ): void {
-		$feature = $this->resolve_feature( $plugin );
+		$feature = $this->resolve_zip_feature( $plugin );
 
 		if ( $feature === null ) {
 			return;
@@ -337,7 +290,7 @@ class Zip_Strategy extends Abstract_Strategy {
 	 * @return void
 	 */
 	public function on_plugin_deactivated( string $plugin, bool $network_wide ): void {
-		$feature = $this->resolve_feature( $plugin );
+		$feature = $this->resolve_zip_feature( $plugin );
 
 		if ( $feature === null ) {
 			return;
@@ -374,7 +327,7 @@ class Zip_Strategy extends Abstract_Strategy {
 		// Acquire a per-slug transient lock to prevent concurrent installs.
 		// Two simultaneous requests could both see "not installed" and race
 		// Plugin_Upgrader::install(), causing file conflicts or corruption.
-		$lock_key = self::LOCK_PREFIX . $feature->get_plugin_slug();
+		$lock_key = $this->build_lock_key( $feature->get_plugin_slug() );
 
 		if ( ! $this->acquire_lock( $lock_key ) ) {
 			return new WP_Error(
@@ -804,46 +757,6 @@ class Zip_Strategy extends Abstract_Strategy {
 	}
 
 	/**
-	 * Attempt to acquire a transient-based lock for a plugin slug.
-	 *
-	 * Uses a simple set-if-absent pattern. The transient TTL ensures the lock
-	 * auto-expires even if the process crashes without releasing it.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param string $lock_key Transient key for the lock.
-	 *
-	 * @return bool True if lock acquired, false if already held.
-	 */
-	private function acquire_lock( string $lock_key ): bool {
-		// get_transient returns false if not set. If the lock exists, another
-		// install is in progress.
-		if ( get_transient( $lock_key ) !== false ) {
-			return false;
-		}
-
-		// Set the lock with a TTL. There's a tiny race window between the get
-		// and set, but transient-based locking is sufficient for preventing
-		// the common case of duplicate AJAX requests.
-		set_transient( $lock_key, '1', self::LOCK_TTL );
-
-		return true;
-	}
-
-	/**
-	 * Release a transient-based install lock.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param string $lock_key Transient key for the lock.
-	 *
-	 * @return void
-	 */
-	private function release_lock( string $lock_key ): void {
-		delete_transient( $lock_key );
-	}
-
-	/**
 	 * Resolve a plugin file path to a Zip feature via the configured resolver.
 	 *
 	 * Returns null if no resolver is configured or if the plugin doesn't
@@ -855,12 +768,8 @@ class Zip_Strategy extends Abstract_Strategy {
 	 *
 	 * @return Zip|null
 	 */
-	private function resolve_feature( string $plugin_file ): ?Zip {
-		if ( $this->feature_resolver === null ) {
-			return null;
-		}
-
-		$resolved = ( $this->feature_resolver )( $plugin_file );
+	private function resolve_zip_feature( string $plugin_file ): ?Zip {
+		$resolved = $this->resolve_feature( $plugin_file );
 
 		return $resolved instanceof Zip ? $resolved : null;
 	}
@@ -876,7 +785,7 @@ class Zip_Strategy extends Abstract_Strategy {
 	 *
 	 * @return void
 	 */
-	private function load_wp_admin_includes(): void {
+	protected function load_wp_admin_includes(): void {
 		if ( ! function_exists( 'is_plugin_active' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}

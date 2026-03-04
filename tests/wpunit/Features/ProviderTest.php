@@ -7,6 +7,7 @@ use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Features\Provider;
 use StellarWP\Uplink\Features\REST\Feature_Controller;
 use StellarWP\Uplink\Features\Strategy\Resolver;
+use StellarWP\Uplink\Features\Strategy\Theme_Strategy;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
 final class ProviderTest extends UplinkTestCase {
@@ -45,6 +46,15 @@ final class ProviderTest extends UplinkTestCase {
 	 */
 	public function test_it_registers_feature_controller(): void {
 		$this->assertInstanceOf( Feature_Controller::class, $this->container->get( Feature_Controller::class ) );
+	}
+
+	/**
+	 * Tests that the Theme_Strategy is registered as a singleton in the container.
+	 *
+	 * @return void
+	 */
+	public function test_it_registers_theme_strategy(): void {
+		$this->assertInstanceOf( Theme_Strategy::class, $this->container->get( Theme_Strategy::class ) );
 	}
 
 	/**

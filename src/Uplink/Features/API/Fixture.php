@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace StellarWP\Uplink\Features\API;
 
 use StellarWP\Uplink\Features\Types\Built_In;
+use StellarWP\Uplink\Features\Types\Theme;
 use StellarWP\Uplink\Features\Types\Zip;
 
 /**
@@ -106,6 +107,12 @@ class Fixture {
 
 		if ( $attributes['type'] === 'zip' ) {
 			$feature = Zip::from_array( $attributes );
+
+			return $feature->to_array();
+		}
+
+		if ( $attributes['type'] === 'theme' ) {
+			$feature = Theme::from_array( $attributes );
 
 			return $feature->to_array();
 		}
@@ -711,10 +718,11 @@ class Fixture {
 					'tier'              => 'starter',
 					'name'              => 'Kadence Theme',
 					'description'       => 'Lightweight, fast WordPress theme',
-					'type'              => 'zip',
+					'type'              => 'theme',
 					'is_available'      => true,
 					'documentation_url' => 'https://example.com/docs',
-					'plugin_file'       => 'kadence-theme.zip',
+					'stylesheet'        => 'kadence',
+					'authors'           => [ 'Starter Sites', 'Starter Templates', 'StellarWP' ],
 				]
 			),
 			self::entry(
@@ -1110,6 +1118,37 @@ class Fixture {
 					'type'              => 'zip',
 					'plugin_file'       => 'unavailable-zip-feature/unavailable-zip-feature.php',
 					'is_available'      => false,
+					'documentation_url' => '',
+					'authors'           => [ 'StellarWP' ],
+				]
+			),
+
+			// ── Theme Strategy Test Fixtures ────────────────────────────────────
+
+			self::entry(
+				[
+					'slug'              => 'valid-theme-feature',
+					'group'             => 'Default',
+					'tier'              => 'Tier 1',
+					'name'              => 'Valid Theme Feature',
+					'description'       => 'A feature delivered as a standalone WordPress theme.',
+					'type'              => 'theme',
+					'stylesheet'        => 'valid-theme-feature',
+					'is_available'      => true,
+					'documentation_url' => '',
+					'authors'           => [ 'StellarWP' ],
+				]
+			),
+			self::entry(
+				[
+					'slug'              => 'wrong-author-theme-feature',
+					'group'             => 'Default',
+					'tier'              => 'Tier 1',
+					'name'              => 'Wrong Author Theme Feature',
+					'description'       => 'Tests THEME_OWNERSHIP_MISMATCH — theme Author is "Foreign Developer" but feature expects "StellarWP".', // cspell:ignore THEME_OWNERSHIP_MISMATCH.
+					'type'              => 'theme',
+					'stylesheet'        => 'wrong-author-theme-feature',
+					'is_available'      => true,
 					'documentation_url' => '',
 					'authors'           => [ 'StellarWP' ],
 				]

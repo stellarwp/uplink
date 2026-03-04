@@ -8,8 +8,10 @@ use StellarWP\Uplink\Features\API\Client;
 use StellarWP\Uplink\Features\REST\Feature_Controller;
 use StellarWP\Uplink\Features\Strategy\Built_In_Strategy;
 use StellarWP\Uplink\Features\Strategy\Resolver;
+use StellarWP\Uplink\Features\Strategy\Theme_Strategy;
 use StellarWP\Uplink\Features\Strategy\Zip_Strategy;
 use StellarWP\Uplink\Features\Types\Built_In;
+use StellarWP\Uplink\Features\Types\Theme;
 use StellarWP\Uplink\Features\Types\Zip;
 use StellarWP\Uplink\Utils\Cast;
 use StellarWP\Uplink\Utils\Version;
@@ -72,8 +74,9 @@ class Provider extends Abstract_Provider {
 	 */
 	private function register_default_types(): void {
 		$client = $this->container->get( Client::class );
-		$client->register_type( 'zip', Zip::class );
 		$client->register_type( 'built_in', Built_In::class );
+		$client->register_type( 'zip', Zip::class );
+		$client->register_type( 'theme', Theme::class );
 	}
 
 	/**
@@ -84,12 +87,14 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	private function register_default_strategies(): void {
-		$this->container->singleton( Zip_Strategy::class, Zip_Strategy::class );
 		$this->container->singleton( Built_In_Strategy::class, Built_In_Strategy::class );
+		$this->container->singleton( Zip_Strategy::class, Zip_Strategy::class );
+		$this->container->singleton( Theme_Strategy::class, Theme_Strategy::class );
 
 		$resolver = $this->container->get( Resolver::class );
-		$resolver->register( 'zip', Zip_Strategy::class );
 		$resolver->register( 'built_in', Built_In_Strategy::class );
+		$resolver->register( 'zip', Zip_Strategy::class );
+		$resolver->register( 'theme', Theme_Strategy::class );
 	}
 
 	/**
@@ -103,9 +108,13 @@ class Provider extends Abstract_Provider {
 		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
 
 		add_filter( 'plugins_api', [ $this, 'mock_plugins_api_for_zip_features' ], 5, 3 );
+		add_filter( 'themes_api', [ $this, 'mock_themes_api_for_theme_features' ], 5, 3 );
 
 		// TODO: Remove this once the real plugins_api filter is implemented.
 		add_filter( 'upgrader_pre_download', [ $this, 'serve_local_zip_for_upgrader' ], 10, 3 );
+
+		// TODO: Remove this once the real switch_theme action is implemented.
+		add_action( 'switch_theme', [ $this, 'on_theme_switch' ], 10, 3 );
 	}
 
 	/**
@@ -154,7 +163,7 @@ class Provider extends Abstract_Provider {
 			return $result;
 		}
 
-		$zip_path = $this->build_test_zip( $slug, $source_dir );
+		$zip_path = $this->build_test_zip_from_dir( $slug, $source_dir, dirname( $source_dir ) );
 
 		if ( $zip_path === null ) {
 			return $result;
@@ -174,24 +183,137 @@ class Provider extends Abstract_Provider {
 	}
 
 	/**
-	 * Build a ZIP from a test plugin source directory.
+	 * Mock themes_api() for theme features during development.
 	 *
-	 * Creates {slug}.zip alongside the source folder in tests/_data/Features/Zips/.
-	 * Skips rebuild if the ZIP already exists and is newer than all source files.
+	 * Intercepts theme_information requests for known theme feature stylesheets
+	 * and returns a response with a download_link pointing to a ZIP built
+	 * on-the-fly from the theme source in tests/_data/Features/Themes/{stylesheet}/.
+	 *
+	 * TODO: Replace with real implementation that returns download links
+	 *       from the Commerce Portal catalog.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param false|object|array<mixed> $result The result object or array. Default false.
+	 * @param string                    $action The type of information being requested.
+	 * @param object                    $args   Theme API arguments.
+	 *
+	 * @return false|object|array<mixed>
+	 */
+	public function mock_themes_api_for_theme_features( $result, $action, $args ) {
+		if ( $action !== 'theme_information' ) {
+			return $result;
+		}
+
+		$slug       = Cast::to_string( $args->slug ?? '' );
+		$uplink_dir = WP_PLUGIN_DIR . '/uplink';
+		$source_dir = $uplink_dir . '/tests/_data/Features/Themes/' . $slug;
+
+		if ( ! is_dir( $source_dir ) ) {
+			return $result;
+		}
+
+		$zip_path = $this->build_test_zip_from_dir( $slug, $source_dir, dirname( $source_dir ) );
+
+		if ( $zip_path === null ) {
+			return $result;
+		}
+
+		$download_url = plugins_url(
+			'tests/_data/Features/Themes/' . $slug . '.zip',
+			$uplink_dir . '/index.php'
+		);
+
+		return (object) [
+			'name'          => $slug,
+			'slug'          => $slug,
+			'version'       => '1.0.0',
+			'download_link' => $download_url,
+		];
+	}
+
+	/**
+	 * Delegate callback for the switch_theme action.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string    $new_name  Name of the new theme.
+	 * @param \WP_Theme $new_theme The new theme object.
+	 * @param \WP_Theme $old_theme The old theme object.
+	 *
+	 * @return void
+	 */
+	public function on_theme_switch( string $new_name, \WP_Theme $new_theme, \WP_Theme $old_theme ): void {
+		$this->container->get( Theme_Strategy::class )->on_theme_switch( $new_name, $new_theme, $old_theme );
+	}
+
+	/**
+	 * Serve local ZIP files directly to the upgrader, bypassing HTTP download.
+	 *
+	 * Intercepts download requests for test zip feature URLs and copies the
+	 * local ZIP to a temp file, avoiding SSL and loopback issues.
 	 *
 	 * TODO: Remove this method once the real plugins_api filter is implemented.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $slug       The plugin slug.
+	 * @param bool|WP_Error $reply    Whether to bail without returning the package. Default false.
+	 * @param string        $package  The package file name or URL.
+	 * @param \WP_Upgrader  $upgrader The WP_Upgrader instance.
+	 *
+	 * @return bool|string|WP_Error The local file path or the original $reply.
+	 */
+	public function serve_local_zip_for_upgrader( $reply, $package, $upgrader ) {
+		$uplink_dir = WP_PLUGIN_DIR . '/uplink';
+
+		$dirs = [
+			$uplink_dir . '/tests/_data/Features/Zips/',
+			$uplink_dir . '/tests/_data/Features/Themes/',
+		];
+
+		foreach ( $dirs as $dir ) {
+			$url = plugins_url( ltrim( str_replace( $uplink_dir, '', $dir ), '/' ), $uplink_dir . '/index.php' );
+
+			if ( strpos( $package, $url ) !== 0 ) {
+				continue;
+			}
+
+			$filename = basename( $package );
+			$local    = $dir . $filename;
+
+			if ( ! file_exists( $local ) ) {
+				return $reply;
+			}
+
+			// Copy to a temp file so the upgrader can move/delete it freely.
+			$tmp = wp_tempnam( $filename );
+			copy( $local, $tmp );
+
+			return $tmp;
+		}
+
+		return $reply;
+	}
+
+	/**
+	 * Build a ZIP from a test source directory.
+	 *
+	 * Creates {slug}.zip in the specified output directory.
+	 * Skips rebuild if the ZIP already exists and is newer than all source files.
+	 *
+	 * TODO: Remove this method once the real API filters are implemented.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $slug       The slug (used as root folder in the ZIP).
 	 * @param string $source_dir Absolute path to the source directory.
+	 * @param string $output_dir Absolute path to where the ZIP should be created.
 	 *
 	 * @return string|null The path to the ZIP file, or null on failure.
 	 */
-	private function build_test_zip( string $slug, string $source_dir ): ?string {
-		$zip_path = dirname( $source_dir ) . '/' . $slug . '.zip';
+	private function build_test_zip_from_dir( string $slug, string $source_dir, string $output_dir ): ?string {
+		$zip_path = $output_dir . '/' . $slug . '.zip';
 
-		// Skip rebuild if ZIP exists and is newer than all source files.
 		if ( file_exists( $zip_path ) ) {
 			$zip_mtime     = filemtime( $zip_path );
 			$needs_rebuild = false;
@@ -232,44 +354,5 @@ class Provider extends Abstract_Provider {
 		$zip->close();
 
 		return $zip_path;
-	}
-
-	/**
-	 * Serve local ZIP files directly to the upgrader, bypassing HTTP download.
-	 *
-	 * Intercepts download requests for test zip feature URLs and copies the
-	 * local ZIP to a temp file, avoiding SSL and loopback issues.
-	 *
-	 * TODO: Remove this method once the real plugins_api filter is implemented.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param bool|WP_Error $reply    Whether to bail without returning the package. Default false.
-	 * @param string        $package  The package file name or URL.
-	 * @param \WP_Upgrader  $upgrader The WP_Upgrader instance.
-	 *
-	 * @return bool|string|WP_Error The local file path or the original $reply.
-	 */
-	public function serve_local_zip_for_upgrader( $reply, $package, $upgrader ) {
-		$uplink_dir = WP_PLUGIN_DIR . '/uplink';
-		$zips_dir   = $uplink_dir . '/tests/_data/Features/Zips/';
-		$zips_url   = plugins_url( 'tests/_data/Features/Zips/', $uplink_dir . '/index.php' );
-
-		if ( strpos( $package, $zips_url ) !== 0 ) {
-			return $reply;
-		}
-
-		$filename = basename( $package );
-		$local    = $zips_dir . $filename;
-
-		if ( ! file_exists( $local ) ) {
-			return $reply;
-		}
-
-		// Copy to a temp file so the upgrader can move/delete it freely.
-		$tmp = wp_tempnam( $filename );
-		copy( $local, $tmp );
-
-		return $tmp;
 	}
 }

@@ -79,7 +79,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 * @return Feature_Repository
 	 */
 	private function make_repository( ?string $licensing_override = null ): Feature_Repository {
-		$catalog_client = new Catalog_Fixture( codecept_data_dir( 'catalog.json' ) );
+		$catalog_client = new Catalog_Fixture( codecept_data_dir( 'catalog/default.json' ) );
 
 		if ( $licensing_override === null ) {
 			$licensing_client = $this->makeEmpty(
@@ -352,7 +352,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 */
 	public function test_hydrate_feature_returns_wp_error_for_unknown_type(): void {
 		$resolver = $this->make_resolver(
-			new Catalog_Repository( new Catalog_Fixture( codecept_data_dir( 'catalog.json' ) ) ),
+			new Catalog_Repository( new Catalog_Fixture( codecept_data_dir( 'catalog/default.json' ) ) ),
 			new Product_Repository( new Licensing_Fixture( codecept_data_dir( 'licensing' ) ) )
 		);
 
@@ -398,7 +398,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 */
 	public function test_hydrate_feature_returns_feature_for_known_type(): void {
 		$resolver = $this->make_resolver(
-			new Catalog_Repository( new Catalog_Fixture( codecept_data_dir( 'catalog.json' ) ) ),
+			new Catalog_Repository( new Catalog_Fixture( codecept_data_dir( 'catalog/default.json' ) ) ),
 			new Product_Repository( new Licensing_Fixture( codecept_data_dir( 'licensing' ) ) )
 		);
 

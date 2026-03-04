@@ -17,7 +17,7 @@ final class Catalog_RepositoryTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$client           = new Fixture_Client( codecept_data_dir( 'catalog.json' ) );
+		$client           = new Fixture_Client( codecept_data_dir( 'catalog/default.json' ) );
 		$this->repository = new Catalog_Repository( $client );
 
 		delete_transient( Catalog_Repository::TRANSIENT_KEY );

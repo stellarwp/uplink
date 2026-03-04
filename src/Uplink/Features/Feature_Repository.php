@@ -116,11 +116,11 @@ class Feature_Repository {
 			return $cached;
 		}
 
-		return $this->fetch( $key, $domain );
+		return $this->resolve( $key, $domain );
 	}
 
 	/**
-	 * Deletes the transient cache and re-fetches.
+	 * Deletes the transient cache and re-resolves.
 	 *
 	 * @since 3.0.0
 	 *
@@ -132,11 +132,11 @@ class Feature_Repository {
 	public function refresh( string $key, string $domain ) {
 		delete_transient( self::TRANSIENT_KEY );
 
-		return $this->fetch( $key, $domain );
+		return $this->resolve( $key, $domain );
 	}
 
 	/**
-	 * Fetches catalog and licensing data, joins them, and caches the result.
+	 * Resolves catalog and licensing data, joins them, and caches the result.
 	 *
 	 * @since 3.0.0
 	 *
@@ -145,7 +145,7 @@ class Feature_Repository {
 	 *
 	 * @return Feature_Collection|WP_Error
 	 */
-	protected function fetch( string $key, string $domain ) {
+	protected function resolve( string $key, string $domain ) {
 		$catalog = $this->catalog->get();
 
 		if ( is_wp_error( $catalog ) ) {

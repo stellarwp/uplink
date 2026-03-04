@@ -19,11 +19,12 @@ use function wp_get_theme;
 /**
  * Theme Strategy — installs and activates WordPress themes as "features".
  *
- * This strategy handles the full lifecycle:
- * - enable()    → install (if needed) + switch_theme()
- * - disable()   → returns error if theme is active (WP needs one active theme),
- *                  otherwise updates stored state
- * - is_active() → live WP check with self-healing stored state
+ * The shared enable/disable/is_active/ensure_installed flow is templated by
+ * Installable_Strategy. This class provides the WP-specific hooks:
+ * - do_install()     → themes_api() + Theme_Upgrader
+ * - do_activate()    → switch_theme() + verification
+ * - do_deactivate()  → error if active (WP needs one active theme), else state update
+ * - verify_ownership → Author header check via wp_get_theme()
  *
  * Unlike plugins, themes load on the next request after switch_theme() — no
  * fatal-error protection is needed at switch time.
@@ -36,65 +37,63 @@ use function wp_get_theme;
  */
 class Theme_Strategy extends Installable_Strategy {
 
+	// ── Abstract method implementations ─────────────────────────────────
+
 	/**
-	 * Enable a Theme feature: install (if needed) and switch to the theme.
-	 *
-	 * Idempotent: returns true if the theme is already active. Uses a
-	 * transient lock to prevent concurrent installs of the same theme.
+	 * @inheritDoc
+	 */
+	protected function get_feature_class(): string {
+		return Theme::class;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function get_type_mismatch_message(): string {
+		return 'This feature type is not supported by the Theme installer.';
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function is_extension_active( string $identifier ): bool {
+		return $this->is_theme_active( $identifier );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function is_extension_installed( string $identifier ): bool {
+		return $this->is_theme_installed( $identifier );
+	}
+
+	/**
+	 * Install the theme via themes_api() and Theme_Upgrader.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Must be a Theme instance.
+	 * @param Feature $feature Already type-guarded as Theme by the template.
 	 *
-	 * @return true|WP_Error True on success, WP_Error on failure.
+	 * @return true|WP_Error
 	 */
-	public function enable( Feature $feature ) {
-		if ( ! $feature instanceof Theme ) {
-			return new WP_Error(
-				Error_Code::FEATURE_TYPE_MISMATCH,
-				'This feature type is not supported by the Theme installer.'
-			);
-		}
+	protected function do_install( Feature $feature ) {
+		/** @var Theme $feature */
+		return $this->install_theme( $feature );
+	}
 
-		$this->load_wp_admin_includes();
-
+	/**
+	 * Switch to the theme and verify it took effect.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param Feature $feature Already type-guarded as Theme by the template.
+	 *
+	 * @return true|WP_Error
+	 */
+	protected function do_activate( Feature $feature ) {
+		/** @var Theme $feature */
 		$stylesheet = $feature->get_stylesheet();
 
-		// Idempotent: if the theme is already active, verify ownership and bail.
-		if ( $this->is_theme_active( $stylesheet ) ) {
-			$ownership = $this->verify_theme_ownership( $feature );
-
-			if ( is_wp_error( $ownership ) ) {
-				return $ownership;
-			}
-
-			$this->update_stored_state( $feature->get_slug(), true );
-
-			return true;
-		}
-
-		// Verify ownership before attempting installation.
-		$ownership = $this->verify_theme_ownership( $feature );
-
-		if ( is_wp_error( $ownership ) ) {
-			return $ownership;
-		}
-
-		// Ensure the theme is on disk — install from ZIP if needed.
-		$ensure_result = $this->ensure_installed( $feature );
-
-		if ( is_wp_error( $ensure_result ) ) {
-			return $ensure_result;
-		}
-
-		// Verify ownership after installation.
-		$ownership = $this->verify_theme_ownership( $feature );
-
-		if ( is_wp_error( $ownership ) ) {
-			return $ownership;
-		}
-
-		// Switch to the theme.
 		switch_theme( $stylesheet );
 
 		// Verify switch took effect.
@@ -115,7 +114,7 @@ class Theme_Strategy extends Installable_Strategy {
 	}
 
 	/**
-	 * Disable a Theme feature.
+	 * Deactivate a theme feature.
 	 *
 	 * WordPress always needs exactly one active theme. If the theme IS the
 	 * active theme, returns a WP_Error — switching away must be done by
@@ -124,28 +123,13 @@ class Theme_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Must be a Theme instance.
+	 * @param Feature $feature Already type-guarded as Theme by the template.
 	 *
-	 * @return true|WP_Error True on success, WP_Error on failure.
+	 * @return true|WP_Error
 	 */
-	public function disable( Feature $feature ) {
-		if ( ! $feature instanceof Theme ) {
-			return new WP_Error(
-				Error_Code::FEATURE_TYPE_MISMATCH,
-				'This feature type is not supported by the Theme installer.'
-			);
-		}
-
-		$this->load_wp_admin_includes();
-
+	protected function do_deactivate( Feature $feature ) {
+		/** @var Theme $feature */
 		$stylesheet = $feature->get_stylesheet();
-
-		// Verify ownership before touching state.
-		$ownership = $this->verify_theme_ownership( $feature );
-
-		if ( is_wp_error( $ownership ) ) {
-			return $ownership;
-		}
 
 		// WordPress always needs an active theme — cannot deactivate.
 		if ( $this->is_theme_active( $stylesheet ) ) {
@@ -164,45 +148,27 @@ class Theme_Strategy extends Installable_Strategy {
 	}
 
 	/**
-	 * Check whether a feature's theme is currently active.
-	 *
-	 * The live WordPress theme state is the source of truth. If the stored
-	 * state (wp_options) disagrees with the live state, it is self-healed.
+	 * Verify theme ownership.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Must be a Theme instance.
+	 * @param Feature $feature Already type-guarded as Theme by the template.
 	 *
-	 * @return bool
+	 * @return true|WP_Error
 	 */
-	public function is_active( Feature $feature ): bool {
-		if ( ! $feature instanceof Theme ) {
-			return false;
-		}
-
-		$this->load_wp_admin_includes();
-
-		$live_active   = $this->is_theme_active( $feature->get_stylesheet() );
-		$stored_active = $this->get_stored_state( $feature->get_slug() );
-
-		if ( $stored_active !== $live_active ) {
-			$this->update_stored_state( $feature->get_slug(), $live_active );
-
-			if ( $this->is_wp_debug() ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log(
-					sprintf(
-						'[Uplink] Self-healed feature state for "%s": stored=%s, live=%s',
-						$feature->get_slug(),
-						$stored_active === null ? 'null' : var_export( $stored_active, true ),
-						$live_active ? 'true' : 'false'
-					)
-				);
-			}
-		}
-
-		return $live_active;
+	protected function verify_ownership( Feature $feature ) {
+		/** @var Theme $feature */
+		return $this->verify_theme_ownership( $feature );
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function get_not_found_after_install_error_code(): string {
+		return Error_Code::THEME_NOT_FOUND_AFTER_INSTALL;
+	}
+
+	// ── Sync hooks ──────────────────────────────────────────────────────
 
 	/**
 	 * Sync hook: update stored state when the active theme is switched.
@@ -233,58 +199,7 @@ class Theme_Strategy extends Installable_Strategy {
 		}
 	}
 
-	/**
-	 * Ensure the theme is installed on disk, downloading from ZIP if needed.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param Theme $feature The feature whose theme to ensure is installed.
-	 *
-	 * @return true|WP_Error True if installed (or already was), WP_Error on failure.
-	 */
-	private function ensure_installed( Theme $feature ) {
-		$stylesheet = $feature->get_stylesheet();
-
-		// Already on disk — ready for activation.
-		if ( $this->is_theme_installed( $stylesheet ) ) {
-			return true;
-		}
-
-		$lock_key = $this->build_lock_key( $stylesheet );
-
-		if ( ! $this->acquire_lock( $lock_key ) ) {
-			return new WP_Error(
-				Error_Code::INSTALL_LOCKED,
-				sprintf(
-					'Another installation is already in progress for "%s". Please try again in a few moments.',
-					$feature->get_name()
-				)
-			);
-		}
-
-		try {
-			$install_result = $this->install_theme( $feature );
-
-			if ( is_wp_error( $install_result ) ) {
-				return $install_result;
-			}
-
-			// @phpstan-ignore-next-line booleanNot.alwaysTrue -- (install_theme() creates files on disk; side effects invisible to static analysis).
-			if ( ! $this->is_theme_installed( $stylesheet ) ) {
-				return new WP_Error(
-					Error_Code::THEME_NOT_FOUND_AFTER_INSTALL,
-					sprintf(
-						'The theme was not found after installing "%s". The downloaded package may have an unexpected directory structure.',
-						$feature->get_name()
-					)
-				);
-			}
-
-			return true; // @phpstan-ignore deadCode.unreachable (The check above is a double check)
-		} finally {
-			$this->release_lock( $lock_key );
-		}
-	}
+	// ── Private helpers ─────────────────────────────────────────────────
 
 	/**
 	 * Install a theme via themes_api() and Theme_Upgrader.

@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Features\Types;
 
+use StellarWP\Uplink\Features\Contracts\Installable;
 use StellarWP\Uplink\Utils\Cast;
 
 /**
@@ -12,7 +13,7 @@ use StellarWP\Uplink\Utils\Cast;
  *
  * @since 3.0.0
  */
-final class Theme extends Feature {
+final class Theme extends Feature implements Installable {
 
 	/**
 	 * Constructor for a Feature delivered as a WordPress theme.
@@ -51,6 +52,7 @@ final class Theme extends Feature {
 				'is_available'      => $data['is_available'],
 				'documentation_url' => $data['documentation_url'] ?? '',
 				'authors'           => $data['authors'] ?? [],
+				'is_dot_org'        => $data['is_dot_org'] ?? false,
 			]
 		);
 	}
@@ -81,5 +83,38 @@ final class Theme extends Feature {
 		}
 
 		return array_values( array_filter( $authors, 'is_string' ) );
+	}
+
+	/**
+	 * Gets the primary WordPress identifier — the theme stylesheet.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string
+	 */
+	public function get_wp_identifier(): string {
+		return $this->get_stylesheet();
+	}
+
+	/**
+	 * Gets the extension slug — the theme stylesheet.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string
+	 */
+	public function get_extension_slug(): string {
+		return $this->get_stylesheet();
+	}
+
+	/**
+	 * Whether this theme is available on WordPress.org.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return bool
+	 */
+	public function is_dot_org(): bool {
+		return Cast::to_bool( $this->attributes['is_dot_org'] ?? false );
 	}
 }

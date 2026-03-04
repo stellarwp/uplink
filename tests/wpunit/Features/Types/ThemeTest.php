@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Tests\Features\Types;
 
+use StellarWP\Uplink\Features\Contracts\Installable;
 use StellarWP\Uplink\Features\Types\Theme;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
@@ -140,6 +141,7 @@ final class ThemeTest extends UplinkTestCase {
 			'is_available'      => true,
 			'documentation_url' => 'https://example.com/docs',
 			'authors'           => [ 'StellarWP' ],
+			'is_dot_org'        => false,
 		];
 
 		$feature = Theme::from_array( $data );
@@ -278,6 +280,96 @@ final class ThemeTest extends UplinkTestCase {
 		);
 
 		$this->assertSame( $authors, $feature->get_authors() );
+	}
+
+	// -------------------------------------------------------------------------
+	// Installable interface
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Theme implements the Installable interface.
+	 */
+	public function test_it_implements_installable(): void {
+		$feature = $this->make_feature();
+
+		$this->assertInstanceOf( Installable::class, $feature );
+	}
+
+	/**
+	 * get_wp_identifier() delegates to get_stylesheet().
+	 */
+	public function test_get_wp_identifier_delegates_to_stylesheet(): void {
+		$feature = $this->make_feature(
+			self::SLUG,
+			self::NAME,
+			self::DESCRIPTION,
+			'my-custom-theme'
+		);
+
+		$this->assertSame( 'my-custom-theme', $feature->get_wp_identifier() );
+		$this->assertSame( $feature->get_stylesheet(), $feature->get_wp_identifier() );
+	}
+
+	/**
+	 * get_extension_slug() delegates to get_stylesheet().
+	 */
+	public function test_get_extension_slug_delegates_to_stylesheet(): void {
+		$feature = $this->make_feature(
+			self::SLUG,
+			self::NAME,
+			self::DESCRIPTION,
+			'my-custom-theme'
+		);
+
+		$this->assertSame( 'my-custom-theme', $feature->get_extension_slug() );
+		$this->assertSame( $feature->get_stylesheet(), $feature->get_extension_slug() );
+	}
+
+	/**
+	 * is_dot_org() defaults to false.
+	 */
+	public function test_is_dot_org_defaults_to_false(): void {
+		$feature = $this->make_feature();
+
+		$this->assertFalse( $feature->is_dot_org() );
+	}
+
+	/**
+	 * is_dot_org() returns true when set.
+	 */
+	public function test_is_dot_org_returns_true_when_set(): void {
+		$feature = new Theme(
+			[
+				'slug'         => self::SLUG,
+				'group'        => self::GROUP,
+				'tier'         => self::TIER,
+				'name'         => self::NAME,
+				'stylesheet'   => self::STYLESHEET,
+				'is_available' => true,
+				'is_dot_org'   => true,
+			]
+		);
+
+		$this->assertTrue( $feature->is_dot_org() );
+	}
+
+	/**
+	 * from_array() populates is_dot_org when provided.
+	 */
+	public function test_from_array_includes_is_dot_org(): void {
+		$feature = Theme::from_array(
+			[
+				'slug'         => 'test-theme',
+				'group'        => 'Kadence',
+				'tier'         => 'Tier 1',
+				'name'         => 'Test Theme',
+				'stylesheet'   => 'test-theme',
+				'is_available' => true,
+				'is_dot_org'   => true,
+			]
+		);
+
+		$this->assertTrue( $feature->is_dot_org() );
 	}
 
 	// -------------------------------------------------------------------------

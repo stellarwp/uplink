@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Features\Types;
 
+use StellarWP\Uplink\Features\Contracts\Installable;
 use StellarWP\Uplink\Utils\Cast;
 
 /**
@@ -12,7 +13,7 @@ use StellarWP\Uplink\Utils\Cast;
  *
  * @since 3.0.0
  */
-final class Zip extends Feature {
+final class Zip extends Feature implements Installable {
 
 	/**
 	 * Constructor for a Feature delivered as a standalone WordPress plugin ZIP.
@@ -51,6 +52,7 @@ final class Zip extends Feature {
 				'is_available'      => $data['is_available'],
 				'documentation_url' => $data['documentation_url'] ?? '',
 				'authors'           => $data['authors'] ?? [],
+				'is_dot_org'        => $data['is_dot_org'] ?? false,
 			]
 		);
 	}
@@ -95,5 +97,38 @@ final class Zip extends Feature {
 	 */
 	public function get_plugin_slug(): string {
 		return dirname( $this->get_plugin_file() );
+	}
+
+	/**
+	 * Gets the primary WordPress identifier — the plugin file path.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string
+	 */
+	public function get_wp_identifier(): string {
+		return $this->get_plugin_file();
+	}
+
+	/**
+	 * Gets the extension slug — the plugin directory name.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string
+	 */
+	public function get_extension_slug(): string {
+		return $this->get_plugin_slug();
+	}
+
+	/**
+	 * Whether this plugin is available on WordPress.org.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return bool
+	 */
+	public function is_dot_org(): bool {
+		return Cast::to_bool( $this->attributes['is_dot_org'] ?? false );
 	}
 }

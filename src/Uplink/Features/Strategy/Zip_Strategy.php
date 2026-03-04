@@ -19,19 +19,19 @@ use function is_plugin_active_for_network;
 use function plugins_api;
 use function sanitize_key;
 use function wp_json_encode;
+
 /**
  * TODO: Rename to Plugin_Strategy in a separate PR.
  *
  * Zip Strategy — installs, activates, and deactivates WordPress plugins as
  * "features" using ZIP file downloads.
  *
- * This strategy handles the full lifecycle:
- * - enable()  → install (if needed) + activate
- * - disable() → deactivate (never deletes files — safe and reversible)
- * - is_active() → live WP check with self-healing stored state
- *
- * Concurrency is protected by per-slug transient locks. Fatal errors during
- * activation are caught via try/catch Throwable.
+ * The shared enable/disable/is_active/ensure_installed flow is templated by
+ * Installable_Strategy. This class provides the WP-specific hooks:
+ * - do_install()     → plugins_api() + Plugin_Upgrader
+ * - do_activate()    → activate_plugin() with fatal error protection
+ * - do_deactivate()  → deactivate_plugins() + verification
+ * - verify_ownership → Author header checks (3 cases)
  *
  * Stored state lives in wp_options as `stellarwp_uplink_feature_{slug}_active`
  * with autoload=true for fast reads. The live WordPress plugin state is always
@@ -64,105 +64,78 @@ class Zip_Strategy extends Installable_Strategy {
 		'plugin_wp_php_incompatible',
 	];
 
+	// ── Abstract method implementations ─────────────────────────────────
+
 	/**
-	 * Enable a Zip feature: install (if needed) and activate the plugin.
-	 *
-	 * Idempotent: returns true if the plugin is already active. Uses a
-	 * transient lock to prevent concurrent installs of the same plugin.
+	 * @inheritDoc
+	 */
+	protected function get_feature_class(): string {
+		return Zip::class;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function get_type_mismatch_message(): string {
+		return 'This feature type is not supported by the Zip installer.';
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function is_extension_active( string $identifier ): bool {
+		return $this->is_plugin_active( $identifier );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function is_extension_installed( string $identifier ): bool {
+		return $this->is_plugin_installed( $identifier );
+	}
+
+	/**
+	 * Install the plugin via plugins_api() and Plugin_Upgrader.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Must be a Zip instance.
+	 * @param Feature $feature Already type-guarded as Zip by the template.
 	 *
-	 * @return true|WP_Error True on success, WP_Error on failure.
+	 * @return true|WP_Error
 	 */
-	public function enable( Feature $feature ) {
-		// Type-guard: Zip_Strategy only handles Zip instances.
-		if ( ! $feature instanceof Zip ) {
-			return new WP_Error(
-				Error_Code::FEATURE_TYPE_MISMATCH,
-				'This feature type is not supported by the Zip installer.'
-			);
-		}
+	protected function do_install( Feature $feature ) {
+		/** @var Zip $feature */
+		return $this->install_plugin( $feature );
+	}
 
-		// Ensure WordPress admin functions are available. These may not be
-		// loaded when called from REST API or AJAX contexts.
-		$this->load_wp_admin_includes();
-
-		$plugin_file = $feature->get_plugin_file();
-
-		// Idempotent: if the plugin is already active, verify ownership and bail.
-		if ( $this->is_plugin_active( $plugin_file ) ) {
-			$ownership = $this->verify_plugin_ownership( $feature );
-
-			if ( is_wp_error( $ownership ) ) {
-				return $ownership;
-			}
-
-			$this->update_stored_state( $feature->get_slug(), true );
-
-			return true;
-		}
-
-		// Verify ownership before attempting installation. This catches
-		// cases where the plugin folder is already occupied by a different
-		// developer's plugin. If nothing is on disk yet, this returns true
-		// (no conflict) and we proceed to install.
-		$ownership = $this->verify_plugin_ownership( $feature );
-
-		if ( is_wp_error( $ownership ) ) {
-			return $ownership;
-		}
-
-		// Ensure the plugin is on disk — install from ZIP if needed.
-		$ensure_result = $this->ensure_installed( $feature );
-
-		if ( is_wp_error( $ensure_result ) ) {
-			return $ensure_result;
-		}
-
-		// Verify ownership after installation. A fresh download may contain
-		// a plugin from an unexpected author.
-		$ownership = $this->verify_plugin_ownership( $feature );
-
-		if ( is_wp_error( $ownership ) ) {
-			return $ownership;
-		}
-
-		// Activate the plugin and update stored state.
+	/**
+	 * Activate the plugin with fatal error protection.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param Feature $feature Already type-guarded as Zip by the template.
+	 *
+	 * @return true|WP_Error
+	 */
+	protected function do_activate( Feature $feature ) {
+		/** @var Zip $feature */
 		return $this->activate_plugin( $feature );
 	}
 
 	/**
-	 * Disable a Zip feature: deactivate the plugin.
+	 * Deactivate the plugin.
 	 *
 	 * Never deletes plugin files — deactivation is safe and reversible.
 	 * Idempotent: returns true if the plugin is already inactive.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Must be a Zip instance.
+	 * @param Feature $feature Already type-guarded as Zip by the template.
 	 *
-	 * @return true|WP_Error True on success, WP_Error on failure.
+	 * @return true|WP_Error
 	 */
-	public function disable( Feature $feature ) {
-		// Type-guard: Zip_Strategy only handles Zip instances.
-		if ( ! $feature instanceof Zip ) {
-			return new WP_Error(
-				Error_Code::FEATURE_TYPE_MISMATCH,
-				'This feature type is not supported by the Zip installer.'
-			);
-		}
-
-		$this->load_wp_admin_includes();
-
-		// Refuse to touch a plugin that belongs to a different developer.
-		$ownership = $this->verify_plugin_ownership( $feature );
-
-		if ( is_wp_error( $ownership ) ) {
-			return $ownership;
-		}
-
+	protected function do_deactivate( Feature $feature ) {
+		/** @var Zip $feature */
 		$plugin_file = $feature->get_plugin_file();
 
 		// Idempotent: if already inactive, update stored state and bail.
@@ -196,51 +169,27 @@ class Zip_Strategy extends Installable_Strategy {
 	}
 
 	/**
-	 * Check whether a feature's plugin is currently active.
-	 *
-	 * The live WordPress plugin state is the source of truth. If the stored
-	 * state (wp_options) disagrees with the live state, it is self-healed to
-	 * match. This handles edge cases where plugins are activated/deactivated
-	 * outside of the feature system (e.g. via the Plugins admin page).
+	 * Verify plugin ownership.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Must be a Zip instance.
+	 * @param Feature $feature Already type-guarded as Zip by the template.
 	 *
-	 * @return bool
+	 * @return true|WP_Error
 	 */
-	public function is_active( Feature $feature ): bool {
-		// Type-guard: non-Zip features are never "active" from this strategy's perspective.
-		if ( ! $feature instanceof Zip ) {
-			return false;
-		}
-
-		$this->load_wp_admin_includes();
-
-		$live_active   = $this->is_plugin_active( $feature->get_plugin_file() );
-		$stored_active = $this->get_stored_state( $feature->get_slug() );
-
-		// Self-heal: if stored state doesn't match live state, correct it.
-		// This is expected to be rare — it only happens when a plugin's state
-		// changes outside of the feature system.
-		if ( $stored_active !== $live_active ) {
-			$this->update_stored_state( $feature->get_slug(), $live_active );
-
-			if ( $this->is_wp_debug() ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log(
-					sprintf(
-						'[Uplink] Self-healed feature state for "%s": stored=%s, live=%s',
-						$feature->get_slug(),
-						$stored_active === null ? 'null' : var_export( $stored_active, true ),
-						$live_active ? 'true' : 'false'
-					)
-				);
-			}
-		}
-
-		return $live_active;
+	protected function verify_ownership( Feature $feature ) {
+		/** @var Zip $feature */
+		return $this->verify_plugin_ownership( $feature );
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function get_not_found_after_install_error_code(): string {
+		return Error_Code::PLUGIN_NOT_FOUND_AFTER_INSTALL;
+	}
+
+	// ── Sync hooks ──────────────────────────────────────────────────────
 
 	/**
 	 * Sync hook: update stored state when a plugin is activated via WordPress.
@@ -299,73 +248,7 @@ class Zip_Strategy extends Installable_Strategy {
 		$this->update_stored_state( $feature->get_slug(), false );
 	}
 
-	/**
-	 * Ensure the plugin is installed on disk, downloading from ZIP if needed.
-	 *
-	 * Acquires a per-slug transient lock to prevent concurrent installs,
-	 * resolves the download link via plugins_api(), runs
-	 * Plugin_Upgrader::install(), and verifies the expected plugin_file
-	 * exists on disk afterward.
-	 *
-	 * If the plugin is already installed, returns true immediately (no lock needed).
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param Zip $feature The feature whose plugin to ensure is installed.
-	 *
-	 * @return true|WP_Error True if installed (or already was), WP_Error on failure.
-	 */
-	private function ensure_installed( Zip $feature ) {
-		$plugin_file = $feature->get_plugin_file();
-
-		// Already on disk — ready for activation. Ownership is verified
-		// by the caller (enable()) after this method returns.
-		if ( $this->is_plugin_installed( $plugin_file ) ) {
-			return true;
-		}
-
-		// Acquire a per-slug transient lock to prevent concurrent installs.
-		// Two simultaneous requests could both see "not installed" and race
-		// Plugin_Upgrader::install(), causing file conflicts or corruption.
-		$lock_key = $this->build_lock_key( $feature->get_plugin_slug() );
-
-		if ( ! $this->acquire_lock( $lock_key ) ) {
-			return new WP_Error(
-				Error_Code::INSTALL_LOCKED,
-				sprintf(
-					'Another installation is already in progress for "%s". Please try again in a few moments.',
-					$feature->get_name()
-				)
-			);
-		}
-
-		try {
-			$install_result = $this->install_plugin( $feature );
-
-			if ( is_wp_error( $install_result ) ) {
-				return $install_result;
-			}
-
-			// Post-install verification: the ZIP's directory structure might not
-			// match the expected plugin_file path. Catch this early with a clear
-			// error rather than a confusing "plugin not found" during activation.
-			// @phpstan-ignore-next-line booleanNot.alwaysTrue -- (install_plugin() creates files on disk; side effects invisible to static analysis).
-			if ( ! $this->is_plugin_installed( $plugin_file ) ) {
-				return new WP_Error(
-					Error_Code::PLUGIN_NOT_FOUND_AFTER_INSTALL,
-					sprintf(
-						'The plugin file was not found after installing "%s". The downloaded package may have an unexpected directory structure.',
-						$feature->get_name()
-					)
-				);
-			}
-
-			return true; // @phpstan-ignore deadCode.unreachable (The check above is a double check)
-		} finally {
-			// Always release the lock, even on early returns or exceptions.
-			$this->release_lock( $lock_key );
-		}
-	}
+	// ── Private helpers ─────────────────────────────────────────────────
 
 	/**
 	 * Install a plugin via plugins_api() and Plugin_Upgrader.

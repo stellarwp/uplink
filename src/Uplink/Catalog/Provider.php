@@ -22,16 +22,16 @@ final class Provider extends Abstract_Provider {
 		$this->container->singleton(
 			Catalog_Client::class,
 			static function () use ( $container ) {
-				$catalog_dir = dirname( __DIR__, 3 ) . '/tests/_data/catalog';
+				$catalog_dir = trailingslashit( dirname( __DIR__, 3 ) ) . 'tests/_data/catalog';
 
 				$license_manager = $container->get( License_Manager::class );
 				$key             = $license_manager->get();
 
-				if ( $key !== null && file_exists( $catalog_dir . '/' . $key . '.json' ) ) {
-					return new Fixture_Client( $catalog_dir . '/' . $key . '.json' );
+				if ( $key !== null && file_exists( trailingslashit( $catalog_dir ) . $key . '.json' ) ) {
+					return new Fixture_Client( trailingslashit( $catalog_dir ) . $key . '.json' );
 				}
 
-				return new Fixture_Client( $catalog_dir . '/default.json' );
+				return new Fixture_Client( trailingslashit( $catalog_dir ) . 'default.json' );
 			}
 		);
 

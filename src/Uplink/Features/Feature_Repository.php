@@ -186,8 +186,9 @@ class Feature_Repository {
 	/**
 	 * Resolves the licensed tier rank for a given product.
 	 *
-	 * Constructs the catalog tier slug as {product_slug}-{license_tier}
-	 * and looks up its rank in the product's tier collection.
+	 * Looks up the license's tier slug directly in the product's tier collection.
+	 * Both the catalog and licensing fixtures use the same product-prefixed
+	 * tier slug convention (e.g. "kadence-pro").
 	 *
 	 * @since 3.0.0
 	 *
@@ -207,8 +208,7 @@ class Feature_Repository {
 			return 0;
 		}
 
-		$tier_slug = $product->get_product_slug() . '-' . $license->get_tier();
-		$tier      = $product->get_tier_by_slug( $tier_slug );
+		$tier = $product->get_tier_by_slug( $license->get_tier() );
 
 		return $tier !== null ? $tier->get_rank() : 0;
 	}

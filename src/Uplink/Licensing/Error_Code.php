@@ -35,4 +35,13 @@ final class Error_Code {
 	 * @var string
 	 */
 	public const PRODUCT_NOT_FOUND = 'stellarwp-uplink-product-not-found';
+
+	/**
+	 * The license key could not be stored.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const STORE_FAILED = 'stellarwp-uplink-store-failed';
 }

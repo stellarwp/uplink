@@ -516,6 +516,21 @@
     ],
     "features": [
       {
+        "feature_slug": "learndash",
+        "type": "plugin",
+        "minimum_tier": "learndash-basic",
+        "plugin_file": "sfwd-lms/sfwd_lms.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash",
+        "name": "LearnDash LMS",
+        "description": "The most trusted WordPress LMS plugin for creating and selling courses.",
+        "category": "core",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/"
+      },
+      {
         "feature_slug": "ld-instructor-role",
         "type": "flag",
         "minimum_tier": "learndash-basic",
@@ -635,6 +650,20 @@
       }
     ],
     "features": [
+      {
+        "feature_slug": "give",
+        "type": "plugin",
+        "minimum_tier": "give-basic",
+        "plugin_file": "give/give.php",
+        "is_dot_org": true,
+        "name": "GiveWP",
+        "description": "The most robust WordPress donation plugin for online giving.",
+        "category": "core",
+        "authors": [
+          "GiveWP"
+        ],
+        "documentation_url": "https://givewp.com/documentation/"
+      },
       {
         "feature_slug": "give-recurring",
         "type": "plugin",
@@ -1110,6 +1139,20 @@
       }
     ],
     "features": [
+      {
+        "feature_slug": "the-events-calendar",
+        "type": "plugin",
+        "minimum_tier": "the-events-calendar-basic",
+        "plugin_file": "the-events-calendar/the-events-calendar.php",
+        "is_dot_org": true,
+        "name": "The Events Calendar",
+        "description": "A powerful events management plugin for WordPress.",
+        "category": "core",
+        "authors": [
+          "StellarWP"
+        ],
+        "documentation_url": "https://theeventscalendar.com/knowledgebase/"
+      },
       {
         "feature_slug": "tec-calendar",
         "type": "flag",

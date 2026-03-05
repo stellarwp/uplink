@@ -184,9 +184,7 @@
         "name": "Valid Theme Feature",
         "description": "A feature delivered as a standalone WordPress theme.",
         "category": "test",
-        "authors": [
-          "StellarWP"
-        ],
+        "authors": ["StellarWP"],
         "documentation_url": ""
       },
       {
@@ -198,9 +196,7 @@
         "name": "Wrong Author Theme Feature",
         "description": "Tests THEME_OWNERSHIP_MISMATCH — theme Author is \"Foreign Developer\" but feature expects \"StellarWP\".",
         "category": "test",
-        "authors": [
-          "StellarWP"
-        ],
+        "authors": ["StellarWP"],
         "documentation_url": ""
       }
     ]

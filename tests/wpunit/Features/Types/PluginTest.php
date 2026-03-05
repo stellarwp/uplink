@@ -158,10 +158,10 @@ final class PluginTest extends UplinkTestCase {
 	public function test_it_defaults_description_to_empty_string(): void {
 		$feature = Plugin::from_array(
 			[
-				'slug'         => 'test-feature',
-				'group'        => 'LearnDash',
-				'tier'         => 'Tier 2',
-				'name'         => 'Test Feature',
+				'slug'          => 'test-feature',
+				'group'         => 'LearnDash',
+				'tier'          => 'Tier 2',
+				'name'          => 'Test Feature',
 				'wp_identifier' => 'test-feature/test-feature.php',
 				'is_available'  => false,
 			]
@@ -178,10 +178,10 @@ final class PluginTest extends UplinkTestCase {
 	public function test_it_defaults_authors_to_empty_array(): void {
 		$feature = Plugin::from_array(
 			[
-				'slug'         => 'test-feature',
-				'group'        => 'LearnDash',
-				'tier'         => 'Tier 1',
-				'name'         => 'Test Feature',
+				'slug'          => 'test-feature',
+				'group'         => 'LearnDash',
+				'tier'          => 'Tier 1',
+				'name'          => 'Test Feature',
 				'wp_identifier' => 'test-feature/test-feature.php',
 				'is_available'  => true,
 			]
@@ -202,11 +202,11 @@ final class PluginTest extends UplinkTestCase {
 	public function test_it_always_has_plugin_type(): void {
 		$feature = new Plugin(
 			[
-				'slug'         => 'test-feature',
-				'group'        => 'LearnDash',
-				'tier'         => 'Tier 2',
-				'name'         => 'Test Feature',
-				'description'  => 'Test feature description.',
+				'slug'          => 'test-feature',
+				'group'         => 'LearnDash',
+				'tier'          => 'Tier 2',
+				'name'          => 'Test Feature',
+				'description'   => 'Test feature description.',
 				'wp_identifier' => 'test-feature/test-feature.php',
 				'is_available'  => true,
 			]
@@ -257,10 +257,10 @@ final class PluginTest extends UplinkTestCase {
 	public function test_is_dot_org_returns_true_when_set(): void {
 		$feature = new Plugin(
 			[
-				'slug'         => self::SLUG,
-				'group'        => self::GROUP,
-				'tier'         => self::TIER,
-				'name'         => self::NAME,
+				'slug'          => self::SLUG,
+				'group'         => self::GROUP,
+				'tier'          => self::TIER,
+				'name'          => self::NAME,
 				'wp_identifier' => self::PLUGIN_FILE,
 				'is_available'  => true,
 				'is_dot_org'    => true,
@@ -276,10 +276,10 @@ final class PluginTest extends UplinkTestCase {
 	public function test_from_array_includes_is_dot_org(): void {
 		$feature = Plugin::from_array(
 			[
-				'slug'         => 'test-feature',
-				'group'        => 'LearnDash',
-				'tier'         => 'Tier 1',
-				'name'         => 'Test Feature',
+				'slug'          => 'test-feature',
+				'group'         => 'LearnDash',
+				'tier'          => 'Tier 1',
+				'name'          => 'Test Feature',
 				'wp_identifier' => 'test-feature/test-feature.php',
 				'is_available'  => true,
 				'is_dot_org'    => true,
@@ -349,14 +349,14 @@ final class PluginTest extends UplinkTestCase {
 	public function test_get_plugin_slug_returns_explicit_slug(): void {
 		$feature = new Plugin(
 			[
-				'slug'         => 'feature-slug',
-				'group'        => self::GROUP,
-				'tier'         => self::TIER,
-				'name'         => self::NAME,
-				'description'  => self::DESCRIPTION,
+				'slug'          => 'feature-slug',
+				'group'         => self::GROUP,
+				'tier'          => self::TIER,
+				'name'          => self::NAME,
+				'description'   => self::DESCRIPTION,
 				'wp_identifier' => 'the-directory/the-directory.php',
 				'plugin_slug'   => 'custom-slug',
-				'is_available' => true,
+				'is_available'  => true,
 			]
 		);
 

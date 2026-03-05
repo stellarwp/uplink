@@ -77,7 +77,7 @@ class Plugin_Strategy extends Installable_Strategy {
 	 * @inheritDoc
 	 */
 	protected function get_type_mismatch_message(): string {
-		return 'This feature type is not supported by the Plugin installer.';
+		return __( 'This feature type is not supported by the Plugin installer.', '%TEXTDOMAIN%' );
 	}
 
 	/**

@@ -54,7 +54,7 @@ class Theme_Strategy extends Installable_Strategy {
 	 * @inheritDoc
 	 */
 	protected function get_type_mismatch_message(): string {
-		return 'This feature type is not supported by the Theme installer.';
+		return __( 'This feature type is not supported by the Theme installer.', '%TEXTDOMAIN%' );
 	}
 
 	/**

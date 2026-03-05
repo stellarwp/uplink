@@ -111,7 +111,9 @@ class Handler {
 			return $result;
 		}
 
-		// TODO: Check for a Unified License Key. If absent, return $result so the old pathway runs without modification.
+		if ( empty( $this->key ) ) {
+			return $result;
+		}
 
 		/** @var string $slug */
 		$slug = $args->slug;
@@ -142,7 +144,7 @@ class Handler {
 
 		$domain   = $this->site_data->get_domain();
 		$response = $this->update_client->check_updates(
-			'', // TODO: Pass the unified license key.
+			$this->key,
 			$domain,
 			$products['versions']
 		);
@@ -168,7 +170,9 @@ class Handler {
 			return $transient;
 		}
 
-		// TODO: Check for a Unified License Key. If absent, return $transient so the old pathway runs without modification.
+		if ( empty( $this->key ) ) {
+			return $transient;
+		}
 
 		$products = $this->collect_products();
 
@@ -178,7 +182,7 @@ class Handler {
 
 		$domain   = $this->site_data->get_domain();
 		$response = $this->update_client->check_updates(
-			'', // TODO: Pass the unified license key.
+			$this->key,
 			$domain,
 			$products['versions']
 		);

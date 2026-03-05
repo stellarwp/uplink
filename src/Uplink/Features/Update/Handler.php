@@ -4,13 +4,13 @@ namespace StellarWP\Uplink\Features\Update;
 
 use StellarWP\Uplink\Features\API\Update_Client;
 use StellarWP\Uplink\Features\Feature_Repository;
-use StellarWP\Uplink\Features\Types\Zip;
+use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Site\Data;
 use stdClass;
 
 /**
- * Consolidated update handler for Zip features and Resources.
+ * Consolidated update handler for Plugin features and Resources.
  *
  * Filters `plugins_api`, `pre_set_site_transient_update_plugins`,
  * and `site_transient_update_plugins` to provide update information
@@ -93,7 +93,7 @@ class Handler {
 	}
 
 	/**
-	 * Filters the plugins_api response for Zip features and Resources.
+	 * Filters the plugins_api response for Plugin features and Resources.
 	 *
 	 * Calls check_updates() which returns from cache if available,
 	 * or fetches fresh data from the consolidation server.
@@ -116,7 +116,7 @@ class Handler {
 		/** @var string $slug */
 		$slug = $args->slug;
 
-		// Check whether the requested slug belongs to a known Zip feature.
+		// Check whether the requested slug belongs to a known Plugin feature.
 		$features = $this->feature_repository->get( $this->key, $this->site_data->get_domain() );
 
 		if ( is_wp_error( $features ) || $features->get( $slug ) === null ) {
@@ -133,7 +133,7 @@ class Handler {
 		if ( ! isset( $products['versions'][ $slug ] ) ) {
 			$feature = $features->get( $slug );
 
-			$installed = ( $feature instanceof Zip )
+			$installed = ( $feature instanceof Plugin )
 				? ( $feature->get_installed_version() ?? '0.0.0' )
 				: '0.0.0';
 
@@ -231,7 +231,7 @@ class Handler {
 	}
 
 	/**
-	 * Collects all installed Zip features and Resources with their versions and plugin files.
+	 * Collects all installed Plugin features and Resources with their versions and plugin files.
 	 *
 	 * @since 3.0.0
 	 *
@@ -241,14 +241,14 @@ class Handler {
 		$versions     = [];
 		$plugin_files = [];
 
-		// Collect Zip features.
+		// Collect Plugin features.
 		$features = $this->feature_repository->get( $this->key, $this->site_data->get_domain() );
 
 		if ( ! is_wp_error( $features ) ) {
-			$zip_features = $features->filter( null, null, null, 'zip' );
+			$plugin_features = $features->filter( null, null, null, 'plugin' );
 
-			foreach ( $zip_features as $feature ) {
-				if ( ! $feature instanceof Zip ) {
+			foreach ( $plugin_features as $feature ) {
+				if ( ! $feature instanceof Plugin ) {
 					continue;
 				}
 

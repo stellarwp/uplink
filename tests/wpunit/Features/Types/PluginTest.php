@@ -2,11 +2,11 @@
 
 namespace StellarWP\Uplink\Tests\Features\Types;
 
-use StellarWP\Uplink\Features\Types\Zip;
+use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use stdClass;
 
-final class ZipTest extends UplinkTestCase {
+final class PluginTest extends UplinkTestCase {
 
 	/**
 	 * Standard test values.
@@ -41,7 +41,7 @@ final class ZipTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Create a Zip feature with configurable values.
+	 * Create a Plugin feature with configurable values.
 	 *
 	 * @param string   $slug        Feature slug.
 	 * @param string   $name        Display name.
@@ -49,7 +49,7 @@ final class ZipTest extends UplinkTestCase {
 	 * @param string   $plugin_file Plugin file path.
 	 * @param string[] $authors     Expected plugin authors.
 	 *
-	 * @return Zip
+	 * @return Plugin
 	 */
 	private function make_feature(
 		string $slug = self::SLUG,
@@ -57,8 +57,8 @@ final class ZipTest extends UplinkTestCase {
 		string $description = self::DESCRIPTION,
 		string $plugin_file = self::PLUGIN_FILE,
 		array $authors = [ 'StellarWP' ]
-	): Zip {
-		return new Zip(
+	): Plugin {
+		return new Plugin(
 			[
 				'slug'         => $slug,
 				'group'        => self::GROUP,
@@ -77,12 +77,12 @@ final class ZipTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Tests a Zip feature can be hydrated from an associative array.
+	 * Tests a Plugin feature can be hydrated from an associative array.
 	 *
 	 * @return void
 	 */
 	public function test_it_creates_from_array(): void {
-		$feature = Zip::from_array(
+		$feature = Plugin::from_array(
 			[
 				'slug'              => 'test-feature',
 				'group'             => 'LearnDash',
@@ -96,13 +96,13 @@ final class ZipTest extends UplinkTestCase {
 			]
 		);
 
-		$this->assertInstanceOf( Zip::class, $feature );
+		$this->assertInstanceOf( Plugin::class, $feature );
 		$this->assertSame( 'test-feature', $feature->get_slug() );
 		$this->assertSame( 'LearnDash', $feature->get_group() );
 		$this->assertSame( 'Tier 2', $feature->get_tier() );
 		$this->assertSame( 'Test Feature', $feature->get_name() );
 		$this->assertSame( 'Test feature description.', $feature->get_description() );
-		$this->assertSame( 'zip', $feature->get_type() );
+		$this->assertSame( 'plugin', $feature->get_type() );
 		$this->assertSame( 'test-feature/test-feature.php', $feature->get_plugin_file() );
 		$this->assertTrue( $feature->is_available() );
 		$this->assertSame( 'https://example.com/docs', $feature->get_documentation_url() );
@@ -115,7 +115,7 @@ final class ZipTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_to_array(): void {
-		$feature = new Zip(
+		$feature = new Plugin(
 			[
 				'slug'              => 'test-feature',
 				'group'             => 'LearnDash',
@@ -140,7 +140,7 @@ final class ZipTest extends UplinkTestCase {
 				'is_available'      => true,
 				'documentation_url' => 'https://example.com/docs',
 				'authors'           => [ 'StellarWP' ],
-				'type'              => 'zip',
+				'type'              => 'plugin',
 				'installed_version' => null,
 				'new_version'       => '2.0.0',
 				'has_update'        => false,
@@ -161,7 +161,7 @@ final class ZipTest extends UplinkTestCase {
 			'tier'              => 'Tier 2',
 			'name'              => 'Test Feature',
 			'description'       => 'Test feature description.',
-			'type'              => 'zip',
+			'type'              => 'plugin',
 			'plugin_file'       => 'test-feature/test-feature.php',
 			'plugin_slug'       => '',
 			'is_available'      => true,
@@ -171,7 +171,7 @@ final class ZipTest extends UplinkTestCase {
 			'authors'           => [ 'StellarWP' ],
 		];
 
-		$feature = Zip::from_array( $data );
+		$feature = Plugin::from_array( $data );
 
 		$expected = $data + [
 			'installed_version' => null,
@@ -187,7 +187,7 @@ final class ZipTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_defaults_description_to_empty_string(): void {
-		$feature = Zip::from_array(
+		$feature = Plugin::from_array(
 			[
 				'slug'         => 'test-feature',
 				'group'        => 'LearnDash',
@@ -207,7 +207,7 @@ final class ZipTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_defaults_authors_to_empty_array(): void {
-		$feature = Zip::from_array(
+		$feature = Plugin::from_array(
 			[
 				'slug'         => 'test-feature',
 				'group'        => 'LearnDash',
@@ -226,12 +226,12 @@ final class ZipTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Tests that the type is always "zip" regardless of constructor arguments.
+	 * Tests that the type is always "plugin" regardless of constructor arguments.
 	 *
 	 * @return void
 	 */
-	public function test_it_always_has_zip_type(): void {
-		$feature = new Zip(
+	public function test_it_always_has_plugin_type(): void {
+		$feature = new Plugin(
 			[
 				'slug'         => 'test-feature',
 				'group'        => 'LearnDash',
@@ -243,11 +243,11 @@ final class ZipTest extends UplinkTestCase {
 			]
 		);
 
-		$this->assertSame( 'zip', $feature->get_type() );
+		$this->assertSame( 'plugin', $feature->get_type() );
 	}
 
 	// -------------------------------------------------------------------------
-	// Zip-specific getters
+	// Plugin-specific getters
 	// -------------------------------------------------------------------------
 
 	/**
@@ -322,7 +322,7 @@ final class ZipTest extends UplinkTestCase {
 	 * get_plugin_slug() returns the explicit plugin_slug attribute when set.
 	 */
 	public function test_get_plugin_slug_returns_explicit_slug(): void {
-		$feature = new Zip(
+		$feature = new Plugin(
 			[
 				'slug'         => 'feature-slug',
 				'group'        => self::GROUP,
@@ -397,7 +397,7 @@ final class ZipTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_is_installed_returns_false_when_plugin_missing(): void {
-		$feature = Zip::from_array(
+		$feature = Plugin::from_array(
 			[
 				'slug'         => 'nonexistent-plugin',
 				'group'        => 'LearnDash',
@@ -417,7 +417,7 @@ final class ZipTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_is_installed_returns_false_when_plugin_file_empty(): void {
-		$feature = Zip::from_array(
+		$feature = Plugin::from_array(
 			[
 				'slug'         => 'no-file',
 				'group'        => 'LearnDash',
@@ -437,7 +437,7 @@ final class ZipTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_get_installed_version_returns_null_when_not_installed(): void {
-		$feature = Zip::from_array(
+		$feature = Plugin::from_array(
 			[
 				'slug'         => 'nonexistent-plugin',
 				'group'        => 'LearnDash',
@@ -457,7 +457,7 @@ final class ZipTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_get_new_version_returns_attribute_value(): void {
-		$feature = new Zip(
+		$feature = new Plugin(
 			[
 				'slug'         => 'test-feature',
 				'group'        => self::GROUP,
@@ -480,7 +480,7 @@ final class ZipTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_get_new_version_falls_back_to_transient(): void {
-		$feature = new Zip(
+		$feature = new Plugin(
 			[
 				'slug'         => 'test-feature',
 				'group'        => self::GROUP,
@@ -504,7 +504,7 @@ final class ZipTest extends UplinkTestCase {
 	public function test_get_new_version_returns_null_when_no_version_available(): void {
 		delete_site_transient( 'update_plugins' );
 
-		$feature = new Zip(
+		$feature = new Plugin(
 			[
 				'slug'         => 'no-version',
 				'group'        => self::GROUP,
@@ -527,7 +527,7 @@ final class ZipTest extends UplinkTestCase {
 	 * All getters return the correct values from a single constructor call.
 	 */
 	public function test_all_getters_return_correct_values(): void {
-		$feature = new Zip(
+		$feature = new Plugin(
 			[
 				'slug'              => 'the-slug',
 				'group'             => 'LearnDash',
@@ -547,7 +547,7 @@ final class ZipTest extends UplinkTestCase {
 		$this->assertSame( 'Tier 1', $feature->get_tier() );
 		$this->assertSame( 'The Name', $feature->get_name() );
 		$this->assertSame( 'The description.', $feature->get_description() );
-		$this->assertSame( 'zip', $feature->get_type() );
+		$this->assertSame( 'plugin', $feature->get_type() );
 		$this->assertTrue( $feature->is_available() );
 		$this->assertSame( 'https://example.com/docs', $feature->get_documentation_url() );
 		$this->assertSame( 'the-directory/the-directory.php', $feature->get_plugin_file() );

@@ -24,8 +24,9 @@ final class Provider extends Abstract_Provider {
 			static function () use ( $container ) {
 				$catalog_dir = trailingslashit( dirname( __DIR__, 3 ) ) . 'tests/_data/catalog';
 
+				/** @var License_Manager $license_manager */
 				$license_manager = $container->get( License_Manager::class );
-				$key             = $license_manager->get();
+				$key             = $license_manager->get_key();
 
 				if ( $key !== null && file_exists( trailingslashit( $catalog_dir ) . $key . '.json' ) ) {
 					return new Fixture_Client( trailingslashit( $catalog_dir ) . $key . '.json' );

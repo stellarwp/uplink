@@ -22,4 +22,4 @@ diff.txt
 diffcs.txt
 phpcs.json
 
-tests/_data/Features/Zips/*.zip
+tests/_data/Features/Plugins/*.zip

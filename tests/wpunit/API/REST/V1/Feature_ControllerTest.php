@@ -52,7 +52,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 					'get_description'       => 'Alpha description',
 					'get_group'             => 'GroupA',
 					'get_tier'              => 'Tier 1',
-					'get_type'              => 'zip',
+					'get_type'              => 'plugin',
 					'is_available'          => true,
 					'get_documentation_url' => 'https://example.com/alpha',
 					'to_array'              => [
@@ -61,7 +61,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 						'tier'              => 'Tier 1',
 						'name'              => 'Feature Alpha',
 						'description'       => 'Alpha description',
-						'type'              => 'zip',
+						'type'              => 'plugin',
 						'is_available'      => true,
 						'documentation_url' => 'https://example.com/alpha',
 					],
@@ -407,7 +407,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$this->assertSame( 'Alpha description', $data['description'] );
 		$this->assertSame( 'GroupA', $data['group'] );
 		$this->assertSame( 'Tier 1', $data['tier'] );
-		$this->assertSame( 'zip', $data['type'] );
+		$this->assertSame( 'plugin', $data['type'] );
 		$this->assertTrue( $data['is_available'] );
 		$this->assertSame( 'https://example.com/alpha', $data['documentation_url'] );
 		$this->assertArrayHasKey( 'is_enabled', $data );
@@ -594,7 +594,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$this->assertSame( 'Alpha description', $data['description'] );
 		$this->assertSame( 'GroupA', $data['group'] );
 		$this->assertSame( 'Tier 1', $data['tier'] );
-		$this->assertSame( 'zip', $data['type'] );
+		$this->assertSame( 'plugin', $data['type'] );
 		$this->assertTrue( $data['is_available'] );
 		$this->assertSame( 'https://example.com/alpha', $data['documentation_url'] );
 		$this->assertTrue( $data['is_enabled'] );
@@ -690,7 +690,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$this->assertSame( 'Alpha description', $data['description'] );
 		$this->assertSame( 'GroupA', $data['group'] );
 		$this->assertSame( 'Tier 1', $data['tier'] );
-		$this->assertSame( 'zip', $data['type'] );
+		$this->assertSame( 'plugin', $data['type'] );
 		$this->assertTrue( $data['is_available'] );
 		$this->assertSame( 'https://example.com/alpha', $data['documentation_url'] );
 		$this->assertFalse( $data['is_enabled'] );

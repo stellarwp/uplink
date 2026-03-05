@@ -43,7 +43,7 @@ class Provider extends Abstract_Provider {
 					$c->get( Feature_Repository::class ),
 					$c->get( Collection::class ),
 					$c->get( Data::class ),
-					$c->get( License_Manager::class )->get() ?? ''
+					$c->get( License_Manager::class )->get_key() ?? ''
 				);
 			}
 		);

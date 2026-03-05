@@ -14,10 +14,12 @@ use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Resolve_Feature_Collection;
 use StellarWP\Uplink\Features\Types\Flag;
-use StellarWP\Uplink\Features\Types\Zip;
+use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Licensing\Contracts\Licensing_Client;
 use StellarWP\Uplink\Licensing\Fixture_Client as Licensing_Fixture;
-use StellarWP\Uplink\Licensing\Product_Repository;
+use StellarWP\Uplink\Licensing\License_Manager;
+use StellarWP\Uplink\Licensing\Registry\Product_Registry;
+use StellarWP\Uplink\Licensing\Repositories\License_Repository;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
 
@@ -33,7 +35,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 
 		delete_transient( Feature_Repository::TRANSIENT_KEY );
 		delete_transient( Catalog_Repository::TRANSIENT_KEY );
-		delete_transient( Product_Repository::TRANSIENT_KEY );
+		delete_transient( License_Repository::PRODUCTS_TRANSIENT_KEY );
 	}
 
 	/**
@@ -44,7 +46,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	protected function tearDown(): void {
 		delete_transient( Feature_Repository::TRANSIENT_KEY );
 		delete_transient( Catalog_Repository::TRANSIENT_KEY );
-		delete_transient( Product_Repository::TRANSIENT_KEY );
+		delete_transient( License_Repository::PRODUCTS_TRANSIENT_KEY );
 
 		parent::tearDown();
 	}
@@ -53,19 +55,19 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 * Creates a Resolve_Feature_Collection with the given repository dependencies.
 	 *
 	 * @param Catalog_Repository $catalog  The catalog repository.
-	 * @param Product_Repository $licensing The licensing product repository.
+	 * @param License_Repository $licensing The licensing repository.
 	 *
 	 * @return Resolve_Feature_Collection
 	 */
 	private function make_resolver(
 		Catalog_Repository $catalog,
-		Product_Repository $licensing
+		License_Manager $licensing
 	): Resolve_Feature_Collection {
 		$resolver = new Resolve_Feature_Collection( $catalog, $licensing );
 
-		$resolver->register_type( 'plugin', Zip::class );
+		$resolver->register_type( 'plugin', Plugin::class );
 		$resolver->register_type( 'flag', Flag::class );
-		$resolver->register_type( 'theme', Zip::class );
+		$resolver->register_type( 'theme', Plugin::class );
 
 		return $resolver;
 	}
@@ -90,8 +92,12 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 			$licensing_client = new Licensing_Fixture( codecept_data_dir( 'licensing' ) );
 		}
 
-		$catalog  = new Catalog_Repository( $catalog_client );
-		$licensing = new Product_Repository( $licensing_client );
+		$catalog   = new Catalog_Repository( $catalog_client );
+		$licensing = new License_Manager( new License_Repository(), new Product_Registry(), $licensing_client );
+
+		if ( $licensing_override !== null ) {
+			$licensing->store_key( $licensing_override );
+		}
 
 		return new Feature_Repository(
 			$this->make_resolver( $catalog, $licensing )
@@ -113,17 +119,17 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Tests that catalog plugin type maps to the Zip Feature subclass.
+	 * Tests that catalog plugin type maps to the Plugin Feature subclass.
 	 *
 	 * @return void
 	 */
-	public function test_it_maps_plugin_type_to_zip(): void {
+	public function test_it_maps_plugin_type_to_plugin(): void {
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
 		$result     = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
 		$feature    = $result->get( 'kad-blocks-pro' );
 
-		$this->assertInstanceOf( Zip::class, $feature );
-		$this->assertSame( 'zip', $feature->get_type() );
+		$this->assertInstanceOf( Plugin::class, $feature );
+		$this->assertSame( 'plugin', $feature->get_type() );
 	}
 
 	/**
@@ -202,7 +208,8 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		$licensing_client = new Licensing_Fixture( codecept_data_dir( 'licensing' ) );
 
 		$catalog   = new Catalog_Repository( $catalog_client );
-		$licensing = new Product_Repository( $licensing_client );
+		$licensing = new License_Manager( new License_Repository(), new Product_Registry(), $licensing_client );
+		$licensing->store_key( 'lwsw-unified-kad-pro-2026' );
 
 		$repository = new Feature_Repository(
 			$this->make_resolver( $catalog, $licensing )
@@ -236,7 +243,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	public function test_it_returns_cached_collection(): void {
 		$cached = new Feature_Collection();
 		$cached->add(
-			Zip::from_array(
+			Plugin::from_array(
 				[
 					'slug'              => 'cached-feature',
 					'group'             => 'test',
@@ -250,9 +257,10 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 			)
 		);
 
-		set_transient( Feature_Repository::TRANSIENT_KEY, $cached );
-
+		// Set the transient after make_repository() so that store_key() inside
+		// make_repository() does not fire the key-changed hook and wipe the cache.
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
+		set_transient( Feature_Repository::TRANSIENT_KEY, $cached );
 		$result     = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
 
 		$this->assertCount( 1, $result );
@@ -266,9 +274,11 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 */
 	public function test_it_returns_cached_wp_error(): void {
 		$error = new WP_Error( 'api_error', 'Cached error' );
-		set_transient( Feature_Repository::TRANSIENT_KEY, $error );
 
+		// Set the transient after make_repository() so that store_key() inside
+		// make_repository() does not fire the key-changed hook and wipe the cache.
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
+		set_transient( Feature_Repository::TRANSIENT_KEY, $error );
 		$result     = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
@@ -306,7 +316,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	public function test_hydrate_feature_returns_wp_error_for_unknown_type(): void {
 		$resolver = $this->make_resolver(
 			new Catalog_Repository( new Catalog_Fixture( codecept_data_dir( 'catalog/default.json' ) ) ),
-			new Product_Repository( new Licensing_Fixture( codecept_data_dir( 'licensing' ) ) )
+			new License_Manager( new License_Repository(), new Product_Registry(), new Licensing_Fixture( codecept_data_dir( 'licensing' ) ) )
 		);
 
 		// Do NOT register 'unknown_type' — only plugin/flag/theme are registered.
@@ -352,7 +362,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	public function test_hydrate_feature_returns_feature_for_known_type(): void {
 		$resolver = $this->make_resolver(
 			new Catalog_Repository( new Catalog_Fixture( codecept_data_dir( 'catalog/default.json' ) ) ),
-			new Product_Repository( new Licensing_Fixture( codecept_data_dir( 'licensing' ) ) )
+			new License_Manager( new License_Repository(), new Product_Registry(), new Licensing_Fixture( codecept_data_dir( 'licensing' ) ) )
 		);
 
 		$catalog_feature = Catalog_Feature::from_array(
@@ -404,7 +414,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		$this->assertSame( 'Premium Gutenberg blocks for advanced page building.', $feature->get_description() );
 		$this->assertSame( 'https://www.kadencewp.com/help-center/', $feature->get_documentation_url() );
 
-		$this->assertInstanceOf( Zip::class, $feature );
+		$this->assertInstanceOf( Plugin::class, $feature );
 		$this->assertSame( 'kadence-blocks-pro/kadence-blocks-pro.php', $feature->get_plugin_file() );
 	}
 }

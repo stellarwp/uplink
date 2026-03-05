@@ -1,5 +1,4 @@
 /**
- * @see .plans/wp-data-store-features.md for the full migration checklist.
  */
 import { AppShell } from '@/components/templates/AppShell';
 import { Toaster } from '@/components/ui/toast';

@@ -4,6 +4,8 @@
 	<file>.</file>
 
 	<!-- General exclusions -->
+	<exclude-pattern>*/build/*</exclude-pattern>
+	<exclude-pattern>*/build-dev/*</exclude-pattern>
 	<exclude-pattern>*/docs/*</exclude-pattern>
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
 	<exclude-pattern>*/phpstan-cache/*</exclude-pattern>

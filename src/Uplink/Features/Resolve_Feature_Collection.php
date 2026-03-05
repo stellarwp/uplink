@@ -6,8 +6,8 @@ use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Catalog\Results\Catalog_Feature;
 use StellarWP\Uplink\Catalog\Results\Product_Catalog;
 use StellarWP\Uplink\Features\Types\Feature;
+use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Product_Collection;
-use StellarWP\Uplink\Licensing\Product_Repository;
 use WP_Error;
 
 /**
@@ -30,13 +30,13 @@ class Resolve_Feature_Collection {
 	private Catalog_Repository $catalog;
 
 	/**
-	 * The licensing product repository.
+	 * The license manager.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @var Product_Repository
+	 * @var License_Manager
 	 */
-	private Product_Repository $licensing;
+	private License_Manager $licensing;
 
 	/**
 	 * Map of catalog type strings to Feature subclass names.
@@ -52,12 +52,12 @@ class Resolve_Feature_Collection {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Catalog_Repository $catalog  The catalog repository.
-	 * @param Product_Repository $licensing The licensing product repository.
+	 * @param Catalog_Repository $catalog   The catalog repository.
+	 * @param License_Manager    $licensing The license manager.
 	 */
 	public function __construct(
 		Catalog_Repository $catalog,
-		Product_Repository $licensing
+		License_Manager $licensing
 	) {
 		$this->catalog   = $catalog;
 		$this->licensing = $licensing;
@@ -85,19 +85,18 @@ class Resolve_Feature_Collection {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $key    License key.
 	 * @param string $domain Site domain.
 	 *
 	 * @return Feature_Collection|WP_Error
 	 */
-	public function __invoke( string $key, string $domain ) {
+	public function __invoke( string $domain ) {
 		$catalog = $this->catalog->get();
 
 		if ( is_wp_error( $catalog ) ) {
 			return $catalog;
 		}
 
-		$products = $this->licensing->get( $key, $domain );
+		$products = $this->licensing->get_products( $domain );
 
 		if ( is_wp_error( $products ) ) {
 			return $products;
@@ -157,8 +156,8 @@ class Resolve_Feature_Collection {
 	/**
 	 * Hydrates a Feature object from a catalog feature entry.
 	 *
-	 * Maps catalog types (plugin, flag, theme) to Feature subclasses
-	 * (Zip, Flag) and computes is_available from tier rank comparison.
+	 * Maps catalog types (plugin, theme, flag) to Feature subclasses
+	 * (Plugin, Theme,Flag) and computes is_available from tier rank comparison.
 	 *
 	 * @since 3.0.0
 	 *
@@ -191,6 +190,8 @@ class Resolve_Feature_Collection {
 		$minimum_rank = $minimum_tier !== null ? $minimum_tier->get_rank() : PHP_INT_MAX;
 		$is_available = $license_tier_rank >= $minimum_rank;
 
+		$plugin_file = $catalog_feature->get_plugin_file() ?? '';
+
 		$data = [
 			'slug'              => $catalog_feature->get_feature_slug(),
 			'group'             => $product->get_product_slug(),
@@ -200,11 +201,12 @@ class Resolve_Feature_Collection {
 			'type'              => $catalog_type,
 			'is_available'      => $is_available,
 			'documentation_url' => $catalog_feature->get_documentation_url(),
-			'plugin_file'       => $catalog_feature->get_plugin_file() ?? '',
+			'authors'           => $catalog_feature->get_authors(),
+			'plugin_file'       => $plugin_file,
+			'plugin_slug'       => $plugin_file !== '' ? dirname( $plugin_file ) : '',
 			'download_url'      => $catalog_feature->get_download_url() ?? '',
 			'new_version'       => $catalog_feature->get_version(),
 			'is_dot_org'        => $catalog_feature->is_dot_org(),
-			'authors'           => $catalog_feature->get_authors(),
 		];
 
 		return $class::from_array( $data );

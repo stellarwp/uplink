@@ -3,7 +3,7 @@
 namespace StellarWP\Uplink\Features\API;
 
 use StellarWP\Uplink\Features\Feature_Repository;
-use StellarWP\Uplink\Features\Types\Zip;
+use StellarWP\Uplink\Features\Types\Plugin;
 use WP_Error;
 
 /**
@@ -96,7 +96,7 @@ class Update_Client {
 	}
 
 	/**
-	 * Fetches available Zip features from the Feature_Repository
+	 * Fetches available Plugin features from the Feature_Repository
 	 * and transforms them into WordPress-compatible update data.
 	 *
 	 * Only features where is_available() returns true are included,
@@ -119,13 +119,13 @@ class Update_Client {
 			return $features;
 		}
 
-		$available_zips = $features->filter( null, null, true, 'zip' );
+		$available_plugins = $features->filter( null, null, true, 'plugin' );
 
 		$updates = [];
 
-		foreach ( $available_zips as $feature ) {
+		foreach ( $available_plugins as $feature ) {
 			if (
-				! $feature instanceof Zip
+				! $feature instanceof Plugin
 				|| $feature->is_dot_org()
 			) {
 				continue;

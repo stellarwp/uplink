@@ -5,7 +5,7 @@ namespace StellarWP\Uplink\Tests\Features\API;
 use StellarWP\Uplink\Features\API\Update_Client;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Feature_Repository;
-use StellarWP\Uplink\Features\Types\Zip;
+use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
 
@@ -82,7 +82,7 @@ final class Update_ClientTest extends UplinkTestCase {
 		$collection = new Feature_Collection();
 
 		$collection->add(
-			new Zip(
+			new Plugin(
 				[
 					'slug'         => 'available-feature',
 					'group'        => 'kadence',
@@ -99,7 +99,7 @@ final class Update_ClientTest extends UplinkTestCase {
 		);
 
 		$collection->add(
-			new Zip(
+			new Plugin(
 				[
 					'slug'         => 'unavailable-feature',
 					'group'        => 'kadence',
@@ -132,7 +132,7 @@ final class Update_ClientTest extends UplinkTestCase {
 		$collection = new Feature_Collection();
 
 		$collection->add(
-			new Zip(
+			new Plugin(
 				[
 					'slug'         => 'custom-feature',
 					'group'        => 'kadence',
@@ -150,7 +150,7 @@ final class Update_ClientTest extends UplinkTestCase {
 		);
 
 		$collection->add(
-			new Zip(
+			new Plugin(
 				[
 					'slug'         => 'dotorg-feature',
 					'group'        => 'kadence',
@@ -254,7 +254,7 @@ final class Update_ClientTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Builds a Feature_Collection with a Zip feature matching the catalog fixture data.
+	 * Builds a Feature_Collection with a Plugin feature matching the catalog fixture data.
 	 *
 	 * @return Feature_Collection
 	 */
@@ -262,7 +262,7 @@ final class Update_ClientTest extends UplinkTestCase {
 		$collection = new Feature_Collection();
 
 		$collection->add(
-			new Zip(
+			new Plugin(
 				[
 					'slug'              => 'kad-blocks-pro',
 					'group'             => 'kadence',

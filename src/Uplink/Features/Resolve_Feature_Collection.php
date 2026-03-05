@@ -204,9 +204,6 @@ class Resolve_Feature_Collection {
 			'authors'           => $catalog_feature->get_authors(),
 			'plugin_file'       => $plugin_file,
 			'plugin_slug'       => $plugin_file !== '' ? dirname( $plugin_file ) : '',
-			'download_url'      => $catalog_feature->get_download_url() ?? '',
-			'new_version'       => $catalog_feature->get_version(),
-			'is_dot_org'        => $catalog_feature->is_dot_org(),
 		];
 
 		return $class::from_array( $data );

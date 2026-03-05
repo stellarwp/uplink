@@ -2,6 +2,8 @@
 
 namespace StellarWP\Uplink\Tests\Features\Update;
 
+use StellarWP\Uplink\Catalog\Catalog_Collection;
+use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Types\Plugin;
@@ -27,7 +29,10 @@ final class Update_RepositoryTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->repository = $this->make_update_repository( $this->build_feature_collection() );
+		$this->repository = $this->make_update_repository(
+			$this->build_feature_collection(),
+			$this->build_catalog_collection()
+		);
 
 		delete_transient( Update_Repository::TRANSIENT_KEY );
 	}
@@ -91,8 +96,6 @@ final class Update_RepositoryTest extends UplinkTestCase {
 					'name'         => 'Available Feature',
 					'description'  => 'An available feature.',
 					'plugin_file'  => 'available-feature/available-feature.php',
-					'download_url' => 'https://example.com/available.zip',
-					'new_version'  => '1.0.0',
 					'is_available' => true,
 					'authors'      => [ 'StellarWP' ],
 				]
@@ -108,15 +111,50 @@ final class Update_RepositoryTest extends UplinkTestCase {
 					'name'         => 'Unavailable Feature',
 					'description'  => 'An unavailable feature.',
 					'plugin_file'  => 'unavailable-feature/unavailable-feature.php',
-					'download_url' => 'https://example.com/unavailable.zip',
-					'new_version'  => '1.0.0',
 					'is_available' => false,
 					'authors'      => [ 'StellarWP' ],
 				]
 			)
 		);
 
-		$repository = $this->make_update_repository( $collection );
+		$catalog = Catalog_Collection::from_array(
+			[
+				[
+					'product_slug' => 'kadence',
+					'tiers'        => [],
+					'features'     => [
+						[
+							'feature_slug'      => 'available-feature',
+							'type'              => 'plugin',
+							'minimum_tier'      => 'kadence-basic',
+							'is_dot_org'        => false,
+							'download_url'      => 'https://example.com/available.zip',
+							'version'           => '1.0.0',
+							'name'              => 'Available Feature',
+							'description'       => 'An available feature.',
+							'category'          => '',
+							'authors'           => [ 'StellarWP' ],
+							'documentation_url' => '',
+						],
+						[
+							'feature_slug'      => 'unavailable-feature',
+							'type'              => 'plugin',
+							'minimum_tier'      => 'kadence-pro',
+							'is_dot_org'        => false,
+							'download_url'      => 'https://example.com/unavailable.zip',
+							'version'           => '1.0.0',
+							'name'              => 'Unavailable Feature',
+							'description'       => 'An unavailable feature.',
+							'category'          => '',
+							'authors'           => [ 'StellarWP' ],
+							'documentation_url' => '',
+						],
+					],
+				],
+			]
+		);
+
+		$repository = $this->make_update_repository( $collection, $catalog );
 		$result     = $repository->get( 'test-key', 'example.com' );
 
 		$this->assertIsArray( $result );
@@ -141,10 +179,7 @@ final class Update_RepositoryTest extends UplinkTestCase {
 					'name'         => 'Custom Feature',
 					'description'  => 'A custom feature.',
 					'plugin_file'  => 'custom-feature/custom-feature.php',
-					'download_url' => 'https://example.com/custom.zip',
-					'new_version'  => '1.0.0',
 					'is_available' => true,
-					'is_dot_org'   => false,
 					'authors'      => [ 'StellarWP' ],
 				]
 			)
@@ -159,16 +194,48 @@ final class Update_RepositoryTest extends UplinkTestCase {
 					'name'         => 'Dot Org Feature',
 					'description'  => 'A feature on WordPress.org.',
 					'plugin_file'  => 'dot-org-feature/dot-org-feature.php',
-					'download_url' => '',
-					'new_version'  => '2.0.0',
 					'is_available' => true,
-					'is_dot_org'   => true,
 					'authors'      => [ 'StellarWP' ],
 				]
 			)
 		);
 
-		$repository = $this->make_update_repository( $collection );
+		$catalog = Catalog_Collection::from_array(
+			[
+				[
+					'product_slug' => 'kadence',
+					'tiers'        => [],
+					'features'     => [
+						[
+							'feature_slug'      => 'custom-feature',
+							'type'              => 'plugin',
+							'minimum_tier'      => 'kadence-basic',
+							'is_dot_org'        => false,
+							'download_url'      => 'https://example.com/custom.zip',
+							'version'           => '1.0.0',
+							'name'              => 'Custom Feature',
+							'description'       => 'A custom feature.',
+							'category'          => '',
+							'authors'           => [ 'StellarWP' ],
+							'documentation_url' => '',
+						],
+						[
+							'feature_slug'      => 'dot-org-feature',
+							'type'              => 'plugin',
+							'minimum_tier'      => 'kadence-basic',
+							'is_dot_org'        => true,
+							'name'              => 'Dot Org Feature',
+							'description'       => 'A feature on WordPress.org.',
+							'category'          => '',
+							'authors'           => [ 'StellarWP' ],
+							'documentation_url' => '',
+						],
+					],
+				],
+			]
+		);
+
+		$repository = $this->make_update_repository( $collection, $catalog );
 		$result     = $repository->get( 'test-key', 'example.com' );
 
 		$this->assertIsArray( $result );
@@ -229,7 +296,7 @@ final class Update_RepositoryTest extends UplinkTestCase {
 	public function test_it_caches_wp_error(): void {
 		$error = new WP_Error( 'test_error', 'API unavailable.' );
 
-		$repository = $this->make_update_repository( $error );
+		$repository = $this->make_update_repository( $error, $this->build_catalog_collection() );
 		$result     = $repository->get( 'test-key', 'example.com' );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
@@ -271,8 +338,6 @@ final class Update_RepositoryTest extends UplinkTestCase {
 					'name'              => 'Blocks Pro',
 					'description'       => 'Premium Gutenberg blocks for advanced page building.',
 					'plugin_file'       => 'kadence-blocks-pro/kadence-blocks-pro.php',
-					'download_url'      => 'https://licensing.stellarwp.com/api/plugins/kad-blocks-pro',
-					'new_version'       => '2.5.0',
 					'is_available'      => true,
 					'documentation_url' => 'https://www.kadencewp.com/help-center/',
 					'authors'           => [ 'KadenceWP' ],
@@ -284,21 +349,61 @@ final class Update_RepositoryTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Creates an Update_Repository with a mocked Feature_Repository.
+	 * Builds a Catalog_Collection with matching catalog data for the default feature collection.
 	 *
-	 * @param Feature_Collection|WP_Error $result The result to return from Feature_Repository::get().
+	 * @return Catalog_Collection
+	 */
+	private function build_catalog_collection(): Catalog_Collection {
+		return Catalog_Collection::from_array(
+			[
+				[
+					'product_slug' => 'kadence',
+					'tiers'        => [],
+					'features'     => [
+						[
+							'feature_slug'      => 'kad-blocks-pro',
+							'type'              => 'plugin',
+							'minimum_tier'      => 'kadence-basic',
+							'plugin_file'       => 'kadence-blocks-pro/kadence-blocks-pro.php',
+							'is_dot_org'        => false,
+							'download_url'      => 'https://licensing.stellarwp.com/api/plugins/kad-blocks-pro',
+							'version'           => '2.5.0',
+							'name'              => 'Blocks Pro',
+							'description'       => 'Premium Gutenberg blocks for advanced page building.',
+							'category'          => 'blocks',
+							'authors'           => [ 'KadenceWP' ],
+							'documentation_url' => 'https://www.kadencewp.com/help-center/',
+						],
+					],
+				],
+			]
+		);
+	}
+
+	/**
+	 * Creates an Update_Repository with mocked Feature_Repository and Catalog_Repository.
+	 *
+	 * @param Feature_Collection|WP_Error $feature_result The result to return from Feature_Repository::get().
+	 * @param Catalog_Collection|WP_Error $catalog_result The result to return from Catalog_Repository::get().
 	 *
 	 * @return Update_Repository
 	 */
-	private function make_update_repository( $result ): Update_Repository {
+	private function make_update_repository( $feature_result, $catalog_result ): Update_Repository {
 		$feature_repository = $this->makeEmpty(
 			Feature_Repository::class,
 			[
-				'get' => $result,
+				'get' => $feature_result,
 			]
 		);
 
-		$resolver = new Resolve_Update_Data( $feature_repository );
+		$catalog_repository = $this->makeEmpty(
+			Catalog_Repository::class,
+			[
+				'get' => $catalog_result,
+			]
+		);
+
+		$resolver = new Resolve_Update_Data( $feature_repository, $catalog_repository );
 
 		return new Update_Repository( $resolver );
 	}

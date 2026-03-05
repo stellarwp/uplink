@@ -4,7 +4,6 @@ namespace StellarWP\Uplink\Tests\Features\Types;
 
 use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Tests\UplinkTestCase;
-use stdClass;
 
 final class PluginTest extends UplinkTestCase {
 
@@ -17,28 +16,6 @@ final class PluginTest extends UplinkTestCase {
 	private const NAME        = 'Stellar Export';
 	private const DESCRIPTION = 'Export your data.';
 	private const PLUGIN_FILE = 'stellar-export/stellar-export.php';
-
-	/**
-	 * Sets up the update_plugins site transient so get_new_version()
-	 * can resolve version data without calling plugins_api().
-	 *
-	 * @return void
-	 */
-	protected function setUp(): void {
-		parent::setUp();
-
-		$transient           = new stdClass();
-		$transient->response = [];
-
-		$update              = new stdClass();
-		$update->new_version = '2.0.0';
-
-		$transient->no_update = [
-			'test-feature/test-feature.php' => $update,
-		];
-
-		set_site_transient( 'update_plugins', $transient );
-	}
 
 	/**
 	 * Create a Plugin feature with configurable values.
@@ -141,9 +118,6 @@ final class PluginTest extends UplinkTestCase {
 				'documentation_url' => 'https://example.com/docs',
 				'authors'           => [ 'StellarWP' ],
 				'type'              => 'plugin',
-				'installed_version' => null,
-				'new_version'       => '2.0.0',
-				'has_update'        => false,
 			],
 			$feature->to_array()
 		);
@@ -165,20 +139,13 @@ final class PluginTest extends UplinkTestCase {
 			'plugin_file'       => 'test-feature/test-feature.php',
 			'plugin_slug'       => '',
 			'is_available'      => true,
-			'is_dot_org'        => false,
 			'documentation_url' => 'https://example.com/docs',
-			'new_version'       => '3.0.0',
 			'authors'           => [ 'StellarWP' ],
 		];
 
 		$feature = Plugin::from_array( $data );
 
-		$expected = $data + [
-			'installed_version' => null,
-			'has_update'        => false,
-		];
-
-		$this->assertSame( $expected, $feature->to_array() );
+		$this->assertSame( $data, $feature->to_array() );
 	}
 
 	/**
@@ -449,74 +416,6 @@ final class PluginTest extends UplinkTestCase {
 		);
 
 		$this->assertNull( $feature->get_installed_version() );
-	}
-
-	/**
-	 * Tests get_new_version() returns the attribute value when set.
-	 *
-	 * @return void
-	 */
-	public function test_get_new_version_returns_attribute_value(): void {
-		$feature = new Plugin(
-			[
-				'slug'         => 'test-feature',
-				'group'        => self::GROUP,
-				'tier'         => self::TIER,
-				'name'         => self::NAME,
-				'description'  => self::DESCRIPTION,
-				'plugin_file'  => 'test-feature/test-feature.php',
-				'is_available' => true,
-				'new_version'  => '3.0.0',
-			]
-		);
-
-		$this->assertSame( '3.0.0', $feature->get_new_version() );
-	}
-
-	/**
-	 * Tests get_new_version() falls back to the update_plugins site transient
-	 * when the attribute is not set.
-	 *
-	 * @return void
-	 */
-	public function test_get_new_version_falls_back_to_transient(): void {
-		$feature = new Plugin(
-			[
-				'slug'         => 'test-feature',
-				'group'        => self::GROUP,
-				'tier'         => self::TIER,
-				'name'         => self::NAME,
-				'description'  => self::DESCRIPTION,
-				'plugin_file'  => 'test-feature/test-feature.php',
-				'is_available' => true,
-			]
-		);
-
-		$this->assertSame( '2.0.0', $feature->get_new_version() );
-	}
-
-	/**
-	 * Tests get_new_version() returns null when neither attribute nor transient
-	 * has a version.
-	 *
-	 * @return void
-	 */
-	public function test_get_new_version_returns_null_when_no_version_available(): void {
-		delete_site_transient( 'update_plugins' );
-
-		$feature = new Plugin(
-			[
-				'slug'         => 'no-version',
-				'group'        => self::GROUP,
-				'tier'         => self::TIER,
-				'name'         => self::NAME,
-				'description'  => self::DESCRIPTION,
-				'plugin_file'  => 'no-version/no-version.php',
-				'is_available' => true,
-			]
-		);
-
-		$this->assertNull( $feature->get_new_version() );
 	}
 
 	// -------------------------------------------------------------------------

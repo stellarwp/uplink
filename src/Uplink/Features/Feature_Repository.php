@@ -105,7 +105,7 @@ class Feature_Repository {
 
 		if ( $result instanceof Feature_Collection ) {
 			set_transient( self::TRANSIENT_KEY, $result->to_array(), self::CACHE_DURATION );
-		} else {
+		} elseif ( is_wp_error( $result ) ) {
 			set_transient( self::TRANSIENT_KEY, $result, self::CACHE_DURATION );
 		}
 

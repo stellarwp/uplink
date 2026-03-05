@@ -232,7 +232,9 @@ final class License_Repository {
 			return;
 		}
 
-		set_transient( self::PRODUCTS_TRANSIENT_KEY, $data, self::CACHE_DURATION );
+		if ( is_wp_error( $data ) ) {
+			set_transient( self::PRODUCTS_TRANSIENT_KEY, $data, self::CACHE_DURATION );
+		}
 	}
 
 	/**

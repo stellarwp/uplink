@@ -6,7 +6,8 @@
  *
  * @package StellarWP\\Uplink
  */
-import { __ } from '@wordpress/i18n';
+import { useState } from 'react';
+import { __, sprintf } from '@wordpress/i18n';
 import { Loader2 } from 'lucide-react';
 import { useSelect } from '@wordpress/data';
 import { Badge } from '@/components/ui/badge';
@@ -28,6 +29,10 @@ interface ProductSectionProps {
  */
 export function ProductSection( { product, onAddLicense }: ProductSectionProps ) {
     const config = BRAND_CONFIGS[ product.slug ];
+    // TODO: product active/inactive state is local-only for now. When the
+    // product-status REST endpoint lands (Phase 5), replace this with a
+    // store action + selector so the state is persisted server-side.
+    const [ productActive, setProductActive ] = useState( true );
 
     // Calling getLicense() triggers the getLicense resolver.
     const hasLicense = useSelect(
@@ -89,15 +94,34 @@ export function ProductSection( { product, onAddLicense }: ProductSectionProps )
                     </div>
                 </div>
 
-                { ! hasLicense && (
+                { hasLicense ? (
+                    <Button
+                        size="sm"
+                        variant={ productActive ? 'outline' : 'default' }
+                        onClick={ () => setProductActive( ( v ) => ! v ) }
+                        aria-label={
+                            productActive
+                                ? /* translators: %s is the product name */
+                                  sprintf( __( 'Deactivate %s', '%TEXTDOMAIN%' ), product.name )
+                                : /* translators: %s is the product name */
+                                  sprintf( __( 'Activate %s', '%TEXTDOMAIN%' ), product.name )
+                        }
+                    >
+                        { productActive
+                            ? /* translators: %s is the product name */
+                              sprintf( __( 'Deactivate %s', '%TEXTDOMAIN%' ), product.name )
+                            : /* translators: %s is the product name */
+                              sprintf( __( 'Activate %s', '%TEXTDOMAIN%' ), product.name ) }
+                    </Button>
+                ) : (
                     <Button size="sm" onClick={ onAddLicense }>
                         { __( 'Add License', '%TEXTDOMAIN%' ) }
                     </Button>
                 ) }
             </div>
 
-            {/* Feature list — visible when licensed */}
-            { hasLicense && (
+            {/* Feature list — visible when licensed and product is active */}
+            { hasLicense && productActive && (
                 <div className="divide-y divide-border">
                     { isLoadingFeatures ? (
                         <div className="flex items-center justify-center gap-2 px-4 py-6 text-sm text-muted-foreground">
@@ -119,6 +143,13 @@ export function ProductSection( { product, onAddLicense }: ProductSectionProps )
             { ! hasLicense && (
                 <p className="px-4 py-6 text-sm text-muted-foreground text-center">
                     { __( 'Add a license to unlock features.', '%TEXTDOMAIN%' ) }
+                </p>
+            ) }
+
+            { hasLicense && ! productActive && (
+                <p className="px-4 py-6 text-sm text-muted-foreground text-center">
+                    { /* translators: %s is the product name */
+                      sprintf( __( '%s is deactivated. Activate it to manage features.', '%TEXTDOMAIN%' ), product.name ) }
                 </p>
             ) }
         </div>

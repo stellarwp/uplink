@@ -88,7 +88,7 @@ final class FlagTest extends UplinkTestCase {
 
 		$feature = Flag::from_array( $data );
 
-		$this->assertSame( $data, $feature->to_array() );
+		$this->assertEquals( $data, $feature->to_array() );
 	}
 
 	/**

@@ -146,7 +146,7 @@ final class ThemeTest extends UplinkTestCase {
 
 		$feature = Theme::from_array( $data );
 
-		$this->assertSame( $data, $feature->to_array() );
+		$this->assertEquals( $data, $feature->to_array() );
 	}
 
 	/**

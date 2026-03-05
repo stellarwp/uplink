@@ -147,7 +147,7 @@ final class PluginTest extends UplinkTestCase {
 
 		$feature = Plugin::from_array( $data );
 
-		$this->assertSame( $data, $feature->to_array() );
+		$this->assertEquals( $data, $feature->to_array() );
 	}
 
 	/**

@@ -80,7 +80,13 @@ class Plugin_Strategy extends Installable_Strategy {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Check whether the plugin is currently active in WordPress.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param Feature $feature Already type-guarded as Plugin by the template.
+	 *
+	 * @return bool
 	 */
 	protected function check_active( Feature $feature ): bool {
 		/** @var Plugin $feature */
@@ -91,7 +97,13 @@ class Plugin_Strategy extends Installable_Strategy {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Check whether the plugin is installed on disk.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param Feature $feature Already type-guarded as Plugin by the template.
+	 *
+	 * @return bool
 	 */
 	protected function check_installed( Feature $feature ): bool {
 		/** @var Plugin $feature */

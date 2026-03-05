@@ -77,7 +77,13 @@ class Theme_Strategy extends Installable_Strategy {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Check whether the theme is installed on disk.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param Feature $feature Already type-guarded as Theme by the template.
+	 *
+	 * @return bool
 	 */
 	protected function check_installed( Feature $feature ): bool {
 		return wp_get_theme( $feature->get_slug() )->exists();

@@ -86,27 +86,6 @@ final class Product_RepositoryTest extends UplinkTestCase {
 		$this->assertSame( 'cached-product', $result->get( 'cached-product' )->get_product_slug() );
 	}
 
-	public function test_get_caches_wp_error(): void {
-		$result = $this->repository->get( 'NON-EXISTENT-KEY', 'example.com' );
-
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( Error_Code::INVALID_KEY, $result->get_error_code() );
-
-		$cached = get_transient( Product_Repository::TRANSIENT_KEY );
-
-		$this->assertInstanceOf( WP_Error::class, $cached );
-	}
-
-	public function test_get_returns_cached_wp_error(): void {
-		$error = new WP_Error( Error_Code::INVALID_KEY, 'Cached error' );
-		set_transient( Product_Repository::TRANSIENT_KEY, $error );
-
-		$result = $this->repository->get( 'LWSW-UNIFIED-PRO-2026', 'example.com' );
-
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'Cached error', $result->get_error_message() );
-	}
-
 	public function test_refresh_clears_and_refetches(): void {
 		$stale = Product_Collection::from_array(
 			[

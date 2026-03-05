@@ -1,4 +1,16 @@
-Create a task file in `.plans/tasks/`.
+Help the user think through a task and produce a task file in `.plans/tasks/`.
+
+This is a conversation, not a one-shot generation. Work with the user to understand the problem before writing anything.
+
+## Process
+
+1. **Understand the problem.** If $ARGUMENTS gives context, use it as a starting point. Ask the user what's wrong or missing today and why it matters. Explore the codebase if needed to ground the discussion in what actually exists.
+
+2. **Clarify the desired outcome.** Talk through what the solution should look like at a high level. Push back if the user is jumping to implementation details. The task should capture what and why, not step-by-step how.
+
+3. **Draft the task.** Once the problem and outcome are clear, write the task file and show it to the user. Ask if anything needs to change.
+
+4. **Report the file path** when the user is happy with it.
 
 ## Naming
 
@@ -60,10 +72,3 @@ url: https://stellarwp.atlassian.net/browse/SCON-{number}
 
 {The desired outcome and any constraints. Keep it focused on what should change, not how to implement it line by line.}
 ```
-
-## Instructions
-
-1. If $ARGUMENTS includes a description, use it. Otherwise ask the user what the task is about.
-2. If the user provides a SCON number, use the ticket template and `scon-` filename. Otherwise use the draft template and `draft-` filename.
-3. Write the task file following the template and writing style above.
-4. Report the file path when done.

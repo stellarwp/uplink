@@ -22,3 +22,5 @@ phpstan-cache
 
 tests/_data/Features/Zips/*.zip
 tests/_data/Features/Plugins/*.zip
+
+diffcs.txt

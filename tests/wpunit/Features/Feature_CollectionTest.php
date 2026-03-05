@@ -5,6 +5,8 @@ namespace StellarWP\Uplink\Tests\Features;
 use ArrayIterator;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Types\Feature;
+use StellarWP\Uplink\Features\Types\Flag;
+use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
 final class Feature_CollectionTest extends UplinkTestCase {
@@ -151,6 +153,138 @@ final class Feature_CollectionTest extends UplinkTestCase {
 		$collection = new Feature_Collection( $features );
 
 		$this->assertSame( 2, $collection->count() );
+	}
+
+	/**
+	 * Tests from_array accepts already-hydrated Feature objects.
+	 *
+	 * @return void
+	 */
+	public function test_from_array_creates_collection_from_objects(): void {
+		$flag   = Flag::from_array( [ 'slug' => 'my-flag', 'group' => 'TEC', 'tier' => 'Tier 1', 'name' => 'My Flag', 'description' => '', 'is_available' => true, 'documentation_url' => '' ] );
+		$plugin = Plugin::from_array( [ 'slug' => 'my-plugin', 'group' => 'LD', 'tier' => 'Tier 2', 'name' => 'My Plugin', 'description' => '', 'is_available' => false, 'documentation_url' => '', 'plugin_file' => '', 'plugin_slug' => '', 'authors' => [] ] );
+
+		$collection = Feature_Collection::from_array( [ $flag, $plugin ] );
+
+		$this->assertSame( 2, $collection->count() );
+		$this->assertSame( $flag, $collection->get( 'my-flag' ) );
+		$this->assertSame( $plugin, $collection->get( 'my-plugin' ) );
+	}
+
+	/**
+	 * Tests from_array creates Flag instances for type=flag.
+	 *
+	 * @return void
+	 */
+	public function test_from_array_creates_flag_features(): void {
+		$data = [
+			[
+				'slug'              => 'my-flag',
+				'group'             => 'TEC',
+				'tier'              => 'Tier 1',
+				'name'              => 'My Flag',
+				'description'       => '',
+				'type'              => 'flag',
+				'is_available'      => true,
+				'documentation_url' => '',
+			],
+		];
+
+		$collection = Feature_Collection::from_array( $data );
+
+		$this->assertSame( 1, $collection->count() );
+		$this->assertInstanceOf( Flag::class, $collection->get( 'my-flag' ) );
+		$this->assertSame( 'flag', $collection->get( 'my-flag' )->get_type() );
+	}
+
+	/**
+	 * Tests from_array creates Plugin instances for type=plugin.
+	 *
+	 * @return void
+	 */
+	public function test_from_array_creates_plugin_features(): void {
+		$data = [
+			[
+				'slug'              => 'my-plugin',
+				'group'             => 'LearnDash',
+				'tier'              => 'Tier 2',
+				'name'              => 'My Plugin',
+				'description'       => '',
+				'type'              => 'plugin',
+				'plugin_file'       => 'my-plugin/my-plugin.php',
+				'plugin_slug'       => 'my-plugin',
+				'is_available'      => false,
+				'documentation_url' => '',
+				'authors'           => [],
+			],
+		];
+
+		$collection = Feature_Collection::from_array( $data );
+
+		$this->assertSame( 1, $collection->count() );
+		$this->assertInstanceOf( Plugin::class, $collection->get( 'my-plugin' ) );
+		$this->assertSame( 'plugin', $collection->get( 'my-plugin' )->get_type() );
+	}
+
+	/**
+	 * Tests from_array defaults unknown types to Flag.
+	 *
+	 * @return void
+	 */
+	public function test_from_array_defaults_unknown_type_to_flag(): void {
+		$data = [
+			[
+				'slug'              => 'unknown-feature',
+				'group'             => 'TEC',
+				'tier'              => 'Tier 1',
+				'name'              => 'Unknown',
+				'description'       => '',
+				'type'              => 'unknown_type',
+				'is_available'      => true,
+				'documentation_url' => '',
+			],
+		];
+
+		$collection = Feature_Collection::from_array( $data );
+
+		$this->assertSame( 1, $collection->count() );
+		$this->assertInstanceOf( Flag::class, $collection->get( 'unknown-feature' ) );
+	}
+
+	/**
+	 * Tests from_array skips non-array items.
+	 *
+	 * @return void
+	 */
+	public function test_from_array_skips_non_array_items(): void {
+		$data = [
+			[
+				'slug'              => 'my-flag',
+				'group'             => 'TEC',
+				'tier'              => 'Tier 1',
+				'name'              => 'My Flag',
+				'description'       => '',
+				'type'              => 'flag',
+				'is_available'      => true,
+				'documentation_url' => '',
+			],
+			'not-an-array',
+		];
+
+		$collection = Feature_Collection::from_array( $data );
+
+		$this->assertSame( 1, $collection->count() );
+	}
+
+	/**
+	 * Tests from_array returns an empty collection for empty input.
+	 *
+	 * @return void
+	 */
+	public function test_from_array_returns_empty_collection_for_empty_input(): void {
+		$collection = Feature_Collection::from_array( [] );
+
+		$this->assertSame( 0, $collection->count() );
 	}
 
 	/**

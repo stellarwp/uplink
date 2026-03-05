@@ -2,11 +2,8 @@
 
 namespace StellarWP\Uplink\Tests\Licensing\Repositories;
 
-use StellarWP\Uplink\Catalog\Catalog_Collection;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Catalog\Fixture_Client as Catalog_Fixture;
-use StellarWP\Uplink\Catalog\Results\Product_Catalog;
-use StellarWP\Uplink\Catalog\Results\Tier_Collection;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Resolve_Feature_Collection;
 use StellarWP\Uplink\Features\Types\Flag;
@@ -113,9 +110,14 @@ final class License_Key_Cache_InvalidationTest extends UplinkTestCase {
 	}
 
 	public function test_catalog_repository_fetches_fresh_after_key_change(): void {
-		// Seed a stale catalog with a single fake product.
-		$stale = new Catalog_Collection();
-		$stale->add( new Product_Catalog( 'stale-product', new Tier_Collection(), [] ) );
+		// Seed a stale catalog array with a single fake product.
+		$stale = [
+			[
+				'product_slug' => 'stale-product',
+				'tiers'        => [],
+				'features'     => [],
+			],
+		];
 		set_transient( Catalog_Repository::TRANSIENT_KEY, $stale );
 
 		// Confirm the stale cache is served.

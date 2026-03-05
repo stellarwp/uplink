@@ -67,8 +67,9 @@ final class Catalog_Repository {
 			return $cached;
 		}
 
-		if ( $cached instanceof Catalog_Collection ) {
-			return $cached;
+		if ( is_array( $cached ) ) {
+			/** @var array<int, array<string, mixed>> $cached */
+			return Catalog_Collection::from_array( $cached );
 		}
 
 		return $this->fetch();
@@ -97,7 +98,17 @@ final class Catalog_Repository {
 	protected function fetch() {
 		$result = $this->client->get_catalog();
 
-		set_transient( self::TRANSIENT_KEY, $result, self::CACHE_DURATION );
+		if ( $result instanceof Catalog_Collection ) {
+			$data = [];
+
+			foreach ( $result as $catalog ) {
+				$data[] = $catalog->to_array();
+			}
+
+			set_transient( self::TRANSIENT_KEY, $data, self::CACHE_DURATION );
+		} else {
+			set_transient( self::TRANSIENT_KEY, $result, self::CACHE_DURATION );
+		}
 
 		return $result;
 	}

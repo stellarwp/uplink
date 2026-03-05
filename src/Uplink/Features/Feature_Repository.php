@@ -66,8 +66,9 @@ class Feature_Repository {
 			return $cached;
 		}
 
-		if ( $cached instanceof Feature_Collection ) {
-			return $cached;
+		if ( is_array( $cached ) ) {
+			/** @var array<int, array<string, mixed>> $cached */
+			return Feature_Collection::from_array( $cached );
 		}
 
 		return $this->resolve( $key, $domain );
@@ -102,7 +103,17 @@ class Feature_Repository {
 	protected function resolve( string $key, string $domain ) {
 		$result = ( $this->resolver )( $domain );
 
-		set_transient( self::TRANSIENT_KEY, $result, self::CACHE_DURATION );
+		if ( $result instanceof Feature_Collection ) {
+			$data = [];
+
+			foreach ( $result as $feature ) {
+				$data[] = $feature->to_array();
+			}
+
+			set_transient( self::TRANSIENT_KEY, $data, self::CACHE_DURATION );
+		} else {
+			set_transient( self::TRANSIENT_KEY, $result, self::CACHE_DURATION );
+		}
 
 		return $result;
 	}

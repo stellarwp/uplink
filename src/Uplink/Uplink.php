@@ -14,7 +14,7 @@ class Uplink {
 	 *
 	 * @var string
 	 */
-	public const VERSION = '3.0.0';
+	public const VERSION = '3.0.1';
 
 	public const UPLINK_ADMIN_VIEWS_PATH = 'uplink.admin-views.path';
 	public const UPLINK_ASSETS_URI       = 'uplink.assets.uri';

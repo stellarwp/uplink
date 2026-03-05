@@ -202,15 +202,15 @@ final class License_Repository {
 	 * @return Product_Collection|WP_Error|null Cached value, WP_Error on error, or null on miss.
 	 */
 	public function get_products() {
-		/** @var Product_Collection|WP_Error|null $products */
 		$products = get_transient( self::PRODUCTS_TRANSIENT_KEY );
 
 		if ( is_wp_error( $products ) ) {
 			return $products;
 		}
 
-		if ( $products instanceof Product_Collection ) {
-			return $products;
+		if ( is_array( $products ) ) {
+			/** @var array<array<string, mixed>> $products */
+			return Product_Collection::from_array( $products );
 		}
 
 		return null;
@@ -226,7 +226,15 @@ final class License_Repository {
 	 * @return void
 	 */
 	public function set_products( $data ): void {
-		set_transient( self::PRODUCTS_TRANSIENT_KEY, $data, self::CACHE_DURATION );
+		if ( $data instanceof Product_Collection ) {
+			set_transient( self::PRODUCTS_TRANSIENT_KEY, $data->to_array(), self::CACHE_DURATION );
+
+			return;
+		}
+
+		if ( is_wp_error( $data ) ) {
+			set_transient( self::PRODUCTS_TRANSIENT_KEY, $data, self::CACHE_DURATION );
+		}
 	}
 
 	/**

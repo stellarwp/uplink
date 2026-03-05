@@ -67,8 +67,9 @@ final class Catalog_Repository {
 			return $cached;
 		}
 
-		if ( $cached instanceof Catalog_Collection ) {
-			return $cached;
+		if ( is_array( $cached ) ) {
+			/** @var array<array<string, mixed>> $cached */
+			return Catalog_Collection::from_array( $cached );
 		}
 
 		return $this->fetch();
@@ -97,7 +98,11 @@ final class Catalog_Repository {
 	protected function fetch() {
 		$result = $this->client->get_catalog();
 
-		set_transient( self::TRANSIENT_KEY, $result, self::CACHE_DURATION );
+		if ( $result instanceof Catalog_Collection ) {
+			set_transient( self::TRANSIENT_KEY, $result->to_array(), self::CACHE_DURATION );
+		} elseif ( is_wp_error( $result ) ) {
+			set_transient( self::TRANSIENT_KEY, $result, self::CACHE_DURATION );
+		}
 
 		return $result;
 	}

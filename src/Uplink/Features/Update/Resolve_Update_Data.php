@@ -63,7 +63,7 @@ class Resolve_Update_Data {
 
 		foreach ( $available_plugins as $feature ) {
 			if (
-				! $feature instanceof Plugin
+				! $feature instanceof Plugin // TODO: We might be able to generalize this in a way to also work with Themes.
 				|| $feature->is_dot_org()
 			) {
 				continue;

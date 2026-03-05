@@ -4,7 +4,6 @@ namespace StellarWP\Uplink\Features\Update;
 
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
-use StellarWP\Uplink\Features\API\Update_Client;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Site\Data;
@@ -26,10 +25,19 @@ class Provider extends Abstract_Provider {
 	 */
 	public function register(): void {
 		$this->container->singleton(
-			Update_Client::class,
+			Resolve_Update_Data::class,
 			static function ( ContainerInterface $c ) {
-				return new Update_Client(
+				return new Resolve_Update_Data(
 					$c->get( Feature_Repository::class )
+				);
+			}
+		);
+
+		$this->container->singleton(
+			Update_Repository::class,
+			static function ( ContainerInterface $c ) {
+				return new Update_Repository(
+					$c->get( Resolve_Update_Data::class )
 				);
 			}
 		);
@@ -38,11 +46,18 @@ class Provider extends Abstract_Provider {
 			Handler::class,
 			static function ( ContainerInterface $c ) {
 				return new Handler(
-					$c->get( Update_Client::class ),
+					$c->get( Update_Repository::class ),
 					$c->get( Feature_Repository::class ),
 					$c->get( Data::class ),
 					$c->get( License_Manager::class )->get_key() ?? ''
 				);
+			}
+		);
+
+		add_action(
+			'stellarwp/uplink/unified_license_key_changed',
+			static function () {
+				delete_transient( Update_Repository::TRANSIENT_KEY );
 			}
 		);
 

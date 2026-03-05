@@ -2,7 +2,6 @@
 
 namespace StellarWP\Uplink\Features\Update;
 
-use StellarWP\Uplink\Features\API\Update_Client;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Site\Data;
@@ -20,13 +19,13 @@ use stdClass;
 class Handler {
 
 	/**
-	 * The update API client.
+	 * The update repository.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @var Update_Client
+	 * @var Update_Repository
 	 */
-	private Update_Client $update_client;
+	private Update_Repository $update_repository;
 
 	/**
 	 * The feature repository.
@@ -60,7 +59,7 @@ class Handler {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Update_Client      $update_client      The update API client.
+	 * @param Update_Repository  $update_repository  The update repository.
 	 * @param Feature_Repository $feature_repository The feature repository.
 	 * @param Data               $site_data          The site data provider.
 	 * @param string             $key                The license key.
@@ -68,12 +67,12 @@ class Handler {
 	 * @return void
 	 */
 	public function __construct(
-		Update_Client $update_client,
+		Update_Repository $update_repository,
 		Feature_Repository $feature_repository,
 		Data $site_data,
 		string $key
 	) {
-		$this->update_client      = $update_client;
+		$this->update_repository  = $update_repository;
 		$this->feature_repository = $feature_repository;
 		$this->site_data          = $site_data;
 		$this->key                = $key;
@@ -113,7 +112,7 @@ class Handler {
 		}
 
 		$domain   = $this->site_data->get_domain();
-		$response = $this->update_client->check_updates( $this->key, $domain );
+		$response = $this->update_repository->get( $this->key, $domain );
 
 		if ( is_wp_error( $response ) || empty( $response[ $slug ] ) ) {
 			return $result;
@@ -141,7 +140,7 @@ class Handler {
 		}
 
 		$domain   = $this->site_data->get_domain();
-		$response = $this->update_client->check_updates( $this->key, $domain );
+		$response = $this->update_repository->get( $this->key, $domain );
 
 		if ( is_wp_error( $response ) || ! is_array( $response ) ) {
 			return $transient;

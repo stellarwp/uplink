@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\Tests\Features\Update;
 
-use StellarWP\Uplink\Features\API\Update_Client;
+use StellarWP\Uplink\Features\Update\Update_Repository;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Types\Plugin;
@@ -29,12 +29,12 @@ final class HandlerTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$update_client      = $this->makeEmpty( Update_Client::class );
+		$update_repository  = $this->makeEmpty( Update_Repository::class );
 		$feature_repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => new Feature_Collection() ] );
 		$site_data          = $this->makeEmpty( Data::class, [ 'get_domain' => 'example.com' ] );
 
 		$this->handler = new Handler(
-			$update_client,
+			$update_repository,
 			$feature_repository,
 			$site_data,
 			'test-key'
@@ -44,7 +44,7 @@ final class HandlerTest extends UplinkTestCase {
 	/**
 	 * Creates a Handler with a Plugin feature in the Feature_Repository.
 	 *
-	 * @param mixed $check_updates_return The return value for Update_Client::check_updates().
+	 * @param mixed $check_updates_return The return value for Update_Repository::get().
 	 *
 	 * @return Handler
 	 */
@@ -64,11 +64,11 @@ final class HandlerTest extends UplinkTestCase {
 		$features = new Feature_Collection();
 		$features->add( $feature );
 
-		$update_client      = $this->makeEmpty( Update_Client::class, [ 'check_updates' => $check_updates_return ] );
+		$update_repository  = $this->makeEmpty( Update_Repository::class, [ 'get' => $check_updates_return ] );
 		$feature_repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => $features ] );
 
 		return new Handler(
-			$update_client,
+			$update_repository,
 			$feature_repository,
 			$this->makeEmpty( Data::class, [ 'get_domain' => 'example.com' ] ),
 			'test-key'

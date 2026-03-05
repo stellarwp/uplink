@@ -1,34 +1,35 @@
 <?php declare( strict_types=1 );
 
-namespace StellarWP\Uplink\Tests\Features\API;
+namespace StellarWP\Uplink\Tests\Features\Update;
 
-use StellarWP\Uplink\Features\API\Update_Client;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Types\Plugin;
+use StellarWP\Uplink\Features\Update\Resolve_Update_Data;
+use StellarWP\Uplink\Features\Update\Update_Repository;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
 
-final class Update_ClientTest extends UplinkTestCase {
+final class Update_RepositoryTest extends UplinkTestCase {
 
 	/**
-	 * The update client under test.
+	 * The update repository under test.
 	 *
-	 * @var Update_Client
+	 * @var Update_Repository
 	 */
-	private Update_Client $client;
+	private Update_Repository $repository;
 
 	/**
-	 * Sets up the update client and clears the transient before each test.
+	 * Sets up the update repository and clears the transient before each test.
 	 *
 	 * @return void
 	 */
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->client = new Update_Client( $this->make_repository( $this->build_feature_collection() ) );
+		$this->repository = $this->make_update_repository( $this->build_feature_collection() );
 
-		delete_transient( 'stellarwp_uplink_update_check' );
+		delete_transient( Update_Repository::TRANSIENT_KEY );
 	}
 
 	/**
@@ -37,19 +38,19 @@ final class Update_ClientTest extends UplinkTestCase {
 	 * @return void
 	 */
 	protected function tearDown(): void {
-		delete_transient( 'stellarwp_uplink_update_check' );
+		delete_transient( Update_Repository::TRANSIENT_KEY );
 
 		parent::tearDown();
 	}
 
 	/**
-	 * Tests check_updates returns feature data keyed by feature slug
+	 * Tests get returns feature data keyed by feature slug
 	 * with WordPress-compatible fields.
 	 *
 	 * @return void
 	 */
 	public function test_it_returns_feature_data(): void {
-		$result = $this->client->check_updates( 'test-key', 'example.com' );
+		$result = $this->repository->get( 'test-key', 'example.com' );
 
 		$this->assertIsArray( $result );
 		$this->assertNotEmpty( $result );
@@ -115,8 +116,8 @@ final class Update_ClientTest extends UplinkTestCase {
 			)
 		);
 
-		$client = new Update_Client( $this->make_repository( $collection ) );
-		$result = $client->check_updates( 'test-key', 'example.com' );
+		$repository = $this->make_update_repository( $collection );
+		$result     = $repository->get( 'test-key', 'example.com' );
 
 		$this->assertIsArray( $result );
 		$this->assertArrayHasKey( 'available-feature', $result );
@@ -167,8 +168,8 @@ final class Update_ClientTest extends UplinkTestCase {
 			)
 		);
 
-		$client = new Update_Client( $this->make_repository( $collection ) );
-		$result = $client->check_updates( 'test-key', 'example.com' );
+		$repository = $this->make_update_repository( $collection );
+		$result     = $repository->get( 'test-key', 'example.com' );
 
 		$this->assertIsArray( $result );
 		$this->assertArrayHasKey( 'custom-feature', $result );
@@ -181,24 +182,24 @@ final class Update_ClientTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_caches_in_transient(): void {
-		$this->client->check_updates( 'test-key', 'example.com' );
+		$this->repository->get( 'test-key', 'example.com' );
 
-		$cached = get_transient( 'stellarwp_uplink_update_check' );
+		$cached = get_transient( Update_Repository::TRANSIENT_KEY );
 
 		$this->assertIsArray( $cached );
 		$this->assertArrayHasKey( 'kad-blocks-pro', $cached );
 	}
 
 	/**
-	 * Tests check_updates returns the cached transient on subsequent calls.
+	 * Tests get returns the cached transient on subsequent calls.
 	 *
 	 * @return void
 	 */
 	public function test_it_returns_cached_result(): void {
 		$cached = [ 'my-plugin' => [ 'new_version' => '2.0.0' ] ];
-		set_transient( 'stellarwp_uplink_update_check', $cached, HOUR_IN_SECONDS );
+		set_transient( Update_Repository::TRANSIENT_KEY, $cached, HOUR_IN_SECONDS );
 
-		$result = $this->client->check_updates( 'test-key', 'example.com' );
+		$result = $this->repository->get( 'test-key', 'example.com' );
 
 		$this->assertSame( $cached, $result );
 	}
@@ -210,9 +211,9 @@ final class Update_ClientTest extends UplinkTestCase {
 	 */
 	public function test_refresh_clears_cache(): void {
 		$cached = [ 'my-plugin' => [ 'new_version' => '2.0.0' ] ];
-		set_transient( 'stellarwp_uplink_update_check', $cached, HOUR_IN_SECONDS );
+		set_transient( Update_Repository::TRANSIENT_KEY, $cached, HOUR_IN_SECONDS );
 
-		$result = $this->client->refresh( 'test-key', 'example.com' );
+		$result = $this->repository->refresh( 'test-key', 'example.com' );
 
 		// After refresh, stale data is replaced with fresh fixture data.
 		$this->assertIsArray( $result );
@@ -228,12 +229,12 @@ final class Update_ClientTest extends UplinkTestCase {
 	public function test_it_caches_wp_error(): void {
 		$error = new WP_Error( 'test_error', 'API unavailable.' );
 
-		$client = new Update_Client( $this->make_repository( $error ) );
-		$result = $client->check_updates( 'test-key', 'example.com' );
+		$repository = $this->make_update_repository( $error );
+		$result     = $repository->get( 'test-key', 'example.com' );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 
-		$cached = get_transient( 'stellarwp_uplink_update_check' );
+		$cached = get_transient( Update_Repository::TRANSIENT_KEY );
 
 		$this->assertInstanceOf( WP_Error::class, $cached );
 	}
@@ -245,9 +246,9 @@ final class Update_ClientTest extends UplinkTestCase {
 	 */
 	public function test_it_returns_cached_wp_error(): void {
 		$error = new WP_Error( 'test_error', 'Cached error' );
-		set_transient( 'stellarwp_uplink_update_check', $error );
+		set_transient( Update_Repository::TRANSIENT_KEY, $error );
 
-		$result = $this->client->check_updates( 'test-key', 'example.com' );
+		$result = $this->repository->get( 'test-key', 'example.com' );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'Cached error', $result->get_error_message() );
@@ -283,18 +284,22 @@ final class Update_ClientTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Creates a mock Feature_Repository that returns the given result.
+	 * Creates an Update_Repository with a mocked Feature_Repository.
 	 *
-	 * @param Feature_Collection|WP_Error $result The result to return from get().
+	 * @param Feature_Collection|WP_Error $result The result to return from Feature_Repository::get().
 	 *
-	 * @return Feature_Repository
+	 * @return Update_Repository
 	 */
-	private function make_repository( $result ): Feature_Repository {
-		return $this->makeEmpty(
+	private function make_update_repository( $result ): Update_Repository {
+		$feature_repository = $this->makeEmpty(
 			Feature_Repository::class,
 			[
 				'get' => $result,
 			]
 		);
+
+		$resolver = new Resolve_Update_Data( $feature_repository );
+
+		return new Update_Repository( $resolver );
 	}
 }

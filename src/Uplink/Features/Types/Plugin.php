@@ -281,7 +281,9 @@ final class Plugin extends Feature {
 		 *
 		 * Both are keyed by plugin file path and contain stdClass objects.
 		 */
-		$response  = property_exists( $transient, 'response' ) ? $transient->response : [];
+		/** @var array<string, object> $response */
+		$response = property_exists( $transient, 'response' ) ? $transient->response : [];
+		/** @var array<string, object> $no_update */
 		$no_update = property_exists( $transient, 'no_update' ) ? $transient->no_update : [];
 
 		if ( ! is_array( $response ) && ! is_array( $no_update ) ) {

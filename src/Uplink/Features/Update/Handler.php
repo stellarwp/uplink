@@ -5,6 +5,7 @@ namespace StellarWP\Uplink\Features\Update;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Site\Data;
+use StellarWP\Uplink\Utils\Cast;
 use stdClass;
 
 /**
@@ -153,6 +154,7 @@ class Handler {
 		 *
 		 * Both are keyed by plugin file path and contain stdClass objects.
 		 */
+		/** @var stdClass $transient */
 		if ( ! property_exists( $transient, 'response' ) ) {
 			$transient->response = [];
 		}
@@ -173,7 +175,7 @@ class Handler {
 				continue;
 			}
 
-			$plugin_file = (string) ( $update_data['plugin_file'] ?? '' );
+			$plugin_file = Cast::to_string( $update_data['plugin_file'] ?? '' );
 
 			if ( empty( $plugin_file ) ) {
 				continue;

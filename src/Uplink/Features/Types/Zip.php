@@ -51,6 +51,7 @@ final class Zip extends Feature {
 				'plugin_slug'       => $data['plugin_slug'] ?? '',
 				'is_available'      => $data['is_available'],
 				'documentation_url' => $data['documentation_url'] ?? '',
+				'new_version'       => $data['new_version'] ?? null,
 				'authors'           => $data['authors'] ?? [],
 			]
 		);
@@ -204,6 +205,27 @@ final class Zip extends Feature {
 	}
 
 	/**
+	 * Gets the newest available version.
+	 *
+	 * Prefers the version from the catalog API response. Falls back to
+	 * reading from the update_plugins site transient populated by the
+	 * consolidated update Handler.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string|null The new version string, or null if unavailable.
+	 */
+	public function get_new_version(): ?string {
+		$version = $this->attributes['new_version'] ?? null;
+
+		if ( $version !== null ) {
+			return Cast::to_string( $version );
+		}
+
+		return $this->get_new_version_from_transient();
+	}
+
+	/**
 	 * Gets the newest available version from the update_plugins site transient.
 	 *
 	 * Reads the transient that WordPress populates via
@@ -214,7 +236,17 @@ final class Zip extends Feature {
 	 *
 	 * @return string|null The new version string, or null if unavailable.
 	 */
-	public function get_new_version(): ?string {
+	private function get_new_version_from_transient(): ?string {
+		/**
+		 * Prevent infinite recursion: when our Handler filters
+		 * site_transient_update_plugins (GET), it calls fetch_updates()
+		 * which iterates Zip features and may reach this method.
+		 * Reading the transient here would re-trigger the GET filter.
+		 */
+		if ( doing_filter( 'site_transient_update_plugins' ) ) {
+			return null;
+		}
+
 		$plugin_file = $this->get_plugin_file();
 
 		if ( empty( $plugin_file ) ) {

@@ -12,8 +12,9 @@ use stdClass;
 /**
  * Consolidated update handler for Zip features and Resources.
  *
- * Filters `plugins_api` and `pre_set_site_transient_update_plugins`
- * to provide update information from the consolidation server.
+ * Filters `plugins_api`, `pre_set_site_transient_update_plugins`,
+ * and `site_transient_update_plugins` to provide update information
+ * from the consolidation server.
  *
  * @since 3.0.0
  */
@@ -247,7 +248,11 @@ class Handler {
 			$zip_features = $features->filter( null, null, null, 'zip' );
 
 			foreach ( $zip_features as $feature ) {
-				if ( ! $feature instanceof Zip || ! $feature->is_installed() ) {
+				if ( ! $feature instanceof Zip ) {
+					continue;
+				}
+
+				if ( ! $feature->is_installed() ) {
 					continue;
 				}
 

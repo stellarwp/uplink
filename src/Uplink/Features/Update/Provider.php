@@ -68,5 +68,6 @@ class Provider extends Abstract_Provider {
 		// Priority 15 to run after the plugins_api filter in the Plugins_Page class.
 		add_filter( 'plugins_api', [ $handler, 'filter_plugins_api' ], 15, 3 );
 		add_filter( 'pre_set_site_transient_update_plugins', [ $handler, 'filter_update_check' ], 15, 1 );
+		add_filter( 'site_transient_update_plugins', [ $handler, 'filter_update_check' ], 15, 1 );
 	}
 }

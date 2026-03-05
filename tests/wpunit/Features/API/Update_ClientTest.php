@@ -69,6 +69,7 @@ final class Update_ClientTest extends UplinkTestCase {
 
 		$this->assertSame( 'Blocks Pro', $entry['name'] );
 		$this->assertSame( 'kad-blocks-pro', $entry['slug'] );
+		$this->assertSame( '2.5.0', $entry['new_version'] );
 		$this->assertSame( 'https://licensing.stellarwp.com/api/plugins/kad-blocks-pro', $entry['package'] );
 	}
 
@@ -90,6 +91,7 @@ final class Update_ClientTest extends UplinkTestCase {
 					'description'  => 'An available feature.',
 					'plugin_file'  => 'available-feature/available-feature.php',
 					'download_url' => 'https://example.com/available.zip',
+					'new_version'  => '1.0.0',
 					'is_available' => true,
 					'authors'      => [ 'StellarWP' ],
 				]
@@ -106,6 +108,7 @@ final class Update_ClientTest extends UplinkTestCase {
 					'description'  => 'An unavailable feature.',
 					'plugin_file'  => 'unavailable-feature/unavailable-feature.php',
 					'download_url' => 'https://example.com/unavailable.zip',
+					'new_version'  => '1.0.0',
 					'is_available' => false,
 					'authors'      => [ 'StellarWP' ],
 				]
@@ -216,6 +219,7 @@ final class Update_ClientTest extends UplinkTestCase {
 					'description'       => 'Premium Gutenberg blocks for advanced page building.',
 					'plugin_file'       => 'kadence-blocks-pro/kadence-blocks-pro.php',
 					'download_url'      => 'https://licensing.stellarwp.com/api/plugins/kad-blocks-pro',
+					'new_version'       => '2.5.0',
 					'is_available'      => true,
 					'documentation_url' => 'https://www.kadencewp.com/help-center/',
 					'authors'           => [ 'KadenceWP' ],

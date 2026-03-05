@@ -133,7 +133,7 @@ class Update_Client {
 			$updates[ $slug ] = [
 				'name'        => $feature->get_name(),
 				'slug'        => $slug,
-				'new_version' => '',
+				'new_version' => $feature->get_new_version() ?? '',
 				'package'     => $feature->get_download_url(),
 				'url'         => $feature->get_documentation_url(),
 				'author'      => implode( ', ', $feature->get_authors() ),

@@ -124,15 +124,14 @@ Product: kadence
 │  ├─ kadence-pro    (rank 2, "Pro")
 │  └─ kadence-agency (rank 3, "Agency")
 └─ Features (31)
-   ├─ kadence           (plugin, minimum: kadence-basic, the product itself)
-   ├─ kadence-theme     (theme,  minimum: kadence-basic, dot-org)
+   ├─ kadence           (theme, minimum: kadence-basic, the product itself, dot-org)
    ├─ kad-blocks-pro    (plugin, minimum: kadence-basic, exclusive)
    ├─ kad-shop-kit      (plugin, minimum: kadence-pro,   exclusive)
    ├─ kad-pattern-hub   (flag,   minimum: kadence-basic)
    └─ ...
 ```
 
-Note that `kadence` appears as both the product and as a feature within it. This is intentional — the product's entry plugin flows through the same update and feature management pipelines as any other feature.
+Note that `kadence` appears as both the product and as a feature within it. This is intentional — the product's entry point flows through the same update and feature management pipelines as any other feature.
 
 The current fixture covers four product families:
 

@@ -153,7 +153,7 @@ final class Update_RepositoryTest extends UplinkTestCase {
 		$collection->add(
 			new Plugin(
 				[
-					'slug'         => 'dotorg-feature',
+					'slug'         => 'dot-org-feature',
 					'group'        => 'kadence',
 					'tier'         => 'kadence-basic',
 					'name'         => 'Dot Org Feature',
@@ -173,7 +173,7 @@ final class Update_RepositoryTest extends UplinkTestCase {
 
 		$this->assertIsArray( $result );
 		$this->assertArrayHasKey( 'custom-feature', $result );
-		$this->assertArrayNotHasKey( 'dotorg-feature', $result );
+		$this->assertArrayNotHasKey( 'dot-org-feature', $result );
 	}
 
 	/**

@@ -25,7 +25,6 @@ Features come in two types, mapped from the catalog's delivery types during reso
 
 A standalone installable, either a WordPress plugin or theme. The catalog provides the `plugin_file` path, `download_url`, and `is_dot_org` flag. The feature system handles downloading, installing, activating, and deactivating through WordPress's plugin/theme infrastructure.
 
-
 ### Flag
 
 A capability toggle within an existing plugin, not a separate installable. Enabling a flag sets a WordPress option, and the owning plugin checks that option to unlock functionality within its own codebase. These are in-plugin feature flags gated by tier.

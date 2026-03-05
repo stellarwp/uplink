@@ -199,7 +199,7 @@ class Provider extends Abstract_Provider {
 	 * @return string|null The path to the ZIP file, or null on failure.
 	 */
 	private function build_test_zip( string $slug, string $source_dir ): ?string {
-		$zip_path = dirname( $source_dir ) . '/' . $slug . '.zip';
+		$zip_path = get_temp_dir() . $slug . '.zip';
 
 		// Skip rebuild if ZIP exists and is newer than all source files.
 		if ( file_exists( $zip_path ) ) {
@@ -262,7 +262,6 @@ class Provider extends Abstract_Provider {
 	 */
 	public function serve_local_zip_for_upgrader( $reply, $package, $upgrader ) {
 		$uplink_dir = WP_PLUGIN_DIR . '/uplink';
-		$zips_dir   = $uplink_dir . '/tests/_data/Features/Plugins/';
 		$zips_url   = plugins_url( 'tests/_data/Features/Plugins/', $uplink_dir . '/index.php' );
 
 		if ( strpos( $package, $zips_url ) !== 0 ) {
@@ -270,7 +269,7 @@ class Provider extends Abstract_Provider {
 		}
 
 		$filename = basename( $package );
-		$local    = $zips_dir . $filename;
+		$local    = get_temp_dir() . $filename;
 
 		if ( ! file_exists( $local ) ) {
 			return $reply;

@@ -66,11 +66,14 @@ final class Plugin extends Feature {
 	 * @return array<string, mixed>
 	 */
 	public function to_array(): array {
-		return parent::to_array() + [
-			'installed_version' => $this->get_installed_version(),
-			'new_version'       => $this->get_new_version(),
-			'has_update'        => $this->has_update(),
-		];
+		return array_merge(
+			parent::to_array(),
+			[
+				'installed_version' => $this->get_installed_version(),
+				'new_version'       => $this->get_new_version(),
+				'has_update'        => $this->has_update(),
+			]
+		);
 	}
 
 	/**

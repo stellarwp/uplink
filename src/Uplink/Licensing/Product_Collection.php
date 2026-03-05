@@ -45,11 +45,28 @@ final class Product_Collection extends Collection {
 	}
 
 	/**
-	 * Creates a Product_Collection from an array of Product_Entry objects.
+	 * Converts the collection to an array of raw data arrays.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Product_Entry[] $entries Product entries.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function to_array(): array {
+		$data = [];
+
+		foreach ( $this as $entry ) {
+			$data[] = $entry->to_array();
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Creates a Product_Collection from an array of Product_Entry objects or raw data arrays.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param array<Product_Entry|array<string, mixed>> $entries Product entries or raw arrays.
 	 *
 	 * @return self
 	 */
@@ -57,7 +74,11 @@ final class Product_Collection extends Collection {
 		$collection = new self();
 
 		foreach ( $entries as $entry ) {
-			$collection->add( $entry );
+			if ( $entry instanceof Product_Entry ) {
+				$collection->add( $entry );
+			} elseif ( is_array( $entry ) ) {
+				$collection->add( Product_Entry::from_array( $entry ) );
+			}
 		}
 
 		return $collection;

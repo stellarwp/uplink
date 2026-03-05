@@ -8,7 +8,6 @@
  */
 import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { Loader2 } from 'lucide-react';
 import { useSelect } from '@wordpress/data';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -52,17 +51,6 @@ export function ProductSection( { product, onAddLicense }: ProductSectionProps )
             return select( uplinkStore ).getFeaturesByGroup( product.slug );
         },
         [ product.slug ],
-    );
-
-    // True while the getFeatures resolver has not yet completed.
-    const isLoadingFeatures = useSelect(
-        ( select ) => {
-            const s = select( uplinkStore ) as unknown as {
-                hasFinishedResolution: ( name: string, args?: unknown[] ) => boolean;
-            };
-            return ! s.hasFinishedResolution( 'getFeatures', [] );
-        },
-        [],
     );
 
     return (
@@ -123,20 +111,13 @@ export function ProductSection( { product, onAddLicense }: ProductSectionProps )
             {/* Feature list — visible when licensed and product is active */}
             { hasLicense && productActive && (
                 <div className="divide-y divide-border">
-                    { isLoadingFeatures ? (
-                        <div className="flex items-center justify-center gap-2 px-4 py-6 text-sm text-muted-foreground">
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            { __( 'Loading features…', '%TEXTDOMAIN%' ) }
-                        </div>
-                    ) : (
-                        features.map( ( feature ) => (
-                            <FeatureRow
-                                key={ feature.slug }
-                                feature={ feature }
-                                product={ product }
-                            />
-                        ) )
-                    ) }
+                    { features.map( ( feature ) => (
+                        <FeatureRow
+                            key={ feature.slug }
+                            feature={ feature }
+                            product={ product }
+                        />
+                    ) ) }
                 </div>
             ) }
 

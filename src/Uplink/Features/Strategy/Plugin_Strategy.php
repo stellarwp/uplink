@@ -37,10 +37,11 @@ use function wp_json_encode;
  * with autoload=true for fast reads. The live WordPress plugin state is always
  * the source of truth — stored state is a cache that self-heals on mismatch.
  *
- * Sync hook callbacks (on_plugin_activated / on_plugin_deactivated) are public
- * methods intended to be wired to WordPress hooks by the Provider layer. They
- * use the optional $feature_resolver callable to look up features from the
- * Collection. Until the Provider is built, these methods are inert.
+ * Sync hook callbacks (on_plugin_activated / on_plugin_deactivated) are wired
+ * to WordPress's activated_plugin / deactivated_plugin hooks by the Provider.
+ * They use the $feature_resolver callable to look up features from the
+ * Collection, keeping stored state in sync when plugins change outside the
+ * feature system.
  *
  * @since 3.0.0
  */
@@ -196,15 +197,11 @@ class Plugin_Strategy extends Installable_Strategy {
 	/**
 	 * Sync hook: update stored state when a plugin is activated via WordPress.
 	 *
-	 * Intended to be wired to the 'activated_plugin' hook by the Provider.
+	 * Wired to the 'activated_plugin' hook by the Provider.
 	 * Resolves the plugin_file to a Plugin feature via the feature_resolver
 	 * callable, then updates stored state to match.
 	 *
-	 * If no feature_resolver is configured (i.e. the Provider isn't built yet),
-	 * this method silently no-ops.
-	 *
-	 * TODO: Wire this to the 'activated_plugin' hook in Provider once the
-	 *       Feature Collection and feature_resolver are built.
+	 * If no feature_resolver is configured, this method silently no-ops.
 	 *
 	 * @since 3.0.0
 	 *
@@ -226,12 +223,11 @@ class Plugin_Strategy extends Installable_Strategy {
 	/**
 	 * Sync hook: update stored state when a plugin is deactivated via WordPress.
 	 *
-	 * Intended to be wired to the 'deactivated_plugin' hook by the Provider.
+	 * Wired to the 'deactivated_plugin' hook by the Provider.
 	 * Resolves the plugin_file to a Plugin feature via the feature_resolver
 	 * callable, then updates stored state to match.
 	 *
-	 * TODO: Wire this to the 'deactivated_plugin' hook in Provider once the
-	 *       Feature Collection and feature_resolver are built.
+	 * If no feature_resolver is configured, this method silently no-ops.
 	 *
 	 * @since 3.0.0
 	 *

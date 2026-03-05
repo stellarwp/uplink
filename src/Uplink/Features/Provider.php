@@ -16,6 +16,7 @@ use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Utils\Cast;
 use WP_Error;
+use WP_Theme;
 
 /**
  * Registers the Features subsystem in the DI container and hooks.
@@ -105,9 +106,53 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	private function register_default_strategies(): void {
-		$this->container->singleton( Plugin_Strategy::class, Plugin_Strategy::class );
+		$this->container->singleton(
+			Plugin_Strategy::class,
+			static function ( ContainerInterface $c ) {
+				return new Plugin_Strategy(
+					static function ( string $wp_identifier ) use ( $c ): ?Plugin {
+						$features = $c->get( Manager::class )->get_features();
+
+						if ( is_wp_error( $features ) ) {
+							return null;
+						}
+
+						foreach ( $features->filter( null, null, null, 'plugin' ) as $feature ) {
+							if ( $feature instanceof Plugin && $feature->get_wp_identifier() === $wp_identifier ) {
+								return $feature;
+							}
+						}
+
+						return null;
+					}
+				);
+			}
+		);
+
 		$this->container->singleton( Flag_Strategy::class, Flag_Strategy::class );
-		$this->container->singleton( Theme_Strategy::class, Theme_Strategy::class );
+
+		$this->container->singleton(
+			Theme_Strategy::class,
+			static function ( ContainerInterface $c ) {
+				return new Theme_Strategy(
+					static function ( string $wp_identifier ) use ( $c ): ?Theme {
+						$features = $c->get( Manager::class )->get_features();
+
+						if ( is_wp_error( $features ) ) {
+							return null;
+						}
+
+						foreach ( $features->filter( null, null, null, 'theme' ) as $feature ) {
+							if ( $feature instanceof Theme && $feature->get_wp_identifier() === $wp_identifier ) {
+								return $feature;
+							}
+						}
+
+						return null;
+					}
+				);
+			}
+		);
 
 		$resolver = $this->container->get( Resolver::class );
 		$resolver->register( 'plugin', Plugin_Strategy::class );
@@ -129,8 +174,9 @@ class Provider extends Abstract_Provider {
 		// TODO: Remove this once the real plugins_api filter is implemented.
 		add_filter( 'upgrader_pre_download', [ $this, 'serve_local_zip_for_upgrader' ], 10, 3 );
 
-		// TODO: Remove this once the real switch_theme action is implemented.
 		add_action( 'switch_theme', [ $this, 'on_theme_switch' ], 10, 3 );
+		add_action( 'activated_plugin', [ $this, 'on_plugin_activated' ], 10, 2 );
+		add_action( 'deactivated_plugin', [ $this, 'on_plugin_deactivated' ], 10, 2 );
 
 		add_action(
 			'stellarwp/uplink/unified_license_key_changed',
@@ -246,13 +292,41 @@ class Provider extends Abstract_Provider {
 	 * @since 3.0.0
 	 *
 	 * @param string    $new_name  Name of the new theme.
-	 * @param \WP_Theme $new_theme The new theme object.
-	 * @param \WP_Theme $old_theme The old theme object.
+	 * @param WP_Theme $new_theme The new theme object.
+	 * @param WP_Theme $old_theme The old theme object.
 	 *
 	 * @return void
 	 */
-	public function on_theme_switch( string $new_name, \WP_Theme $new_theme, \WP_Theme $old_theme ): void {
+	public function on_theme_switch( string $new_name, WP_Theme $new_theme, WP_Theme $old_theme ): void {
 		$this->container->get( Theme_Strategy::class )->on_theme_switch( $new_name, $new_theme, $old_theme );
+	}
+
+	/**
+	 * Delegate callback for the activated_plugin action.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $plugin       Plugin file path relative to plugins directory.
+	 * @param bool   $network_wide Whether the activation was network-wide.
+	 *
+	 * @return void
+	 */
+	public function on_plugin_activated( string $plugin, bool $network_wide ): void {
+		$this->container->get( Plugin_Strategy::class )->on_plugin_activated( $plugin, $network_wide );
+	}
+
+	/**
+	 * Delegate callback for the deactivated_plugin action.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $plugin       Plugin file path relative to plugins directory.
+	 * @param bool   $network_wide Whether the deactivation was network-wide.
+	 *
+	 * @return void
+	 */
+	public function on_plugin_deactivated( string $plugin, bool $network_wide ): void {
+		$this->container->get( Plugin_Strategy::class )->on_plugin_deactivated( $plugin, $network_wide );
 	}
 
 	/**

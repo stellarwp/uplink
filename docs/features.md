@@ -106,7 +106,7 @@ Enabling a Plugin feature installs the plugin (if needed) and activates it. Disa
 
 Plugin installs use per-slug transient locks with a 120-second TTL to prevent concurrent install races.
 
-The stored option self-heals: if the live plugin state drifts from the stored option (e.g., a user deactivates a plugin through the WordPress plugins page), the stored state updates to match on the next check.
+The stored option self-heals: if the live plugin state drifts from the stored option (e.g., a user deactivates a plugin through the WordPress plugins page), the stored state updates to match on the next check. Additionally, the Provider wires `activated_plugin` and `deactivated_plugin` hooks to proactively sync stored state when plugins are activated or deactivated outside the feature system (e.g., via the Plugins admin page).
 
 ### Theme Strategy
 
@@ -114,9 +114,29 @@ Manages theme installation. Unlike plugins, themes are not activated or deactiva
 
 Enabling a Theme feature installs the theme (if needed) and marks it as enabled in stored state. It does not switch the active theme — users activate themes through WordPress's Appearance → Themes UI. Disabling updates stored state only; theme files are never deleted.
 
-The is_active check reflects whether the theme is installed on disk. If a theme is manually deleted, stored state self-heals on the next check.
+The is_active check reflects whether the theme is installed on disk. If a theme is manually deleted, stored state self-heals on the next check. The Provider wires the `switch_theme` hook to proactively sync stored state when themes are switched outside the feature system.
 
 Theme installs use the same per-slug transient lock pattern as plugins. Ownership verification checks the theme's Author header via wp_get_theme().
+
+### Sync Hooks — Keeping Stored State in Sync
+
+Plugins and themes can be activated, deactivated, or switched outside the feature system — for example, through the WordPress Plugins admin page or the Appearance > Themes UI. Without sync hooks, the stored feature state (`stellarwp_uplink_feature_{slug}_active`) would drift from reality until the next `is_active()` call self-heals it.
+
+The Provider wires WordPress hooks to proactively update stored state:
+
+| WordPress hook       | Provider method           | Strategy method                            |
+| -------------------- | ------------------------- | ------------------------------------------ |
+| `activated_plugin`   | `on_plugin_activated()`   | `Plugin_Strategy::on_plugin_activated()`   |
+| `deactivated_plugin` | `on_plugin_deactivated()` | `Plugin_Strategy::on_plugin_deactivated()` |
+| `switch_theme`       | `on_theme_switch()`       | `Theme_Strategy::on_theme_switch()`        |
+
+Each sync hook resolves the WordPress identifier (plugin file path or theme stylesheet) to a known feature via the `feature_resolver` callable. If the identifier doesn't match any feature in the collection, the hook **silently no-ops**. This is by design — the vast majority of plugin activations and theme switches on a WordPress site involve extensions that are not managed as features. The hooks fire on every activation/deactivation site-wide, but only act when the extension corresponds to a known feature.
+
+Silent no-op cases:
+
+- **Unknown plugin/theme**: the extension isn't in the catalog at all (e.g., a third-party plugin the site owner installed independently).
+- **Feature resolution fails**: `Manager::get_features()` returns a `WP_Error` (e.g., expired cache and API unreachable). The resolver returns null and the hook silently skips rather than disrupting the activation flow.
+- **No feature_resolver configured**: defensive fallback if the strategy was constructed without a resolver (should not happen in normal operation since the Provider wires it).
 
 ## Caching and Data Access
 

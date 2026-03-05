@@ -34,8 +34,8 @@ This collection covers the Feature Toggling REST API (`/wp-json/stellarwp/uplink
 
 - **Features List** - list all features with optional filters (group, tier, available, type).
 - **Flag Feature** - get, enable, and disable a flag feature.
-- **Zip Feature - Valid Scenarios** - get, enable, and disable a valid zip feature.
-- **Zip Feature - Invalid Scenarios** - Invalid scenarios for the zip feature (fatal errors, requirements not met, ownership mismatch, etc.).
+- **Plugin Feature - Valid Scenarios** - get, enable, and disable a valid plugin feature.
+- **Plugin Feature - Invalid Scenarios** - Invalid scenarios for the plugin feature (fatal errors, requirements not met, ownership mismatch, etc.).
 - **Edge Cases** - Edge cases for the feature toggling API (nonexistent feature, invalid request, etc.).
 
 ### Setup

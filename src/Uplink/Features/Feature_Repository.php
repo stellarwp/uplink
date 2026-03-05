@@ -100,7 +100,7 @@ class Feature_Repository {
 	 * @return Feature_Collection|WP_Error
 	 */
 	protected function resolve( string $key, string $domain ) {
-		$result = ( $this->resolver )( $key, $domain );
+		$result = ( $this->resolver )( $domain );
 
 		set_transient( self::TRANSIENT_KEY, $result, self::CACHE_DURATION );
 

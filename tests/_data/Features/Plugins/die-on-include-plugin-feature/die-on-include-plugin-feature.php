@@ -12,4 +12,4 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-die( 'Intentional die() for Uplink Zip Strategy testing.' );
+die( 'Intentional die() for Uplink Plugin Strategy testing.' );

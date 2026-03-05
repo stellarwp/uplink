@@ -375,5 +375,15 @@ bunx @stellarwp/changelogger write --overwrite-version <version>
 
 ## Additional documentation
 
-- [Features](/docs/features.md) — Overview of library features, license key validation flow, embedded keys, UI rendering, and API configuration constants.
+### Uplink v3
+
+- [Uplink v3](/docs/uplink-v3.md) — Primary architecture document for v3 unified licensing.
+- [Licensing](/docs/licensing.md) — Key discovery, API responses, validation workflows, caching.
+- [Catalog](/docs/catalog.md) — Product families, tiers, features, the Commerce Portal API.
+- [Features](/docs/features.md) — Feature types, resolution, strategies, Manager API, REST endpoints.
+- [Unified License Key](/docs/unified-license-key-system-design.md) — Key model, seat mechanics, system boundaries.
+- [Multi-Instance Architecture](/docs/uplink-v3-fat-leader-thin-instance.md) — Leader election, cross-instance hooks, thin instances.
+
+### General
+
 - [Testing](/docs/testing.md) — How to set up and run automated tests with Codeception and `slic`.

@@ -1,0 +1,234 @@
+# Licensing
+
+## Summary
+
+The Licensing subsystem is how a WordPress site learns what a unified license key covers. The site presents its `LWSW-`-prefixed key to the Licensing API, and the API returns which products are entitled, what tier each is on, and whether seats are available. The site stores this response and uses it as the source of truth for all entitlement decisions.
+
+This document describes the data the site gets from Licensing, how it stores and caches that data, and the workflows that drive key discovery and validation.
+
+> **Development status.** The architectural patterns here (key discovery, caching, repository structure) are stable. The upstream API is not. The current implementation targets a v4 Licensing API that is still in development. If v4 does not ship in time or does not meet our needs, we may fall back to the existing v3 Licensing API. The v3 API is already plugin/theme-aware and gives us most of the entitlement data we need, though it lacks some catalog-style information like upsell data. Specific data shapes, tier slugs, and response formats are all subject to change. Fixture data in `tests/_data/licensing/` reflects our current working assumptions, not a finalized spec.
+
+## The Unified Key
+
+A site has one unified license key. It reaches the site in one of two ways:
+
+- **Embedded**: a product purchased from the StellarWP store ships with a license file containing the key
+- **User-entered**: the user types the key into the admin UI
+
+The `License_Manager` resolves the key using a priority system: a stored key always wins. If no key is stored, it checks whether any registered product contributed an embedded key. If one is found, it auto-stores it so future lookups skip the discovery step.
+
+```
+get() priority:
+  1. Stored key (License_Repository) → always wins
+  2. First embedded key from Product_Registry → auto-stored, then returned
+  3. null (site is unlicensed)
+```
+
+Keys are validated for format before storage. Only keys matching the `LWSW-` prefix are accepted. `validate_and_store()` goes further: it presents the key to the Licensing API first, and only persists it if the API recognizes it. This prevents invalid keys from entering storage.
+
+### Multisite
+
+On multisite, key storage is network-aware. The `License_Repository` checks the network option first, then falls back to the site option. Storage can target either level explicitly via the `$network` parameter on `store()` and `delete()`.
+
+## What Licensing Returns
+
+### Product Entries
+
+When the site calls `get_products()` with its key, Licensing returns an array of product entries, one per product associated with the key. Each entry contains:
+
+| Field               | Type         | Description                                                                                  |
+| ------------------- | ------------ | -------------------------------------------------------------------------------------------- |
+| `product_slug`      | string       | Product identifier (e.g., `give`, `kadence`)                                                 |
+| `tier`              | string       | Current subscription tier, product-prefixed (e.g., `give-pro`, `kadence-agency`)             |
+| `pending_tier`      | string\|null | Scheduled tier change on next renewal, if any                                                |
+| `status`            | string       | Subscription status: `active`, `expired`, `suspended`, `cancelled`                           |
+| `expires`           | string       | Expiration date (`Y-m-d H:i:s`)                                                              |
+| `site_limit`        | int          | Maximum site activations. `0` means unlimited                                                |
+| `active_count`      | int          | Current number of activated sites                                                            |
+| `installed_here`    | bool\|null   | Whether this product is activated on the requesting domain. `null` if no domain was provided |
+| `validation_status` | string\|null | One of the `Validation_Status` constants                                                     |
+
+`get_products()` is a **read-only** operation. It does not consume seats. It is the bulk fetch used for periodic status checks.
+
+### Validation Results
+
+When the site calls `validate()` for a single product, Licensing returns a more detailed response with three sections:
+
+**License** (the key itself):
+
+```json
+{
+ "key": "LWSW-...",
+ "status": "active"
+}
+```
+
+**Subscription** (the product's subscription under this key):
+
+```json
+{
+ "product_slug": "give",
+ "tier": "give-pro",
+ "site_limit": 3,
+ "expiration_date": "2026-12-31 23:59:59",
+ "status": "active"
+}
+```
+
+**Activation** (whether the product is activated on this domain, only present if activated):
+
+```json
+{
+ "domain": "example.com",
+ "activated_at": "2024-03-04 12:34:56"
+}
+```
+
+`validate()` **may consume a seat** as a side effect if this is the product's first activation on the domain. If the product is already active on the domain, no seat is consumed.
+
+### Validation Statuses
+
+The `Validation_Status` enum covers every state a product can be in:
+
+| Status               | Meaning                                               |
+| -------------------- | ----------------------------------------------------- |
+| `valid`              | Key is valid, product activated on this domain        |
+| `expired`            | Subscription has expired                              |
+| `suspended`          | Subscription is suspended                             |
+| `cancelled`          | Subscription is cancelled                             |
+| `license_suspended`  | Entire license is suspended (affects all products)    |
+| `license_banned`     | Entire license is banned (affects all products)       |
+| `no_subscription`    | No subscription exists for this product under the key |
+| `not_activated`      | Product is not activated on this domain               |
+| `out_of_activations` | All seats are consumed                                |
+| `invalid_key`        | Key is not recognized                                 |
+
+## Caching and Storage
+
+### Key Storage
+
+The unified key is stored in a WordPress option (`stellarwp_uplink_unified_license_key`). The `License_Repository` handles reads and writes, including multisite-aware lookups.
+
+### Product Catalog Cache
+
+The full product catalog response is cached in a WordPress transient (`stellarwp_uplink_licensing_products`) with a 12-hour TTL. The `Product_Repository` manages this cache transparently. Callers use `get()` and never touch the client directly.
+
+Since there's only one unified key per site, there's only one cache entry. Cache invalidation is simple: `refresh()` deletes the transient and re-fetches.
+
+Both successful responses and errors are cached. If the API returns an error, the error is stored for the full TTL so the site doesn't hammer the API on repeated failures.
+
+## Product Registry
+
+Products opt into unified licensing by declaring themselves through a WordPress filter (`stellarwp/uplink/product_registry`). Each product contributes:
+
+| Field          | Required | Description                                         |
+| -------------- | -------- | --------------------------------------------------- |
+| `slug`         | Yes      | Product identifier, must match what Licensing knows |
+| `embedded_key` | No       | `LWSW-`-prefixed key if the product ships with one  |
+| `name`         | No       | Human-readable display name                         |
+| `version`      | No       | Currently installed version                         |
+| `group`        | No       | Product brand/family (e.g., `givewp`, `kadence`)    |
+
+Only `slug` is required. Products do not declare their tier. Tiers are a property of the license, not the product.
+
+The registry is consumed lazily. By the time the leader reads it, all plugins have loaded and registered.
+
+## API Client
+
+The `Licensing_Client` contract defines two operations:
+
+- **`get_products(string $key, string $domain): Product_Entry[]|WP_Error`**: bulk fetch of all products on a key. Read-only, no seat consumption.
+- **`validate(string $key, string $domain, string $product_slug): Validation_Result|WP_Error`**: validate a single product. May consume a seat on first activation.
+
+During development, the `Fixture_Client` is wired in place of the real API client. It reads JSON fixture files from `tests/_data/licensing/`, mapping key values to filenames (e.g., `LWSW-unified-pro-2026` reads from `lwsw-unified-pro-2026.json`).
+
+The fixture set covers the common scenarios:
+
+| Fixture                    | Scenario                                                  |
+| -------------------------- | --------------------------------------------------------- |
+| `lwsw-unified-basic-2026`  | Basic tier (e.g., `give-basic`), 1 site limit per product |
+| `lwsw-unified-pro-2026`    | Pro tier (e.g., `give-pro`), 3 site limits                |
+| `lwsw-unified-agency-2026` | Agency tier (e.g., `give-agency`), unlimited sites        |
+| `lwsw-unified-pro-expired` | All products expired                                      |
+| `lwsw-unified-pro-mixed`   | Mixed statuses across products                            |
+
+## Error Codes
+
+All errors use `WP_Error` with these codes:
+
+| Code                                 | Constant            | Meaning                                            |
+| ------------------------------------ | ------------------- | -------------------------------------------------- |
+| `stellarwp-uplink-invalid-key`       | `INVALID_KEY`       | Key not recognized by the API                      |
+| `stellarwp-uplink-invalid-response`  | `INVALID_RESPONSE`  | API response couldn't be decoded                   |
+| `stellarwp-uplink-product-not-found` | `PRODUCT_NOT_FOUND` | Product slug not found in the catalog for this key |
+| `stellarwp-uplink-store-failed`      | `STORE_FAILED`      | Key couldn't be persisted to the database          |
+
+## Workflows
+
+### Key Discovery
+
+```
+License_Manager::get()
+├─ License_Repository::get()
+│  ├─ [multisite] check network option
+│  └─ check site option
+│  └─ return key or null
+├─ if key found → return it
+├─ Product_Registry::first_with_embedded_key()
+│  └─ iterate registered products for embedded keys
+├─ if embedded key found → auto-store, return it
+└─ return null (unlicensed)
+```
+
+### Key Validation and Storage
+
+```
+License_Manager::validate_and_store($key, $domain)
+├─ validate LWSW- prefix format
+├─ Product_Repository::get($key, $domain)
+│  ├─ check transient cache
+│  ├─ if miss → Licensing_Client::get_products()
+│  └─ cache response (12hr TTL)
+├─ if API error → return WP_Error
+├─ License_Repository::store($key)
+└─ return true
+```
+
+### Periodic Status Check
+
+```
+Product_Repository::get($key, $domain)
+├─ check transient cache
+├─ if hit → return cached Product_Collection
+├─ if miss → Licensing_Client::get_products()
+├─ cache result (success or error, 12hr TTL)
+└─ return Product_Collection|WP_Error
+```
+
+## Relationship to Catalog and Features
+
+Licensing answers "what does this key cover?" but not "what can the customer do with it?" That second question requires the [Catalog](catalog.md) and the [Features](features.md) layer.
+
+### Tier Slugs
+
+Both Licensing and the Catalog use the same product-prefixed tier slug convention (e.g., `give-pro`, `kadence-agency`). This means tier values from a licensing response can be looked up directly in the catalog's tier collection without transformation.
+
+### How Licensing Data Feeds Feature Resolution
+
+The `Resolve_Feature_Collection` class consumes the `Product_Collection` from the licensing `Product_Repository` alongside the `Catalog_Collection` from the catalog `Catalog_Repository`. For each product in the catalog, it looks up the matching licensing entry to determine:
+
+1. **Whether the site has a license** for that product at all
+2. **What tier rank** the license grants (by looking up the tier slug in the catalog's tier collection)
+
+That tier rank is compared against each feature's minimum tier rank to compute `is_available`. A product with no licensing entry gets a tier rank of `0`, making all of its features unavailable.
+
+### Cache Invalidation
+
+When the license key changes, the feature resolution cache auto-invalidates. This handles license key changes without manual cache purging.
+
+## What Licensing Does Not Do
+
+- **Release seats**: seats can only be freed through Portal by an authenticated user. This prevents abuse.
+- **Assign tiers**: tiers come from the API response, not from product declarations.
+- **Validate legacy keys**: per-resource v2/v3 keys continue through their existing path unchanged.
+- **Support multiple keys per site**: one key, one source of truth.

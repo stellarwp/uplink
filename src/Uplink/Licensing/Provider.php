@@ -27,15 +27,16 @@ final class Provider extends Abstract_Provider {
 			}
 		);
 
-		$this->container->singleton( Product_Repository::class, Product_Repository::class );
 		$this->container->singleton( License_Repository::class, License_Repository::class );
 		$this->container->singleton( Product_Registry::class, Product_Registry::class );
 		$this->container->singleton( License_Manager::class, License_Manager::class );
 
 		add_action(
 			'stellarwp/uplink/unified_license_key_changed',
-			static function () {
-				delete_transient( Product_Repository::TRANSIENT_KEY );
+			function () {
+				/** @var License_Repository $license_repository */
+				$license_repository = $this->container->get( License_Repository::class );
+				$license_repository->delete_products();
 			}
 		);
 	}

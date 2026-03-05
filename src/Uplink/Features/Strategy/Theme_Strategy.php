@@ -170,6 +170,12 @@ class Theme_Strategy extends Installable_Strategy {
 	 * A theme feature is active when it is on disk AND stored state says enabled.
 	 *
 	 * @since 3.0.0
+	 *
+	 * @param string $slug   The feature slug.
+	 * @param bool   $live   The live active state from check_active().
+	 * @param ?bool  $stored The stored state from wp_options (null if never set).
+	 *
+	 * @return bool The effective active state.
 	 */
 	protected function reconcile_state( string $slug, bool $live, ?bool $stored ): bool {
 		// Theme removed from disk → self-heal stored state to inactive.

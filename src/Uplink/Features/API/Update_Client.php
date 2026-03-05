@@ -57,13 +57,12 @@ class Update_Client {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string                $unified_key The unified license key.
-	 * @param string                $domain      The site domain.
-	 * @param array<string, string> $products    Map of slug => installed_version.
+	 * @param string $unified_key The unified license key.
+	 * @param string $domain      The site domain.
 	 *
 	 * @return array<string, array<string, mixed>>|WP_Error Keyed by slug, each entry contains update fields.
 	 */
-	public function check_updates( string $unified_key, string $domain, array $products ) {
+	public function check_updates( string $unified_key, string $domain ) {
 		$cached = get_transient( self::TRANSIENT_KEY );
 
 		if ( is_wp_error( $cached ) ) {
@@ -75,7 +74,7 @@ class Update_Client {
 			return $cached;
 		}
 
-		return $this->fetch_updates( $unified_key, $domain, $products );
+		return $this->fetch_updates( $unified_key, $domain );
 	}
 
 	/**
@@ -83,16 +82,15 @@ class Update_Client {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string                $unified_key The unified license key.
-	 * @param string                $domain      The site domain.
-	 * @param array<string, string> $products    Map of slug => installed_version.
+	 * @param string $unified_key The unified license key.
+	 * @param string $domain      The site domain.
 	 *
 	 * @return array<string, array<string, mixed>>|WP_Error Keyed by slug, each entry contains update fields.
 	 */
-	public function refresh( string $unified_key, string $domain, array $products ) {
+	public function refresh( string $unified_key, string $domain ) {
 		delete_transient( self::TRANSIENT_KEY );
 
-		return $this->fetch_updates( $unified_key, $domain, $products );
+		return $this->fetch_updates( $unified_key, $domain );
 	}
 
 	/**
@@ -104,13 +102,12 @@ class Update_Client {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string                $unified_key The unified license key.
-	 * @param string                $domain      The site domain.
-	 * @param array<string, string> $products    Map of slug => installed_version.
+	 * @param string $unified_key The unified license key.
+	 * @param string $domain      The site domain.
 	 *
 	 * @return array<string, array<string, mixed>>|WP_Error Keyed by slug, each entry contains update fields.
 	 */
-	private function fetch_updates( string $unified_key, string $domain, array $products ) {
+	private function fetch_updates( string $unified_key, string $domain ) {
 		$features = $this->feature_repository->get( $unified_key, $domain );
 
 		if ( is_wp_error( $features ) ) {

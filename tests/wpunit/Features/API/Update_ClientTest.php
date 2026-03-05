@@ -49,7 +49,7 @@ final class Update_ClientTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_returns_feature_data(): void {
-		$result = $this->client->check_updates( 'test-key', 'example.com', [ 'my-plugin' => '1.0.0' ] );
+		$result = $this->client->check_updates( 'test-key', 'example.com' );
 
 		$this->assertIsArray( $result );
 		$this->assertNotEmpty( $result );
@@ -116,7 +116,7 @@ final class Update_ClientTest extends UplinkTestCase {
 		);
 
 		$client = new Update_Client( $this->make_repository( $collection ) );
-		$result = $client->check_updates( 'test-key', 'example.com', [] );
+		$result = $client->check_updates( 'test-key', 'example.com' );
 
 		$this->assertIsArray( $result );
 		$this->assertArrayHasKey( 'available-feature', $result );
@@ -168,7 +168,7 @@ final class Update_ClientTest extends UplinkTestCase {
 		);
 
 		$client = new Update_Client( $this->make_repository( $collection ) );
-		$result = $client->check_updates( 'test-key', 'example.com', [] );
+		$result = $client->check_updates( 'test-key', 'example.com' );
 
 		$this->assertIsArray( $result );
 		$this->assertArrayHasKey( 'custom-feature', $result );
@@ -181,7 +181,7 @@ final class Update_ClientTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_caches_in_transient(): void {
-		$this->client->check_updates( 'test-key', 'example.com', [ 'my-plugin' => '1.0.0' ] );
+		$this->client->check_updates( 'test-key', 'example.com' );
 
 		$cached = get_transient( 'stellarwp_uplink_update_check' );
 
@@ -198,7 +198,7 @@ final class Update_ClientTest extends UplinkTestCase {
 		$cached = [ 'my-plugin' => [ 'new_version' => '2.0.0' ] ];
 		set_transient( 'stellarwp_uplink_update_check', $cached, HOUR_IN_SECONDS );
 
-		$result = $this->client->check_updates( 'test-key', 'example.com', [ 'my-plugin' => '1.0.0' ] );
+		$result = $this->client->check_updates( 'test-key', 'example.com' );
 
 		$this->assertSame( $cached, $result );
 	}
@@ -212,7 +212,7 @@ final class Update_ClientTest extends UplinkTestCase {
 		$cached = [ 'my-plugin' => [ 'new_version' => '2.0.0' ] ];
 		set_transient( 'stellarwp_uplink_update_check', $cached, HOUR_IN_SECONDS );
 
-		$result = $this->client->refresh( 'test-key', 'example.com', [ 'my-plugin' => '1.0.0' ] );
+		$result = $this->client->refresh( 'test-key', 'example.com' );
 
 		// After refresh, stale data is replaced with fresh fixture data.
 		$this->assertIsArray( $result );
@@ -229,7 +229,7 @@ final class Update_ClientTest extends UplinkTestCase {
 		$error = new WP_Error( 'test_error', 'API unavailable.' );
 
 		$client = new Update_Client( $this->make_repository( $error ) );
-		$result = $client->check_updates( 'test-key', 'example.com', [ 'my-plugin' => '1.0.0' ] );
+		$result = $client->check_updates( 'test-key', 'example.com' );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 
@@ -247,7 +247,7 @@ final class Update_ClientTest extends UplinkTestCase {
 		$error = new WP_Error( 'test_error', 'Cached error' );
 		set_transient( 'stellarwp_uplink_update_check', $error );
 
-		$result = $this->client->check_updates( 'test-key', 'example.com', [ 'my-plugin' => '1.0.0' ] );
+		$result = $this->client->check_updates( 'test-key', 'example.com' );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'Cached error', $result->get_error_message() );

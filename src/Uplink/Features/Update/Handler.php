@@ -5,12 +5,11 @@ namespace StellarWP\Uplink\Features\Update;
 use StellarWP\Uplink\Features\API\Update_Client;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Types\Plugin;
-use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Site\Data;
 use stdClass;
 
 /**
- * Consolidated update handler for Plugin features and Resources.
+ * Consolidated update handler for Plugin features.
  *
  * Filters `plugins_api`, `pre_set_site_transient_update_plugins`,
  * and `site_transient_update_plugins` to provide update information
@@ -39,15 +38,6 @@ class Handler {
 	private Feature_Repository $feature_repository;
 
 	/**
-	 * The resource collection for this Uplink instance.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var Collection
-	 */
-	private Collection $resource_collection;
-
-	/**
 	 * The site data provider.
 	 *
 	 * @since 3.0.0
@@ -70,30 +60,27 @@ class Handler {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Update_Client      $update_client       The update API client.
-	 * @param Feature_Repository $feature_repository  The feature repository.
-	 * @param Collection         $resource_collection The resource collection.
-	 * @param Data               $site_data           The site data provider.
-	 * @param string             $key                 The license key.
+	 * @param Update_Client      $update_client      The update API client.
+	 * @param Feature_Repository $feature_repository The feature repository.
+	 * @param Data               $site_data          The site data provider.
+	 * @param string             $key                The license key.
 	 *
 	 * @return void
 	 */
 	public function __construct(
 		Update_Client $update_client,
 		Feature_Repository $feature_repository,
-		Collection $resource_collection,
 		Data $site_data,
 		string $key
 	) {
-		$this->update_client       = $update_client;
-		$this->feature_repository  = $feature_repository;
-		$this->resource_collection = $resource_collection;
-		$this->site_data           = $site_data;
-		$this->key                 = $key;
+		$this->update_client      = $update_client;
+		$this->feature_repository = $feature_repository;
+		$this->site_data          = $site_data;
+		$this->key                = $key;
 	}
 
 	/**
-	 * Filters the plugins_api response for Plugin features and Resources.
+	 * Filters the plugins_api response for Plugin features.
 	 *
 	 * Calls check_updates() which returns from cache if available,
 	 * or fetches fresh data from the consolidation server.
@@ -125,29 +112,8 @@ class Handler {
 			return $result;
 		}
 
-		$products = $this->collect_products();
-
-		/**
-		 * Include the requested slug even when the plugin is not installed,
-		 * so the consolidation server can return info for features that
-		 * have not been downloaded yet.
-		 */
-		if ( ! isset( $products['versions'][ $slug ] ) ) {
-			$feature = $features->get( $slug );
-
-			$installed = ( $feature instanceof Plugin )
-				? ( $feature->get_installed_version() ?? '0.0.0' )
-				: '0.0.0';
-
-			$products['versions'][ $slug ] = $installed;
-		}
-
 		$domain   = $this->site_data->get_domain();
-		$response = $this->update_client->check_updates(
-			$this->key,
-			$domain,
-			$products['versions']
-		);
+		$response = $this->update_client->check_updates( $this->key, $domain );
 
 		if ( is_wp_error( $response ) || empty( $response[ $slug ] ) ) {
 			return $result;
@@ -174,18 +140,8 @@ class Handler {
 			return $transient;
 		}
 
-		$products = $this->collect_products();
-
-		if ( empty( $products['versions'] ) ) {
-			return $transient;
-		}
-
 		$domain   = $this->site_data->get_domain();
-		$response = $this->update_client->check_updates(
-			$this->key,
-			$domain,
-			$products['versions']
-		);
+		$response = $this->update_client->check_updates( $this->key, $domain );
 
 		if ( is_wp_error( $response ) || ! is_array( $response ) ) {
 			return $transient;
@@ -199,12 +155,14 @@ class Handler {
 			$transient->no_update = []; // @phpstan-ignore property.notFound
 		}
 
+		$features = $this->feature_repository->get( $this->key, $domain );
+
 		foreach ( $response as $slug => $update_data ) {
 			if ( ! is_string( $slug ) || ! is_array( $update_data ) ) {
 				continue;
 			}
 
-			$plugin_file = $products['plugin_files'][ $slug ] ?? '';
+			$plugin_file = $update_data['plugin_file'] ?? '';
 
 			if ( empty( $plugin_file ) ) {
 				continue;
@@ -212,7 +170,15 @@ class Handler {
 
 			/** @var string $new_version */
 			$new_version       = $update_data['new_version'] ?? '';
-			$installed_version = $products['versions'][ $slug ] ?? '';
+			$installed_version = '';
+
+			if ( ! is_wp_error( $features ) ) {
+				$feature = $features->get( $slug );
+
+				if ( $feature instanceof Plugin ) {
+					$installed_version = $feature->get_installed_version() ?? '';
+				}
+			}
 
 			$update_object = $this->to_update_object( $slug, $plugin_file, $update_data );
 
@@ -232,54 +198,6 @@ class Handler {
 		}
 
 		return $transient;
-	}
-
-	/**
-	 * Collects all installed Plugin features and Resources with their versions and plugin files.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return array{versions: array<string, string>, plugin_files: array<string, string>}
-	 */
-	private function collect_products(): array {
-		$versions     = [];
-		$plugin_files = [];
-
-		// Collect Plugin features.
-		$features = $this->feature_repository->get( $this->key, $this->site_data->get_domain() );
-
-		if ( ! is_wp_error( $features ) ) {
-			$plugin_features = $features->filter( null, null, null, 'plugin' );
-
-			foreach ( $plugin_features as $feature ) {
-				if ( ! $feature instanceof Plugin ) {
-					continue;
-				}
-
-				if ( ! $feature->is_installed() ) {
-					continue;
-				}
-
-				$slug                  = $feature->get_slug();
-				$versions[ $slug ]     = $feature->get_installed_version() ?? '';
-				$plugin_files[ $slug ] = $feature->get_plugin_file();
-			}
-		}
-
-		// Collect Resources from this instance's collection.
-		// TODO: Cross-instance gathering deferred to a follow-up PR.
-		$plugins = $this->resource_collection->get_plugins();
-
-		foreach ( $plugins as $plugin ) {
-			$slug                  = $plugin->get_slug();
-			$versions[ $slug ]     = $plugin->get_installed_version();
-			$plugin_files[ $slug ] = $plugin->get_path();
-		}
-
-		return [
-			'versions'     => $versions,
-			'plugin_files' => $plugin_files,
-		];
 	}
 
 	/**

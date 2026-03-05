@@ -5,10 +5,8 @@ namespace StellarWP\Uplink\Tests\Features\Update;
 use StellarWP\Uplink\Features\API\Update_Client;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Feature_Collection;
-use StellarWP\Uplink\Features\Types\Feature;
+use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Features\Update\Handler;
-use StellarWP\Uplink\Resources\Collection;
-use StellarWP\Uplink\Resources\Plugin;
 use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use stdClass;
@@ -33,41 +31,38 @@ final class HandlerTest extends UplinkTestCase {
 
 		$update_client      = $this->makeEmpty( Update_Client::class );
 		$feature_repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => new Feature_Collection() ] );
-		$collection         = new Collection();
 		$site_data          = $this->makeEmpty( Data::class, [ 'get_domain' => 'example.com' ] );
 
 		$this->handler = new Handler(
 			$update_client,
 			$feature_repository,
-			$collection,
 			$site_data,
 			'test-key'
 		);
 	}
 
 	/**
-	 * Creates a Handler with a mocked Plugin resource in the collection.
+	 * Creates a Handler with a Plugin feature in the Feature_Repository.
 	 *
 	 * @param mixed $check_updates_return The return value for Update_Client::check_updates().
 	 *
 	 * @return Handler
 	 */
-	private function handler_with_resource( $check_updates_return ): Handler {
-		$plugin = $this->makeEmpty(
-			Plugin::class,
+	private function handler_with_feature( $check_updates_return ): Handler {
+		$feature = new Plugin(
 			[
-				'get_slug'              => 'my-plugin',
-				'get_installed_version' => '1.0.0',
-				'get_path'              => 'my-plugin/my-plugin.php',
-				'get_name'              => 'My Plugin',
-				'get_type'              => 'plugin',
+				'slug'         => 'my-plugin',
+				'group'        => 'test',
+				'tier'         => 'basic',
+				'name'         => 'My Plugin',
+				'description'  => 'A test plugin.',
+				'plugin_file'  => 'my-plugin/my-plugin.php',
+				'is_available' => true,
 			]
 		);
 
-		$collection = new Collection( [ 'my-plugin' => $plugin ] );
-
 		$features = new Feature_Collection();
-		$features->add( $this->makeEmpty( Feature::class, [ 'get_slug' => 'my-plugin' ] ) );
+		$features->add( $feature );
 
 		$update_client      = $this->makeEmpty( Update_Client::class, [ 'check_updates' => $check_updates_return ] );
 		$feature_repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => $features ] );
@@ -75,7 +70,6 @@ final class HandlerTest extends UplinkTestCase {
 		return new Handler(
 			$update_client,
 			$feature_repository,
-			$collection,
 			$this->makeEmpty( Data::class, [ 'get_domain' => 'example.com' ] ),
 			'test-key'
 		);
@@ -128,11 +122,11 @@ final class HandlerTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Tests filter_plugins_api passes through when there are no products to check.
+	 * Tests filter_plugins_api passes through when the slug is not a known feature.
 	 *
 	 * @return void
 	 */
-	public function test_it_passes_through_when_no_products(): void {
+	public function test_it_passes_through_when_no_matching_feature(): void {
 		$args       = new stdClass();
 		$args->slug = 'my-plugin';
 
@@ -147,7 +141,7 @@ final class HandlerTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_passes_through_for_unknown_slug(): void {
-		$handler = $this->handler_with_resource( [ 'other-plugin' => [ 'new_version' => '2.0.0' ] ] );
+		$handler = $this->handler_with_feature( [ 'other-plugin' => [ 'new_version' => '2.0.0' ] ] );
 
 		$args       = new stdClass();
 		$args->slug = 'unknown-plugin';
@@ -163,7 +157,7 @@ final class HandlerTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_passes_through_when_update_client_errors(): void {
-		$handler = $this->handler_with_resource( new WP_Error( 'fail', 'Error' ) );
+		$handler = $this->handler_with_feature( new WP_Error( 'fail', 'Error' ) );
 
 		$args       = new stdClass();
 		$args->slug = 'my-plugin';
@@ -174,20 +168,21 @@ final class HandlerTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Tests filter_plugins_api returns a WP-format object for a Resource plugin.
+	 * Tests filter_plugins_api returns a WP-format object for a known feature.
 	 *
 	 * @return void
 	 */
-	public function test_it_returns_wp_format_for_resource(): void {
+	public function test_it_returns_wp_format_for_feature(): void {
 		$update_data = [
 			'my-plugin' => [
 				'new_version' => '2.0.0',
 				'package'     => 'https://example.com/my-plugin.zip',
 				'name'        => 'My Plugin',
+				'plugin_file' => 'my-plugin/my-plugin.php',
 			],
 		];
 
-		$handler = $this->handler_with_resource( $update_data );
+		$handler = $this->handler_with_feature( $update_data );
 
 		$args       = new stdClass();
 		$args->slug = 'my-plugin';
@@ -213,11 +208,11 @@ final class HandlerTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Tests filter_update_check returns the transient when there are no products to check.
+	 * Tests filter_update_check returns the transient when there are no features.
 	 *
 	 * @return void
 	 */
-	public function test_filter_update_check_returns_transient_when_no_products(): void {
+	public function test_filter_update_check_returns_transient_when_no_features(): void {
 		$transient           = new stdClass();
 		$transient->response = [];
 
@@ -232,7 +227,7 @@ final class HandlerTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_filter_update_check_handles_client_error_gracefully(): void {
-		$handler = $this->handler_with_resource( new WP_Error( 'fail', 'Error' ) );
+		$handler = $this->handler_with_feature( new WP_Error( 'fail', 'Error' ) );
 
 		$transient           = new stdClass();
 		$transient->response = [];
@@ -252,10 +247,11 @@ final class HandlerTest extends UplinkTestCase {
 			'my-plugin' => [
 				'new_version' => '2.0.0',
 				'package'     => 'https://example.com/my-plugin.zip',
+				'plugin_file' => 'my-plugin/my-plugin.php',
 			],
 		];
 
-		$handler = $this->handler_with_resource( $update_data );
+		$handler = $this->handler_with_feature( $update_data );
 
 		$transient = new stdClass();
 
@@ -267,19 +263,20 @@ final class HandlerTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Tests filter_update_check adds to transient->no_update when the version is current.
+	 * Tests filter_update_check adds to transient->no_update when no newer version exists.
 	 *
 	 * @return void
 	 */
-	public function test_filter_update_check_adds_to_no_update_when_current(): void {
+	public function test_filter_update_check_adds_to_no_update_when_no_newer_version(): void {
 		$update_data = [
 			'my-plugin' => [
-				'new_version' => '1.0.0',
+				'new_version' => '',
 				'package'     => 'https://example.com/my-plugin.zip',
+				'plugin_file' => 'my-plugin/my-plugin.php',
 			],
 		];
 
-		$handler = $this->handler_with_resource( $update_data );
+		$handler = $this->handler_with_feature( $update_data );
 
 		$transient = new stdClass();
 
@@ -287,6 +284,6 @@ final class HandlerTest extends UplinkTestCase {
 
 		$this->assertObjectHasProperty( 'no_update', $result );
 		$this->assertArrayHasKey( 'my-plugin/my-plugin.php', $result->no_update );
-		$this->assertSame( '1.0.0', $result->no_update['my-plugin/my-plugin.php']->new_version );
+		$this->assertSame( '', $result->no_update['my-plugin/my-plugin.php']->new_version );
 	}
 }

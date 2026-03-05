@@ -318,7 +318,7 @@ function has_unified_license_key(): bool {
  */
 function is_product_license_active( string $product ): bool {
 	try {
-		return get_container()->get( License_Repository::class )->is_product_valid( $product );
+		return get_container()->get( License_Repository::class )->is_product_active( $product );
 	} catch ( Throwable $e ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.

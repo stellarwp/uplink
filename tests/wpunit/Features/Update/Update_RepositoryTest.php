@@ -158,7 +158,7 @@ final class Update_RepositoryTest extends UplinkTestCase {
 					'tier'         => 'kadence-basic',
 					'name'         => 'Dot Org Feature',
 					'description'  => 'A feature on WordPress.org.',
-					'plugin_file'  => 'dotorg-feature/dotorg-feature.php',
+					'plugin_file'  => 'dot-org-feature/dot-org-feature.php',
 					'download_url' => '',
 					'new_version'  => '2.0.0',
 					'is_available' => true,

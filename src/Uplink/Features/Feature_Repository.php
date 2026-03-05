@@ -104,13 +104,7 @@ class Feature_Repository {
 		$result = ( $this->resolver )( $domain );
 
 		if ( $result instanceof Feature_Collection ) {
-			$data = [];
-
-			foreach ( $result as $feature ) {
-				$data[] = $feature->to_array();
-			}
-
-			set_transient( self::TRANSIENT_KEY, $data, self::CACHE_DURATION );
+			set_transient( self::TRANSIENT_KEY, $result->to_array(), self::CACHE_DURATION );
 		} else {
 			set_transient( self::TRANSIENT_KEY, $result, self::CACHE_DURATION );
 		}

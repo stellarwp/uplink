@@ -47,6 +47,23 @@ class Feature_Collection extends Collection {
 	}
 
 	/**
+	 * Converts the collection to an array of raw data arrays.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function to_array(): array {
+		$data = [];
+
+		foreach ( $this as $feature ) {
+			$data[] = $feature->to_array();
+		}
+
+		return $data;
+	}
+
+	/**
 	 * Creates a Feature_Collection from an array of Feature objects or raw data arrays.
 	 *
 	 * When given raw arrays, dispatches to the correct subclass based on the 'type' field.

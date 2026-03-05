@@ -45,6 +45,23 @@ final class Product_Collection extends Collection {
 	}
 
 	/**
+	 * Converts the collection to an array of raw data arrays.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function to_array(): array {
+		$data = [];
+
+		foreach ( $this as $entry ) {
+			$data[] = $entry->to_array();
+		}
+
+		return $data;
+	}
+
+	/**
 	 * Creates a Product_Collection from an array of Product_Entry objects or raw data arrays.
 	 *
 	 * @since 3.0.0

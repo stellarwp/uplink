@@ -99,13 +99,7 @@ final class Catalog_Repository {
 		$result = $this->client->get_catalog();
 
 		if ( $result instanceof Catalog_Collection ) {
-			$data = [];
-
-			foreach ( $result as $catalog ) {
-				$data[] = $catalog->to_array();
-			}
-
-			set_transient( self::TRANSIENT_KEY, $data, self::CACHE_DURATION );
+			set_transient( self::TRANSIENT_KEY, $result->to_array(), self::CACHE_DURATION );
 		} else {
 			set_transient( self::TRANSIENT_KEY, $result, self::CACHE_DURATION );
 		}

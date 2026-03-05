@@ -227,13 +227,7 @@ final class License_Repository {
 	 */
 	public function set_products( $data ): void {
 		if ( $data instanceof Product_Collection ) {
-			$entries = [];
-
-			foreach ( $data as $entry ) {
-				$entries[] = $entry->to_array();
-			}
-
-			set_transient( self::PRODUCTS_TRANSIENT_KEY, $entries, self::CACHE_DURATION );
+			set_transient( self::PRODUCTS_TRANSIENT_KEY, $data->to_array(), self::CACHE_DURATION );
 
 			return;
 		}

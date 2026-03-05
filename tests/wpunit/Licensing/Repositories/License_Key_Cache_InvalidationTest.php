@@ -10,7 +10,7 @@ use StellarWP\Uplink\Catalog\Results\Tier_Collection;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Resolve_Feature_Collection;
 use StellarWP\Uplink\Features\Types\Flag;
-use StellarWP\Uplink\Features\Types\Zip;
+use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Licensing\Fixture_Client as Licensing_Fixture;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Product_Collection;
@@ -51,9 +51,9 @@ final class License_Key_Cache_InvalidationTest extends UplinkTestCase {
 			$this->catalog_repository,
 			$this->license_manager
 		);
-		$resolver->register_type( 'plugin', Zip::class );
+		$resolver->register_type( 'plugin', Plugin::class );
 		$resolver->register_type( 'flag', Flag::class );
-		$resolver->register_type( 'theme', Zip::class );
+		$resolver->register_type( 'theme', Plugin::class ); // TODO: Will be replaced with Theme type.
 
 		$this->feature_repository = new Feature_Repository( $resolver );
 

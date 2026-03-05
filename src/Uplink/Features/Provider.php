@@ -7,9 +7,9 @@ use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\Features\Strategy\Flag_Strategy;
 use StellarWP\Uplink\Features\Strategy\Resolver;
-use StellarWP\Uplink\Features\Strategy\Zip_Strategy;
+use StellarWP\Uplink\Features\Strategy\Plugin_Strategy;
 use StellarWP\Uplink\Features\Types\Flag;
-use StellarWP\Uplink\Features\Types\Zip;
+use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Utils\Cast;
@@ -90,9 +90,9 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	private function register_default_types( Resolve_Feature_Collection $resolver ): void {
-		$resolver->register_type( 'plugin', Zip::class ); // TODO: Will be replaced with Plugin Feature.
+		$resolver->register_type( 'plugin', Plugin::class );
 		$resolver->register_type( 'flag', Flag::class );
-		$resolver->register_type( 'theme', Zip::class ); // TODO: Will be replaced with Theme Feature.
+		$resolver->register_type( 'theme', Plugin::class ); // TODO: Will be replaced with Theme type.
 	}
 
 	/**
@@ -103,13 +103,13 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	private function register_default_strategies(): void {
-		$this->container->singleton( Zip_Strategy::class, Zip_Strategy::class ); // TODO: Will be replaced with Plugin Strategy.
+		$this->container->singleton( Plugin_Strategy::class, Plugin_Strategy::class );
 		$this->container->singleton( Flag_Strategy::class, Flag_Strategy::class );
 
 		$resolver = $this->container->get( Resolver::class );
-		$resolver->register( 'zip', Zip_Strategy::class ); // TODO: Will be replaced with Plugin Strategy.
+		$resolver->register( 'plugin', Plugin_Strategy::class );
 		$resolver->register( 'flag', Flag_Strategy::class );
-		$resolver->register( 'theme', Zip_Strategy::class ); // TODO: Will be replaced with Theme Strategy.
+		$resolver->register( 'theme', Plugin_Strategy::class ); // TODO: Will be replaced with Theme_Strategy.
 	}
 
 	/**
@@ -120,7 +120,7 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	private function register_hooks(): void {
-		add_filter( 'plugins_api', [ $this, 'mock_plugins_api_for_zip_features' ], 5, 3 );
+		add_filter( 'plugins_api', [ $this, 'mock_plugins_api_for_plugin_features' ], 5, 3 );
 
 		// TODO: Remove this once the real plugins_api filter is implemented.
 		add_filter( 'upgrader_pre_download', [ $this, 'serve_local_zip_for_upgrader' ], 10, 3 );
@@ -134,11 +134,11 @@ class Provider extends Abstract_Provider {
 	}
 
 	/**
-	 * Mock plugins_api() for zip features during development.
+	 * Mock plugins_api() for plugin features during development.
 	 *
-	 * Intercepts plugin_information requests for known zip feature slugs
+	 * Intercepts plugin_information requests for known plugin feature slugs
 	 * and returns a response with a download_link pointing to a ZIP built
-	 * on-the-fly from the plugin source in tests/_data/Features/Zips/{slug}/.
+	 * on-the-fly from the plugin source in tests/_data/Features/Plugins/{slug}/.
 	 *
 	 * TODO: Replace with real implementation that returns download links
 	 *       from the Commerce Portal catalog.
@@ -151,14 +151,14 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @return false|object|array<mixed>
 	 */
-	public function mock_plugins_api_for_zip_features( $result, $action, $args ) {
+	public function mock_plugins_api_for_plugin_features( $result, $action, $args ) {
 		if ( $action !== 'plugin_information' ) {
 			return $result;
 		}
 
 		$slug       = Cast::to_string( $args->slug ?? '' );
 		$uplink_dir = WP_PLUGIN_DIR . '/uplink';
-		$source_dir = $uplink_dir . '/tests/_data/Features/Zips/' . $slug;
+		$source_dir = $uplink_dir . '/tests/_data/Features/Plugins/' . $slug;
 
 		if ( ! is_dir( $source_dir ) ) {
 			return $result;
@@ -171,7 +171,7 @@ class Provider extends Abstract_Provider {
 		}
 
 		$download_url = plugins_url(
-			'tests/_data/Features/Zips/' . $slug . '.zip',
+			'tests/_data/Features/Plugins/' . $slug . '.zip',
 			$uplink_dir . '/index.php'
 		);
 
@@ -186,7 +186,7 @@ class Provider extends Abstract_Provider {
 	/**
 	 * Build a ZIP from a test plugin source directory.
 	 *
-	 * Creates {slug}.zip alongside the source folder in tests/_data/Features/Zips/.
+	 * Creates {slug}.zip alongside the source folder in tests/_data/Features/Plugins/.
 	 * Skips rebuild if the ZIP already exists and is newer than all source files.
 	 *
 	 * TODO: Remove this method once the real plugins_api filter is implemented.
@@ -247,7 +247,7 @@ class Provider extends Abstract_Provider {
 	/**
 	 * Serve local ZIP files directly to the upgrader, bypassing HTTP download.
 	 *
-	 * Intercepts download requests for test zip feature URLs and copies the
+	 * Intercepts download requests for test plugin feature URLs and copies the
 	 * local ZIP to a temp file, avoiding SSL and loopback issues.
 	 *
 	 * TODO: Remove this method once the real plugins_api filter is implemented.
@@ -262,8 +262,8 @@ class Provider extends Abstract_Provider {
 	 */
 	public function serve_local_zip_for_upgrader( $reply, $package, $upgrader ) {
 		$uplink_dir = WP_PLUGIN_DIR . '/uplink';
-		$zips_dir   = $uplink_dir . '/tests/_data/Features/Zips/';
-		$zips_url   = plugins_url( 'tests/_data/Features/Zips/', $uplink_dir . '/index.php' );
+		$zips_dir   = $uplink_dir . '/tests/_data/Features/Plugins/';
+		$zips_url   = plugins_url( 'tests/_data/Features/Plugins/', $uplink_dir . '/index.php' );
 
 		if ( strpos( $package, $zips_url ) !== 0 ) {
 			return $reply;

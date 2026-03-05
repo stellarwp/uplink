@@ -21,13 +21,10 @@ A feature can be available but not enabled (the customer qualifies but hasn't tu
 
 Features come in two types, mapped from the catalog's delivery types during resolution:
 
-### Zip
+### Plugin
 
 A standalone installable, either a WordPress plugin or theme. The catalog provides the `plugin_file` path, `download_url`, and `is_dot_org` flag. The feature system handles downloading, installing, activating, and deactivating through WordPress's plugin/theme infrastructure.
 
-Catalog types `plugin` and `theme` both map to `Zip` currently. A dedicated theme type is planned.
-
-**Note:** The `Zip` class is a placeholder name. It's necessary to distinguish between plugins and themes in the future.
 
 ### Flag
 
@@ -57,8 +54,8 @@ The mapping from catalog type strings to Feature subclasses is extensible:
 
 | Catalog type | Feature class | Notes                                   |
 | ------------ | ------------- | --------------------------------------- |
-| `plugin`     | `Zip`         | Standalone plugin                       |
-| `theme`      | `Zip`         | Temporary; dedicated theme type planned |
+| `plugin`     | `Plugin`      | Installable WordPress plugin            |
+| `theme`      | `Theme`       | Installable WordPress theme             |
 | `flag`       | `Flag`        | Option-based toggle                     |
 
 ## The Manager
@@ -98,13 +95,13 @@ The simplest strategy. A WordPress option (`stellarwp_uplink_feature_{slug}_acti
 
 The option persists across license changes. This is what makes flag grandfathering work.
 
-### Zip Strategy
+### Plugin Strategy
 
 Manages the full WordPress plugin lifecycle. Live WordPress plugin state is the source of truth.
 
-Enabling a Zip feature installs the plugin (if needed) and activates it. Disabling deactivates it but never deletes plugin files. The strategy includes ownership verification, checking the `Author` header against the feature's expected authors to prevent accidentally managing a third-party plugin that shares a directory name.
+Enabling a Plugin feature installs the plugin (if needed) and activates it. Disabling deactivates it but never deletes plugin files. The strategy includes ownership verification, checking the `Author` header against the feature's expected authors to prevent accidentally managing a third-party plugin that shares a directory name.
 
-Zip installs use per-slug transient locks with a 120-second TTL to prevent concurrent install races.
+Plugin installs use per-slug transient locks with a 120-second TTL to prevent concurrent install races.
 
 The stored option self-heals: if the live plugin state drifts from the stored option (e.g., a user deactivates a plugin through the WordPress plugins page), the stored state updates to match on the next check.
 
@@ -131,7 +128,7 @@ $features->filter(
     group: 'kadence',      // product family
     tier: 'kadence-pro',   // minimum tier
     available: true,       // only available features
-    type: 'zip',           // only installable features
+    type: 'plugin',        // only installable features
 );
 ```
 
@@ -191,7 +188,7 @@ When the license key changes, the feature cache auto-invalidates. A license upgr
 ## What Features Does Not Do
 
 - **Fetch its own data**: features are resolved from catalog and licensing data. There is no separate "features API."
-- **Delete plugins**: disabling a Zip feature deactivates it but never removes files.
+- **Delete plugins**: disabling a Plugin feature deactivates it but never removes files.
 - **Manage seats**: seat consumption happens in the licensing layer during validation, not during feature enable/disable.
 - **Override tier gating for new enables**: if a customer's tier doesn't qualify, new features can't be enabled. Grandfathered flags are the exception.
 - **Handle updates**: plugin/theme updates flow through a separate system that hooks into WordPress's native update infrastructure.

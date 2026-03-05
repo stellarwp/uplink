@@ -11,7 +11,7 @@ use WP_Error;
  * Flag Strategy — toggles features via a wp_options flag.
  *
  * This is the simplest strategy: enable/disable just sets a boolean option
- * in the database. The stored state IS the source of truth (unlike Zip_Strategy
+ * in the database. The stored state IS the source of truth (unlike Plugin_Strategy
  * where the live WordPress plugin state is authoritative and stored state is a
  * self-healing cache).
  *

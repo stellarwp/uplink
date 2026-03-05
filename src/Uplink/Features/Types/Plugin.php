@@ -5,17 +5,17 @@ namespace StellarWP\Uplink\Features\Types;
 use StellarWP\Uplink\Utils\Cast;
 
 /**
- * A Feature delivered as a standalone WordPress plugin ZIP.
+ * A Feature delivered as a standalone WordPress plugin.
  *
- * The Zip_Strategy installs the plugin via plugins_api() + Plugin_Upgrader,
+ * The Plugin_Strategy installs the plugin via plugins_api() + Plugin_Upgrader,
  * and uses plugin_file to activate/deactivate it.
  *
  * @since 3.0.0
  */
-final class Zip extends Feature {
+final class Plugin extends Feature {
 
 	/**
-	 * Constructor for a Feature delivered as a standalone WordPress plugin ZIP.
+	 * Constructor for a Feature delivered as a standalone WordPress plugin.
 	 *
 	 * @since 3.0.0
 	 *
@@ -24,7 +24,7 @@ final class Zip extends Feature {
 	 * @return void
 	 */
 	public function __construct( array $attributes ) {
-		$attributes['type'] = 'zip';
+		$attributes['type'] = 'plugin';
 
 		parent::__construct( $attributes );
 	}
@@ -46,7 +46,7 @@ final class Zip extends Feature {
 				'tier'              => $data['tier'],
 				'name'              => $data['name'],
 				'description'       => $data['description'] ?? '',
-				'type'              => 'zip',
+				'type'              => 'plugin',
 				'plugin_file'       => $data['plugin_file'] ?? '',
 				'plugin_slug'       => $data['plugin_slug'] ?? '',
 				'is_available'      => $data['is_available'],

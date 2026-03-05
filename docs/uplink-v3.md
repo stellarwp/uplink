@@ -55,9 +55,9 @@ See [Catalog](catalog.md) for the product/tier/feature structure, caching, and d
 
 Features are not a third data source. They are the computed join of catalog and licensing data. The resolution process walks every feature in the catalog, looks up the customer's tier from licensing, compares ranks, and produces a resolved collection where each feature knows whether it's available to this customer.
 
-Beyond availability, features track local state, specifically whether a feature is currently enabled on this site. A Zip feature is enabled by installing and activating the plugin. A Flag feature is enabled by setting a WordPress option that unlocks functionality within an already-installed plugin. Strategies handle the mechanics of each type.
+Beyond availability, features track local state, specifically whether a feature is currently enabled on this site. A Plugin feature is enabled by installing and activating the plugin. A Flag feature is enabled by setting a WordPress option that unlocks functionality within an already-installed plugin. Strategies handle the mechanics of each type.
 
-The two types have different behavior on license expiration. Zip features require an active license to enable. If the license expires, the plugin stays installed but new Zip features can't be added. Flag features follow a grandfathering rule: once enabled, a flag stays active even if the license expires or downgrades. The customer keeps what they turned on, but can't enable new flags or re-enable ones they disabled.
+The two types have different behavior on license expiration. Plugin features require an active license to enable. If the license expires, the plugin stays installed but new Plugin features can't be added. Flag features follow a grandfathering rule: once enabled, a flag stays active even if the license expires or downgrades. The customer keeps what they turned on, but can't enable new flags or re-enable ones they disabled.
 
 See [Features](features.md) for the resolution algorithm, strategies, caching, and the REST API.
 

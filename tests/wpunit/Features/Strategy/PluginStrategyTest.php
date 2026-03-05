@@ -36,13 +36,6 @@ final class PluginStrategyTest extends UplinkTestCase {
 	private const OPTION_KEY = 'stellarwp_uplink_feature_test-feature_active';
 
 	/**
-	 * The transient key for the test feature's install lock.
-	 *
-	 * @var string
-	 */
-	private const LOCK_KEY = 'stellarwp_uplink_install_lock_test-feature';
-
-	/**
 	 * @var Plugin_Strategy
 	 */
 	private $strategy;
@@ -65,7 +58,7 @@ final class PluginStrategyTest extends UplinkTestCase {
 	protected function tearDown(): void {
 		// Clean up stored state and locks.
 		delete_option( self::OPTION_KEY );
-		delete_transient( self::LOCK_KEY );
+		delete_transient( 'stellarwp_uplink_install_lock' );
 
 		// Ensure the test plugin is deactivated.
 		$active = get_option( 'active_plugins', [] );
@@ -173,11 +166,11 @@ final class PluginStrategyTest extends UplinkTestCase {
 
 	/**
 	 * enable() returns an install_locked error when another install is already
-	 * in progress for the same plugin slug.
+	 * in progress (global lock).
 	 */
 	public function test_enable_returns_install_locked_error_when_concurrent_install_in_progress(): void {
 		// Simulate an in-progress install by setting the transient lock.
-		set_transient( self::LOCK_KEY, '1', 120 );
+		set_transient( 'stellarwp_uplink_install_lock', '1', 120 );
 
 		$result = $this->strategy->enable( $this->feature );
 
@@ -212,7 +205,7 @@ final class PluginStrategyTest extends UplinkTestCase {
 
 			// Verify no lock was left behind (it should have been released or
 			// never acquired since the plugin was already on disk).
-			$this->assertFalse( get_transient( self::LOCK_KEY ) );
+			$this->assertFalse( get_transient( 'stellarwp_uplink_install_lock' ) );
 		} finally {
 			// Clean up the dummy plugin.
 			deactivate_plugins( self::PLUGIN_FILE );
@@ -261,7 +254,7 @@ final class PluginStrategyTest extends UplinkTestCase {
 			$this->assertWPError( $result );
 
 			// Lock should be released.
-			$this->assertFalse( get_transient( self::LOCK_KEY ) );
+			$this->assertFalse( get_transient( 'stellarwp_uplink_install_lock' ) );
 		} finally {
 			remove_filter( 'plugins_api', $filter, 10 );
 		}

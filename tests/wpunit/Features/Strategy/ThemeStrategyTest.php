@@ -39,13 +39,6 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	private const OPTION_KEY = 'stellarwp_uplink_feature_test-theme-feature_active';
 
 	/**
-	 * The transient key for the test feature's install lock.
-	 *
-	 * @var string
-	 */
-	private const LOCK_KEY = 'stellarwp_uplink_install_lock_test-theme-feature';
-
-	/**
 	 * @var Theme_Strategy
 	 */
 	private $strategy;
@@ -73,7 +66,7 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	protected function tearDown(): void {
 		// Clean up stored state and locks.
 		delete_option( self::OPTION_KEY );
-		delete_transient( self::LOCK_KEY );
+		delete_transient( 'stellarwp_uplink_install_lock' );
 
 		// Restore original active theme.
 		update_option( 'stylesheet', $this->original_stylesheet );
@@ -163,10 +156,10 @@ final class ThemeStrategyTest extends UplinkTestCase {
 
 	/**
 	 * enable() returns an install_locked error when another install is already
-	 * in progress for the same stylesheet.
+	 * in progress (global lock).
 	 */
 	public function test_enable_returns_install_locked_error_when_concurrent_install_in_progress(): void {
-		set_transient( self::LOCK_KEY, '1', 120 );
+		set_transient( 'stellarwp_uplink_install_lock', '1', 120 );
 
 		$result = $this->strategy->enable( $this->feature );
 
@@ -185,7 +178,7 @@ final class ThemeStrategyTest extends UplinkTestCase {
 
 		$this->assertTrue( $result );
 		$this->assertSame( '1', get_option( self::OPTION_KEY ) );
-		$this->assertFalse( get_transient( self::LOCK_KEY ) );
+		$this->assertFalse( get_transient( 'stellarwp_uplink_install_lock' ) );
 		// The active theme should NOT have changed.
 		$this->assertSame( $this->original_stylesheet, get_option( 'stylesheet' ) );
 	}

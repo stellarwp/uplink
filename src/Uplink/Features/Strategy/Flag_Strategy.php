@@ -37,7 +37,7 @@ class Flag_Strategy extends Abstract_Strategy {
 		if ( ! $feature instanceof Flag ) {
 			return new WP_Error(
 				Error_Code::FEATURE_TYPE_MISMATCH,
-				'This feature type is not supported by the Flag strategy.'
+				__( 'This feature type is not supported by the Flag strategy.', '%TEXTDOMAIN%' )
 			);
 		}
 
@@ -61,7 +61,7 @@ class Flag_Strategy extends Abstract_Strategy {
 		if ( ! $feature instanceof Flag ) {
 			return new WP_Error(
 				Error_Code::FEATURE_TYPE_MISMATCH,
-				'This feature type is not supported by the Flag strategy.'
+				__( 'This feature type is not supported by the Flag strategy.', '%TEXTDOMAIN%' )
 			);
 		}
 

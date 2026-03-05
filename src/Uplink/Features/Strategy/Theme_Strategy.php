@@ -208,7 +208,8 @@ class Theme_Strategy extends Installable_Strategy {
 			return new WP_Error(
 				Error_Code::THEMES_API_FAILED,
 				sprintf(
-					'Could not retrieve download information for "%s": %s',
+					/* translators: %1$s: feature name, %2$s: error message */
+					__( 'Could not retrieve download information for "%1$s": %2$s', '%TEXTDOMAIN%' ),
 					$feature->get_name(),
 					$theme_info->get_error_message()
 				)
@@ -218,7 +219,11 @@ class Theme_Strategy extends Installable_Strategy {
 		if ( empty( $theme_info->download_link ) ) {
 			return new WP_Error(
 				Error_Code::DOWNLOAD_LINK_MISSING,
-				sprintf( 'No download link is available for "%s".', $feature->get_name() )
+				sprintf(
+					/* translators: %s: feature name */
+					__( 'No download link is available for "%s".', '%TEXTDOMAIN%' ),
+					$feature->get_name()
+				)
 			);
 		}
 
@@ -233,7 +238,8 @@ class Theme_Strategy extends Installable_Strategy {
 			return new WP_Error(
 				Error_Code::INSTALL_FAILED,
 				sprintf(
-					'Installation of "%s" failed: %s',
+					/* translators: %1$s: feature name, %2$s: error message */
+					__( 'Installation of "%1$s" failed: %2$s', '%TEXTDOMAIN%' ),
 					$feature->get_name(),
 					$result->get_error_message()
 				)
@@ -245,11 +251,16 @@ class Theme_Strategy extends Installable_Strategy {
 
 			$message = $skin_errors->has_errors()
 				? $skin->get_error_messages()
-				: 'An unknown error occurred during installation.';
+				: __( 'An unknown error occurred during installation.', '%TEXTDOMAIN%' );
 
 			return new WP_Error(
 				Error_Code::INSTALL_FAILED,
-				sprintf( 'Installation of "%s" failed: %s', $feature->get_name(), $message )
+				sprintf(
+					/* translators: %1$s: feature name, %2$s: error message */
+					__( 'Installation of "%1$s" failed: %2$s', '%TEXTDOMAIN%' ),
+					$feature->get_name(),
+					$message
+				)
 			);
 		}
 
@@ -292,7 +303,8 @@ class Theme_Strategy extends Installable_Strategy {
 		return new WP_Error(
 			Error_Code::THEME_OWNERSHIP_MISMATCH,
 			sprintf(
-				'The installed theme "%s" appears to belong to a different developer (expected "%s", found "%s") and cannot be managed as a feature.',
+				/* translators: %1$s: theme stylesheet, %2$s: expected author(s), %3$s: actual author */
+				__( 'The installed theme "%1$s" appears to belong to a different developer (expected "%2$s", found "%3$s") and cannot be managed as a feature.', '%TEXTDOMAIN%' ),
 				$stylesheet,
 				implode( '" or "', $expected_authors ),
 				$actual_author

@@ -160,7 +160,8 @@ class Plugin_Strategy extends Installable_Strategy {
 			return new WP_Error(
 				Error_Code::DEACTIVATION_FAILED,
 				sprintf(
-					'"%s" could not be deactivated. The plugin may have been reactivated by another process.',
+					/* translators: %s: feature name */
+					__( '"%s" could not be deactivated. The plugin may have been reactivated by another process.', '%TEXTDOMAIN%' ),
 					$feature->get_name()
 				)
 			);
@@ -279,7 +280,8 @@ class Plugin_Strategy extends Installable_Strategy {
 			return new WP_Error(
 				Error_Code::PLUGINS_API_FAILED,
 				sprintf(
-					'Could not retrieve download information for "%s": %s',
+					/* translators: %1$s: feature name, %2$s: error message */
+					__( 'Could not retrieve download information for "%1$s": %2$s', '%TEXTDOMAIN%' ),
 					$feature->get_name(),
 					$plugin_info->get_error_message()
 				)
@@ -289,7 +291,11 @@ class Plugin_Strategy extends Installable_Strategy {
 		if ( empty( $plugin_info->download_link ) ) {
 			return new WP_Error(
 				Error_Code::DOWNLOAD_LINK_MISSING,
-				sprintf( 'No download link is available for "%s".', $feature->get_name() )
+				sprintf(
+					/* translators: %s: feature name */
+					__( 'No download link is available for "%s".', '%TEXTDOMAIN%' ),
+					$feature->get_name()
+				)
 			);
 		}
 
@@ -304,7 +310,8 @@ class Plugin_Strategy extends Installable_Strategy {
 			return new WP_Error(
 				Error_Code::INSTALL_FAILED,
 				sprintf(
-					'Installation of "%s" failed: %s',
+					/* translators: %1$s: feature name, %2$s: error message */
+					__( 'Installation of "%1$s" failed: %2$s', '%TEXTDOMAIN%' ),
 					$feature->get_name(),
 					$result->get_error_message()
 				)
@@ -328,11 +335,16 @@ class Plugin_Strategy extends Installable_Strategy {
 			// "The PHP version on your server is X, however the plugin requires Y").
 			$message = $skin_errors->has_errors()
 				? $skin->get_error_messages()
-				: 'An unknown error occurred during installation.';
+				: __( 'An unknown error occurred during installation.', '%TEXTDOMAIN%' );
 
 			return new WP_Error(
 				$error_code,
-				sprintf( 'Installation of "%s" failed: %s', $feature->get_name(), $message )
+				sprintf(
+					/* translators: %1$s: feature name, %2$s: error message */
+					__( 'Installation of "%1$s" failed: %2$s', '%TEXTDOMAIN%' ),
+					$feature->get_name(),
+					$message
+				)
 			);
 		}
 
@@ -375,7 +387,8 @@ class Plugin_Strategy extends Installable_Strategy {
 				$error = new WP_Error(
 					Error_Code::ACTIVATION_FATAL,
 					sprintf(
-						'The plugin "%s" called exit/die during activation and terminated the process.',
+						/* translators: %s: plugin file path */
+						__( 'The plugin "%s" called exit/die during activation and terminated the process.', '%TEXTDOMAIN%' ),
 						$plugin_file
 					),
 					[ 'status' => 422 ]
@@ -433,7 +446,8 @@ class Plugin_Strategy extends Installable_Strategy {
 			return new WP_Error(
 				Error_Code::ACTIVATION_FATAL,
 				sprintf(
-					'A fatal error occurred while activating "%s": %s',
+					/* translators: %1$s: feature name, %2$s: error message */
+					__( 'A fatal error occurred while activating "%1$s": %2$s', '%TEXTDOMAIN%' ),
 					$feature->get_name(),
 					Cast::to_string( $e->getMessage() )
 				)
@@ -455,7 +469,8 @@ class Plugin_Strategy extends Installable_Strategy {
 			return new WP_Error(
 				$error_code,
 				sprintf(
-					'Activation of "%s" failed: %s',
+					/* translators: %1$s: feature name, %2$s: error message */
+					__( 'Activation of "%1$s" failed: %2$s', '%TEXTDOMAIN%' ),
 					$feature->get_name(),
 					wp_strip_all_tags( $result->get_error_message() )
 				)
@@ -466,7 +481,8 @@ class Plugin_Strategy extends Installable_Strategy {
 			return new WP_Error(
 				Error_Code::ACTIVATION_FAILED,
 				sprintf(
-					'"%s" did not activate successfully. Please try again.',
+					/* translators: %s: feature name */
+					__( '"%s" did not activate successfully. Please try again.', '%TEXTDOMAIN%' ),
 					$feature->get_name()
 				)
 			);
@@ -551,7 +567,8 @@ class Plugin_Strategy extends Installable_Strategy {
 		return new WP_Error(
 			Error_Code::PLUGIN_OWNERSHIP_MISMATCH,
 			sprintf(
-				'The installed plugin at "%s" appears to belong to a different developer (expected "%s", found "%s") and cannot be managed as a feature.',
+				/* translators: %1$s: plugin file path, %2$s: expected author(s), %3$s: actual author */
+				__( 'The installed plugin at "%1$s" appears to belong to a different developer (expected "%2$s", found "%3$s") and cannot be managed as a feature.', '%TEXTDOMAIN%' ),
 				$plugin_file,
 				implode( '" or "', $expected_authors ),
 				$actual_author
@@ -602,7 +619,8 @@ class Plugin_Strategy extends Installable_Strategy {
 				return new WP_Error(
 					Error_Code::PLUGIN_OWNERSHIP_MISMATCH,
 					sprintf(
-						'The folder "%s" is already occupied by a plugin from a different developer (found "%s" by "%s", expected author "%s"). The feature cannot be installed here.',
+						/* translators: %1$s: plugin folder, %2$s: found plugin name, %3$s: found author, %4$s: expected author(s) */
+						__( 'The folder "%1$s" is already occupied by a plugin from a different developer (found "%2$s" by "%3$s", expected author "%4$s"). The feature cannot be installed here.', '%TEXTDOMAIN%' ),
 						$plugin_slug,
 						$data['Name'],
 						$actual_author,

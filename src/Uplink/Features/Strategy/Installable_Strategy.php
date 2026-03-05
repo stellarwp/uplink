@@ -33,13 +33,15 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	protected const LOCK_TTL = MINUTE_IN_SECONDS * 2;
 
 	/**
-	 * Transient key prefix for install locks.
+	 * Transient key for the global install lock.
 	 *
-	 * Full key: stellarwp_uplink_install_lock_{slug}
+	 * Only one installable feature can be installed at a time, regardless of
+	 * type (plugin or theme). This prevents filesystem conflicts when multiple
+	 * install requests arrive concurrently.
 	 *
 	 * @since 3.0.0
 	 */
-	protected const LOCK_PREFIX = 'stellarwp_uplink_install_lock_';
+	protected const LOCK_KEY = 'stellarwp_uplink_install_lock';
 
 	/**
 	 * Optional callable that resolves an identifier string to a Feature.
@@ -189,7 +191,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	 * Enable a feature: install (if needed) and activate the extension.
 	 *
 	 * Idempotent: returns true if the extension is already active. Uses a
-	 * transient lock to prevent concurrent installs of the same extension.
+	 * global transient lock to prevent concurrent installs of any extension.
 	 *
 	 * @since 3.0.0
 	 *
@@ -337,9 +339,9 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	/**
 	 * Ensure the extension is installed on disk, downloading if needed.
 	 *
-	 * Acquires a per-slug transient lock to prevent concurrent installs,
-	 * delegates to do_install() for the actual download, and verifies the
-	 * expected file exists on disk afterward.
+	 * Acquires a global transient lock to prevent concurrent installs of any
+	 * feature, delegates to do_install() for the actual download, and verifies
+	 * the expected file exists on disk afterward.
 	 *
 	 * If the extension is already installed, returns true immediately (no lock needed).
 	 *
@@ -359,16 +361,15 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 			return true;
 		}
 
-		// Acquire a per-slug transient lock to prevent concurrent installs.
-		// Two simultaneous requests could both see "not installed" and race
-		// the installer, causing file conflicts or corruption.
-		$lock_key = $this->build_lock_key( $feature->get_slug() );
-
-		if ( ! $this->acquire_lock( $lock_key ) ) {
+		// Acquire a global transient lock to prevent concurrent installs.
+		// Only one feature can be installed at a time — two simultaneous
+		// requests could race the installer, causing file conflicts or corruption.
+		if ( ! $this->acquire_lock( self::LOCK_KEY ) ) {
 			return new WP_Error(
 				Error_Code::INSTALL_LOCKED,
 				sprintf(
-					'Another installation is already in progress for "%s". Please try again in a few moments.',
+					/* translators: %s: feature name */
+					__( 'Another installable feature is already being installed. Cannot install "%s" right now. Please try again in a few moments.', '%TEXTDOMAIN%' ),
 					$feature->get_name()
 				)
 			);
@@ -389,7 +390,8 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 				return new WP_Error(
 					$this->get_not_found_after_install_error_code(),
 					sprintf(
-						'The extension was not found after installing "%s". The downloaded package may have an unexpected directory structure.',
+						/* translators: %s: feature name */
+						__( 'The extension was not found after installing "%s". The downloaded package may have an unexpected directory structure.', '%TEXTDOMAIN%' ),
 						$feature->get_name()
 					)
 				);
@@ -398,7 +400,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 			return true; // @phpstan-ignore deadCode.unreachable (The check above is a double check)
 		} finally {
 			// Always release the lock, even on early returns or exceptions.
-			$this->release_lock( $lock_key );
+			$this->release_lock( self::LOCK_KEY );
 		}
 	}
 
@@ -423,19 +425,6 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 		}
 
 		return ( $this->feature_resolver )( $identifier );
-	}
-
-	/**
-	 * Build the transient lock key for a given slug.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param string $slug The extension slug.
-	 *
-	 * @return string
-	 */
-	protected function build_lock_key( string $slug ): string {
-		return self::LOCK_PREFIX . $slug;
 	}
 
 	/**

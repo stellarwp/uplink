@@ -45,7 +45,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	 * Optional callable that resolves an identifier string to a Feature.
 	 *
 	 * The concrete type returned depends on the subclass:
-	 * - Zip_Strategy: fn(string $plugin_file): ?Zip
+	 * - Plugin_Strategy: fn(string $plugin_file): ?Plugin
 	 * - Theme_Strategy: fn(string $stylesheet): ?Theme
 	 *
 	 * The Provider layer wires this to the Feature Collection. Until then,
@@ -72,7 +72,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	// ── Abstract hooks ──────────────────────────────────────────────────
 
 	/**
-	 * Returns the Feature class this strategy handles (e.g. Zip::class).
+	 * Returns the Feature class this strategy handles (e.g. Plugin::class).
 	 *
 	 * @since 3.0.0
 	 *

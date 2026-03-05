@@ -21,13 +21,13 @@ A feature can be available but not enabled (the customer qualifies but hasn't tu
 
 Features come in two types, mapped from the catalog's delivery types during resolution:
 
-### Zip
+### Plugin
 
-A standalone installable, either a WordPress plugin or theme. The catalog provides the `plugin_file` path, `download_url`, and `is_dot_org` flag. The feature system handles downloading, installing, activating, and deactivating through WordPress's plugin/theme infrastructure.
+An installable WordPress plugin. The catalog provides the `plugin_file` path, `plugin_slug`, `download_url`/`is_dot_org` flag. Enabling a Plugin feature installs the plugin (if needed) and activates it. Disabling deactivates it but never deletes plugin files.
 
-Catalog types `plugin` and `theme` both map to `Zip` currently. A dedicated theme type is planned.
+### Theme
 
-**Note:** The `Zip` class is a placeholder name. It's necessary to distinguish between plugins and themes in the future.
+An installable WordPress theme. The catalog provides the `stylesheet` directory name, `download_url`/`is_dot_org` flag. Enabling a Theme feature installs the theme (makes it available) but does not switch to it. Users activate themes through WordPress's Appearance → Themes UI. Disabling marks the feature as not enabled in stored state.
 
 ### Flag
 
@@ -57,8 +57,8 @@ The mapping from catalog type strings to Feature subclasses is extensible:
 
 | Catalog type | Feature class | Notes                                   |
 | ------------ | ------------- | --------------------------------------- |
-| `plugin`     | `Zip`         | Standalone plugin                       |
-| `theme`      | `Zip`         | Temporary; dedicated theme type planned |
+| `plugin`     | `Plugin`      | Installable WordPress plugin            |
+| `theme`      | `Theme`       | Installable WordPress theme             |
 | `flag`       | `Flag`        | Option-based toggle                     |
 
 ## The Manager
@@ -98,15 +98,25 @@ The simplest strategy. A WordPress option (`stellarwp_uplink_feature_{slug}_acti
 
 The option persists across license changes. This is what makes flag grandfathering work.
 
-### Zip Strategy
+### Plugin Strategy
 
 Manages the full WordPress plugin lifecycle. Live WordPress plugin state is the source of truth.
 
-Enabling a Zip feature installs the plugin (if needed) and activates it. Disabling deactivates it but never deletes plugin files. The strategy includes ownership verification, checking the `Author` header against the feature's expected authors to prevent accidentally managing a third-party plugin that shares a directory name.
+Enabling a Plugin feature installs the plugin (if needed) and activates it. Disabling deactivates it but never deletes plugin files. The strategy includes ownership verification, checking the `Author` header against the feature's expected authors to prevent accidentally managing a third-party plugin that shares a directory name.
 
-Zip installs use per-slug transient locks with a 120-second TTL to prevent concurrent install races.
+Plugin installs use per-slug transient locks with a 120-second TTL to prevent concurrent install races.
 
 The stored option self-heals: if the live plugin state drifts from the stored option (e.g., a user deactivates a plugin through the WordPress plugins page), the stored state updates to match on the next check.
+
+### Theme Strategy
+
+Manages theme installation. Unlike plugins, themes are not activated or deactivated through the feature system.
+
+Enabling a Theme feature installs the theme (if needed) and marks it as enabled in stored state. It does not switch the active theme — users activate themes through WordPress's Appearance → Themes UI. Disabling updates stored state only; theme files are never deleted.
+
+The is_active check reflects whether the theme is installed on disk. If a theme is manually deleted, stored state self-heals on the next check.
+
+Theme installs use the same per-slug transient lock pattern as plugins. Ownership verification checks the theme's Author header via wp_get_theme().
 
 ## Caching and Data Access
 
@@ -131,7 +141,7 @@ $features->filter(
     group: 'kadence',      // product family
     tier: 'kadence-pro',   // minimum tier
     available: true,       // only available features
-    type: 'zip',           // only installable features
+    type: 'plugin',        // only installable features
 );
 ```
 
@@ -170,6 +180,9 @@ Each feature in the response includes an `is_enabled` field computed live from t
 | `FEATURE_CHECK_FAILED`           | 502  | Unexpected error during availability check             |
 | `INVALID_RESPONSE`               | 502  | Catalog response couldn't be parsed                    |
 | `PLUGINS_API_FAILED`             | 502  | WordPress `plugins_api()` call failed                  |
+| `THEME_OWNERSHIP_MISMATCH`       | 409  | A different developer's theme occupies the directory   |
+| `THEME_NOT_FOUND_AFTER_INSTALL`  | 422  | Expected theme directory missing after ZIP extraction  |
+| `THEMES_API_FAILED`              | 502  | WordPress `themes_api()` call failed                   |
 
 ## Relationship to Licensing and Catalog
 
@@ -191,7 +204,7 @@ When the license key changes, the feature cache auto-invalidates. A license upgr
 ## What Features Does Not Do
 
 - **Fetch its own data**: features are resolved from catalog and licensing data. There is no separate "features API."
-- **Delete plugins**: disabling a Zip feature deactivates it but never removes files.
+- **Delete extensions**: disabling a Plugin or Theme feature deactivates/unlinks it but never removes files.
 - **Manage seats**: seat consumption happens in the licensing layer during validation, not during feature enable/disable.
 - **Override tier gating for new enables**: if a customer's tier doesn't qualify, new features can't be enabled. Grandfathered flags are the exception.
 - **Handle updates**: plugin/theme updates flow through a separate system that hooks into WordPress's native update infrastructure.

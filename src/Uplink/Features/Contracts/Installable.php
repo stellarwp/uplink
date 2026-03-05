@@ -5,7 +5,7 @@ namespace StellarWP\Uplink\Features\Contracts;
 /**
  * Contract for feature types that can be installed as WordPress extensions.
  *
- * Implemented by Zip (plugins) and Theme — not by Built_In.
+ * Implemented by Plugin and Theme — not by Built_In.
  * Provides a uniform surface for Installable_Strategy template methods.
  *
  * @since 3.0.0

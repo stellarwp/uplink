@@ -12,13 +12,13 @@
  * Feature type identifier returned by the REST API.
  * @since 3.0.0
  */
-export type FeatureType = 'zip' | 'flag';
+export type FeatureType = 'plugin' | 'flag';
 
 /**
  * A feature as returned by GET /stellarwp/uplink/v1/features.
  *
  * Field names match the PHP Feature_Controller REST response exactly.
- * `plugin_file` is only present on zip-type features.
+ * `plugin_file` is only present on plugin-type features.
  *
  * @since 3.0.0
  */

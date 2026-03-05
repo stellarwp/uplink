@@ -156,8 +156,8 @@ class Resolve_Feature_Collection {
 	/**
 	 * Hydrates a Feature object from a catalog feature entry.
 	 *
-	 * Maps catalog types (plugin, flag, theme) to Feature subclasses
-	 * (Zip, Flag) and computes is_available from tier rank comparison.
+	 * Maps catalog types (plugin, theme, flag) to Feature subclasses
+	 * (Plugin, Theme,Flag) and computes is_available from tier rank comparison.
 	 *
 	 * @since 3.0.0
 	 *

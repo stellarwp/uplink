@@ -41,6 +41,7 @@ Features are the individual capabilities, plugins, themes, and flags that make u
 | `type`              | string       | One of `plugin`, `theme`, or `flag`                                                             |
 | `minimum_tier`      | string       | Tier slug required to access this feature                                                       |
 | `plugin_file`       | string\|null | Plugin file path for `plugin` type features (e.g., `kadence-blocks-pro/kadence-blocks-pro.php`) |
+| `stylesheet`        | string\|null | Theme stylesheet (directory name) for `theme` type features                                     |
 | `is_dot_org`        | bool         | Whether the feature is available on WordPress.org                                               |
 | `download_url`      | string\|null | Download URL for features not on WordPress.org                                                  |
 | `name`              | string       | Display name                                                                                    |
@@ -55,7 +56,7 @@ Features come in three types, each representing a different kind of deliverable:
 
 **`plugin`**: an installable WordPress plugin. Has a `plugin_file` path and either a `download_url` (for exclusive features) or is available on WordPress.org (`is_dot_org: true`). These are features that need to be downloaded, installed, and activated.
 
-**`theme`**: an installable WordPress theme. Similar to plugins but installed through the theme system. Also has `is_dot_org` and optional `download_url` fields.
+**`theme`**: an installable WordPress theme. Has a `stylesheet` directory name and either a `download_url` (for exclusive features) or is available on WordPress.org (`is_dot_org: true`).
 
 **`flag`**: a capability toggle. Not a separate installable; it unlocks functionality within an existing plugin. Has no `plugin_file` or `download_url`. Think of these as feature flags that are gated by tier.
 
@@ -157,11 +158,9 @@ The catalog uses delivery-oriented type names (`plugin`, `theme`, `flag`). The F
 
 | Catalog type | Feature class | Meaning                                              |
 | ------------ | ------------- | ---------------------------------------------------- |
-| `plugin`     | `Zip`         | Installable WordPress plugin                         |
-| `theme`      | `Zip`         | Installable WordPress theme (dedicated type planned) |
+| `plugin`     | `Plugin`      | Installable WordPress plugin                         |
+| `theme`      | `Theme`       | Installable WordPress theme                          |
 | `flag`       | `Flag`        | Capability toggle within an existing plugin          |
-
-**Note:** The `Zip` class is a placeholder for future expansion. It's necessary to distinguish between plugins and themes.
 
 ### What the Catalog Does Not Know
 

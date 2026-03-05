@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git fetch:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(vendor/bin/codecept run:*)",
+      "Bash(php:*)",
+      "Bash(slic run:*)",
+      "Bash(slic php-version:*)",
+      "Bash(bun run:*)",
+      "Bash(npx markdownlint:*)",
+      "Bash(./node_modules/.bin/markdownlint:*)",
+      "Bash(ls:*)",
+      "Bash(bunx markdownlint-cli:*)",
+      "Bash(vendor/bin/phpcs:*)",
+      "Bash(vendor/bin/phpstan analyse:*)",
+      "Bash(/usr/local/bin/php:*)",
+      "WebFetch(domain:stellarwp.atlassian.net)",
+      "Bash(git mv:*)",
+      "Bash(do:*)",
+      "Bash(slic phpstan:*)",
+      "Bash(composer test:analysis:*)",
+      "Bash(gh pr:*)",
+      "Bash(python3:*)",
+      "Bash(gh api:*)"
+    ]
+  }
+}

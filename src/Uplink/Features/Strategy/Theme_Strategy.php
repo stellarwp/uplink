@@ -13,22 +13,25 @@ use Theme_Upgrader;
 use WP_Theme;
 
 use function sanitize_key;
-use function switch_theme;
 use function themes_api;
 use function wp_get_theme;
 
 /**
- * Theme Strategy — installs and activates WordPress themes as "features".
+ * Theme Strategy — installs WordPress themes as "features".
  *
  * The shared enable/disable/is_active/ensure_installed flow is templated by
  * Installable_Strategy. This class provides the WP-specific hooks:
  * - do_install()     → themes_api() + Theme_Upgrader
- * - do_activate()    → switch_theme() + verification
- * - do_deactivate()  → error if active (WP needs one active theme), else state update
+ * - do_activate()    → update stored state only (no switch_theme)
+ * - do_deactivate()  → update stored state to false
  * - verify_ownership → Author header check via wp_get_theme()
  *
- * Unlike plugins, themes load on the next request after switch_theme() — no
- * fatal-error protection is needed at switch time.
+ * Unlike plugins, themes are not activated or deactivated through the feature
+ * system. Enabling a theme installs it and marks it as enabled in stored state.
+ * Users activate themes through WordPress's Appearance → Themes UI.
+ *
+ * The is_active check reflects whether the theme is installed on disk. If a
+ * theme is manually deleted, stored state self-heals on the next check.
  *
  * Sync hook: on_theme_switch() is wired to the 'switch_theme' action by the
  * Provider layer to keep stored state in sync when themes are switched outside
@@ -55,12 +58,20 @@ class Theme_Strategy extends Installable_Strategy {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Check whether the theme is "active" — for themes, this means installed on disk.
+	 *
+	 * Unlike plugins where "active" means currently running, for themes "active"
+	 * means the theme is installed and available for the user to activate through
+	 * the WordPress UI.
+	 *
+	 * @since 3.0.0
 	 *
 	 * @param string $wp_identifier The theme stylesheet (directory name).
+	 *
+	 * @return bool
 	 */
 	protected function check_active( string $wp_identifier ): bool {
-		return get_stylesheet() === $wp_identifier;
+		return wp_get_theme( $wp_identifier )->exists();
 	}
 
 	/**
@@ -86,7 +97,11 @@ class Theme_Strategy extends Installable_Strategy {
 	}
 
 	/**
-	 * Switch to the theme and verify it took effect.
+	 * Mark the theme as enabled in stored state.
+	 *
+	 * Unlike plugins, themes are not activated through the feature system.
+	 * The theme is installed and ready for the user to activate through
+	 * WordPress's Appearance → Themes UI.
 	 *
 	 * @since 3.0.0
 	 *
@@ -95,34 +110,15 @@ class Theme_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error
 	 */
 	protected function do_activate( Feature $feature ) {
-		/** @var Feature&Installable $feature */
-		$stylesheet = $feature->get_wp_identifier();
-
-		switch_theme( $stylesheet );
-
-		// Verify switch took effect.
-		if ( ! $this->check_active( $stylesheet ) ) {
-			return new WP_Error(
-				Error_Code::ACTIVATION_FAILED,
-				sprintf(
-					'"%s" did not activate successfully. Please try again.',
-					$feature->get_name()
-				)
-			);
-		}
-
-		$this->update_stored_state( $feature->get_slug(), true ); // @phpstan-ignore deadCode.unreachable (The check above is a double check)
+		$this->update_stored_state( $feature->get_slug(), true );
 
 		return true;
 	}
 
 	/**
-	 * Deactivate a theme feature.
+	 * Mark the theme as disabled in stored state.
 	 *
-	 * WordPress always needs exactly one active theme. If the theme IS the
-	 * active theme, returns a WP_Error — switching away must be done by
-	 * enabling a different theme. If the theme is NOT active, updates stored
-	 * state to false.
+	 * Theme files are never deleted. This only updates the stored state.
 	 *
 	 * @since 3.0.0
 	 *
@@ -131,20 +127,6 @@ class Theme_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error
 	 */
 	protected function do_deactivate( Feature $feature ) {
-		/** @var Feature&Installable $feature */
-		$stylesheet = $feature->get_wp_identifier();
-
-		// WordPress always needs an active theme — cannot deactivate.
-		if ( $this->check_active( $stylesheet ) ) {
-			return new WP_Error(
-				Error_Code::THEME_IS_ACTIVE,
-				sprintf(
-					'"%s" is the active theme and cannot be deactivated. Switch to a different theme first.',
-					$feature->get_name()
-				)
-			);
-		}
-
 		$this->update_stored_state( $feature->get_slug(), false );
 
 		return true;

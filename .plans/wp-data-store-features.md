@@ -174,7 +174,7 @@ Feature types and `ProductSection`/`FeatureRow` to read from the store.
 Add the real API shape alongside existing types:
 ```ts
 // Real API feature (from REST endpoint)
-export type FeatureType = 'zip' | 'flag';
+export type FeatureType = 'plugin' | 'theme' | 'flag';
 
 export interface Feature {
     slug:              string;

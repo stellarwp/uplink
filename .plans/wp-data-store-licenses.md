@@ -210,13 +210,13 @@ isProductEnabled: ( state: State, slug: string ) => state.productEnabled[ slug ]
 
 ---
 
-## Phase 6 — Zip Install / Update _(awaiting API branch)_
+## Phase 6 — Plugin Install / Update _(awaiting API branch)_
 
 <!-- cspell:ignore SCON -->
-**Depends on:** `base/SCON-115/implement-zip-strategy` and
+**Depends on:** `base/SCON-115/implement-plugin-strategy` and
 `base/SCON-141/plugin-updates` merging.
 
-Zip features (`type === 'zip'`) need additional UI:
+Plugin features (`type === 'plugin'`) need additional UI:
 - Install/download action
 - Update-available indicator (from `Update_Client` in SCON-141)
 - Progress/spinner state while downloading

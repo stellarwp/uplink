@@ -14,7 +14,11 @@ use WP_Theme;
  * Tests for the Theme_Strategy feature-gating strategy.
  *
  * These tests exercise the strategy's logic against real WordPress state
- * (stylesheet option, wp_options, transients) via the WPLoader module.
+ * (theme directories, wp_options, transients) via the WPLoader module.
+ *
+ * Theme enable = install only (no switch_theme).
+ * Theme disable = update stored state to false.
+ * Theme is_active = installed on disk.
  *
  * @see Theme_Strategy
  */
@@ -97,16 +101,18 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	}
 
 	/**
-	 * enable() on an already-active theme should return true without side effects.
+	 * enable() on an already-installed theme should return true and update stored state,
+	 * without switching the active theme.
 	 */
-	public function test_enable_returns_true_when_theme_already_active(): void {
+	public function test_enable_returns_true_when_theme_already_installed(): void {
 		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
-		$this->mock_active_theme( self::STYLESHEET );
 
 		$result = $this->strategy->enable( $this->feature );
 
 		$this->assertTrue( $result );
 		$this->assertSame( '1', get_option( self::OPTION_KEY ) );
+		// The active theme should NOT have changed.
+		$this->assertSame( $this->original_stylesheet, get_option( 'stylesheet' ) );
 	}
 
 	/**
@@ -169,17 +175,19 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	}
 
 	/**
-	 * enable() skips installation when the theme is already installed but not active.
+	 * enable() skips installation when the theme is already installed,
+	 * updates stored state, but does NOT switch the active theme.
 	 */
-	public function test_enable_skips_install_for_already_installed_but_inactive_theme(): void {
+	public function test_enable_skips_install_for_already_installed_theme(): void {
 		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
 
 		$result = $this->strategy->enable( $this->feature );
 
 		$this->assertTrue( $result );
-		$this->assertSame( self::STYLESHEET, get_option( 'stylesheet' ) );
 		$this->assertSame( '1', get_option( self::OPTION_KEY ) );
 		$this->assertFalse( get_transient( self::LOCK_KEY ) );
+		// The active theme should NOT have changed.
+		$this->assertSame( $this->original_stylesheet, get_option( 'stylesheet' ) );
 	}
 
 	// -------------------------------------------------------------------------
@@ -199,27 +207,28 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	}
 
 	/**
-	 * disable() returns THEME_IS_ACTIVE when the theme IS the active theme.
+	 * disable() always succeeds and updates stored state to false.
+	 * Themes are never "deactivated" — disable only updates stored state.
 	 */
-	public function test_disable_returns_error_when_theme_is_active(): void {
+	public function test_disable_succeeds_and_updates_stored_state(): void {
 		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
-		$this->mock_active_theme( self::STYLESHEET );
 		update_option( self::OPTION_KEY, '1', true );
 
 		$result = $this->strategy->disable( $this->feature );
 
-		$this->assertWPError( $result );
-		$this->assertSame( Error_Code::THEME_IS_ACTIVE, $result->get_error_code() );
+		$this->assertTrue( $result );
+		$this->assertSame( '0', get_option( self::OPTION_KEY ) );
 	}
 
 	/**
-	 * disable() succeeds when the theme is NOT the active theme.
+	 * disable() succeeds even when the theme is the active WordPress theme.
+	 * Unlike the old behavior, we no longer block disable for active themes.
 	 */
-	public function test_disable_succeeds_when_theme_is_not_active(): void {
+	public function test_disable_succeeds_even_when_theme_is_active_wp_theme(): void {
 		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
+		$this->mock_active_theme( self::STYLESHEET );
 		update_option( self::OPTION_KEY, '1', true );
 
-		// Theme is NOT active — original theme is active.
 		$result = $this->strategy->disable( $this->feature );
 
 		$this->assertTrue( $result );
@@ -240,28 +249,30 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	}
 
 	/**
-	 * is_active() returns true when the theme is active in WordPress.
+	 * is_active() returns true when the theme is installed on disk.
+	 * "Active" for themes means "installed and available", not "currently switched to".
 	 */
-	public function test_is_active_returns_true_when_theme_is_active(): void {
-		$this->mock_active_theme( self::STYLESHEET );
+	public function test_is_active_returns_true_when_theme_is_installed(): void {
+		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
 
 		$this->assertTrue( $this->strategy->is_active( $this->feature ) );
 	}
 
 	/**
-	 * is_active() returns false when the theme is inactive in WordPress.
+	 * is_active() returns false when the theme is not installed on disk.
 	 */
-	public function test_is_active_returns_false_when_theme_is_inactive(): void {
+	public function test_is_active_returns_false_when_theme_is_not_installed(): void {
 		$this->assertFalse( $this->strategy->is_active( $this->feature ) );
 	}
 
 	/**
-	 * is_active() self-heals a stale stored state of true when the theme is
-	 * actually inactive.
+	 * is_active() self-heals a stale stored state of true when the theme has
+	 * been manually deleted from disk.
 	 */
 	public function test_is_active_self_heals_stale_true_to_false(): void {
 		update_option( self::OPTION_KEY, '1', true );
 
+		// Theme is NOT installed on disk — stored state should heal to false.
 		$result = $this->strategy->is_active( $this->feature );
 
 		$this->assertFalse( $result );
@@ -270,11 +281,11 @@ final class ThemeStrategyTest extends UplinkTestCase {
 
 	/**
 	 * is_active() self-heals a stale stored state of false when the theme is
-	 * actually active.
+	 * actually installed on disk.
 	 */
 	public function test_is_active_self_heals_stale_false_to_true(): void {
 		update_option( self::OPTION_KEY, '0', true );
-		$this->mock_active_theme( self::STYLESHEET );
+		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
 
 		$result = $this->strategy->is_active( $this->feature );
 
@@ -380,23 +391,8 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	}
 
 	/**
-	 * enable() returns a theme_ownership_mismatch error when an already-active
-	 * theme has a different Author header. Stored state should NOT be updated.
-	 */
-	public function test_enable_returns_ownership_mismatch_for_active_theme_with_wrong_author(): void {
-		$this->install_test_theme( self::STYLESHEET, 'Foreign Developer' );
-		$this->mock_active_theme( self::STYLESHEET );
-
-		$feature = $this->make_theme_feature( 'test-theme-feature', self::STYLESHEET, [ 'StellarWP' ] );
-		$result  = $this->strategy->enable( $feature );
-
-		$this->assertWPError( $result );
-		$this->assertSame( Error_Code::THEME_OWNERSHIP_MISMATCH, $result->get_error_code() );
-		$this->assertFalse( get_option( self::OPTION_KEY, false ) );
-	}
-
-	/**
 	 * enable() succeeds when the installed theme's Author header matches.
+	 * Theme should be installed but NOT switched to.
 	 */
 	public function test_enable_succeeds_when_installed_theme_has_matching_author(): void {
 		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
@@ -405,8 +401,9 @@ final class ThemeStrategyTest extends UplinkTestCase {
 		$result  = $this->strategy->enable( $feature );
 
 		$this->assertTrue( $result );
-		$this->assertSame( self::STYLESHEET, get_option( 'stylesheet' ) );
 		$this->assertSame( '1', get_option( self::OPTION_KEY ) );
+		// The active theme should NOT have changed.
+		$this->assertSame( $this->original_stylesheet, get_option( 'stylesheet' ) );
 	}
 
 	/**
@@ -420,7 +417,9 @@ final class ThemeStrategyTest extends UplinkTestCase {
 		$result  = $this->strategy->enable( $feature );
 
 		$this->assertTrue( $result );
-		$this->assertSame( self::STYLESHEET, get_option( 'stylesheet' ) );
+		$this->assertSame( '1', get_option( self::OPTION_KEY ) );
+		// The active theme should NOT have changed.
+		$this->assertSame( $this->original_stylesheet, get_option( 'stylesheet' ) );
 	}
 
 	// -------------------------------------------------------------------------

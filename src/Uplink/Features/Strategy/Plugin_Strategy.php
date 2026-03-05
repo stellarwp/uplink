@@ -5,7 +5,7 @@ namespace StellarWP\Uplink\Features\Strategy;
 use StellarWP\Uplink\Features\Contracts\Installable;
 use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Types\Feature;
-use StellarWP\Uplink\Features\Types\Zip;
+use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Utils\Cast;
 use WP_Error;
 use Throwable;
@@ -23,9 +23,7 @@ use function sanitize_key;
 use function wp_json_encode;
 
 /**
- * TODO: Rename to Plugin_Strategy in a separate PR.
- *
- * Zip Strategy — installs, activates, and deactivates WordPress plugins as
+ * Plugin Strategy — installs, activates, and deactivates WordPress plugins as
  * "features" using ZIP file downloads.
  *
  * The shared enable/disable/is_active/ensure_installed flow is templated by
@@ -46,7 +44,7 @@ use function wp_json_encode;
  *
  * @since 3.0.0
  */
-class Zip_Strategy extends Installable_Strategy {
+class Plugin_Strategy extends Installable_Strategy {
 
 	/**
 	 * WordPress error codes that indicate PHP or WP version requirements are not met.
@@ -72,14 +70,14 @@ class Zip_Strategy extends Installable_Strategy {
 	 * @inheritDoc
 	 */
 	protected function get_feature_class(): string {
-		return Zip::class;
+		return Plugin::class;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	protected function get_type_mismatch_message(): string {
-		return 'This feature type is not supported by the Zip installer.';
+		return 'This feature type is not supported by the Plugin installer.';
 	}
 
 	/**
@@ -106,7 +104,7 @@ class Zip_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Already type-guarded as Zip by the template.
+	 * @param Feature $feature Already type-guarded as Plugin by the template.
 	 *
 	 * @return true|WP_Error
 	 */
@@ -119,7 +117,7 @@ class Zip_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Already type-guarded as Zip by the template.
+	 * @param Feature $feature Already type-guarded as Plugin by the template.
 	 *
 	 * @return true|WP_Error
 	 */
@@ -135,7 +133,7 @@ class Zip_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Already type-guarded as Zip by the template.
+	 * @param Feature $feature Already type-guarded as Plugin by the template.
 	 *
 	 * @return true|WP_Error
 	 */
@@ -178,7 +176,7 @@ class Zip_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Already type-guarded as Zip by the template.
+	 * @param Feature $feature Already type-guarded as Plugin by the template.
 	 *
 	 * @return true|WP_Error
 	 */
@@ -199,7 +197,7 @@ class Zip_Strategy extends Installable_Strategy {
 	 * Sync hook: update stored state when a plugin is activated via WordPress.
 	 *
 	 * Intended to be wired to the 'activated_plugin' hook by the Provider.
-	 * Resolves the plugin_file to a Zip feature via the feature_resolver
+	 * Resolves the plugin_file to a Plugin feature via the feature_resolver
 	 * callable, then updates stored state to match.
 	 *
 	 * If no feature_resolver is configured (i.e. the Provider isn't built yet),
@@ -216,7 +214,7 @@ class Zip_Strategy extends Installable_Strategy {
 	 * @return void
 	 */
 	public function on_plugin_activated( string $plugin, bool $network_wide ): void {
-		$feature = $this->resolve_zip_feature( $plugin );
+		$feature = $this->resolve_plugin_feature( $plugin );
 
 		if ( $feature === null ) {
 			return;
@@ -229,7 +227,7 @@ class Zip_Strategy extends Installable_Strategy {
 	 * Sync hook: update stored state when a plugin is deactivated via WordPress.
 	 *
 	 * Intended to be wired to the 'deactivated_plugin' hook by the Provider.
-	 * Resolves the plugin_file to a Zip feature via the feature_resolver
+	 * Resolves the plugin_file to a Plugin feature via the feature_resolver
 	 * callable, then updates stored state to match.
 	 *
 	 * TODO: Wire this to the 'deactivated_plugin' hook in Provider once the
@@ -243,7 +241,7 @@ class Zip_Strategy extends Installable_Strategy {
 	 * @return void
 	 */
 	public function on_plugin_deactivated( string $plugin, bool $network_wide ): void {
-		$feature = $this->resolve_zip_feature( $plugin );
+		$feature = $this->resolve_plugin_feature( $plugin );
 
 		if ( $feature === null ) {
 			return;
@@ -342,7 +340,7 @@ class Zip_Strategy extends Installable_Strategy {
 	}
 
 	/**
-	 * Activate the plugin for a feature with fatal error protection.
+	 * Activate the plugin for a Plugin feature with fatal error protection.
 	 *
 	 * Uses try/catch Throwable to catch PHP Error subclasses
 	 * (ParseError, TypeError, etc.) and a shutdown function with output
@@ -618,7 +616,7 @@ class Zip_Strategy extends Installable_Strategy {
 	}
 
 	/**
-	 * Resolve a plugin file path to a Zip feature via the configured resolver.
+	 * Resolve a plugin file path to a Plugin feature via the configured resolver.
 	 *
 	 * Returns null if no resolver is configured or if the plugin doesn't
 	 * correspond to a known feature.
@@ -627,12 +625,12 @@ class Zip_Strategy extends Installable_Strategy {
 	 *
 	 * @param string $plugin_file Plugin file path relative to plugins directory.
 	 *
-	 * @return Zip|null
+	 * @return Plugin|null
 	 */
-	private function resolve_zip_feature( string $plugin_file ): ?Zip {
+	private function resolve_plugin_feature( string $plugin_file ): ?Plugin {
 		$resolved = $this->resolve_feature( $plugin_file );
 
-		return $resolved instanceof Zip ? $resolved : null;
+		return $resolved instanceof Plugin ? $resolved : null;
 	}
 
 	/**

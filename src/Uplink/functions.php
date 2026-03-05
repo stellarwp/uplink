@@ -13,6 +13,7 @@ use StellarWP\Uplink\Auth\Authorizer;
 use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
 use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Manager;
+use StellarWP\Uplink\Licensing\Repositories\License_Repository;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Resources\Plugin;
 use StellarWP\Uplink\Resources\Service;
@@ -50,7 +51,7 @@ function render_authorize_button( string $slug, string $domain = '', string $lic
 					'slug'    => $slug,
 					'domain'  => $domain,
 					'license' => $license,
-				] 
+				]
 			);
 	} catch ( Throwable $e ) {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
@@ -277,6 +278,55 @@ function get_form(): Form {
  */
 function get_plugins(): Collection {
 	return get_container()->get( Collection::class )->get_plugins();
+}
+
+/**
+ * Whether the site has a unified license key stored or discoverable.
+ *
+ * Does not make any remote API calls — only checks local storage and
+ * registered products for an embedded key.
+ *
+ * @since 3.0.0
+ *
+ * @return bool
+ */
+function has_unified_license_key(): bool {
+	try {
+		return get_container()->get( License_Repository::class )->key_exists();
+	} catch ( Throwable $e ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
+			error_log( "Error checking unified license key existence: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
+		}
+
+		return false;
+	}
+}
+
+/**
+ * Whether a specific product has an active, valid license.
+ *
+ * Reads only from the local transient cache — no remote API calls are made.
+ * Returns false if the catalog has not been fetched yet or the product does
+ * not appear in the cached catalog with a "valid" status.
+ *
+ * @since 3.0.0
+ *
+ * @param string $product The product slug (e.g. 'give', 'learndash', 'kadence', 'the-events-calendar').
+ *
+ * @return bool
+ */
+function is_product_license_active( string $product ): bool {
+	try {
+		return get_container()->get( License_Repository::class )->is_product_valid( $product );
+	} catch ( Throwable $e ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
+			error_log( "Error checking product license: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
+		}
+
+		return false;
+	}
 }
 
 /**

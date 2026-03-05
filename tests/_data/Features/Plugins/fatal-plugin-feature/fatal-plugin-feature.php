@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Uplink Test - Fatal Zip Feature
+ * Plugin Name: Uplink Test - Fatal Plugin Feature
  * Description: A test plugin that throws a fatal error on activation. Used to test the ACTIVATION_FATAL error path.
  * Version: 1.0.0
  * Author: StellarWP
@@ -12,4 +12,4 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-throw new \RuntimeException( 'Intentional fatal error for Uplink Zip Strategy testing.' );
+throw new \RuntimeException( 'Intentional fatal error for Uplink Plugin Strategy testing.' );

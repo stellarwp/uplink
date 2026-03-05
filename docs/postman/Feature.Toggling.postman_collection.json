@@ -137,15 +137,15 @@
       ]
     },
     {
-      "name": "Zip — Valid",
+      "name": "Plugin — Valid",
       "item": [
         {
-          "name": "Get Valid Zip Feature",
+          "name": "Get Valid Plugin Feature",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/valid-zip-feature",
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/valid-plugin-feature",
               "host": [
                 "{{WP_SITE}}"
               ],
@@ -155,20 +155,20 @@
                 "uplink",
                 "v1",
                 "features",
-                "valid-zip-feature"
+                "valid-plugin-feature"
               ]
             },
-            "description": "Retrieves the valid zip feature.\n\nExpected: HTTP 200 — Feature object with type \"zip\" and is_enabled reflecting live WordPress plugin activation state."
+            "description": "Retrieves the valid plugin feature.\n\nExpected: HTTP 200 — Feature object with type \"plugin\" and is_enabled reflecting live WordPress plugin activation state."
           },
           "response": []
         },
         {
-          "name": "Enable Valid Zip Feature",
+          "name": "Enable Valid Plugin Feature",
           "request": {
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/valid-zip-feature/enable",
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/valid-plugin-feature/enable",
               "host": [
                 "{{WP_SITE}}"
               ],
@@ -178,21 +178,21 @@
                 "uplink",
                 "v1",
                 "features",
-                "valid-zip-feature",
+                "valid-plugin-feature",
                 "enable"
               ]
             },
-            "description": "Installs and activates the valid zip plugin.\n\nExpected: HTTP 200 — Feature object with is_enabled: true.\n\nFirst call: downloads ZIP via plugins_api(), installs with Plugin_Upgrader, verifies ownership (Author matches \"StellarWP\"), activates the plugin.\nSecond call: plugin already active, ownership verified, returns 200 immediately (idempotent)."
+            "description": "Installs and activates the valid plugin feature.\n\nExpected: HTTP 200 — Feature object with is_enabled: true.\n\nFirst call: downloads ZIP via plugins_api(), installs with Plugin_Upgrader, verifies ownership (Author matches \"StellarWP\"), activates the plugin.\nSecond call: plugin already active, ownership verified, returns 200 immediately (idempotent)."
           },
           "response": []
         },
         {
-          "name": "Disable Valid Zip Feature",
+          "name": "Disable Valid Plugin Feature",
           "request": {
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/valid-zip-feature/disable",
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/valid-plugin-feature/disable",
               "host": [
                 "{{WP_SITE}}"
               ],
@@ -202,18 +202,18 @@
                 "uplink",
                 "v1",
                 "features",
-                "valid-zip-feature",
+                "valid-plugin-feature",
                 "disable"
               ]
             },
-            "description": "Deactivates the valid zip plugin. Does not delete plugin files.\n\nExpected: HTTP 200 — Feature object with is_enabled: false. Idempotent (calling when already inactive returns 200)."
+            "description": "Deactivates the valid plugin feature. Does not delete plugin files.\n\nExpected: HTTP 200 — Feature object with is_enabled: false. Idempotent (calling when already inactive returns 200)."
           },
           "response": []
         }
       ]
     },
     {
-      "name": "Zip — LearnDash certificate bulder",
+      "name": "Plugin — LearnDash certificate builder",
       "item": [
         {
           "name": "Get LearnDash certificate builder Feature",
@@ -234,7 +234,7 @@
                 "learndash-certificate-builder"
               ]
             },
-            "description": "Retrieves the valid zip feature.\n\nExpected: HTTP 200 — Feature object with type \"zip\" and is_enabled reflecting live WordPress plugin activation state."
+            "description": "Retrieves the LearnDash certificate builder plugin feature.\n\nExpected: HTTP 200 — Feature object with type \"plugin\" and is_enabled reflecting live WordPress plugin activation state."
           },
           "response": []
         },
@@ -258,7 +258,7 @@
                 "enable"
               ]
             },
-            "description": "Installs and activates the valid zip plugin.\n\nExpected: HTTP 200 — Feature object with is_enabled: true.\n\nFirst call: downloads ZIP via plugins_api(), installs with Plugin_Upgrader, verifies ownership (Author matches \"StellarWP\"), activates the plugin.\nSecond call: plugin already active, ownership verified, returns 200 immediately (idempotent)."
+            "description": "Installs and activates the LearnDash certificate builder plugin.\n\nExpected: HTTP 200 — Feature object with is_enabled: true.\n\nFirst call: downloads ZIP via plugins_api(), installs with Plugin_Upgrader, verifies ownership (Author matches \"StellarWP\"), activates the plugin.\nSecond call: plugin already active, ownership verified, returns 200 immediately (idempotent)."
           },
           "response": []
         },
@@ -282,22 +282,22 @@
                 "disable"
               ]
             },
-            "description": "Deactivates the valid zip plugin. Does not delete plugin files.\n\nExpected: HTTP 200 — Feature object with is_enabled: false. Idempotent (calling when already inactive returns 200)."
+            "description": "Deactivates the LearnDash certificate builder plugin. Does not delete plugin files.\n\nExpected: HTTP 200 — Feature object with is_enabled: false. Idempotent (calling when already inactive returns 200)."
           },
           "response": []
         }
       ]
     },
     {
-      "name": "Zip — Ownership Mismatch",
+      "name": "Plugin — Ownership Mismatch",
       "item": [
         {
-          "name": "Get Wrong Author Zip Feature",
+          "name": "Get Wrong Author Plugin Feature",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/wrong-author-zip-feature",
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/wrong-author-plugin-feature",
               "host": [
                 "{{WP_SITE}}"
               ],
@@ -307,7 +307,7 @@
                 "uplink",
                 "v1",
                 "features",
-                "wrong-author-zip-feature"
+                "wrong-author-plugin-feature"
               ]
             },
             "description": "Retrieves the wrong-author feature definition.\n\nExpected: HTTP 200 — Feature object. The feature's catalog entry expects author \"StellarWP\", but the actual plugin's Author header is \"Foreign Developer\". This mismatch is only detected during enable/disable, not on GET."
@@ -320,7 +320,7 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/wrong-author-zip-feature/enable",
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/wrong-author-plugin-feature/enable",
               "host": [
                 "{{WP_SITE}}"
               ],
@@ -330,7 +330,7 @@
                 "uplink",
                 "v1",
                 "features",
-                "wrong-author-zip-feature",
+                "wrong-author-plugin-feature",
                 "enable"
               ]
             },
@@ -344,7 +344,7 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/wrong-author-zip-feature/enable",
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/wrong-author-plugin-feature/enable",
               "host": [
                 "{{WP_SITE}}"
               ],
@@ -354,7 +354,7 @@
                 "uplink",
                 "v1",
                 "features",
-                "wrong-author-zip-feature",
+                "wrong-author-plugin-feature",
                 "enable"
               ]
             },
@@ -368,7 +368,7 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/wrong-author-zip-feature/disable",
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/wrong-author-plugin-feature/disable",
               "host": [
                 "{{WP_SITE}}"
               ],
@@ -378,7 +378,7 @@
                 "uplink",
                 "v1",
                 "features",
-                "wrong-author-zip-feature",
+                "wrong-author-plugin-feature",
                 "disable"
               ]
             },
@@ -389,15 +389,15 @@
       ]
     },
     {
-      "name": "Zip — Fatal on Include",
+      "name": "Plugin — Fatal on Include",
       "item": [
         {
-          "name": "Enable Fatal Zip Feature (RuntimeException)",
+          "name": "Enable Fatal Plugin Feature (RuntimeException)",
           "request": {
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/fatal-zip-feature/enable",
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/fatal-plugin-feature/enable",
               "host": [
                 "{{WP_SITE}}"
               ],
@@ -407,7 +407,7 @@
                 "uplink",
                 "v1",
                 "features",
-                "fatal-zip-feature",
+                "fatal-plugin-feature",
                 "enable"
               ]
             },
@@ -416,12 +416,12 @@
           "response": []
         },
         {
-          "name": "Enable Syntax Error Zip Feature (ParseError)",
+          "name": "Enable Syntax Error Plugin Feature (ParseError)",
           "request": {
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/syntax-error-zip-feature/enable",
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/syntax-error-plugin-feature/enable",
               "host": [
                 "{{WP_SITE}}"
               ],
@@ -431,7 +431,7 @@
                 "uplink",
                 "v1",
                 "features",
-                "syntax-error-zip-feature",
+                "syntax-error-plugin-feature",
                 "enable"
               ]
             },
@@ -440,12 +440,12 @@
           "response": []
         },
         {
-          "name": "Enable Die On Include Zip Feature (uncatchable)",
+          "name": "Enable Die On Include Plugin Feature (uncatchable)",
           "request": {
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/die-on-include-zip-feature/enable",
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/die-on-include-plugin-feature/enable",
               "host": [
                 "{{WP_SITE}}"
               ],
@@ -455,7 +455,7 @@
                 "uplink",
                 "v1",
                 "features",
-                "die-on-include-zip-feature",
+                "die-on-include-plugin-feature",
                 "enable"
               ]
             },
@@ -466,15 +466,15 @@
       ]
     },
     {
-      "name": "Zip — Fatal on Activation Hook",
+      "name": "Plugin — Fatal on Activation Hook",
       "item": [
         {
-          "name": "Enable Activation Fatal Zip Feature",
+          "name": "Enable Activation Fatal Plugin Feature",
           "request": {
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/activation-fatal-zip-feature/enable",
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/activation-fatal-plugin-feature/enable",
               "host": [
                 "{{WP_SITE}}"
               ],
@@ -484,7 +484,7 @@
                 "uplink",
                 "v1",
                 "features",
-                "activation-fatal-zip-feature",
+                "activation-fatal-plugin-feature",
                 "enable"
               ]
             },
@@ -495,15 +495,15 @@
       ]
     },
     {
-      "name": "Zip — Preflight Failures",
+      "name": "Plugin — Preflight Failures",
       "item": [
         {
-          "name": "Enable High PHP Req Zip Feature",
+          "name": "Enable High PHP Req Plugin Feature",
           "request": {
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/high-php-req-zip-feature/enable",
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/high-php-req-plugin-feature/enable",
               "host": [
                 "{{WP_SITE}}"
               ],
@@ -513,7 +513,7 @@
                 "uplink",
                 "v1",
                 "features",
-                "high-php-req-zip-feature",
+                "high-php-req-plugin-feature",
                 "enable"
               ]
             },
@@ -522,12 +522,12 @@
           "response": []
         },
         {
-          "name": "Enable High WP Req Zip Feature",
+          "name": "Enable High WP Req Plugin Feature",
           "request": {
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/high-wp-req-zip-feature/enable",
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/high-wp-req-plugin-feature/enable",
               "host": [
                 "{{WP_SITE}}"
               ],
@@ -537,7 +537,7 @@
                 "uplink",
                 "v1",
                 "features",
-                "high-wp-req-zip-feature",
+                "high-wp-req-plugin-feature",
                 "enable"
               ]
             },
@@ -546,12 +546,12 @@
           "response": []
         },
         {
-          "name": "Enable No Header Zip Feature",
+          "name": "Enable No Header Plugin Feature",
           "request": {
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/no-header-zip-feature/enable",
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/no-header-plugin-feature/enable",
               "host": [
                 "{{WP_SITE}}"
               ],
@@ -561,7 +561,7 @@
                 "uplink",
                 "v1",
                 "features",
-                "no-header-zip-feature",
+                "no-header-plugin-feature",
                 "enable"
               ]
             },
@@ -572,15 +572,15 @@
       ]
     },
     {
-      "name": "Zip — Post-Install Verification",
+      "name": "Plugin — Post-Install Verification",
       "item": [
         {
-          "name": "Enable Mismatched Dir Zip Feature",
+          "name": "Enable Mismatched Dir Plugin Feature",
           "request": {
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/mismatched-dir-zip-feature/enable",
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/mismatched-dir-plugin-feature/enable",
               "host": [
                 "{{WP_SITE}}"
               ],
@@ -590,26 +590,26 @@
                 "uplink",
                 "v1",
                 "features",
-                "mismatched-dir-zip-feature",
+                "mismatched-dir-plugin-feature",
                 "enable"
               ]
             },
-            "description": "Tests PLUGIN_NOT_FOUND_AFTER_INSTALL — ZIP extracts with unexpected directory structure.\n\nExpected: HTTP 422 — Error code: PLUGIN_NOT_FOUND_AFTER_INSTALL\n\nFlow: Plugin installs via Plugin_Upgrader (download succeeds), but the ZIP extracts to a different directory than expected. The post-install verification checks file_exists(WP_PLUGIN_DIR . '/mismatched-dir-zip-feature/mismatched-dir-zip-feature.php') and finds it missing — the actual extracted path uses a different directory name. Returns a clear error instead of a confusing \"plugin not found\" during activation."
+            "description": "Tests PLUGIN_NOT_FOUND_AFTER_INSTALL — ZIP extracts with unexpected directory structure.\n\nExpected: HTTP 422 — Error code: PLUGIN_NOT_FOUND_AFTER_INSTALL\n\nFlow: Plugin installs via Plugin_Upgrader (download succeeds), but the ZIP extracts to a different directory than expected. The post-install verification checks file_exists(WP_PLUGIN_DIR . '/mismatched-dir-plugin-feature/mismatched-dir-plugin-feature.php') and finds it missing — the actual extracted path uses a different directory name. Returns a clear error instead of a confusing \"plugin not found\" during activation."
           },
           "response": []
         }
       ]
     },
     {
-      "name": "Zip — Deactivation Failure",
+      "name": "Plugin — Deactivation Failure",
       "item": [
         {
-          "name": "Enable Deactivation Fatal Zip Feature",
+          "name": "Enable Deactivation Fatal Plugin Feature",
           "request": {
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/deactivation-fatal-zip-feature/enable",
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/deactivation-fatal-plugin-feature/enable",
               "host": [
                 "{{WP_SITE}}"
               ],
@@ -619,7 +619,7 @@
                 "uplink",
                 "v1",
                 "features",
-                "deactivation-fatal-zip-feature",
+                "deactivation-fatal-plugin-feature",
                 "enable"
               ]
             },
@@ -628,12 +628,12 @@
           "response": []
         },
         {
-          "name": "Disable Deactivation Fatal Zip Feature",
+          "name": "Disable Deactivation Fatal Plugin Feature",
           "request": {
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/deactivation-fatal-zip-feature/disable",
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/deactivation-fatal-plugin-feature/disable",
               "host": [
                 "{{WP_SITE}}"
               ],
@@ -643,26 +643,26 @@
                 "uplink",
                 "v1",
                 "features",
-                "deactivation-fatal-zip-feature",
+                "deactivation-fatal-plugin-feature",
                 "disable"
               ]
             },
-            "description": "Tests DEACTIVATION_FAILED — plugin re-activates itself in its deactivation hook.\n\nExpected: HTTP 409 — Error code: DEACTIVATION_FAILED\n\nFlow: Ownership check passes (correct author). deactivate_plugins() is called, but the plugin's deactivation hook re-activates itself. The post-deactivation verification detects the plugin is STILL active and returns DEACTIVATION_FAILED.\n\nRequires: Run \"Enable Deactivation Fatal Zip Feature\" first."
+            "description": "Tests DEACTIVATION_FAILED — plugin re-activates itself in its deactivation hook.\n\nExpected: HTTP 409 — Error code: DEACTIVATION_FAILED\n\nFlow: Ownership check passes (correct author). deactivate_plugins() is called, but the plugin's deactivation hook re-activates itself. The post-deactivation verification detects the plugin is STILL active and returns DEACTIVATION_FAILED.\n\nRequires: Run \"Enable Deactivation Fatal Plugin Feature\" first."
           },
           "response": []
         }
       ]
     },
     {
-      "name": "Zip — No Source (PLUGINS_API_FAILED)",
+      "name": "Plugin — No Source (PLUGINS_API_FAILED)",
       "item": [
         {
-          "name": "Enable No Source Zip Feature",
+          "name": "Enable No Source Plugin Feature",
           "request": {
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/no-source-zip-feature/enable",
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/no-source-plugin-feature/enable",
               "host": [
                 "{{WP_SITE}}"
               ],
@@ -672,7 +672,7 @@
                 "uplink",
                 "v1",
                 "features",
-                "no-source-zip-feature",
+                "no-source-plugin-feature",
                 "enable"
               ]
             },
@@ -683,15 +683,15 @@
       ]
     },
     {
-      "name": "Zip — Unavailable Feature",
+      "name": "Plugin — Unavailable Feature",
       "item": [
         {
-          "name": "Enable Unavailable Zip Feature",
+          "name": "Enable Unavailable Plugin Feature",
           "request": {
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/unavailable-zip-feature/enable",
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/unavailable-plugin-feature/enable",
               "host": [
                 "{{WP_SITE}}"
               ],
@@ -701,7 +701,7 @@
                 "uplink",
                 "v1",
                 "features",
-                "unavailable-zip-feature",
+                "unavailable-plugin-feature",
                 "enable"
               ]
             },

@@ -11,7 +11,7 @@ use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Flag;
-use StellarWP\Uplink\Features\Types\Zip;
+use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
@@ -205,9 +205,9 @@ final class ManagerTest extends UplinkTestCase {
 		$this->assertInstanceOf( Flag::class, $flag );
 		$this->assertSame( 'kad-pattern-hub', $flag->get_slug() );
 
-		$zip = $manager->get_feature( 'kad-blocks-pro' );
-		$this->assertInstanceOf( Zip::class, $zip );
-		$this->assertSame( 'kad-blocks-pro', $zip->get_slug() );
+		$plugin = $manager->get_feature( 'kad-blocks-pro' );
+		$this->assertInstanceOf( Plugin::class, $plugin );
+		$this->assertSame( 'kad-blocks-pro', $plugin->get_slug() );
 	}
 
 	/**

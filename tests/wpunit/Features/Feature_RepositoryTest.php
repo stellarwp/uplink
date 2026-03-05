@@ -14,7 +14,7 @@ use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Resolve_Feature_Collection;
 use StellarWP\Uplink\Features\Types\Flag;
-use StellarWP\Uplink\Features\Types\Zip;
+use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Licensing\Contracts\Licensing_Client;
 use StellarWP\Uplink\Licensing\Fixture_Client as Licensing_Fixture;
 use StellarWP\Uplink\Licensing\License_Manager;
@@ -65,9 +65,9 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	): Resolve_Feature_Collection {
 		$resolver = new Resolve_Feature_Collection( $catalog, $licensing );
 
-		$resolver->register_type( 'plugin', Zip::class );
+		$resolver->register_type( 'plugin', Plugin::class );
 		$resolver->register_type( 'flag', Flag::class );
-		$resolver->register_type( 'theme', Zip::class );
+		$resolver->register_type( 'theme', Plugin::class );
 
 		return $resolver;
 	}
@@ -119,17 +119,17 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Tests that catalog plugin type maps to the Zip Feature subclass.
+	 * Tests that catalog plugin type maps to the Plugin Feature subclass.
 	 *
 	 * @return void
 	 */
-	public function test_it_maps_plugin_type_to_zip(): void {
+	public function test_it_maps_plugin_type_to_plugin(): void {
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
 		$result     = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
 		$feature    = $result->get( 'kad-blocks-pro' );
 
-		$this->assertInstanceOf( Zip::class, $feature );
-		$this->assertSame( 'zip', $feature->get_type() );
+		$this->assertInstanceOf( Plugin::class, $feature );
+		$this->assertSame( 'plugin', $feature->get_type() );
 	}
 
 	/**
@@ -243,7 +243,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	public function test_it_returns_cached_collection(): void {
 		$cached = new Feature_Collection();
 		$cached->add(
-			Zip::from_array(
+			Plugin::from_array(
 				[
 					'slug'              => 'cached-feature',
 					'group'             => 'test',
@@ -414,7 +414,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		$this->assertSame( 'Premium Gutenberg blocks for advanced page building.', $feature->get_description() );
 		$this->assertSame( 'https://www.kadencewp.com/help-center/', $feature->get_documentation_url() );
 
-		$this->assertInstanceOf( Zip::class, $feature );
+		$this->assertInstanceOf( Plugin::class, $feature );
 		$this->assertSame( 'kadence-blocks-pro/kadence-blocks-pro.php', $feature->get_plugin_file() );
 	}
 }

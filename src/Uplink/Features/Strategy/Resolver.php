@@ -51,7 +51,7 @@ class Resolver {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string                 $type           The feature type identifier (e.g. 'zip', 'flag').
+	 * @param string                 $type           The feature type identifier (e.g. 'plugin', 'theme', 'flag').
 	 * @param class-string<Strategy> $strategy_class The strategy FQCN.
 	 *
 	 * @return void

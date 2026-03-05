@@ -157,11 +157,9 @@ The catalog uses delivery-oriented type names (`plugin`, `theme`, `flag`). The F
 
 | Catalog type | Feature class | Meaning                                              |
 | ------------ | ------------- | ---------------------------------------------------- |
-| `plugin`     | `Zip`         | Installable WordPress plugin                         |
-| `theme`      | `Zip`         | Installable WordPress theme (dedicated type planned) |
+| `plugin`     | `Plugin`      | Installable WordPress plugin                         |
+| `theme`      | `Theme`       | Installable WordPress theme                          |
 | `flag`       | `Flag`        | Capability toggle within an existing plugin          |
-
-**Note:** The `Zip` class is a placeholder for future expansion. It's necessary to distinguish between plugins and themes.
 
 ### What the Catalog Does Not Know
 

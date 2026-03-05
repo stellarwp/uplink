@@ -71,7 +71,7 @@ export const actions = {
      * @since 3.0.0
      */
     enableFeature: ( slug: string ) =>
-        async ( { dispatch }: { dispatch: ThunkDispatch } ): Promise<void> => {
+        async ( { dispatch }: { dispatch: ThunkDispatch } ): Promise<string | null> => {
             dispatch.clearError( `feature:${ slug }` );
             dispatch.setFeatureEnabled( slug, true );
             try {
@@ -79,9 +79,12 @@ export const actions = {
                     path:   `/stellarwp/uplink/v1/features/${ slug }/enable`,
                     method: 'POST',
                 } );
+                return null;
             } catch ( err ) {
                 dispatch.setFeatureEnabled( slug, false );
-                dispatch.setError( `feature:${ slug }`, ( err as Error ).message );
+                const message = ( err as Error ).message;
+                dispatch.setError( `feature:${ slug }`, message );
+                return message;
             }
         },
 
@@ -90,7 +93,7 @@ export const actions = {
      * @since 3.0.0
      */
     disableFeature: ( slug: string ) =>
-        async ( { dispatch }: { dispatch: ThunkDispatch } ): Promise<void> => {
+        async ( { dispatch }: { dispatch: ThunkDispatch } ): Promise<string | null> => {
             dispatch.clearError( `feature:${ slug }` );
             dispatch.setFeatureEnabled( slug, false );
             try {
@@ -98,9 +101,12 @@ export const actions = {
                     path:   `/stellarwp/uplink/v1/features/${ slug }/disable`,
                     method: 'POST',
                 } );
+                return null;
             } catch ( err ) {
                 dispatch.setFeatureEnabled( slug, true );
-                dispatch.setError( `feature:${ slug }`, ( err as Error ).message );
+                const message = ( err as Error ).message;
+                dispatch.setError( `feature:${ slug }`, message );
+                return message;
             }
         },
 

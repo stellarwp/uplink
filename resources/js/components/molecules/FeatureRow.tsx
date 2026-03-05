@@ -71,14 +71,14 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
     const handleToggle = async ( checked: boolean ) => {
         setIsPending( true );
         if ( checked ) {
-            await enableFeature( feature.slug );
-            if ( ! featureError ) {
+            const error = await enableFeature( feature.slug );
+            if ( ! error ) {
                 /* translators: %s is the name of the feature being enabled */
                 addToast( sprintf( __( '%s enabled', '%TEXTDOMAIN%' ), feature.name ), 'success' );
             }
         } else {
-            await disableFeature( feature.slug );
-            if ( ! featureError ) {
+            const error = await disableFeature( feature.slug );
+            if ( ! error ) {
                 /* translators: %s is the name of the feature being disabled */
                 addToast( sprintf( __( '%s disabled', '%TEXTDOMAIN%' ), feature.name ), 'default' );
             }

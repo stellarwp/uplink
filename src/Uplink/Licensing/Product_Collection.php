@@ -66,7 +66,7 @@ final class Product_Collection extends Collection {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param array<int, Product_Entry|array<string, mixed>> $entries Product entries or raw arrays.
+	 * @param array<Product_Entry|array<string, mixed>> $entries Product entries or raw arrays.
 	 *
 	 * @return self
 	 */

@@ -68,7 +68,7 @@ final class Catalog_Repository {
 		}
 
 		if ( is_array( $cached ) ) {
-			/** @var array<int, array<string, mixed>> $cached */
+			/** @var array<array<string, mixed>> $cached */
 			return Catalog_Collection::from_array( $cached );
 		}
 

@@ -209,7 +209,7 @@ final class License_Repository {
 		}
 
 		if ( is_array( $products ) ) {
-			/** @var array<int, array<string, mixed>> $products */
+			/** @var array<array<string, mixed>> $products */
 			return Product_Collection::from_array( $products );
 		}
 

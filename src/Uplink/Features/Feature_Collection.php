@@ -71,7 +71,7 @@ class Feature_Collection extends Collection {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param array<int, Feature|array<string, mixed>> $data Feature objects or raw arrays.
+	 * @param array<Feature|array<string, mixed>> $data Feature objects or raw arrays.
 	 *
 	 * @return self
 	 */

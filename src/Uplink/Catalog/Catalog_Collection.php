@@ -66,7 +66,7 @@ final class Catalog_Collection extends Collection {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param array<int, Product_Catalog|array<string, mixed>> $data Product catalogs or raw arrays.
+	 * @param array<Product_Catalog|array<string, mixed>> $data Product catalogs or raw arrays.
 	 *
 	 * @return self
 	 */

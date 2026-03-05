@@ -292,10 +292,8 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	/**
 	 * Check whether a feature's extension is currently active.
 	 *
-	 * The live WordPress state is the source of truth. If the stored
-	 * state (wp_options) disagrees with the live state, it is self-healed to
-	 * match. This handles edge cases where extensions are activated/deactivated
-	 * outside of the feature system (e.g. via the Plugins/Themes admin page).
+	 * Delegates to reconcile_state() to determine the effective active state
+	 * and perform any needed self-healing between live and stored state.
 	 *
 	 * @since 3.0.0
 	 *
@@ -314,26 +312,47 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 		$live_active   = $this->check_active( $feature->get_wp_identifier() );
 		$stored_active = $this->get_stored_state( $feature->get_slug() );
 
-		// Self-heal: if stored state doesn't match live state, correct it.
-		// This is expected to be rare — it only happens when an extension's state
-		// changes outside of the feature system.
-		if ( $stored_active !== $live_active ) {
-			$this->update_stored_state( $feature->get_slug(), $live_active );
+		return $this->reconcile_state( $feature->get_slug(), $live_active, $stored_active );
+	}
+
+	/**
+	 * Reconcile live and stored state, returning the effective active state.
+	 *
+	 * The default implementation treats live WordPress state as the source of
+	 * truth and self-heals stored state to match. This is correct for plugins,
+	 * where "active" means currently running — if a plugin is activated or
+	 * deactivated via the WP admin, the feature system should reflect that.
+	 *
+	 * Subclasses can override this when live state has different semantics.
+	 * For example, Theme_Strategy overrides because for themes "live active"
+	 * means "installed on disk", which should not override an explicit disable.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $slug   Feature slug for stored-state access.
+	 * @param bool   $live   The live active state from check_active().
+	 * @param ?bool  $stored The stored state from wp_options (null if never set).
+	 *
+	 * @return bool The effective active state.
+	 */
+	protected function reconcile_state( string $slug, bool $live, ?bool $stored ): bool {
+		if ( $stored !== $live ) {
+			$this->update_stored_state( $slug, $live );
 
 			if ( $this->is_wp_debug() ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				error_log(
 					sprintf(
 						'[Uplink] Self-healed feature state for "%s": stored=%s, live=%s',
-						$feature->get_slug(),
-						$stored_active === null ? 'null' : var_export( $stored_active, true ),
-						$live_active ? 'true' : 'false'
+						$slug,
+						$stored === null ? 'null' : var_export( $stored, true ),
+						$live ? 'true' : 'false'
 					)
 				);
 			}
 		}
 
-		return $live_active;
+		return $live;
 	}
 
 	/**

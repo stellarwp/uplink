@@ -30,8 +30,11 @@ use function wp_get_theme;
  * system. Enabling a theme installs it and marks it as enabled in stored state.
  * Users activate themes through WordPress's Appearance → Themes UI.
  *
- * The is_active check reflects whether the theme is installed on disk. If a
- * theme is manually deleted, stored state self-heals on the next check.
+ * The is_active check requires both: theme installed on disk AND stored state
+ * says enabled. If a theme is manually deleted, stored state self-heals to
+ * false on the next check. A theme existing on disk does NOT override an
+ * explicit disable — stored state is the authority for the enabled/disabled
+ * toggle.
  *
  * Sync hook: on_theme_switch() is wired to the 'switch_theme' action by the
  * Provider layer to keep stored state in sync when themes are switched outside
@@ -150,6 +153,43 @@ class Theme_Strategy extends Installable_Strategy {
 	 */
 	protected function get_not_found_after_install_error_code(): string {
 		return Error_Code::THEME_NOT_FOUND_AFTER_INSTALL;
+	}
+
+	/**
+	 * Reconcile live and stored state for themes.
+	 *
+	 * For themes, "live active" means installed on disk — not the same as
+	 * "user enabled this feature". Unlike plugins where WP's active state is
+	 * authoritative, a theme sitting on disk should not override an explicit
+	 * user disable.
+	 *
+	 * Self-healing only goes downward: if a theme was removed from disk,
+	 * stored state is corrected to false. A theme existing on disk never
+	 * forces stored state back to true.
+	 *
+	 * A theme feature is active when it is on disk AND stored state says enabled.
+	 *
+	 * @since 3.0.0
+	 */
+	protected function reconcile_state( string $slug, bool $live, ?bool $stored ): bool {
+		// Theme removed from disk → self-heal stored state to inactive.
+		if ( ! $live && $stored === true ) {
+			$this->update_stored_state( $slug, false );
+
+			if ( $this->is_wp_debug() ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log(
+					sprintf(
+						'[Uplink] Self-healed feature state for "%s": theme no longer on disk',
+						$slug
+					)
+				);
+			}
+		}
+
+		// Active = on disk AND stored state says enabled.
+		// First check (null stored): default to not active — require explicit enable.
+		return $live && ( $stored ?? false );
 	}
 
 	// ── Sync hooks ──────────────────────────────────────────────────────

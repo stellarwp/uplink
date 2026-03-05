@@ -18,7 +18,7 @@ use WP_Theme;
  *
  * Theme enable = install only (no switch_theme).
  * Theme disable = update stored state to false.
- * Theme is_active = installed on disk.
+ * Theme is_active = installed on disk AND stored state is true.
  *
  * @see Theme_Strategy
  */
@@ -242,13 +242,36 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	}
 
 	/**
-	 * is_active() returns true when the theme is installed on disk.
-	 * "Active" for themes means "installed and available", not "currently switched to".
+	 * is_active() returns true when the theme is installed on disk AND stored state is true.
 	 */
-	public function test_is_active_returns_true_when_theme_is_installed(): void {
+	public function test_is_active_returns_true_when_theme_is_installed_and_enabled(): void {
 		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
+		update_option( self::OPTION_KEY, '1', true );
 
 		$this->assertTrue( $this->strategy->is_active( $this->feature ) );
+	}
+
+	/**
+	 * is_active() returns false when the theme is installed but stored state is false (disabled).
+	 * This is the key behavior: disabling a theme sticks even though it remains on disk.
+	 */
+	public function test_is_active_returns_false_when_theme_is_installed_but_disabled(): void {
+		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
+		update_option( self::OPTION_KEY, '0', true );
+
+		$this->assertFalse( $this->strategy->is_active( $this->feature ) );
+		// Stored state must NOT be self-healed to true.
+		$this->assertSame( '0', get_option( self::OPTION_KEY ) );
+	}
+
+	/**
+	 * is_active() returns false when the theme is installed but has no stored state.
+	 * A theme on disk with no stored state requires explicit enable.
+	 */
+	public function test_is_active_returns_false_when_theme_is_installed_but_no_stored_state(): void {
+		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
+
+		$this->assertFalse( $this->strategy->is_active( $this->feature ) );
 	}
 
 	/**
@@ -273,28 +296,29 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	}
 
 	/**
-	 * is_active() self-heals a stale stored state of false when the theme is
-	 * actually installed on disk.
+	 * is_active() does NOT self-heal stored state from false to true for themes.
+	 * A theme on disk with stored=false was explicitly disabled by the user.
 	 */
-	public function test_is_active_self_heals_stale_false_to_true(): void {
+	public function test_is_active_does_not_self_heal_false_to_true(): void {
 		update_option( self::OPTION_KEY, '0', true );
 		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
 
 		$result = $this->strategy->is_active( $this->feature );
 
-		$this->assertTrue( $result );
-		$this->assertSame( '1', get_option( self::OPTION_KEY ) );
+		$this->assertFalse( $result );
+		$this->assertSame( '0', get_option( self::OPTION_KEY ) );
 	}
 
 	/**
-	 * is_active() writes the correct stored state when no option exists yet.
+	 * is_active() does not write stored state when no option exists and theme is not installed.
 	 */
-	public function test_is_active_initializes_stored_state_when_missing(): void {
+	public function test_is_active_does_not_initialize_stored_state_when_missing(): void {
 		$this->assertFalse( get_option( self::OPTION_KEY, false ) );
 
 		$this->strategy->is_active( $this->feature );
 
-		$this->assertSame( '0', get_option( self::OPTION_KEY ) );
+		// No stored state written — theme is not on disk and was never managed.
+		$this->assertFalse( get_option( self::OPTION_KEY, false ) );
 	}
 
 	// -------------------------------------------------------------------------

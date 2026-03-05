@@ -51,7 +51,6 @@ class Uplink {
 		$container->singleton( Auth\Provider::class, Auth\Provider::class );
 		$container->singleton( Legacy\Provider::class, Legacy\Provider::class );
 		$container->singleton( Features\Provider::class, Features\Provider::class );
-		$container->singleton( Features\Update\Provider::class, Features\Update\Provider::class );
 		$container->singleton( Licensing\Provider::class, Licensing\Provider::class );
 		$container->singleton( Catalog\Provider::class, Catalog\Provider::class );
 		$container->singleton( API\REST\V1\Provider::class, API\REST\V1\Provider::class );
@@ -69,7 +68,6 @@ class Uplink {
 			}
 
 			$container->get( Features\Provider::class )->register();
-			$container->get( Features\Update\Provider::class )->register();
 			$container->get( Licensing\Provider::class )->register();
 			$container->get( Catalog\Provider::class )->register();
 			$container->get( API\REST\V1\Provider::class )->register();

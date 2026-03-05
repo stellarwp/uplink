@@ -11,6 +11,12 @@ local-scripts/
 /build/
 /build-dev/
 
+# Track Claude commands (overrides global gitignore)
+!.claude/
+.claude/*
+!.claude/commands/
+!.claude/settings.json
+
 # OS
 .DS_Store
 

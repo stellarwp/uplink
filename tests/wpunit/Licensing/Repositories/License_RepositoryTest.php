@@ -135,6 +135,52 @@ final class License_RepositoryTest extends UplinkTestCase {
 		$this->assertSame( 'give', $result->get( 'give' )->get_product_slug() );
 	}
 
+	public function test_get_products_hydrates_from_stored_array(): void {
+		$raw = [
+			[
+				'product_slug' => 'give',
+				'tier'         => 'give-pro',
+				'status'       => 'active',
+				'expires'      => '2026-12-31 23:59:59',
+				'activations'  => [
+					'site_limit'   => 0,
+					'active_count' => 0,
+				],
+			],
+		];
+
+		set_transient( License_Repository::PRODUCTS_TRANSIENT_KEY, $raw );
+
+		$result = $this->repository->get_products();
+
+		$this->assertInstanceOf( Product_Collection::class, $result );
+		$this->assertSame( 'give', $result->get( 'give' )->get_product_slug() );
+	}
+
+	public function test_set_products_stores_plain_array_in_transient(): void {
+		$collection = Product_Collection::from_array(
+			[
+				Product_Entry::from_array(
+					[
+						'product_slug' => 'give',
+						'tier'         => 'give-pro',
+						'status'       => 'active',
+						'expires'      => '2026-12-31 23:59:59',
+					]
+				),
+			]
+		);
+
+		$this->repository->set_products( $collection );
+
+		$raw = get_transient( License_Repository::PRODUCTS_TRANSIENT_KEY );
+
+		$this->assertIsArray( $raw );
+		$this->assertCount( 1, $raw );
+		$this->assertIsArray( $raw[0] );
+		$this->assertSame( 'give', $raw[0]['product_slug'] );
+	}
+
 	public function test_set_products_caches_wp_error(): void {
 		$error = new WP_Error( Error_Code::INVALID_KEY, 'Bad key' );
 

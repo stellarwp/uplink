@@ -37,7 +37,7 @@ final class Product_CatalogTest extends UplinkTestCase {
 				'feature_slug'      => 'kad-blocks-pro',
 				'type'              => 'plugin',
 				'minimum_tier'      => 'kadence-basic',
-				'plugin_file'       => 'kadence-blocks-pro/kadence-blocks-pro.php',
+				'wp_identifier'     => 'kadence-blocks-pro/kadence-blocks-pro.php',
 				'is_dot_org'        => false,
 				'download_url'      => 'https://licensing.stellarwp.com/api/plugins/kad-blocks-pro',
 				'name'              => 'Blocks Pro',

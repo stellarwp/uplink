@@ -9,7 +9,7 @@ use StellarWP\Uplink\Utils\Cast;
  * A Feature delivered as a standalone WordPress plugin.
  *
  * The Plugin_Strategy installs the plugin via plugins_api() + Plugin_Upgrader,
- * and uses plugin_file to activate/deactivate it.
+ * and uses wp_identifier (plugin file path) to activate/deactivate it.
  *
  * @since 3.0.0
  */
@@ -44,7 +44,7 @@ final class Plugin extends Feature implements Installable {
 			array_merge(
 				self::base_attributes( $data ),
 				[
-					'plugin_file' => $data['plugin_file'] ?? '',
+					'wp_identifier' => $data['wp_identifier'] ?? '',
 					'plugin_slug' => $data['plugin_slug'] ?? '',
 					'authors'     => $data['authors'] ?? [],
 					'is_dot_org'  => $data['is_dot_org'] ?? false,
@@ -62,7 +62,7 @@ final class Plugin extends Feature implements Installable {
 	 * @return string
 	 */
 	public function get_wp_identifier(): string {
-		return Cast::to_string( $this->attributes['plugin_file'] ?? '' );
+		return Cast::to_string( $this->attributes['wp_identifier'] ?? '' );
 	}
 
 	/**

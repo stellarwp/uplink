@@ -45,8 +45,8 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	 * Optional callable that resolves an identifier string to a Feature.
 	 *
 	 * The concrete type returned depends on the subclass:
-	 * - Plugin_Strategy: fn(string $plugin_file): ?Plugin
-	 * - Theme_Strategy: fn(string $stylesheet): ?Theme
+	 * - Plugin_Strategy: fn(string $wp_identifier): ?Plugin
+	 * - Theme_Strategy: fn(string $wp_identifier): ?Theme
 	 *
 	 * The Provider layer wires this to the Feature Collection. Until then,
 	 * sync hook callbacks will silently no-op because the resolver returns null.
@@ -413,7 +413,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $identifier The identifier to resolve (plugin_file, stylesheet, etc.).
+	 * @param string $identifier The wp_identifier to resolve.
 	 *
 	 * @return mixed The resolved feature or null.
 	 */

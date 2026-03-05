@@ -15,13 +15,13 @@ use StellarWP\Uplink\Utils\Cast;
  *     feature_slug: string,
  *     type: string,
  *     minimum_tier: string,
- *     plugin_file: ?string,
+ *     wp_identifier: ?string,
  *     is_dot_org: bool,
  *     download_url: ?string,
  *     name: string,
  *     description: string,
  *     category: string,
- *     authors: list<string>,
+ *     authors: ?list<string>,
  *     documentation_url: string,
  * }
  */
@@ -38,13 +38,13 @@ final class Catalog_Feature {
 		'feature_slug'      => '',
 		'type'              => '',
 		'minimum_tier'      => '',
-		'plugin_file'       => null,
+		'wp_identifier'     => null,
 		'is_dot_org'        => false,
 		'download_url'      => null,
 		'name'              => '',
 		'description'       => '',
 		'category'          => '',
-		'authors'           => [],
+		'authors'           => null,
 		'documentation_url' => '',
 	];
 
@@ -60,7 +60,7 @@ final class Catalog_Feature {
 	 * @return void
 	 */
 	public function __construct( array $attributes ) {
-		$this->attributes = $attributes;
+		$this->attributes = array_merge( $this->attributes, $attributes );
 	}
 
 	/**
@@ -78,7 +78,7 @@ final class Catalog_Feature {
 				'feature_slug'      => Cast::to_string( $data['feature_slug'] ?? '' ),
 				'type'              => Cast::to_string( $data['type'] ?? '' ),
 				'minimum_tier'      => Cast::to_string( $data['minimum_tier'] ?? '' ),
-				'plugin_file'       => isset( $data['plugin_file'] ) ? Cast::to_string( $data['plugin_file'] ) : null,
+				'wp_identifier'     => isset( $data['wp_identifier'] ) ? Cast::to_string( $data['wp_identifier'] ) : null,
 				'is_dot_org'        => Cast::to_bool( $data['is_dot_org'] ?? false ),
 				'download_url'      => isset( $data['download_url'] ) ? Cast::to_string( $data['download_url'] ) : null,
 				'name'              => Cast::to_string( $data['name'] ?? '' ),
@@ -86,7 +86,7 @@ final class Catalog_Feature {
 				'category'          => Cast::to_string( $data['category'] ?? '' ),
 				'authors'           => isset( $data['authors'] ) && is_array( $data['authors'] )
 					? array_map( [ Cast::class, 'to_string' ], array_values( $data['authors'] ) )
-					: [],
+					: null,
 				'documentation_url' => Cast::to_string( $data['documentation_url'] ?? '' ),
 			]
 		);
@@ -137,14 +137,14 @@ final class Catalog_Feature {
 	}
 
 	/**
-	 * Gets the plugin file path, or null if not a plugin.
+	 * Gets the WordPress identifier (plugin file path or theme stylesheet), or null if not applicable.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @return string|null
 	 */
-	public function get_plugin_file(): ?string {
-		return $this->attributes['plugin_file'];
+	public function get_wp_identifier(): ?string {
+		return $this->attributes['wp_identifier'];
 	}
 
 	/**
@@ -203,13 +203,13 @@ final class Catalog_Feature {
 	}
 
 	/**
-	 * Gets the author/brand names.
+	 * Gets the author/brand names, or null if not applicable for this feature type.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @return string[]
+	 * @return string[]|null
 	 */
-	public function get_authors(): array {
+	public function get_authors(): ?array {
 		return $this->attributes['authors'];
 	}
 

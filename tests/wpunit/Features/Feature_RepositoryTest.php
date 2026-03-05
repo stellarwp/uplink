@@ -252,7 +252,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 					'description'       => '',
 					'is_available'      => true,
 					'documentation_url' => '',
-					'plugin_file'       => '',
+					'wp_identifier'     => '',
 				]
 			)
 		);
@@ -415,6 +415,6 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		$this->assertSame( 'https://www.kadencewp.com/help-center/', $feature->get_documentation_url() );
 
 		$this->assertInstanceOf( Plugin::class, $feature );
-		$this->assertSame( 'kadence-blocks-pro/kadence-blocks-pro.php', $feature->get_plugin_file() );
+		$this->assertSame( 'kadence-blocks-pro/kadence-blocks-pro.php', $feature->get_wp_identifier() );
 	}
 }

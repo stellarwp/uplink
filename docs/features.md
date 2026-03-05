@@ -23,11 +23,11 @@ Features come in two types, mapped from the catalog's delivery types during reso
 
 ### Plugin
 
-An installable WordPress plugin. The catalog provides the `plugin_file` path, `plugin_slug`, `download_url`/`is_dot_org` flag. Enabling a Plugin feature installs the plugin (if needed) and activates it. Disabling deactivates it but never deletes plugin files.
+An installable WordPress plugin. The catalog provides the `wp_identifier` (plugin file path), `plugin_slug`, `download_url`/`is_dot_org` flag. Enabling a Plugin feature installs the plugin (if needed) and activates it. Disabling deactivates it but never deletes plugin files.
 
 ### Theme
 
-An installable WordPress theme. The catalog provides the `stylesheet` directory name, `download_url`/`is_dot_org` flag. Enabling a Theme feature installs the theme (makes it available) but does not switch to it. Users activate themes through WordPress's Appearance → Themes UI. Disabling marks the feature as not enabled in stored state.
+An installable WordPress theme. The catalog provides the `wp_identifier` (theme stylesheet/directory name), `download_url`/`is_dot_org` flag. Enabling a Theme feature installs the theme (makes it available) but does not switch to it. Users activate themes through WordPress's Appearance → Themes UI. Disabling marks the feature as not enabled in stored state.
 
 ### Flag
 

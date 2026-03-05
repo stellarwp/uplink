@@ -44,7 +44,7 @@ final class Theme extends Feature implements Installable {
 			array_merge(
 				self::base_attributes( $data ),
 				[
-					'stylesheet' => $data['stylesheet'] ?? '',
+					'wp_identifier' => $data['wp_identifier'] ?? '',
 					'authors'    => $data['authors'] ?? [],
 					'is_dot_org' => $data['is_dot_org'] ?? false,
 				]
@@ -61,7 +61,7 @@ final class Theme extends Feature implements Installable {
 	 * @return string
 	 */
 	public function get_wp_identifier(): string {
-		return Cast::to_string( $this->attributes['stylesheet'] ?? '' );
+		return Cast::to_string( $this->attributes['wp_identifier'] ?? '' );
 	}
 
 	/**

@@ -37,28 +37,27 @@ Features are the individual capabilities, plugins, themes, and flags that make u
 
 | Field               | Type         | Description                                                                                     |
 | ------------------- | ------------ | ----------------------------------------------------------------------------------------------- |
-| `feature_slug`      | string       | Unique identifier (e.g., `kad-blocks-pro`, `ld-propanel`)                                       |
-| `type`              | string       | One of `plugin`, `theme`, or `flag`                                                             |
-| `minimum_tier`      | string       | Tier slug required to access this feature                                                       |
-| `plugin_file`       | string\|null | Plugin file path for `plugin` type features (e.g., `kadence-blocks-pro/kadence-blocks-pro.php`) |
-| `stylesheet`        | string\|null | Theme stylesheet (directory name) for `theme` type features                                     |
-| `is_dot_org`        | bool         | Whether the feature is available on WordPress.org                                               |
-| `download_url`      | string\|null | Download URL for features not on WordPress.org                                                  |
-| `name`              | string       | Display name                                                                                    |
-| `description`       | string       | Short description of what the feature does                                                      |
-| `category`          | string       | Grouping category (e.g., `blocks`, `theme`, `security`, `woocommerce`)                          |
-| `authors`           | string[]     | Brand/author names                                                                              |
-| `documentation_url` | string       | Link to the feature's documentation                                                             |
+| `feature_slug`      | string            | Unique identifier (e.g., `kad-blocks-pro`, `ld-propanel`)                                                              |
+| `type`              | string            | One of `plugin`, `theme`, or `flag`                                                                                    |
+| `minimum_tier`      | string            | Tier slug required to access this feature                                                                              |
+| `wp_identifier`     | string\|null      | WordPress identifier — plugin file path (e.g., `kadence-blocks-pro/kadence-blocks-pro.php`) or theme stylesheet. Null for flags. |
+| `is_dot_org`        | bool              | Whether the feature is available on WordPress.org                                                                      |
+| `download_url`      | string\|null      | Download URL for features not on WordPress.org                                                                         |
+| `name`              | string            | Display name                                                                                                           |
+| `description`       | string            | Short description of what the feature does                                                                             |
+| `category`          | string            | Grouping category (e.g., `blocks`, `theme`, `security`, `woocommerce`)                                                |
+| `authors`           | string[]\|null    | Brand/author names for ownership verification. Null if not applicable.                                                 |
+| `documentation_url` | string            | Link to the feature's documentation                                                                                    |
 
 #### Feature Types
 
 Features come in three types, each representing a different kind of deliverable:
 
-**`plugin`**: an installable WordPress plugin. Has a `plugin_file` path and either a `download_url` (for exclusive features) or is available on WordPress.org (`is_dot_org: true`). These are features that need to be downloaded, installed, and activated.
+**`plugin`**: an installable WordPress plugin. Has a `wp_identifier` (plugin file path) and either a `download_url` (for exclusive features) or is available on WordPress.org (`is_dot_org: true`). These are features that need to be downloaded, installed, and activated.
 
-**`theme`**: an installable WordPress theme. Has a `stylesheet` directory name and either a `download_url` (for exclusive features) or is available on WordPress.org (`is_dot_org: true`).
+**`theme`**: an installable WordPress theme. Has a `wp_identifier` (theme stylesheet/directory name) and either a `download_url` (for exclusive features) or is available on WordPress.org (`is_dot_org: true`).
 
-**`flag`**: a capability toggle. Not a separate installable; it unlocks functionality within an existing plugin. Has no `plugin_file` or `download_url`. Think of these as feature flags that are gated by tier.
+**`flag`**: a capability toggle. Not a separate installable; it unlocks functionality within an existing plugin. Has no `wp_identifier` or `download_url`. Think of these as feature flags that are gated by tier.
 
 #### Tier Gating
 

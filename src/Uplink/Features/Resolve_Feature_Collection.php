@@ -199,7 +199,8 @@ class Resolve_Feature_Collection {
 			'type'              => $catalog_type,
 			'is_available'      => $is_available,
 			'documentation_url' => $catalog_feature->get_documentation_url(),
-			'plugin_file'       => $catalog_feature->get_plugin_file() ?? '',
+			'wp_identifier'     => $catalog_feature->get_wp_identifier() ?? '',
+			'authors'           => $catalog_feature->get_authors() ?? [],
 		];
 
 		return $class::from_array( $data );

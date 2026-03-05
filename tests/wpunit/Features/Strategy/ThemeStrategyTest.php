@@ -447,7 +447,7 @@ final class ThemeStrategyTest extends UplinkTestCase {
 				'tier'         => 'Tier 1',
 				'name'         => 'Test Theme Feature',
 				'description'  => 'A test theme for unit tests.',
-				'stylesheet'   => $stylesheet,
+				'wp_identifier' => $stylesheet,
 				'is_available' => true,
 				'authors'      => $authors,
 			]

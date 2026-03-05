@@ -21,11 +21,11 @@ final class PluginTest extends UplinkTestCase {
 	/**
 	 * Create a Plugin feature with configurable values.
 	 *
-	 * @param string   $slug        Feature slug.
-	 * @param string   $name        Display name.
-	 * @param string   $description Description.
-	 * @param string   $plugin_file Plugin file path.
-	 * @param string[] $authors     Expected plugin authors.
+	 * @param string   $slug          Feature slug.
+	 * @param string   $name          Display name.
+	 * @param string   $description   Description.
+	 * @param string   $wp_identifier WordPress identifier (plugin file path).
+	 * @param string[] $authors       Expected plugin authors.
 	 *
 	 * @return Plugin
 	 */
@@ -33,19 +33,19 @@ final class PluginTest extends UplinkTestCase {
 		string $slug = self::SLUG,
 		string $name = self::NAME,
 		string $description = self::DESCRIPTION,
-		string $plugin_file = self::PLUGIN_FILE,
+		string $wp_identifier = self::PLUGIN_FILE,
 		array $authors = [ 'StellarWP' ]
 	): Plugin {
 		return new Plugin(
 			[
-				'slug'         => $slug,
-				'group'        => self::GROUP,
-				'tier'         => self::TIER,
-				'name'         => $name,
-				'description'  => $description,
-				'plugin_file'  => $plugin_file,
-				'is_available' => true,
-				'authors'      => $authors,
+				'slug'          => $slug,
+				'group'         => self::GROUP,
+				'tier'          => self::TIER,
+				'name'          => $name,
+				'description'   => $description,
+				'wp_identifier' => $wp_identifier,
+				'is_available'  => true,
+				'authors'       => $authors,
 			]
 		);
 	}
@@ -67,7 +67,7 @@ final class PluginTest extends UplinkTestCase {
 				'tier'              => 'Tier 2',
 				'name'              => 'Test Feature',
 				'description'       => 'Test feature description.',
-				'plugin_file'       => 'test-feature/test-feature.php',
+				'wp_identifier'     => 'test-feature/test-feature.php',
 				'is_available'      => true,
 				'documentation_url' => 'https://example.com/docs',
 				'authors'           => [ 'StellarWP' ],
@@ -100,7 +100,7 @@ final class PluginTest extends UplinkTestCase {
 				'tier'              => 'Tier 2',
 				'name'              => 'Test Feature',
 				'description'       => 'Test feature description.',
-				'plugin_file'       => 'test-feature/test-feature.php',
+				'wp_identifier'     => 'test-feature/test-feature.php',
 				'is_available'      => true,
 				'documentation_url' => 'https://example.com/docs',
 				'authors'           => [ 'StellarWP' ],
@@ -114,7 +114,7 @@ final class PluginTest extends UplinkTestCase {
 				'tier'              => 'Tier 2',
 				'name'              => 'Test Feature',
 				'description'       => 'Test feature description.',
-				'plugin_file'       => 'test-feature/test-feature.php',
+				'wp_identifier'     => 'test-feature/test-feature.php',
 				'is_available'      => true,
 				'documentation_url' => 'https://example.com/docs',
 				'authors'           => [ 'StellarWP' ],
@@ -137,7 +137,7 @@ final class PluginTest extends UplinkTestCase {
 			'name'              => 'Test Feature',
 			'description'       => 'Test feature description.',
 			'type'              => 'plugin',
-			'plugin_file'       => 'test-feature/test-feature.php',
+			'wp_identifier'     => 'test-feature/test-feature.php',
 			'plugin_slug'       => '',
 			'is_available'      => true,
 			'documentation_url' => 'https://example.com/docs',
@@ -162,8 +162,8 @@ final class PluginTest extends UplinkTestCase {
 				'group'        => 'LearnDash',
 				'tier'         => 'Tier 2',
 				'name'         => 'Test Feature',
-				'plugin_file'  => 'test-feature/test-feature.php',
-				'is_available' => false,
+				'wp_identifier' => 'test-feature/test-feature.php',
+				'is_available'  => false,
 			]
 		);
 
@@ -182,8 +182,8 @@ final class PluginTest extends UplinkTestCase {
 				'group'        => 'LearnDash',
 				'tier'         => 'Tier 1',
 				'name'         => 'Test Feature',
-				'plugin_file'  => 'test-feature/test-feature.php',
-				'is_available' => true,
+				'wp_identifier' => 'test-feature/test-feature.php',
+				'is_available'  => true,
 			]
 		);
 
@@ -207,8 +207,8 @@ final class PluginTest extends UplinkTestCase {
 				'tier'         => 'Tier 2',
 				'name'         => 'Test Feature',
 				'description'  => 'Test feature description.',
-				'plugin_file'  => 'test-feature/test-feature.php',
-				'is_available' => true,
+				'wp_identifier' => 'test-feature/test-feature.php',
+				'is_available'  => true,
 			]
 		);
 
@@ -261,9 +261,9 @@ final class PluginTest extends UplinkTestCase {
 				'group'        => self::GROUP,
 				'tier'         => self::TIER,
 				'name'         => self::NAME,
-				'plugin_file'  => self::PLUGIN_FILE,
-				'is_available' => true,
-				'is_dot_org'   => true,
+				'wp_identifier' => self::PLUGIN_FILE,
+				'is_available'  => true,
+				'is_dot_org'    => true,
 			]
 		);
 
@@ -280,9 +280,9 @@ final class PluginTest extends UplinkTestCase {
 				'group'        => 'LearnDash',
 				'tier'         => 'Tier 1',
 				'name'         => 'Test Feature',
-				'plugin_file'  => 'test-feature/test-feature.php',
-				'is_available' => true,
-				'is_dot_org'   => true,
+				'wp_identifier' => 'test-feature/test-feature.php',
+				'is_available'  => true,
+				'is_dot_org'    => true,
 			]
 		);
 
@@ -354,8 +354,8 @@ final class PluginTest extends UplinkTestCase {
 				'tier'         => self::TIER,
 				'name'         => self::NAME,
 				'description'  => self::DESCRIPTION,
-				'plugin_file'  => 'the-directory/the-directory.php',
-				'plugin_slug'  => 'custom-slug',
+				'wp_identifier' => 'the-directory/the-directory.php',
+				'plugin_slug'   => 'custom-slug',
 				'is_available' => true,
 			]
 		);
@@ -373,7 +373,7 @@ final class PluginTest extends UplinkTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// get_plugin_directory() — derived from plugin_file
+	// get_plugin_directory() — derived from wp_identifier
 	// -------------------------------------------------------------------------
 
 	/**
@@ -427,7 +427,7 @@ final class PluginTest extends UplinkTestCase {
 				'tier'              => 'Tier 1',
 				'name'              => 'The Name',
 				'description'       => 'The description.',
-				'plugin_file'       => 'the-directory/the-directory.php',
+				'wp_identifier'     => 'the-directory/the-directory.php',
 				'plugin_slug'       => 'the-slug',
 				'is_available'      => true,
 				'documentation_url' => 'https://example.com/docs',

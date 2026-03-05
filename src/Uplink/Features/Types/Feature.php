@@ -157,13 +157,13 @@ abstract class Feature {
 	 */
 	protected static function base_attributes( array $data ): array {
 		return [
-			'slug'              => $data['slug'],
-			'group'             => $data['group'],
-			'tier'              => $data['tier'],
-			'name'              => $data['name'],
-			'description'       => $data['description'] ?? '',
-			'is_available'      => $data['is_available'],
-			'documentation_url' => $data['documentation_url'] ?? '',
+			'slug'              => Cast::to_string( $data['slug'] ?? '' ),
+			'group'             => Cast::to_string( $data['group'] ?? '' ),
+			'tier'              => Cast::to_string( $data['tier'] ?? '' ),
+			'name'              => Cast::to_string( $data['name'] ?? '' ),
+			'description'       => Cast::to_string( $data['description'] ?? '' ),
+			'is_available'      => Cast::to_bool( $data['is_available'] ?? false ),
+			'documentation_url' => Cast::to_string( $data['documentation_url'] ?? '' ),
 		];
 	}
 

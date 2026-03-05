@@ -16,16 +16,16 @@ final class ThemeTest extends UplinkTestCase {
 	private const TIER       = 'Tier 1';
 	private const NAME       = 'Kadence Theme';
 	private const DESCRIPTION = 'Lightweight, fast WordPress theme.';
-	private const STYLESHEET = 'kadence';
+	private const WP_IDENTIFIER = 'kadence';
 
 	/**
 	 * Create a Theme feature with configurable values.
 	 *
-	 * @param string   $slug        Feature slug.
-	 * @param string   $name        Display name.
-	 * @param string   $description Description.
-	 * @param string   $stylesheet  Theme stylesheet.
-	 * @param string[] $authors     Expected theme authors.
+	 * @param string   $slug          Feature slug.
+	 * @param string   $name          Display name.
+	 * @param string   $description   Description.
+	 * @param string   $wp_identifier WordPress identifier (theme stylesheet).
+	 * @param string[] $authors       Expected theme authors.
 	 *
 	 * @return Theme
 	 */
@@ -33,19 +33,19 @@ final class ThemeTest extends UplinkTestCase {
 		string $slug = self::SLUG,
 		string $name = self::NAME,
 		string $description = self::DESCRIPTION,
-		string $stylesheet = self::STYLESHEET,
+		string $wp_identifier = self::WP_IDENTIFIER,
 		array $authors = [ 'StellarWP' ]
 	): Theme {
 		return new Theme(
 			[
-				'slug'         => $slug,
-				'group'        => self::GROUP,
-				'tier'         => self::TIER,
-				'name'         => $name,
-				'description'  => $description,
-				'stylesheet'   => $stylesheet,
-				'is_available' => true,
-				'authors'      => $authors,
+				'slug'          => $slug,
+				'group'         => self::GROUP,
+				'tier'          => self::TIER,
+				'name'          => $name,
+				'description'   => $description,
+				'wp_identifier' => $wp_identifier,
+				'is_available'  => true,
+				'authors'       => $authors,
 			]
 		);
 	}
@@ -67,7 +67,7 @@ final class ThemeTest extends UplinkTestCase {
 				'tier'              => 'Tier 2',
 				'name'              => 'Test Theme',
 				'description'       => 'Test theme description.',
-				'stylesheet'        => 'test-theme',
+				'wp_identifier'        => 'test-theme',
 				'is_available'      => true,
 				'documentation_url' => 'https://example.com/docs',
 				'authors'           => [ 'StellarWP' ],
@@ -100,7 +100,7 @@ final class ThemeTest extends UplinkTestCase {
 				'tier'              => 'Tier 2',
 				'name'              => 'Test Theme',
 				'description'       => 'Test theme description.',
-				'stylesheet'        => 'test-theme',
+				'wp_identifier'        => 'test-theme',
 				'is_available'      => true,
 				'documentation_url' => 'https://example.com/docs',
 				'authors'           => [ 'StellarWP' ],
@@ -114,7 +114,7 @@ final class ThemeTest extends UplinkTestCase {
 				'tier'              => 'Tier 2',
 				'name'              => 'Test Theme',
 				'description'       => 'Test theme description.',
-				'stylesheet'        => 'test-theme',
+				'wp_identifier'        => 'test-theme',
 				'is_available'      => true,
 				'documentation_url' => 'https://example.com/docs',
 				'authors'           => [ 'StellarWP' ],
@@ -137,7 +137,7 @@ final class ThemeTest extends UplinkTestCase {
 			'name'              => 'Test Theme',
 			'description'       => 'Test theme description.',
 			'type'              => 'theme',
-			'stylesheet'        => 'test-theme',
+			'wp_identifier'        => 'test-theme',
 			'is_available'      => true,
 			'documentation_url' => 'https://example.com/docs',
 			'authors'           => [ 'StellarWP' ],
@@ -161,7 +161,7 @@ final class ThemeTest extends UplinkTestCase {
 				'group'        => 'Kadence',
 				'tier'         => 'Tier 2',
 				'name'         => 'Test Theme',
-				'stylesheet'   => 'test-theme',
+				'wp_identifier'   => 'test-theme',
 				'is_available' => false,
 			]
 		);
@@ -181,7 +181,7 @@ final class ThemeTest extends UplinkTestCase {
 				'group'        => 'Kadence',
 				'tier'         => 'Tier 1',
 				'name'         => 'Test Theme',
-				'stylesheet'   => 'test-theme',
+				'wp_identifier'   => 'test-theme',
 				'is_available' => true,
 			]
 		);
@@ -206,7 +206,7 @@ final class ThemeTest extends UplinkTestCase {
 				'tier'         => 'Tier 2',
 				'name'         => 'Test Theme',
 				'description'  => 'Test theme description.',
-				'stylesheet'   => 'test-theme',
+				'wp_identifier'   => 'test-theme',
 				'is_available' => true,
 			]
 		);
@@ -226,7 +226,7 @@ final class ThemeTest extends UplinkTestCase {
 			self::SLUG,
 			self::NAME,
 			self::DESCRIPTION,
-			self::STYLESHEET,
+			self::WP_IDENTIFIER,
 			[ 'StellarWP' ]
 		);
 
@@ -241,7 +241,7 @@ final class ThemeTest extends UplinkTestCase {
 			self::SLUG,
 			self::NAME,
 			self::DESCRIPTION,
-			self::STYLESHEET,
+			self::WP_IDENTIFIER,
 			[]
 		);
 
@@ -257,7 +257,7 @@ final class ThemeTest extends UplinkTestCase {
 			self::SLUG,
 			self::NAME,
 			self::DESCRIPTION,
-			self::STYLESHEET,
+			self::WP_IDENTIFIER,
 			$authors
 		);
 
@@ -310,7 +310,7 @@ final class ThemeTest extends UplinkTestCase {
 				'group'        => self::GROUP,
 				'tier'         => self::TIER,
 				'name'         => self::NAME,
-				'stylesheet'   => self::STYLESHEET,
+				'wp_identifier'   => self::WP_IDENTIFIER,
 				'is_available' => true,
 				'is_dot_org'   => true,
 			]
@@ -329,7 +329,7 @@ final class ThemeTest extends UplinkTestCase {
 				'group'        => 'Kadence',
 				'tier'         => 'Tier 1',
 				'name'         => 'Test Theme',
-				'stylesheet'   => 'test-theme',
+				'wp_identifier'   => 'test-theme',
 				'is_available' => true,
 				'is_dot_org'   => true,
 			]
@@ -353,7 +353,7 @@ final class ThemeTest extends UplinkTestCase {
 				'tier'              => 'Tier 1',
 				'name'              => 'The Name',
 				'description'       => 'The description.',
-				'stylesheet'        => 'the-stylesheet',
+				'wp_identifier'        => 'the-stylesheet',
 				'is_available'      => true,
 				'documentation_url' => 'https://example.com/docs',
 				'authors'           => [ 'StellarWP', 'Starter Sites' ],

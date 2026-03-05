@@ -36,6 +36,6 @@ final class License_Key {
 	 * @return bool
 	 */
 	public static function is_valid_format( string $key ): bool {
-		return strpos( $key, self::PREFIX ) === 0;
+		return stripos( $key, self::PREFIX ) === 0;
 	}
 }

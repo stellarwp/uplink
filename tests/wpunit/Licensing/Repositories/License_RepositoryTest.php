@@ -2,8 +2,12 @@
 
 namespace StellarWP\Uplink\Tests\Licensing\Repositories;
 
+use StellarWP\Uplink\Licensing\Error_Code;
+use StellarWP\Uplink\Licensing\Product_Collection;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
+use StellarWP\Uplink\Licensing\Results\Product_Entry;
 use StellarWP\Uplink\Tests\UplinkTestCase;
+use WP_Error;
 
 /**
  * @since 3.0.0
@@ -15,84 +19,321 @@ final class License_RepositoryTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		$this->repository = new License_Repository();
-		delete_option( License_Repository::OPTION_NAME );
+		delete_option( License_Repository::KEY_OPTION_NAME );
+		delete_transient( License_Repository::PRODUCTS_TRANSIENT_KEY );
 	}
 
 	protected function tearDown(): void {
-		delete_option( License_Repository::OPTION_NAME );
+		delete_option( License_Repository::KEY_OPTION_NAME );
+		delete_transient( License_Repository::PRODUCTS_TRANSIENT_KEY );
 		parent::tearDown();
 	}
 
+	// -------------------------------------------------------------------------
+	// get_key() / store_key() / delete_key() / key_exists()
+	// -------------------------------------------------------------------------
+
 	public function test_get_returns_null_when_no_key_stored(): void {
-		$this->assertNull( $this->repository->get() );
+		$this->assertNull( $this->repository->get_key() );
 	}
 
 	public function test_store_and_get_round_trip(): void {
-		$this->repository->store( 'LWSW-UNIFIED-PRO-2026' );
+		$this->repository->store_key( 'LWSW-UNIFIED-PRO-2026' );
 
-		$this->assertSame( 'LWSW-UNIFIED-PRO-2026', $this->repository->get() );
+		$this->assertSame( 'LWSW-UNIFIED-PRO-2026', $this->repository->get_key() );
 	}
 
 	public function test_store_returns_true_on_success(): void {
-		$result = $this->repository->store( 'LWSW-UNIFIED-PRO-2026' );
+		$result = $this->repository->store_key( 'LWSW-UNIFIED-PRO-2026' );
 
 		$this->assertTrue( $result );
 	}
 
 	public function test_store_is_idempotent_when_key_unchanged(): void {
-		$this->repository->store( 'LWSW-UNIFIED-PRO-2026' );
+		$this->repository->store_key( 'LWSW-UNIFIED-PRO-2026' );
 
 		// Storing the same key again should still return true.
-		$this->assertTrue( $this->repository->store( 'LWSW-UNIFIED-PRO-2026' ) );
+		$this->assertTrue( $this->repository->store_key( 'LWSW-UNIFIED-PRO-2026' ) );
 	}
 
 	public function test_store_overwrites_existing_key(): void {
-		$this->repository->store( 'OLD-KEY' );
-		$this->repository->store( 'NEW-KEY' );
+		$this->repository->store_key( 'OLD-KEY' );
+		$this->repository->store_key( 'NEW-KEY' );
 
-		$this->assertSame( 'NEW-KEY', $this->repository->get() );
+		$this->assertSame( 'NEW-KEY', $this->repository->get_key() );
 	}
 
 	public function test_store_sanitizes_key(): void {
-		$this->repository->store( 'LWSW-"UNIFIED\'-PRO`-2026' );
+		$this->repository->store_key( 'LWSW-"UNIFIED\'-PRO`-2026' );
 
-		$this->assertSame( 'LWSW-UNIFIED-PRO-2026', $this->repository->get() );
+		$this->assertSame( 'LWSW-UNIFIED-PRO-2026', $this->repository->get_key() );
 	}
 
 	public function test_delete_removes_stored_key(): void {
-		$this->repository->store( 'LWSW-UNIFIED-PRO-2026' );
-		$this->repository->delete();
+		$this->repository->store_key( 'LWSW-UNIFIED-PRO-2026' );
+		$this->repository->delete_key();
 
-		$this->assertNull( $this->repository->get() );
+		$this->assertNull( $this->repository->get_key() );
 	}
 
 	public function test_delete_returns_true_when_key_existed(): void {
-		$this->repository->store( 'LWSW-UNIFIED-PRO-2026' );
+		$this->repository->store_key( 'LWSW-UNIFIED-PRO-2026' );
 
-		$this->assertTrue( $this->repository->delete() );
+		$this->assertTrue( $this->repository->delete_key() );
 	}
 
 	public function test_exists_returns_false_when_no_key_stored(): void {
-		$this->assertFalse( $this->repository->exists() );
+		$this->assertFalse( $this->repository->key_exists() );
 	}
 
 	public function test_exists_returns_true_after_storing_key(): void {
-		$this->repository->store( 'LWSW-UNIFIED-PRO-2026' );
+		$this->repository->store_key( 'LWSW-UNIFIED-PRO-2026' );
 
-		$this->assertTrue( $this->repository->exists() );
+		$this->assertTrue( $this->repository->key_exists() );
 	}
 
 	public function test_exists_returns_false_after_deleting_key(): void {
-		$this->repository->store( 'LWSW-UNIFIED-PRO-2026' );
-		$this->repository->delete();
+		$this->repository->store_key( 'LWSW-UNIFIED-PRO-2026' );
+		$this->repository->delete_key();
 
-		$this->assertFalse( $this->repository->exists() );
+		$this->assertFalse( $this->repository->key_exists() );
 	}
 
 	public function test_get_returns_null_for_empty_string(): void {
-		update_option( License_Repository::OPTION_NAME, '' );
+		update_option( License_Repository::KEY_OPTION_NAME, '' );
 
-		$this->assertNull( $this->repository->get() );
+		$this->assertNull( $this->repository->get_key() );
+	}
+
+	// -------------------------------------------------------------------------
+	// get_products() / set_products() / delete_products()
+	// -------------------------------------------------------------------------
+
+	public function test_get_products_returns_false_on_cache_miss(): void {
+		$this->assertNull( $this->repository->get_products() );
+	}
+
+	public function test_set_and_get_products_round_trip(): void {
+		$collection = Product_Collection::from_array(
+			[
+				Product_Entry::from_array(
+					[
+						'product_slug' => 'give',
+						'tier'         => 'give-pro',
+						'status'       => 'active',
+						'expires'      => '2026-12-31 23:59:59',
+					]
+				),
+			]
+		);
+
+		$this->repository->set_products( $collection );
+
+		$result = $this->repository->get_products();
+
+		$this->assertInstanceOf( Product_Collection::class, $result );
+		$this->assertSame( 'give', $result->get( 'give' )->get_product_slug() );
+	}
+
+	public function test_set_products_caches_wp_error(): void {
+		$error = new WP_Error( Error_Code::INVALID_KEY, 'Bad key' );
+
+		$this->repository->set_products( $error );
+
+		$result = $this->repository->get_products();
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+	}
+
+	public function test_delete_products_clears_cache(): void {
+		$collection = Product_Collection::from_array(
+			[
+				Product_Entry::from_array(
+					[
+						'product_slug' => 'give',
+						'tier'         => 'give-pro',
+						'status'       => 'active',
+						'expires'      => '2026-12-31 23:59:59',
+					]
+				),
+			]
+		);
+
+		$this->repository->set_products( $collection );
+		$this->repository->delete_products();
+
+		$this->assertNull( $this->repository->get_products() );
+	}
+
+	// -------------------------------------------------------------------------
+	// get_product()
+	// -------------------------------------------------------------------------
+
+	public function test_get_product_returns_null_on_cache_miss(): void {
+		$this->assertNull( $this->repository->get_product( 'give' ) );
+	}
+
+	public function test_get_product_returns_null_for_unknown_slug(): void {
+		$this->repository->set_products(
+			Product_Collection::from_array(
+				[
+					Product_Entry::from_array(
+						[
+							'product_slug'      => 'give',
+							'tier'              => 'give-pro',
+							'status'            => 'active',
+							'expires'           => '2026-12-31 23:59:59',
+							'validation_status' => 'valid',
+						]
+					),
+				]
+			)
+		);
+
+		$this->assertNull( $this->repository->get_product( 'unknown-product' ) );
+	}
+
+	public function test_get_product_returns_entry_for_known_slug(): void {
+		$this->repository->set_products(
+			Product_Collection::from_array(
+				[
+					Product_Entry::from_array(
+						[
+							'product_slug'      => 'give',
+							'tier'              => 'give-pro',
+							'status'            => 'active',
+							'expires'           => '2026-12-31 23:59:59',
+							'validation_status' => 'valid',
+						]
+					),
+				]
+			)
+		);
+
+		$result = $this->repository->get_product( 'give' );
+
+		$this->assertInstanceOf( Product_Entry::class, $result );
+		$this->assertSame( 'give', $result->get_product_slug() );
+	}
+
+	public function test_get_product_returns_null_when_cache_contains_wp_error(): void {
+		$this->repository->set_products( new WP_Error( Error_Code::INVALID_KEY, 'Bad key' ) );
+
+		$this->assertNull( $this->repository->get_product( 'give' ) );
+	}
+
+	// -------------------------------------------------------------------------
+	// has_product()
+	// -------------------------------------------------------------------------
+
+	public function test_has_product_returns_false_on_cache_miss(): void {
+		$this->assertFalse( $this->repository->has_product( 'give' ) );
+	}
+
+	public function test_has_product_returns_false_for_unknown_slug(): void {
+		$this->repository->set_products(
+			Product_Collection::from_array(
+				[
+					Product_Entry::from_array(
+						[
+							'product_slug' => 'give',
+							'tier'         => 'give-pro',
+							'status'       => 'active',
+							'expires'      => '2026-12-31 23:59:59',
+						]
+					),
+				]
+			)
+		);
+
+		$this->assertFalse( $this->repository->has_product( 'unknown-product' ) );
+	}
+
+	public function test_has_product_returns_true_for_known_slug(): void {
+		$this->repository->set_products(
+			Product_Collection::from_array(
+				[
+					Product_Entry::from_array(
+						[
+							'product_slug' => 'give',
+							'tier'         => 'give-pro',
+							'status'       => 'active',
+							'expires'      => '2026-12-31 23:59:59',
+						]
+					),
+				]
+			)
+		);
+
+		$this->assertTrue( $this->repository->has_product( 'give' ) );
+	}
+
+	// -------------------------------------------------------------------------
+	// is_product_valid()
+	// -------------------------------------------------------------------------
+
+	public function test_is_product_valid_returns_false_on_cache_miss(): void {
+		$this->assertFalse( $this->repository->is_product_valid( 'give' ) );
+	}
+
+	public function test_is_product_valid_returns_false_for_unknown_slug(): void {
+		$this->repository->set_products(
+			Product_Collection::from_array(
+				[
+					Product_Entry::from_array(
+						[
+							'product_slug'      => 'give',
+							'tier'              => 'give-pro',
+							'status'            => 'active',
+							'expires'           => '2026-12-31 23:59:59',
+							'validation_status' => 'valid',
+						]
+					),
+				]
+			)
+		);
+
+		$this->assertFalse( $this->repository->is_product_valid( 'unknown-product' ) );
+	}
+
+	public function test_is_product_valid_returns_true_for_valid_product(): void {
+		$this->repository->set_products(
+			Product_Collection::from_array(
+				[
+					Product_Entry::from_array(
+						[
+							'product_slug'      => 'give',
+							'tier'              => 'give-pro',
+							'status'            => 'active',
+							'expires'           => '2026-12-31 23:59:59',
+							'validation_status' => 'valid',
+						]
+					),
+				]
+			)
+		);
+
+		$this->assertTrue( $this->repository->is_product_valid( 'give' ) );
+	}
+
+	public function test_is_product_valid_returns_false_for_invalid_product(): void {
+		$this->repository->set_products(
+			Product_Collection::from_array(
+				[
+					Product_Entry::from_array(
+						[
+							'product_slug'      => 'give',
+							'tier'              => 'give-pro',
+							'status'            => 'active',
+							'expires'           => '2026-12-31 23:59:59',
+							'validation_status' => 'not_activated',
+						]
+					),
+				]
+			)
+		);
+
+		$this->assertFalse( $this->repository->is_product_valid( 'give' ) );
 	}
 
 	public function test_store_fires_action_when_key_changes(): void {
@@ -107,7 +348,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 			2
 		);
 
-		$this->repository->store( 'LWSW-FIRST-KEY' );
+		$this->repository->store_key( 'LWSW-FIRST-KEY' );
 
 		$this->assertCount( 1, $fired );
 		$this->assertSame( 'LWSW-FIRST-KEY', $fired[0][0] );
@@ -115,7 +356,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 	}
 
 	public function test_store_does_not_fire_action_when_key_unchanged(): void {
-		$this->repository->store( 'LWSW-SAME-KEY' );
+		$this->repository->store_key( 'LWSW-SAME-KEY' );
 
 		$fired = false;
 
@@ -126,13 +367,13 @@ final class License_RepositoryTest extends UplinkTestCase {
 			}
 		);
 
-		$this->repository->store( 'LWSW-SAME-KEY' );
+		$this->repository->store_key( 'LWSW-SAME-KEY' );
 
 		$this->assertFalse( $fired );
 	}
 
 	public function test_store_fires_action_with_old_key_on_overwrite(): void {
-		$this->repository->store( 'LWSW-OLD-KEY' );
+		$this->repository->store_key( 'LWSW-OLD-KEY' );
 
 		$fired = [];
 
@@ -145,7 +386,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 			2
 		);
 
-		$this->repository->store( 'LWSW-NEW-KEY' );
+		$this->repository->store_key( 'LWSW-NEW-KEY' );
 
 		$this->assertCount( 1, $fired );
 		$this->assertSame( 'LWSW-NEW-KEY', $fired[0][0] );
@@ -153,7 +394,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 	}
 
 	public function test_delete_fires_action_when_key_existed(): void {
-		$this->repository->store( 'LWSW-DELETE-ME' );
+		$this->repository->store_key( 'LWSW-DELETE-ME' );
 
 		$fired = [];
 
@@ -166,7 +407,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 			2
 		);
 
-		$this->repository->delete();
+		$this->repository->delete_key();
 
 		$this->assertCount( 1, $fired );
 		$this->assertSame( '', $fired[0][0] );
@@ -183,7 +424,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 			}
 		);
 
-		$this->repository->delete();
+		$this->repository->delete_key();
 
 		$this->assertFalse( $fired );
 	}

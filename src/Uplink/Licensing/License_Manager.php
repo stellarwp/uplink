@@ -3,12 +3,14 @@
 namespace StellarWP\Uplink\Licensing;
 
 use StellarWP\Uplink\Utils\License_Key;
+use StellarWP\Uplink\Licensing\Contracts\Licensing_Client;
 use StellarWP\Uplink\Licensing\Registry\Product_Registry;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
+use StellarWP\Uplink\Licensing\Results\Product_Entry;
 use WP_Error;
 
 /**
- * Orchestrates unified license key discovery and persistence.
+ * Orchestrates unified license key discovery, persistence, and product catalog fetching.
  *
  * All keys must begin with the LWSW- prefix (see License_Key::is_valid_format()).
  * store() returns false and does not write to the repository when the
@@ -41,27 +43,27 @@ final class License_Manager {
 	/**
 	 * @since 3.0.0
 	 *
-	 * @var Product_Repository
+	 * @var Licensing_Client
 	 */
-	private Product_Repository $product_repository;
+	private Licensing_Client $client;
 
 	/**
 	 * Constructor.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param License_Repository $repository         The license key repository.
-	 * @param Product_Registry   $registry           The product registry.
-	 * @param Product_Repository $product_repository The remote product catalog repository.
+	 * @param License_Repository $repository The license repository.
+	 * @param Product_Registry   $registry   The product registry.
+	 * @param Licensing_Client   $client     The licensing API client.
 	 */
 	public function __construct(
 		License_Repository $repository,
 		Product_Registry $registry,
-		Product_Repository $product_repository
+		Licensing_Client $client
 	) {
-		$this->repository         = $repository;
-		$this->registry           = $registry;
-		$this->product_repository = $product_repository;
+		$this->repository = $repository;
+		$this->registry   = $registry;
+		$this->client     = $client;
 	}
 
 	/**
@@ -74,14 +76,20 @@ final class License_Manager {
 	 *
 	 * @return string|null The license key, or null if none exists.
 	 */
-	public function get(): ?string {
-		$key = $this->repository->get();
+	public function get_key(): ?string {
+		$key = $this->repository->get_key();
 
 		if ( $key !== null ) {
 			return $key;
 		}
 
-		return $this->discover_embedded_key();
+		$key = $this->discover_embedded_key();
+
+		if ( $key !== null ) {
+			$this->repository->store_key( $key );
+		}
+
+		return $key;
 	}
 
 	/**
@@ -96,19 +104,19 @@ final class License_Manager {
 	 *
 	 * @return bool Whether the key was successfully stored.
 	 */
-	public function store( string $key, bool $network = false ): bool {
+	public function store_key( string $key, bool $network = false ): bool {
 		if ( ! License_Key::is_valid_format( $key ) ) {
 			return false;
 		}
 
-		return $this->repository->store( $key, $network );
+		return $this->repository->store_key( $key, $network );
 	}
 
 	/**
 	 * Validate a license key against the remote licensing API and store it on success.
 	 *
-	 * Calls Product_Repository::get() to verify the key is recognized before
-	 * persisting it, which also primes the product catalog cache as a side effect.
+	 * Fetches the product catalog for the given key to verify it is recognized,
+	 * primes the cache, then persists the key.
 	 *
 	 * @since 3.0.0
 	 *
@@ -126,13 +134,16 @@ final class License_Manager {
 			);
 		}
 
-		$result = $this->product_repository->get( $key, $domain );
+		/** @var Product_Entry[]|WP_Error $result */
+		$result = $this->client->get_products( $key, $domain );
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
 
-		if ( ! $this->repository->store( $key, $network ) ) {
+		$this->repository->set_products( Product_Collection::from_array( $result ) );
+
+		if ( ! $this->repository->store_key( $key, $network ) ) {
 			return new WP_Error(
 				Error_Code::STORE_FAILED,
 				__( 'The license key could not be stored.', '%TEXTDOMAIN%' )
@@ -151,8 +162,8 @@ final class License_Manager {
 	 *
 	 * @return bool Whether the key was successfully deleted.
 	 */
-	public function delete( bool $network = false ): bool {
-		return $this->repository->delete( $network );
+	public function delete_key( bool $network = false ): bool {
+		return $this->repository->delete_key( $network );
 	}
 
 	/**
@@ -162,8 +173,90 @@ final class License_Manager {
 	 *
 	 * @return bool
 	 */
-	public function exists(): bool {
-		return $this->get() !== null;
+	public function key_exists(): bool {
+		return $this->get_key() !== null;
+	}
+
+	/**
+	 * Get the licensed product catalog for the stored key.
+	 *
+	 * Returns the cached catalog if available; otherwise fetches from the
+	 * licensing API and primes the cache.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $domain Site domain.
+	 *
+	 * @return Product_Collection|WP_Error WP_Error if no key is stored or the API call fails.
+	 */
+	public function get_products( string $domain ) {
+		$key = $this->get_key();
+
+		if ( $key === null ) {
+			return new WP_Error(
+				Error_Code::INVALID_KEY,
+				__( 'No license key is stored.', '%TEXTDOMAIN%' )
+			);
+		}
+
+		$cached = $this->repository->get_products();
+
+		if ( $cached instanceof Product_Collection ) {
+			return $cached;
+		}
+
+		return $this->fetch_and_cache( $key, $domain );
+	}
+
+	/**
+	 * Flush the cached product catalog and re-fetch from the API.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $domain Site domain.
+	 *
+	 * @return Product_Collection|WP_Error WP_Error if no key is stored or the API call fails.
+	 */
+	public function refresh_products( string $domain ) {
+		$key = $this->get_key();
+
+		if ( $key === null ) {
+			return new WP_Error(
+				Error_Code::INVALID_KEY,
+				__( 'No license key is stored.', '%TEXTDOMAIN%' )
+			);
+		}
+
+		$this->repository->delete_products();
+
+		return $this->fetch_and_cache( $key, $domain );
+	}
+
+	/**
+	 * Fetch the product catalog from the API and cache the result.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $key    License key.
+	 * @param string $domain Site domain.
+	 *
+	 * @return Product_Collection|WP_Error
+	 */
+	private function fetch_and_cache( string $key, string $domain ) {
+		/** @var Product_Entry[]|WP_Error $result */
+		$result = $this->client->get_products( $key, $domain );
+
+		if ( is_wp_error( $result ) ) {
+			$this->repository->set_products( $result );
+
+			return $result;
+		}
+
+		$collection = Product_Collection::from_array( $result );
+
+		$this->repository->set_products( $collection );
+
+		return $collection;
 	}
 
 	/**
@@ -181,11 +274,6 @@ final class License_Manager {
 			return null;
 		}
 
-		/** @var string $key */
-		$key = $product->embedded_key;
-
-		$this->repository->store( $key );
-
-		return $key;
+		return $product->embedded_key ?? null;
 	}
 }

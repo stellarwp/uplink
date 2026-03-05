@@ -47,8 +47,8 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	 * Optional callable that resolves an identifier string to a Feature.
 	 *
 	 * The concrete type returned depends on the subclass:
-	 * - Plugin_Strategy: fn(string $wp_identifier): ?Plugin
-	 * - Theme_Strategy: fn(string $wp_identifier): ?Theme
+	 * - Plugin_Strategy: fn(string $plugin_file): ?Plugin
+	 * - Theme_Strategy: fn(string $stylesheet): ?Theme
 	 *
 	 * The Provider layer wires this to the Feature Collection. Until then,
 	 * sync hook callbacks will silently no-op because the resolver returns null.
@@ -92,26 +92,39 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	abstract protected function get_type_mismatch_message(): string;
 
 	/**
+	 * Resolve the WordPress identifier from the feature.
+	 *
+	 * Plugins return the plugin file path; themes return the slug (stylesheet).
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param Feature $feature Already type-guarded by the calling template.
+	 *
+	 * @return string
+	 */
+	abstract protected function get_wp_identifier( Feature $feature ): string;
+
+	/**
 	 * Check whether the extension is currently active in WordPress.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $wp_identifier The WP identifier (plugin_file or stylesheet).
+	 * @param string $identifier The WP identifier (plugin_file or stylesheet).
 	 *
 	 * @return bool
 	 */
-	abstract protected function check_active( string $wp_identifier ): bool;
+	abstract protected function check_active( string $identifier ): bool;
 
 	/**
 	 * Check whether the extension is installed on disk.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $wp_identifier The WP identifier (plugin_file or stylesheet).
+	 * @param string $identifier The WP identifier (plugin_file or stylesheet).
 	 *
 	 * @return bool
 	 */
-	abstract protected function check_installed( string $wp_identifier ): bool;
+	abstract protected function check_installed( string $identifier ): bool;
 
 	/**
 	 * Install the extension from its download source.
@@ -211,7 +224,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 		// loaded when called from REST API or AJAX contexts.
 		$this->load_wp_admin_includes();
 
-		$identifier = $feature->get_wp_identifier();
+		$identifier = $this->get_wp_identifier( $feature );
 
 		// Idempotent: if the extension is already active, verify ownership and bail.
 		if ( $this->check_active( $identifier ) ) {
@@ -309,7 +322,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 
 		$this->load_wp_admin_includes();
 
-		$live_active   = $this->check_active( $feature->get_wp_identifier() );
+		$live_active   = $this->check_active( $this->get_wp_identifier( $feature ) );
 		$stored_active = $this->get_stored_state( $feature->get_slug() );
 
 		return $this->reconcile_state( $feature->get_slug(), $live_active, $stored_active );
@@ -371,8 +384,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	 * @return true|WP_Error True if installed (or already was), WP_Error on failure.
 	 */
 	final protected function ensure_installed( Feature $feature ) {
-		/** @var Feature&Installable $feature */
-		$identifier = $feature->get_wp_identifier();
+		$identifier = $this->get_wp_identifier( $feature );
 
 		// Already on disk — ready for activation. Ownership is verified
 		// by the caller (enable()) after this method returns.
@@ -434,7 +446,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $identifier The wp_identifier to resolve.
+	 * @param string $identifier The identifier to resolve (plugin_file or stylesheet).
 	 *
 	 * @return mixed The resolved feature or null.
 	 */

@@ -9,7 +9,7 @@ use StellarWP\Uplink\Utils\Cast;
  * A Feature delivered as a standalone WordPress plugin.
  *
  * The Plugin_Strategy installs the plugin via plugins_api() + Plugin_Upgrader,
- * and uses wp_identifier (plugin file path) to activate/deactivate it.
+ * and uses plugin_file (plugin file path) to activate/deactivate it.
  *
  * @since 3.0.0
  */
@@ -44,7 +44,7 @@ final class Plugin extends Feature implements Installable {
 			array_merge(
 				self::base_attributes( $data ),
 				[
-					'wp_identifier' => $data['wp_identifier'] ?? '',
+					'plugin_file' => $data['plugin_file'] ?? '',
 					'plugin_slug' => $data['plugin_slug'] ?? '',
 					'authors'     => $data['authors'] ?? [],
 					'is_dot_org'  => $data['is_dot_org'] ?? false,
@@ -54,15 +54,15 @@ final class Plugin extends Feature implements Installable {
 	}
 
 	/**
-	 * Gets the primary WordPress identifier — the plugin file path
-	 * relative to the plugins directory (e.g. "stellar-export/stellar-export.php").
+	 * Gets the plugin file path relative to the plugins directory
+	 * (e.g. "stellar-export/stellar-export.php").
 	 *
 	 * @since 3.0.0
 	 *
 	 * @return string
 	 */
-	public function get_wp_identifier(): string {
-		return Cast::to_string( $this->attributes['wp_identifier'] ?? '' );
+	public function get_plugin_file(): string {
+		return Cast::to_string( $this->attributes['plugin_file'] ?? '' );
 	}
 
 	/**
@@ -118,6 +118,6 @@ final class Plugin extends Feature implements Installable {
 	 * @return string
 	 */
 	public function get_plugin_directory(): string {
-		return dirname( $this->get_wp_identifier() );
+		return dirname( $this->get_plugin_file() );
 	}
 }

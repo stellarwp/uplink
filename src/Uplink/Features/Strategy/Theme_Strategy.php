@@ -2,7 +2,6 @@
 
 namespace StellarWP\Uplink\Features\Strategy;
 
-use StellarWP\Uplink\Features\Contracts\Installable;
 use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Theme;
@@ -61,6 +60,13 @@ class Theme_Strategy extends Installable_Strategy {
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	protected function get_wp_identifier( Feature $feature ): string {
+		return $feature->get_slug();
+	}
+
+	/**
 	 * Check whether the theme is "active" — for themes, this means installed on disk.
 	 *
 	 * Unlike plugins where "active" means currently running, for themes "active"
@@ -69,21 +75,21 @@ class Theme_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $wp_identifier The theme stylesheet (directory name).
+	 * @param string $identifier The theme stylesheet (directory name).
 	 *
 	 * @return bool
 	 */
-	protected function check_active( string $wp_identifier ): bool {
-		return wp_get_theme( $wp_identifier )->exists();
+	protected function check_active( string $identifier ): bool {
+		return wp_get_theme( $identifier )->exists();
 	}
 
 	/**
 	 * @inheritDoc
 	 *
-	 * @param string $wp_identifier The theme stylesheet (directory name).
+	 * @param string $identifier The theme stylesheet (directory name).
 	 */
-	protected function check_installed( string $wp_identifier ): bool {
-		return wp_get_theme( $wp_identifier )->exists();
+	protected function check_installed( string $identifier ): bool {
+		return wp_get_theme( $identifier )->exists();
 	}
 
 	/**
@@ -241,7 +247,7 @@ class Theme_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
 	private function install_theme( Feature $feature ) {
-		/** @var Feature&Installable $feature */
+		/** @var Theme $feature */
 		$theme_info = themes_api(
 			'theme_information',
 			[
@@ -323,14 +329,14 @@ class Theme_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error True if ownership matches or no theme on disk, WP_Error on mismatch.
 	 */
 	private function verify_theme_ownership( Feature $feature ) {
-		/** @var Feature&Installable $feature */
+		/** @var Theme $feature */
 		$expected_authors = $feature->get_authors();
 
 		if ( $expected_authors === [] ) {
 			return true;
 		}
 
-		$stylesheet = $feature->get_wp_identifier();
+		$stylesheet = $feature->get_slug();
 		$theme      = wp_get_theme( $stylesheet );
 
 		// Theme is not installed — no conflict.

@@ -44,24 +44,11 @@ final class Theme extends Feature implements Installable {
 			array_merge(
 				self::base_attributes( $data ),
 				[
-					'wp_identifier' => $data['wp_identifier'] ?? '',
 					'authors'    => $data['authors'] ?? [],
 					'is_dot_org' => $data['is_dot_org'] ?? false,
 				]
 			)
 		);
-	}
-
-	/**
-	 * Gets the primary WordPress identifier — the theme stylesheet
-	 * (directory name).
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return string
-	 */
-	public function get_wp_identifier(): string {
-		return Cast::to_string( $this->attributes['wp_identifier'] ?? '' );
 	}
 
 	/**

@@ -880,7 +880,7 @@ final class PluginStrategyTest extends UplinkTestCase {
 				'tier'         => 'Tier 1',
 				'name'         => 'Test Feature',
 				'description'  => 'A test feature for unit tests.',
-				'wp_identifier' => $plugin_file,
+				'plugin_file'  => $plugin_file,
 				'plugin_slug'  => $plugin_slug ?? $slug,
 				'is_available' => true,
 				'authors'      => $authors,

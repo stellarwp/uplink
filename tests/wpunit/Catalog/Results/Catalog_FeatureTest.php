@@ -11,7 +11,7 @@ final class Catalog_FeatureTest extends UplinkTestCase {
 		'feature_slug'      => 'kadence-security',
 		'type'              => 'plugin',
 		'minimum_tier'      => 'kadence-pro',
-		'wp_identifier'     => 'kadence-security-pro/kadence-security-pro.php',
+		'plugin_file'       => 'kadence-security-pro/kadence-security-pro.php',
 		'is_dot_org'        => false,
 		'download_url'      => 'https://licensing.stellarwp.com/api/plugins/kadence-security',
 		'name'              => 'Kadence Security Pro',
@@ -27,7 +27,7 @@ final class Catalog_FeatureTest extends UplinkTestCase {
 		$this->assertSame( 'kadence-security', $feature->get_feature_slug() );
 		$this->assertSame( 'plugin', $feature->get_type() );
 		$this->assertSame( 'kadence-pro', $feature->get_minimum_tier() );
-		$this->assertSame( 'kadence-security-pro/kadence-security-pro.php', $feature->get_wp_identifier() );
+		$this->assertSame( 'kadence-security-pro/kadence-security-pro.php', $feature->get_plugin_file() );
 		$this->assertFalse( $feature->is_dot_org() );
 		$this->assertSame( 'https://licensing.stellarwp.com/api/plugins/kadence-security', $feature->get_download_url() );
 		$this->assertSame( 'Kadence Security Pro', $feature->get_name() );
@@ -44,7 +44,7 @@ final class Catalog_FeatureTest extends UplinkTestCase {
 		$this->assertSame( 'kadence-security', $result['feature_slug'] );
 		$this->assertSame( 'plugin', $result['type'] );
 		$this->assertSame( 'kadence-pro', $result['minimum_tier'] );
-		$this->assertSame( 'kadence-security-pro/kadence-security-pro.php', $result['wp_identifier'] );
+		$this->assertSame( 'kadence-security-pro/kadence-security-pro.php', $result['plugin_file'] );
 		$this->assertFalse( $result['is_dot_org'] );
 		$this->assertSame( 'https://licensing.stellarwp.com/api/plugins/kadence-security', $result['download_url'] );
 	}
@@ -69,28 +69,27 @@ final class Catalog_FeatureTest extends UplinkTestCase {
 
 		$feature = Catalog_Feature::from_array( $data );
 
-		$this->assertNull( $feature->get_wp_identifier() );
+		$this->assertNull( $feature->get_plugin_file() );
 		$this->assertNull( $feature->get_download_url() );
 		$this->assertNull( $feature->get_authors() );
 	}
 
 	public function test_dot_org_theme(): void {
 		$data = [
-			'feature_slug'  => 'kadence-theme',
-			'type'          => 'theme',
-			'minimum_tier'  => 'kadence-basic',
-			'wp_identifier' => 'kadence',
-			'is_dot_org'    => true,
-			'download_url'  => null,
-			'name'          => 'Kadence Theme',
-			'description'   => 'Starter theme for Kadence.',
-			'category'      => 'core',
+			'feature_slug' => 'kadence-theme',
+			'type'         => 'theme',
+			'minimum_tier' => 'kadence-basic',
+			'is_dot_org'   => true,
+			'download_url' => null,
+			'name'         => 'Kadence Theme',
+			'description'  => 'Starter theme for Kadence.',
+			'category'     => 'core',
 		];
 
 		$feature = Catalog_Feature::from_array( $data );
 
 		$this->assertTrue( $feature->is_dot_org() );
 		$this->assertNull( $feature->get_download_url() );
-		$this->assertSame( 'kadence', $feature->get_wp_identifier() );
+		$this->assertNull( $feature->get_plugin_file() );
 	}
 }

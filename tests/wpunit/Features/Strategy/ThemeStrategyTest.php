@@ -332,17 +332,17 @@ final class ThemeStrategyTest extends UplinkTestCase {
 		$old_stylesheet = 'old-theme-feature';
 		$new_stylesheet = self::STYLESHEET;
 
-		$old_feature = $this->make_theme_feature( 'old-theme-feature', $old_stylesheet );
-		$new_feature = $this->make_theme_feature( 'test-theme-feature', $new_stylesheet );
+		$old_feature = $this->make_theme_feature( $old_stylesheet );
+		$new_feature = $this->make_theme_feature( $new_stylesheet );
 
 		update_option( 'stellarwp_uplink_feature_old-theme-feature_active', '1', true );
 
 		$strategy = new Theme_Strategy(
 			function ( string $stylesheet ) use ( $old_feature, $new_feature ): ?Theme {
-				if ( $stylesheet === $old_feature->get_wp_identifier() ) {
+				if ( $stylesheet === $old_feature->get_slug() ) {
 					return $old_feature;
 				}
-				if ( $stylesheet === $new_feature->get_wp_identifier() ) {
+				if ( $stylesheet === $new_feature->get_slug() ) {
 					return $new_feature;
 				}
 				return null;
@@ -399,7 +399,7 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	public function test_enable_returns_ownership_mismatch_for_installed_theme_with_wrong_author(): void {
 		$this->install_test_theme( self::STYLESHEET, 'Foreign Developer' );
 
-		$feature = $this->make_theme_feature( 'test-theme-feature', self::STYLESHEET, [ 'StellarWP' ] );
+		$feature = $this->make_theme_feature( self::STYLESHEET, [ 'StellarWP' ] );
 		$result  = $this->strategy->enable( $feature );
 
 		$this->assertWPError( $result );
@@ -414,7 +414,7 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	public function test_enable_succeeds_when_installed_theme_has_matching_author(): void {
 		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
 
-		$feature = $this->make_theme_feature( 'test-theme-feature', self::STYLESHEET, [ 'StellarWP' ] );
+		$feature = $this->make_theme_feature( self::STYLESHEET, [ 'StellarWP' ] );
 		$result  = $this->strategy->enable( $feature );
 
 		$this->assertTrue( $result );
@@ -430,7 +430,7 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	public function test_enable_skips_ownership_check_when_authors_is_empty(): void {
 		$this->install_test_theme( self::STYLESHEET, 'Foreign Developer' );
 
-		$feature = $this->make_theme_feature( 'test-theme-feature', self::STYLESHEET, [] );
+		$feature = $this->make_theme_feature( self::STYLESHEET, [] );
 		$result  = $this->strategy->enable( $feature );
 
 		$this->assertTrue( $result );
@@ -446,15 +446,15 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	/**
 	 * Create a standard Theme feature for testing.
 	 *
-	 * @param string   $slug       Feature slug.
-	 * @param string   $stylesheet Theme stylesheet.
-	 * @param string[] $authors    Expected theme authors.
+	 * For themes, the slug IS the stylesheet identifier.
+	 *
+	 * @param string   $slug    Feature slug (also the theme stylesheet).
+	 * @param string[] $authors Expected theme authors.
 	 *
 	 * @return Theme
 	 */
 	private function make_theme_feature(
-		string $slug = 'test-theme-feature',
-		string $stylesheet = self::STYLESHEET,
+		string $slug = self::STYLESHEET,
 		array $authors = [ 'StellarWP' ]
 	): Theme {
 		return new Theme(
@@ -464,7 +464,6 @@ final class ThemeStrategyTest extends UplinkTestCase {
 				'tier'         => 'Tier 1',
 				'name'         => 'Test Theme Feature',
 				'description'  => 'A test theme for unit tests.',
-				'wp_identifier' => $stylesheet,
 				'is_available' => true,
 				'authors'      => $authors,
 			]

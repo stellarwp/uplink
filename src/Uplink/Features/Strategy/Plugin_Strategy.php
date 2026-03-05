@@ -2,7 +2,6 @@
 
 namespace StellarWP\Uplink\Features\Strategy;
 
-use StellarWP\Uplink\Features\Contracts\Installable;
 use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Plugin;
@@ -82,21 +81,29 @@ class Plugin_Strategy extends Installable_Strategy {
 
 	/**
 	 * @inheritDoc
-	 *
-	 * @param string $wp_identifier The plugin file path relative to the plugins directory.
 	 */
-	protected function check_active( string $wp_identifier ): bool {
-		return is_plugin_active( $wp_identifier )
-			|| is_plugin_active_for_network( $wp_identifier );
+	protected function get_wp_identifier( Feature $feature ): string {
+		/** @var Plugin $feature */
+		return $feature->get_plugin_file();
 	}
 
 	/**
 	 * @inheritDoc
 	 *
-	 * @param string $wp_identifier The plugin file path relative to the plugins directory.
+	 * @param string $identifier The plugin file path relative to the plugins directory.
 	 */
-	protected function check_installed( string $wp_identifier ): bool {
-		return file_exists( WP_PLUGIN_DIR . '/' . $wp_identifier );
+	protected function check_active( string $identifier ): bool {
+		return is_plugin_active( $identifier )
+			|| is_plugin_active_for_network( $identifier );
+	}
+
+	/**
+	 * @inheritDoc
+	 *
+	 * @param string $identifier The plugin file path relative to the plugins directory.
+	 */
+	protected function check_installed( string $identifier ): bool {
+		return file_exists( WP_PLUGIN_DIR . '/' . $identifier );
 	}
 
 	/**
@@ -138,8 +145,8 @@ class Plugin_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error
 	 */
 	protected function do_deactivate( Feature $feature ) {
-		/** @var Feature&Installable $feature */
-		$plugin_file = $feature->get_wp_identifier();
+		/** @var Plugin $feature */
+		$plugin_file = $feature->get_plugin_file();
 
 		// Idempotent: if already inactive, update stored state and bail.
 		if ( ! $this->check_active( $plugin_file ) ) {
@@ -267,7 +274,7 @@ class Plugin_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
 	private function install_plugin( Feature $feature ) {
-		/** @var Feature&Installable $feature */
+		/** @var Plugin $feature */
 		$plugin_info = plugins_api(
 			'plugin_information',
 			[
@@ -365,8 +372,8 @@ class Plugin_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
 	private function activate_plugin( Feature $feature ) {
-		/** @var Feature&Installable $feature */
-		$plugin_file = $feature->get_wp_identifier();
+		/** @var Plugin $feature */
+		$plugin_file = $feature->get_plugin_file();
 		$completed   = false;
 		$die_output  = '';
 
@@ -515,14 +522,14 @@ class Plugin_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error True if ownership matches, WP_Error on mismatch.
 	 */
 	private function verify_plugin_ownership( Feature $feature ) {
-		/** @var Feature&Installable $feature */
+		/** @var Plugin $feature */
 		$expected_authors = $feature->get_authors();
 
 		if ( $expected_authors === [] ) {
 			return true;
 		}
 
-		$plugin_file = $feature->get_wp_identifier();
+		$plugin_file = $feature->get_plugin_file();
 		$full_path   = WP_PLUGIN_DIR . '/' . $plugin_file;
 
 		// Case 1: the exact file exists — check its author directly.

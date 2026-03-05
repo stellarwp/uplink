@@ -351,8 +351,8 @@ class Feature_Controller extends WP_REST_Controller {
 					'readonly'    => true,
 					'context'     => [ 'view' ],
 				],
-				'wp_identifier'     => [
-					'description' => __( 'The WordPress identifier (plugin file path or theme stylesheet). Present for plugin and theme features.', '%TEXTDOMAIN%' ),
+				'plugin_file'       => [
+					'description' => __( 'The plugin file path relative to the plugins directory. Present for plugin features only.', '%TEXTDOMAIN%' ),
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => [ 'view' ],

@@ -124,7 +124,10 @@ class Update_Client {
 		$updates = [];
 
 		foreach ( $available_zips as $feature ) {
-			if ( ! $feature instanceof Zip ) {
+			if (
+				! $feature instanceof Zip
+				|| $feature->is_dot_org()
+			) {
 				continue;
 			}
 

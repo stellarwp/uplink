@@ -165,6 +165,7 @@ final class ZipTest extends UplinkTestCase {
 			'plugin_file'       => 'test-feature/test-feature.php',
 			'plugin_slug'       => '',
 			'is_available'      => true,
+			'is_dot_org'        => false,
 			'documentation_url' => 'https://example.com/docs',
 			'new_version'       => '3.0.0',
 			'authors'           => [ 'StellarWP' ],

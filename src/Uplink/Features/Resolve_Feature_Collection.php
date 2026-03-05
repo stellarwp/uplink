@@ -203,6 +203,7 @@ class Resolve_Feature_Collection {
 			'plugin_file'       => $catalog_feature->get_plugin_file() ?? '',
 			'download_url'      => $catalog_feature->get_download_url() ?? '',
 			'new_version'       => $catalog_feature->get_version(),
+			'is_dot_org'        => $catalog_feature->is_dot_org(),
 			'authors'           => $catalog_feature->get_authors(),
 		];
 

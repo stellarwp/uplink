@@ -124,6 +124,58 @@ final class Update_ClientTest extends UplinkTestCase {
 	}
 
 	/**
+	 * Tests that dot-org features are excluded since WordPress.org serves their updates.
+	 *
+	 * @return void
+	 */
+	public function test_it_excludes_dot_org_features(): void {
+		$collection = new Feature_Collection();
+
+		$collection->add(
+			new Zip(
+				[
+					'slug'         => 'custom-feature',
+					'group'        => 'kadence',
+					'tier'         => 'kadence-basic',
+					'name'         => 'Custom Feature',
+					'description'  => 'A custom feature.',
+					'plugin_file'  => 'custom-feature/custom-feature.php',
+					'download_url' => 'https://example.com/custom.zip',
+					'new_version'  => '1.0.0',
+					'is_available' => true,
+					'is_dot_org'   => false,
+					'authors'      => [ 'StellarWP' ],
+				]
+			)
+		);
+
+		$collection->add(
+			new Zip(
+				[
+					'slug'         => 'dotorg-feature',
+					'group'        => 'kadence',
+					'tier'         => 'kadence-basic',
+					'name'         => 'Dot Org Feature',
+					'description'  => 'A feature on WordPress.org.',
+					'plugin_file'  => 'dotorg-feature/dotorg-feature.php',
+					'download_url' => '',
+					'new_version'  => '2.0.0',
+					'is_available' => true,
+					'is_dot_org'   => true,
+					'authors'      => [ 'StellarWP' ],
+				]
+			)
+		);
+
+		$client = new Update_Client( $this->make_repository( $collection ) );
+		$result = $client->check_updates( 'test-key', 'example.com', [] );
+
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( 'custom-feature', $result );
+		$this->assertArrayNotHasKey( 'dotorg-feature', $result );
+	}
+
+	/**
 	 * Tests that the fetched data is stored in a WordPress transient.
 	 *
 	 * @return void

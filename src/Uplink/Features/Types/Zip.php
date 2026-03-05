@@ -50,6 +50,7 @@ final class Zip extends Feature {
 				'plugin_file'       => $data['plugin_file'] ?? '',
 				'plugin_slug'       => $data['plugin_slug'] ?? '',
 				'is_available'      => $data['is_available'],
+				'is_dot_org'        => $data['is_dot_org'] ?? false,
 				'documentation_url' => $data['documentation_url'] ?? '',
 				'new_version'       => $data['new_version'] ?? null,
 				'authors'           => $data['authors'] ?? [],
@@ -109,6 +110,20 @@ final class Zip extends Feature {
 		}
 
 		return array_values( array_filter( $authors, 'is_string' ) );
+	}
+
+	/**
+	 * Whether the feature is available on WordPress.org.
+	 *
+	 * When true, WordPress handles updates natively and this
+	 * feature should be excluded from our update pathway.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return bool
+	 */
+	public function is_dot_org(): bool {
+		return (bool) ( $this->attributes['is_dot_org'] ?? false );
 	}
 
 	/**

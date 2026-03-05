@@ -33,8 +33,11 @@ export function LicenseList( { openAddDialog = false, onAddDialogClose }: Licens
     useEffect( () => {
         if ( openAddDialog ) {
             setAddOpen( true );
+            // Reset the signal immediately so a remount (e.g. from a store
+            // re-render) does not re-open the dialog a second time.
+            onAddDialogClose?.();
         }
-    }, [ openAddDialog ] );
+    }, [ openAddDialog ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleClose = () => {
         setAddOpen( false );

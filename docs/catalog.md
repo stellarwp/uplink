@@ -35,19 +35,19 @@ A product's tiers are its own. Tier slugs are namespaced to the product (`kadenc
 
 Features are the individual capabilities, plugins, themes, and flags that make up a product family. Each feature belongs to one product and has a minimum tier requirement.
 
-| Field               | Type         | Description                                                                                     |
-| ------------------- | ------------ | ----------------------------------------------------------------------------------------------- |
-| `feature_slug`      | string            | Unique identifier (e.g., `kad-blocks-pro`, `ld-propanel`)                                                              |
-| `type`              | string            | One of `plugin`, `theme`, or `flag`                                                                                    |
-| `minimum_tier`      | string            | Tier slug required to access this feature                                                                              |
-| `wp_identifier`     | string\|null      | WordPress identifier — plugin file path (e.g., `kadence-blocks-pro/kadence-blocks-pro.php`) or theme stylesheet. Null for flags. |
-| `is_dot_org`        | bool              | Whether the feature is available on WordPress.org                                                                      |
-| `download_url`      | string\|null      | Download URL for features not on WordPress.org                                                                         |
-| `name`              | string            | Display name                                                                                                           |
-| `description`       | string            | Short description of what the feature does                                                                             |
-| `category`          | string            | Grouping category (e.g., `blocks`, `theme`, `security`, `woocommerce`)                                                |
-| `authors`           | string[]\|null    | Brand/author names for ownership verification. Null if not applicable.                                                 |
-| `documentation_url` | string            | Link to the feature's documentation                                                                                    |
+| Field               | Type           | Description                                                                                                                      |
+| ------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `feature_slug`      | string         | Unique identifier (e.g., `kad-blocks-pro`, `ld-propanel`)                                                                        |
+| `type`              | string         | One of `plugin`, `theme`, or `flag`                                                                                              |
+| `minimum_tier`      | string         | Tier slug required to access this feature                                                                                        |
+| `wp_identifier`     | string\|null   | WordPress identifier — plugin file path (e.g., `kadence-blocks-pro/kadence-blocks-pro.php`) or theme stylesheet. Null for flags. |
+| `is_dot_org`        | bool           | Whether the feature is available on WordPress.org                                                                                |
+| `download_url`      | string\|null   | Download URL for features not on WordPress.org                                                                                   |
+| `name`              | string         | Display name                                                                                                                     |
+| `description`       | string         | Short description of what the feature does                                                                                       |
+| `category`          | string         | Grouping category (e.g., `blocks`, `theme`, `security`, `woocommerce`)                                                           |
+| `authors`           | string[]\|null | Brand/author names for ownership verification. Null if not applicable.                                                           |
+| `documentation_url` | string         | Link to the feature's documentation                                                                                              |
 
 #### Feature Types
 

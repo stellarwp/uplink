@@ -274,14 +274,30 @@ final class Plugin extends Feature {
 			return null;
 		}
 
-		$update = $transient->response[ $plugin_file ] ?? $transient->no_update[ $plugin_file ] ?? null; // @phpstan-ignore property.notFound, offsetAccess.nonOffsetAccessible
+		/**
+		 * WordPress stores update data in two arrays on the transient object:
+		 * - `response`: plugins that have a newer version available.
+		 * - `no_update`: plugins that are up-to-date (checked, but no update).
+		 *
+		 * Both are keyed by plugin file path and contain stdClass objects.
+		 */
+		$response  = property_exists( $transient, 'response' ) ? $transient->response : [];
+		$no_update = property_exists( $transient, 'no_update' ) ? $transient->no_update : [];
+
+		if ( ! is_array( $response ) && ! is_array( $no_update ) ) {
+			return null;
+		}
+
+		$update = $response[ $plugin_file ] ?? $no_update[ $plugin_file ] ?? null;
 
 		if ( ! is_object( $update ) ) {
 			return null;
 		}
 
-		$version = $update->new_version ?? null; // @phpstan-ignore property.notFound
+		if ( ! property_exists( $update, 'new_version' ) ) {
+			return null;
+		}
 
-		return $version !== null ? Cast::to_string( $version ) : null;
+		return Cast::to_string( $update->new_version );
 	}
 }

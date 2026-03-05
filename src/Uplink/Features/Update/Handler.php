@@ -146,13 +146,25 @@ class Handler {
 			return $transient;
 		}
 
-		if ( ! isset( $transient->response ) ) { // @phpstan-ignore property.notFound
-			$transient->response = []; // @phpstan-ignore property.notFound
+		/**
+		 * WordPress stores update data in two arrays on the transient object:
+		 * - `response`: plugins that have a newer version available.
+		 * - `no_update`: plugins that are up-to-date (checked, but no update).
+		 *
+		 * Both are keyed by plugin file path and contain stdClass objects.
+		 */
+		if ( ! property_exists( $transient, 'response' ) ) {
+			$transient->response = [];
 		}
 
-		if ( ! isset( $transient->no_update ) ) { // @phpstan-ignore property.notFound
-			$transient->no_update = []; // @phpstan-ignore property.notFound
+		if ( ! property_exists( $transient, 'no_update' ) ) {
+			$transient->no_update = [];
 		}
+
+		/** @var array<string, stdClass> $wp_response */
+		$wp_response = $transient->response;
+		/** @var array<string, stdClass> $wp_no_update */
+		$wp_no_update = $transient->no_update;
 
 		$features = $this->feature_repository->get( $this->key, $domain );
 
@@ -161,7 +173,7 @@ class Handler {
 				continue;
 			}
 
-			$plugin_file = $update_data['plugin_file'] ?? '';
+			$plugin_file = (string) ( $update_data['plugin_file'] ?? '' );
 
 			if ( empty( $plugin_file ) ) {
 				continue;
@@ -181,20 +193,23 @@ class Handler {
 
 			$update_object = $this->to_update_object( $slug, $plugin_file, $update_data );
 
+			/**
+			 * Place the update object in `response` if a newer version is available, otherwise in `no_update`.
+			 * WordPress uses this distinction to show (or hide) the plugin on the Updates page.
+			 *
+			 * Each plugin file should only appear in one array, so we remove it from the other when placing it.
+			 */
 			if ( version_compare( $new_version, $installed_version, '>' ) ) {
-				$transient->response[ $plugin_file ] = $update_object; // @phpstan-ignore property.notFound, offsetAccess.nonOffsetAccessible
-
-				if ( isset( $transient->no_update[ $plugin_file ] ) ) { // @phpstan-ignore property.notFound, offsetAccess.nonOffsetAccessible
-					unset( $transient->no_update[ $plugin_file ] ); // @phpstan-ignore property.notFound, offsetAccess.nonOffsetAccessible
-				}
+				$wp_response[ $plugin_file ] = $update_object;
+				unset( $wp_no_update[ $plugin_file ] );
 			} else {
-				$transient->no_update[ $plugin_file ] = $update_object; // @phpstan-ignore property.notFound, offsetAccess.nonOffsetAccessible
-
-				if ( isset( $transient->response[ $plugin_file ] ) ) { // @phpstan-ignore property.notFound, offsetAccess.nonOffsetAccessible
-					unset( $transient->response[ $plugin_file ] ); // @phpstan-ignore property.notFound, offsetAccess.nonOffsetAccessible
-				}
+				$wp_no_update[ $plugin_file ] = $update_object;
+				unset( $wp_response[ $plugin_file ] );
 			}
 		}
+
+		$transient->response  = $wp_response;
+		$transient->no_update = $wp_no_update;
 
 		return $transient;
 	}

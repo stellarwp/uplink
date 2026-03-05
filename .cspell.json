@@ -4,6 +4,8 @@
   "ignorePaths": [
     ".cspell.json",
     ".git",
+    "build",
+    "build-dev",
     ".github/CODEOWNERS",
     ".gitignore",
     "*.map",

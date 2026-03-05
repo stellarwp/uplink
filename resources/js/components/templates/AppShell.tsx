@@ -7,10 +7,12 @@
  */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { Cloud } from 'lucide-react';
+import { Cloud, Loader2 } from 'lucide-react';
+import { useSelect } from '@wordpress/data';
 import { MyProductsTab } from '@/components/organisms/MyProductsTab';
 import { LicenseList } from '@/components/organisms/LicenseList';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { store as uplinkStore } from '@/store';
 import { cn } from '@/lib/utils';
 
 type Tab = 'my-products' | 'licenses';
@@ -21,6 +23,21 @@ type Tab = 'my-products' | 'licenses';
 export function AppShell() {
     const [ activeTab, setActiveTab ] = useState<Tab>( 'my-products' );
     const [ addLicenseOpen, setAddLicenseOpen ] = useState( false );
+
+    // Trigger both resolvers and wait for them to complete before rendering
+    // tab content, so we never flash a "No license" state on first load.
+    const isLoading = useSelect(
+        ( select ) => {
+            const s = select( uplinkStore ) as unknown as {
+                hasFinishedResolution: ( name: string, args?: unknown[] ) => boolean;
+            };
+            select( uplinkStore ).getLicense();
+            select( uplinkStore ).getFeatures();
+            return ! s.hasFinishedResolution( 'getLicense', [] )
+                || ! s.hasFinishedResolution( 'getFeatures', [] );
+        },
+        [],
+    );
 
     // When MyProductsTab requests to open the Add License dialog,
     // switch to the Licenses tab which owns the dialog.
@@ -48,47 +65,56 @@ export function AppShell() {
                 </div>
             </div>
 
-            {/* Tab Navigation */}
-            <div className="border-b border-border">
-                <nav className="flex gap-0" aria-label={ __( 'Dashboard tabs', '%TEXTDOMAIN%' ) }>
-                    { (
-                        [
-                            { id: 'my-products', label: __( 'My Products', '%TEXTDOMAIN%' ) },
-                            { id: 'licenses', label: __( 'Licenses', '%TEXTDOMAIN%' ) },
-                        ] as const
-                    ).map( ( tab ) => (
-                        <button
-                            key={ tab.id }
-                            type="button"
-                            role="tab"
-                            aria-selected={ activeTab === tab.id }
-                            onClick={ () => setActiveTab( tab.id ) }
-                            className={ cn(
-                                'px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors',
-                                activeTab === tab.id
-                                    ? 'border-primary text-primary'
-                                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
-                            ) }
-                        >
-                            { tab.label }
-                        </button>
-                    ) ) }
-                </nav>
-            </div>
+            { isLoading ? (
+                <div className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    { __( 'Loading…', '%TEXTDOMAIN%' ) }
+                </div>
+            ) : (
+                <>
+                    {/* Tab Navigation */}
+                    <div className="border-b border-border">
+                        <nav className="flex gap-0" aria-label={ __( 'Dashboard tabs', '%TEXTDOMAIN%' ) }>
+                            { (
+                                [
+                                    { id: 'my-products', label: __( 'My Products', '%TEXTDOMAIN%' ) },
+                                    { id: 'licenses', label: __( 'Licenses', '%TEXTDOMAIN%' ) },
+                                ] as const
+                            ).map( ( tab ) => (
+                                <button
+                                    key={ tab.id }
+                                    type="button"
+                                    role="tab"
+                                    aria-selected={ activeTab === tab.id }
+                                    onClick={ () => setActiveTab( tab.id ) }
+                                    className={ cn(
+                                        'px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors',
+                                        activeTab === tab.id
+                                            ? 'border-primary text-primary'
+                                            : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+                                    ) }
+                                >
+                                    { tab.label }
+                                </button>
+                            ) ) }
+                        </nav>
+                    </div>
 
-            {/* Tab Content */}
-            <div role="tabpanel">
-                { activeTab === 'my-products' && (
-                    <ErrorBoundary>
-                        <MyProductsTab onAddLicense={ handleAddLicenseRequest } />
-                    </ErrorBoundary>
-                ) }
-                { activeTab === 'licenses' && (
-                    <ErrorBoundary>
-                        <LicenseList openAddDialog={ addLicenseOpen } onAddDialogClose={ () => setAddLicenseOpen( false ) } />
-                    </ErrorBoundary>
-                ) }
-            </div>
+                    {/* Tab Content */}
+                    <div role="tabpanel">
+                        { activeTab === 'my-products' && (
+                            <ErrorBoundary>
+                                <MyProductsTab onAddLicense={ handleAddLicenseRequest } />
+                            </ErrorBoundary>
+                        ) }
+                        { activeTab === 'licenses' && (
+                            <ErrorBoundary>
+                                <LicenseList openAddDialog={ addLicenseOpen } onAddDialogClose={ () => setAddLicenseOpen( false ) } />
+                            </ErrorBoundary>
+                        ) }
+                    </div>
+                </>
+            ) }
         </div>
     );
 }

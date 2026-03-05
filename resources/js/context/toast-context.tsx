@@ -4,7 +4,6 @@
  * Mount <ToastProvider> once in App.tsx; consume with useToast() anywhere
  * in the component tree.
  *
- * @see .plans/wp-data-store-features.md
  * @package StellarWP\Uplink
  */
 import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';

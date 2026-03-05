@@ -291,7 +291,7 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string    $new_name  Name of the new theme.
+	 * @param string   $new_name  Name of the new theme.
 	 * @param WP_Theme $new_theme The new theme object.
 	 * @param WP_Theme $old_theme The old theme object.
 	 *

@@ -142,7 +142,10 @@ final class License_RepositoryTest extends UplinkTestCase {
 				'tier'         => 'give-pro',
 				'status'       => 'active',
 				'expires'      => '2026-12-31 23:59:59',
-				'activations'  => [ 'site_limit' => 0, 'active_count' => 0 ],
+				'activations'  => [
+					'site_limit'   => 0,
+					'active_count' => 0,
+				],
 			],
 		];
 

@@ -262,7 +262,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		// make_repository() does not fire the key-changed hook and wipe the cache.
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
 		set_transient( Feature_Repository::TRANSIENT_KEY, $cached );
-		$result     = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$result = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
 
 		$this->assertCount( 1, $result );
 		$this->assertSame( 'cached-feature', $result->get( 'cached-feature' )->get_slug() );
@@ -280,7 +280,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		// make_repository() does not fire the key-changed hook and wipe the cache.
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
 		set_transient( Feature_Repository::TRANSIENT_KEY, $error );
-		$result     = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$result = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'Cached error', $result->get_error_message() );

@@ -112,8 +112,20 @@ final class Catalog_CollectionTest extends UplinkTestCase {
 	}
 
 	public function test_from_array_creates_collection_from_objects(): void {
-		$kadence = Product_Catalog::from_array( [ 'product_slug' => 'kadence', 'tiers' => [], 'features' => [] ] );
-		$tec     = Product_Catalog::from_array( [ 'product_slug' => 'tec', 'tiers' => [], 'features' => [] ] );
+		$kadence = Product_Catalog::from_array(
+			[
+				'product_slug' => 'kadence',
+				'tiers'        => [],
+				'features'     => [],
+			] 
+		);
+		$tec     = Product_Catalog::from_array(
+			[
+				'product_slug' => 'tec',
+				'tiers'        => [],
+				'features'     => [],
+			] 
+		);
 
 		$collection = Catalog_Collection::from_array( [ $kadence, $tec ] );
 

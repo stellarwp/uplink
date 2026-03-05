@@ -34,8 +34,8 @@ final class License_Key_Cache_InvalidationTest extends UplinkTestCase {
 
 		$this->license_repository = new License_Repository();
 
-		$licensing_client       = new Licensing_Fixture( codecept_data_dir( 'licensing' ) );
-		$this->license_manager  = new License_Manager(
+		$licensing_client      = new Licensing_Fixture( codecept_data_dir( 'licensing' ) );
+		$this->license_manager = new License_Manager(
 			$this->license_repository,
 			new Product_Registry(),
 			$licensing_client

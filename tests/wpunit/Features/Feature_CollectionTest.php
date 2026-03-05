@@ -161,8 +161,31 @@ final class Feature_CollectionTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_from_array_creates_collection_from_objects(): void {
-		$flag   = Flag::from_array( [ 'slug' => 'my-flag', 'group' => 'TEC', 'tier' => 'Tier 1', 'name' => 'My Flag', 'description' => '', 'is_available' => true, 'documentation_url' => '' ] );
-		$plugin = Plugin::from_array( [ 'slug' => 'my-plugin', 'group' => 'LD', 'tier' => 'Tier 2', 'name' => 'My Plugin', 'description' => '', 'is_available' => false, 'documentation_url' => '', 'plugin_file' => '', 'plugin_slug' => '', 'authors' => [] ] );
+		$flag   = Flag::from_array(
+			[
+				'slug'              => 'my-flag',
+				'group'             => 'TEC',
+				'tier'              => 'Tier 1',
+				'name'              => 'My Flag',
+				'description'       => '',
+				'is_available'      => true,
+				'documentation_url' => '',
+			] 
+		);
+		$plugin = Plugin::from_array(
+			[
+				'slug'              => 'my-plugin',
+				'group'             => 'LD',
+				'tier'              => 'Tier 2',
+				'name'              => 'My Plugin',
+				'description'       => '',
+				'is_available'      => false,
+				'documentation_url' => '',
+				'plugin_file'       => '',
+				'plugin_slug'       => '',
+				'authors'           => [],
+			] 
+		);
 
 		$collection = Feature_Collection::from_array( [ $flag, $plugin ] );
 

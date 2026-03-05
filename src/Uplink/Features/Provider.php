@@ -127,7 +127,7 @@ class Provider extends Abstract_Provider {
 		add_filter( 'themes_api', [ $this, 'mock_themes_api_for_theme_features' ], 5, 3 );
 
 		// TODO: Remove this once the real plugins_api filter is implemented.
-		add_filter( 'upgrader_pre_download', [ $this, 'serve_local_zip_for_upgrader' ], 10, 3 );
+		add_filter( 'upgrader_pre_download', [ $this, 'serve_local_zip_for_upgrader' ], 10, 2 );
 
 		// TODO: Remove this once the real switch_theme action is implemented.
 		add_action( 'switch_theme', [ $this, 'on_theme_switch' ], 10, 3 );
@@ -171,22 +171,17 @@ class Provider extends Abstract_Provider {
 			return $result;
 		}
 
-		$zip_path = $this->build_test_zip_from_dir( $slug, $source_dir, dirname( $source_dir ) );
+		$zip_path = $this->build_test_zip_from_dir( $slug, $source_dir );
 
 		if ( $zip_path === null ) {
 			return $result;
 		}
 
-		$download_url = plugins_url(
-			'tests/_data/Features/Plugins/' . $slug . '.zip',
-			$uplink_dir . '/index.php'
-		);
-
 		return (object) [
 			'name'          => $slug,
 			'slug'          => $slug,
 			'version'       => '1.0.0',
-			'download_link' => $download_url,
+			'download_link' => 'stellarwp-uplink-local://' . $slug . '.zip',
 		];
 	}
 
@@ -221,22 +216,17 @@ class Provider extends Abstract_Provider {
 			return $result;
 		}
 
-		$zip_path = $this->build_test_zip_from_dir( $slug, $source_dir, dirname( $source_dir ) );
+		$zip_path = $this->build_test_zip_from_dir( $slug, $source_dir );
 
 		if ( $zip_path === null ) {
 			return $result;
 		}
 
-		$download_url = plugins_url(
-			'tests/_data/Features/Themes/' . $slug . '.zip',
-			$uplink_dir . '/index.php'
-		);
-
 		return (object) [
 			'name'          => $slug,
 			'slug'          => $slug,
 			'version'       => '1.0.0',
-			'download_link' => $download_url,
+			'download_link' => 'stellarwp-uplink-local://' . $slug . '.zip',
 		];
 	}
 
@@ -267,46 +257,32 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @param bool|WP_Error $reply    Whether to bail without returning the package. Default false.
 	 * @param string        $package  The package file name or URL.
-	 * @param \WP_Upgrader  $upgrader The WP_Upgrader instance.
 	 *
 	 * @return bool|string|WP_Error The local file path or the original $reply.
 	 */
-	public function serve_local_zip_for_upgrader( $reply, $package, $upgrader ) {
-		$uplink_dir = WP_PLUGIN_DIR . '/uplink';
-
-		$dirs = [
-			$uplink_dir . '/tests/_data/Features/Plugins/',
-			$uplink_dir . '/tests/_data/Features/Themes/',
-		];
-
-		foreach ( $dirs as $dir ) {
-			$url = plugins_url( ltrim( str_replace( $uplink_dir, '', $dir ), '/' ), $uplink_dir . '/index.php' );
-
-			if ( strpos( $package, $url ) !== 0 ) {
-				continue;
-			}
-
-			$filename = basename( $package );
-			$local    = $dir . $filename;
-
-			if ( ! file_exists( $local ) ) {
-				return $reply;
-			}
-
-			// Copy to a temp file so the upgrader can move/delete it freely.
-			$tmp = wp_tempnam( $filename );
-			copy( $local, $tmp );
-
-			return $tmp;
+	public function serve_local_zip_for_upgrader( $reply, $package ) {
+		if ( strpos( $package, 'stellarwp-uplink-local://' ) !== 0 ) {
+			return $reply;
 		}
 
-		return $reply;
+		$filename = substr( $package, strlen( 'stellarwp-uplink-local://' ) );
+		$local    = get_temp_dir() . $filename;
+
+		if ( ! file_exists( $local ) ) {
+			return $reply;
+		}
+
+		// Copy to a temp file so the upgrader can move/delete it freely.
+		$tmp = wp_tempnam( $filename );
+		copy( $local, $tmp );
+
+		return $tmp;
 	}
 
 	/**
 	 * Build a ZIP from a test source directory.
 	 *
-	 * Creates {slug}.zip in the specified output directory.
+	 * Creates {slug}.zip in the system temp directory.
 	 * Skips rebuild if the ZIP already exists and is newer than all source files.
 	 *
 	 * TODO: Remove this method once the real API filters are implemented.
@@ -315,12 +291,11 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @param string $slug       The slug (used as root folder in the ZIP).
 	 * @param string $source_dir Absolute path to the source directory.
-	 * @param string $output_dir Absolute path to where the ZIP should be created.
 	 *
 	 * @return string|null The path to the ZIP file, or null on failure.
 	 */
-	private function build_test_zip_from_dir( string $slug, string $source_dir, string $output_dir ): ?string {
-		$zip_path = $output_dir . '/' . $slug . '.zip';
+	private function build_test_zip_from_dir( string $slug, string $source_dir ): ?string {
+		$zip_path = get_temp_dir() . $slug . '.zip';
 
 		if ( file_exists( $zip_path ) ) {
 			$zip_mtime     = filemtime( $zip_path );

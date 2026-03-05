@@ -762,6 +762,182 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Theme — Valid",
+      "item": [
+        {
+          "name": "Get Valid Theme Feature",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/valid-theme-feature",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "valid-theme-feature"
+              ]
+            },
+            "description": "Retrieves the valid theme feature.\n\nExpected: HTTP 200 — Feature object with type \"theme\" and is_enabled reflecting whether the theme is installed on disk."
+          },
+          "response": []
+        },
+        {
+          "name": "Enable Valid Theme Feature",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/valid-theme-feature/enable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "valid-theme-feature",
+                "enable"
+              ]
+            },
+            "description": "Installs the valid theme feature.\n\nExpected: HTTP 200 — Feature object with is_enabled: true.\n\nFirst call: downloads ZIP via themes_api(), installs with Theme_Upgrader, verifies ownership (Author matches \"StellarWP\"), updates stored state to enabled. The theme is NOT activated (not switched to) — users activate themes through WordPress's Appearance → Themes UI.\nSecond call: theme already installed, ownership verified, returns 200 immediately (idempotent)."
+          },
+          "response": []
+        },
+        {
+          "name": "Disable Valid Theme Feature",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/valid-theme-feature/disable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "valid-theme-feature",
+                "disable"
+              ]
+            },
+            "description": "Disables the valid theme feature. Updates stored state to false. Theme files are NOT deleted.\n\nExpected: HTTP 200 — Feature object with is_enabled: false. Idempotent (calling when already disabled returns 200)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Theme — Ownership Mismatch",
+      "item": [
+        {
+          "name": "Get Wrong Author Theme Feature",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/wrong-author-theme-feature",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "wrong-author-theme-feature"
+              ]
+            },
+            "description": "Retrieves the wrong-author theme feature definition.\n\nExpected: HTTP 200 — Feature object. The feature's catalog entry expects author \"StellarWP\", but the actual theme's Author header is \"Foreign Developer\". This mismatch is only detected during enable/disable, not on GET."
+          },
+          "response": []
+        },
+        {
+          "name": "Enable Wrong Author Theme (Fresh Install)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/wrong-author-theme-feature/enable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "wrong-author-theme-feature",
+                "enable"
+              ]
+            },
+            "description": "Tests THEME_OWNERSHIP_MISMATCH on fresh install.\n\nExpected: HTTP 409 — Error code: THEME_OWNERSHIP_MISMATCH\n\nFlow:\n1. Theme not on disk → pre-install ownership check passes (nothing to check)\n2. ZIP is downloaded and theme files are extracted to disk\n3. Post-install ownership check reads the theme's Author header via wp_get_theme()\n4. Author \"Foreign Developer\" does not match expected \"StellarWP\" → error\n\nAfter this call: theme files ARE on disk, but stored state was NOT updated to enabled. Run this FIRST before the other ownership mismatch tests."
+          },
+          "response": []
+        },
+        {
+          "name": "Enable Wrong Author Theme (Already On Disk)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/wrong-author-theme-feature/enable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "wrong-author-theme-feature",
+                "enable"
+              ]
+            },
+            "description": "Tests THEME_OWNERSHIP_MISMATCH when theme files already exist on disk.\n\nExpected: HTTP 409 — Error code: THEME_OWNERSHIP_MISMATCH\n\nFlow:\n1. Theme not enabled but files exist from previous install attempt\n2. Pre-install ownership check reads the existing theme's Author header via wp_get_theme()\n3. Author \"Foreign Developer\" does not match expected \"StellarWP\" → error immediately\n4. No download or install attempt is made\n\nRequires: Run \"Enable Wrong Author Theme (Fresh Install)\" first to get files on disk."
+          },
+          "response": []
+        },
+        {
+          "name": "Disable Wrong Author Theme (Ownership Block)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/wrong-author-theme-feature/disable",
+              "host": [
+                "{{WP_SITE}}"
+              ],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "wrong-author-theme-feature",
+                "disable"
+              ]
+            },
+            "description": "Tests THEME_OWNERSHIP_MISMATCH on disable path.\n\nExpected: HTTP 409 — Error code: THEME_OWNERSHIP_MISMATCH\n\nFlow:\n1. Ownership check runs BEFORE any state update logic\n2. Theme files on disk have Author \"Foreign Developer\" instead of expected \"StellarWP\"\n3. Error returned — the system refuses to manage (enable OR disable) a theme from a different developer\n\nRequires: Run \"Enable Wrong Author Theme (Fresh Install)\" first to get files on disk.\n\nCleanup: To remove the theme files, manually delete the theme via WP Admin > Appearance > Themes or the filesystem."
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "auth": {

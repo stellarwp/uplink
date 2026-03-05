@@ -92,39 +92,26 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	abstract protected function get_type_mismatch_message(): string;
 
 	/**
-	 * Resolve the WordPress identifier from the feature.
-	 *
-	 * Plugins return the plugin file path; themes return the slug (stylesheet).
+	 * Check whether the extension is currently active in WordPress.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @param Feature $feature Already type-guarded by the calling template.
 	 *
-	 * @return string
-	 */
-	abstract protected function get_wp_identifier( Feature $feature ): string;
-
-	/**
-	 * Check whether the extension is currently active in WordPress.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param string $identifier The WP identifier (plugin_file or stylesheet).
-	 *
 	 * @return bool
 	 */
-	abstract protected function check_active( string $identifier ): bool;
+	abstract protected function check_active( Feature $feature ): bool;
 
 	/**
 	 * Check whether the extension is installed on disk.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $identifier The WP identifier (plugin_file or stylesheet).
+	 * @param Feature $feature Already type-guarded by the calling template.
 	 *
 	 * @return bool
 	 */
-	abstract protected function check_installed( string $identifier ): bool;
+	abstract protected function check_installed( Feature $feature ): bool;
 
 	/**
 	 * Install the extension from its download source.
@@ -224,10 +211,8 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 		// loaded when called from REST API or AJAX contexts.
 		$this->load_wp_admin_includes();
 
-		$identifier = $this->get_wp_identifier( $feature );
-
 		// Idempotent: if the extension is already active, verify ownership and bail.
-		if ( $this->check_active( $identifier ) ) {
+		if ( $this->check_active( $feature ) ) {
 			$ownership = $this->verify_ownership( $feature );
 
 			if ( is_wp_error( $ownership ) ) {
@@ -322,7 +307,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 
 		$this->load_wp_admin_includes();
 
-		$live_active   = $this->check_active( $this->get_wp_identifier( $feature ) );
+		$live_active   = $this->check_active( $feature );
 		$stored_active = $this->get_stored_state( $feature->get_slug() );
 
 		return $this->reconcile_state( $feature->get_slug(), $live_active, $stored_active );
@@ -384,11 +369,9 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	 * @return true|WP_Error True if installed (or already was), WP_Error on failure.
 	 */
 	final protected function ensure_installed( Feature $feature ) {
-		$identifier = $this->get_wp_identifier( $feature );
-
 		// Already on disk — ready for activation. Ownership is verified
 		// by the caller (enable()) after this method returns.
-		if ( $this->check_installed( $identifier ) ) {
+		if ( $this->check_installed( $feature ) ) {
 			return true;
 		}
 
@@ -417,7 +400,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 			// match the expected path. Catch this early with a clear error rather than
 			// a confusing "not found" during activation.
 			// @phpstan-ignore-next-line booleanNot.alwaysTrue -- (do_install() creates files on disk; side effects invisible to static analysis).
-			if ( ! $this->check_installed( $identifier ) ) {
+			if ( ! $this->check_installed( $feature ) ) {
 				return new WP_Error(
 					$this->get_not_found_after_install_error_code(),
 					sprintf(

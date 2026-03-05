@@ -82,28 +82,20 @@ class Plugin_Strategy extends Installable_Strategy {
 	/**
 	 * @inheritDoc
 	 */
-	protected function get_wp_identifier( Feature $feature ): string {
+	protected function check_active( Feature $feature ): bool {
 		/** @var Plugin $feature */
-		return $feature->get_plugin_file();
+		$plugin_file = $feature->get_plugin_file();
+
+		return is_plugin_active( $plugin_file )
+			|| is_plugin_active_for_network( $plugin_file );
 	}
 
 	/**
 	 * @inheritDoc
-	 *
-	 * @param string $identifier The plugin file path relative to the plugins directory.
 	 */
-	protected function check_active( string $identifier ): bool {
-		return is_plugin_active( $identifier )
-			|| is_plugin_active_for_network( $identifier );
-	}
-
-	/**
-	 * @inheritDoc
-	 *
-	 * @param string $identifier The plugin file path relative to the plugins directory.
-	 */
-	protected function check_installed( string $identifier ): bool {
-		return file_exists( WP_PLUGIN_DIR . '/' . $identifier );
+	protected function check_installed( Feature $feature ): bool {
+		/** @var Plugin $feature */
+		return file_exists( WP_PLUGIN_DIR . '/' . $feature->get_plugin_file() );
 	}
 
 	/**
@@ -149,7 +141,7 @@ class Plugin_Strategy extends Installable_Strategy {
 		$plugin_file = $feature->get_plugin_file();
 
 		// Idempotent: if already inactive, update stored state and bail.
-		if ( ! $this->check_active( $plugin_file ) ) {
+		if ( ! $this->check_active( $feature ) ) {
 			$this->update_stored_state( $feature->get_slug(), false );
 
 			return true;
@@ -163,7 +155,7 @@ class Plugin_Strategy extends Installable_Strategy {
 		// where a deactivation hook re-activates the plugin or WordPress's
 		// plugin state is otherwise inconsistent.
 		// @phpstan-ignore-next-line if.alwaysTrue -- (deactivate_plugins() changes active state via DB side effects invisible to static analysis).
-		if ( $this->check_active( $plugin_file ) ) {
+		if ( $this->check_active( $feature ) ) {
 			return new WP_Error(
 				Error_Code::DEACTIVATION_FAILED,
 				sprintf(
@@ -484,7 +476,7 @@ class Plugin_Strategy extends Installable_Strategy {
 			);
 		}
 
-		if ( ! $this->check_active( $plugin_file ) ) {
+		if ( ! $this->check_active( $feature ) ) {
 			return new WP_Error(
 				Error_Code::ACTIVATION_FAILED,
 				sprintf(

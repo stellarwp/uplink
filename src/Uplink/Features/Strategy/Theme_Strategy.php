@@ -60,13 +60,6 @@ class Theme_Strategy extends Installable_Strategy {
 	}
 
 	/**
-	 * @inheritDoc
-	 */
-	protected function get_wp_identifier( Feature $feature ): string {
-		return $feature->get_slug();
-	}
-
-	/**
 	 * Check whether the theme is "active" — for themes, this means installed on disk.
 	 *
 	 * Unlike plugins where "active" means currently running, for themes "active"
@@ -75,21 +68,19 @@ class Theme_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $identifier The theme stylesheet (directory name).
+	 * @param Feature $feature Already type-guarded as Theme by the template.
 	 *
 	 * @return bool
 	 */
-	protected function check_active( string $identifier ): bool {
-		return wp_get_theme( $identifier )->exists();
+	protected function check_active( Feature $feature ): bool {
+		return wp_get_theme( $feature->get_slug() )->exists();
 	}
 
 	/**
 	 * @inheritDoc
-	 *
-	 * @param string $identifier The theme stylesheet (directory name).
 	 */
-	protected function check_installed( string $identifier ): bool {
-		return wp_get_theme( $identifier )->exists();
+	protected function check_installed( Feature $feature ): bool {
+		return wp_get_theme( $feature->get_slug() )->exists();
 	}
 
 	/**

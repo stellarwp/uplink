@@ -4,6 +4,7 @@ namespace StellarWP\Uplink\Tests\Features\Update;
 
 use StellarWP\Uplink\Catalog\Catalog_Collection;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
+use StellarWP\Uplink\Catalog\Contracts\Catalog_Client;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Types\Plugin;
@@ -381,7 +382,10 @@ final class Update_RepositoryTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Creates an Update_Repository with mocked Feature_Repository and Catalog_Repository.
+	 * Creates an Update_Repository with a mocked Feature_Repository and a
+	 * real Catalog_Repository backed by a mocked Catalog_Client.
+	 *
+	 * Catalog_Repository is final so it cannot be mocked directly.
 	 *
 	 * @param Feature_Collection|WP_Error $feature_result The result to return from Feature_Repository::get().
 	 * @param Catalog_Collection|WP_Error $catalog_result The result to return from Catalog_Repository::get().
@@ -396,14 +400,17 @@ final class Update_RepositoryTest extends UplinkTestCase {
 			]
 		);
 
-		$catalog_repository = $this->makeEmpty(
-			Catalog_Repository::class,
+		$client = $this->makeEmpty(
+			Catalog_Client::class,
 			[
-				'get' => $catalog_result,
+				'get_catalog' => $catalog_result,
 			]
 		);
 
-		$resolver = new Resolve_Update_Data( $feature_repository, $catalog_repository );
+		delete_transient( Catalog_Repository::TRANSIENT_KEY );
+
+		$catalog_repository = new Catalog_Repository( $client );
+		$resolver           = new Resolve_Update_Data( $feature_repository, $catalog_repository );
 
 		return new Update_Repository( $resolver );
 	}

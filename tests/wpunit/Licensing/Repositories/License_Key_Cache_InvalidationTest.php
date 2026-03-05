@@ -57,7 +57,7 @@ final class License_Key_Cache_InvalidationTest extends UplinkTestCase {
 
 		$this->feature_repository = new Feature_Repository( $resolver );
 
-		$update_resolver          = new Resolve_Update_Data( $this->feature_repository );
+		$update_resolver          = new Resolve_Update_Data( $this->feature_repository, $this->catalog_repository );
 		$this->update_repository  = new Update_Repository( $update_resolver );
 
 		// Register cache invalidation hooks that providers normally wire up.

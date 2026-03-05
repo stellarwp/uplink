@@ -201,6 +201,7 @@ class Resolve_Feature_Collection {
 			'type'              => $catalog_type,
 			'is_available'      => $is_available,
 			'documentation_url' => $catalog_feature->get_documentation_url(),
+			'authors'           => $catalog_feature->get_authors(),
 			'plugin_file'       => $plugin_file,
 			'plugin_slug'       => $plugin_file !== '' ? dirname( $plugin_file ) : '',
 		];

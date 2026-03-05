@@ -291,13 +291,13 @@ final class ZipTest extends UplinkTestCase {
 	public function test_get_plugin_slug_returns_explicit_slug(): void {
 		$feature = new Zip(
 			[
-				'slug'        => 'feature-slug',
-				'group'       => self::GROUP,
-				'tier'        => self::TIER,
-				'name'        => self::NAME,
-				'description' => self::DESCRIPTION,
-				'plugin_file' => 'the-directory/the-directory.php',
-				'plugin_slug' => 'custom-slug',
+				'slug'         => 'feature-slug',
+				'group'        => self::GROUP,
+				'tier'         => self::TIER,
+				'name'         => self::NAME,
+				'description'  => self::DESCRIPTION,
+				'plugin_file'  => 'the-directory/the-directory.php',
+				'plugin_slug'  => 'custom-slug',
 				'is_available' => true,
 			]
 		);

@@ -6,8 +6,8 @@ use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Catalog\Results\Catalog_Feature;
 use StellarWP\Uplink\Catalog\Results\Product_Catalog;
 use StellarWP\Uplink\Features\Types\Feature;
+use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Product_Collection;
-use StellarWP\Uplink\Licensing\Product_Repository;
 use WP_Error;
 
 /**
@@ -30,13 +30,13 @@ class Resolve_Feature_Collection {
 	private Catalog_Repository $catalog;
 
 	/**
-	 * The licensing product repository.
+	 * The license manager.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @var Product_Repository
+	 * @var License_Manager
 	 */
-	private Product_Repository $licensing;
+	private License_Manager $licensing;
 
 	/**
 	 * Map of catalog type strings to Feature subclass names.
@@ -52,12 +52,12 @@ class Resolve_Feature_Collection {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Catalog_Repository $catalog  The catalog repository.
-	 * @param Product_Repository $licensing The licensing product repository.
+	 * @param Catalog_Repository $catalog   The catalog repository.
+	 * @param License_Manager    $licensing The license manager.
 	 */
 	public function __construct(
 		Catalog_Repository $catalog,
-		Product_Repository $licensing
+		License_Manager $licensing
 	) {
 		$this->catalog   = $catalog;
 		$this->licensing = $licensing;
@@ -85,19 +85,18 @@ class Resolve_Feature_Collection {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $key    License key.
 	 * @param string $domain Site domain.
 	 *
 	 * @return Feature_Collection|WP_Error
 	 */
-	public function __invoke( string $key, string $domain ) {
+	public function __invoke( string $domain ) {
 		$catalog = $this->catalog->get();
 
 		if ( is_wp_error( $catalog ) ) {
 			return $catalog;
 		}
 
-		$products = $this->licensing->get( $key, $domain );
+		$products = $this->licensing->get_products( $domain );
 
 		if ( is_wp_error( $products ) ) {
 			return $products;

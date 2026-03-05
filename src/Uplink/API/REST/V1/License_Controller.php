@@ -121,7 +121,7 @@ final class License_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public function get_item( $request ): WP_REST_Response {
-		return new WP_REST_Response( [ 'key' => $this->manager->get() ] );
+		return new WP_REST_Response( [ 'key' => $this->manager->get_key() ] );
 	}
 
 	/**
@@ -148,7 +148,7 @@ final class License_Controller extends WP_REST_Controller {
 			return $result;
 		}
 
-		return new WP_REST_Response( [ 'key' => $this->manager->get() ] );
+		return new WP_REST_Response( [ 'key' => $this->manager->get_key() ] );
 	}
 
 	/**
@@ -163,7 +163,7 @@ final class License_Controller extends WP_REST_Controller {
 	public function delete_item( $request ): WP_REST_Response {
 		$network = (bool) $request->get_param( 'network' );
 
-		$this->manager->delete( $network );
+		$this->manager->delete_key( $network );
 
 		return new WP_REST_Response( [ 'deleted' => true ] );
 	}

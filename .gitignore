@@ -11,6 +11,9 @@ local-scripts/
 /build/
 /build-dev/
 
+# Claude Code local settings
+.claude/settings.local.json
+
 # OS
 .DS_Store
 

@@ -67,21 +67,20 @@ export const actions = {
     // -- Thunk action creators (async, with optimistic update + rollback) --
 
     /**
-     * Enable a feature: optimistic update → POST to REST API → rollback on error.
+     * Enable a feature: POST to REST API → update store on success.
      * @since 3.0.0
      */
     enableFeature: ( slug: string ) =>
         async ( { dispatch }: { dispatch: ThunkDispatch } ): Promise<string | null> => {
             dispatch.clearError( `feature:${ slug }` );
-            dispatch.setFeatureEnabled( slug, true );
             try {
                 await apiFetch<void>( {
                     path:   `/stellarwp/uplink/v1/features/${ slug }/enable`,
                     method: 'POST',
                 } );
+                dispatch.setFeatureEnabled( slug, true );
                 return null;
             } catch ( err ) {
-                dispatch.setFeatureEnabled( slug, false );
                 const message = ( err as Error ).message;
                 dispatch.setError( `feature:${ slug }`, message );
                 return message;
@@ -89,21 +88,20 @@ export const actions = {
         },
 
     /**
-     * Disable a feature: optimistic update → POST to REST API → rollback on error.
+     * Disable a feature: POST to REST API → update store on success.
      * @since 3.0.0
      */
     disableFeature: ( slug: string ) =>
         async ( { dispatch }: { dispatch: ThunkDispatch } ): Promise<string | null> => {
             dispatch.clearError( `feature:${ slug }` );
-            dispatch.setFeatureEnabled( slug, false );
             try {
                 await apiFetch<void>( {
                     path:   `/stellarwp/uplink/v1/features/${ slug }/disable`,
                     method: 'POST',
                 } );
+                dispatch.setFeatureEnabled( slug, false );
                 return null;
             } catch ( err ) {
-                dispatch.setFeatureEnabled( slug, true );
                 const message = ( err as Error ).message;
                 dispatch.setError( `feature:${ slug }`, message );
                 return message;

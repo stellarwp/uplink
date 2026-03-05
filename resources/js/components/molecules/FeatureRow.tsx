@@ -36,7 +36,7 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
         [ feature.slug ],
     );
 
-    const [ isPending, setIsPending ] = useState( false );
+    const [ pendingAction, setPendingAction ] = useState<'enabling' | 'disabling' | null>( null );
 
     // Surface store errors as error toasts.
     useEffect( () => {
@@ -69,7 +69,7 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
     const featureEnabled = feature.is_enabled;
 
     const handleToggle = async ( checked: boolean ) => {
-        setIsPending( true );
+        setPendingAction( checked ? 'enabling' : 'disabling' );
         if ( checked ) {
             const error = await enableFeature( feature.slug );
             if ( ! error ) {
@@ -83,16 +83,24 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
                 addToast( sprintf( __( '%s disabled', '%TEXTDOMAIN%' ), feature.name ), 'default' );
             }
         }
-        setIsPending( false );
+        setPendingAction( null );
     };
 
-    const badgeStatus = featureEnabled ? 'enabled' : 'available';
+    const badgeStatus = pendingAction ?? ( featureEnabled ? 'enabled' : 'available' );
+
+    // While a request is in-flight, reflect the intended state visually so
+    // the switch position and badge stay in sync with pendingAction.
+    const switchChecked = pendingAction === 'enabling'
+        ? true
+        : pendingAction === 'disabling'
+            ? false
+            : featureEnabled;
 
     return (
         <div
             className={ cn(
                 'flex items-center justify-between px-4 py-3 transition-colors',
-                isPending ? 'opacity-75' : 'hover:bg-slate-50'
+                pendingAction ? 'opacity-75' : 'hover:bg-slate-50'
             ) }
         >
             <FeatureInfo
@@ -103,11 +111,11 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
             <div className="flex items-center gap-3 shrink-0 ml-4">
                 <StatusBadge status={ badgeStatus } />
                 <Switch
-                    checked={ featureEnabled }
+                    checked={ switchChecked }
                     onCheckedChange={ handleToggle }
-                    disabled={ isPending }
+                    disabled={ !! pendingAction }
                     aria-label={
-                        featureEnabled
+                        switchChecked
                             ? /* translators: %s is the name of the feature to disable */
                               sprintf( __( 'Disable %s', '%TEXTDOMAIN%' ), feature.name )
                             : /* translators: %s is the name of the feature to enable */

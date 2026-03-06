@@ -43,11 +43,13 @@ function uplink_fn_registry( string $key, string $version = '', ?callable $callb
 The `static` variable lives inside the function rather than in `$GLOBALS` — there is only ever one `$registry` array in the process, shared by every caller.
 
 **Write mode** — called with a version and callback:
+
 ```php
 uplink_fn_registry( 'has_unified_license_key', '3.0.3', fn() => ... );
 ```
 
 **Read mode** — called with a key only, resolves the leader's callable:
+
 ```php
 $callback = uplink_fn_registry( 'has_unified_license_key' );
 ```
@@ -85,12 +87,12 @@ Strauss rewrites class references at parse time. `License_Manager::class` inside
 
 `src/Uplink/global-functions.php` exposes four public functions. Plugin consumers call these:
 
-| Function | What it checks |
-|---|---|
-| `uplink_has_unified_license_key()` | Whether any unified license key is stored locally (no API call) |
-| `uplink_is_product_license_active( $product )` | Whether a product slug has `validation_status: valid` in the cached catalog |
-| `uplink_is_feature_enabled( $slug )` | Whether a feature is in the catalog AND currently enabled/active |
-| `uplink_is_feature_available( $slug )` | Whether a feature exists in the catalog, regardless of enabled state |
+| Function                                       | What it checks                                                                |
+| ---------------------------------------------- | ----------------------------------------------------------------------------- |
+| `uplink_has_unified_license_key()`             | Whether any unified license key is stored locally (no API call)               |
+| `uplink_is_product_license_active( $product )` | Whether a product slug has `validation_status: valid` in the cached catalog   |
+| `uplink_is_feature_enabled( $slug )`           | Whether a feature is in the catalog AND currently enabled/active              |
+| `uplink_is_feature_available( $slug )`         | Whether a feature exists in the catalog, regardless of enabled state          |
 
 Each function looks up the registered callback and delegates, returning `false` if no callback is registered yet:
 

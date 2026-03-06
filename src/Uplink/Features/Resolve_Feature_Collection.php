@@ -68,7 +68,7 @@ class Resolve_Feature_Collection {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string                $type          The catalog type identifier (e.g. 'plugin', 'flag', 'theme').
+	 * @param string                $type          A Feature::TYPE_* constant (e.g. Feature::TYPE_PLUGIN).
 	 * @param class-string<Feature> $feature_class The Feature subclass FQCN.
 	 *
 	 * @return void

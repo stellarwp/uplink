@@ -6,6 +6,7 @@ use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\Features\Strategy\Strategy_Factory;
+use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Features\Types\Theme;
@@ -81,9 +82,9 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	private function register_default_types( Resolve_Feature_Collection $resolver ): void {
-		$resolver->register_type( 'plugin', Plugin::class );
-		$resolver->register_type( 'flag', Flag::class );
-		$resolver->register_type( 'theme', Theme::class );
+		$resolver->register_type( Feature::TYPE_PLUGIN, Plugin::class );
+		$resolver->register_type( Feature::TYPE_FLAG, Flag::class );
+		$resolver->register_type( Feature::TYPE_THEME, Theme::class );
 	}
 
 	/**

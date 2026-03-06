@@ -29,11 +29,11 @@ class Strategy_Factory {
 	 */
 	public function make( Feature $feature ): Strategy {
 		switch ( $feature->get_type() ) {
-			case 'plugin':
+			case Feature::TYPE_PLUGIN:
 				return new Plugin_Strategy( $feature );
-			case 'flag':
+			case Feature::TYPE_FLAG:
 				return new Flag_Strategy( $feature );
-			case 'theme':
+			case Feature::TYPE_THEME:
 				return new Theme_Strategy( $feature );
 			default:
 				throw new InvalidArgumentException(

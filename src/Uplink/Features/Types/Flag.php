@@ -19,7 +19,7 @@ final class Flag extends Feature {
 	 * @return void
 	 */
 	public function __construct( array $attributes ) {
-		$attributes['type'] = 'flag';
+		$attributes['type'] = self::TYPE_FLAG;
 
 		parent::__construct( $attributes );
 	}

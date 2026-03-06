@@ -55,13 +55,6 @@ class Theme_Strategy extends Installable_Strategy {
 	// ── Abstract method implementations ─────────────────────────────────
 
 	/**
-	 * @inheritDoc
-	 */
-	protected function get_type_mismatch_message(): string {
-		return __( 'This feature type is not supported by the Theme installer.', '%TEXTDOMAIN%' );
-	}
-
-	/**
 	 * Check whether the theme is "active" — for themes, this means installed on disk.
 	 *
 	 * Unlike plugins where "active" means currently running, for themes "active"
@@ -114,16 +107,29 @@ class Theme_Strategy extends Installable_Strategy {
 	}
 
 	/**
-	 * Mark the theme as disabled in stored state.
+	 * Deactivate the theme feature.
 	 *
-	 * Theme files are never deleted. This only updates the stored state.
+	 * If the theme is not on disk, it is already "disabled" — return success.
+	 * If the theme IS on disk, we cannot programmatically delete it; the user
+	 * must remove it themselves via Appearance → Themes.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @return true|WP_Error
 	 */
 	protected function do_deactivate() {
-		return true;
+		if ( ! $this->check_installed() ) {
+			return true;
+		}
+
+		return new WP_Error(
+			Error_Code::THEME_DELETE_REQUIRED,
+			sprintf(
+				/* translators: %s: theme name */
+				__( 'The theme "%s" is installed on disk and cannot be deactivated programmatically. Please delete it manually via Appearance → Themes in the WordPress admin.', '%TEXTDOMAIN%' ),
+				$this->feature->get_name()
+			)
+		);
 	}
 
 	/**

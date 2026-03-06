@@ -49,15 +49,6 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	// ── Abstract hooks ──────────────────────────────────────────────────
 
 	/**
-	 * Human-readable error message when a wrong feature type is passed.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return string
-	 */
-	abstract protected function get_type_mismatch_message(): string;
-
-	/**
 	 * Check whether the extension is currently active in WordPress.
 	 *
 	 * @since 3.0.0

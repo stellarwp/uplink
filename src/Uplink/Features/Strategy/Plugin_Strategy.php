@@ -81,13 +81,6 @@ class Plugin_Strategy extends Installable_Strategy {
 	// ── Abstract method implementations ─────────────────────────────────
 
 	/**
-	 * @inheritDoc
-	 */
-	protected function get_type_mismatch_message(): string {
-		return __( 'This feature type is not supported by the Plugin installer.', '%TEXTDOMAIN%' );
-	}
-
-	/**
 	 * Check whether the plugin is currently active in WordPress.
 	 *
 	 * @since 3.0.0

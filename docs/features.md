@@ -6,147 +6,100 @@ The Features subsystem is the resolved output of combining [Catalog](catalog.md)
 
 Features are not a third data source. They are the computed intersection of what exists (catalog) and what's entitled (licensing), plus local state tracking for what's actually enabled on the site.
 
-> **Development status.** The resolution algorithm, strategy pattern, and caching approach are stable. The specific data shapes that feed into resolution (catalog features, tier slugs, licensing responses) are still being finalized. As those upstream contracts change, the resolution layer will adapt.
+> **Development status.** The resolution algorithm, strategy pattern, and caching approach are stable. The specific data shapes that feed into resolution (catalog features, tier slugs, licensing responses) are still being finalized.
 
-## What a Feature Is
+## Feature States
 
-A feature is a single capability, plugin, theme, or flag within a product family. Each feature has two independent states:
+Every feature has two independent states:
 
 - **Available**: the customer's license tier meets or exceeds the feature's minimum tier requirement. Computed from catalog + licensing data.
-- **Enabled**: the feature is actively turned on for this site. Determined by live WordPress state — no shared "stored state" option exists for plugins and themes.
-
-A feature can be available but not enabled (the customer qualifies but hasn't turned it on). A feature cannot be enabled if it's not available, with one exception: grandfathered flags.
-
-### Active State by Feature Type
-
-Each feature type derives its active/disabled state from a different source of truth:
-
-| Feature type | Source of truth              | Active when…                                 | Disabled when…                       |
-| ------------ | ---------------------------- | -------------------------------------------- | ------------------------------------ |
-| **Plugin**   | Live WordPress plugin state  | The plugin is activated in WordPress         | The plugin is deactivated or deleted |
-| **Theme**    | Theme disk presence          | The theme is installed on disk               | The theme is deleted from disk       |
-| **Flag**     | `wp_option` per feature slug | The option `…feature_{slug}_active` is `'1'` | The option is `'0'` or absent        |
-
-No DB option is stored for Plugin or Theme features. WordPress itself is the sole source of truth for their state.
+- **Enabled**: the feature is actively turned on for this site. A feature cannot be enabled without being available, with one exception: grandfathered flags.
 
 ## Feature Types
 
-Features come in two types, mapped from the catalog's delivery types during resolution:
+Each feature type has a strategy that defines how enable, disable, and active-state checking work. The mapping from catalog delivery types to feature classes:
 
 ### Plugin
 
-An installable WordPress plugin. The catalog provides the `plugin_file` (plugin file path), `plugin_slug`, `download_url`/`is_dot_org` flag. Enabling a Plugin feature installs the plugin (if needed) and activates it. Disabling deactivates it but never deletes plugin files. The live WordPress plugin activation state is the sole source of truth — no DB option is stored.
+An installable WordPress plugin. The catalog provides `plugin_file`, `plugin_slug`, `download_url`/`is_dot_org`.
+
+| Aspect              | Behavior                                                                               |
+| ------------------- | -------------------------------------------------------------------------------------- |
+| **Source of truth** | Live WordPress plugin activation state — no DB option stored                           |
+| **Enable**          | Installs (if needed) and activates the plugin                                          |
+| **Disable**         | Deactivates the plugin but never deletes files                                         |
+| **Ownership**       | Author header checked against expected authors to prevent managing third-party plugins |
 
 ### Theme
 
-An installable WordPress theme. The theme's slug is its `feature_slug` — this is the same slug WordPress uses for installation from WordPress.org, checking the active theme via `get_stylesheet()`, and looking up theme data. The catalog provides `download_url`/`is_dot_org` flag. Enabling a Theme feature installs the theme (makes it available) but does not switch to it. Users activate themes through WordPress's Appearance → Themes UI. Theme disk presence is the sole source of truth — no DB option is stored.
+An installable WordPress theme. The theme's `feature_slug` is its WordPress slug (used for installation, `get_stylesheet()`, etc.). The catalog provides `download_url`/`is_dot_org`.
 
-Disabling a Theme feature does **not** delete the theme files. If the theme is already absent from disk, disable returns success. If the theme is still installed, disable returns an error instructing the user to delete the theme manually via Appearance → Themes. This is intentional — programmatic theme deletion is destructive and irreversible, so it requires explicit user action.
+| Aspect              | Behavior                                                                                                                                                                                               |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Source of truth** | Theme disk presence — no DB option stored                                                                                                                                                              |
+| **Enable**          | Installs the theme but does not switch to it. Users activate themes via Appearance > Themes                                                                                                            |
+| **Disable**         | Does **not** delete files. Returns success if already absent; returns `THEME_DELETE_REQUIRED` if still on disk. Programmatic deletion is intentionally unsupported — it's destructive and irreversible |
+| **Ownership**       | Author header checked via `wp_get_theme()`                                                                                                                                                             |
 
 ### Flag
 
-A capability toggle within an existing plugin, not a separate installable. Enabling a flag sets a WordPress option (`stellarwp_uplink_feature_{slug}_active`), and the owning plugin checks that option to unlock functionality within its own codebase. These are in-plugin feature flags gated by tier. The `wp_option` is the sole source of truth for flag state.
+A capability toggle within an existing plugin, not a separate installable. The owning plugin checks a WordPress option to unlock functionality.
 
-#### Flag Grandfathering
+| Aspect              | Behavior                                                                         |
+| ------------------- | -------------------------------------------------------------------------------- |
+| **Source of truth** | WordPress option `stellarwp_uplink_feature_{slug}_active` (autoloaded)           |
+| **Enable**          | Sets option to `'1'`. Requires a qualifying tier                                 |
+| **Disable**         | Sets option to `'0'`. Always allowed, but re-enabling requires a qualifying tier |
 
-Flags follow a "once enabled, always honored" rule. If a customer enables a flag while their license qualifies, the flag stays enabled even if the license later expires or the customer downgrades below the flag's minimum tier.
+**Grandfathering:** Once a flag is enabled, it stays enabled even if the license expires or the customer downgrades. The stored option is never cleared by the system. New flags cannot be enabled without a qualifying license, and a disabled grandfathered flag cannot be re-enabled without one.
 
-What changes on expiration or downgrade:
+### Install Lock
 
-- **Already-enabled flags continue to work.** The stored option is not cleared.
-- **New flags cannot be enabled.** The tier check blocks it.
-- **Disabled flags cannot be re-enabled.** If the customer disables a grandfathered flag, they cannot turn it back on without a qualifying license.
-
-Flags control functionality baked into an already-installed plugin, so there's nothing to "uninstall." Revoking active functionality on license expiration would degrade the customer's site.
+Plugin and Theme features share a global transient lock (`stellarwp_uplink_install_lock`, 120s TTL). Only one installable feature can install at a time. Flags are unaffected.
 
 ## Resolution
 
-The `Resolve_Feature_Collection` class joins catalog and licensing data to produce a `Feature_Collection`. For each product in the catalog, it finds the matching licensing entry and compares tier ranks to determine which features are available.
+`Resolve_Feature_Collection` joins catalog and licensing data to produce a `Feature_Collection`. Availability is determined by comparing integer tier ranks, not slug strings. The catalog defines ranks (e.g., `kadence-basic` = 1, `kadence-pro` = 2). A feature is available when the customer's tier rank >= the feature's minimum tier rank.
 
-Availability is determined by comparing integer ranks, not tier slug strings. The catalog defines the rank for each tier (e.g., `kadence-basic` = 1, `kadence-pro` = 2, `kadence-agency` = 3). A feature is available when the customer's tier rank meets or exceeds the feature's minimum tier rank.
+Edge cases:
 
-If a product has no licensing entry, the tier rank is `0`, making all of its features unavailable. If a feature's `minimum_tier` slug isn't found in the tier collection, the minimum rank defaults to `PHP_INT_MAX`, also making it unavailable.
-
-The mapping from catalog type strings to Feature subclasses is extensible:
-
-| Catalog type | Feature class | Notes                        |
-| ------------ | ------------- | ---------------------------- |
-| `plugin`     | `Plugin`      | Installable WordPress plugin |
-| `theme`      | `Theme`       | Installable WordPress theme  |
-| `flag`       | `Flag`        | Option-based toggle          |
+- No licensing entry for a product: tier rank = `0`, all features unavailable
+- Feature's `minimum_tier` slug not in tier collection: rank = `PHP_INT_MAX`, feature unavailable
 
 ## The Manager
 
-The `Manager` is the public interface for all feature operations. It wraps the resolution layer and the strategy layer into a single API.
+The `Manager` is the public interface for all feature operations.
 
-| Method                       | Returns                        | Purpose                                          |
-| ---------------------------- | ------------------------------ | ------------------------------------------------ |
-| `get_features()`             | `Feature_Collection\|WP_Error` | Get all resolved features                        |
-| `get_feature(string $slug)`  | `Feature\|null`                | Look up a single feature by slug                 |
-| `is_available(string $slug)` | `bool\|WP_Error`               | Check if the customer's tier qualifies           |
-| `is_enabled(string $slug)`   | `bool\|WP_Error`               | Check if the feature is currently active locally |
-| `enable(string $slug)`       | `true\|WP_Error`               | Enable a feature                                 |
-| `disable(string $slug)`      | `true\|WP_Error`               | Disable a feature                                |
+| Method                       | Returns                        | Purpose                                |
+| ---------------------------- | ------------------------------ | -------------------------------------- |
+| `get_features()`             | `Feature_Collection\|WP_Error` | Get all resolved features              |
+| `get_feature(string $slug)`  | `Feature\|null`                | Look up a single feature               |
+| `is_available(string $slug)` | `bool\|WP_Error`               | Check if the customer's tier qualifies |
+| `is_enabled(string $slug)`   | `bool\|WP_Error`               | Check if the feature is active locally |
+| `enable(string $slug)`       | `true\|WP_Error`               | Enable a feature                       |
+| `disable(string $slug)`      | `true\|WP_Error`               | Disable a feature                      |
 
-Two convenience functions in `src/Uplink/functions.php` provide the simplest API:
+Convenience functions in `src/Uplink/functions.php`:
 
-- **`is_feature_enabled(string $slug): bool|WP_Error`**: is the feature in the catalog AND active locally?
-- **`is_feature_available(string $slug): bool|WP_Error`**: is the feature in the catalog and does the tier qualify?
+- **`is_feature_enabled(string $slug): bool|WP_Error`** — in the catalog AND active locally?
+- **`is_feature_available(string $slug): bool|WP_Error`** — in the catalog and tier qualifies?
 
 ### WordPress Hooks
 
-The Manager fires actions before and after enable/disable operations, both globally and per-slug:
+Actions fired before and after enable/disable, both globally and per-slug:
 
 - `stellarwp/uplink/feature_enabling` / `stellarwp/uplink/{slug}/feature_enabling`
 - `stellarwp/uplink/feature_enabled` / `stellarwp/uplink/{slug}/feature_enabled`
 - `stellarwp/uplink/feature_disabling` / `stellarwp/uplink/{slug}/feature_disabling`
 - `stellarwp/uplink/feature_disabled` / `stellarwp/uplink/{slug}/feature_disabled`
 
-## Strategies
+## Caching
 
-Each feature type has a strategy that defines how enable, disable, and active-state checking work.
-
-### Flag Strategy
-
-The simplest strategy. A WordPress option (`stellarwp_uplink_feature_{slug}_active`) is the source of truth. Enabling sets it to `'1'`, disabling sets it to `'0'`. The tier check only gates enabling. Disabling is always allowed, but re-enabling requires a qualifying license.
-
-The option persists across license changes. This is what makes flag grandfathering work.
-
-### Plugin Strategy
-
-Manages the full WordPress plugin lifecycle. Live WordPress plugin activation state is the sole source of truth — no DB option is stored.
-
-Enabling a Plugin feature installs the plugin (if needed) and activates it. Disabling deactivates it but never deletes plugin files. The strategy includes ownership verification, checking the `Author` header against the feature's expected authors to prevent accidentally managing a third-party plugin that shares a directory name.
-
-Installable features (plugins and themes) share a single global transient lock (`stellarwp_uplink_install_lock`) with a 120-second TTL. Only one installable feature can be installed at a time, regardless of type. This prevents concurrent install races and filesystem conflicts. Flag features are not affected by this lock since they only toggle a WordPress option.
-
-### Theme Strategy
-
-Manages theme installation. Unlike plugins, themes are not activated or deactivated through the feature system.
-
-Enabling a Theme feature installs the theme (if needed). It does not switch the active theme — users activate themes through WordPress's Appearance → Themes UI.
-
-Disabling a Theme feature does **not** delete theme files. If the theme is already absent from disk, disable returns success (it's already "disabled"). If the theme is still installed, disable returns a `THEME_DELETE_REQUIRED` error instructing the user to delete it manually. Programmatic theme deletion is intentionally not supported — it is destructive and irreversible.
-
-Ownership verification checks the theme's Author header via `wp_get_theme()`.
-
-## Caching and Data Access
-
-### Feature Repository
-
-The `Feature_Repository` caches the resolved `Feature_Collection` in a WordPress transient (`stellarwp_uplink_feature_catalog`) with a 12-hour TTL.
-
-The cache entry includes a hash of the license key. On each read, the repository compares the current key's hash against the cached hash. If they differ, the cache is discarded and features are re-resolved. This handles key changes without manual invalidation.
-
-`refresh()` explicitly clears the cache and re-resolves.
-
-### Stored Feature State
-
-Only **Flag** features store state in a WordPress option (`stellarwp_uplink_feature_{slug}_active`) with autoload enabled, since feature state is checked on every page load.
+The `Feature_Repository` caches the resolved `Feature_Collection` in a transient (`stellarwp_uplink_feature_catalog`, 12h TTL). The cache includes a hash of the license key — if the key changes, the cache auto-invalidates. `refresh()` explicitly clears and re-resolves.
 
 ## Feature Collection
 
-The `Feature_Collection` is a typed, keyed collection of `Feature` objects with built-in filtering:
+A typed, keyed collection of `Feature` objects with filtering:
 
 ```php
 $features->filter(
@@ -157,68 +110,61 @@ $features->filter(
 );
 ```
 
-All filter parameters are optional. The filter returns a new collection. The original is not mutated.
+All parameters optional. Returns a new collection without mutating the original.
 
 ## REST API
 
-The Feature Controller exposes four endpoints under `stellarwp/uplink/v1`. All require `manage_options` capability.
+Four endpoints under `stellarwp/uplink/v1`. All require `manage_options`.
 
-| Route                      | Method | Purpose                                                                    |
-| -------------------------- | ------ | -------------------------------------------------------------------------- |
-| `/features`                | GET    | List features with optional filters (`group`, `tier`, `available`, `type`) |
-| `/features/{slug}`         | GET    | Get a single feature                                                       |
-| `/features/{slug}/enable`  | POST   | Enable a feature                                                           |
-| `/features/{slug}/disable` | POST   | Disable a feature                                                          |
+| Route                      | Method | Purpose                                                       |
+| -------------------------- | ------ | ------------------------------------------------------------- |
+| `/features`                | GET    | List features (filters: `group`, `tier`, `available`, `type`) |
+| `/features/{slug}`         | GET    | Get a single feature                                          |
+| `/features/{slug}/enable`  | POST   | Enable a feature                                              |
+| `/features/{slug}/disable` | POST   | Disable a feature                                             |
 
-Each feature in the response includes an `is_enabled` field computed live from the strategy, not from cached state.
+Each response includes `is_enabled` computed live from the strategy, not cached state.
 
 ## Error Codes
 
-| Constant                         | HTTP | Meaning                                                    |
-| -------------------------------- | ---- | ---------------------------------------------------------- |
-| `FEATURE_NOT_FOUND`              | 404  | Feature slug doesn't exist in the resolved catalog         |
-| `FEATURE_TYPE_MISMATCH`          | 400  | Feature type doesn't match the strategy being used         |
-| `INSTALL_LOCKED`                 | 409  | Another installable feature install is already in progress |
-| `PLUGIN_OWNERSHIP_MISMATCH`      | 409  | A different developer's plugin occupies the directory      |
-| `DEACTIVATION_FAILED`            | 409  | Plugin stayed active after deactivation attempt            |
-| `REQUIREMENTS_NOT_MET`           | 422  | PHP or WordPress version requirements not met              |
-| `INSTALL_FAILED`                 | 422  | `Plugin_Upgrader::install()` failed                        |
-| `ACTIVATION_FATAL`               | 422  | PHP fatal error or `die()` during plugin activation        |
-| `ACTIVATION_FAILED`              | 422  | `activate_plugin()` returned an error                      |
-| `PLUGIN_NOT_FOUND_AFTER_INSTALL` | 422  | Expected plugin file missing after ZIP extraction          |
-| `DOWNLOAD_LINK_MISSING`          | 422  | `plugins_api()` returned no download link                  |
-| `UNKNOWN_FEATURE_TYPE`           | 422  | No Feature subclass registered for the catalog type        |
-| `FEATURE_REQUEST_FAILED`         | 502  | Resolution failed (catalog or licensing API error)         |
-| `FEATURE_CHECK_FAILED`           | 502  | Unexpected error during availability check                 |
-| `INVALID_RESPONSE`               | 502  | Catalog response couldn't be parsed                        |
-| `PLUGINS_API_FAILED`             | 502  | WordPress `plugins_api()` call failed                      |
-| `THEME_OWNERSHIP_MISMATCH`       | 409  | A different developer's theme occupies the directory       |
-| `THEME_IS_ACTIVE`                | 409  | The active WordPress theme cannot be disabled              |
-| `THEME_DELETE_REQUIRED`          | 409  | Theme is on disk; user must delete it manually             |
-| `THEME_NOT_FOUND_AFTER_INSTALL`  | 422  | Expected theme directory missing after ZIP extraction      |
-| `THEMES_API_FAILED`              | 502  | WordPress `themes_api()` call failed                       |
+| Constant                         | HTTP | Meaning                                            |
+| -------------------------------- | ---- | -------------------------------------------------- |
+| `FEATURE_NOT_FOUND`              | 404  | Slug doesn't exist in the resolved catalog         |
+| `FEATURE_TYPE_MISMATCH`          | 400  | Type doesn't match the strategy                    |
+| `FEATURE_REQUEST_FAILED`         | 502  | Resolution failed (catalog or licensing API error) |
+| `FEATURE_CHECK_FAILED`           | 502  | Unexpected error during availability check         |
+| `INVALID_RESPONSE`               | 502  | Catalog response couldn't be parsed                |
+| `UNKNOWN_FEATURE_TYPE`           | 422  | No Feature subclass for the catalog type           |
+| `INSTALL_LOCKED`                 | 409  | Another install already in progress                |
+| `REQUIREMENTS_NOT_MET`           | 422  | PHP or WordPress version requirements not met      |
+| **Plugin-specific**              |      |                                                    |
+| `PLUGIN_OWNERSHIP_MISMATCH`      | 409  | Different developer's plugin in the directory      |
+| `DEACTIVATION_FAILED`            | 409  | Plugin stayed active after deactivation            |
+| `INSTALL_FAILED`                 | 422  | `Plugin_Upgrader::install()` failed                |
+| `ACTIVATION_FATAL`               | 422  | Fatal error during plugin activation               |
+| `ACTIVATION_FAILED`              | 422  | `activate_plugin()` returned an error              |
+| `PLUGIN_NOT_FOUND_AFTER_INSTALL` | 422  | Plugin file missing after ZIP extraction           |
+| `DOWNLOAD_LINK_MISSING`          | 422  | `plugins_api()` returned no download link          |
+| `PLUGINS_API_FAILED`             | 502  | `plugins_api()` call failed                        |
+| **Theme-specific**               |      |                                                    |
+| `THEME_OWNERSHIP_MISMATCH`       | 409  | Different developer's theme in the directory       |
+| `THEME_IS_ACTIVE`                | 409  | Active theme cannot be disabled                    |
+| `THEME_DELETE_REQUIRED`          | 409  | Theme on disk; user must delete manually           |
+| `THEME_NOT_FOUND_AFTER_INSTALL`  | 422  | Theme directory missing after ZIP extraction       |
+| `THEMES_API_FAILED`              | 502  | `themes_api()` call failed                         |
 
-## Relationship to Licensing and Catalog
+## Data Sources
 
-Features are the product of combining catalog and licensing data. Neither is sufficient alone.
-
-| Data                                 | Source                                                                       |
-| ------------------------------------ | ---------------------------------------------------------------------------- |
-| Feature exists                       | Catalog                                                                      |
-| Feature's minimum tier               | Catalog                                                                      |
-| Feature's delivery type and metadata | Catalog                                                                      |
-| Tier rank hierarchy                  | Catalog                                                                      |
-| Customer's tier for a product        | Licensing                                                                    |
-| Whether the key is valid             | Licensing                                                                    |
-| **Whether feature is available**     | **Computed: catalog minimum rank vs. licensing tier rank**                   |
-| Whether feature is enabled           | Live WordPress state (plugin activation / theme disk presence / flag option) |
-
-When the license key changes, the feature cache auto-invalidates. A license upgrade or downgrade changes which features are available on the next resolution.
+| Data                                                    | Source                                                              |
+| ------------------------------------------------------- | ------------------------------------------------------------------- |
+| Feature exists, minimum tier, delivery type, tier ranks | Catalog                                                             |
+| Customer's tier, key validity                           | Licensing                                                           |
+| **Whether available**                                   | **Computed: catalog min rank vs. licensing tier rank**              |
+| Whether enabled                                         | Live WordPress state (plugin activation / theme disk / flag option) |
 
 ## What Features Does Not Do
 
-- **Fetch its own data**: features are resolved from catalog and licensing data. There is no separate "features API."
-- **Delete extensions**: disabling a Plugin feature deactivates it but never removes files. Disabling a Theme feature requires manual deletion by the user — the system intentionally refuses to delete theme files programmatically.
-- **Manage seats**: seat consumption happens in the licensing layer during validation, not during feature enable/disable.
-- **Override tier gating for new enables**: if a customer's tier doesn't qualify, new features can't be enabled. Grandfathered flags are the exception.
-- **Handle updates**: plugin/theme updates flow through a separate system that hooks into WordPress's native update infrastructure.
+- **Fetch its own data** — resolved from catalog and licensing. No separate "features API."
+- **Delete extensions** — plugins are deactivated, never removed. Themes require manual deletion.
+- **Manage seats** — seat consumption is in the licensing layer, not feature enable/disable.
+- **Handle updates** — plugin/theme updates use a separate system hooking into WordPress's native update infrastructure.

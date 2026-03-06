@@ -3,7 +3,6 @@
 namespace StellarWP\Uplink\Features\Update;
 
 use StellarWP\ContainerContract\ContainerInterface;
-use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Licensing\License_Manager;
@@ -25,24 +24,8 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	public function register(): void {
-		$this->container->singleton(
-			Resolve_Update_Data::class,
-			static function ( ContainerInterface $c ) {
-				return new Resolve_Update_Data(
-					$c->get( Feature_Repository::class ),
-					$c->get( Catalog_Repository::class )
-				);
-			}
-		);
-
-		$this->container->singleton(
-			Update_Repository::class,
-			static function ( ContainerInterface $c ) {
-				return new Update_Repository(
-					$c->get( Resolve_Update_Data::class )
-				);
-			}
-		);
+		$this->container->singleton( Resolve_Update_Data::class, Resolve_Update_Data::class );
+		$this->container->singleton( Update_Repository::class, Update_Repository::class );
 
 		$this->container->singleton(
 			Plugin_Handler::class,

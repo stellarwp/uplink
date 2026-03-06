@@ -38,12 +38,14 @@ final class Strategy_FactoryTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_creates_plugin_strategy(): void {
-		$feature = Plugin::from_array( [
-			'slug'        => 'test-plugin',
-			'type'        => 'plugin',
-			'name'        => 'Test Plugin',
-			'plugin_file' => 'test-plugin/test-plugin.php',
-		] );
+		$feature = Plugin::from_array(
+			[
+				'slug'        => 'test-plugin',
+				'type'        => 'plugin',
+				'name'        => 'Test Plugin',
+				'plugin_file' => 'test-plugin/test-plugin.php',
+			]
+		);
 
 		$this->assertInstanceOf( Plugin_Strategy::class, $this->factory->make( $feature ) );
 	}
@@ -54,11 +56,13 @@ final class Strategy_FactoryTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_creates_flag_strategy(): void {
-		$feature = Flag::from_array( [
-			'slug' => 'test-flag',
-			'type' => 'flag',
-			'name' => 'Test Flag',
-		] );
+		$feature = Flag::from_array(
+			[
+				'slug' => 'test-flag',
+				'type' => 'flag',
+				'name' => 'Test Flag',
+			]
+		);
 
 		$this->assertInstanceOf( Flag_Strategy::class, $this->factory->make( $feature ) );
 	}
@@ -69,11 +73,13 @@ final class Strategy_FactoryTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_creates_theme_strategy(): void {
-		$feature = Theme::from_array( [
-			'slug' => 'test-theme',
-			'type' => 'theme',
-			'name' => 'Test Theme',
-		] );
+		$feature = Theme::from_array(
+			[
+				'slug' => 'test-theme',
+				'type' => 'theme',
+				'name' => 'Test Theme',
+			]
+		);
 
 		$this->assertInstanceOf( Theme_Strategy::class, $this->factory->make( $feature ) );
 	}

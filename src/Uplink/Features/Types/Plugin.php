@@ -120,4 +120,44 @@ final class Plugin extends Feature implements Installable {
 	public function get_plugin_directory(): string {
 		return dirname( $this->get_plugin_file() );
 	}
+
+	/**
+	 * Checks whether this Zip feature's plugin is currently installed.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return bool
+	 */
+	public function is_installed(): bool {
+		$plugin_file = $this->get_plugin_file();
+
+		// TODO: We should throw an error on object construction if plugin_file is not set for Plugin Features.
+		if ( empty( $plugin_file ) ) {
+			return false;
+		}
+
+		return file_exists( trailingslashit( WP_PLUGIN_DIR ) . $plugin_file );
+	}
+
+	/**
+	 * Gets the currently installed version of this Zip feature's plugin.
+	 * Returns null if the plugin is not installed.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string|null
+	 */
+	public function get_installed_version(): ?string {
+		if ( ! $this->is_installed() ) {
+			return null;
+		}
+
+		if ( ! function_exists( 'get_plugin_data' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php'; // @phpstan-ignore-line -- ABSPATH exists.
+		}
+
+		$plugin_data = get_plugin_data( trailingslashit( WP_PLUGIN_DIR ) . $this->get_plugin_file() );
+
+		return $plugin_data['Version'] ?? null;
+	}
 }

@@ -70,6 +70,9 @@ class Provider extends Abstract_Provider {
 		);
 
 		$this->register_hooks();
+
+		$this->container->singleton( Update\Provider::class, Update\Provider::class );
+		$this->container->get( Update\Provider::class )->register();
 	}
 
 	/**

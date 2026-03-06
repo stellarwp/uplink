@@ -23,7 +23,10 @@ local-scripts/
 # PHPStan cache
 phpstan-cache
 
+# Partial phpcs output files.
+diff.txt
+diffcs.txt
+phpcs.json
+
 tests/_data/Features/Themes/*.zip
 tests/_data/Features/Plugins/*.zip
-
-diffcs.txt

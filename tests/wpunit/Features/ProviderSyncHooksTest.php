@@ -5,26 +5,25 @@ namespace StellarWP\Uplink\Tests\Features;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Manager;
-use StellarWP\Uplink\Features\Strategy\Plugin_Strategy;
-use StellarWP\Uplink\Features\Strategy\Theme_Strategy;
 use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Theme;
 
 /**
- * Integration tests for the Provider's activation/deactivation sync hooks.
+ * Integration tests for the activation/deactivation sync hooks.
  *
- * These tests verify the full wiring path: WordPress hook → Provider delegate
- * → Plugin_Strategy → stored state update. They use fixture catalog/licensing
- * data so the Manager has real Plugin features in its collection.
+ * These tests verify the full wiring path: WordPress hook → Sync class
+ * → Feature stored state update. They use fixture catalog/licensing
+ * data so the Manager has real features in its collection.
  *
- * @see \StellarWP\Uplink\Features\Provider
+ * @see \StellarWP\Uplink\Features\Sync\Plugin_Activation_Sync
+ * @see \StellarWP\Uplink\Features\Sync\Theme_Switch_Sync
  */
 final class ProviderSyncHooksTest extends UplinkTestCase {
 
 	/**
-	 * The wp_identifier for the kad-blocks-pro fixture feature.
+	 * The plugin_file for the kad-blocks-pro fixture feature.
 	 *
 	 * @var string
 	 */
@@ -55,6 +54,7 @@ final class ProviderSyncHooksTest extends UplinkTestCase {
 
 	protected function tearDown(): void {
 		delete_option( self::OPTION_KEY );
+		delete_option( 'stellarwp_uplink_feature_kadence_active' );
 		delete_option( License_Repository::KEY_OPTION_NAME );
 		delete_transient( Feature_Repository::TRANSIENT_KEY );
 		delete_transient( Catalog_Repository::TRANSIENT_KEY );
@@ -64,7 +64,7 @@ final class ProviderSyncHooksTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Verify the fixture feature is resolved as a Plugin with the expected wp_identifier.
+	 * Verify the fixture feature is resolved as a Plugin with the expected plugin_file.
 	 *
 	 * This is a sanity check — if this fails, the sync hook tests below are meaningless.
 	 */
@@ -73,7 +73,7 @@ final class ProviderSyncHooksTest extends UplinkTestCase {
 		$feature = $manager->get_feature( 'kad-blocks-pro' );
 
 		$this->assertInstanceOf( Plugin::class, $feature );
-		$this->assertSame( self::PLUGIN_FILE, $feature->get_wp_identifier() );
+		$this->assertSame( self::PLUGIN_FILE, $feature->get_plugin_file() );
 	}
 
 	/**
@@ -122,52 +122,41 @@ final class ProviderSyncHooksTest extends UplinkTestCase {
 	}
 
 	/**
-	 * The Plugin_Strategy retrieved from the container has a working feature_resolver.
+	 * Firing 'switch_theme' syncs stored state for a known theme feature.
 	 */
-	public function test_container_plugin_strategy_has_feature_resolver(): void {
-		$strategy = $this->container->get( Plugin_Strategy::class );
-
-		// Call on_plugin_activated directly — if the resolver is wired,
-		// it should find the feature and update stored state.
-		$strategy->on_plugin_activated( self::PLUGIN_FILE, false );
-
-		$this->assertSame( '1', get_option( self::OPTION_KEY ) );
-	}
-
-	/**
-	 * The Theme_Strategy retrieved from the container has a working feature_resolver.
-	 *
-	 * The kadence theme fixture has no wp_identifier set, so on_theme_switch
-	 * should silently no-op — but this verifies the resolver callable is wired
-	 * (no fatal errors from a missing resolver).
-	 */
-	public function test_container_theme_strategy_has_feature_resolver(): void {
-		$strategy = $this->container->get( Theme_Strategy::class );
-
-		$old_theme = new WP_Theme( 'some-old-theme', '' );
-		$new_theme = new WP_Theme( 'kadence', '' );
-
-		// Should not throw — the resolver is wired even though no theme
-		// feature matches (kadence has no wp_identifier in the fixture).
-		$strategy->on_theme_switch( 'Kadence', $new_theme, $old_theme );
-
-		// No stored state should be written for a theme without a wp_identifier match.
-		$this->assertFalse( get_option( 'stellarwp_uplink_feature_kadence_active', false ) );
-	}
-
-	/**
-	 * Firing 'switch_theme' through WordPress hooks reaches the Theme_Strategy.
-	 *
-	 * The hook fires but no-ops because the fixture theme has no wp_identifier.
-	 * This verifies the Provider wiring doesn't fatal.
-	 */
-	public function test_switch_theme_hook_reaches_theme_strategy(): void {
+	public function test_switch_theme_hook_syncs_stored_state(): void {
 		$old_theme = new WP_Theme( 'some-old-theme', '' );
 		$new_theme = new WP_Theme( 'kadence', '' );
 
 		do_action( 'switch_theme', 'Kadence', $new_theme, $old_theme );
 
-		// Silent no-op — no stored state written.
-		$this->assertFalse( get_option( 'stellarwp_uplink_feature_kadence_active', false ) );
+		$this->assertSame( '1', get_option( 'stellarwp_uplink_feature_kadence_active' ) );
+	}
+
+	/**
+	 * Switching away from a known theme feature marks it inactive.
+	 */
+	public function test_switch_theme_hook_marks_old_theme_inactive(): void {
+		// Start with kadence active.
+		update_option( 'stellarwp_uplink_feature_kadence_active', '1', true );
+
+		$old_theme = new WP_Theme( 'kadence', '' );
+		$new_theme = new WP_Theme( 'some-other-theme', '' );
+
+		do_action( 'switch_theme', 'Some Other Theme', $new_theme, $old_theme );
+
+		$this->assertSame( '0', get_option( 'stellarwp_uplink_feature_kadence_active' ) );
+	}
+
+	/**
+	 * Firing 'switch_theme' for an unknown theme does not create any option.
+	 */
+	public function test_switch_theme_hook_ignores_unknown_theme(): void {
+		$old_theme = new WP_Theme( 'some-old-theme', '' );
+		$new_theme = new WP_Theme( 'unknown-theme', '' );
+
+		do_action( 'switch_theme', 'Unknown Theme', $new_theme, $old_theme );
+
+		$this->assertFalse( get_option( 'stellarwp_uplink_feature_unknown-theme_active', false ) );
 	}
 }

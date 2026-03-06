@@ -147,6 +147,61 @@ abstract class Feature {
 	}
 
 	/**
+	 * Build the wp_options key for this feature's stored state.
+	 *
+	 * Convention: `stellarwp_uplink_feature_{slug}_active`.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string
+	 */
+	protected function get_option_key(): string {
+		return 'stellarwp_uplink_feature_' . $this->get_slug() . '_active';
+	}
+
+	/**
+	 * Mark the feature as active in stored state.
+	 *
+	 * Uses autoload=true because feature state is read on every page load.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return void
+	 */
+	public function mark_active(): void {
+		update_option( $this->get_option_key(), '1', true );
+	}
+
+	/**
+	 * Mark the feature as inactive in stored state.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return void
+	 */
+	public function mark_inactive(): void {
+		update_option( $this->get_option_key(), '0', true );
+	}
+
+	/**
+	 * Read the stored feature state from wp_options.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return bool|null True if stored as active, false if stored as inactive,
+	 *                   null if no stored state exists yet.
+	 */
+	public function get_stored_state(): ?bool {
+		$raw = get_option( $this->get_option_key(), null );
+
+		if ( $raw === null ) {
+			return null;
+		}
+
+		return (bool) $raw;
+	}
+
+	/**
 	 * Extracts the common base attributes shared by all feature types.
 	 *
 	 * @since 3.0.0

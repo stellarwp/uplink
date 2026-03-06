@@ -9,6 +9,8 @@ use StellarWP\Uplink\Features\Strategy\Flag_Strategy;
 use StellarWP\Uplink\Features\Strategy\Plugin_Strategy;
 use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Strategy\Theme_Strategy;
+use StellarWP\Uplink\Features\Sync\Plugin_Activation_Sync;
+use StellarWP\Uplink\Features\Sync\Theme_Switch_Sync;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Features\Types\Plugin;
@@ -73,6 +75,20 @@ class Provider extends Abstract_Provider {
 			}
 		);
 
+		$this->container->singleton(
+			Plugin_Activation_Sync::class,
+			static function ( ContainerInterface $c ) {
+				return new Plugin_Activation_Sync( $c->get( Manager::class ) );
+			}
+		);
+
+		$this->container->singleton(
+			Theme_Switch_Sync::class,
+			static function ( ContainerInterface $c ) {
+				return new Theme_Switch_Sync( $c->get( Manager::class ) );
+			}
+		);
+
 		$this->register_default_strategies();
 		$this->register_hooks();
 	}
@@ -123,9 +139,16 @@ class Provider extends Abstract_Provider {
 		// TODO: Remove this once the real plugins_api filter is implemented.
 		add_filter( 'upgrader_pre_download', [ $this, 'serve_local_zip_for_upgrader' ], 10, 2 );
 
-		add_action( 'switch_theme', [ $this, 'on_theme_switch' ], 10, 3 );
-		add_action( 'activated_plugin', [ $this, 'on_plugin_activated' ], 10, 2 );
-		add_action( 'deactivated_plugin', [ $this, 'on_plugin_deactivated' ], 10, 2 );
+		$c = $this->container;
+		add_action( 'activated_plugin', static function ( string $plugin, bool $network_wide ) use ( $c ) {
+			$c->get( Plugin_Activation_Sync::class )->on_activated( $plugin, $network_wide );
+		}, 10, 2 );
+		add_action( 'deactivated_plugin', static function ( string $plugin, bool $network_wide ) use ( $c ) {
+			$c->get( Plugin_Activation_Sync::class )->on_deactivated( $plugin, $network_wide );
+		}, 10, 2 );
+		add_action( 'switch_theme', static function ( string $new_name, WP_Theme $new_theme, WP_Theme $old_theme ) use ( $c ) {
+			$c->get( Theme_Switch_Sync::class )->on_switch( $new_name, $new_theme, $old_theme );
+		}, 10, 3 );
 
 		add_action(
 			'stellarwp/uplink/unified_license_key_changed',
@@ -223,112 +246,6 @@ class Provider extends Abstract_Provider {
 			'version'       => '1.0.0',
 			'download_link' => 'stellarwp-uplink-local://' . $slug . '.zip',
 		];
-	}
-
-	/**
-	 * Sync stored state when the active theme changes.
-	 *
-	 * If the old theme corresponds to a theme feature, mark it inactive.
-	 * If the new theme corresponds to a theme feature, mark it active.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param string   $new_name  Name of the new theme.
-	 * @param WP_Theme $new_theme The new theme object.
-	 * @param WP_Theme $old_theme The old theme object.
-	 *
-	 * @return void
-	 */
-	public function on_theme_switch( string $new_name, WP_Theme $new_theme, WP_Theme $old_theme ): void {
-		$features = $this->container->get( Manager::class )->get_features();
-
-		if ( is_wp_error( $features ) ) {
-			return;
-		}
-
-		$old_stylesheet = $old_theme->get_stylesheet();
-		$new_stylesheet = $new_theme->get_stylesheet();
-
-		foreach ( $features->filter( null, null, null, 'theme' ) as $feature ) {
-			if ( ! $feature instanceof Theme ) {
-				continue;
-			}
-
-			$slug = $feature->get_slug();
-
-			if ( $slug === $old_stylesheet ) {
-				update_option( 'stellarwp_uplink_feature_' . $slug . '_active', '0', true );
-			}
-
-			if ( $slug === $new_stylesheet ) {
-				update_option( 'stellarwp_uplink_feature_' . $slug . '_active', '1', true );
-			}
-		}
-	}
-
-	/**
-	 * Sync stored state when a plugin is activated via WordPress.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param string $plugin       Plugin file path relative to plugins directory.
-	 * @param bool   $network_wide Whether the activation was network-wide.
-	 *
-	 * @return void
-	 */
-	public function on_plugin_activated( string $plugin, bool $network_wide ): void {
-		$feature = $this->find_plugin_feature( $plugin );
-
-		if ( $feature === null ) {
-			return;
-		}
-
-		update_option( 'stellarwp_uplink_feature_' . $feature->get_slug() . '_active', '1', true );
-	}
-
-	/**
-	 * Sync stored state when a plugin is deactivated via WordPress.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param string $plugin       Plugin file path relative to plugins directory.
-	 * @param bool   $network_wide Whether the deactivation was network-wide.
-	 *
-	 * @return void
-	 */
-	public function on_plugin_deactivated( string $plugin, bool $network_wide ): void {
-		$feature = $this->find_plugin_feature( $plugin );
-
-		if ( $feature === null ) {
-			return;
-		}
-
-		update_option( 'stellarwp_uplink_feature_' . $feature->get_slug() . '_active', '0', true );
-	}
-
-	/**
-	 * Find a Plugin feature by its plugin file path.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param string $plugin_file Plugin file path relative to plugins directory.
-	 *
-	 * @return Plugin|null
-	 */
-	private function find_plugin_feature( string $plugin_file ): ?Plugin {
-		$features = $this->container->get( Manager::class )->get_features();
-
-		if ( is_wp_error( $features ) ) {
-			return null;
-		}
-
-		foreach ( $features->filter( null, null, null, 'plugin' ) as $feature ) {
-			if ( $feature instanceof Plugin && $feature->get_wp_identifier() === $plugin_file ) {
-				return $feature;
-			}
-		}
-
-		return null;
 	}
 
 	/**

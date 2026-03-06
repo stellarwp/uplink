@@ -27,7 +27,7 @@ class Flag_Strategy extends Abstract_Strategy {
 	 * @return true
 	 */
 	public function enable() {
-		$this->update_stored_state( $this->feature->get_slug(), true );
+		$this->feature->mark_active();
 
 		return true;
 	}
@@ -42,7 +42,7 @@ class Flag_Strategy extends Abstract_Strategy {
 	 * @return true
 	 */
 	public function disable() {
-		$this->update_stored_state( $this->feature->get_slug(), false );
+		$this->feature->mark_inactive();
 
 		return true;
 	}
@@ -58,6 +58,6 @@ class Flag_Strategy extends Abstract_Strategy {
 	 * @return bool
 	 */
 	public function is_active(): bool {
-		return $this->get_stored_state( $this->feature->get_slug() ) === true;
+		return $this->feature->get_stored_state() === true;
 	}
 }

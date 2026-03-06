@@ -3,13 +3,13 @@
 namespace StellarWP\Uplink\Features\Strategy;
 
 use StellarWP\Uplink\Features\Error_Code;
-use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Utils\Cast;
 use WP_Error;
 use Throwable;
 use WP_Ajax_Upgrader_Skin;
 use Plugin_Upgrader;
 
+use function activate_plugin;
 use function deactivate_plugins;
 use function get_plugin_data;
 use function is_plugin_active;
@@ -129,7 +129,7 @@ class Plugin_Strategy extends Installable_Strategy {
 
 		// Idempotent: if already inactive, update stored state and bail.
 		if ( ! $this->check_active() ) {
-			$this->update_stored_state( $this->feature->get_slug(), false );
+			$this->feature->mark_inactive();
 
 			return true;
 		}
@@ -153,7 +153,7 @@ class Plugin_Strategy extends Installable_Strategy {
 			);
 		}
 
-		$this->update_stored_state( $this->feature->get_slug(), false ); // @phpstan-ignore deadCode.unreachable (The check above is a double check)
+		$this->feature->mark_inactive(); // @phpstan-ignore deadCode.unreachable (The check above is a double check)
 
 		return true;
 	}
@@ -407,7 +407,7 @@ class Plugin_Strategy extends Installable_Strategy {
 			);
 		}
 
-		$this->update_stored_state( $this->feature->get_slug(), true );
+		$this->feature->mark_active();
 
 		return true;
 	}

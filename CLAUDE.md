@@ -51,6 +51,10 @@ Tests use Codeception with `slic` for containerized WordPress test execution. Se
 
 Fixture data lives in `tests/_data/`. The catalog and licensing fixture files are working prototypes, not finalized API contracts.
 
+## PHP version
+
+The minimum PHP version is 7.4 (see `composer.json`). Do not use language features from PHP 8.0+ (named arguments, union types, match expressions, constructor promotion, etc.).
+
 ## Key principles
 
 - One unified `LWSW-` license key per site, shared by all products

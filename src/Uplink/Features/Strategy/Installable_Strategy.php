@@ -160,7 +160,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 				return $ownership;
 			}
 
-			$this->update_stored_state( $this->feature->get_slug(), true );
+			$this->feature->mark_active();
 
 			return true;
 		}
@@ -233,9 +233,9 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 		$this->load_wp_admin_includes();
 
 		$live_active   = $this->check_active();
-		$stored_active = $this->get_stored_state( $this->feature->get_slug() );
+		$stored_active = $this->feature->get_stored_state();
 
-		return $this->reconcile_state( $this->feature->get_slug(), $live_active, $stored_active );
+		return $this->reconcile_state( $live_active, $stored_active );
 	}
 
 	/**
@@ -252,22 +252,21 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $slug   Feature slug for stored-state access.
 	 * @param bool   $live   The live active state from check_active().
 	 * @param ?bool  $stored The stored state from wp_options (null if never set).
 	 *
 	 * @return bool The effective active state.
 	 */
-	protected function reconcile_state( string $slug, bool $live, ?bool $stored ): bool {
+	protected function reconcile_state( bool $live, ?bool $stored ): bool {
 		if ( $stored !== $live ) {
-			$this->update_stored_state( $slug, $live );
+			$live ? $this->feature->mark_active() : $this->feature->mark_inactive();
 
 			if ( $this->is_wp_debug() ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				error_log(
 					sprintf(
 						'[Uplink] Self-healed feature state for "%s": stored=%s, live=%s',
-						$slug,
+						$this->feature->get_slug(),
 						$stored === null ? 'null' : var_export( $stored, true ),
 						$live ? 'true' : 'false'
 					)

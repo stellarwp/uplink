@@ -97,7 +97,7 @@ class Theme_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error
 	 */
 	protected function do_activate() {
-		$this->update_stored_state( $this->feature->get_slug(), true );
+		$this->feature->mark_active();
 
 		return true;
 	}
@@ -112,7 +112,7 @@ class Theme_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error
 	 */
 	protected function do_deactivate() {
-		$this->update_stored_state( $this->feature->get_slug(), false );
+		$this->feature->mark_inactive();
 
 		return true;
 	}
@@ -151,23 +151,22 @@ class Theme_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $slug   The feature slug.
 	 * @param bool   $live   The live active state from check_active().
 	 * @param ?bool  $stored The stored state from wp_options (null if never set).
 	 *
 	 * @return bool The effective active state.
 	 */
-	protected function reconcile_state( string $slug, bool $live, ?bool $stored ): bool {
+	protected function reconcile_state( bool $live, ?bool $stored ): bool {
 		// Theme removed from disk → self-heal stored state to inactive.
 		if ( ! $live && $stored === true ) {
-			$this->update_stored_state( $slug, false );
+			$this->feature->mark_inactive();
 
 			if ( $this->is_wp_debug() ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				error_log(
 					sprintf(
 						'[Uplink] Self-healed feature state for "%s": theme no longer on disk',
-						$slug
+						$this->feature->get_slug()
 					)
 				);
 			}

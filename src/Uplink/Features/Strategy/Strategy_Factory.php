@@ -28,13 +28,17 @@ class Strategy_Factory {
 	 * @return Strategy A new Strategy instance bound to the given Feature.
 	 */
 	public function make( Feature $feature ): Strategy {
-		return match ( $feature->get_type() ) {
-			'plugin' => new Plugin_Strategy( $feature ),
-			'flag'   => new Flag_Strategy( $feature ),
-			'theme'  => new Theme_Strategy( $feature ),
-			default  => throw new InvalidArgumentException(
-				sprintf( 'No strategy for feature type "%s".', $feature->get_type() )
-			),
-		};
+		switch ( $feature->get_type() ) {
+			case 'plugin':
+				return new Plugin_Strategy( $feature );
+			case 'flag':
+				return new Flag_Strategy( $feature );
+			case 'theme':
+				return new Theme_Strategy( $feature );
+			default:
+				throw new InvalidArgumentException(
+					sprintf( 'No strategy for feature type "%s".', $feature->get_type() )
+				);
+		}
 	}
 }

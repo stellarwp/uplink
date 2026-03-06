@@ -17,7 +17,7 @@ use stdClass;
  *
  * @since 3.0.0
  */
-class Handler {
+class Plugin_Handler {
 
 	/**
 	 * The update repository.

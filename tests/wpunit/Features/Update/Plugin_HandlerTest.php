@@ -6,20 +6,20 @@ use StellarWP\Uplink\Features\Update\Update_Repository;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Types\Plugin;
-use StellarWP\Uplink\Features\Update\Handler;
+use StellarWP\Uplink\Features\Update\Plugin_Handler;
 use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use stdClass;
 use WP_Error;
 
-final class HandlerTest extends UplinkTestCase {
+final class Plugin_HandlerTest extends UplinkTestCase {
 
 	/**
 	 * The handler under test.
 	 *
-	 * @var Handler
+	 * @var Plugin_Handler
 	 */
-	private Handler $handler;
+	private Plugin_Handler $handler;
 
 	/**
 	 * Sets up the handler with mocked dependencies before each test.
@@ -33,7 +33,7 @@ final class HandlerTest extends UplinkTestCase {
 		$feature_repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => new Feature_Collection() ] );
 		$site_data          = $this->makeEmpty( Data::class, [ 'get_domain' => 'example.com' ] );
 
-		$this->handler = new Handler(
+		$this->handler = new Plugin_Handler(
 			$update_repository,
 			$feature_repository,
 			$site_data,
@@ -42,13 +42,13 @@ final class HandlerTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Creates a Handler with a Plugin feature in the Feature_Repository.
+	 * Creates a Plugin_Handler with a Plugin feature in the Feature_Repository.
 	 *
 	 * @param mixed $check_updates_return The return value for Update_Repository::get().
 	 *
-	 * @return Handler
+	 * @return Plugin_Handler
 	 */
-	private function handler_with_feature( $check_updates_return ): Handler {
+	private function handler_with_feature( $check_updates_return ): Plugin_Handler {
 		$feature = new Plugin(
 			[
 				'slug'         => 'my-plugin',
@@ -67,7 +67,7 @@ final class HandlerTest extends UplinkTestCase {
 		$update_repository  = $this->makeEmpty( Update_Repository::class, [ 'get' => $check_updates_return ] );
 		$feature_repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => $features ] );
 
-		return new Handler(
+		return new Plugin_Handler(
 			$update_repository,
 			$feature_repository,
 			$this->makeEmpty( Data::class, [ 'get_domain' => 'example.com' ] ),

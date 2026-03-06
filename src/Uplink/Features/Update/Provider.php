@@ -45,9 +45,9 @@ class Provider extends Abstract_Provider {
 		);
 
 		$this->container->singleton(
-			Handler::class,
+			Plugin_Handler::class,
 			static function ( ContainerInterface $c ) {
-				return new Handler(
+				return new Plugin_Handler(
 					$c->get( Update_Repository::class ),
 					$c->get( Feature_Repository::class ),
 					$c->get( Data::class ),
@@ -78,7 +78,7 @@ class Provider extends Abstract_Provider {
 			return;
 		}
 
-		$handler = $this->container->get( Handler::class );
+		$handler = $this->container->get( Plugin_Handler::class );
 
 		// Priority 15 to run after the plugins_api filter in the Plugins_Page class.
 		add_filter( 'plugins_api', [ $handler, 'filter_plugins_api' ], 15, 3 );

@@ -188,7 +188,7 @@ class Theme_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
 	private function install_theme() {
-$theme_info = themes_api(
+		$theme_info = themes_api(
 			'theme_information',
 			[
 				'slug'   => sanitize_key( $this->feature->get_slug() ),
@@ -267,7 +267,7 @@ $theme_info = themes_api(
 	 * @return true|WP_Error True if ownership matches or no theme on disk, WP_Error on mismatch.
 	 */
 	private function verify_theme_ownership() {
-$expected_authors = $this->feature->get_authors();
+		$expected_authors = $this->feature->get_authors();
 
 		if ( $expected_authors === [] ) {
 			return true;

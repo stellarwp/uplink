@@ -56,28 +56,26 @@ class Uplink {
 		$container->singleton( Catalog\Provider::class, Catalog\Provider::class );
 		$container->singleton( API\REST\V1\Provider::class, API\REST\V1\Provider::class );
 
-		$container->get( API\Functions\Provider::class )->register();
-
 		if ( static::is_enabled() ) {
 			$container->get( Storage\Provider::class )->register();
 			$container->get( View\Provider::class )->register();
 			$container->get( API\V3\Provider::class )->register();
 			$container->get( Notice\Provider::class )->register();
 			$container->get( Admin\Provider::class )->register();
-			$container->get( Legacy\Provider::class )->register();
 
 			if ( $container->has( Config::TOKEN_OPTION_NAME ) ) {
 				$container->get( Auth\Provider::class )->register();
 			}
-
-			// TODO: Register to only the newest instance.
-			$container->get( Features\Provider::class )->register();
-			$container->get( Licensing\Provider::class )->register();
-			$container->get( Catalog\Provider::class )->register();
-			$container->get( API\REST\V1\Provider::class )->register();
-
-			static::register_cross_instance_hooks( $container );
 		}
+
+		$container->get( Legacy\Provider::class )->register();
+		$container->get( Features\Provider::class )->register();
+		$container->get( Licensing\Provider::class )->register();
+		$container->get( Catalog\Provider::class )->register();
+		$container->get( API\REST\V1\Provider::class )->register();
+		$container->get( API\Functions\Provider::class )->register();
+
+		static::register_cross_instance_hooks( $container );
 
 		require_once __DIR__ . '/functions.php';
 	}

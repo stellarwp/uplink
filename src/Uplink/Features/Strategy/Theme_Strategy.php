@@ -66,7 +66,7 @@ class Theme_Strategy extends Installable_Strategy {
 	 * @return bool
 	 */
 	protected function check_active( Feature $feature ): bool {
-		return wp_get_theme( $feature->get_slug() )->exists();
+		return $this->check_installed( $feature );
 	}
 
 	/**

@@ -40,10 +40,8 @@ class Global_Function_Registry {
 				try {
 					return $container->get( License_Repository::class )->key_exists();
 				} catch ( Throwable $e ) {
-					if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-						// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
-						error_log( "Error checking unified license key existence: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
-					}
+					self::debug_log( $e, 'Error checking unified license key existence' );
+
 					return false;
 				}
 			}
@@ -57,10 +55,8 @@ class Global_Function_Registry {
 				try {
 					return $container->get( License_Repository::class )->get_key();
 				} catch ( Throwable $e ) {
-					if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-						// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
-						error_log( "Error getting unified license key: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
-					}
+					self::debug_log( $e, 'Error getting unified license key' );
+
 					return null;
 				}
 			}
@@ -74,10 +70,8 @@ class Global_Function_Registry {
 				try {
 					return $container->get( License_Repository::class )->is_product_valid( $product );
 				} catch ( Throwable $e ) {
-					if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-						// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
-						error_log( "Error checking product license: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
-					}
+					self::debug_log( $e, 'Error checking product license' );
+
 					return false;
 				}
 			}
@@ -91,11 +85,10 @@ class Global_Function_Registry {
 				try {
 					return $container->get( Manager::class )->is_enabled( $slug );
 				} catch ( Throwable $e ) {
-					if ( $e instanceof \Exception && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-						// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
-						error_log( "Error checking feature enabled state: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
-					}
+					self::debug_log( $e, 'Error checking feature enabled state' );
+
 					$message = $e instanceof \Exception ? $e->getMessage() : 'An unexpected error occurred.';
+
 					return new WP_Error( Error_Code::FEATURE_CHECK_FAILED, $message );
 				}
 			}
@@ -109,14 +102,30 @@ class Global_Function_Registry {
 				try {
 					return $container->get( Manager::class )->is_available( $slug );
 				} catch ( Throwable $e ) {
-					if ( $e instanceof \Exception && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-						// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
-						error_log( "Error checking feature availability: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
-					}
+					self::debug_log( $e, 'Error checking feature availability' );
+
 					$message = $e instanceof \Exception ? $e->getMessage() : 'An unexpected error occurred.';
+
 					return new WP_Error( Error_Code::FEATURE_CHECK_FAILED, $message );
 				}
 			}
 		);
+	}
+
+	/**
+	 * Logs a Throwable message and trace when WP_DEBUG is enabled.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param Throwable $e
+	 * @param string    $context Message prefix for the error log.
+	 *
+	 * @return void
+	 */
+	private static function debug_log( Throwable $e, string $context ): void {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
+			error_log( "{$context}: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
+		}
 	}
 }

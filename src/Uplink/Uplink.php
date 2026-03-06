@@ -56,15 +56,12 @@ class Uplink {
 		$container->singleton( Catalog\Provider::class, Catalog\Provider::class );
 		$container->singleton( API\REST\V1\Provider::class, API\REST\V1\Provider::class );
 
-		// Must be included before is_enabled() so uplink_fn_registry() is defined
-		// before API\Functions\Provider::register() calls it.
-		require_once __DIR__ . '/global-functions.php';
+		$container->get( API\Functions\Provider::class )->register();
 
 		if ( static::is_enabled() ) {
 			$container->get( Storage\Provider::class )->register();
 			$container->get( View\Provider::class )->register();
 			$container->get( API\V3\Provider::class )->register();
-			$container->get( API\Functions\Provider::class )->register();
 			$container->get( Notice\Provider::class )->register();
 			$container->get( Admin\Provider::class )->register();
 			$container->get( Legacy\Provider::class )->register();

@@ -155,7 +155,7 @@ final class Plugin extends Feature implements Installable {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php'; // @phpstan-ignore-line -- ABSPATH exists.
 		}
 
-		$plugin_data = get_plugin_data( trailingslashit( WP_PLUGIN_DIR ) . $this->get_plugin_file() ); // @phpstan-ignore-line
+		$plugin_data = get_plugin_data( trailingslashit( WP_PLUGIN_DIR ) . $this->get_plugin_file() );
 
 		return $plugin_data['Version'] ?? null;
 	}

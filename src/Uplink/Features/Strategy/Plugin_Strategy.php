@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink\Features\Strategy;
 
 use StellarWP\Uplink\Features\Error_Code;
+use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Utils\Cast;
 use WP_Error;
@@ -31,15 +32,32 @@ use function wp_json_encode;
  * - do_deactivate()  → deactivate_plugins() + verification
  * - verify_ownership → Author header checks (3 cases)
  *
- * Stored state lives in wp_options as `stellarwp_uplink_feature_{slug}_active`
- * with autoload=true for fast reads. The live WordPress plugin state is always
- * the source of truth — stored state is a cache that self-heals on mismatch.
+ * A plugin feature is active when WordPress reports the plugin as active.
+ * A plugin feature is disabled if the plugin is deactivated or uninstalled.
  *
  * @since 3.0.0
- *
- * @phpstan-property Plugin $feature
  */
 class Plugin_Strategy extends Installable_Strategy {
+
+	/**
+	 * @var Plugin
+	 */
+	protected Feature $feature;
+
+	/**
+	 * Construct the strategy with a Plugin feature.
+	 *
+	 * Narrows the parent's Feature type to Plugin.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param Plugin $feature The plugin feature this strategy operates on.
+	 *
+	 * phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found -- Narrows parameter type from Feature to Plugin.
+	 */
+	public function __construct( Plugin $feature ) {
+		parent::__construct( $feature );
+	}
 
 	/**
 	 * WordPress error codes that indicate PHP or WP version requirements are not met.
@@ -60,13 +78,6 @@ class Plugin_Strategy extends Installable_Strategy {
 	];
 
 	// ── Abstract method implementations ─────────────────────────────────
-
-	/**
-	 * @inheritDoc
-	 */
-	protected function get_type_mismatch_message(): string {
-		return __( 'This feature type is not supported by the Plugin installer.', '%TEXTDOMAIN%' );
-	}
 
 	/**
 	 * Check whether the plugin is currently active in WordPress.
@@ -128,10 +139,8 @@ class Plugin_Strategy extends Installable_Strategy {
 	protected function do_deactivate() {
 		$plugin_file = $this->feature->get_plugin_file();
 
-		// Idempotent: if already inactive, update stored state and bail.
+		// Idempotent: if already inactive, bail.
 		if ( ! $this->check_active() ) {
-			$this->update_stored_state( $this->feature->get_slug(), false );
-
 			return true;
 		}
 
@@ -154,9 +163,7 @@ class Plugin_Strategy extends Installable_Strategy {
 			);
 		}
 
-		$this->update_stored_state( $this->feature->get_slug(), false ); // @phpstan-ignore deadCode.unreachable (The check above is a double check)
-
-		return true;
+		return true; // @phpstan-ignore deadCode.unreachable (The check above is a double check)
 	}
 
 	/**
@@ -353,7 +360,7 @@ class Plugin_Strategy extends Installable_Strategy {
 		);
 
 		try {
-			$result = \activate_plugin( $plugin_file );
+			$result = activate_plugin( $plugin_file );
 		} catch ( Throwable $e ) {
 			$completed = true;
 
@@ -407,8 +414,6 @@ class Plugin_Strategy extends Installable_Strategy {
 				)
 			);
 		}
-
-		$this->update_stored_state( $this->feature->get_slug(), true );
 
 		return true;
 	}

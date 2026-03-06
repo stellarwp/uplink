@@ -157,6 +157,15 @@ class Error_Code {
 	public const THEME_IS_ACTIVE = 'stellarwp-uplink-theme-is-active';
 
 	/**
+	 * A theme feature cannot be deactivated programmatically — the user must delete it manually.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const THEME_DELETE_REQUIRED = 'stellarwp-uplink-theme-delete-required';
+
+	/**
 	 * The expected theme was not found on disk after installation.
 	 *
 	 * @since 3.0.0
@@ -217,6 +226,7 @@ class Error_Code {
 			self::PLUGIN_OWNERSHIP_MISMATCH      => 409,
 			self::THEME_OWNERSHIP_MISMATCH       => 409,
 			self::THEME_IS_ACTIVE                => 409,
+			self::THEME_DELETE_REQUIRED          => 409,
 			self::DEACTIVATION_FAILED            => 409,
 
 			// 422 Unprocessable Entity — the request was understood but the operation

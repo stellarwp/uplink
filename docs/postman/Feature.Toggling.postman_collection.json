@@ -17,16 +17,8 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features",
-              "host": [
-                "{{WP_SITE}}"
-              ],
-              "path": [
-                "wp-json",
-                "stellarwp",
-                "uplink",
-                "v1",
-                "features"
-              ],
+              "host": ["{{WP_SITE}}"],
+              "path": ["wp-json", "stellarwp", "uplink", "v1", "features"],
               "query": [
                 {
                   "key": "group",
@@ -70,9 +62,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/flag-feature",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -93,9 +83,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/flag-feature/enable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -117,9 +105,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/flag-feature/disable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -146,9 +132,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/valid-plugin-feature",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -169,9 +153,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/valid-plugin-feature/enable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -193,9 +175,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/valid-plugin-feature/disable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -222,9 +202,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/learndash-certificate-builder",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -245,9 +223,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/learndash-certificate-builder/enable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -269,9 +245,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/learndash-certificate-builder/disable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -298,9 +272,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/wrong-author-plugin-feature",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -321,9 +293,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/wrong-author-plugin-feature/enable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -345,9 +315,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/wrong-author-plugin-feature/enable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -369,9 +337,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/wrong-author-plugin-feature/disable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -398,9 +364,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/fatal-plugin-feature/enable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -422,9 +386,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/syntax-error-plugin-feature/enable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -446,9 +408,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/die-on-include-plugin-feature/enable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -475,9 +435,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/activation-fatal-plugin-feature/enable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -504,9 +462,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/high-php-req-plugin-feature/enable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -528,9 +484,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/high-wp-req-plugin-feature/enable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -552,9 +506,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/no-header-plugin-feature/enable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -581,9 +533,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/mismatched-dir-plugin-feature/enable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -610,9 +560,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/deactivation-fatal-plugin-feature/enable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -634,9 +582,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/deactivation-fatal-plugin-feature/disable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -663,9 +609,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/no-source-plugin-feature/enable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -692,9 +636,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/unavailable-plugin-feature/enable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -721,9 +663,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/does-not-exist/enable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -745,9 +685,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/does-not-exist",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -773,9 +711,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/valid-theme-feature",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -796,9 +732,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/valid-theme-feature/enable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -809,7 +743,7 @@
                 "enable"
               ]
             },
-            "description": "Installs the valid theme feature.\n\nExpected: HTTP 200 — Feature object with is_enabled: true.\n\nFirst call: downloads ZIP via themes_api(), installs with Theme_Upgrader, verifies ownership (Author matches \"StellarWP\"), updates stored state to enabled. The theme is NOT activated (not switched to) — users activate themes through WordPress's Appearance → Themes UI.\nSecond call: theme already installed, ownership verified, returns 200 immediately (idempotent)."
+            "description": "Installs the valid theme feature.\n\nExpected: HTTP 200 — Feature object with is_enabled: true.\n\nFirst call: downloads ZIP via themes_api(), installs with Theme_Upgrader, verifies ownership (Author matches \"StellarWP\"). The theme is NOT activated (not switched to) — users activate themes through WordPress's Appearance → Themes UI.\nSecond call: theme already installed, ownership verified, returns 200 immediately (idempotent)."
           },
           "response": []
         },
@@ -820,9 +754,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/valid-theme-feature/disable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -833,7 +765,7 @@
                 "disable"
               ]
             },
-            "description": "Disables the valid theme feature. Updates stored state to false. Theme files are NOT deleted.\n\nExpected: HTTP 200 — Feature object with is_enabled: false. Idempotent (calling when already disabled returns 200)."
+            "description": "Attempts to disable the valid theme feature.\n\nExpected behavior depends on disk state:\n- Theme NOT on disk: HTTP 200 — Feature object with is_enabled: false (already disabled, nothing to do).\n- Theme IS on disk: HTTP 409 — Error code: THEME_DELETE_REQUIRED. The system cannot delete theme files programmatically. The user must remove the theme manually via Appearance → Themes in the WordPress admin."
           },
           "response": []
         }
@@ -849,9 +781,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/wrong-author-theme-feature",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -872,9 +802,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/wrong-author-theme-feature/enable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -885,7 +813,7 @@
                 "enable"
               ]
             },
-            "description": "Tests THEME_OWNERSHIP_MISMATCH on fresh install.\n\nExpected: HTTP 409 — Error code: THEME_OWNERSHIP_MISMATCH\n\nFlow:\n1. Theme not on disk → pre-install ownership check passes (nothing to check)\n2. ZIP is downloaded and theme files are extracted to disk\n3. Post-install ownership check reads the theme's Author header via wp_get_theme()\n4. Author \"Foreign Developer\" does not match expected \"StellarWP\" → error\n\nAfter this call: theme files ARE on disk, but stored state was NOT updated to enabled. Run this FIRST before the other ownership mismatch tests."
+            "description": "Tests THEME_OWNERSHIP_MISMATCH on fresh install.\n\nExpected: HTTP 409 — Error code: THEME_OWNERSHIP_MISMATCH\n\nFlow:\n1. Theme not on disk → pre-install ownership check passes (nothing to check)\n2. ZIP is downloaded and theme files are extracted to disk\n3. Post-install ownership check reads the theme's Author header via wp_get_theme()\n4. Author \"Foreign Developer\" does not match expected \"StellarWP\" → error\n\nAfter this call: theme files ARE on disk, but the feature is not considered enabled (ownership mismatch blocks it). Run this FIRST before the other ownership mismatch tests."
           },
           "response": []
         },
@@ -896,9 +824,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/wrong-author-theme-feature/enable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -909,7 +835,7 @@
                 "enable"
               ]
             },
-            "description": "Tests THEME_OWNERSHIP_MISMATCH when theme files already exist on disk.\n\nExpected: HTTP 409 — Error code: THEME_OWNERSHIP_MISMATCH\n\nFlow:\n1. Theme not enabled but files exist from previous install attempt\n2. Pre-install ownership check reads the existing theme's Author header via wp_get_theme()\n3. Author \"Foreign Developer\" does not match expected \"StellarWP\" → error immediately\n4. No download or install attempt is made\n\nRequires: Run \"Enable Wrong Author Theme (Fresh Install)\" first to get files on disk."
+            "description": "Tests THEME_OWNERSHIP_MISMATCH when theme files already exist on disk.\n\nExpected: HTTP 409 — Error code: THEME_OWNERSHIP_MISMATCH\n\nFlow:\n1. Theme files exist from previous install attempt\n2. Pre-install ownership check reads the existing theme's Author header via wp_get_theme()\n3. Author \"Foreign Developer\" does not match expected \"StellarWP\" → error immediately\n4. No download or install attempt is made\n\nRequires: Run \"Enable Wrong Author Theme (Fresh Install)\" first to get files on disk."
           },
           "response": []
         },
@@ -920,9 +846,7 @@
             "header": [],
             "url": {
               "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/wrong-author-theme-feature/disable",
-              "host": [
-                "{{WP_SITE}}"
-              ],
+              "host": ["{{WP_SITE}}"],
               "path": [
                 "wp-json",
                 "stellarwp",
@@ -933,7 +857,7 @@
                 "disable"
               ]
             },
-            "description": "Tests THEME_OWNERSHIP_MISMATCH on disable path.\n\nExpected: HTTP 409 — Error code: THEME_OWNERSHIP_MISMATCH\n\nFlow:\n1. Ownership check runs BEFORE any state update logic\n2. Theme files on disk have Author \"Foreign Developer\" instead of expected \"StellarWP\"\n3. Error returned — the system refuses to manage (enable OR disable) a theme from a different developer\n\nRequires: Run \"Enable Wrong Author Theme (Fresh Install)\" first to get files on disk.\n\nCleanup: To remove the theme files, manually delete the theme via WP Admin > Appearance > Themes or the filesystem."
+            "description": "Tests THEME_OWNERSHIP_MISMATCH on disable path.\n\nExpected: HTTP 409 — Error code: THEME_OWNERSHIP_MISMATCH\n\nFlow:\n1. Ownership check runs BEFORE any deactivation logic\n2. Theme files on disk have Author \"Foreign Developer\" instead of expected \"StellarWP\"\n3. Error returned — the system refuses to manage (enable OR disable) a theme from a different developer\n\nRequires: Run \"Enable Wrong Author Theme (Fresh Install)\" first to get files on disk.\n\nCleanup: To remove the theme files, manually delete the theme via WP Admin > Appearance > Themes or the filesystem."
           },
           "response": []
         }
@@ -962,9 +886,7 @@
         "type": "text/javascript",
         "packages": {},
         "requests": {},
-        "exec": [
-          ""
-        ]
+        "exec": [""]
       }
     },
     {
@@ -973,9 +895,7 @@
         "type": "text/javascript",
         "packages": {},
         "requests": {},
-        "exec": [
-          ""
-        ]
+        "exec": [""]
       }
     }
   ],

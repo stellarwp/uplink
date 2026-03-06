@@ -20,6 +20,7 @@ final class Error_CodeTest extends UplinkTestCase {
 			'PLUGIN_OWNERSHIP_MISMATCH'      => [ Error_Code::PLUGIN_OWNERSHIP_MISMATCH, 409 ],
 			'THEME_OWNERSHIP_MISMATCH'       => [ Error_Code::THEME_OWNERSHIP_MISMATCH, 409 ],
 			'THEME_IS_ACTIVE'                => [ Error_Code::THEME_IS_ACTIVE, 409 ],
+			'THEME_DELETE_REQUIRED'          => [ Error_Code::THEME_DELETE_REQUIRED, 409 ],
 			'DEACTIVATION_FAILED'            => [ Error_Code::DEACTIVATION_FAILED, 409 ],
 			'REQUIREMENTS_NOT_MET'           => [ Error_Code::REQUIREMENTS_NOT_MET, 422 ],
 			'INSTALL_FAILED'                 => [ Error_Code::INSTALL_FAILED, 422 ],

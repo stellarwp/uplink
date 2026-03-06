@@ -104,9 +104,6 @@ class Provider extends Abstract_Provider {
 		// TODO: Remove this once the real plugins_api filter is implemented.
 		add_filter( 'upgrader_pre_download', [ $this, 'serve_local_zip_for_upgrader' ], 10, 2 );
 
-		// TODO: Wire switch_theme and activated_plugin/deactivated_plugin sync
-		// hooks once the Feature Collection and feature resolver are built.
-
 		add_action(
 			'stellarwp/uplink/unified_license_key_changed',
 			static function () {

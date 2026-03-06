@@ -152,6 +152,8 @@ final class FeatureTest extends UplinkTestCase {
 		);
 	}
 
+	// ── from_array tests ────────────────────────────────────────────────
+
 	/**
 	 * Tests that from_array hydrates a Feature with the correct values.
 	 *

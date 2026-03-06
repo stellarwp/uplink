@@ -5,6 +5,8 @@ namespace StellarWP\Uplink\Features\Strategy;
 use InvalidArgumentException;
 use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Types\Feature;
+use StellarWP\Uplink\Features\Types\Plugin;
+use StellarWP\Uplink\Features\Types\Theme;
 
 /**
  * Factory that creates Strategy instances for features.
@@ -30,10 +32,22 @@ class Strategy_Factory {
 	public function make( Feature $feature ): Strategy {
 		switch ( $feature->get_type() ) {
 			case Feature::TYPE_PLUGIN:
+				if ( ! $feature instanceof Plugin ) {
+					throw new InvalidArgumentException(
+						sprintf( 'Feature type "%s" requires a Plugin instance.', Feature::TYPE_PLUGIN )
+					);
+				}
+
 				return new Plugin_Strategy( $feature );
 			case Feature::TYPE_FLAG:
 				return new Flag_Strategy( $feature );
 			case Feature::TYPE_THEME:
+				if ( ! $feature instanceof Theme ) {
+					throw new InvalidArgumentException(
+						sprintf( 'Feature type "%s" requires a Theme instance.', Feature::TYPE_THEME )
+					);
+				}
+
 				return new Theme_Strategy( $feature );
 			default:
 				throw new InvalidArgumentException(

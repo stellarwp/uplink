@@ -25,7 +25,7 @@ final class Plugin extends Feature implements Installable {
 	 * @return void
 	 */
 	public function __construct( array $attributes ) {
-		$attributes['type'] = 'plugin';
+		$attributes['type'] = self::TYPE_PLUGIN;
 
 		parent::__construct( $attributes );
 	}

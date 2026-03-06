@@ -85,9 +85,9 @@ class Feature_Collection extends Collection {
 			} elseif ( is_array( $item ) ) {
 				$type = $item['type'] ?? '';
 
-				if ( $type === 'plugin' ) {
+				if ( $type === Feature::TYPE_PLUGIN ) {
 					$feature = Plugin::from_array( $item );
-				} elseif ( $type === 'theme' ) {
+				} elseif ( $type === Feature::TYPE_THEME ) {
 					$feature = Theme::from_array( $item );
 				} else {
 					$feature = Flag::from_array( $item );
@@ -110,7 +110,7 @@ class Feature_Collection extends Collection {
 	 * @param string|null $group     Filter by product group (e.g. 'LearnDash', 'TEC').
 	 * @param string|null $tier      Filter by tier (e.g. 'Tier 1', 'Tier 2').
 	 * @param bool|null   $available Filter by availability (true/false).
-	 * @param string|null $type      Filter by feature type (e.g. 'plugin', 'flag').
+	 * @param string|null $type      Filter by feature type (a Feature::TYPE_* constant).
 	 *
 	 * @return Feature_Collection
 	 */

@@ -8,7 +8,7 @@ use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Manager;
-use StellarWP\Uplink\Features\Strategy\Resolver;
+use StellarWP\Uplink\Features\Strategy\Strategy_Factory;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Features\Types\Plugin;
@@ -72,14 +72,14 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$resolver = $this->makeEmpty(
-			Resolver::class,
+		$factory = $this->makeEmpty(
+			Strategy_Factory::class,
 			[
-				'resolve' => $this->mock_strategy,
+				'make' => $this->mock_strategy,
 			]
 		);
 
-		$this->manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
+		$this->manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
 	}
 
 	/**
@@ -341,10 +341,10 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$resolver = $this->makeEmpty(
-			Resolver::class,
+		$factory = $this->makeEmpty(
+			Strategy_Factory::class,
 			[
-				'resolve' => $strategy,
+				'make' => $strategy,
 			]
 		);
 
@@ -355,7 +355,7 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
 
 		$enabled_fired = false;
 
@@ -387,10 +387,10 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$resolver = $this->makeEmpty(
-			Resolver::class,
+		$factory = $this->makeEmpty(
+			Strategy_Factory::class,
 			[
-				'resolve' => $strategy,
+				'make' => $strategy,
 			]
 		);
 
@@ -401,7 +401,7 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
 
 		$disabled_fired = false;
 
@@ -433,9 +433,9 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$resolver = $this->makeEmpty( Resolver::class );
+		$factory = $this->makeEmpty( Strategy_Factory::class );
 
-		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
 
 		$this->assertInstanceOf( WP_Error::class, $manager->get_features() );
 	}
@@ -455,9 +455,9 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$resolver = $this->makeEmpty( Resolver::class );
+		$factory = $this->makeEmpty( Strategy_Factory::class );
 
-		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
 
 		$result = $manager->is_enabled( 'test-feature' );
 		$this->assertInstanceOf( WP_Error::class, $result );
@@ -479,9 +479,9 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$resolver = $this->makeEmpty( Resolver::class );
+		$factory = $this->makeEmpty( Strategy_Factory::class );
 
-		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
 
 		$result = $manager->is_available( 'test-feature' );
 		$this->assertInstanceOf( WP_Error::class, $result );
@@ -503,9 +503,9 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$resolver = $this->makeEmpty( Resolver::class );
+		$factory = $this->makeEmpty( Strategy_Factory::class );
 
-		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
 
 		$result = $manager->enable( 'test-feature' );
 
@@ -527,9 +527,9 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$resolver = $this->makeEmpty( Resolver::class );
+		$factory = $this->makeEmpty( Strategy_Factory::class );
 
-		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
 
 		$result = $manager->disable( 'test-feature' );
 

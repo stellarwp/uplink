@@ -15,6 +15,33 @@ use StellarWP\Uplink\Utils\Cast;
 abstract class Feature {
 
 	/**
+	 * A feature delivered as a standalone WordPress plugin.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const TYPE_PLUGIN = 'plugin';
+
+	/**
+	 * A feature built in to an existing plugin, gated by a DB option flag.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const TYPE_FLAG = 'flag';
+
+	/**
+	 * A feature delivered as a WordPress theme.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const TYPE_THEME = 'theme';
+
+	/**
 	 * The feature attributes.
 	 *
 	 * @since 3.0.0

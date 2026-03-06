@@ -286,4 +286,38 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 		$this->assertArrayHasKey( 'my-plugin/my-plugin.php', $result->no_update );
 		$this->assertSame( '', $result->no_update['my-plugin/my-plugin.php']->new_version );
 	}
+
+	/**
+	 * Tests filter_update_check preserves an existing update from another system
+	 * when our data says no newer version is available.
+	 *
+	 * @return void
+	 */
+	public function test_filter_update_check_preserves_existing_update_from_other_system(): void {
+		$update_data = [
+			'my-plugin' => [
+				'new_version' => '',
+				'package'     => 'https://example.com/my-plugin.zip',
+				'plugin_file' => 'my-plugin/my-plugin.php',
+			],
+		];
+
+		$handler = $this->handler_with_feature( $update_data );
+
+		$existing_update              = new stdClass();
+		$existing_update->slug        = 'my-plugin';
+		$existing_update->new_version = '1.5.0';
+		$existing_update->package     = 'https://legacy.example.com/my-plugin.zip';
+
+		$transient                                      = new stdClass();
+		$transient->response                            = [];
+		$transient->response['my-plugin/my-plugin.php'] = $existing_update;
+		$transient->no_update                           = [];
+
+		$result = $handler->filter_update_check( $transient );
+
+		$this->assertArrayHasKey( 'my-plugin/my-plugin.php', $result->response, 'Existing update from another system should be preserved in response.' );
+		$this->assertSame( $existing_update, $result->response['my-plugin/my-plugin.php'], 'The existing update object should not be modified.' );
+		$this->assertArrayNotHasKey( 'my-plugin/my-plugin.php', $result->no_update, 'Plugin should not appear in no_update when it has an existing update.' );
+	}
 }

@@ -196,17 +196,18 @@ class Plugin_Handler {
 			$update_object = $this->to_update_object( $slug, $plugin_file, $update_data );
 
 			/**
-			 * Place the update object in `response` if a newer version is available, otherwise in `no_update`.
+			 * Place the update object in `response` if a newer version is available.
 			 * WordPress uses this distinction to show (or hide) the plugin on the Updates page.
 			 *
-			 * Each plugin file should only appear in one array, so we remove it from the other when placing it.
+			 * When we don't have an update, only write to `no_update` if the plugin isn't
+			 * already in `response` from another system (e.g. legacy licensing) to avoid
+			 * clearing updates we didn't provide.
 			 */
 			if ( version_compare( $new_version, $installed_version, '>' ) ) {
 				$wp_response[ $plugin_file ] = $update_object;
 				unset( $wp_no_update[ $plugin_file ] );
-			} else {
+			} elseif ( ! isset( $wp_response[ $plugin_file ] ) ) {
 				$wp_no_update[ $plugin_file ] = $update_object;
-				unset( $wp_response[ $plugin_file ] );
 			}
 		}
 

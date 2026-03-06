@@ -5,6 +5,7 @@ namespace StellarWP\Uplink\Features;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Features\Types\Plugin;
+use StellarWP\Uplink\Features\Types\Theme;
 use StellarWP\Uplink\Utils\Collection;
 
 /**
@@ -82,9 +83,15 @@ class Feature_Collection extends Collection {
 			if ( $item instanceof Feature ) {
 				$collection->add( $item );
 			} elseif ( is_array( $item ) ) {
-				$feature = ( $item['type'] ?? '' ) === 'plugin'
-					? Plugin::from_array( $item )
-					: Flag::from_array( $item );
+				$type = $item['type'] ?? '';
+
+				if ( $type === 'plugin' ) {
+					$feature = Plugin::from_array( $item );
+				} elseif ( $type === 'theme' ) {
+					$feature = Theme::from_array( $item );
+				} else {
+					$feature = Flag::from_array( $item );
+				}
 
 				$collection->add( $feature );
 			}

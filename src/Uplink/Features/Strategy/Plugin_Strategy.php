@@ -3,6 +3,8 @@
 namespace StellarWP\Uplink\Features\Strategy;
 
 use StellarWP\Uplink\Features\Error_Code;
+use StellarWP\Uplink\Features\Types\Feature;
+use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Utils\Cast;
 use WP_Error;
 use Throwable;
@@ -35,10 +37,28 @@ use function wp_json_encode;
  * the source of truth — stored state is a cache that self-heals on mismatch.
  *
  * @since 3.0.0
- *
- * @phpstan-property Plugin $feature
  */
 class Plugin_Strategy extends Installable_Strategy {
+
+	/**
+	 * @var Plugin
+	 */
+	protected Feature $feature;
+
+	/**
+	 * Construct the strategy with a Plugin feature.
+	 *
+	 * Narrows the parent's Feature type to Plugin.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param Plugin $feature The plugin feature this strategy operates on.
+	 *
+	 * phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found -- Narrows parameter type from Feature to Plugin.
+	 */
+	public function __construct( Plugin $feature ) {
+		parent::__construct( $feature );
+	}
 
 	/**
 	 * WordPress error codes that indicate PHP or WP version requirements are not met.
@@ -352,7 +372,7 @@ class Plugin_Strategy extends Installable_Strategy {
 		);
 
 		try {
-			$result = \activate_plugin( $plugin_file );
+			$result = activate_plugin( $plugin_file );
 		} catch ( Throwable $e ) {
 			$completed = true;
 

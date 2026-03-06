@@ -252,8 +252,8 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param bool   $live   The live active state from check_active().
-	 * @param ?bool  $stored The stored state from wp_options (null if never set).
+	 * @param bool  $live   The live active state from check_active().
+	 * @param ?bool $stored The stored state from wp_options (null if never set).
 	 *
 	 * @return bool The effective active state.
 	 */

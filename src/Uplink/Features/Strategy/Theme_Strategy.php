@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink\Features\Strategy;
 
 use StellarWP\Uplink\Features\Error_Code;
+use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Theme;
 use StellarWP\Uplink\Utils\Cast;
 use WP_Error;
@@ -34,10 +35,28 @@ use function wp_get_theme;
  * toggle.
  *
  * @since 3.0.0
- *
- * @phpstan-property Theme $feature
  */
 class Theme_Strategy extends Installable_Strategy {
+
+	/**
+	 * @var Theme
+	 */
+	protected Feature $feature;
+
+	/**
+	 * Construct the strategy with a Theme feature.
+	 *
+	 * Narrows the parent's Feature type to Theme.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param Theme $feature The theme feature this strategy operates on.
+	 *
+	 * phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found -- Narrows parameter type from Feature to Theme.
+	 */
+	public function __construct( Theme $feature ) {
+		parent::__construct( $feature );
+	}
 
 	// ── Abstract method implementations ─────────────────────────────────
 
@@ -151,8 +170,8 @@ class Theme_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param bool   $live   The live active state from check_active().
-	 * @param ?bool  $stored The stored state from wp_options (null if never set).
+	 * @param bool  $live   The live active state from check_active().
+	 * @param ?bool $stored The stored state from wp_options (null if never set).
 	 *
 	 * @return bool The effective active state.
 	 */

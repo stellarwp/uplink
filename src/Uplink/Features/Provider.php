@@ -119,15 +119,30 @@ class Provider extends Abstract_Provider {
 		add_filter( 'upgrader_pre_download', [ $this, 'serve_local_zip_for_upgrader' ], 10, 2 );
 
 		$c = $this->container;
-		add_action( 'activated_plugin', static function ( string $plugin, bool $network_wide ) use ( $c ) {
-			$c->get( Plugin_Activation_Sync::class )->on_activated( $plugin, $network_wide );
-		}, 10, 2 );
-		add_action( 'deactivated_plugin', static function ( string $plugin, bool $network_wide ) use ( $c ) {
-			$c->get( Plugin_Activation_Sync::class )->on_deactivated( $plugin, $network_wide );
-		}, 10, 2 );
-		add_action( 'switch_theme', static function ( string $new_name, WP_Theme $new_theme, WP_Theme $old_theme ) use ( $c ) {
-			$c->get( Theme_Switch_Sync::class )->on_switch( $new_name, $new_theme, $old_theme );
-		}, 10, 3 );
+		add_action(
+			'activated_plugin',
+			static function ( string $plugin, bool $network_wide ) use ( $c ) {
+				$c->get( Plugin_Activation_Sync::class )->on_activated( $plugin, $network_wide );
+			},
+			10,
+			2
+		);
+		add_action(
+			'deactivated_plugin',
+			static function ( string $plugin, bool $network_wide ) use ( $c ) {
+				$c->get( Plugin_Activation_Sync::class )->on_deactivated( $plugin, $network_wide );
+			},
+			10,
+			2
+		);
+		add_action(
+			'switch_theme',
+			static function ( string $new_name, WP_Theme $new_theme, WP_Theme $old_theme ) use ( $c ) {
+				$c->get( Theme_Switch_Sync::class )->on_switch( $new_name, $new_theme, $old_theme );
+			},
+			10,
+			3
+		);
 
 		add_action(
 			'stellarwp/uplink/unified_license_key_changed',

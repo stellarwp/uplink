@@ -214,13 +214,15 @@ final class FeatureTest extends UplinkTestCase {
 	 * Different features have independent stored state.
 	 */
 	public function test_stored_state_is_independent_per_feature(): void {
-		$other = $this->feature::from_array( [
-			'slug'         => 'other-feature',
-			'group'        => 'TEC',
-			'tier'         => 'Tier 1',
-			'name'         => 'Other',
-			'is_available' => true,
-		] );
+		$other = $this->feature::from_array(
+			[
+				'slug'         => 'other-feature',
+				'group'        => 'TEC',
+				'tier'         => 'Tier 1',
+				'name'         => 'Other',
+				'is_available' => true,
+			]
+		);
 
 		$this->feature->mark_active();
 

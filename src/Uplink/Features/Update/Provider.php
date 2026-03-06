@@ -25,24 +25,16 @@ class Provider extends Abstract_Provider {
 	 */
 	public function register(): void {
 		$this->container->singleton( Resolve_Update_Data::class, Resolve_Update_Data::class );
-		$this->container->singleton( Update_Repository::class, Update_Repository::class );
 
 		$this->container->singleton(
 			Plugin_Handler::class,
 			static function ( ContainerInterface $c ) {
 				return new Plugin_Handler(
-					$c->get( Update_Repository::class ),
+					$c->get( Resolve_Update_Data::class ),
 					$c->get( Feature_Repository::class ),
 					$c->get( Data::class ),
 					$c->get( License_Manager::class )->get_key() ?? ''
 				);
-			}
-		);
-
-		add_action(
-			'stellarwp/uplink/unified_license_key_changed',
-			static function () {
-				delete_transient( Update_Repository::TRANSIENT_KEY );
 			}
 		);
 

@@ -5,7 +5,6 @@ namespace StellarWP\Uplink\Tests\Features\Update;
 use StellarWP\Uplink\Features\Update\Plugin_Handler;
 use StellarWP\Uplink\Features\Update\Provider;
 use StellarWP\Uplink\Features\Update\Resolve_Update_Data;
-use StellarWP\Uplink\Features\Update\Update_Repository;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
 final class ProviderTest extends UplinkTestCase {
@@ -17,15 +16,6 @@ final class ProviderTest extends UplinkTestCase {
 	 */
 	public function test_it_registers_resolve_update_data_singleton(): void {
 		$this->assertInstanceOf( Resolve_Update_Data::class, $this->container->get( Resolve_Update_Data::class ) );
-	}
-
-	/**
-	 * Tests that Update_Repository is registered as a singleton in the container.
-	 *
-	 * @return void
-	 */
-	public function test_it_registers_update_repository_singleton(): void {
-		$this->assertInstanceOf( Update_Repository::class, $this->container->get( Update_Repository::class ) );
 	}
 
 	/**

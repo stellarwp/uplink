@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\Tests\Features\Update;
 
-use StellarWP\Uplink\Features\Update\Update_Repository;
+use StellarWP\Uplink\Features\Update\Resolve_Update_Data;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Types\Plugin;
@@ -29,12 +29,12 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$update_repository  = $this->makeEmpty( Update_Repository::class );
+		$resolver           = $this->makeEmpty( Resolve_Update_Data::class );
 		$feature_repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => new Feature_Collection() ] );
 		$site_data          = $this->makeEmpty( Data::class, [ 'get_domain' => 'example.com' ] );
 
 		$this->handler = new Plugin_Handler(
-			$update_repository,
+			$resolver,
 			$feature_repository,
 			$site_data,
 			'test-key'
@@ -44,7 +44,7 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 	/**
 	 * Creates a Plugin_Handler with a Plugin feature in the Feature_Repository.
 	 *
-	 * @param mixed $check_updates_return The return value for Update_Repository::get().
+	 * @param mixed $check_updates_return The return value for Resolve_Update_Data::__invoke().
 	 *
 	 * @return Plugin_Handler
 	 */
@@ -64,11 +64,11 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 		$features = new Feature_Collection();
 		$features->add( $feature );
 
-		$update_repository  = $this->makeEmpty( Update_Repository::class, [ 'get' => $check_updates_return ] );
+		$resolver           = $this->makeEmpty( Resolve_Update_Data::class, [ '__invoke' => $check_updates_return ] );
 		$feature_repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => $features ] );
 
 		return new Plugin_Handler(
-			$update_repository,
+			$resolver,
 			$feature_repository,
 			$this->makeEmpty( Data::class, [ 'get_domain' => 'example.com' ] ),
 			'test-key'

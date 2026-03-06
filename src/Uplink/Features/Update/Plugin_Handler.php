@@ -20,13 +20,13 @@ use stdClass;
 class Plugin_Handler {
 
 	/**
-	 * The update repository.
+	 * The update data resolver.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @var Update_Repository
+	 * @var Resolve_Update_Data
 	 */
-	private Update_Repository $update_repository;
+	private Resolve_Update_Data $resolver;
 
 	/**
 	 * The feature repository.
@@ -60,20 +60,20 @@ class Plugin_Handler {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Update_Repository  $update_repository  The update repository.
-	 * @param Feature_Repository $feature_repository The feature repository.
-	 * @param Data               $site_data          The site data provider.
-	 * @param string             $key                The license key.
+	 * @param Resolve_Update_Data $resolver           The update data resolver.
+	 * @param Feature_Repository  $feature_repository The feature repository.
+	 * @param Data                $site_data          The site data provider.
+	 * @param string              $key                The license key.
 	 *
 	 * @return void
 	 */
 	public function __construct(
-		Update_Repository $update_repository,
+		Resolve_Update_Data $resolver,
 		Feature_Repository $feature_repository,
 		Data $site_data,
 		string $key
 	) {
-		$this->update_repository  = $update_repository;
+		$this->resolver           = $resolver;
 		$this->feature_repository = $feature_repository;
 		$this->site_data          = $site_data;
 		$this->key                = $key;
@@ -82,8 +82,7 @@ class Plugin_Handler {
 	/**
 	 * Filters the plugins_api response for Plugin features.
 	 *
-	 * Calls check_updates() which returns from cache if available,
-	 * or fetches fresh data from the consolidation server.
+	 * Resolves update data by joining the Feature_Repository and Catalog.
 	 *
 	 * @since 3.0.0
 	 *
@@ -113,7 +112,7 @@ class Plugin_Handler {
 		}
 
 		$domain   = $this->site_data->get_domain();
-		$response = $this->update_repository->get( $this->key, $domain );
+		$response = ( $this->resolver )( $this->key, $domain );
 
 		if ( is_wp_error( $response ) || empty( $response[ $slug ] ) ) {
 			return $result;
@@ -141,7 +140,7 @@ class Plugin_Handler {
 		}
 
 		$domain   = $this->site_data->get_domain();
-		$response = $this->update_repository->get( $this->key, $domain );
+		$response = ( $this->resolver )( $this->key, $domain );
 
 		if ( is_wp_error( $response ) || ! is_array( $response ) ) {
 			return $transient;

@@ -896,13 +896,13 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$this->assertArrayHasKey( 'properties', $schema );
 		$this->assertTrue( $schema['additionalProperties'], 'Schema should allow additional properties for type-specific fields.' );
 
-		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled' ];
+		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled', 'plugin_file', 'plugin_slug', 'authors', 'is_dot_org' ];
 
 		foreach ( $expected as $property ) {
 			$this->assertArrayHasKey( $property, $schema['properties'], "Missing schema property: {$property}" );
 		}
 
-		$this->assertCount( 9, $schema['properties'] );
+		$this->assertCount( 13, $schema['properties'] );
 	}
 
 	/**
@@ -916,7 +916,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 
 		$this->assertArrayHasKey( 'properties', $schema );
 
-		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled' ];
+		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled', 'plugin_file', 'plugin_slug', 'authors', 'is_dot_org' ];
 
 		foreach ( $expected as $property ) {
 			$this->assertArrayHasKey( $property, $schema['properties'], "Missing schema property: {$property}" );

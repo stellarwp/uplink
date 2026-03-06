@@ -89,25 +89,25 @@ final class Fixture_ClientTest extends UplinkTestCase {
 		$this->assertArrayHasKey( 'theme', $types );
 	}
 
-	public function test_plugin_features_have_wp_identifier(): void {
+	public function test_plugin_features_have_plugin_file(): void {
 		$result = $this->client->get_catalog();
 
 		foreach ( $result as $catalog ) {
 			foreach ( $catalog->get_features() as $feature ) {
 				if ( $feature->get_type() === 'plugin' ) {
-					$this->assertNotNull( $feature->get_wp_identifier(), sprintf( '%s should have wp_identifier', $feature->get_feature_slug() ) );
+					$this->assertNotNull( $feature->get_plugin_file(), sprintf( '%s should have plugin_file', $feature->get_feature_slug() ) );
 				}
 			}
 		}
 	}
 
-	public function test_flag_features_have_no_wp_identifier(): void {
+	public function test_flag_features_have_no_plugin_file(): void {
 		$result = $this->client->get_catalog();
 
 		foreach ( $result as $catalog ) {
 			foreach ( $catalog->get_features() as $feature ) {
 				if ( $feature->get_type() === 'flag' ) {
-					$this->assertNull( $feature->get_wp_identifier(), sprintf( '%s should not have wp_identifier', $feature->get_feature_slug() ) );
+					$this->assertNull( $feature->get_plugin_file(), sprintf( '%s should not have plugin_file', $feature->get_feature_slug() ) );
 				}
 			}
 		}

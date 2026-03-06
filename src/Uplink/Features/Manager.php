@@ -118,7 +118,7 @@ class Manager {
 		 */
 		do_action( "stellarwp/uplink/{$slug}/feature_enabling", $feature->to_array() );
 
-		$result = $strategy->enable( $feature );
+		$result = $strategy->enable();
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -195,7 +195,7 @@ class Manager {
 		 */
 		do_action( "stellarwp/uplink/{$slug}/feature_disabling", $feature->to_array() );
 
-		$result = $strategy->disable( $feature );
+		$result = $strategy->disable();
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -253,7 +253,7 @@ class Manager {
 
 		$strategy = $this->resolver->resolve( $feature );
 
-		return $strategy->is_active( $feature );
+		return $strategy->is_active();
 	}
 
 	/**

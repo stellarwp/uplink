@@ -13,19 +13,6 @@ namespace StellarWP\Uplink\Features\Contracts;
 interface Installable {
 
 	/**
-	 * Gets the primary WordPress identifier for this extension.
-	 *
-	 * For plugins: the plugin file path relative to the plugins directory
-	 * (e.g. "stellar-export/stellar-export.php").
-	 * For themes: the stylesheet (directory name).
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return string
-	 */
-	public function get_wp_identifier(): string;
-
-	/**
 	 * Gets the expected extension authors for ownership verification.
 	 *
 	 * @since 3.0.0

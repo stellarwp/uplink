@@ -3,15 +3,15 @@
 namespace StellarWP\Uplink\Features\Strategy;
 
 use StellarWP\Uplink\Features\Contracts\Strategy;
+use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Traits\With_Debugging;
 
 /**
  * Base class for feature-gating strategies with shared stored-state logic.
  *
+ * Each strategy instance is bound to a single Feature at construction time.
  * All strategies persist an "active" flag in wp_options using a common naming
- * convention: `stellarwp_uplink_feature_{slug}_active`. This class provides
- * the option key construction and read/write helpers so concrete strategies
- * don't duplicate the boilerplate.
+ * convention: `stellarwp_uplink_feature_{slug}_active`.
  *
  * @since 3.0.0
  */
@@ -35,6 +35,26 @@ abstract class Abstract_Strategy implements Strategy {
 	 * @since 3.0.0
 	 */
 	protected const OPTION_SUFFIX = '_active';
+
+	/**
+	 * The feature this strategy operates on.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var Feature
+	 */
+	protected Feature $feature;
+
+	/**
+	 * Construct the strategy.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param Feature $feature The feature this strategy operates on.
+	 */
+	public function __construct( Feature $feature ) {
+		$this->feature = $feature;
+	}
 
 	/**
 	 * Build the wp_options key for a feature's stored state.

@@ -24,7 +24,7 @@ final class PluginTest extends UplinkTestCase {
 	 * @param string   $slug          Feature slug.
 	 * @param string   $name          Display name.
 	 * @param string   $description   Description.
-	 * @param string   $wp_identifier WordPress identifier (plugin file path).
+	 * @param string   $plugin_file WordPress identifier (plugin file path).
 	 * @param string[] $authors       Expected plugin authors.
 	 *
 	 * @return Plugin
@@ -33,19 +33,19 @@ final class PluginTest extends UplinkTestCase {
 		string $slug = self::SLUG,
 		string $name = self::NAME,
 		string $description = self::DESCRIPTION,
-		string $wp_identifier = self::PLUGIN_FILE,
+		string $plugin_file = self::PLUGIN_FILE,
 		array $authors = [ 'StellarWP' ]
 	): Plugin {
 		return new Plugin(
 			[
-				'slug'          => $slug,
-				'group'         => self::GROUP,
-				'tier'          => self::TIER,
-				'name'          => $name,
-				'description'   => $description,
-				'wp_identifier' => $wp_identifier,
-				'is_available'  => true,
-				'authors'       => $authors,
+				'slug'         => $slug,
+				'group'        => self::GROUP,
+				'tier'         => self::TIER,
+				'name'         => $name,
+				'description'  => $description,
+				'plugin_file'  => $plugin_file,
+				'is_available' => true,
+				'authors'      => $authors,
 			]
 		);
 	}
@@ -67,7 +67,7 @@ final class PluginTest extends UplinkTestCase {
 				'tier'              => 'Tier 2',
 				'name'              => 'Test Feature',
 				'description'       => 'Test feature description.',
-				'wp_identifier'     => 'test-feature/test-feature.php',
+				'plugin_file'       => 'test-feature/test-feature.php',
 				'is_available'      => true,
 				'documentation_url' => 'https://example.com/docs',
 				'authors'           => [ 'StellarWP' ],
@@ -81,7 +81,7 @@ final class PluginTest extends UplinkTestCase {
 		$this->assertSame( 'Test Feature', $feature->get_name() );
 		$this->assertSame( 'Test feature description.', $feature->get_description() );
 		$this->assertSame( 'plugin', $feature->get_type() );
-		$this->assertSame( 'test-feature/test-feature.php', $feature->get_wp_identifier() );
+		$this->assertSame( 'test-feature/test-feature.php', $feature->get_plugin_file() );
 		$this->assertTrue( $feature->is_available() );
 		$this->assertSame( 'https://example.com/docs', $feature->get_documentation_url() );
 		$this->assertSame( [ 'StellarWP' ], $feature->get_authors() );
@@ -100,7 +100,7 @@ final class PluginTest extends UplinkTestCase {
 				'tier'              => 'Tier 2',
 				'name'              => 'Test Feature',
 				'description'       => 'Test feature description.',
-				'wp_identifier'     => 'test-feature/test-feature.php',
+				'plugin_file'       => 'test-feature/test-feature.php',
 				'is_available'      => true,
 				'documentation_url' => 'https://example.com/docs',
 				'authors'           => [ 'StellarWP' ],
@@ -114,7 +114,7 @@ final class PluginTest extends UplinkTestCase {
 				'tier'              => 'Tier 2',
 				'name'              => 'Test Feature',
 				'description'       => 'Test feature description.',
-				'wp_identifier'     => 'test-feature/test-feature.php',
+				'plugin_file'       => 'test-feature/test-feature.php',
 				'is_available'      => true,
 				'documentation_url' => 'https://example.com/docs',
 				'authors'           => [ 'StellarWP' ],
@@ -137,7 +137,7 @@ final class PluginTest extends UplinkTestCase {
 			'name'              => 'Test Feature',
 			'description'       => 'Test feature description.',
 			'type'              => 'plugin',
-			'wp_identifier'     => 'test-feature/test-feature.php',
+			'plugin_file'       => 'test-feature/test-feature.php',
 			'plugin_slug'       => '',
 			'is_available'      => true,
 			'documentation_url' => 'https://example.com/docs',
@@ -162,8 +162,8 @@ final class PluginTest extends UplinkTestCase {
 				'group'        => 'LearnDash',
 				'tier'         => 'Tier 2',
 				'name'         => 'Test Feature',
-				'wp_identifier' => 'test-feature/test-feature.php',
-				'is_available'  => false,
+				'plugin_file'  => 'test-feature/test-feature.php',
+				'is_available' => false,
 			]
 		);
 
@@ -182,8 +182,8 @@ final class PluginTest extends UplinkTestCase {
 				'group'        => 'LearnDash',
 				'tier'         => 'Tier 1',
 				'name'         => 'Test Feature',
-				'wp_identifier' => 'test-feature/test-feature.php',
-				'is_available'  => true,
+				'plugin_file'  => 'test-feature/test-feature.php',
+				'is_available' => true,
 			]
 		);
 
@@ -207,8 +207,8 @@ final class PluginTest extends UplinkTestCase {
 				'tier'         => 'Tier 2',
 				'name'         => 'Test Feature',
 				'description'  => 'Test feature description.',
-				'wp_identifier' => 'test-feature/test-feature.php',
-				'is_available'  => true,
+				'plugin_file'  => 'test-feature/test-feature.php',
+				'is_available' => true,
 			]
 		);
 
@@ -229,9 +229,9 @@ final class PluginTest extends UplinkTestCase {
 	}
 
 	/**
-	 * get_wp_identifier() returns the plugin file path.
+	 * get_plugin_file() returns the plugin file path.
 	 */
-	public function test_get_wp_identifier_returns_plugin_file(): void {
+	public function test_get_plugin_file_returns_plugin_file(): void {
 		$feature = $this->make_feature(
 			self::SLUG,
 			self::NAME,
@@ -239,7 +239,7 @@ final class PluginTest extends UplinkTestCase {
 			'my-plugin/my-plugin.php'
 		);
 
-		$this->assertSame( 'my-plugin/my-plugin.php', $feature->get_wp_identifier() );
+		$this->assertSame( 'my-plugin/my-plugin.php', $feature->get_plugin_file() );
 	}
 
 	/**
@@ -261,9 +261,9 @@ final class PluginTest extends UplinkTestCase {
 				'group'        => self::GROUP,
 				'tier'         => self::TIER,
 				'name'         => self::NAME,
-				'wp_identifier' => self::PLUGIN_FILE,
-				'is_available'  => true,
-				'is_dot_org'    => true,
+				'plugin_file'  => self::PLUGIN_FILE,
+				'is_available' => true,
+				'is_dot_org'   => true,
 			]
 		);
 
@@ -280,9 +280,9 @@ final class PluginTest extends UplinkTestCase {
 				'group'        => 'LearnDash',
 				'tier'         => 'Tier 1',
 				'name'         => 'Test Feature',
-				'wp_identifier' => 'test-feature/test-feature.php',
-				'is_available'  => true,
-				'is_dot_org'    => true,
+				'plugin_file'  => 'test-feature/test-feature.php',
+				'is_available' => true,
+				'is_dot_org'   => true,
 			]
 		);
 
@@ -354,8 +354,8 @@ final class PluginTest extends UplinkTestCase {
 				'tier'         => self::TIER,
 				'name'         => self::NAME,
 				'description'  => self::DESCRIPTION,
-				'wp_identifier' => 'the-directory/the-directory.php',
-				'plugin_slug'   => 'custom-slug',
+				'plugin_file'  => 'the-directory/the-directory.php',
+				'plugin_slug'  => 'custom-slug',
 				'is_available' => true,
 			]
 		);
@@ -373,7 +373,7 @@ final class PluginTest extends UplinkTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// get_plugin_directory() — derived from wp_identifier
+	// get_plugin_directory() — derived from plugin_file
 	// -------------------------------------------------------------------------
 
 	/**
@@ -427,7 +427,7 @@ final class PluginTest extends UplinkTestCase {
 				'tier'              => 'Tier 1',
 				'name'              => 'The Name',
 				'description'       => 'The description.',
-				'wp_identifier'     => 'the-directory/the-directory.php',
+				'plugin_file'       => 'the-directory/the-directory.php',
 				'plugin_slug'       => 'the-slug',
 				'is_available'      => true,
 				'documentation_url' => 'https://example.com/docs',
@@ -443,7 +443,7 @@ final class PluginTest extends UplinkTestCase {
 		$this->assertSame( 'plugin', $feature->get_type() );
 		$this->assertTrue( $feature->is_available() );
 		$this->assertSame( 'https://example.com/docs', $feature->get_documentation_url() );
-		$this->assertSame( 'the-directory/the-directory.php', $feature->get_wp_identifier() );
+		$this->assertSame( 'the-directory/the-directory.php', $feature->get_plugin_file() );
 		$this->assertSame( [ 'StellarWP', 'The Events Calendar' ], $feature->get_authors() );
 		$this->assertSame( 'the-slug', $feature->get_plugin_slug() );
 		$this->assertSame( 'the-directory', $feature->get_plugin_directory() );

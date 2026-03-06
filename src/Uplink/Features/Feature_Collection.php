@@ -3,6 +3,9 @@
 namespace StellarWP\Uplink\Features;
 
 use StellarWP\Uplink\Features\Types\Feature;
+use StellarWP\Uplink\Features\Types\Flag;
+use StellarWP\Uplink\Features\Types\Plugin;
+use StellarWP\Uplink\Features\Types\Theme;
 use StellarWP\Uplink\Utils\Collection;
 
 /**
@@ -42,6 +45,59 @@ class Feature_Collection extends Collection {
 	 */
 	public function get( $offset ): ?Feature { // phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found -- Narrows return type for IDE support.
 		return parent::get( $offset );
+	}
+
+	/**
+	 * Converts the collection to an array of raw data arrays.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function to_array(): array {
+		$data = [];
+
+		foreach ( $this as $feature ) {
+			$data[] = $feature->to_array();
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Creates a Feature_Collection from an array of Feature objects or raw data arrays.
+	 *
+	 * When given raw arrays, dispatches to the correct subclass based on the 'type' field.
+	 * Unknown types default to Flag.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param array<Feature|array<string, mixed>> $data Feature objects or raw arrays.
+	 *
+	 * @return self
+	 */
+	public static function from_array( array $data ): self {
+		$collection = new self();
+
+		foreach ( $data as $item ) {
+			if ( $item instanceof Feature ) {
+				$collection->add( $item );
+			} elseif ( is_array( $item ) ) {
+				$type = $item['type'] ?? '';
+
+				if ( $type === 'plugin' ) {
+					$feature = Plugin::from_array( $item );
+				} elseif ( $type === 'theme' ) {
+					$feature = Theme::from_array( $item );
+				} else {
+					$feature = Flag::from_array( $item );
+				}
+
+				$collection->add( $feature );
+			}
+		}
+
+		return $collection;
 	}
 
 	/**

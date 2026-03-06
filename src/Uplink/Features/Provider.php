@@ -6,9 +6,10 @@ use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\Features\Strategy\Flag_Strategy;
-use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Strategy\Plugin_Strategy;
+use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Strategy\Theme_Strategy;
+use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Features\Types\Theme;
@@ -33,14 +34,7 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	public function register(): void {
-		$this->container->singleton(
-			Resolver::class,
-			static function ( ContainerInterface $c ) {
-				$container = $c->get( ContainerInterface::class );
-
-				return new Resolver( $container );
-			}
-		);
+		$this->container->singleton( Resolver::class, Resolver::class );
 
 		$this->container->singleton(
 			Resolve_Feature_Collection::class,
@@ -99,65 +93,20 @@ class Provider extends Abstract_Provider {
 	}
 
 	/**
-	 * Registers the default feature type strategies.
+	 * Registers the default feature type strategy factories.
+	 *
+	 * Each factory creates a new Strategy instance bound to the given Feature.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @return void
 	 */
 	private function register_default_strategies(): void {
-		$this->container->singleton(
-			Plugin_Strategy::class,
-			static function ( ContainerInterface $c ) {
-				return new Plugin_Strategy(
-					static function ( string $wp_identifier ) use ( $c ): ?Plugin {
-						$features = $c->get( Manager::class )->get_features();
-
-						if ( is_wp_error( $features ) ) {
-							return null;
-						}
-
-						foreach ( $features->filter( null, null, null, 'plugin' ) as $feature ) {
-							if ( $feature instanceof Plugin && $feature->get_wp_identifier() === $wp_identifier ) {
-								return $feature;
-							}
-						}
-
-						return null;
-					}
-				);
-			}
-		);
-
-		$this->container->singleton( Flag_Strategy::class, Flag_Strategy::class );
-
-		$this->container->singleton(
-			Theme_Strategy::class,
-			static function ( ContainerInterface $c ) {
-				return new Theme_Strategy(
-					static function ( string $wp_identifier ) use ( $c ): ?Theme {
-						$features = $c->get( Manager::class )->get_features();
-
-						if ( is_wp_error( $features ) ) {
-							return null;
-						}
-
-						foreach ( $features->filter( null, null, null, 'theme' ) as $feature ) {
-							if ( $feature instanceof Theme && $feature->get_wp_identifier() === $wp_identifier ) {
-								return $feature;
-							}
-						}
-
-						return null;
-					}
-				);
-			}
-		);
-
 		$resolver = $this->container->get( Resolver::class );
-		$resolver->register( 'plugin', Plugin_Strategy::class );
-		$resolver->register( 'flag', Flag_Strategy::class );
-		$resolver->register( 'theme', Theme_Strategy::class );
+
+		$resolver->register( 'plugin', static fn( Feature $f ) => new Plugin_Strategy( $f ) );
+		$resolver->register( 'flag', static fn( Feature $f ) => new Flag_Strategy( $f ) );
+		$resolver->register( 'theme', static fn( Feature $f ) => new Theme_Strategy( $f ) );
 	}
 
 	/**
@@ -172,7 +121,7 @@ class Provider extends Abstract_Provider {
 		add_filter( 'themes_api', [ $this, 'mock_themes_api_for_theme_features' ], 5, 3 );
 
 		// TODO: Remove this once the real plugins_api filter is implemented.
-		add_filter( 'upgrader_pre_download', [ $this, 'serve_local_zip_for_upgrader' ], 10, 3 );
+		add_filter( 'upgrader_pre_download', [ $this, 'serve_local_zip_for_upgrader' ], 10, 2 );
 
 		add_action( 'switch_theme', [ $this, 'on_theme_switch' ], 10, 3 );
 		add_action( 'activated_plugin', [ $this, 'on_plugin_activated' ], 10, 2 );
@@ -217,22 +166,17 @@ class Provider extends Abstract_Provider {
 			return $result;
 		}
 
-		$zip_path = $this->build_test_zip_from_dir( $slug, $source_dir, dirname( $source_dir ) );
+		$zip_path = $this->build_test_zip_from_dir( $slug, $source_dir );
 
 		if ( $zip_path === null ) {
 			return $result;
 		}
 
-		$download_url = plugins_url(
-			'tests/_data/Features/Plugins/' . $slug . '.zip',
-			$uplink_dir . '/index.php'
-		);
-
 		return (object) [
 			'name'          => $slug,
 			'slug'          => $slug,
 			'version'       => '1.0.0',
-			'download_link' => $download_url,
+			'download_link' => 'stellarwp-uplink-local://' . $slug . '.zip',
 		];
 	}
 
@@ -267,27 +211,25 @@ class Provider extends Abstract_Provider {
 			return $result;
 		}
 
-		$zip_path = $this->build_test_zip_from_dir( $slug, $source_dir, dirname( $source_dir ) );
+		$zip_path = $this->build_test_zip_from_dir( $slug, $source_dir );
 
 		if ( $zip_path === null ) {
 			return $result;
 		}
 
-		$download_url = plugins_url(
-			'tests/_data/Features/Themes/' . $slug . '.zip',
-			$uplink_dir . '/index.php'
-		);
-
 		return (object) [
 			'name'          => $slug,
 			'slug'          => $slug,
 			'version'       => '1.0.0',
-			'download_link' => $download_url,
+			'download_link' => 'stellarwp-uplink-local://' . $slug . '.zip',
 		];
 	}
 
 	/**
-	 * Delegate callback for the switch_theme action.
+	 * Sync stored state when the active theme changes.
+	 *
+	 * If the old theme corresponds to a theme feature, mark it inactive.
+	 * If the new theme corresponds to a theme feature, mark it active.
 	 *
 	 * @since 3.0.0
 	 *
@@ -298,11 +240,34 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	public function on_theme_switch( string $new_name, WP_Theme $new_theme, WP_Theme $old_theme ): void {
-		$this->container->get( Theme_Strategy::class )->on_theme_switch( $new_name, $new_theme, $old_theme );
+		$features = $this->container->get( Manager::class )->get_features();
+
+		if ( is_wp_error( $features ) ) {
+			return;
+		}
+
+		$old_stylesheet = $old_theme->get_stylesheet();
+		$new_stylesheet = $new_theme->get_stylesheet();
+
+		foreach ( $features->filter( null, null, null, 'theme' ) as $feature ) {
+			if ( ! $feature instanceof Theme ) {
+				continue;
+			}
+
+			$slug = $feature->get_slug();
+
+			if ( $slug === $old_stylesheet ) {
+				update_option( 'stellarwp_uplink_feature_' . $slug . '_active', '0', true );
+			}
+
+			if ( $slug === $new_stylesheet ) {
+				update_option( 'stellarwp_uplink_feature_' . $slug . '_active', '1', true );
+			}
+		}
 	}
 
 	/**
-	 * Delegate callback for the activated_plugin action.
+	 * Sync stored state when a plugin is activated via WordPress.
 	 *
 	 * @since 3.0.0
 	 *
@@ -312,11 +277,17 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	public function on_plugin_activated( string $plugin, bool $network_wide ): void {
-		$this->container->get( Plugin_Strategy::class )->on_plugin_activated( $plugin, $network_wide );
+		$feature = $this->find_plugin_feature( $plugin );
+
+		if ( $feature === null ) {
+			return;
+		}
+
+		update_option( 'stellarwp_uplink_feature_' . $feature->get_slug() . '_active', '1', true );
 	}
 
 	/**
-	 * Delegate callback for the deactivated_plugin action.
+	 * Sync stored state when a plugin is deactivated via WordPress.
 	 *
 	 * @since 3.0.0
 	 *
@@ -326,7 +297,38 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	public function on_plugin_deactivated( string $plugin, bool $network_wide ): void {
-		$this->container->get( Plugin_Strategy::class )->on_plugin_deactivated( $plugin, $network_wide );
+		$feature = $this->find_plugin_feature( $plugin );
+
+		if ( $feature === null ) {
+			return;
+		}
+
+		update_option( 'stellarwp_uplink_feature_' . $feature->get_slug() . '_active', '0', true );
+	}
+
+	/**
+	 * Find a Plugin feature by its plugin file path.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $plugin_file Plugin file path relative to plugins directory.
+	 *
+	 * @return Plugin|null
+	 */
+	private function find_plugin_feature( string $plugin_file ): ?Plugin {
+		$features = $this->container->get( Manager::class )->get_features();
+
+		if ( is_wp_error( $features ) ) {
+			return null;
+		}
+
+		foreach ( $features->filter( null, null, null, 'plugin' ) as $feature ) {
+			if ( $feature instanceof Plugin && $feature->get_wp_identifier() === $plugin_file ) {
+				return $feature;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -341,46 +343,32 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @param bool|WP_Error $reply    Whether to bail without returning the package. Default false.
 	 * @param string        $package  The package file name or URL.
-	 * @param \WP_Upgrader  $upgrader The WP_Upgrader instance.
 	 *
 	 * @return bool|string|WP_Error The local file path or the original $reply.
 	 */
-	public function serve_local_zip_for_upgrader( $reply, $package, $upgrader ) {
-		$uplink_dir = WP_PLUGIN_DIR . '/uplink';
-
-		$dirs = [
-			$uplink_dir . '/tests/_data/Features/Plugins/',
-			$uplink_dir . '/tests/_data/Features/Themes/',
-		];
-
-		foreach ( $dirs as $dir ) {
-			$url = plugins_url( ltrim( str_replace( $uplink_dir, '', $dir ), '/' ), $uplink_dir . '/index.php' );
-
-			if ( strpos( $package, $url ) !== 0 ) {
-				continue;
-			}
-
-			$filename = basename( $package );
-			$local    = $dir . $filename;
-
-			if ( ! file_exists( $local ) ) {
-				return $reply;
-			}
-
-			// Copy to a temp file so the upgrader can move/delete it freely.
-			$tmp = wp_tempnam( $filename );
-			copy( $local, $tmp );
-
-			return $tmp;
+	public function serve_local_zip_for_upgrader( $reply, $package ) {
+		if ( strpos( $package, 'stellarwp-uplink-local://' ) !== 0 ) {
+			return $reply;
 		}
 
-		return $reply;
+		$filename = substr( $package, strlen( 'stellarwp-uplink-local://' ) );
+		$local    = get_temp_dir() . $filename;
+
+		if ( ! file_exists( $local ) ) {
+			return $reply;
+		}
+
+		// Copy to a temp file so the upgrader can move/delete it freely.
+		$tmp = wp_tempnam( $filename );
+		copy( $local, $tmp );
+
+		return $tmp;
 	}
 
 	/**
 	 * Build a ZIP from a test source directory.
 	 *
-	 * Creates {slug}.zip in the specified output directory.
+	 * Creates {slug}.zip in the system temp directory.
 	 * Skips rebuild if the ZIP already exists and is newer than all source files.
 	 *
 	 * TODO: Remove this method once the real API filters are implemented.
@@ -389,12 +377,11 @@ class Provider extends Abstract_Provider {
 	 *
 	 * @param string $slug       The slug (used as root folder in the ZIP).
 	 * @param string $source_dir Absolute path to the source directory.
-	 * @param string $output_dir Absolute path to where the ZIP should be created.
 	 *
 	 * @return string|null The path to the ZIP file, or null on failure.
 	 */
-	private function build_test_zip_from_dir( string $slug, string $source_dir, string $output_dir ): ?string {
-		$zip_path = $output_dir . '/' . $slug . '.zip';
+	private function build_test_zip_from_dir( string $slug, string $source_dir ): ?string {
+		$zip_path = get_temp_dir() . $slug . '.zip';
 
 		if ( file_exists( $zip_path ) ) {
 			$zip_mtime     = filemtime( $zip_path );

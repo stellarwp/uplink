@@ -232,7 +232,8 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 
 		$cached = get_transient( Feature_Repository::TRANSIENT_KEY );
 
-		$this->assertInstanceOf( Feature_Collection::class, $cached );
+		$this->assertIsArray( $cached );
+		$this->assertNotEmpty( $cached );
 	}
 
 	/**
@@ -241,27 +242,27 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_returns_cached_collection(): void {
-		$cached = new Feature_Collection();
-		$cached->add(
-			Plugin::from_array(
-				[
-					'slug'              => 'cached-feature',
-					'group'             => 'test',
-					'tier'              => 'free',
-					'name'              => 'Cached',
-					'description'       => '',
-					'is_available'      => true,
-					'documentation_url' => '',
-					'wp_identifier'     => '',
-				]
-			)
-		);
+		$cached = [
+			[
+				'slug'              => 'cached-feature',
+				'group'             => 'test',
+				'tier'              => 'free',
+				'name'              => 'Cached',
+				'description'       => '',
+				'type'              => 'plugin',
+				'is_available'      => true,
+				'documentation_url' => '',
+				'plugin_file'       => '',
+				'plugin_slug'       => '',
+				'authors'           => [],
+			],
+		];
 
 		// Set the transient after make_repository() so that store_key() inside
 		// make_repository() does not fire the key-changed hook and wipe the cache.
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
 		set_transient( Feature_Repository::TRANSIENT_KEY, $cached );
-		$result     = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$result = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
 
 		$this->assertCount( 1, $result );
 		$this->assertSame( 'cached-feature', $result->get( 'cached-feature' )->get_slug() );
@@ -279,7 +280,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		// make_repository() does not fire the key-changed hook and wipe the cache.
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
 		set_transient( Feature_Repository::TRANSIENT_KEY, $error );
-		$result     = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$result = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'Cached error', $result->get_error_message() );
@@ -295,17 +296,11 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 
 		$repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
 
-		$this->assertInstanceOf(
-			Feature_Collection::class,
-			get_transient( Feature_Repository::TRANSIENT_KEY )
-		);
+		$this->assertIsArray( get_transient( Feature_Repository::TRANSIENT_KEY ) );
 
 		$repository->refresh( 'lwsw-unified-kad-pro-2026', 'example.com' );
 
-		$this->assertInstanceOf(
-			Feature_Collection::class,
-			get_transient( Feature_Repository::TRANSIENT_KEY )
-		);
+		$this->assertIsArray( get_transient( Feature_Repository::TRANSIENT_KEY ) );
 	}
 
 	/**
@@ -415,6 +410,6 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		$this->assertSame( 'https://www.kadencewp.com/help-center/', $feature->get_documentation_url() );
 
 		$this->assertInstanceOf( Plugin::class, $feature );
-		$this->assertSame( 'kadence-blocks-pro/kadence-blocks-pro.php', $feature->get_wp_identifier() );
+		$this->assertSame( 'kadence-blocks-pro/kadence-blocks-pro.php', $feature->get_plugin_file() );
 	}
 }

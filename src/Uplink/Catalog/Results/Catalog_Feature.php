@@ -15,7 +15,7 @@ use StellarWP\Uplink\Utils\Cast;
  *     feature_slug: string,
  *     type: string,
  *     minimum_tier: string,
- *     wp_identifier: ?string,
+ *     plugin_file: ?string,
  *     is_dot_org: bool,
  *     download_url: ?string,
  *     name: string,
@@ -38,7 +38,7 @@ final class Catalog_Feature {
 		'feature_slug'      => '',
 		'type'              => '',
 		'minimum_tier'      => '',
-		'wp_identifier'     => null,
+		'plugin_file'       => null,
 		'is_dot_org'        => false,
 		'download_url'      => null,
 		'name'              => '',
@@ -78,7 +78,7 @@ final class Catalog_Feature {
 				'feature_slug'      => Cast::to_string( $data['feature_slug'] ?? '' ),
 				'type'              => Cast::to_string( $data['type'] ?? '' ),
 				'minimum_tier'      => Cast::to_string( $data['minimum_tier'] ?? '' ),
-				'wp_identifier'     => isset( $data['wp_identifier'] ) ? Cast::to_string( $data['wp_identifier'] ) : null,
+				'plugin_file'       => isset( $data['plugin_file'] ) ? Cast::to_string( $data['plugin_file'] ) : null,
 				'is_dot_org'        => Cast::to_bool( $data['is_dot_org'] ?? false ),
 				'download_url'      => isset( $data['download_url'] ) ? Cast::to_string( $data['download_url'] ) : null,
 				'name'              => Cast::to_string( $data['name'] ?? '' ),
@@ -137,14 +137,16 @@ final class Catalog_Feature {
 	}
 
 	/**
-	 * Gets the WordPress identifier (plugin file path or theme stylesheet), or null if not applicable.
+	 * Gets the plugin file path relative to the plugins directory, or null if not applicable.
+	 *
+	 * Only present for plugin features.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @return string|null
 	 */
-	public function get_wp_identifier(): ?string {
-		return $this->attributes['wp_identifier'];
+	public function get_plugin_file(): ?string {
+		return $this->attributes['plugin_file'];
 	}
 
 	/**

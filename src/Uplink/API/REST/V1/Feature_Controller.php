@@ -351,6 +351,33 @@ class Feature_Controller extends WP_REST_Controller {
 					'readonly'    => true,
 					'context'     => [ 'view' ],
 				],
+				'plugin_file'       => [
+					'description' => __( 'The plugin file path relative to the plugins directory. Present for plugin features only.', '%TEXTDOMAIN%' ),
+					'type'        => 'string',
+					'readonly'    => true,
+					'context'     => [ 'view' ],
+				],
+				'plugin_slug'       => [
+					'description' => __( 'The slug used for plugins_api() lookups. Present for plugin features only.', '%TEXTDOMAIN%' ),
+					'type'        => 'string',
+					'readonly'    => true,
+					'context'     => [ 'view' ],
+				],
+				'authors'           => [
+					'description' => __( 'Expected authors for ownership verification. Present for plugin and theme features.', '%TEXTDOMAIN%' ),
+					'type'        => 'array',
+					'items'       => [
+						'type' => 'string',
+					],
+					'readonly'    => true,
+					'context'     => [ 'view' ],
+				],
+				'is_dot_org'        => [
+					'description' => __( 'Whether the feature is available on WordPress.org. Present for plugin and theme features.', '%TEXTDOMAIN%' ),
+					'type'        => 'boolean',
+					'readonly'    => true,
+					'context'     => [ 'view' ],
+				],
 			],
 		];
 

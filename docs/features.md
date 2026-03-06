@@ -120,11 +120,9 @@ Enabling a Plugin feature installs the plugin (if needed) and activates it. Disa
 
 Installable features (plugins and themes) share a single global transient lock (`stellarwp_uplink_install_lock`) with a 120-second TTL. Only one installable feature can be installed at a time, regardless of type. This prevents concurrent install races and filesystem conflicts. Flag features are not affected by this lock since they only toggle a WordPress option.
 
-Because the live WordPress state is the source of truth, there is no "drift" to worry about. If a user deactivates a plugin through the WordPress Plugins page, `is_active()` immediately reflects that — no sync hooks or self-healing needed.
-
 ### Theme Strategy
 
-Manages theme installation. Unlike plugins, themes are not activated or deactivated through the feature system. Theme disk presence is the sole source of truth — no DB option is stored.
+Manages theme installation. Unlike plugins, themes are not activated or deactivated through the feature system.
 
 Enabling a Theme feature installs the theme (if needed). It does not switch the active theme — users activate themes through WordPress's Appearance → Themes UI.
 
@@ -144,7 +142,7 @@ The cache entry includes a hash of the license key. On each read, the repository
 
 ### Stored Feature State
 
-Only **Flag** features store state in a WordPress option (`stellarwp_uplink_feature_{slug}_active`) with autoload enabled, since feature state is checked on every page load. Plugin and Theme features derive their state entirely from live WordPress state (plugin activation status / theme disk presence) — no option is stored for them.
+Only **Flag** features store state in a WordPress option (`stellarwp_uplink_feature_{slug}_active`) with autoload enabled, since feature state is checked on every page load.
 
 ## Feature Collection
 

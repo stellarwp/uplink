@@ -16,10 +16,6 @@ use function set_transient;
  * Subclasses provide WP-specific behavior via abstract hook methods (do_install,
  * do_activate, do_deactivate, verify_ownership, etc.).
  *
- * Plugin and theme features derive their active state entirely from live
- * WordPress state (plugin activation status / theme disk presence). No DB
- * option is stored — only Flag features use wp_options for state.
- *
  * @since 3.0.0
  */
 abstract class Installable_Strategy extends Abstract_Strategy {
@@ -214,11 +210,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 
 	/**
 	 * Check whether the feature's extension is currently active.
-	 *
-	 * For plugins, this means the plugin is activated in WordPress.
-	 * For themes, this means the theme is installed on disk.
-	 * No DB option is involved — the live WordPress state is the sole truth.
-	 *
+
 	 * @since 3.0.0
 	 *
 	 * @return bool

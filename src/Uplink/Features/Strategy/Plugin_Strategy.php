@@ -33,7 +33,6 @@ use function wp_json_encode;
  * - verify_ownership → Author header checks (3 cases)
  *
  * A plugin feature is active when WordPress reports the plugin as active.
- * No DB option is stored — the live plugin state is the sole source of truth.
  * A plugin feature is disabled if the plugin is deactivated or uninstalled.
  *
  * @since 3.0.0

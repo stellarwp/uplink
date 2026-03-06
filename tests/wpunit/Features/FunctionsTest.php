@@ -11,8 +11,6 @@ use StellarWP\Uplink\Features\Strategy\Strategy_Factory;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
-use function StellarWP\Uplink\is_feature_available;
-use function StellarWP\Uplink\is_feature_enabled;
 
 final class FunctionsTest extends UplinkTestCase {
 
@@ -66,7 +64,7 @@ final class FunctionsTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_is_feature_enabled_returns_true_for_active_feature(): void {
-		$this->assertTrue( is_feature_enabled( 'test-feature' ) );
+		$this->assertTrue( stellarwp_uplink_is_feature_enabled( 'test-feature' ) );
 	}
 
 	/**
@@ -75,7 +73,7 @@ final class FunctionsTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_is_feature_enabled_returns_false_for_unknown_feature(): void {
-		$this->assertFalse( is_feature_enabled( 'nonexistent' ) );
+		$this->assertFalse( stellarwp_uplink_is_feature_enabled( 'nonexistent' ) );
 	}
 
 	/**
@@ -84,7 +82,7 @@ final class FunctionsTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_is_feature_available_returns_true_for_catalog_feature(): void {
-		$this->assertTrue( is_feature_available( 'test-feature' ) );
+		$this->assertTrue( stellarwp_uplink_is_feature_available( 'test-feature' ) );
 	}
 
 	/**
@@ -93,7 +91,7 @@ final class FunctionsTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_is_feature_available_returns_false_for_unknown_feature(): void {
-		$this->assertFalse( is_feature_available( 'nonexistent' ) );
+		$this->assertFalse( stellarwp_uplink_is_feature_available( 'nonexistent' ) );
 	}
 
 	/**
@@ -122,7 +120,7 @@ final class FunctionsTest extends UplinkTestCase {
 			}
 		);
 
-		$result = is_feature_enabled( 'test-feature' );
+		$result = stellarwp_uplink_is_feature_enabled( 'test-feature' );
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( Error_Code::FEATURE_CHECK_FAILED, $result->get_error_code() );
 	}
@@ -153,7 +151,7 @@ final class FunctionsTest extends UplinkTestCase {
 			}
 		);
 
-		$result = is_feature_available( 'test-feature' );
+		$result = stellarwp_uplink_is_feature_available( 'test-feature' );
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( Error_Code::FEATURE_CHECK_FAILED, $result->get_error_code() );
 	}

@@ -885,43 +885,88 @@ final class Feature_ControllerTest extends UplinkTestCase {
 	// ── Schema ──────────────────────────────────────────────────────────
 
 	/**
-	 * Tests that the feature schema contains all 9 expected properties.
+	 * Tests that the feature schema uses oneOf with three type variants.
 	 *
 	 * @return void
 	 */
-	public function test_schema_has_expected_properties(): void {
+	public function test_schema_uses_one_of_with_three_variants(): void {
 		$controller = new Feature_Controller( $this->manager );
 		$schema     = $controller->get_item_schema();
 
-		$this->assertArrayHasKey( 'properties', $schema );
-		$this->assertTrue( $schema['additionalProperties'], 'Schema should allow additional properties for type-specific fields.' );
-
-		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled', 'plugin_file', 'plugin_slug', 'authors', 'is_dot_org' ];
-
-		foreach ( $expected as $property ) {
-			$this->assertArrayHasKey( $property, $schema['properties'], "Missing schema property: {$property}" );
-		}
-
-		$this->assertCount( 13, $schema['properties'] );
+		$this->assertArrayHasKey( 'oneOf', $schema );
+		$this->assertCount( 3, $schema['oneOf'] );
 	}
 
 	/**
-	 * Tests that the toggle routes use the same item schema.
+	 * Tests that the plugin variant includes plugin-specific and installable properties.
 	 *
 	 * @return void
 	 */
-	public function test_toggle_schema_matches_item_schema(): void {
+	public function test_schema_plugin_variant_has_all_properties(): void {
 		$controller = new Feature_Controller( $this->manager );
-		$schema     = $controller->get_public_item_schema();
+		$schema     = $controller->get_item_schema();
+		$plugin     = $schema['oneOf'][0];
 
-		$this->assertArrayHasKey( 'properties', $schema );
+		$this->assertSame( 'plugin', $plugin['title'] );
+		$this->assertTrue( $plugin['additionalProperties'] );
+		$this->assertSame( [ Feature::TYPE_PLUGIN ], $plugin['properties']['type']['enum'] );
 
 		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled', 'plugin_file', 'plugin_slug', 'authors', 'is_dot_org' ];
 
 		foreach ( $expected as $property ) {
-			$this->assertArrayHasKey( $property, $schema['properties'], "Missing schema property: {$property}" );
+			$this->assertArrayHasKey( $property, $plugin['properties'], "Missing plugin schema property: {$property}" );
 		}
 
-		$this->assertCount( count( $expected ), $schema['properties'] );
+		$this->assertCount( count( $expected ), $plugin['properties'] );
+	}
+
+	/**
+	 * Tests that the theme variant includes installable properties but not plugin-specific ones.
+	 *
+	 * @return void
+	 */
+	public function test_schema_theme_variant_has_installable_properties(): void {
+		$controller = new Feature_Controller( $this->manager );
+		$schema     = $controller->get_item_schema();
+		$theme      = $schema['oneOf'][1];
+
+		$this->assertSame( 'theme', $theme['title'] );
+		$this->assertSame( [ Feature::TYPE_THEME ], $theme['properties']['type']['enum'] );
+
+		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled', 'authors', 'is_dot_org' ];
+
+		foreach ( $expected as $property ) {
+			$this->assertArrayHasKey( $property, $theme['properties'], "Missing theme schema property: {$property}" );
+		}
+
+		$this->assertArrayNotHasKey( 'plugin_file', $theme['properties'] );
+		$this->assertArrayNotHasKey( 'plugin_slug', $theme['properties'] );
+		$this->assertCount( count( $expected ), $theme['properties'] );
+	}
+
+	/**
+	 * Tests that the flag variant has only base properties.
+	 *
+	 * @return void
+	 */
+	public function test_schema_flag_variant_has_only_base_properties(): void {
+		$controller = new Feature_Controller( $this->manager );
+		$schema     = $controller->get_item_schema();
+		$flag       = $schema['oneOf'][2];
+
+		$this->assertSame( 'flag', $flag['title'] );
+		$this->assertSame( [ Feature::TYPE_FLAG ], $flag['properties']['type']['enum'] );
+
+		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled' ];
+
+		foreach ( $expected as $property ) {
+			$this->assertArrayHasKey( $property, $flag['properties'], "Missing flag schema property: {$property}" );
+		}
+
+		$this->assertArrayNotHasKey( 'plugin_file', $flag['properties'] );
+		$this->assertArrayNotHasKey( 'plugin_slug', $flag['properties'] );
+		$this->assertArrayNotHasKey( 'authors', $flag['properties'] );
+		$this->assertArrayNotHasKey( 'is_dot_org', $flag['properties'] );
+		$this->assertCount( count( $expected ), $flag['properties'] );
 	}
 }

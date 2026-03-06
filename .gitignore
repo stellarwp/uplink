@@ -11,16 +11,11 @@ local-scripts/
 /build/
 /build-dev/
 
-<<<<<<< SCON-254/add-theme-strategy-based-on-zip
-# Claude Code local settings
-.claude/settings.local.json
-=======
-# Track Claude commands (overrides global gitignore)
+# Track Claude commands and settings (ignore everything else in .claude/).
 !.claude/
 .claude/*
 !.claude/commands/
 !.claude/settings.json
->>>>>>> bucket/consolidation-program
 
 # OS
 .DS_Store

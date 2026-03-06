@@ -16,6 +16,8 @@ The catalog is organized by product. A product is a brand family, not a plugin. 
 
 Each product has an entry plugin that bootstraps Uplink on the site (see [Products and Entry Plugins](uplink-v3.md#products-and-entry-plugins)), but the product itself is the umbrella under which all of its features, tiers, and licensing live. A product catalog contains two things: tiers and features.
 
+The product's own entry plugin is also returned as a feature within its catalog. For example, the `kadence` product includes a `kadence` feature of type `theme` representing Kadence itself. This means the update and feature management pipelines treat the product the same as any other feature — there is no special case for "the product itself" versus "add-on features."
+
 ### Tiers
 
 Each product defines an ordered set of tiers that represent subscription levels. Tiers are ranked, and a higher rank means a higher tier with more entitlements.
@@ -122,12 +124,14 @@ Product: kadence
 │  ├─ kadence-pro    (rank 2, "Pro")
 │  └─ kadence-agency (rank 3, "Agency")
 └─ Features (31)
-   ├─ kadence           (theme,  minimum: kadence-basic, dot-org)
+   ├─ kadence           (theme, minimum: kadence-basic, the product itself, dot-org)
    ├─ kad-blocks-pro    (plugin, minimum: kadence-basic, exclusive)
    ├─ kad-shop-kit      (plugin, minimum: kadence-pro,   exclusive)
    ├─ kad-pattern-hub   (flag,   minimum: kadence-basic)
    └─ ...
 ```
+
+Note that `kadence` appears as both the product and as a feature within it. This is intentional — the product's entry point flows through the same update and feature management pipelines as any other feature.
 
 The current fixture covers four product families:
 

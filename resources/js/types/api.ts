@@ -5,91 +5,294 @@
  */
 
 // ---------------------------------------------------------------------------
-// REST API types — stellarwp/uplink/v1
+// Feature types — GET /stellarwp/uplink/v1/features
 // ---------------------------------------------------------------------------
 
 /**
  * Feature type identifier returned by the REST API.
+ *
  * @since 3.0.0
  */
-export type FeatureType = 'plugin' | 'flag';
+export type FeatureType = 'plugin' | 'theme' | 'flag';
 
 /**
- * A feature as returned by GET /stellarwp/uplink/v1/features.
- *
- * Field names match the PHP Feature_Controller REST response exactly.
- * `plugin_file` is only present on plugin-type features.
+ * Base properties shared by all feature types.
  *
  * @since 3.0.0
  */
-export interface Feature {
-    /** Unique feature slug (e.g. "give-recurring-donations") */
-    slug:              string;
-    /** Human-readable feature name */
-    name:              string;
-    /** Short description */
-    description:       string;
-    /** Product group slug this feature belongs to (e.g. "give") */
-    group:             string;
-    /** Minimum tier required to access this feature */
-    tier:              TierSlug;
-    /** Feature delivery type */
-    type:              FeatureType;
-    /** Whether the feature is available on this site */
-    is_available:      boolean;
-    /** URL to documentation or learn-more page */
+interface BaseFeature {
+    /**
+     * Unique feature slug (e.g. "give-recurring-donations").
+     */
+    slug: string;
+    /**
+     * Human-readable feature name.
+     */
+    name: string;
+    /**
+     * Short description.
+     */
+    description: string;
+    /**
+     * Product group slug this feature belongs to (e.g. "give").
+     */
+    group: string;
+    /**
+     * Minimum tier required to access this feature.
+     */
+    tier: TierSlug;
+    /**
+     * Whether the feature is available on this site.
+     */
+    is_available: boolean;
+    /**
+     * URL to documentation or learn-more page.
+     */
     documentation_url: string;
-    /** Whether the feature is currently enabled (persisted server-side) */
-    is_enabled:        boolean;
-    /** Plugin file path relative to the plugins directory (zip type only) */
-    plugin_file?:      string;
+    /**
+     * Whether the feature is currently enabled (persisted server-side).
+     */
+    is_enabled: boolean;
+}
+
+/**
+ * A feature delivered as a standalone WordPress plugin.
+ *
+ * @since 3.0.0
+ */
+export interface PluginFeature extends BaseFeature {
+    type: 'plugin';
+    /**
+     * Plugin file path relative to the plugins directory.
+     */
+    plugin_file: string;
+    /**
+     * Slug used for plugins_api() lookups.
+     */
+    plugin_slug: string;
+    /**
+     * Expected plugin authors for ownership verification.
+     */
+    authors: string[];
+    /**
+     * Whether the plugin is hosted on WordPress.org.
+     */
+    is_dot_org: boolean;
+}
+
+/**
+ * A feature delivered as a WordPress theme.
+ *
+ * @since 3.0.0
+ */
+export interface ThemeFeature extends BaseFeature {
+    type: 'theme';
+    /**
+     * Expected theme authors for ownership verification.
+     */
+    authors: string[];
+    /**
+     * Whether the theme is hosted on WordPress.org.
+     */
+    is_dot_org: boolean;
+}
+
+/**
+ * A feature gated by a database option flag.
+ *
+ * @since 3.0.0
+ */
+export interface FlagFeature extends BaseFeature {
+    type: 'flag';
+}
+
+/**
+ * Discriminated union of all feature types as returned by the REST API.
+ *
+ * @since 3.0.0
+ */
+export type Feature = PluginFeature | ThemeFeature | FlagFeature;
+
+/**
+ * Plugin and theme features that trigger WordPress install/activate/deactivate
+ * operations. Flag features are excluded because they only flip a DB option.
+ *
+ * @since 3.0.0
+ */
+export type InstallableFeature = PluginFeature | ThemeFeature;
+
+// ---------------------------------------------------------------------------
+// Catalog types — GET /stellarwp/uplink/v1/catalog
+// ---------------------------------------------------------------------------
+
+/**
+ * A raw catalog feature entry before feature resolution.
+ *
+ * Field names match the Catalog_Feature PHP class and the catalog REST
+ * endpoint response. These differ from the resolved Feature types above
+ * (e.g. feature_slug vs slug, minimum_tier vs tier).
+ *
+ * @since 3.0.0
+ */
+export interface CatalogFeature {
+    /**
+     * Unique feature slug.
+     */
+    feature_slug: string;
+    /**
+     * Feature delivery type.
+     */
+    type: FeatureType;
+    /**
+     * Minimum tier slug required for this feature.
+     */
+    minimum_tier: string;
+    /**
+     * Human-readable feature name.
+     */
+    name: string;
+    /**
+     * Short description.
+     */
+    description: string;
+    /**
+     * Feature category within the product.
+     */
+    category: string;
+    /**
+     * Feature authors.
+     */
+    authors: string[];
+    /**
+     * URL to documentation or learn-more page.
+     */
+    documentation_url: string;
+    /**
+     * Plugin file path (plugin type only).
+     */
+    plugin_file: string;
+    /**
+     * Whether the feature is hosted on WordPress.org.
+     */
+    is_dot_org: boolean;
+    /**
+     * Download URL for the feature archive.
+     */
+    download_url: string;
+    /**
+     * Latest version string.
+     */
+    version: string;
+}
+
+/**
+ * A tier entry from the product catalog.
+ *
+ * @since 3.0.0
+ */
+export interface CatalogTier {
+    /**
+     * Tier slug identifier.
+     */
+    slug: string;
+    /**
+     * Display name (e.g. "Pro").
+     */
+    name: string;
+    /**
+     * Numeric rank for tier comparison.
+     */
+    rank: number;
+    /**
+     * URL to purchase this tier.
+     */
+    purchase_url: string;
+}
+
+/**
+ * A product catalog entry as returned by GET /stellarwp/uplink/v1/catalog.
+ *
+ * @since 3.0.0
+ */
+export interface ProductCatalog {
+    /**
+     * Product slug identifier.
+     */
+    product_slug: string;
+    /**
+     * Available tiers ordered by rank.
+     */
+    tiers: CatalogTier[];
+    /**
+     * Raw catalog features for this product.
+     */
+    features: CatalogFeature[];
 }
 
 // ---------------------------------------------------------------------------
-// Tier / product types
+// Tier / product types (display layer, hardcoded fixture data for now)
 // ---------------------------------------------------------------------------
 
 /**
  * Plan tier for a product.
+ *
  * @since 3.0.0
  */
 export type TierSlug = 'starter' | 'pro' | 'agency';
 
 /**
  * A plan tier definition.
+ *
  * @since 3.0.0
  */
 export interface Tier {
     slug: TierSlug;
-    /** Display name (e.g. "Pro") */
+    /**
+     * Display name (e.g. "Pro").
+     */
     name: string;
-    /** Marketing description */
+    /**
+     * Marketing description.
+     */
     description: string;
-    /** Upgrade URL for purchasing this tier */
+    /**
+     * Upgrade URL for purchasing this tier.
+     */
     upgradeUrl: string;
 }
 
 /**
  * A product with tiered plans.
+ *
  * @since 3.0.0
  */
 export interface Product {
-    /** Unique product slug — matches feature group field (e.g. "give", "kadence") */
+    /**
+     * Unique product slug, matches feature group field (e.g. "give", "kadence").
+     */
     slug: string;
-    /** Display name (e.g. "GiveWP") */
+    /**
+     * Display name (e.g. "GiveWP").
+     */
     name: string;
-    /** Short tagline */
+    /**
+     * Short tagline.
+     */
     tagline: string;
-    /** Available tiers (ordered starter → pro → agency) */
+    /**
+     * Available tiers (ordered starter, pro, agency).
+     */
     tiers: Tier[];
 }
 
 /**
  * Unified license key as returned by GET/POST /stellarwp/uplink/v1/license.
+ *
  * @since 3.0.0
  */
 export interface License {
-    /** The stored unified license key */
+    /**
+     * The stored unified license key.
+     */
     key: string;
 }
-

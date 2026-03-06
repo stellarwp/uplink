@@ -8,7 +8,7 @@ use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\API\REST\V1\Feature_Controller;
-use StellarWP\Uplink\Features\Strategy\Resolver;
+use StellarWP\Uplink\Features\Strategy\Strategy_Factory;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Tests\Traits\With_Uopz;
 use StellarWP\Uplink\Tests\UplinkTestCase;
@@ -115,10 +115,10 @@ final class Feature_ControllerTest extends UplinkTestCase {
 			]
 		);
 
-		$resolver = $this->makeEmpty(
-			Resolver::class,
+		$factory = $this->makeEmpty(
+			Strategy_Factory::class,
 			[
-				'resolve' => $mock_strategy,
+				'make' => $mock_strategy,
 			]
 		);
 
@@ -129,7 +129,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 			]
 		);
 
-		$this->manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
+		$this->manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
 
 		/** @var WP_REST_Server $wp_rest_server */
 		global $wp_rest_server;
@@ -488,8 +488,8 @@ final class Feature_ControllerTest extends UplinkTestCase {
 			]
 		);
 
-		$resolver = $this->makeEmpty( Resolver::class );
-		$manager  = new Manager( $repository, $resolver, 'test-key', 'example.com' );
+		$factory = $this->makeEmpty( Strategy_Factory::class );
+		$manager  = new Manager( $repository, $factory, 'test-key', 'example.com' );
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
@@ -755,9 +755,9 @@ final class Feature_ControllerTest extends UplinkTestCase {
 			]
 		);
 
-		$resolver   = $this->makeEmpty( Resolver::class, [ 'resolve' => $error_strategy ] );
+		$factory   = $this->makeEmpty( Strategy_Factory::class, [ 'make' => $error_strategy ] );
 		$repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => $this->manager->get_features() ] );
-		$manager    = new Manager( $repository, $resolver, 'test-key', 'example.com' );
+		$manager    = new Manager( $repository, $factory, 'test-key', 'example.com' );
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
@@ -790,8 +790,8 @@ final class Feature_ControllerTest extends UplinkTestCase {
 			]
 		);
 
-		$resolver = $this->makeEmpty( Resolver::class );
-		$manager  = new Manager( $repository, $resolver, 'test-key', 'example.com' );
+		$factory = $this->makeEmpty( Strategy_Factory::class );
+		$manager  = new Manager( $repository, $factory, 'test-key', 'example.com' );
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
@@ -826,9 +826,9 @@ final class Feature_ControllerTest extends UplinkTestCase {
 			]
 		);
 
-		$resolver   = $this->makeEmpty( Resolver::class, [ 'resolve' => $error_strategy ] );
+		$factory   = $this->makeEmpty( Strategy_Factory::class, [ 'make' => $error_strategy ] );
 		$repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => $this->manager->get_features() ] );
-		$manager    = new Manager( $repository, $resolver, 'test-key', 'example.com' );
+		$manager    = new Manager( $repository, $factory, 'test-key', 'example.com' );
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
@@ -864,9 +864,9 @@ final class Feature_ControllerTest extends UplinkTestCase {
 			]
 		);
 
-		$resolver   = $this->makeEmpty( Resolver::class, [ 'resolve' => $error_strategy ] );
+		$factory   = $this->makeEmpty( Strategy_Factory::class, [ 'make' => $error_strategy ] );
 		$repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => $this->manager->get_features() ] );
-		$manager    = new Manager( $repository, $resolver, 'test-key', 'example.com' );
+		$manager    = new Manager( $repository, $factory, 'test-key', 'example.com' );
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();

@@ -2,7 +2,6 @@
 
 namespace StellarWP\Uplink\Features\Contracts;
 
-use StellarWP\Uplink\Features\Types\Feature;
 use WP_Error;
 
 /**
@@ -10,7 +9,7 @@ use WP_Error;
  * the active state of a Feature.
  *
  * Each Strategy instance is bound to a single Feature at construction time.
- * The Resolver acts as a factory, creating the right Strategy for each Feature.
+ * The Strategy_Factory creates the right Strategy for each Feature.
  *
  * @since 3.0.0
  */

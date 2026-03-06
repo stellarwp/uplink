@@ -44,6 +44,7 @@ class Uplink {
 		$container->singleton( View\Provider::class, View\Provider::class );
 		$container->singleton( API\Client::class, API\Client::class );
 		$container->singleton( API\V3\Provider::class, API\V3\Provider::class );
+		$container->singleton( API\Functions\Provider::class, API\Functions\Provider::class );
 		$container->singleton( Resources\Collection::class, Resources\Collection::class );
 		$container->singleton( Site\Data::class, Site\Data::class );
 		$container->singleton( Notice\Provider::class, Notice\Provider::class );
@@ -61,19 +62,20 @@ class Uplink {
 			$container->get( API\V3\Provider::class )->register();
 			$container->get( Notice\Provider::class )->register();
 			$container->get( Admin\Provider::class )->register();
-			$container->get( Legacy\Provider::class )->register();
 
 			if ( $container->has( Config::TOKEN_OPTION_NAME ) ) {
 				$container->get( Auth\Provider::class )->register();
 			}
-
-			$container->get( Features\Provider::class )->register();
-			$container->get( Licensing\Provider::class )->register();
-			$container->get( Catalog\Provider::class )->register();
-			$container->get( API\REST\V1\Provider::class )->register();
-
-			static::register_cross_instance_hooks( $container );
 		}
+
+		$container->get( Legacy\Provider::class )->register();
+		$container->get( Features\Provider::class )->register();
+		$container->get( Licensing\Provider::class )->register();
+		$container->get( Catalog\Provider::class )->register();
+		$container->get( API\REST\V1\Provider::class )->register();
+		$container->get( API\Functions\Provider::class )->register();
+
+		static::register_cross_instance_hooks( $container );
 
 		require_once __DIR__ . '/functions.php';
 	}

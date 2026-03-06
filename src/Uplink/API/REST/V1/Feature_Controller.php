@@ -290,93 +290,130 @@ class Feature_Controller extends WP_REST_Controller {
 			return $this->add_additional_fields_schema( $this->schema );
 		}
 
+		$base_properties = [
+			'slug'              => [
+				'description' => __( 'The feature slug.', '%TEXTDOMAIN%' ),
+				'type'        => 'string',
+				'readonly'    => true,
+				'context'     => [ 'view' ],
+			],
+			'name'              => [
+				'description' => __( 'The feature display name.', '%TEXTDOMAIN%' ),
+				'type'        => 'string',
+				'readonly'    => true,
+				'context'     => [ 'view' ],
+			],
+			'description'       => [
+				'description' => __( 'The feature description.', '%TEXTDOMAIN%' ),
+				'type'        => 'string',
+				'readonly'    => true,
+				'context'     => [ 'view' ],
+			],
+			'group'             => [
+				'description' => __( 'The product group the feature belongs to.', '%TEXTDOMAIN%' ),
+				'type'        => 'string',
+				'readonly'    => true,
+				'context'     => [ 'view' ],
+			],
+			'tier'              => [
+				'description' => __( 'The feature tier.', '%TEXTDOMAIN%' ),
+				'type'        => 'string',
+				'readonly'    => true,
+				'context'     => [ 'view' ],
+			],
+			'type'              => [
+				'description' => __( 'The feature type identifier.', '%TEXTDOMAIN%' ),
+				'type'        => 'string',
+				'readonly'    => true,
+				'context'     => [ 'view' ],
+			],
+			'is_available'      => [
+				'description' => __( 'Whether the feature is available for the current site.', '%TEXTDOMAIN%' ),
+				'type'        => 'boolean',
+				'readonly'    => true,
+				'context'     => [ 'view' ],
+			],
+			'documentation_url' => [
+				'description' => __( 'The URL to the feature documentation.', '%TEXTDOMAIN%' ),
+				'type'        => 'string',
+				'format'      => 'uri',
+				'readonly'    => true,
+				'context'     => [ 'view' ],
+			],
+			'is_enabled'        => [
+				'description' => __( 'Whether the feature is currently enabled.', '%TEXTDOMAIN%' ),
+				'type'        => 'boolean',
+				'readonly'    => true,
+				'context'     => [ 'view' ],
+			],
+		];
+
+		$installable_properties = [
+			'authors'    => [
+				'description' => __( 'Expected authors for ownership verification.', '%TEXTDOMAIN%' ),
+				'type'        => 'array',
+				'items'       => [
+					'type' => 'string',
+				],
+				'readonly'    => true,
+				'context'     => [ 'view' ],
+			],
+			'is_dot_org' => [
+				'description' => __( 'Whether the feature is available on WordPress.org.', '%TEXTDOMAIN%' ),
+				'type'        => 'boolean',
+				'readonly'    => true,
+				'context'     => [ 'view' ],
+			],
+		];
+
+		$plugin_properties = [
+			'plugin_file' => [
+				'description' => __( 'The plugin file path relative to the plugins directory.', '%TEXTDOMAIN%' ),
+				'type'        => 'string',
+				'readonly'    => true,
+				'context'     => [ 'view' ],
+			],
+			'plugin_slug' => [
+				'description' => __( 'The slug used for plugins_api() lookups.', '%TEXTDOMAIN%' ),
+				'type'        => 'string',
+				'readonly'    => true,
+				'context'     => [ 'view' ],
+			],
+		];
+
 		$this->schema = [
-			'$schema'              => 'http://json-schema.org/draft-04/schema#',
-			'title'                => 'feature',
-			'type'                 => 'object',
-			'additionalProperties' => true,
-			'properties'           => [
-				'slug'              => [
-					'description' => __( 'The feature slug.', '%TEXTDOMAIN%' ),
-					'type'        => 'string',
-					'readonly'    => true,
-					'context'     => [ 'view' ],
+			'$schema' => 'http://json-schema.org/draft-04/schema#',
+			'title'   => 'feature',
+			'oneOf'   => [
+				[
+					'title'                => 'plugin',
+					'type'                 => 'object',
+					'additionalProperties' => true,
+					'properties'           => array_merge(
+						$base_properties,
+						[ 'type' => array_merge( $base_properties['type'], [ 'enum' => [ Feature::TYPE_PLUGIN ] ] ) ],
+						$plugin_properties,
+						$installable_properties
+					),
 				],
-				'name'              => [
-					'description' => __( 'The feature display name.', '%TEXTDOMAIN%' ),
-					'type'        => 'string',
-					'readonly'    => true,
-					'context'     => [ 'view' ],
+				[
+					'title'                => 'theme',
+					'type'                 => 'object',
+					'additionalProperties' => true,
+					'properties'           => array_merge(
+						$base_properties,
+						[ 'type' => array_merge( $base_properties['type'], [ 'enum' => [ Feature::TYPE_THEME ] ] ) ],
+						$installable_properties
+					),
 				],
-				'description'       => [
-					'description' => __( 'The feature description.', '%TEXTDOMAIN%' ),
-					'type'        => 'string',
-					'readonly'    => true,
-					'context'     => [ 'view' ],
-				],
-				'group'             => [
-					'description' => __( 'The product group the feature belongs to.', '%TEXTDOMAIN%' ),
-					'type'        => 'string',
-					'readonly'    => true,
-					'context'     => [ 'view' ],
-				],
-				'tier'              => [
-					'description' => __( 'The feature tier.', '%TEXTDOMAIN%' ),
-					'type'        => 'string',
-					'readonly'    => true,
-					'context'     => [ 'view' ],
-				],
-				'type'              => [
-					'description' => __( 'The feature type identifier.', '%TEXTDOMAIN%' ),
-					'type'        => 'string',
-					'readonly'    => true,
-					'context'     => [ 'view' ],
-				],
-				'is_available'      => [
-					'description' => __( 'Whether the feature is available for the current site.', '%TEXTDOMAIN%' ),
-					'type'        => 'boolean',
-					'readonly'    => true,
-					'context'     => [ 'view' ],
-				],
-				'documentation_url' => [
-					'description' => __( 'The URL to the feature documentation.', '%TEXTDOMAIN%' ),
-					'type'        => 'string',
-					'format'      => 'uri',
-					'readonly'    => true,
-					'context'     => [ 'view' ],
-				],
-				'is_enabled'        => [
-					'description' => __( 'Whether the feature is currently enabled.', '%TEXTDOMAIN%' ),
-					'type'        => 'boolean',
-					'readonly'    => true,
-					'context'     => [ 'view' ],
-				],
-				'plugin_file'       => [
-					'description' => __( 'The plugin file path relative to the plugins directory. Present for plugin features only.', '%TEXTDOMAIN%' ),
-					'type'        => 'string',
-					'readonly'    => true,
-					'context'     => [ 'view' ],
-				],
-				'plugin_slug'       => [
-					'description' => __( 'The slug used for plugins_api() lookups. Present for plugin features only.', '%TEXTDOMAIN%' ),
-					'type'        => 'string',
-					'readonly'    => true,
-					'context'     => [ 'view' ],
-				],
-				'authors'           => [
-					'description' => __( 'Expected authors for ownership verification. Present for plugin and theme features.', '%TEXTDOMAIN%' ),
-					'type'        => 'array',
-					'items'       => [
-						'type' => 'string',
-					],
-					'readonly'    => true,
-					'context'     => [ 'view' ],
-				],
-				'is_dot_org'        => [
-					'description' => __( 'Whether the feature is available on WordPress.org. Present for plugin and theme features.', '%TEXTDOMAIN%' ),
-					'type'        => 'boolean',
-					'readonly'    => true,
-					'context'     => [ 'view' ],
+				[
+					'title'                => 'flag',
+					'type'                 => 'object',
+					'additionalProperties' => true,
+					'properties'           => array_merge(
+						$base_properties,
+						[ 'type' => array_merge( $base_properties['type'], [ 'enum' => [ Feature::TYPE_FLAG ] ] ) ]
+					),
 				],
 			],
 		];

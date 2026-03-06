@@ -11,7 +11,7 @@ local-scripts/
 /build/
 /build-dev/
 
-# Track Claude commands (overrides global gitignore)
+# Track Claude commands and settings (ignore everything else in .claude/).
 !.claude/
 .claude/*
 !.claude/commands/

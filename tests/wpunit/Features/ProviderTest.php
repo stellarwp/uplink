@@ -45,11 +45,13 @@ final class ProviderTest extends UplinkTestCase {
 	 */
 	public function test_it_registers_theme_strategy(): void {
 		$resolver = $this->container->get( Resolver::class );
-		$feature  = Theme::from_array( [
-			'slug' => 'test-theme',
-			'type' => 'theme',
-			'name' => 'Test Theme',
-		] );
+		$feature  = Theme::from_array(
+			[
+				'slug' => 'test-theme',
+				'type' => 'theme',
+				'name' => 'Test Theme',
+			]
+		);
 
 		$this->assertInstanceOf( Theme_Strategy::class, $resolver->resolve( $feature ) );
 	}

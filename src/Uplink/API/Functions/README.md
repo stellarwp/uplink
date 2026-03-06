@@ -107,12 +107,12 @@ Strauss rewrites class references at parse time. `License_Manager::class` inside
 
 `src/Uplink/global-functions.php` exposes four public functions. Plugin consumers call these:
 
-| Function                                       | What it checks                                                                |
-| ---------------------------------------------- | ----------------------------------------------------------------------------- |
-| `stellarwp_uplink_has_unified_license_key()`             | Whether any unified license key is stored locally (no API call)               |
-| `stellarwp_uplink_is_product_license_active( $product )` | Whether a product slug has `validation_status: valid` in the cached catalog   |
-| `stellarwp_uplink_is_feature_enabled( $slug )`           | Whether a feature is in the catalog AND currently enabled/active              |
-| `stellarwp_uplink_is_feature_available( $slug )`         | Whether a feature exists in the catalog, regardless of enabled state          |
+| Function                                                  | What it checks                                                              |
+| --------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `stellarwp_uplink_has_unified_license_key()`              | Whether any unified license key is stored locally (no API call)             |
+| `stellarwp_uplink_is_product_license_active( $product )`  | Whether a product slug has `validation_status: valid` in the cached catalog |
+| `stellarwp_uplink_is_feature_enabled( $slug )`            | Whether a feature is in the catalog AND currently enabled/active            |
+| `stellarwp_uplink_is_feature_available( $slug )`          | Whether a feature exists in the catalog, regardless of enabled state        |
 
 Each function looks up the registered callback and delegates, returning `false` if no callback is registered yet:
 

@@ -22,12 +22,12 @@ Plugin consumers also need a simple, stable public API to answer questions like 
 
 ## How It Works
 
-### 1. The Registry (`uplink_fn_registry`)
+### 1. The Registry (`_uplink_global_function_registry`)
 
 `src/Uplink/global-functions.php` defines a single function that owns a `static $registry` variable:
 
 ```php
-function uplink_fn_registry( string $key, string $version = '', ?callable $callback = null ): ?callable {
+function _uplink_global_function_registry( string $key, string $version = '', ?callable $callback = null ): ?callable {
     static $registry = []; // one instance, shared across all callers
 
     if ( $callback !== null ) {
@@ -43,7 +43,7 @@ function uplink_fn_registry( string $key, string $version = '', ?callable $callb
 The `static` variable lives inside the function — there is only ever one `$registry` array in the process, shared by every caller.
 
 ```
-uplink_fn_registry()
+_uplink_global_function_registry()
 └── static $registry = [
         'has_unified_license_key' => [
             '3.0.0' => Closure(GiveWP instance),    ← registered by Give's copy
@@ -65,13 +65,13 @@ Read path: apply_filters('stellarwp/uplink/highest_version') → '3.0.3'
 **Write mode** — called with a version and callback:
 
 ```php
-uplink_fn_registry( 'has_unified_license_key', '3.0.3', fn() => ... );
+_uplink_global_function_registry( 'has_unified_license_key', '3.0.3', fn() => ... );
 ```
 
 **Read mode** — called with a key only, resolves the leader's callable:
 
 ```php
-$callback = uplink_fn_registry( 'has_unified_license_key' );
+$callback = _uplink_global_function_registry( 'has_unified_license_key' );
 ```
 
 ### 2. Version Leadership
@@ -84,14 +84,14 @@ add_filter( 'stellarwp/uplink/highest_version', function( string $current ) {
 });
 ```
 
-Starting from `'0.0.0'`, each copy has a chance to raise the value. The final result is the highest version loaded. When `uplink_fn_registry` reads, it calls this filter at that moment so the leader is always resolved correctly, regardless of plugin load order.
+Starting from `'0.0.0'`, each copy has a chance to raise the value. The final result is the highest version loaded. When `_uplink_global_function_registry` reads, it calls this filter at that moment so the leader is always resolved correctly, regardless of plugin load order.
 
 ### 3. Registering Closures (`Global_Function_Registry`)
 
 `Global_Function_Registry::register()` is called by `Provider::register()` during each Uplink instance's `init()`. It registers version-keyed closures for every public function key:
 
 ```php
-\uplink_fn_registry(
+\_uplink_global_function_registry(
     'has_unified_license_key',
     $version,
     static function () use ( $container ): bool {
@@ -119,7 +119,7 @@ Each function looks up the registered callback and delegates, returning `false` 
 ```php
 function uplink_has_unified_license_key(): bool {
     // @phpstan-ignore function.internal
-    $callback = uplink_fn_registry( 'has_unified_license_key' );
+    $callback = _uplink_global_function_registry( 'has_unified_license_key' );
     return $callback ? (bool) $callback() : false;
 }
 ```
@@ -129,7 +129,7 @@ function uplink_has_unified_license_key(): bool {
 ```
 Uplink::init()
   └─ API\Functions\Provider::register()        ← runs unconditionally (outside is_enabled())
-       ├─ require_once global-functions.php     ← defines uplink_fn_registry() and public wrappers
+       ├─ require_once global-functions.php     ← defines _uplink_global_function_registry() and public wrappers
        └─ Global_Function_Registry::register() ← stores version-keyed closures in the registry
 
   └─ is_enabled() block
@@ -142,9 +142,9 @@ Uplink::init()
 
 ## Security
 
-The callbacks are stored in a PHP `static` variable inside `uplink_fn_registry()`. There is no WordPress filter on the return value of the public functions themselves. An attacker cannot simply hook a filter to force `uplink_is_product_license_active()` to return `true` — they would need to both manipulate the `stellarwp/uplink/highest_version` filter **and** know the internal registry key, making trivial overrides impractical.
+The callbacks are stored in a PHP `static` variable inside `_uplink_global_function_registry()`. There is no WordPress filter on the return value of the public functions themselves. An attacker cannot simply hook a filter to force `uplink_is_product_license_active()` to return `true` — they would need to both manipulate the `stellarwp/uplink/highest_version` filter **and** know the internal registry key, making trivial overrides impractical.
 
-`uplink_fn_registry` is marked `@internal` to signal that plugin consumers should not call it directly and should only use the public wrapper functions.
+`_uplink_global_function_registry` is marked `@internal` to signal that plugin consumers should not call it directly and should only use the public wrapper functions.
 
 ## Adding a New Global Function
 

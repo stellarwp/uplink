@@ -12,7 +12,7 @@ use StellarWP\Uplink\Uplink;
  * Tests for the global helper functions defined in global-functions.php.
  *
  * These functions are the public API for StellarWP products to check licensing
- * and feature state. They delegate to version-keyed closures in uplink_fn_registry()
+ * and feature state. They delegate to version-keyed closures in _uplink_global_function_registry()
  * so that the highest-version Uplink instance's logic always runs.
  *
  * @since 3.0.0
@@ -34,15 +34,15 @@ final class GlobalFunctionsTest extends UplinkTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// uplink_fn_registry()
+	// _uplink_global_function_registry()
 	// -------------------------------------------------------------------------
 
 	public function test_registry_returns_null_for_unregistered_key(): void {
-		$this->assertNull( uplink_fn_registry( 'nonexistent_key_global_functions_test' ) );
+		$this->assertNull( _uplink_global_function_registry( 'nonexistent_key_global_functions_test' ) );
 	}
 
 	public function test_registry_write_returns_null(): void {
-		$result = uplink_fn_registry( 'test_write_global_functions', '1.0.0', fn() => true );
+		$result = _uplink_global_function_registry( 'test_write_global_functions', '1.0.0', fn() => true );
 
 		$this->assertNull( $result );
 	}
@@ -50,7 +50,7 @@ final class GlobalFunctionsTest extends UplinkTestCase {
 	public function test_registry_retrieves_callback_registered_at_leader_version(): void {
 		$called = false;
 
-		uplink_fn_registry(
+		_uplink_global_function_registry(
 			'test_leader_registration',
 			Uplink::VERSION,
 			static function () use ( &$called ): bool {
@@ -60,7 +60,7 @@ final class GlobalFunctionsTest extends UplinkTestCase {
 			}
 		);
 
-		$callback = uplink_fn_registry( 'test_leader_registration' );
+		$callback = _uplink_global_function_registry( 'test_leader_registration' );
 
 		$this->assertNotNull( $callback );
 		$this->assertTrue( $callback() );
@@ -68,10 +68,10 @@ final class GlobalFunctionsTest extends UplinkTestCase {
 	}
 
 	public function test_registry_uses_highest_version_callback_when_multiple_registered(): void {
-		uplink_fn_registry( 'test_versioned_fn', '1.0.0', fn() => 'low' );
-		uplink_fn_registry( 'test_versioned_fn', Uplink::VERSION, fn() => 'high' );
+		_uplink_global_function_registry( 'test_versioned_fn', '1.0.0', fn() => 'low' );
+		_uplink_global_function_registry( 'test_versioned_fn', Uplink::VERSION, fn() => 'high' );
 
-		$callback = uplink_fn_registry( 'test_versioned_fn' );
+		$callback = _uplink_global_function_registry( 'test_versioned_fn' );
 
 		$this->assertNotNull( $callback );
 		$this->assertSame( 'high', $callback() );
@@ -80,9 +80,9 @@ final class GlobalFunctionsTest extends UplinkTestCase {
 	public function test_registry_returns_null_when_callback_registered_below_leader_version(): void {
 		// Register only at a version lower than the leader — the registry
 		// resolves to the leader version, which has no callback for this key.
-		uplink_fn_registry( 'test_lower_version_only', '1.0.0', fn() => 'old' );
+		_uplink_global_function_registry( 'test_lower_version_only', '1.0.0', fn() => 'old' );
 
-		$callback = uplink_fn_registry( 'test_lower_version_only' );
+		$callback = _uplink_global_function_registry( 'test_lower_version_only' );
 
 		$this->assertNull( $callback );
 	}

@@ -275,4 +275,3 @@ function get_form(): Form {
 function get_plugins(): Collection {
 	return get_container()->get( Collection::class )->get_plugins();
 }
-

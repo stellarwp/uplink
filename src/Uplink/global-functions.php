@@ -11,15 +11,15 @@
  * equivalents to ensure they always execute the most up-to-date implementation.
  */
 
-if ( ! function_exists( 'uplink_fn_registry' ) ) {
+if ( ! function_exists( '_uplink_global_function_registry' ) ) {
 	/**
 	 * Reads from or writes to the global function registry.
 	 *
 	 * The static variable lives inside this single function so all callers
 	 * share the same registry without relying on $GLOBALS.
 	 *
-	 * - Register: uplink_fn_registry( 'key', '1.0.0', $callable )
-	 * - Retrieve leader callable: uplink_fn_registry( 'key' )
+	 * - Register: _uplink_global_function_registry( 'key', '1.0.0', $callable )
+	 * - Retrieve leader callable: _uplink_global_function_registry( 'key' )
 	 *
 	 * @internal Not intended for direct use by plugins.
 	 *
@@ -29,7 +29,7 @@ if ( ! function_exists( 'uplink_fn_registry' ) ) {
 	 *
 	 * @return callable|null Null when writing, or the leader's callable when reading.
 	 */
-	function uplink_fn_registry( string $key, string $version = '', ?callable $callback = null ): ?callable {
+	function _uplink_global_function_registry( string $key, string $version = '', ?callable $callback = null ): ?callable {
 		/** @var array<string, array<string, callable>> $registry */
 		static $registry = [];
 
@@ -58,7 +58,7 @@ if ( ! function_exists( 'uplink_has_unified_license_key' ) ) {
 	 */
 	function uplink_has_unified_license_key(): bool {
 		// @phpstan-ignore function.internal
-		$callback = uplink_fn_registry( 'has_unified_license_key' );
+		$callback = _uplink_global_function_registry( 'has_unified_license_key' );
 
 		return $callback ? (bool) $callback() : false;
 	}
@@ -80,7 +80,7 @@ if ( ! function_exists( 'uplink_is_product_license_active' ) ) {
 	 */
 	function uplink_is_product_license_active( string $product ): bool {
 		// @phpstan-ignore function.internal
-		$callback = uplink_fn_registry( 'is_product_license_active' );
+		$callback = _uplink_global_function_registry( 'is_product_license_active' );
 
 		return $callback ? (bool) $callback( $product ) : false;
 	}
@@ -99,7 +99,7 @@ if ( ! function_exists( 'uplink_is_feature_enabled' ) ) {
 	 */
 	function uplink_is_feature_enabled( string $slug ) {
 		// @phpstan-ignore function.internal
-		$callback = uplink_fn_registry( 'is_feature_enabled' );
+		$callback = _uplink_global_function_registry( 'is_feature_enabled' );
 
 		// @phpstan-ignore return.type
 		return $callback ? $callback( $slug ) : false;
@@ -118,7 +118,7 @@ if ( ! function_exists( 'uplink_is_feature_available' ) ) {
 	 */
 	function uplink_is_feature_available( string $slug ) {
 		// @phpstan-ignore function.internal
-		$callback = uplink_fn_registry( 'is_feature_available' );
+		$callback = _uplink_global_function_registry( 'is_feature_available' );
 
 		// @phpstan-ignore return.type
 		return $callback ? $callback( $slug ) : false;

@@ -14,7 +14,7 @@ use WP_Error;
  * Registers this Uplink instance's callbacks into the global function registry.
  *
  * Each vendor-prefixed Uplink instance calls register() during init, storing
- * version-keyed closures via uplink_fn_registry(). The closures are defined
+ * version-keyed closures via _uplink_global_function_registry(). The closures are defined
  * here (inside the namespaced file) so Strauss-prefixed class references
  * resolve correctly for this specific instance.
  *
@@ -34,7 +34,7 @@ class Global_Function_Registry {
 	 */
 	public static function register( ContainerInterface $container, string $version ): void {
 		// @phpstan-ignore function.internal
-		\uplink_fn_registry(
+		\_uplink_global_function_registry(
 			'has_unified_license_key',
 			$version,
 			static function () use ( $container ): bool {
@@ -51,7 +51,7 @@ class Global_Function_Registry {
 		);
 
 		// @phpstan-ignore function.internal
-		\uplink_fn_registry(
+		\_uplink_global_function_registry(
 			'is_product_license_active',
 			$version,
 			static function ( string $product ) use ( $container ): bool {
@@ -68,7 +68,7 @@ class Global_Function_Registry {
 		);
 
 		// @phpstan-ignore function.internal
-		\uplink_fn_registry(
+		\_uplink_global_function_registry(
 			'is_feature_enabled',
 			$version,
 			static function ( string $slug ) use ( $container ) {
@@ -86,7 +86,7 @@ class Global_Function_Registry {
 		);
 
 		// @phpstan-ignore function.internal
-		\uplink_fn_registry(
+		\_uplink_global_function_registry(
 			'is_feature_available',
 			$version,
 			static function ( string $slug ) use ( $container ) {

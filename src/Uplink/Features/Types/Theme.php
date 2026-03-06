@@ -25,7 +25,7 @@ final class Theme extends Feature implements Installable {
 	 * @return void
 	 */
 	public function __construct( array $attributes ) {
-		$attributes['type'] = 'theme';
+		$attributes['type'] = self::TYPE_THEME;
 
 		parent::__construct( $attributes );
 	}

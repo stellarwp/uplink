@@ -68,14 +68,14 @@ class Uplink {
 			}
 		}
 
-		$container->get(Legacy\Provider::class)->register();
-		$container->get(Features\Provider::class)->register();
-		$container->get(Licensing\Provider::class)->register();
-		$container->get(Catalog\Provider::class)->register();
-		$container->get(API\REST\V1\Provider::class)->register();
-		$container->get(API\Functions\Provider::class)->register();
+		$container->get( Legacy\Provider::class )->register();
+		$container->get( Features\Provider::class )->register();
+		$container->get( Licensing\Provider::class )->register();
+		$container->get( Catalog\Provider::class )->register();
+		$container->get( API\REST\V1\Provider::class )->register();
+		$container->get( API\Functions\Provider::class )->register();
 
-		static::register_cross_instance_hooks($container);
+		static::register_cross_instance_hooks( $container );
 
 		require_once __DIR__ . '/functions.php';
 	}

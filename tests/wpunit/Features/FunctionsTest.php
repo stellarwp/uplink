@@ -7,7 +7,7 @@ use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Manager;
-use StellarWP\Uplink\Features\Strategy\Resolver;
+use StellarWP\Uplink\Features\Strategy\Strategy_Factory;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
@@ -36,10 +36,10 @@ final class FunctionsTest extends UplinkTestCase {
 			]
 		);
 
-		$resolver = $this->makeEmpty(
-			Resolver::class,
+		$factory = $this->makeEmpty(
+			Strategy_Factory::class,
 			[
-				'resolve' => $mock_strategy,
+				'make' => $mock_strategy,
 			]
 		);
 
@@ -50,7 +50,7 @@ final class FunctionsTest extends UplinkTestCase {
 			]
 		);
 
-		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
 
 		$this->container->bind(
 			Manager::class,
@@ -111,9 +111,9 @@ final class FunctionsTest extends UplinkTestCase {
 			]
 		);
 
-		$resolver = $this->makeEmpty( Resolver::class );
+		$factory = $this->makeEmpty( Strategy_Factory::class );
 
-		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
 
 		$this->container->bind(
 			Manager::class,
@@ -142,9 +142,9 @@ final class FunctionsTest extends UplinkTestCase {
 			]
 		);
 
-		$resolver = $this->makeEmpty( Resolver::class );
+		$factory = $this->makeEmpty( Strategy_Factory::class );
 
-		$manager = new Manager( $repository, $resolver, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
 
 		$this->container->bind(
 			Manager::class,

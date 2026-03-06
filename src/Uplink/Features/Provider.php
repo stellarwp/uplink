@@ -5,11 +5,7 @@ namespace StellarWP\Uplink\Features;
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
-use StellarWP\Uplink\Features\Strategy\Flag_Strategy;
-use StellarWP\Uplink\Features\Strategy\Plugin_Strategy;
-use StellarWP\Uplink\Features\Strategy\Resolver;
-use StellarWP\Uplink\Features\Strategy\Theme_Strategy;
-use StellarWP\Uplink\Features\Types\Feature;
+use StellarWP\Uplink\Features\Strategy\Strategy_Factory;
 use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Features\Types\Theme;
@@ -33,7 +29,7 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	public function register(): void {
-		$this->container->singleton( Resolver::class, Resolver::class );
+		$this->container->singleton( Strategy_Factory::class, Strategy_Factory::class );
 
 		$this->container->singleton(
 			Resolve_Feature_Collection::class,
@@ -65,14 +61,13 @@ class Provider extends Abstract_Provider {
 			static function ( ContainerInterface $c ) {
 				return new Manager(
 					$c->get( Feature_Repository::class ),
-					$c->get( Resolver::class ),
+					$c->get( Strategy_Factory::class ),
 					$c->get( License_Manager::class )->get_key() ?? '',
 					$c->get( Data::class )->get_domain()
 				);
 			}
 		);
 
-		$this->register_default_strategies();
 		$this->register_hooks();
 	}
 
@@ -89,23 +84,6 @@ class Provider extends Abstract_Provider {
 		$resolver->register_type( 'plugin', Plugin::class );
 		$resolver->register_type( 'flag', Flag::class );
 		$resolver->register_type( 'theme', Theme::class );
-	}
-
-	/**
-	 * Registers the default feature type strategy factories.
-	 *
-	 * Each factory creates a new Strategy instance bound to the given Feature.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return void
-	 */
-	private function register_default_strategies(): void {
-		$resolver = $this->container->get( Resolver::class );
-
-		$resolver->register( 'plugin', static fn( Feature $f ) => new Plugin_Strategy( $f ) );
-		$resolver->register( 'flag', static fn( Feature $f ) => new Flag_Strategy( $f ) );
-		$resolver->register( 'theme', static fn( Feature $f ) => new Theme_Strategy( $f ) );
 	}
 
 	/**

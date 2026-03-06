@@ -79,10 +79,10 @@ The `Manager` is the public interface for all feature operations.
 | `enable(string $slug)`       | `true\|WP_Error`               | Enable a feature                       |
 | `disable(string $slug)`      | `true\|WP_Error`               | Disable a feature                      |
 
-Convenience functions in `src/Uplink/functions.php`:
+Global convenience functions in `src/Uplink/global-functions.php` (non-namespaced, always delegate to the version leader):
 
-- **`is_feature_enabled(string $slug): bool|WP_Error`** — in the catalog AND active locally?
-- **`is_feature_available(string $slug): bool|WP_Error`** — in the catalog and tier qualifies?
+- **`stellarwp_uplink_is_feature_enabled(string $slug): bool|WP_Error`** — in the catalog AND active locally?
+- **`stellarwp_uplink_is_feature_available(string $slug): bool|WP_Error`** — in the catalog and tier qualifies?
 
 ### WordPress Hooks
 

@@ -117,8 +117,8 @@ class Global_Function_Registry {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Throwable $e
-	 * @param string    $context Message prefix for the error log.
+	 * @param Throwable $e The Throwable to log.
+	 * @param string    $context The context of the log.
 	 *
 	 * @return void
 	 */

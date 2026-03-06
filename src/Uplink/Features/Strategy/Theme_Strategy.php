@@ -3,13 +3,11 @@
 namespace StellarWP\Uplink\Features\Strategy;
 
 use StellarWP\Uplink\Features\Error_Code;
-use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Theme;
 use StellarWP\Uplink\Utils\Cast;
 use WP_Error;
 use WP_Ajax_Upgrader_Skin;
 use Theme_Upgrader;
-use WP_Theme;
 
 use function sanitize_key;
 use function themes_api;
@@ -35,11 +33,9 @@ use function wp_get_theme;
  * explicit disable — stored state is the authority for the enabled/disabled
  * toggle.
  *
- * Sync hook: on_theme_switch() is wired to the 'switch_theme' action by the
- * Provider layer to keep stored state in sync when themes are switched outside
- * the feature system (e.g. via Appearance → Themes).
- *
  * @since 3.0.0
+ *
+ * @phpstan-property Theme $feature
  */
 class Theme_Strategy extends Installable_Strategy {
 
@@ -61,12 +57,10 @@ class Theme_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Already type-guarded as Theme by the template.
-	 *
 	 * @return bool
 	 */
-	protected function check_active( Feature $feature ): bool {
-		return $this->check_installed( $feature );
+	protected function check_active(): bool {
+		return $this->check_installed();
 	}
 
 	/**
@@ -74,12 +68,10 @@ class Theme_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Already type-guarded as Theme by the template.
-	 *
 	 * @return bool
 	 */
-	protected function check_installed( Feature $feature ): bool {
-		return wp_get_theme( $feature->get_slug() )->exists();
+	protected function check_installed(): bool {
+		return wp_get_theme( $this->feature->get_slug() )->exists();
 	}
 
 	/**
@@ -87,12 +79,10 @@ class Theme_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Already type-guarded as Theme by the template.
-	 *
 	 * @return true|WP_Error
 	 */
-	protected function do_install( Feature $feature ) {
-		return $this->install_theme( $feature );
+	protected function do_install() {
+		return $this->install_theme();
 	}
 
 	/**
@@ -104,12 +94,10 @@ class Theme_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Already type-guarded as Theme by the template.
-	 *
 	 * @return true|WP_Error
 	 */
-	protected function do_activate( Feature $feature ) {
-		$this->update_stored_state( $feature->get_slug(), true );
+	protected function do_activate() {
+		$this->update_stored_state( $this->feature->get_slug(), true );
 
 		return true;
 	}
@@ -121,12 +109,10 @@ class Theme_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Already type-guarded as Theme by the template.
-	 *
 	 * @return true|WP_Error
 	 */
-	protected function do_deactivate( Feature $feature ) {
-		$this->update_stored_state( $feature->get_slug(), false );
+	protected function do_deactivate() {
+		$this->update_stored_state( $this->feature->get_slug(), false );
 
 		return true;
 	}
@@ -136,12 +122,10 @@ class Theme_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Already type-guarded as Theme by the template.
-	 *
 	 * @return true|WP_Error
 	 */
-	protected function verify_ownership( Feature $feature ) {
-		return $this->verify_theme_ownership( $feature );
+	protected function verify_ownership() {
+		return $this->verify_theme_ownership();
 	}
 
 	/**
@@ -194,37 +178,6 @@ class Theme_Strategy extends Installable_Strategy {
 		return $live && ( $stored ?? false );
 	}
 
-	// ── Sync hooks ──────────────────────────────────────────────────────
-
-	/**
-	 * Sync hook: update stored state when the active theme is switched.
-	 *
-	 * Wired to the 'switch_theme' action by the Provider. Updates stored
-	 * state for both the old theme (→false) and the new theme (→true) if
-	 * they correspond to known features.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param string   $new_name  Name of the new theme.
-	 * @param WP_Theme $new_theme The new theme object.
-	 * @param WP_Theme $old_theme The old theme object.
-	 *
-	 * @return void
-	 */
-	public function on_theme_switch( string $new_name, WP_Theme $new_theme, WP_Theme $old_theme ): void {
-		$old_feature = $this->resolve_theme_feature( $old_theme->get_stylesheet() );
-
-		if ( $old_feature !== null ) {
-			$this->update_stored_state( $old_feature->get_slug(), false );
-		}
-
-		$new_feature = $this->resolve_theme_feature( $new_theme->get_stylesheet() );
-
-		if ( $new_feature !== null ) {
-			$this->update_stored_state( $new_feature->get_slug(), true );
-		}
-	}
-
 	// ── Private helpers ─────────────────────────────────────────────────
 
 	/**
@@ -232,16 +185,13 @@ class Theme_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature The feature whose theme to install.
-	 *
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
-	private function install_theme( Feature $feature ) {
-		/** @var Theme $feature */
-		$theme_info = themes_api(
+	private function install_theme() {
+$theme_info = themes_api(
 			'theme_information',
 			[
-				'slug'   => sanitize_key( $feature->get_slug() ),
+				'slug'   => sanitize_key( $this->feature->get_slug() ),
 				'fields' => [ 'sections' => false ],
 			]
 		);
@@ -252,7 +202,7 @@ class Theme_Strategy extends Installable_Strategy {
 				sprintf(
 					/* translators: %1$s: feature name, %2$s: error message */
 					__( 'Could not retrieve download information for "%1$s": %2$s', '%TEXTDOMAIN%' ),
-					$feature->get_name(),
+					$this->feature->get_name(),
 					$theme_info->get_error_message()
 				)
 			);
@@ -264,7 +214,7 @@ class Theme_Strategy extends Installable_Strategy {
 				sprintf(
 					/* translators: %s: feature name */
 					__( 'No download link is available for "%s".', '%TEXTDOMAIN%' ),
-					$feature->get_name()
+					$this->feature->get_name()
 				)
 			);
 		}
@@ -282,7 +232,7 @@ class Theme_Strategy extends Installable_Strategy {
 				sprintf(
 					/* translators: %1$s: feature name, %2$s: error message */
 					__( 'Installation of "%1$s" failed: %2$s', '%TEXTDOMAIN%' ),
-					$feature->get_name(),
+					$this->feature->get_name(),
 					$result->get_error_message()
 				)
 			);
@@ -300,7 +250,7 @@ class Theme_Strategy extends Installable_Strategy {
 				sprintf(
 					/* translators: %1$s: feature name, %2$s: error message */
 					__( 'Installation of "%1$s" failed: %2$s', '%TEXTDOMAIN%' ),
-					$feature->get_name(),
+					$this->feature->get_name(),
 					$message
 				)
 			);
@@ -314,19 +264,16 @@ class Theme_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature The feature whose theme to verify.
-	 *
 	 * @return true|WP_Error True if ownership matches or no theme on disk, WP_Error on mismatch.
 	 */
-	private function verify_theme_ownership( Feature $feature ) {
-		/** @var Theme $feature */
-		$expected_authors = $feature->get_authors();
+	private function verify_theme_ownership() {
+$expected_authors = $this->feature->get_authors();
 
 		if ( $expected_authors === [] ) {
 			return true;
 		}
 
-		$stylesheet = $feature->get_slug();
+		$stylesheet = $this->feature->get_slug();
 		$theme      = wp_get_theme( $stylesheet );
 
 		// Theme is not installed — no conflict.
@@ -352,21 +299,6 @@ class Theme_Strategy extends Installable_Strategy {
 				$actual_author
 			)
 		);
-	}
-
-	/**
-	 * Resolve a stylesheet to a Theme feature via the configured resolver.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param string $stylesheet Theme stylesheet (directory name).
-	 *
-	 * @return Theme|null
-	 */
-	private function resolve_theme_feature( string $stylesheet ): ?Theme {
-		$resolved = $this->resolve_feature( $stylesheet );
-
-		return $resolved instanceof Theme ? $resolved : null;
 	}
 
 	/**

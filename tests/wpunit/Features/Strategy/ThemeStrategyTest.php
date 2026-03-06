@@ -4,11 +4,9 @@ namespace StellarWP\Uplink\Tests\Features\Strategy;
 
 use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Strategy\Theme_Strategy;
-use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Theme;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
-use WP_Theme;
 
 /**
  * Tests for the Theme_Strategy feature-gating strategy.
@@ -58,8 +56,8 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->strategy            = new Theme_Strategy();
 		$this->feature             = $this->make_theme_feature();
+		$this->strategy            = new Theme_Strategy( $this->feature );
 		$this->original_stylesheet = get_option( 'stylesheet', '' );
 	}
 
@@ -82,25 +80,13 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * enable() must reject non-Theme instances with a type mismatch error.
-	 */
-	public function test_enable_returns_type_mismatch_error_for_non_theme_feature(): void {
-		$non_theme = $this->create_non_theme_feature();
-
-		$result = $this->strategy->enable( $non_theme );
-
-		$this->assertWPError( $result );
-		$this->assertSame( Error_Code::FEATURE_TYPE_MISMATCH, $result->get_error_code() );
-	}
-
-	/**
 	 * enable() on an already-installed theme should return true and update stored state,
 	 * without switching the active theme.
 	 */
 	public function test_enable_returns_true_when_theme_already_installed(): void {
 		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
 
-		$result = $this->strategy->enable( $this->feature );
+		$result = $this->strategy->enable();
 
 		$this->assertTrue( $result );
 		$this->assertSame( '1', get_option( self::OPTION_KEY ) );
@@ -122,7 +108,7 @@ final class ThemeStrategyTest extends UplinkTestCase {
 		add_filter( 'themes_api', $filter, 10, 3 );
 
 		try {
-			$result = $this->strategy->enable( $this->feature );
+			$result = $this->strategy->enable();
 
 			$this->assertWPError( $result );
 			$this->assertSame( Error_Code::THEMES_API_FAILED, $result->get_error_code() );
@@ -145,7 +131,7 @@ final class ThemeStrategyTest extends UplinkTestCase {
 		add_filter( 'themes_api', $filter, 10, 3 );
 
 		try {
-			$result = $this->strategy->enable( $this->feature );
+			$result = $this->strategy->enable();
 
 			$this->assertWPError( $result );
 			$this->assertSame( Error_Code::DOWNLOAD_LINK_MISSING, $result->get_error_code() );
@@ -161,7 +147,7 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	public function test_enable_returns_install_locked_error_when_concurrent_install_in_progress(): void {
 		set_transient( 'stellarwp_uplink_install_lock', '1', 120 );
 
-		$result = $this->strategy->enable( $this->feature );
+		$result = $this->strategy->enable();
 
 		$this->assertWPError( $result );
 		$this->assertSame( Error_Code::INSTALL_LOCKED, $result->get_error_code() );
@@ -174,7 +160,7 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	public function test_enable_skips_install_for_already_installed_theme(): void {
 		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
 
-		$result = $this->strategy->enable( $this->feature );
+		$result = $this->strategy->enable();
 
 		$this->assertTrue( $result );
 		$this->assertSame( '1', get_option( self::OPTION_KEY ) );
@@ -188,18 +174,6 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * disable() must reject non-Theme instances with a type mismatch error.
-	 */
-	public function test_disable_returns_type_mismatch_error_for_non_theme_feature(): void {
-		$non_theme = $this->create_non_theme_feature();
-
-		$result = $this->strategy->disable( $non_theme );
-
-		$this->assertWPError( $result );
-		$this->assertSame( Error_Code::FEATURE_TYPE_MISMATCH, $result->get_error_code() );
-	}
-
-	/**
 	 * disable() always succeeds and updates stored state to false.
 	 * Themes are never "deactivated" — disable only updates stored state.
 	 */
@@ -207,7 +181,7 @@ final class ThemeStrategyTest extends UplinkTestCase {
 		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
 		update_option( self::OPTION_KEY, '1', true );
 
-		$result = $this->strategy->disable( $this->feature );
+		$result = $this->strategy->disable();
 
 		$this->assertTrue( $result );
 		$this->assertSame( '0', get_option( self::OPTION_KEY ) );
@@ -222,7 +196,7 @@ final class ThemeStrategyTest extends UplinkTestCase {
 		$this->mock_active_theme( self::STYLESHEET );
 		update_option( self::OPTION_KEY, '1', true );
 
-		$result = $this->strategy->disable( $this->feature );
+		$result = $this->strategy->disable();
 
 		$this->assertTrue( $result );
 		$this->assertSame( '0', get_option( self::OPTION_KEY ) );
@@ -233,22 +207,13 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * is_active() returns false for non-Theme instances.
-	 */
-	public function test_is_active_returns_false_for_non_theme_feature(): void {
-		$non_theme = $this->create_non_theme_feature();
-
-		$this->assertFalse( $this->strategy->is_active( $non_theme ) );
-	}
-
-	/**
 	 * is_active() returns true when the theme is installed on disk AND stored state is true.
 	 */
 	public function test_is_active_returns_true_when_theme_is_installed_and_enabled(): void {
 		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
 		update_option( self::OPTION_KEY, '1', true );
 
-		$this->assertTrue( $this->strategy->is_active( $this->feature ) );
+		$this->assertTrue( $this->strategy->is_active() );
 	}
 
 	/**
@@ -259,7 +224,7 @@ final class ThemeStrategyTest extends UplinkTestCase {
 		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
 		update_option( self::OPTION_KEY, '0', true );
 
-		$this->assertFalse( $this->strategy->is_active( $this->feature ) );
+		$this->assertFalse( $this->strategy->is_active() );
 		// Stored state must NOT be self-healed to true.
 		$this->assertSame( '0', get_option( self::OPTION_KEY ) );
 	}
@@ -271,14 +236,14 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	public function test_is_active_returns_false_when_theme_is_installed_but_no_stored_state(): void {
 		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
 
-		$this->assertFalse( $this->strategy->is_active( $this->feature ) );
+		$this->assertFalse( $this->strategy->is_active() );
 	}
 
 	/**
 	 * is_active() returns false when the theme is not installed on disk.
 	 */
 	public function test_is_active_returns_false_when_theme_is_not_installed(): void {
-		$this->assertFalse( $this->strategy->is_active( $this->feature ) );
+		$this->assertFalse( $this->strategy->is_active() );
 	}
 
 	/**
@@ -289,7 +254,7 @@ final class ThemeStrategyTest extends UplinkTestCase {
 		update_option( self::OPTION_KEY, '1', true );
 
 		// Theme is NOT installed on disk — stored state should heal to false.
-		$result = $this->strategy->is_active( $this->feature );
+		$result = $this->strategy->is_active();
 
 		$this->assertFalse( $result );
 		$this->assertSame( '0', get_option( self::OPTION_KEY ) );
@@ -303,7 +268,7 @@ final class ThemeStrategyTest extends UplinkTestCase {
 		update_option( self::OPTION_KEY, '0', true );
 		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
 
-		$result = $this->strategy->is_active( $this->feature );
+		$result = $this->strategy->is_active();
 
 		$this->assertFalse( $result );
 		$this->assertSame( '0', get_option( self::OPTION_KEY ) );
@@ -315,76 +280,9 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	public function test_is_active_does_not_initialize_stored_state_when_missing(): void {
 		$this->assertFalse( get_option( self::OPTION_KEY, false ) );
 
-		$this->strategy->is_active( $this->feature );
+		$this->strategy->is_active();
 
 		// No stored state written — theme is not on disk and was never managed.
-		$this->assertFalse( get_option( self::OPTION_KEY, false ) );
-	}
-
-	// -------------------------------------------------------------------------
-	// Sync hook tests
-	// -------------------------------------------------------------------------
-
-	/**
-	 * on_theme_switch updates stored state for both old and new themes.
-	 */
-	public function test_on_theme_switch_updates_state_for_known_features(): void {
-		$old_stylesheet = 'old-theme-feature';
-		$new_stylesheet = self::STYLESHEET;
-
-		$old_feature = $this->make_theme_feature( $old_stylesheet );
-		$new_feature = $this->make_theme_feature( $new_stylesheet );
-
-		update_option( 'stellarwp_uplink_feature_old-theme-feature_active', '1', true );
-
-		$strategy = new Theme_Strategy(
-			function ( string $stylesheet ) use ( $old_feature, $new_feature ): ?Theme {
-				if ( $stylesheet === $old_feature->get_slug() ) {
-					return $old_feature;
-				}
-				if ( $stylesheet === $new_feature->get_slug() ) {
-					return $new_feature;
-				}
-				return null;
-			}
-		);
-
-		$old_theme = new WP_Theme( $old_stylesheet, '' );
-		$new_theme = new WP_Theme( $new_stylesheet, '' );
-
-		$strategy->on_theme_switch( 'Test Theme', $new_theme, $old_theme );
-
-		$this->assertSame( '0', get_option( 'stellarwp_uplink_feature_old-theme-feature_active' ) );
-		$this->assertSame( '1', get_option( self::OPTION_KEY ) );
-	}
-
-	/**
-	 * on_theme_switch ignores unknown themes (resolver returns null).
-	 */
-	public function test_on_theme_switch_ignores_unknown_themes(): void {
-		$strategy = new Theme_Strategy(
-			function ( string $stylesheet ): ?Theme {
-				return null;
-			}
-		);
-
-		$old_theme = new WP_Theme( 'unknown-old', '' );
-		$new_theme = new WP_Theme( 'unknown-new', '' );
-
-		$strategy->on_theme_switch( 'Unknown', $new_theme, $old_theme );
-
-		$this->assertFalse( get_option( self::OPTION_KEY, false ) );
-	}
-
-	/**
-	 * on_theme_switch is a no-op when no feature_resolver is configured.
-	 */
-	public function test_on_theme_switch_noops_without_resolver(): void {
-		$old_theme = new WP_Theme( 'some-old', '' );
-		$new_theme = new WP_Theme( self::STYLESHEET, '' );
-
-		$this->strategy->on_theme_switch( 'Test', $new_theme, $old_theme );
-
 		$this->assertFalse( get_option( self::OPTION_KEY, false ) );
 	}
 
@@ -399,8 +297,9 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	public function test_enable_returns_ownership_mismatch_for_installed_theme_with_wrong_author(): void {
 		$this->install_test_theme( self::STYLESHEET, 'Foreign Developer' );
 
-		$feature = $this->make_theme_feature( self::STYLESHEET, [ 'StellarWP' ] );
-		$result  = $this->strategy->enable( $feature );
+		$feature  = $this->make_theme_feature( self::STYLESHEET, [ 'StellarWP' ] );
+		$strategy = new Theme_Strategy( $feature );
+		$result   = $strategy->enable();
 
 		$this->assertWPError( $result );
 		$this->assertSame( Error_Code::THEME_OWNERSHIP_MISMATCH, $result->get_error_code() );
@@ -414,8 +313,9 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	public function test_enable_succeeds_when_installed_theme_has_matching_author(): void {
 		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
 
-		$feature = $this->make_theme_feature( self::STYLESHEET, [ 'StellarWP' ] );
-		$result  = $this->strategy->enable( $feature );
+		$feature  = $this->make_theme_feature( self::STYLESHEET, [ 'StellarWP' ] );
+		$strategy = new Theme_Strategy( $feature );
+		$result   = $strategy->enable();
 
 		$this->assertTrue( $result );
 		$this->assertSame( '1', get_option( self::OPTION_KEY ) );
@@ -430,8 +330,9 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	public function test_enable_skips_ownership_check_when_authors_is_empty(): void {
 		$this->install_test_theme( self::STYLESHEET, 'Foreign Developer' );
 
-		$feature = $this->make_theme_feature( self::STYLESHEET, [] );
-		$result  = $this->strategy->enable( $feature );
+		$feature  = $this->make_theme_feature( self::STYLESHEET, [] );
+		$strategy = new Theme_Strategy( $feature );
+		$result   = $strategy->enable();
 
 		$this->assertTrue( $result );
 		$this->assertSame( '1', get_option( self::OPTION_KEY ) );
@@ -468,31 +369,6 @@ final class ThemeStrategyTest extends UplinkTestCase {
 				'authors'      => $authors,
 			]
 		);
-	}
-
-	/**
-	 * Create a non-Theme Feature subclass for type-guard testing.
-	 *
-	 * @return Feature
-	 */
-	private function create_non_theme_feature(): Feature {
-		return new class( [
-			'slug'         => 'non-theme',
-			'group'        => 'Test',
-			'tier'         => 'Tier 1',
-			'name'         => 'Non-Theme Feature',
-			'description'  => 'Not a theme.',
-			'type'         => 'other',
-			'is_available' => true,
-		] ) extends Feature {
-
-			/**
-			 * @inheritDoc
-			 */
-			public static function from_array( array $data ) {
-				return new self( $data );
-			}
-		};
 	}
 
 	/**

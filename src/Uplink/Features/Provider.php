@@ -6,9 +6,10 @@ use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\Features\Strategy\Flag_Strategy;
-use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Strategy\Plugin_Strategy;
+use StellarWP\Uplink\Features\Strategy\Resolver;
 use StellarWP\Uplink\Features\Strategy\Theme_Strategy;
+use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Features\Types\Theme;
@@ -32,14 +33,7 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	public function register(): void {
-		$this->container->singleton(
-			Resolver::class,
-			static function ( ContainerInterface $c ) {
-				$container = $c->get( ContainerInterface::class );
-
-				return new Resolver( $container );
-			}
-		);
+		$this->container->singleton( Resolver::class, Resolver::class );
 
 		$this->container->singleton(
 			Resolve_Feature_Collection::class,
@@ -98,21 +92,20 @@ class Provider extends Abstract_Provider {
 	}
 
 	/**
-	 * Registers the default feature type strategies.
+	 * Registers the default feature type strategy factories.
+	 *
+	 * Each factory creates a new Strategy instance bound to the given Feature.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @return void
 	 */
 	private function register_default_strategies(): void {
-		$this->container->singleton( Plugin_Strategy::class, Plugin_Strategy::class );
-		$this->container->singleton( Flag_Strategy::class, Flag_Strategy::class );
-		$this->container->singleton( Theme_Strategy::class, Theme_Strategy::class );
-
 		$resolver = $this->container->get( Resolver::class );
-		$resolver->register( 'plugin', Plugin_Strategy::class );
-		$resolver->register( 'flag', Flag_Strategy::class );
-		$resolver->register( 'theme', Theme_Strategy::class );
+
+		$resolver->register( 'plugin', static fn( Feature $f ) => new Plugin_Strategy( $f ) );
+		$resolver->register( 'flag', static fn( Feature $f ) => new Flag_Strategy( $f ) );
+		$resolver->register( 'theme', static fn( Feature $f ) => new Theme_Strategy( $f ) );
 	}
 
 	/**
@@ -129,8 +122,8 @@ class Provider extends Abstract_Provider {
 		// TODO: Remove this once the real plugins_api filter is implemented.
 		add_filter( 'upgrader_pre_download', [ $this, 'serve_local_zip_for_upgrader' ], 10, 2 );
 
-		// TODO: Remove this once the real switch_theme action is implemented.
-		add_action( 'switch_theme', [ $this, 'on_theme_switch' ], 10, 3 );
+		// TODO: Wire switch_theme and activated_plugin/deactivated_plugin sync
+		// hooks once the Feature Collection and feature resolver are built.
 
 		add_action(
 			'stellarwp/uplink/unified_license_key_changed',
@@ -228,21 +221,6 @@ class Provider extends Abstract_Provider {
 			'version'       => '1.0.0',
 			'download_link' => 'stellarwp-uplink-local://' . $slug . '.zip',
 		];
-	}
-
-	/**
-	 * Delegate callback for the switch_theme action.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param string    $new_name  Name of the new theme.
-	 * @param \WP_Theme $new_theme The new theme object.
-	 * @param \WP_Theme $old_theme The old theme object.
-	 *
-	 * @return void
-	 */
-	public function on_theme_switch( string $new_name, \WP_Theme $new_theme, \WP_Theme $old_theme ): void {
-		$this->container->get( Theme_Strategy::class )->on_theme_switch( $new_name, $new_theme, $old_theme );
 	}
 
 	/**

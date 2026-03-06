@@ -3,87 +3,65 @@
 namespace StellarWP\Uplink\Features\Strategy;
 
 use InvalidArgumentException;
-use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Types\Feature;
 
 /**
- * Maps feature type strings to Strategy implementations.
- * New types can be added via register().
+ * Factory that creates Strategy instances for features.
+ *
+ * Maps feature type strings to factory callables. Each factory receives
+ * the Feature and returns a Strategy instance bound to that Feature.
  *
  * @since 3.0.0
  */
 class Resolver {
 
 	/**
-	 * The DI container.
+	 * Map of feature type strings to factory callables.
+	 *
+	 * Each callable has the signature: fn(Feature): Strategy
 	 *
 	 * @since 3.0.0
 	 *
-	 * @var ContainerInterface
-	 */
-	private ContainerInterface $container;
-
-	/**
-	 * Map of feature type strings to strategy class names.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var array<string, class-string<Strategy>>
+	 * @var array<string, callable(Feature): Strategy>
 	 */
 	private array $map = [];
 
 	/**
-	 * Constructor for the feature type to strategy map resolver.
+	 * Registers a factory callable for a feature type.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param ContainerInterface $container The DI container.
+	 * @param string   $type    The feature type identifier (e.g. 'plugin', 'theme', 'flag').
+	 * @param callable $factory A callable that accepts a Feature and returns a Strategy.
 	 *
 	 * @return void
 	 */
-	public function __construct( ContainerInterface $container ) {
-		$this->container = $container;
+	public function register( string $type, callable $factory ): void {
+		$this->map[ $type ] = $factory;
 	}
 
 	/**
-	 * Registers a strategy class for a feature type.
+	 * Creates the correct strategy for a given feature.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string                 $type           The feature type identifier (e.g. 'plugin', 'theme', 'flag').
-	 * @param class-string<Strategy> $strategy_class The strategy FQCN.
-	 *
-	 * @return void
-	 */
-	public function register( string $type, string $strategy_class ): void { // phpcs:ignore Squiz.Commenting.FunctionComment.IncorrectTypeHint -- class-string<Strategy> is a PHPStan type narrowing.
-		$this->map[ $type ] = $strategy_class;
-	}
-
-	/**
-	 * Resolves the correct strategy for a given feature.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param Feature $feature The feature to resolve a strategy for.
+	 * @param Feature $feature The feature to create a strategy for.
 	 *
 	 * @throws InvalidArgumentException If no strategy is registered for the feature's type.
 	 *
-	 * @return Strategy
+	 * @return Strategy A new Strategy instance bound to the given Feature.
 	 */
 	public function resolve( Feature $feature ): Strategy {
-		$type  = $feature->get_type();
-		$class = $this->map[ $type ] ?? null;
+		$type    = $feature->get_type();
+		$factory = $this->map[ $type ] ?? null;
 
-		if ( $class === null ) {
+		if ( $factory === null ) {
 			throw new InvalidArgumentException(
 				sprintf( 'No strategy registered for feature type "%s".', $type )
 			);
 		}
 
-		/** @var Strategy $strategy */
-		$strategy = $this->container->get( $class );
-
-		return $strategy;
+		return ( $factory )( $feature );
 	}
 }

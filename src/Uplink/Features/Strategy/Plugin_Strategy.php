@@ -3,7 +3,6 @@
 namespace StellarWP\Uplink\Features\Strategy;
 
 use StellarWP\Uplink\Features\Error_Code;
-use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Utils\Cast;
 use WP_Error;
@@ -36,12 +35,9 @@ use function wp_json_encode;
  * with autoload=true for fast reads. The live WordPress plugin state is always
  * the source of truth — stored state is a cache that self-heals on mismatch.
  *
- * Sync hook callbacks (on_plugin_activated / on_plugin_deactivated) are public
- * methods intended to be wired to WordPress hooks by the Provider layer. They
- * use the optional $feature_resolver callable to look up features from the
- * Collection. Until the Provider is built, these methods are inert.
- *
  * @since 3.0.0
+ *
+ * @phpstan-property Plugin $feature
  */
 class Plugin_Strategy extends Installable_Strategy {
 
@@ -77,13 +73,10 @@ class Plugin_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Already type-guarded as Plugin by the template.
-	 *
 	 * @return bool
 	 */
-	protected function check_active( Feature $feature ): bool {
-		/** @var Plugin $feature */
-		$plugin_file = $feature->get_plugin_file();
+	protected function check_active(): bool {
+		$plugin_file = $this->feature->get_plugin_file();
 
 		return is_plugin_active( $plugin_file )
 			|| is_plugin_active_for_network( $plugin_file );
@@ -94,13 +87,10 @@ class Plugin_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Already type-guarded as Plugin by the template.
-	 *
 	 * @return bool
 	 */
-	protected function check_installed( Feature $feature ): bool {
-		/** @var Plugin $feature */
-		return file_exists( WP_PLUGIN_DIR . '/' . $feature->get_plugin_file() );
+	protected function check_installed(): bool {
+		return file_exists( WP_PLUGIN_DIR . '/' . $this->feature->get_plugin_file() );
 	}
 
 	/**
@@ -108,12 +98,10 @@ class Plugin_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Already type-guarded as Plugin by the template.
-	 *
 	 * @return true|WP_Error
 	 */
-	protected function do_install( Feature $feature ) {
-		return $this->install_plugin( $feature );
+	protected function do_install() {
+		return $this->install_plugin();
 	}
 
 	/**
@@ -121,12 +109,10 @@ class Plugin_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Already type-guarded as Plugin by the template.
-	 *
 	 * @return true|WP_Error
 	 */
-	protected function do_activate( Feature $feature ) {
-		return $this->activate_plugin( $feature );
+	protected function do_activate() {
+		return $this->activate_plugin();
 	}
 
 	/**
@@ -137,17 +123,14 @@ class Plugin_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Already type-guarded as Plugin by the template.
-	 *
 	 * @return true|WP_Error
 	 */
-	protected function do_deactivate( Feature $feature ) {
-		/** @var Plugin $feature */
-		$plugin_file = $feature->get_plugin_file();
+	protected function do_deactivate() {
+		$plugin_file = $this->feature->get_plugin_file();
 
 		// Idempotent: if already inactive, update stored state and bail.
-		if ( ! $this->check_active( $feature ) ) {
-			$this->update_stored_state( $feature->get_slug(), false );
+		if ( ! $this->check_active() ) {
+			$this->update_stored_state( $this->feature->get_slug(), false );
 
 			return true;
 		}
@@ -160,18 +143,18 @@ class Plugin_Strategy extends Installable_Strategy {
 		// where a deactivation hook re-activates the plugin or WordPress's
 		// plugin state is otherwise inconsistent.
 		// @phpstan-ignore-next-line if.alwaysTrue -- (deactivate_plugins() changes active state via DB side effects invisible to static analysis).
-		if ( $this->check_active( $feature ) ) {
+		if ( $this->check_active() ) {
 			return new WP_Error(
 				Error_Code::DEACTIVATION_FAILED,
 				sprintf(
 					/* translators: %s: feature name */
 					__( '"%s" could not be deactivated. The plugin may have been reactivated by another process.', '%TEXTDOMAIN%' ),
-					$feature->get_name()
+					$this->feature->get_name()
 				)
 			);
 		}
 
-		$this->update_stored_state( $feature->get_slug(), false ); // @phpstan-ignore deadCode.unreachable (The check above is a double check)
+		$this->update_stored_state( $this->feature->get_slug(), false ); // @phpstan-ignore deadCode.unreachable (The check above is a double check)
 
 		return true;
 	}
@@ -181,12 +164,10 @@ class Plugin_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Already type-guarded as Plugin by the template.
-	 *
 	 * @return true|WP_Error
 	 */
-	protected function verify_ownership( Feature $feature ) {
-		return $this->verify_plugin_ownership( $feature );
+	protected function verify_ownership() {
+		return $this->verify_plugin_ownership();
 	}
 
 	/**
@@ -194,65 +175,6 @@ class Plugin_Strategy extends Installable_Strategy {
 	 */
 	protected function get_not_found_after_install_error_code(): string {
 		return Error_Code::PLUGIN_NOT_FOUND_AFTER_INSTALL;
-	}
-
-	// ── Sync hooks ──────────────────────────────────────────────────────
-
-	/**
-	 * Sync hook: update stored state when a plugin is activated via WordPress.
-	 *
-	 * Intended to be wired to the 'activated_plugin' hook by the Provider.
-	 * Resolves the plugin_file to a Plugin feature via the feature_resolver
-	 * callable, then updates stored state to match.
-	 *
-	 * If no feature_resolver is configured (i.e. the Provider isn't built yet),
-	 * this method silently no-ops.
-	 *
-	 * TODO: Wire this to the 'activated_plugin' hook in Provider once the
-	 *       Feature Collection and feature_resolver are built.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param string $plugin       Plugin file path relative to plugins directory.
-	 * @param bool   $network_wide Whether the activation was network-wide.
-	 *
-	 * @return void
-	 */
-	public function on_plugin_activated( string $plugin, bool $network_wide ): void {
-		$feature = $this->resolve_plugin_feature( $plugin );
-
-		if ( $feature === null ) {
-			return;
-		}
-
-		$this->update_stored_state( $feature->get_slug(), true );
-	}
-
-	/**
-	 * Sync hook: update stored state when a plugin is deactivated via WordPress.
-	 *
-	 * Intended to be wired to the 'deactivated_plugin' hook by the Provider.
-	 * Resolves the plugin_file to a Plugin feature via the feature_resolver
-	 * callable, then updates stored state to match.
-	 *
-	 * TODO: Wire this to the 'deactivated_plugin' hook in Provider once the
-	 *       Feature Collection and feature_resolver are built.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param string $plugin       Plugin file path relative to plugins directory.
-	 * @param bool   $network_wide Whether the deactivation was network-wide.
-	 *
-	 * @return void
-	 */
-	public function on_plugin_deactivated( string $plugin, bool $network_wide ): void {
-		$feature = $this->resolve_plugin_feature( $plugin );
-
-		if ( $feature === null ) {
-			return;
-		}
-
-		$this->update_stored_state( $feature->get_slug(), false );
 	}
 
 	// ── Private helpers ─────────────────────────────────────────────────
@@ -266,16 +188,13 @@ class Plugin_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature The feature whose plugin to install.
-	 *
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
-	private function install_plugin( Feature $feature ) {
-		/** @var Plugin $feature */
+	private function install_plugin() {
 		$plugin_info = plugins_api(
 			'plugin_information',
 			[
-				'slug'   => sanitize_key( $feature->get_slug() ),
+				'slug'   => sanitize_key( $this->feature->get_slug() ),
 				'fields' => [ 'sections' => false ],
 			]
 		);
@@ -286,7 +205,7 @@ class Plugin_Strategy extends Installable_Strategy {
 				sprintf(
 					/* translators: %1$s: feature name, %2$s: error message */
 					__( 'Could not retrieve download information for "%1$s": %2$s', '%TEXTDOMAIN%' ),
-					$feature->get_name(),
+					$this->feature->get_name(),
 					$plugin_info->get_error_message()
 				)
 			);
@@ -298,7 +217,7 @@ class Plugin_Strategy extends Installable_Strategy {
 				sprintf(
 					/* translators: %s: feature name */
 					__( 'No download link is available for "%s".', '%TEXTDOMAIN%' ),
-					$feature->get_name()
+					$this->feature->get_name()
 				)
 			);
 		}
@@ -316,7 +235,7 @@ class Plugin_Strategy extends Installable_Strategy {
 				sprintf(
 					/* translators: %1$s: feature name, %2$s: error message */
 					__( 'Installation of "%1$s" failed: %2$s', '%TEXTDOMAIN%' ),
-					$feature->get_name(),
+					$this->feature->get_name(),
 					$result->get_error_message()
 				)
 			);
@@ -346,7 +265,7 @@ class Plugin_Strategy extends Installable_Strategy {
 				sprintf(
 					/* translators: %1$s: feature name, %2$s: error message */
 					__( 'Installation of "%1$s" failed: %2$s', '%TEXTDOMAIN%' ),
-					$feature->get_name(),
+					$this->feature->get_name(),
 					$message
 				)
 			);
@@ -356,7 +275,7 @@ class Plugin_Strategy extends Installable_Strategy {
 	}
 
 	/**
-	 * Activate the plugin for a Plugin feature with fatal error protection.
+	 * Activate the plugin with fatal error protection.
 	 *
 	 * Uses try/catch Throwable to catch PHP Error subclasses
 	 * (ParseError, TypeError, etc.) and a shutdown function with output
@@ -364,13 +283,10 @@ class Plugin_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature The feature whose plugin to activate.
-	 *
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
-	private function activate_plugin( Feature $feature ) {
-		/** @var Plugin $feature */
-		$plugin_file = $feature->get_plugin_file();
+	private function activate_plugin() {
+		$plugin_file = $this->feature->get_plugin_file();
 		$completed   = false;
 		$die_output  = '';
 
@@ -437,7 +353,7 @@ class Plugin_Strategy extends Installable_Strategy {
 		);
 
 		try {
-			$result = activate_plugin( $plugin_file );
+			$result = \activate_plugin( $plugin_file );
 		} catch ( Throwable $e ) {
 			$completed = true;
 
@@ -452,7 +368,7 @@ class Plugin_Strategy extends Installable_Strategy {
 				sprintf(
 					/* translators: %1$s: feature name, %2$s: error message */
 					__( 'A fatal error occurred while activating "%1$s": %2$s', '%TEXTDOMAIN%' ),
-					$feature->get_name(),
+					$this->feature->get_name(),
 					Cast::to_string( $e->getMessage() )
 				)
 			);
@@ -475,24 +391,24 @@ class Plugin_Strategy extends Installable_Strategy {
 				sprintf(
 					/* translators: %1$s: feature name, %2$s: error message */
 					__( 'Activation of "%1$s" failed: %2$s', '%TEXTDOMAIN%' ),
-					$feature->get_name(),
+					$this->feature->get_name(),
 					wp_strip_all_tags( $result->get_error_message() )
 				)
 			);
 		}
 
-		if ( ! $this->check_active( $feature ) ) {
+		if ( ! $this->check_active() ) {
 			return new WP_Error(
 				Error_Code::ACTIVATION_FAILED,
 				sprintf(
 					/* translators: %s: feature name */
 					__( '"%s" did not activate successfully. Please try again.', '%TEXTDOMAIN%' ),
-					$feature->get_name()
+					$this->feature->get_name()
 				)
 			);
 		}
 
-		$this->update_stored_state( $feature->get_slug(), true );
+		$this->update_stored_state( $this->feature->get_slug(), true );
 
 		return true;
 	}
@@ -514,19 +430,16 @@ class Plugin_Strategy extends Installable_Strategy {
 	 *
 	 * TODO: We probably should move it to another place so we can use it during the WP plugins update setup as well.
 	 *
-	 * @param Feature $feature The feature whose plugin to verify.
-	 *
 	 * @return true|WP_Error True if ownership matches, WP_Error on mismatch.
 	 */
-	private function verify_plugin_ownership( Feature $feature ) {
-		/** @var Plugin $feature */
-		$expected_authors = $feature->get_authors();
+	private function verify_plugin_ownership() {
+		$expected_authors = $this->feature->get_authors();
 
 		if ( $expected_authors === [] ) {
 			return true;
 		}
 
-		$plugin_file = $feature->get_plugin_file();
+		$plugin_file = $this->feature->get_plugin_file();
 		$full_path   = WP_PLUGIN_DIR . '/' . $plugin_file;
 
 		// Case 1: the exact file exists — check its author directly.
@@ -635,24 +548,6 @@ class Plugin_Strategy extends Installable_Strategy {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Resolve a plugin file path to a Plugin feature via the configured resolver.
-	 *
-	 * Returns null if no resolver is configured or if the plugin doesn't
-	 * correspond to a known feature.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param string $plugin_file Plugin file path relative to plugins directory.
-	 *
-	 * @return Plugin|null
-	 */
-	private function resolve_plugin_feature( string $plugin_file ): ?Plugin {
-		$resolved = $this->resolve_feature( $plugin_file );
-
-		return $resolved instanceof Plugin ? $resolved : null;
 	}
 
 	/**

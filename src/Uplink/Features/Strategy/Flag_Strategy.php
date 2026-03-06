@@ -2,11 +2,6 @@
 
 namespace StellarWP\Uplink\Features\Strategy;
 
-use StellarWP\Uplink\Features\Error_Code;
-use StellarWP\Uplink\Features\Types\Flag;
-use StellarWP\Uplink\Features\Types\Feature;
-use WP_Error;
-
 /**
  * Flag Strategy — toggles features via a wp_options flag.
  *
@@ -23,70 +18,46 @@ use WP_Error;
 class Flag_Strategy extends Abstract_Strategy {
 
 	/**
-	 * Enable a Flag feature by setting its DB flag to active.
+	 * Enable the Flag feature by setting its DB flag to active.
 	 *
 	 * Idempotent: returns true if already active.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Must be a Flag instance.
-	 *
-	 * @return true|WP_Error True on success, WP_Error on type mismatch.
+	 * @return true
 	 */
-	public function enable( Feature $feature ) {
-		if ( ! $feature instanceof Flag ) {
-			return new WP_Error(
-				Error_Code::FEATURE_TYPE_MISMATCH,
-				__( 'This feature type is not supported by the Flag strategy.', '%TEXTDOMAIN%' )
-			);
-		}
-
-		$this->update_stored_state( $feature->get_slug(), true );
+	public function enable() {
+		$this->update_stored_state( $this->feature->get_slug(), true );
 
 		return true;
 	}
 
 	/**
-	 * Disable a Flag feature by setting its DB flag to inactive.
+	 * Disable the Flag feature by setting its DB flag to inactive.
 	 *
 	 * Idempotent: returns true if already inactive.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Must be a Flag instance.
-	 *
-	 * @return true|WP_Error True on success, WP_Error on type mismatch.
+	 * @return true
 	 */
-	public function disable( Feature $feature ) {
-		if ( ! $feature instanceof Flag ) {
-			return new WP_Error(
-				Error_Code::FEATURE_TYPE_MISMATCH,
-				__( 'This feature type is not supported by the Flag strategy.', '%TEXTDOMAIN%' )
-			);
-		}
-
-		$this->update_stored_state( $feature->get_slug(), false );
+	public function disable() {
+		$this->update_stored_state( $this->feature->get_slug(), false );
 
 		return true;
 	}
 
 	/**
-	 * Check whether a Flag feature is currently active.
+	 * Check whether the Flag feature is currently active.
 	 *
 	 * The stored DB flag is the source of truth. Defaults to false if no
 	 * state has been stored yet.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Must be a Flag instance.
-	 *
 	 * @return bool
 	 */
-	public function is_active( Feature $feature ): bool {
-		if ( ! $feature instanceof Flag ) {
-			return false;
-		}
-
-		return $this->get_stored_state( $feature->get_slug() ) === true;
+	public function is_active(): bool {
+		return $this->get_stored_state( $this->feature->get_slug() ) === true;
 	}
 }

@@ -2,9 +2,7 @@
 
 namespace StellarWP\Uplink\Features\Strategy;
 
-use StellarWP\Uplink\Features\Contracts\Installable;
 use StellarWP\Uplink\Features\Error_Code;
-use StellarWP\Uplink\Features\Types\Feature;
 use WP_Error;
 
 use function delete_transient;
@@ -43,33 +41,6 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	 */
 	protected const LOCK_KEY = 'stellarwp_uplink_install_lock';
 
-	/**
-	 * Optional callable that resolves an identifier string to a Feature.
-	 *
-	 * The concrete type returned depends on the subclass:
-	 * - Plugin_Strategy: fn(string $plugin_file): ?Plugin
-	 * - Theme_Strategy: fn(string $stylesheet): ?Theme
-	 *
-	 * The Provider layer wires this to the Feature Collection. Until then,
-	 * sync hook callbacks will silently no-op because the resolver returns null.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var callable|null
-	 */
-	protected $feature_resolver;
-
-	/**
-	 * Construct the Installable_Strategy.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param callable|null $feature_resolver Optional. Resolves an identifier
-	 *                                        string to a Feature instance.
-	 */
-	public function __construct( ?callable $feature_resolver = null ) {
-		$this->feature_resolver = $feature_resolver;
-	}
 
 	// ── Abstract hooks ──────────────────────────────────────────────────
 
@@ -87,33 +58,27 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Already type-guarded by the calling template.
-	 *
 	 * @return bool
 	 */
-	abstract protected function check_active( Feature $feature ): bool;
+	abstract protected function check_active(): bool;
 
 	/**
 	 * Check whether the extension is installed on disk.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Already type-guarded by the calling template.
-	 *
 	 * @return bool
 	 */
-	abstract protected function check_installed( Feature $feature ): bool;
+	abstract protected function check_installed(): bool;
 
 	/**
 	 * Install the extension from its download source.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Already type-guarded by the calling template.
-	 *
 	 * @return true|WP_Error
 	 */
-	abstract protected function do_install( Feature $feature );
+	abstract protected function do_install();
 
 	/**
 	 * Activate the extension and update stored state.
@@ -124,11 +89,9 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Already type-guarded by the calling template.
-	 *
 	 * @return true|WP_Error
 	 */
-	abstract protected function do_activate( Feature $feature );
+	abstract protected function do_activate();
 
 	/**
 	 * Deactivate the extension.
@@ -138,22 +101,18 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Already type-guarded by the calling template.
-	 *
 	 * @return true|WP_Error
 	 */
-	abstract protected function do_deactivate( Feature $feature );
+	abstract protected function do_deactivate();
 
 	/**
 	 * Verify that the installed extension belongs to an expected author.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Already type-guarded by the calling template.
-	 *
 	 * @return true|WP_Error True if ownership matches, WP_Error on mismatch.
 	 */
-	abstract protected function verify_ownership( Feature $feature );
+	abstract protected function verify_ownership();
 
 	/**
 	 * Error code for "extension not found after install".
@@ -179,38 +138,29 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	// ── Template methods ────────────────────────────────────────────────
 
 	/**
-	 * Enable a feature: install (if needed) and activate the extension.
+	 * Enable the feature: install (if needed) and activate the extension.
 	 *
 	 * Idempotent: returns true if the extension is already active. Uses a
 	 * global transient lock to prevent concurrent installs of any extension.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Must implement Installable.
-	 *
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
-	final public function enable( Feature $feature ) {
-		if ( ! $feature instanceof Installable ) {
-			return new WP_Error(
-				Error_Code::FEATURE_TYPE_MISMATCH,
-				$this->get_type_mismatch_message()
-			);
-		}
-
+	final public function enable() {
 		// Ensure WordPress admin functions are available. These may not be
 		// loaded when called from REST API or AJAX contexts.
 		$this->load_wp_admin_includes();
 
 		// Idempotent: if the extension is already active, verify ownership and bail.
-		if ( $this->check_active( $feature ) ) {
-			$ownership = $this->verify_ownership( $feature );
+		if ( $this->check_active() ) {
+			$ownership = $this->verify_ownership();
 
 			if ( is_wp_error( $ownership ) ) {
 				return $ownership;
 			}
 
-			$this->update_stored_state( $feature->get_slug(), true );
+			$this->update_stored_state( $this->feature->get_slug(), true );
 
 			return true;
 		}
@@ -219,14 +169,14 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 		// cases where the extension folder is already occupied by a different
 		// developer's extension. If nothing is on disk yet, this returns true
 		// (no conflict) and we proceed to install.
-		$ownership = $this->verify_ownership( $feature );
+		$ownership = $this->verify_ownership();
 
 		if ( is_wp_error( $ownership ) ) {
 			return $ownership;
 		}
 
 		// Ensure the extension is on disk — install from ZIP if needed.
-		$ensure_result = $this->ensure_installed( $feature );
+		$ensure_result = $this->ensure_installed();
 
 		if ( is_wp_error( $ensure_result ) ) {
 			return $ensure_result;
@@ -234,74 +184,58 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 
 		// Verify ownership after installation. A fresh download may contain
 		// an extension from an unexpected author.
-		$ownership = $this->verify_ownership( $feature );
+		$ownership = $this->verify_ownership();
 
 		if ( is_wp_error( $ownership ) ) {
 			return $ownership;
 		}
 
 		// Activate — subclass owns state update.
-		return $this->do_activate( $feature );
+		return $this->do_activate();
 	}
 
 	/**
-	 * Disable a feature: deactivate the extension.
+	 * Disable the feature: deactivate the extension.
 	 *
-	 * The common prefix (type-guard, load includes, ownership verification)
-	 * is handled here. The subclass's do_deactivate() owns the rest because
-	 * plugin and theme disable flows diverge fundamentally.
+	 * The common prefix (load includes, ownership verification) is handled
+	 * here. The subclass's do_deactivate() owns the rest because plugin and
+	 * theme disable flows diverge fundamentally.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Must implement Installable.
-	 *
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
-	final public function disable( Feature $feature ) {
-		if ( ! $feature instanceof Installable ) {
-			return new WP_Error(
-				Error_Code::FEATURE_TYPE_MISMATCH,
-				$this->get_type_mismatch_message()
-			);
-		}
-
+	final public function disable() {
 		$this->load_wp_admin_includes();
 
 		// Refuse to touch an extension that belongs to a different developer.
-		$ownership = $this->verify_ownership( $feature );
+		$ownership = $this->verify_ownership();
 
 		if ( is_wp_error( $ownership ) ) {
 			return $ownership;
 		}
 
 		// Subclass owns the full deactivation flow.
-		return $this->do_deactivate( $feature );
+		return $this->do_deactivate();
 	}
 
 	/**
-	 * Check whether a feature's extension is currently active.
+	 * Check whether the feature's extension is currently active.
 	 *
 	 * Delegates to reconcile_state() to determine the effective active state
 	 * and perform any needed self-healing between live and stored state.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Must implement Installable.
-	 *
 	 * @return bool
 	 */
-	final public function is_active( Feature $feature ): bool {
-		// Type-guard: non-matching features are never "active" from this strategy's perspective.
-		if ( ! $feature instanceof Installable ) {
-			return false;
-		}
-
+	final public function is_active(): bool {
 		$this->load_wp_admin_includes();
 
-		$live_active   = $this->check_active( $feature );
-		$stored_active = $this->get_stored_state( $feature->get_slug() );
+		$live_active   = $this->check_active();
+		$stored_active = $this->get_stored_state( $this->feature->get_slug() );
 
-		return $this->reconcile_state( $feature->get_slug(), $live_active, $stored_active );
+		return $this->reconcile_state( $this->feature->get_slug(), $live_active, $stored_active );
 	}
 
 	/**
@@ -355,14 +289,12 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Already type-guarded by the calling template.
-	 *
 	 * @return true|WP_Error True if installed (or already was), WP_Error on failure.
 	 */
-	final protected function ensure_installed( Feature $feature ) {
+	final protected function ensure_installed() {
 		// Already on disk — ready for activation. Ownership is verified
 		// by the caller (enable()) after this method returns.
-		if ( $this->check_installed( $feature ) ) {
+		if ( $this->check_installed() ) {
 			return true;
 		}
 
@@ -375,13 +307,13 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 				sprintf(
 					/* translators: %s: feature name */
 					__( 'Another installable feature is already being installed. Cannot install "%s" right now. Please try again in a few moments.', '%TEXTDOMAIN%' ),
-					$feature->get_name()
+					$this->feature->get_name()
 				)
 			);
 		}
 
 		try {
-			$install_result = $this->do_install( $feature );
+			$install_result = $this->do_install();
 
 			if ( is_wp_error( $install_result ) ) {
 				return $install_result;
@@ -391,13 +323,13 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 			// match the expected path. Catch this early with a clear error rather than
 			// a confusing "not found" during activation.
 			// @phpstan-ignore-next-line booleanNot.alwaysTrue -- (do_install() creates files on disk; side effects invisible to static analysis).
-			if ( ! $this->check_installed( $feature ) ) {
+			if ( ! $this->check_installed() ) {
 				return new WP_Error(
 					$this->get_not_found_after_install_error_code(),
 					sprintf(
 						/* translators: %s: feature name */
 						__( 'The extension was not found after installing "%s". The downloaded package may have an unexpected directory structure.', '%TEXTDOMAIN%' ),
-						$feature->get_name()
+						$this->feature->get_name()
 					)
 				);
 			}
@@ -410,27 +342,6 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	}
 
 	// ── Shared helpers ──────────────────────────────────────────────────
-
-	/**
-	 * Resolve an identifier to a Feature via the configured resolver.
-	 *
-	 * Returns null if no resolver is configured or if the identifier doesn't
-	 * correspond to a known feature. Subclasses should wrap this with a
-	 * type-specific check (e.g. instanceof Zip).
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param string $identifier The identifier to resolve (plugin_file or stylesheet).
-	 *
-	 * @return mixed The resolved feature or null.
-	 */
-	protected function resolve_feature( string $identifier ) {
-		if ( $this->feature_resolver === null ) {
-			return null;
-		}
-
-		return ( $this->feature_resolver )( $identifier );
-	}
 
 	/**
 	 * Attempt to acquire a transient-based lock.

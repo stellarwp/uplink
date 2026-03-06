@@ -4,7 +4,6 @@ namespace StellarWP\Uplink\Tests\Features\Strategy;
 
 use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Strategy\Plugin_Strategy;
-use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
@@ -36,13 +35,6 @@ final class PluginStrategyTest extends UplinkTestCase {
 	private const OPTION_KEY = 'stellarwp_uplink_feature_test-feature_active';
 
 	/**
-	 * The transient key for the test feature's install lock.
-	 *
-	 * @var string
-	 */
-	private const LOCK_KEY = 'stellarwp_uplink_install_lock_test-feature';
-
-	/**
 	 * @var Plugin_Strategy
 	 */
 	private $strategy;
@@ -58,14 +50,14 @@ final class PluginStrategyTest extends UplinkTestCase {
 		// Load plugin.php so is_plugin_active() etc. are available.
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
-		$this->strategy = new Plugin_Strategy();
 		$this->feature  = $this->make_plugin_feature();
+		$this->strategy = new Plugin_Strategy( $this->feature );
 	}
 
 	protected function tearDown(): void {
 		// Clean up stored state and locks.
 		delete_option( self::OPTION_KEY );
-		delete_transient( self::LOCK_KEY );
+		delete_transient( 'stellarwp_uplink_install_lock' );
 
 		// Ensure the test plugin is deactivated.
 		$active = get_option( 'active_plugins', [] );
@@ -78,18 +70,6 @@ final class PluginStrategyTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 	// enable() tests
 	// -------------------------------------------------------------------------
-
-	/**
-	 * enable() must reject non-Plugin instances with a type mismatch error.
-	 */
-	public function test_enable_returns_type_mismatch_error_for_non_plugin_feature(): void {
-		$non_plugin = $this->create_non_plugin_feature();
-
-		$result = $this->strategy->enable( $non_plugin );
-
-		$this->assertWPError( $result );
-		$this->assertSame( Error_Code::FEATURE_TYPE_MISMATCH, $result->get_error_code() );
-	}
 
 	/**
 	 * enable() on an already-active plugin should return true without side effects.
@@ -107,7 +87,7 @@ final class PluginStrategyTest extends UplinkTestCase {
 		try {
 			$this->mock_activate_plugin( self::PLUGIN_FILE );
 
-			$result = $this->strategy->enable( $this->feature );
+			$result = $this->strategy->enable();
 
 			$this->assertTrue( $result );
 			$this->assertSame( '1', get_option( self::OPTION_KEY ) );
@@ -136,7 +116,7 @@ final class PluginStrategyTest extends UplinkTestCase {
 		add_filter( 'plugins_api', $filter, 10, 3 );
 
 		try {
-			$result = $this->strategy->enable( $this->feature );
+			$result = $this->strategy->enable();
 
 			$this->assertWPError( $result );
 			$this->assertSame( Error_Code::PLUGINS_API_FAILED, $result->get_error_code() );
@@ -162,7 +142,7 @@ final class PluginStrategyTest extends UplinkTestCase {
 		add_filter( 'plugins_api', $filter, 10, 3 );
 
 		try {
-			$result = $this->strategy->enable( $this->feature );
+			$result = $this->strategy->enable();
 
 			$this->assertWPError( $result );
 			$this->assertSame( Error_Code::DOWNLOAD_LINK_MISSING, $result->get_error_code() );
@@ -173,13 +153,13 @@ final class PluginStrategyTest extends UplinkTestCase {
 
 	/**
 	 * enable() returns an install_locked error when another install is already
-	 * in progress for the same plugin slug.
+	 * in progress (global lock).
 	 */
 	public function test_enable_returns_install_locked_error_when_concurrent_install_in_progress(): void {
 		// Simulate an in-progress install by setting the transient lock.
-		set_transient( self::LOCK_KEY, '1', 120 );
+		set_transient( 'stellarwp_uplink_install_lock', '1', 120 );
 
-		$result = $this->strategy->enable( $this->feature );
+		$result = $this->strategy->enable();
 
 		$this->assertWPError( $result );
 		$this->assertSame( Error_Code::INSTALL_LOCKED, $result->get_error_code() );
@@ -203,7 +183,7 @@ final class PluginStrategyTest extends UplinkTestCase {
 		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Test Feature\n * Author: StellarWP\n */\n" );
 
 		try {
-			$result = $this->strategy->enable( $this->feature );
+			$result = $this->strategy->enable();
 
 			// Should succeed — plugin was installed, just needed activation.
 			$this->assertTrue( $result );
@@ -212,7 +192,7 @@ final class PluginStrategyTest extends UplinkTestCase {
 
 			// Verify no lock was left behind (it should have been released or
 			// never acquired since the plugin was already on disk).
-			$this->assertFalse( get_transient( self::LOCK_KEY ) );
+			$this->assertFalse( get_transient( 'stellarwp_uplink_install_lock' ) );
 		} finally {
 			// Clean up the dummy plugin.
 			deactivate_plugins( self::PLUGIN_FILE );
@@ -251,7 +231,7 @@ final class PluginStrategyTest extends UplinkTestCase {
 			// opens buffers that may not get closed on failure. PHPUnit flags the
 			// mismatch as "risky", so we clean up any leftover buffers.
 			$ob_level = ob_get_level();
-			$result   = $this->strategy->enable( $this->feature );
+			$result   = $this->strategy->enable();
 
 			while ( ob_get_level() > $ob_level ) {
 				ob_end_clean();
@@ -261,7 +241,7 @@ final class PluginStrategyTest extends UplinkTestCase {
 			$this->assertWPError( $result );
 
 			// Lock should be released.
-			$this->assertFalse( get_transient( self::LOCK_KEY ) );
+			$this->assertFalse( get_transient( 'stellarwp_uplink_install_lock' ) );
 		} finally {
 			remove_filter( 'plugins_api', $filter, 10 );
 		}
@@ -272,25 +252,13 @@ final class PluginStrategyTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * disable() must reject non-Plugin instances with a type mismatch error.
-	 */
-	public function test_disable_returns_type_mismatch_error_for_non_plugin_feature(): void {
-		$non_plugin = $this->create_non_plugin_feature();
-
-		$result = $this->strategy->disable( $non_plugin );
-
-		$this->assertWPError( $result );
-		$this->assertSame( Error_Code::FEATURE_TYPE_MISMATCH, $result->get_error_code() );
-	}
-
-	/**
 	 * disable() deactivates an active plugin and updates stored state.
 	 */
 	public function test_disable_deactivates_active_plugin(): void {
 		$this->mock_activate_plugin( self::PLUGIN_FILE );
 		update_option( self::OPTION_KEY, '1', true );
 
-		$result = $this->strategy->disable( $this->feature );
+		$result = $this->strategy->disable();
 
 		$this->assertTrue( $result );
 		$this->assertFalse( is_plugin_active( self::PLUGIN_FILE ) );
@@ -305,7 +273,7 @@ final class PluginStrategyTest extends UplinkTestCase {
 		// Plugin is not active. Stored state says active (stale).
 		update_option( self::OPTION_KEY, '1', true );
 
-		$result = $this->strategy->disable( $this->feature );
+		$result = $this->strategy->disable();
 
 		$this->assertTrue( $result );
 		$this->assertSame( '0', get_option( self::OPTION_KEY ) );
@@ -316,28 +284,19 @@ final class PluginStrategyTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * is_active() returns false for non-Plugin instances.
-	 */
-	public function test_is_active_returns_false_for_non_plugin_feature(): void {
-		$non_plugin = $this->create_non_plugin_feature();
-
-		$this->assertFalse( $this->strategy->is_active( $non_plugin ) );
-	}
-
-	/**
 	 * is_active() returns true when the plugin is active in WordPress.
 	 */
 	public function test_is_active_returns_true_when_plugin_is_active(): void {
 		$this->mock_activate_plugin( self::PLUGIN_FILE );
 
-		$this->assertTrue( $this->strategy->is_active( $this->feature ) );
+		$this->assertTrue( $this->strategy->is_active() );
 	}
 
 	/**
 	 * is_active() returns false when the plugin is inactive in WordPress.
 	 */
 	public function test_is_active_returns_false_when_plugin_is_inactive(): void {
-		$this->assertFalse( $this->strategy->is_active( $this->feature ) );
+		$this->assertFalse( $this->strategy->is_active() );
 	}
 
 	/**
@@ -348,7 +307,7 @@ final class PluginStrategyTest extends UplinkTestCase {
 		// Stored state says active, but plugin is not actually active.
 		update_option( self::OPTION_KEY, '1', true );
 
-		$result = $this->strategy->is_active( $this->feature );
+		$result = $this->strategy->is_active();
 
 		// Live state wins — plugin is inactive.
 		$this->assertFalse( $result );
@@ -365,7 +324,7 @@ final class PluginStrategyTest extends UplinkTestCase {
 		update_option( self::OPTION_KEY, '0', true );
 		$this->mock_activate_plugin( self::PLUGIN_FILE );
 
-		$result = $this->strategy->is_active( $this->feature );
+		$result = $this->strategy->is_active();
 
 		// Live state wins — plugin is active.
 		$this->assertTrue( $result );
@@ -381,97 +340,10 @@ final class PluginStrategyTest extends UplinkTestCase {
 		// No option set. Plugin is inactive.
 		$this->assertFalse( get_option( self::OPTION_KEY, false ) );
 
-		$this->strategy->is_active( $this->feature );
+		$this->strategy->is_active();
 
 		// Should write '0' for the inactive state.
 		$this->assertSame( '0', get_option( self::OPTION_KEY ) );
-	}
-
-	// -------------------------------------------------------------------------
-	// Sync hook tests
-	// -------------------------------------------------------------------------
-
-	/**
-	 * on_plugin_activated updates stored state to true for a known feature.
-	 */
-	public function test_on_plugin_activated_updates_state_for_known_feature(): void {
-		$strategy = new Plugin_Strategy(
-			function ( string $plugin_file ): ?Plugin {
-				if ( $plugin_file === self::PLUGIN_FILE ) {
-						return $this->make_plugin_feature();
-				}
-				return null;
-			}
-		);
-
-		$strategy->on_plugin_activated( self::PLUGIN_FILE, false );
-
-		$this->assertSame( '1', get_option( self::OPTION_KEY ) );
-	}
-
-	/**
-	 * on_plugin_activated ignores unknown plugins (resolver returns null).
-	 */
-	public function test_on_plugin_activated_ignores_unknown_plugin(): void {
-		$strategy = new Plugin_Strategy(
-			function ( string $plugin_file ): ?Plugin {
-				return null;
-			}
-		);
-
-		$strategy->on_plugin_activated( 'unknown/unknown.php', false );
-
-		// No option should be written for unknown features.
-		$this->assertFalse( get_option( self::OPTION_KEY, false ) );
-	}
-
-	/**
-	 * on_plugin_activated is a no-op when no feature_resolver is configured.
-	 */
-	public function test_on_plugin_activated_noops_without_resolver(): void {
-		$this->strategy->on_plugin_activated( self::PLUGIN_FILE, false );
-
-		// No option should be written when there's no resolver.
-		$this->assertFalse( get_option( self::OPTION_KEY, false ) );
-	}
-
-	/**
-	 * on_plugin_deactivated updates stored state to false for a known feature.
-	 */
-	public function test_on_plugin_deactivated_updates_state_for_known_feature(): void {
-		// Start with active stored state.
-		update_option( self::OPTION_KEY, '1', true );
-
-		$strategy = new Plugin_Strategy(
-			function ( string $plugin_file ): ?Plugin {
-				if ( $plugin_file === self::PLUGIN_FILE ) {
-						return $this->make_plugin_feature();
-				}
-				return null;
-			}
-		);
-
-		$strategy->on_plugin_deactivated( self::PLUGIN_FILE, false );
-
-		$this->assertSame( '0', get_option( self::OPTION_KEY ) );
-	}
-
-	/**
-	 * on_plugin_deactivated ignores unknown plugins (resolver returns null).
-	 */
-	public function test_on_plugin_deactivated_ignores_unknown_plugin(): void {
-		$strategy = new Plugin_Strategy(
-			function ( string $plugin_file ): ?Plugin {
-				return null;
-			}
-		);
-
-		update_option( self::OPTION_KEY, '1', true );
-
-		$strategy->on_plugin_deactivated( 'unknown/unknown.php', false );
-
-		// The known feature's state should not be affected.
-		$this->assertSame( '1', get_option( self::OPTION_KEY ) );
 	}
 
 	// -------------------------------------------------------------------------
@@ -492,8 +364,9 @@ final class PluginStrategyTest extends UplinkTestCase {
 		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Test Feature\n * Author: Foreign Developer\n */\n" );
 
 		try {
-			$feature = $this->make_plugin_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP' ] );
-			$result  = $this->strategy->enable( $feature );
+			$feature  = $this->make_plugin_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP' ] );
+			$strategy = new Plugin_Strategy( $feature );
+			$result   = $strategy->enable();
 
 			$this->assertWPError( $result );
 			$this->assertSame( Error_Code::PLUGIN_OWNERSHIP_MISMATCH, $result->get_error_code() );
@@ -525,8 +398,9 @@ final class PluginStrategyTest extends UplinkTestCase {
 		try {
 			$this->mock_activate_plugin( self::PLUGIN_FILE );
 
-			$feature = $this->make_plugin_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP' ] );
-			$result  = $this->strategy->enable( $feature );
+			$feature  = $this->make_plugin_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP' ] );
+			$strategy = new Plugin_Strategy( $feature );
+			$result   = $strategy->enable();
 
 			$this->assertWPError( $result );
 			$this->assertSame( Error_Code::PLUGIN_OWNERSHIP_MISMATCH, $result->get_error_code() );
@@ -562,8 +436,9 @@ final class PluginStrategyTest extends UplinkTestCase {
 
 		try {
 			// Our feature expects test-feature/test-feature.php, which doesn't exist.
-			$feature = $this->make_plugin_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP' ] );
-			$result  = $this->strategy->enable( $feature );
+			$feature  = $this->make_plugin_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP' ] );
+			$strategy = new Plugin_Strategy( $feature );
+			$result   = $strategy->enable();
 
 			$this->assertWPError( $result );
 			$this->assertSame( Error_Code::PLUGIN_OWNERSHIP_MISMATCH, $result->get_error_code() );
@@ -610,7 +485,8 @@ final class PluginStrategyTest extends UplinkTestCase {
 		try {
 			$ob_level = ob_get_level();
 			$feature  = $this->make_plugin_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP' ] );
-			$result   = $this->strategy->enable( $feature );
+			$strategy = new Plugin_Strategy( $feature );
+			$result   = $strategy->enable();
 
 			while ( ob_get_level() > $ob_level ) {
 				ob_end_clean();
@@ -650,8 +526,9 @@ final class PluginStrategyTest extends UplinkTestCase {
 		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Test Feature\n * Author: StellarWP\n */\n" );
 
 		try {
-			$feature = $this->make_plugin_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP' ] );
-			$result  = $this->strategy->enable( $feature );
+			$feature  = $this->make_plugin_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP' ] );
+			$strategy = new Plugin_Strategy( $feature );
+			$result   = $strategy->enable();
 
 			$this->assertTrue( $result );
 			$this->assertTrue( is_plugin_active( self::PLUGIN_FILE ) );
@@ -681,8 +558,9 @@ final class PluginStrategyTest extends UplinkTestCase {
 		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Test Feature\n * Author: The Events Calendar\n */\n" );
 
 		try {
-			$feature = $this->make_plugin_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP', 'The Events Calendar' ] );
-			$result  = $this->strategy->enable( $feature );
+			$feature  = $this->make_plugin_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP', 'The Events Calendar' ] );
+			$strategy = new Plugin_Strategy( $feature );
+			$result   = $strategy->enable();
 
 			$this->assertTrue( $result );
 			$this->assertTrue( is_plugin_active( self::PLUGIN_FILE ) );
@@ -713,8 +591,9 @@ final class PluginStrategyTest extends UplinkTestCase {
 
 		try {
 			// Empty authors array — ownership check should be skipped.
-			$feature = $this->make_plugin_feature( 'test-feature', self::PLUGIN_FILE, [] );
-			$result  = $this->strategy->enable( $feature );
+			$feature  = $this->make_plugin_feature( 'test-feature', self::PLUGIN_FILE, [] );
+			$strategy = new Plugin_Strategy( $feature );
+			$result   = $strategy->enable();
 
 			$this->assertTrue( $result );
 			$this->assertTrue( is_plugin_active( self::PLUGIN_FILE ) );
@@ -751,8 +630,9 @@ final class PluginStrategyTest extends UplinkTestCase {
 		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Test Feature\n * Author: {$actual_author}\n */\n" );
 
 		try {
-			$feature = $this->make_plugin_feature( 'test-feature', self::PLUGIN_FILE, [ $expected_author ] );
-			$result  = $this->strategy->enable( $feature );
+			$feature  = $this->make_plugin_feature( 'test-feature', self::PLUGIN_FILE, [ $expected_author ] );
+			$strategy = new Plugin_Strategy( $feature );
+			$result   = $strategy->enable();
 
 			$this->assertTrue(
 				$result,
@@ -810,8 +690,9 @@ final class PluginStrategyTest extends UplinkTestCase {
 		copy( $source_dir . '/' . $plugin_slug . '.php', $plugin_dir . '/' . $plugin_slug . '.php' );
 
 		try {
-			$feature = $this->make_plugin_feature( $plugin_slug, $plugin_file, [ 'StellarWP' ] );
-			$result  = $this->strategy->enable( $feature );
+			$feature  = $this->make_plugin_feature( $plugin_slug, $plugin_file, [ 'StellarWP' ] );
+			$strategy = new Plugin_Strategy( $feature );
+			$result   = $strategy->enable();
 
 			$this->assertWPError( $result );
 			$this->assertSame( Error_Code::REQUIREMENTS_NOT_MET, $result->get_error_code() );
@@ -844,8 +725,9 @@ final class PluginStrategyTest extends UplinkTestCase {
 		copy( $source_dir . '/' . $plugin_slug . '.php', $plugin_dir . '/' . $plugin_slug . '.php' );
 
 		try {
-			$feature = $this->make_plugin_feature( $plugin_slug, $plugin_file, [ 'StellarWP' ] );
-			$result  = $this->strategy->enable( $feature );
+			$feature  = $this->make_plugin_feature( $plugin_slug, $plugin_file, [ 'StellarWP' ] );
+			$strategy = new Plugin_Strategy( $feature );
+			$result   = $strategy->enable();
 
 			$this->assertWPError( $result );
 			$this->assertSame( Error_Code::REQUIREMENTS_NOT_MET, $result->get_error_code() );
@@ -893,33 +775,5 @@ final class PluginStrategyTest extends UplinkTestCase {
 				'authors'      => $authors,
 			]
 		);
-	}
-
-	/**
-	 * Create a non-Plugin Feature subclass for type-guard testing.
-	 *
-	 * Uses an anonymous class to avoid creating a whole new file for a test-
-	 * only concrete subclass.
-	 *
-	 * @return Feature
-	 */
-	private function create_non_plugin_feature(): Feature {
-		return new class( [
-			'slug'         => 'non-plugin',
-			'group'        => 'Test',
-			'tier'         => 'Tier 1',
-			'name'         => 'Non-Plugin Feature',
-			'description'  => 'Not a plugin.',
-			'type'         => 'other',
-			'is_available' => true,
-		] ) extends Feature {
-
-			/**
-			 * @inheritDoc
-			 */
-			public static function from_array( array $data ) {
-				return new self( $data );
-			}
-		};
 	}
 }

@@ -190,8 +190,6 @@ class Resolve_Feature_Collection {
 		$minimum_rank = $minimum_tier !== null ? $minimum_tier->get_rank() : PHP_INT_MAX;
 		$is_available = $license_tier_rank >= $minimum_rank;
 
-		$plugin_file = $catalog_feature->get_plugin_file() ?? '';
-
 		$data = [
 			'slug'              => $catalog_feature->get_feature_slug(),
 			'group'             => $product->get_product_slug(),
@@ -201,9 +199,8 @@ class Resolve_Feature_Collection {
 			'type'              => $catalog_type,
 			'is_available'      => $is_available,
 			'documentation_url' => $catalog_feature->get_documentation_url(),
-			'authors'           => $catalog_feature->get_authors(),
-			'plugin_file'       => $plugin_file,
-			'plugin_slug'       => $plugin_file !== '' ? dirname( $plugin_file ) : '',
+			'plugin_file'       => $catalog_feature->get_plugin_file() ?? '',
+			'authors'           => $catalog_feature->get_authors() ?? [],
 		];
 
 		return $class::from_array( $data );

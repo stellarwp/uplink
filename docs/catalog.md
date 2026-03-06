@@ -35,27 +35,27 @@ A product's tiers are its own. Tier slugs are namespaced to the product (`kadenc
 
 Features are the individual capabilities, plugins, themes, and flags that make up a product family. Each feature belongs to one product and has a minimum tier requirement.
 
-| Field               | Type         | Description                                                                                     |
-| ------------------- | ------------ | ----------------------------------------------------------------------------------------------- |
-| `feature_slug`      | string       | Unique identifier (e.g., `kad-blocks-pro`, `ld-propanel`)                                       |
-| `type`              | string       | One of `plugin`, `theme`, or `flag`                                                             |
-| `minimum_tier`      | string       | Tier slug required to access this feature                                                       |
-| `plugin_file`       | string\|null | Plugin file path for `plugin` type features (e.g., `kadence-blocks-pro/kadence-blocks-pro.php`) |
-| `is_dot_org`        | bool         | Whether the feature is available on WordPress.org                                               |
-| `download_url`      | string\|null | Download URL for features not on WordPress.org                                                  |
-| `name`              | string       | Display name                                                                                    |
-| `description`       | string       | Short description of what the feature does                                                      |
-| `category`          | string       | Grouping category (e.g., `blocks`, `theme`, `security`, `woocommerce`)                          |
-| `authors`           | string[]     | Brand/author names                                                                              |
-| `documentation_url` | string       | Link to the feature's documentation                                                             |
+| Field               | Type           | Description                                                                                                                        |
+| ------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `feature_slug`      | string         | Unique identifier (e.g., `kad-blocks-pro`, `ld-propanel`)                                                                          |
+| `type`              | string         | One of `plugin`, `theme`, or `flag`                                                                                                |
+| `minimum_tier`      | string         | Tier slug required to access this feature                                                                                          |
+| `plugin_file`       | string\|null   | Plugin file path relative to the plugins directory (e.g., `kadence-blocks-pro/kadence-blocks-pro.php`). Null for themes and flags. |
+| `is_dot_org`        | bool           | Whether the feature is available on WordPress.org                                                                                  |
+| `download_url`      | string\|null   | Download URL for features not on WordPress.org                                                                                     |
+| `name`              | string         | Display name                                                                                                                       |
+| `description`       | string         | Short description of what the feature does                                                                                         |
+| `category`          | string         | Grouping category (e.g., `blocks`, `theme`, `security`, `woocommerce`)                                                             |
+| `authors`           | string[]\|null | Brand/author names for ownership verification. Null if not applicable.                                                             |
+| `documentation_url` | string         | Link to the feature's documentation                                                                                                |
 
 #### Feature Types
 
 Features come in three types, each representing a different kind of deliverable:
 
-**`plugin`**: an installable WordPress plugin. Has a `plugin_file` path and either a `download_url` (for exclusive features) or is available on WordPress.org (`is_dot_org: true`). These are features that need to be downloaded, installed, and activated.
+**`plugin`**: an installable WordPress plugin. Has a `plugin_file` (plugin file path) and either a `download_url` (for exclusive features) or is available on WordPress.org (`is_dot_org: true`). These are features that need to be downloaded, installed, and activated.
 
-**`theme`**: an installable WordPress theme. Similar to plugins but installed through the theme system. Also has `is_dot_org` and optional `download_url` fields.
+**`theme`**: an installable WordPress theme. The `feature_slug` doubles as the theme stylesheet (directory name). Has either a `download_url` (for exclusive features) or is available on WordPress.org (`is_dot_org: true`).
 
 **`flag`**: a capability toggle. Not a separate installable; it unlocks functionality within an existing plugin. Has no `plugin_file` or `download_url`. Think of these as feature flags that are gated by tier.
 
@@ -155,11 +155,11 @@ Tier slugs are product-prefixed (`kadence-pro`, `give-basic`) and are consistent
 
 The catalog uses delivery-oriented type names (`plugin`, `theme`, `flag`). The Features subsystem maps these to its own type hierarchy during resolution:
 
-| Catalog type | Feature class | Meaning                                              |
-| ------------ | ------------- | ---------------------------------------------------- |
-| `plugin`     | `Plugin`      | Installable WordPress plugin                         |
-| `theme`      | `Theme`       | Installable WordPress theme                          |
-| `flag`       | `Flag`        | Capability toggle within an existing plugin          |
+| Catalog type | Feature class | Meaning                                     |
+| ------------ | ------------- | ------------------------------------------- |
+| `plugin`     | `Plugin`      | Installable WordPress plugin                |
+| `theme`      | `Theme`       | Installable WordPress theme                 |
+| `flag`       | `Flag`        | Capability toggle within an existing plugin |
 
 ### What the Catalog Does Not Know
 

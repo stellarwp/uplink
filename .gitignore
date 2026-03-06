@@ -11,11 +11,16 @@ local-scripts/
 /build/
 /build-dev/
 
+<<<<<<< SCON-254/add-theme-strategy-based-on-zip
+# Claude Code local settings
+.claude/settings.local.json
+=======
 # Track Claude commands (overrides global gitignore)
 !.claude/
 .claude/*
 !.claude/commands/
 !.claude/settings.json
+>>>>>>> bucket/consolidation-program
 
 # OS
 .DS_Store
@@ -23,6 +28,7 @@ local-scripts/
 # PHPStan cache
 phpstan-cache
 
+tests/_data/Features/Themes/*.zip
 tests/_data/Features/Plugins/*.zip
 
 diffcs.txt

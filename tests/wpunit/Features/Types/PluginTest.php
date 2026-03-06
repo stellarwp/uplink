@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Tests\Features\Types;
 
+use StellarWP\Uplink\Features\Contracts\Installable;
 use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
@@ -20,11 +21,11 @@ final class PluginTest extends UplinkTestCase {
 	/**
 	 * Create a Plugin feature with configurable values.
 	 *
-	 * @param string   $slug        Feature slug.
-	 * @param string   $name        Display name.
-	 * @param string   $description Description.
-	 * @param string   $plugin_file Plugin file path.
-	 * @param string[] $authors     Expected plugin authors.
+	 * @param string   $slug          Feature slug.
+	 * @param string   $name          Display name.
+	 * @param string   $description   Description.
+	 * @param string   $plugin_file WordPress identifier (plugin file path).
+	 * @param string[] $authors       Expected plugin authors.
 	 *
 	 * @return Plugin
 	 */
@@ -141,11 +142,12 @@ final class PluginTest extends UplinkTestCase {
 			'is_available'      => true,
 			'documentation_url' => 'https://example.com/docs',
 			'authors'           => [ 'StellarWP' ],
+			'is_dot_org'        => false,
 		];
 
 		$feature = Plugin::from_array( $data );
 
-		$this->assertSame( $data, $feature->to_array() );
+		$this->assertEquals( $data, $feature->to_array() );
 	}
 
 	/**
@@ -214,13 +216,22 @@ final class PluginTest extends UplinkTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// Plugin-specific getters
+	// Installable interface
 	// -------------------------------------------------------------------------
 
 	/**
-	 * get_plugin_file() returns the plugin file path passed to the constructor.
+	 * Plugin implements the Installable interface.
 	 */
-	public function test_get_plugin_file_returns_constructor_value(): void {
+	public function test_it_implements_installable(): void {
+		$feature = $this->make_feature();
+
+		$this->assertInstanceOf( Installable::class, $feature );
+	}
+
+	/**
+	 * get_plugin_file() returns the plugin file path.
+	 */
+	public function test_get_plugin_file_returns_plugin_file(): void {
 		$feature = $this->make_feature(
 			self::SLUG,
 			self::NAME,
@@ -229,6 +240,53 @@ final class PluginTest extends UplinkTestCase {
 		);
 
 		$this->assertSame( 'my-plugin/my-plugin.php', $feature->get_plugin_file() );
+	}
+
+	/**
+	 * is_dot_org() defaults to false.
+	 */
+	public function test_is_dot_org_defaults_to_false(): void {
+		$feature = $this->make_feature();
+
+		$this->assertFalse( $feature->is_dot_org() );
+	}
+
+	/**
+	 * is_dot_org() returns true when set.
+	 */
+	public function test_is_dot_org_returns_true_when_set(): void {
+		$feature = new Plugin(
+			[
+				'slug'         => self::SLUG,
+				'group'        => self::GROUP,
+				'tier'         => self::TIER,
+				'name'         => self::NAME,
+				'plugin_file'  => self::PLUGIN_FILE,
+				'is_available' => true,
+				'is_dot_org'   => true,
+			]
+		);
+
+		$this->assertTrue( $feature->is_dot_org() );
+	}
+
+	/**
+	 * from_array() populates is_dot_org when provided.
+	 */
+	public function test_from_array_includes_is_dot_org(): void {
+		$feature = Plugin::from_array(
+			[
+				'slug'         => 'test-feature',
+				'group'        => 'LearnDash',
+				'tier'         => 'Tier 1',
+				'name'         => 'Test Feature',
+				'plugin_file'  => 'test-feature/test-feature.php',
+				'is_available' => true,
+				'is_dot_org'   => true,
+			]
+		);
+
+		$this->assertTrue( $feature->is_dot_org() );
 	}
 
 	// -------------------------------------------------------------------------

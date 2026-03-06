@@ -23,7 +23,11 @@ Features come in two types, mapped from the catalog's delivery types during reso
 
 ### Plugin
 
-A standalone installable, either a WordPress plugin or theme. The catalog provides the `plugin_file` path, `download_url`, and `is_dot_org` flag. The feature system handles downloading, installing, activating, and deactivating through WordPress's plugin/theme infrastructure.
+An installable WordPress plugin. The catalog provides the `plugin_file` (plugin file path), `plugin_slug`, `download_url`/`is_dot_org` flag. Enabling a Plugin feature installs the plugin (if needed) and activates it. Disabling deactivates it but never deletes plugin files.
+
+### Theme
+
+An installable WordPress theme. The theme's slug is its `feature_slug` — this is the same slug WordPress uses for installation from WordPress.org, checking the active theme via `get_stylesheet()`, and looking up theme data. The catalog provides `download_url`/`is_dot_org` flag. Enabling a Theme feature installs the theme (makes it available) but does not switch to it. Users activate themes through WordPress's Appearance → Themes UI. Disabling marks the feature as not enabled in stored state.
 
 ### Flag
 
@@ -51,11 +55,11 @@ If a product has no licensing entry, the tier rank is `0`, making all of its fea
 
 The mapping from catalog type strings to Feature subclasses is extensible:
 
-| Catalog type | Feature class | Notes                                   |
-| ------------ | ------------- | --------------------------------------- |
-| `plugin`     | `Plugin`      | Installable WordPress plugin            |
-| `theme`      | `Theme`       | Installable WordPress theme             |
-| `flag`       | `Flag`        | Option-based toggle                     |
+| Catalog type | Feature class | Notes                        |
+| ------------ | ------------- | ---------------------------- |
+| `plugin`     | `Plugin`      | Installable WordPress plugin |
+| `theme`      | `Theme`       | Installable WordPress theme  |
+| `flag`       | `Flag`        | Option-based toggle          |
 
 ## The Manager
 
@@ -100,9 +104,19 @@ Manages the full WordPress plugin lifecycle. Live WordPress plugin state is the 
 
 Enabling a Plugin feature installs the plugin (if needed) and activates it. Disabling deactivates it but never deletes plugin files. The strategy includes ownership verification, checking the `Author` header against the feature's expected authors to prevent accidentally managing a third-party plugin that shares a directory name.
 
-Plugin installs use per-slug transient locks with a 120-second TTL to prevent concurrent install races.
+Installable features (plugins and themes) share a single global transient lock (`stellarwp_uplink_install_lock`) with a 120-second TTL. Only one installable feature can be installed at a time, regardless of type. This prevents concurrent install races and filesystem conflicts. Flag features are not affected by this lock since they only toggle a WordPress option.
 
 The stored option self-heals: if the live plugin state drifts from the stored option (e.g., a user deactivates a plugin through the WordPress plugins page), the stored state updates to match on the next check.
+
+### Theme Strategy
+
+Manages theme installation. Unlike plugins, themes are not activated or deactivated through the feature system.
+
+Enabling a Theme feature installs the theme (if needed) and marks it as enabled in stored state. It does not switch the active theme — users activate themes through WordPress's Appearance → Themes UI. Disabling updates stored state only; theme files are never deleted.
+
+The is_active check reflects whether the theme is installed on disk. If a theme is manually deleted, stored state self-heals on the next check.
+
+Ownership verification checks the theme's Author header via wp_get_theme().
 
 ## Caching and Data Access
 
@@ -148,24 +162,27 @@ Each feature in the response includes an `is_enabled` field computed live from t
 
 ## Error Codes
 
-| Constant                         | HTTP | Meaning                                                |
-| -------------------------------- | ---- | ------------------------------------------------------ |
-| `FEATURE_NOT_FOUND`              | 404  | Feature slug doesn't exist in the resolved catalog     |
-| `FEATURE_TYPE_MISMATCH`          | 400  | Feature type doesn't match the strategy being used     |
-| `INSTALL_LOCKED`                 | 409  | Another install for this plugin is already in progress |
-| `PLUGIN_OWNERSHIP_MISMATCH`      | 409  | A different developer's plugin occupies the directory  |
-| `DEACTIVATION_FAILED`            | 409  | Plugin stayed active after deactivation attempt        |
-| `REQUIREMENTS_NOT_MET`           | 422  | PHP or WordPress version requirements not met          |
-| `INSTALL_FAILED`                 | 422  | `Plugin_Upgrader::install()` failed                    |
-| `ACTIVATION_FATAL`               | 422  | PHP fatal error or `die()` during plugin activation    |
-| `ACTIVATION_FAILED`              | 422  | `activate_plugin()` returned an error                  |
-| `PLUGIN_NOT_FOUND_AFTER_INSTALL` | 422  | Expected plugin file missing after ZIP extraction      |
-| `DOWNLOAD_LINK_MISSING`          | 422  | `plugins_api()` returned no download link              |
-| `UNKNOWN_FEATURE_TYPE`           | 422  | No Feature subclass registered for the catalog type    |
-| `FEATURE_REQUEST_FAILED`         | 502  | Resolution failed (catalog or licensing API error)     |
-| `FEATURE_CHECK_FAILED`           | 502  | Unexpected error during availability check             |
-| `INVALID_RESPONSE`               | 502  | Catalog response couldn't be parsed                    |
-| `PLUGINS_API_FAILED`             | 502  | WordPress `plugins_api()` call failed                  |
+| Constant                         | HTTP | Meaning                                                    |
+| -------------------------------- | ---- | ---------------------------------------------------------- |
+| `FEATURE_NOT_FOUND`              | 404  | Feature slug doesn't exist in the resolved catalog         |
+| `FEATURE_TYPE_MISMATCH`          | 400  | Feature type doesn't match the strategy being used         |
+| `INSTALL_LOCKED`                 | 409  | Another installable feature install is already in progress |
+| `PLUGIN_OWNERSHIP_MISMATCH`      | 409  | A different developer's plugin occupies the directory      |
+| `DEACTIVATION_FAILED`            | 409  | Plugin stayed active after deactivation attempt            |
+| `REQUIREMENTS_NOT_MET`           | 422  | PHP or WordPress version requirements not met              |
+| `INSTALL_FAILED`                 | 422  | `Plugin_Upgrader::install()` failed                        |
+| `ACTIVATION_FATAL`               | 422  | PHP fatal error or `die()` during plugin activation        |
+| `ACTIVATION_FAILED`              | 422  | `activate_plugin()` returned an error                      |
+| `PLUGIN_NOT_FOUND_AFTER_INSTALL` | 422  | Expected plugin file missing after ZIP extraction          |
+| `DOWNLOAD_LINK_MISSING`          | 422  | `plugins_api()` returned no download link                  |
+| `UNKNOWN_FEATURE_TYPE`           | 422  | No Feature subclass registered for the catalog type        |
+| `FEATURE_REQUEST_FAILED`         | 502  | Resolution failed (catalog or licensing API error)         |
+| `FEATURE_CHECK_FAILED`           | 502  | Unexpected error during availability check                 |
+| `INVALID_RESPONSE`               | 502  | Catalog response couldn't be parsed                        |
+| `PLUGINS_API_FAILED`             | 502  | WordPress `plugins_api()` call failed                      |
+| `THEME_OWNERSHIP_MISMATCH`       | 409  | A different developer's theme occupies the directory       |
+| `THEME_NOT_FOUND_AFTER_INSTALL`  | 422  | Expected theme directory missing after ZIP extraction      |
+| `THEMES_API_FAILED`              | 502  | WordPress `themes_api()` call failed                       |
 
 ## Relationship to Licensing and Catalog
 
@@ -187,7 +204,7 @@ When the license key changes, the feature cache auto-invalidates. A license upgr
 ## What Features Does Not Do
 
 - **Fetch its own data**: features are resolved from catalog and licensing data. There is no separate "features API."
-- **Delete plugins**: disabling a Plugin feature deactivates it but never removes files.
+- **Delete extensions**: disabling a Plugin or Theme feature deactivates/unlinks it but never removes files.
 - **Manage seats**: seat consumption happens in the licensing layer during validation, not during feature enable/disable.
 - **Override tier gating for new enables**: if a customer's tier doesn't qualify, new features can't be enabled. Grandfathered flags are the exception.
 - **Handle updates**: plugin/theme updates flow through a separate system that hooks into WordPress's native update infrastructure.

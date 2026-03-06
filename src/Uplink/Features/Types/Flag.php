@@ -34,17 +34,6 @@ final class Flag extends Feature {
 	 * @return static
 	 */
 	public static function from_array( array $data ) {
-		return new self(
-			[
-				'slug'              => $data['slug'],
-				'group'             => $data['group'],
-				'tier'              => $data['tier'],
-				'name'              => $data['name'],
-				'description'       => $data['description'] ?? '',
-				'type'              => 'flag',
-				'is_available'      => $data['is_available'],
-				'documentation_url' => $data['documentation_url'] ?? '',
-			]
-		);
+		return new self( self::base_attributes( $data ) );
 	}
 }

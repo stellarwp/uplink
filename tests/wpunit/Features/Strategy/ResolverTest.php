@@ -25,30 +25,49 @@ final class ResolverTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->resolver = new Resolver( $this->container );
+		$this->resolver = new Resolver();
 	}
 
 	/**
-	 * Tests that a registered strategy is resolved for the matching feature type.
+	 * Tests that a registered factory is invoked for the matching feature type.
 	 *
 	 * @return void
 	 */
 	public function test_it_resolves_registered_strategy(): void {
 		$mock_strategy = $this->makeEmpty( Strategy::class );
 
-		$this->container->bind(
-			get_class( $mock_strategy ),
-			static function () use ( $mock_strategy ) {
-				return $mock_strategy;
-			}
+		$this->resolver->register(
+			'test-type',
+			static fn( Feature $f ) => $mock_strategy
 		);
-
-		$this->resolver->register( 'test-type', get_class( $mock_strategy ) );
 
 		$feature  = $this->makeEmpty( Feature::class, [ 'get_type' => 'test-type' ] );
 		$resolved = $this->resolver->resolve( $feature );
 
 		$this->assertSame( $mock_strategy, $resolved );
+	}
+
+	/**
+	 * Tests that the factory receives the Feature being resolved.
+	 *
+	 * @return void
+	 */
+	public function test_it_passes_feature_to_factory(): void {
+		$received_feature = null;
+
+		$this->resolver->register(
+			'test-type',
+			function ( Feature $f ) use ( &$received_feature ) {
+				$received_feature = $f;
+
+				return $this->makeEmpty( Strategy::class );
+			}
+		);
+
+		$feature = $this->makeEmpty( Feature::class, [ 'get_type' => 'test-type' ] );
+		$this->resolver->resolve( $feature );
+
+		$this->assertSame( $feature, $received_feature );
 	}
 
 	/**

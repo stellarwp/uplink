@@ -5,6 +5,8 @@ namespace StellarWP\Uplink\Tests\Features;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Features\Strategy\Resolver;
+use StellarWP\Uplink\Features\Strategy\Theme_Strategy;
+use StellarWP\Uplink\Features\Types\Theme;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
 final class ProviderTest extends UplinkTestCase {
@@ -34,5 +36,23 @@ final class ProviderTest extends UplinkTestCase {
 	 */
 	public function test_it_registers_manager(): void {
 		$this->assertInstanceOf( Manager::class, $this->container->get( Manager::class ) );
+	}
+
+	/**
+	 * Tests that the Resolver creates a Theme_Strategy for theme features.
+	 *
+	 * @return void
+	 */
+	public function test_it_registers_theme_strategy(): void {
+		$resolver = $this->container->get( Resolver::class );
+		$feature  = Theme::from_array(
+			[
+				'slug' => 'test-theme',
+				'type' => 'theme',
+				'name' => 'Test Theme',
+			]
+		);
+
+		$this->assertInstanceOf( Theme_Strategy::class, $resolver->resolve( $feature ) );
 	}
 }

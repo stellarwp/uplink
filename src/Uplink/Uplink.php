@@ -38,6 +38,14 @@ class Uplink {
 		$container->singleton( Notice\Provider::class, Notice\Provider::class );
 		$container->singleton( Admin\Provider::class, Admin\Provider::class );
 		$container->singleton( Auth\Provider::class, Auth\Provider::class );
+		$container->singleton( Legacy\Provider::class, Legacy\Provider::class );
+		$container->singleton( Features\Provider::class, Features\Provider::class );
+		$container->singleton( Licensing\Provider::class, Licensing\Provider::class );
+		$container->singleton( Catalog\Provider::class, Catalog\Provider::class );
+		$container->singleton( API\REST\V1\Provider::class, API\REST\V1\Provider::class );
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			$container->singleton( CLI\Provider::class, CLI\Provider::class );
+		}
 
 		if ( static::is_enabled() ) {
 			$container->get( Storage\Provider::class )->register();
@@ -49,6 +57,18 @@ class Uplink {
 			if ( $container->has( Config::TOKEN_OPTION_NAME ) ) {
 				$container->get( Auth\Provider::class )->register();
 			}
+
+			// TODO: Register to only the newest instance.
+			$container->get( Features\Provider::class )->register();
+			$container->get( Licensing\Provider::class )->register();
+			$container->get( Catalog\Provider::class )->register();
+			$container->get( API\REST\V1\Provider::class )->register();
+
+			if ( defined( 'WP_CLI' ) && WP_CLI ) {
+				$container->get( CLI\Provider::class )->register();
+			}
+
+			static::register_cross_instance_hooks( $container );
 		}
 
 		require_once __DIR__ . '/functions.php';

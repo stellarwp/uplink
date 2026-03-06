@@ -5,7 +5,6 @@ namespace StellarWP\Uplink\API\Functions;
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Manager;
-use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
 use Throwable;
 use WP_Error;
@@ -14,7 +13,7 @@ use WP_Error;
  * Registers this Uplink instance's callbacks into the global function registry.
  *
  * Each vendor-prefixed Uplink instance calls register() during init, storing
- * version-keyed closures via _uplink_global_function_registry(). The closures are defined
+ * version-keyed closures via _stellarwp_uplink_global_function_registry(). The closures are defined
  * here (inside the namespaced file) so Strauss-prefixed class references
  * resolve correctly for this specific instance.
  *
@@ -34,12 +33,12 @@ class Global_Function_Registry {
 	 */
 	public static function register( ContainerInterface $container, string $version ): void {
 		// @phpstan-ignore function.internal
-		\_uplink_global_function_registry(
-			'has_unified_license_key',
+		\_stellarwp_uplink_global_function_registry(
+			'stellarwp_uplink_has_unified_license_key',
 			$version,
 			static function () use ( $container ): bool {
 				try {
-					return $container->get( License_Manager::class )->key_exists();
+					return $container->get( License_Repository::class )->key_exists();
 				} catch ( Throwable $e ) {
 					if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 						// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
@@ -51,8 +50,25 @@ class Global_Function_Registry {
 		);
 
 		// @phpstan-ignore function.internal
-		\_uplink_global_function_registry(
-			'is_product_license_active',
+		\_stellarwp_uplink_global_function_registry(
+			'stellarwp_uplink_get_unified_license_key',
+			$version,
+			static function () use ( $container ): ?string {
+				try {
+					return $container->get( License_Repository::class )->get_key();
+				} catch ( Throwable $e ) {
+					if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+						// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
+						error_log( "Error getting unified license key: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
+					}
+					return null;
+				}
+			}
+		);
+
+		// @phpstan-ignore function.internal
+		\_stellarwp_uplink_global_function_registry(
+			'stellarwp_uplink_is_product_license_active',
 			$version,
 			static function ( string $product ) use ( $container ): bool {
 				try {
@@ -68,8 +84,8 @@ class Global_Function_Registry {
 		);
 
 		// @phpstan-ignore function.internal
-		\_uplink_global_function_registry(
-			'is_feature_enabled',
+		\_stellarwp_uplink_global_function_registry(
+			'stellarwp_uplink_is_feature_enabled',
 			$version,
 			static function ( string $slug ) use ( $container ) {
 				try {
@@ -86,8 +102,8 @@ class Global_Function_Registry {
 		);
 
 		// @phpstan-ignore function.internal
-		\_uplink_global_function_registry(
-			'is_feature_available',
+		\_stellarwp_uplink_global_function_registry(
+			'stellarwp_uplink_is_feature_available',
 			$version,
 			static function ( string $slug ) use ( $container ) {
 				try {

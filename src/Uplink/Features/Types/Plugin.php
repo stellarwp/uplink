@@ -131,6 +131,7 @@ final class Plugin extends Feature implements Installable {
 	public function is_installed(): bool {
 		$plugin_file = $this->get_plugin_file();
 
+		// TODO: We should throw an error on object construction if plugin_file is not set for Plugin Features.
 		if ( empty( $plugin_file ) ) {
 			return false;
 		}

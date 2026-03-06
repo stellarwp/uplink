@@ -422,6 +422,8 @@ final class PluginTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_is_installed_returns_false_when_plugin_missing(): void {
+		// TODO: We should throw an error on object construction if plugin_file is not set for Plugin Features.
+
 		$feature = Plugin::from_array(
 			[
 				'slug'         => 'nonexistent-plugin',
@@ -442,6 +444,8 @@ final class PluginTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_is_installed_returns_false_when_plugin_file_empty(): void {
+		// TODO: We should throw an error on object construction if plugin_file is not set for Plugin Features.
+
 		$feature = Plugin::from_array(
 			[
 				'slug'         => 'no-file',

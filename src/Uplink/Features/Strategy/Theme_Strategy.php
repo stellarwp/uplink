@@ -48,13 +48,6 @@ class Theme_Strategy extends Installable_Strategy {
 	/**
 	 * @inheritDoc
 	 */
-	protected function get_feature_class(): string {
-		return Theme::class;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
 	protected function get_type_mismatch_message(): string {
 		return __( 'This feature type is not supported by the Theme installer.', '%TEXTDOMAIN%' );
 	}

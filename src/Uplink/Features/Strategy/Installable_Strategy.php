@@ -74,15 +74,6 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	// ── Abstract hooks ──────────────────────────────────────────────────
 
 	/**
-	 * Returns the Feature class this strategy handles (e.g. Plugin::class).
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return class-string<Feature&Installable>
-	 */
-	abstract protected function get_feature_class(): string;
-
-	/**
 	 * Human-readable error message when a wrong feature type is passed.
 	 *
 	 * @since 3.0.0
@@ -195,7 +186,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Must be an instance of get_feature_class().
+	 * @param Feature $feature Must implement Installable.
 	 *
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
@@ -262,7 +253,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Must be an instance of get_feature_class().
+	 * @param Feature $feature Must implement Installable.
 	 *
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
@@ -295,7 +286,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature Must be an instance of get_feature_class().
+	 * @param Feature $feature Must implement Installable.
 	 *
 	 * @return bool
 	 */

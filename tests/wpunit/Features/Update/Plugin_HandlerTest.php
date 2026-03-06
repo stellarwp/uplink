@@ -141,7 +141,7 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_passes_through_for_unknown_slug(): void {
-		$handler = $this->handler_with_feature( [ 'other-plugin' => [ 'new_version' => '2.0.0' ] ] );
+		$handler = $this->handler_with_feature( [ 'other-plugin' => [ 'version' => '2.0.0' ] ] );
 
 		$args       = new stdClass();
 		$args->slug = 'unknown-plugin';
@@ -175,7 +175,7 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 	public function test_it_returns_wp_format_for_feature(): void {
 		$update_data = [
 			'my-plugin' => [
-				'new_version' => '2.0.0',
+				'version' => '2.0.0',
 				'package'     => 'https://example.com/my-plugin.zip',
 				'name'        => 'My Plugin',
 				'plugin_file' => 'my-plugin/my-plugin.php',
@@ -245,7 +245,7 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 	public function test_filter_update_check_adds_to_response_when_update_available(): void {
 		$update_data = [
 			'my-plugin' => [
-				'new_version' => '2.0.0',
+				'version' => '2.0.0',
 				'package'     => 'https://example.com/my-plugin.zip',
 				'plugin_file' => 'my-plugin/my-plugin.php',
 			],
@@ -270,7 +270,7 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 	public function test_filter_update_check_adds_to_no_update_when_no_newer_version(): void {
 		$update_data = [
 			'my-plugin' => [
-				'new_version' => '',
+				'version' => '',
 				'package'     => 'https://example.com/my-plugin.zip',
 				'plugin_file' => 'my-plugin/my-plugin.php',
 			],
@@ -296,7 +296,7 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 	public function test_filter_update_check_preserves_existing_update_from_other_system(): void {
 		$update_data = [
 			'my-plugin' => [
-				'new_version' => '',
+				'version' => '',
 				'package'     => 'https://example.com/my-plugin.zip',
 				'plugin_file' => 'my-plugin/my-plugin.php',
 			],

@@ -181,7 +181,7 @@ class Plugin_Handler {
 			}
 
 			/** @var string $new_version */
-			$new_version       = $update_data['new_version'] ?? '';
+			$new_version       = $update_data['version'] ?? '';
 			$installed_version = '';
 
 			if ( ! is_wp_error( $features ) ) {
@@ -231,7 +231,7 @@ class Plugin_Handler {
 
 		$info->name          = $update_data['name'] ?? '';
 		$info->slug          = $slug;
-		$info->version       = $update_data['new_version'] ?? '';
+		$info->version       = $update_data['version'] ?? '';
 		$info->requires      = $update_data['requires'] ?? '';
 		$info->tested        = $update_data['tested'] ?? '';
 		$info->download_link = $update_data['package'] ?? '';
@@ -260,7 +260,7 @@ class Plugin_Handler {
 		$update->id          = $update_data['id'] ?? sprintf( 'stellarwp/plugins/%s', $slug );
 		$update->plugin      = $plugin_file;
 		$update->slug        = $slug;
-		$update->new_version = $update_data['new_version'] ?? '';
+		$update->new_version = $update_data['version'] ?? '';
 		$update->url         = $update_data['url'] ?? '';
 		$update->package     = $update_data['package'] ?? '';
 		$update->tested      = $update_data['tested'] ?? '';

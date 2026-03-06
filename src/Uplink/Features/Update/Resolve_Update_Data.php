@@ -104,7 +104,7 @@ class Resolve_Update_Data {
 			$updates[ $slug ] = [
 				'name'        => $feature->get_name(),
 				'slug'        => $slug,
-				'new_version' => $catalog_feature->get_version() ?? '',
+				'version'     => $catalog_feature->get_version() ?? '',
 				'package'     => $catalog_feature->get_download_url() ?? '',
 				'url'         => $feature->get_documentation_url(),
 				'author'      => implode( ', ', $feature->get_authors() ),

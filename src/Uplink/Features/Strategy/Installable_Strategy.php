@@ -16,6 +16,10 @@ use function set_transient;
  * Subclasses provide WP-specific behavior via abstract hook methods (do_install,
  * do_activate, do_deactivate, verify_ownership, etc.).
  *
+ * Plugin and theme features derive their active state entirely from live
+ * WordPress state (plugin activation status / theme disk presence). No DB
+ * option is stored — only Flag features use wp_options for state.
+ *
  * @since 3.0.0
  */
 abstract class Installable_Strategy extends Abstract_Strategy {
@@ -160,8 +164,6 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 				return $ownership;
 			}
 
-			$this->feature->mark_active();
-
 			return true;
 		}
 
@@ -222,8 +224,9 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	/**
 	 * Check whether the feature's extension is currently active.
 	 *
-	 * Delegates to reconcile_state() to determine the effective active state
-	 * and perform any needed self-healing between live and stored state.
+	 * For plugins, this means the plugin is activated in WordPress.
+	 * For themes, this means the theme is installed on disk.
+	 * No DB option is involved — the live WordPress state is the sole truth.
 	 *
 	 * @since 3.0.0
 	 *
@@ -232,49 +235,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	final public function is_active(): bool {
 		$this->load_wp_admin_includes();
 
-		$live_active   = $this->check_active();
-		$stored_active = $this->feature->get_stored_state();
-
-		return $this->reconcile_state( $live_active, $stored_active );
-	}
-
-	/**
-	 * Reconcile live and stored state, returning the effective active state.
-	 *
-	 * The default implementation treats live WordPress state as the source of
-	 * truth and self-heals stored state to match. This is correct for plugins,
-	 * where "active" means currently running — if a plugin is activated or
-	 * deactivated via the WP admin, the feature system should reflect that.
-	 *
-	 * Subclasses can override this when live state has different semantics.
-	 * For example, Theme_Strategy overrides because for themes "live active"
-	 * means "installed on disk", which should not override an explicit disable.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param bool  $live   The live active state from check_active().
-	 * @param ?bool $stored The stored state from wp_options (null if never set).
-	 *
-	 * @return bool The effective active state.
-	 */
-	protected function reconcile_state( bool $live, ?bool $stored ): bool {
-		if ( $stored !== $live ) {
-			$live ? $this->feature->mark_active() : $this->feature->mark_inactive();
-
-			if ( $this->is_wp_debug() ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log(
-					sprintf(
-						'[Uplink] Self-healed feature state for "%s": stored=%s, live=%s',
-						$this->feature->get_slug(),
-						$stored === null ? 'null' : var_export( $stored, true ),
-						$live ? 'true' : 'false'
-					)
-				);
-			}
-		}
-
-		return $live;
+		return $this->check_active();
 	}
 
 	/**

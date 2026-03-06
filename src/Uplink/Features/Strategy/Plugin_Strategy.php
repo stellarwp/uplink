@@ -32,9 +32,9 @@ use function wp_json_encode;
  * - do_deactivate()  → deactivate_plugins() + verification
  * - verify_ownership → Author header checks (3 cases)
  *
- * Stored state lives in wp_options as `stellarwp_uplink_feature_{slug}_active`
- * with autoload=true for fast reads. The live WordPress plugin state is always
- * the source of truth — stored state is a cache that self-heals on mismatch.
+ * A plugin feature is active when WordPress reports the plugin as active.
+ * No DB option is stored — the live plugin state is the sole source of truth.
+ * A plugin feature is disabled if the plugin is deactivated or uninstalled.
  *
  * @since 3.0.0
  */
@@ -147,10 +147,8 @@ class Plugin_Strategy extends Installable_Strategy {
 	protected function do_deactivate() {
 		$plugin_file = $this->feature->get_plugin_file();
 
-		// Idempotent: if already inactive, update stored state and bail.
+		// Idempotent: if already inactive, bail.
 		if ( ! $this->check_active() ) {
-			$this->feature->mark_inactive();
-
 			return true;
 		}
 
@@ -173,9 +171,7 @@ class Plugin_Strategy extends Installable_Strategy {
 			);
 		}
 
-		$this->feature->mark_inactive(); // @phpstan-ignore deadCode.unreachable (The check above is a double check)
-
-		return true;
+		return true; // @phpstan-ignore deadCode.unreachable (The check above is a double check)
 	}
 
 	/**
@@ -426,8 +422,6 @@ class Plugin_Strategy extends Installable_Strategy {
 				)
 			);
 		}
-
-		$this->feature->mark_active();
 
 		return true;
 	}

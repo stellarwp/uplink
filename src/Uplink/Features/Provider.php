@@ -6,8 +6,6 @@ use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\Features\Strategy\Strategy_Factory;
-use StellarWP\Uplink\Features\Sync\Plugin_Activation_Sync;
-use StellarWP\Uplink\Features\Sync\Theme_Switch_Sync;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Features\Types\Plugin;
@@ -16,7 +14,6 @@ use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Utils\Cast;
 use WP_Error;
-use WP_Theme;
 
 /**
  * Registers the Features subsystem in the DI container and hooks.
@@ -72,20 +69,6 @@ class Provider extends Abstract_Provider {
 			}
 		);
 
-		$this->container->singleton(
-			Plugin_Activation_Sync::class,
-			static function ( ContainerInterface $c ) {
-				return new Plugin_Activation_Sync( $c->get( Manager::class ) );
-			}
-		);
-
-		$this->container->singleton(
-			Theme_Switch_Sync::class,
-			static function ( ContainerInterface $c ) {
-				return new Theme_Switch_Sync( $c->get( Manager::class ) );
-			}
-		);
-
 		$this->register_hooks();
 	}
 
@@ -117,32 +100,6 @@ class Provider extends Abstract_Provider {
 
 		// TODO: Remove this once the real plugins_api filter is implemented.
 		add_filter( 'upgrader_pre_download', [ $this, 'serve_local_zip_for_upgrader' ], 10, 2 );
-
-		$c = $this->container;
-		add_action(
-			'activated_plugin',
-			static function ( string $plugin, bool $network_wide ) use ( $c ) {
-				$c->get( Plugin_Activation_Sync::class )->on_activated( $plugin, $network_wide );
-			},
-			10,
-			2
-		);
-		add_action(
-			'deactivated_plugin',
-			static function ( string $plugin, bool $network_wide ) use ( $c ) {
-				$c->get( Plugin_Activation_Sync::class )->on_deactivated( $plugin, $network_wide );
-			},
-			10,
-			2
-		);
-		add_action(
-			'switch_theme',
-			static function ( string $new_name, WP_Theme $new_theme, WP_Theme $old_theme ) use ( $c ) {
-				$c->get( Theme_Switch_Sync::class )->on_switch( $new_name, $new_theme, $old_theme );
-			},
-			10,
-			3
-		);
 
 		add_action(
 			'stellarwp/uplink/unified_license_key_changed',

@@ -22,8 +22,6 @@ final class FeatureTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		delete_option( 'stellarwp_uplink_feature_test-feature_active' );
-
 		$this->feature = new class( [
 			'slug'              => 'test-feature',
 			'group'             => 'TEC',
@@ -152,84 +150,6 @@ final class FeatureTest extends UplinkTestCase {
 			],
 			$result 
 		);
-	}
-
-	// ── Stored state tests ──────────────────────────────────────────────
-
-	/**
-	 * mark_active() writes '1' to wp_options.
-	 */
-	public function test_mark_active_writes_option(): void {
-		$this->feature->mark_active();
-
-		$this->assertSame( '1', get_option( 'stellarwp_uplink_feature_test-feature_active' ) );
-	}
-
-	/**
-	 * mark_inactive() writes '0' to wp_options.
-	 */
-	public function test_mark_inactive_writes_option(): void {
-		$this->feature->mark_inactive();
-
-		$this->assertSame( '0', get_option( 'stellarwp_uplink_feature_test-feature_active' ) );
-	}
-
-	/**
-	 * get_stored_state() returns null when no option exists.
-	 */
-	public function test_get_stored_state_returns_null_when_no_option(): void {
-		$this->assertNull( $this->feature->get_stored_state() );
-	}
-
-	/**
-	 * get_stored_state() returns true after mark_active().
-	 */
-	public function test_get_stored_state_returns_true_after_mark_active(): void {
-		$this->feature->mark_active();
-
-		$this->assertTrue( $this->feature->get_stored_state() );
-	}
-
-	/**
-	 * get_stored_state() returns false after mark_inactive().
-	 */
-	public function test_get_stored_state_returns_false_after_mark_inactive(): void {
-		$this->feature->mark_inactive();
-
-		$this->assertFalse( $this->feature->get_stored_state() );
-	}
-
-	/**
-	 * mark_active() then mark_inactive() flips the stored state.
-	 */
-	public function test_mark_active_then_mark_inactive_round_trip(): void {
-		$this->feature->mark_active();
-		$this->assertTrue( $this->feature->get_stored_state() );
-
-		$this->feature->mark_inactive();
-		$this->assertFalse( $this->feature->get_stored_state() );
-	}
-
-	/**
-	 * Different features have independent stored state.
-	 */
-	public function test_stored_state_is_independent_per_feature(): void {
-		$other = $this->feature::from_array(
-			[
-				'slug'         => 'other-feature',
-				'group'        => 'TEC',
-				'tier'         => 'Tier 1',
-				'name'         => 'Other',
-				'is_available' => true,
-			]
-		);
-
-		$this->feature->mark_active();
-
-		$this->assertTrue( $this->feature->get_stored_state() );
-		$this->assertNull( $other->get_stored_state() );
-
-		delete_option( 'stellarwp_uplink_feature_other-feature_active' );
 	}
 
 	// ── from_array tests ────────────────────────────────────────────────

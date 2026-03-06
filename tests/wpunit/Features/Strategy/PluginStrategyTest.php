@@ -12,9 +12,12 @@ use WP_Error;
  * Tests for the Plugin_Strategy feature-gating strategy.
  *
  * These tests exercise the strategy's logic against real WordPress state
- * (active_plugins option, wp_options, transients) via the WPLoader module.
+ * (active_plugins option, transients) via the WPLoader module.
  * Plugin installation is not tested here — it requires actual filesystem and
  * HTTP operations better suited to integration tests with a real ZIP URL.
+ *
+ * Plugin features derive their active state from live WordPress plugin state.
+ * No DB option is stored.
  *
  * @see Plugin_Strategy
  */
@@ -26,13 +29,6 @@ final class PluginStrategyTest extends UplinkTestCase {
 	 * @var string
 	 */
 	private const PLUGIN_FILE = 'test-feature/test-feature.php';
-
-	/**
-	 * The option key for the test feature's stored state.
-	 *
-	 * @var string
-	 */
-	private const OPTION_KEY = 'stellarwp_uplink_feature_test-feature_active';
 
 	/**
 	 * @var Plugin_Strategy
@@ -55,8 +51,7 @@ final class PluginStrategyTest extends UplinkTestCase {
 	}
 
 	protected function tearDown(): void {
-		// Clean up stored state and locks.
-		delete_option( self::OPTION_KEY );
+		// Clean up locks.
 		delete_transient( 'stellarwp_uplink_install_lock' );
 
 		// Ensure the test plugin is deactivated.
@@ -73,7 +68,6 @@ final class PluginStrategyTest extends UplinkTestCase {
 
 	/**
 	 * enable() on an already-active plugin should return true without side effects.
-	 * It also updates stored state to keep it in sync.
 	 */
 	public function test_enable_returns_true_when_plugin_already_active(): void {
 		$plugin_dir  = WP_PLUGIN_DIR . '/test-feature';
@@ -90,7 +84,6 @@ final class PluginStrategyTest extends UplinkTestCase {
 			$result = $this->strategy->enable();
 
 			$this->assertTrue( $result );
-			$this->assertSame( '1', get_option( self::OPTION_KEY ) );
 		} finally {
 			deactivate_plugins( self::PLUGIN_FILE );
 			if ( file_exists( $plugin_path ) ) {
@@ -188,7 +181,6 @@ final class PluginStrategyTest extends UplinkTestCase {
 			// Should succeed — plugin was installed, just needed activation.
 			$this->assertTrue( $result );
 			$this->assertTrue( is_plugin_active( self::PLUGIN_FILE ) );
-			$this->assertSame( '1', get_option( self::OPTION_KEY ) );
 
 			// Verify no lock was left behind (it should have been released or
 			// never acquired since the plugin was already on disk).
@@ -252,31 +244,24 @@ final class PluginStrategyTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * disable() deactivates an active plugin and updates stored state.
+	 * disable() deactivates an active plugin.
 	 */
 	public function test_disable_deactivates_active_plugin(): void {
 		$this->mock_activate_plugin( self::PLUGIN_FILE );
-		update_option( self::OPTION_KEY, '1', true );
 
 		$result = $this->strategy->disable();
 
 		$this->assertTrue( $result );
 		$this->assertFalse( is_plugin_active( self::PLUGIN_FILE ) );
-		$this->assertSame( '0', get_option( self::OPTION_KEY ) );
 	}
 
 	/**
-	 * disable() on an already-inactive plugin should return true (idempotent)
-	 * and update stored state to false.
+	 * disable() on an already-inactive plugin should return true (idempotent).
 	 */
 	public function test_disable_returns_true_when_plugin_already_inactive(): void {
-		// Plugin is not active. Stored state says active (stale).
-		update_option( self::OPTION_KEY, '1', true );
-
 		$result = $this->strategy->disable();
 
 		$this->assertTrue( $result );
-		$this->assertSame( '0', get_option( self::OPTION_KEY ) );
 	}
 
 	// -------------------------------------------------------------------------
@@ -300,50 +285,22 @@ final class PluginStrategyTest extends UplinkTestCase {
 	}
 
 	/**
-	 * is_active() self-heals a stale stored state of true when the plugin is
-	 * actually inactive (e.g. deactivated via the Plugins admin page).
+	 * is_active() reflects live plugin state regardless of any stale DB option.
 	 */
-	public function test_is_active_self_heals_stale_true_to_false(): void {
-		// Stored state says active, but plugin is not actually active.
-		update_option( self::OPTION_KEY, '1', true );
+	public function test_is_active_ignores_stale_stored_state(): void {
+		// Even if a stale option exists, is_active() only checks live state.
+		update_option( 'stellarwp_uplink_feature_test-feature_active', '1', true );
 
-		$result = $this->strategy->is_active();
-
-		// Live state wins — plugin is inactive.
-		$this->assertFalse( $result );
-		// Stored state should be corrected.
-		$this->assertSame( '0', get_option( self::OPTION_KEY ) );
+		$this->assertFalse( $this->strategy->is_active() );
 	}
 
 	/**
-	 * is_active() self-heals a stale stored state of false when the plugin is
-	 * actually active (e.g. activated via the Plugins admin page).
+	 * is_active() does not write any DB option.
 	 */
-	public function test_is_active_self_heals_stale_false_to_true(): void {
-		// Stored state says inactive, but plugin is actually active.
-		update_option( self::OPTION_KEY, '0', true );
-		$this->mock_activate_plugin( self::PLUGIN_FILE );
-
-		$result = $this->strategy->is_active();
-
-		// Live state wins — plugin is active.
-		$this->assertTrue( $result );
-		// Stored state should be corrected.
-		$this->assertSame( '1', get_option( self::OPTION_KEY ) );
-	}
-
-	/**
-	 * is_active() writes the correct stored state when no option exists yet
-	 * (first time checking a feature).
-	 */
-	public function test_is_active_initializes_stored_state_when_missing(): void {
-		// No option set. Plugin is inactive.
-		$this->assertFalse( get_option( self::OPTION_KEY, false ) );
-
+	public function test_is_active_does_not_write_stored_state(): void {
 		$this->strategy->is_active();
 
-		// Should write '0' for the inactive state.
-		$this->assertSame( '0', get_option( self::OPTION_KEY ) );
+		$this->assertFalse( get_option( 'stellarwp_uplink_feature_test-feature_active', false ) );
 	}
 
 	// -------------------------------------------------------------------------
@@ -404,8 +361,6 @@ final class PluginStrategyTest extends UplinkTestCase {
 
 			$this->assertWPError( $result );
 			$this->assertSame( Error_Code::PLUGIN_OWNERSHIP_MISMATCH, $result->get_error_code() );
-			// Stored state should NOT have been updated.
-			$this->assertFalse( get_option( self::OPTION_KEY, false ) );
 		} finally {
 			deactivate_plugins( self::PLUGIN_FILE );
 			if ( file_exists( $plugin_path ) ) {
@@ -532,7 +487,6 @@ final class PluginStrategyTest extends UplinkTestCase {
 
 			$this->assertTrue( $result );
 			$this->assertTrue( is_plugin_active( self::PLUGIN_FILE ) );
-			$this->assertSame( '1', get_option( self::OPTION_KEY ) );
 		} finally {
 			deactivate_plugins( self::PLUGIN_FILE );
 			if ( file_exists( $plugin_path ) ) {

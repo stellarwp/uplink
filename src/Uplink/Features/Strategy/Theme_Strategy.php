@@ -20,19 +20,13 @@ use function wp_get_theme;
  * The shared enable/disable/is_active/ensure_installed flow is templated by
  * Installable_Strategy. This class provides the WP-specific hooks:
  * - do_install()     → themes_api() + Theme_Upgrader
- * - do_activate()    → update stored state only (no switch_theme)
- * - do_deactivate()  → update stored state to false
+ * - do_activate()    → no-op (theme is already installed)
+ * - do_deactivate()  → no-op (theme files are never deleted)
  * - verify_ownership → Author header check via wp_get_theme()
  *
- * Unlike plugins, themes are not activated or deactivated through the feature
- * system. Enabling a theme installs it and marks it as enabled in stored state.
- * Users activate themes through WordPress's Appearance → Themes UI.
- *
- * The is_active check requires both: theme installed on disk AND stored state
- * says enabled. If a theme is manually deleted, stored state self-heals to
- * false on the next check. A theme existing on disk does NOT override an
- * explicit disable — stored state is the authority for the enabled/disabled
- * toggle.
+ * A theme feature is active when the theme is installed on disk.
+ * No DB option is stored — disk presence is the sole source of truth.
+ * A theme feature is disabled if the theme is uninstalled (deleted from disk).
  *
  * @since 3.0.0
  */
@@ -116,8 +110,6 @@ class Theme_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error
 	 */
 	protected function do_activate() {
-		$this->feature->mark_active();
-
 		return true;
 	}
 
@@ -131,8 +123,6 @@ class Theme_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error
 	 */
 	protected function do_deactivate() {
-		$this->feature->mark_inactive();
-
 		return true;
 	}
 
@@ -152,48 +142,6 @@ class Theme_Strategy extends Installable_Strategy {
 	 */
 	protected function get_not_found_after_install_error_code(): string {
 		return Error_Code::THEME_NOT_FOUND_AFTER_INSTALL;
-	}
-
-	/**
-	 * Reconcile live and stored state for themes.
-	 *
-	 * For themes, "live active" means installed on disk — not the same as
-	 * "user enabled this feature". Unlike plugins where WP's active state is
-	 * authoritative, a theme sitting on disk should not override an explicit
-	 * user disable.
-	 *
-	 * Self-healing only goes downward: if a theme was removed from disk,
-	 * stored state is corrected to false. A theme existing on disk never
-	 * forces stored state back to true.
-	 *
-	 * A theme feature is active when it is on disk AND stored state says enabled.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param bool  $live   The live active state from check_active().
-	 * @param ?bool $stored The stored state from wp_options (null if never set).
-	 *
-	 * @return bool The effective active state.
-	 */
-	protected function reconcile_state( bool $live, ?bool $stored ): bool {
-		// Theme removed from disk → self-heal stored state to inactive.
-		if ( ! $live && $stored === true ) {
-			$this->feature->mark_inactive();
-
-			if ( $this->is_wp_debug() ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log(
-					sprintf(
-						'[Uplink] Self-healed feature state for "%s": theme no longer on disk',
-						$this->feature->get_slug()
-					)
-				);
-			}
-		}
-
-		// Active = on disk AND stored state says enabled.
-		// First check (null stored): default to not active — require explicit enable.
-		return $live && ( $stored ?? false );
 	}
 
 	// ── Private helpers ─────────────────────────────────────────────────

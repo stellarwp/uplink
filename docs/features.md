@@ -27,7 +27,7 @@ An installable WordPress plugin. The catalog provides the `plugin_file` (plugin 
 
 ### Theme
 
-An installable WordPress theme. The theme's stylesheet identifier is its `feature_slug`. The catalog provides `download_url`/`is_dot_org` flag. Enabling a Theme feature installs the theme (makes it available) but does not switch to it. Users activate themes through WordPress's Appearance → Themes UI. Disabling marks the feature as not enabled in stored state.
+An installable WordPress theme. The theme's slug is its `feature_slug` — this is the same slug WordPress uses for installation from WordPress.org, checking the active theme via `get_stylesheet()`, and looking up theme data. The catalog provides `download_url`/`is_dot_org` flag. Enabling a Theme feature installs the theme (makes it available) but does not switch to it. Users activate themes through WordPress's Appearance → Themes UI. Disabling marks the feature as not enabled in stored state.
 
 ### Flag
 

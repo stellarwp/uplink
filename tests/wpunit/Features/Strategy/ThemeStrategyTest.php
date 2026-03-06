@@ -347,7 +347,7 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	/**
 	 * Create a standard Theme feature for testing.
 	 *
-	 * For themes, the slug IS the stylesheet identifier.
+	 * For themes, the slug is what WordPress uses for installation and activation.
 	 *
 	 * @param string   $slug    Feature slug (also the theme stylesheet).
 	 * @param string[] $authors Expected theme authors.

@@ -263,7 +263,7 @@ final class ThemeTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Themes use get_slug() as their stylesheet identifier.
+	 * Themes use get_slug() as the theme slug WordPress operates on.
 	 */
 	public function test_slug_is_used_as_stylesheet_identifier(): void {
 		$feature = $this->make_feature( 'my-custom-theme' );

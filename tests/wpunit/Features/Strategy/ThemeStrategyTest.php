@@ -15,7 +15,7 @@ use WP_Error;
  * (theme directories, transients) via the WPLoader module.
  *
  * Theme enable = install only (no switch_theme).
- * Theme disable = no-op (theme files are never deleted).
+ * Theme disable = error if on disk (user must delete manually), success if not on disk.
  * Theme is_active = installed on disk.
  *
  * Theme features derive their active state from disk presence. No DB option
@@ -167,26 +167,38 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * disable() always succeeds. Theme files are never deleted.
+	 * disable() returns success when the theme is not on disk (already "disabled").
 	 */
-	public function test_disable_succeeds(): void {
-		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
-
+	public function test_disable_succeeds_when_theme_is_not_installed(): void {
 		$result = $this->strategy->disable();
 
 		$this->assertTrue( $result );
 	}
 
 	/**
-	 * disable() succeeds even when the theme is the active WordPress theme.
+	 * disable() returns a THEME_DELETE_REQUIRED error when the theme is installed on disk.
 	 */
-	public function test_disable_succeeds_even_when_theme_is_active_wp_theme(): void {
+	public function test_disable_returns_delete_required_when_theme_is_installed(): void {
+		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
+
+		$result = $this->strategy->disable();
+
+		$this->assertWPError( $result );
+		$this->assertSame( Error_Code::THEME_DELETE_REQUIRED, $result->get_error_code() );
+	}
+
+	/**
+	 * disable() returns a THEME_DELETE_REQUIRED error even when the theme is
+	 * the active WordPress theme.
+	 */
+	public function test_disable_returns_delete_required_when_theme_is_active_wp_theme(): void {
 		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
 		$this->mock_active_theme( self::STYLESHEET );
 
 		$result = $this->strategy->disable();
 
-		$this->assertTrue( $result );
+		$this->assertWPError( $result );
+		$this->assertSame( Error_Code::THEME_DELETE_REQUIRED, $result->get_error_code() );
 	}
 
 	// -------------------------------------------------------------------------

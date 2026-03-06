@@ -142,7 +142,7 @@ class Plugin_Handler {
 		$domain   = $this->site_data->get_domain();
 		$response = ( $this->resolver )( $this->key, $domain );
 
-		if ( is_wp_error( $response ) || ! is_array( $response ) ) {
+		if ( is_wp_error( $response ) || empty( $response ) ) {
 			return $transient;
 		}
 
@@ -170,10 +170,6 @@ class Plugin_Handler {
 		$features = $this->feature_repository->get( $this->key, $domain );
 
 		foreach ( $response as $slug => $update_data ) {
-			if ( ! is_string( $slug ) || ! is_array( $update_data ) ) {
-				continue;
-			}
-
 			$plugin_file = Cast::to_string( $update_data['plugin_file'] ?? '' );
 
 			if ( empty( $plugin_file ) ) {

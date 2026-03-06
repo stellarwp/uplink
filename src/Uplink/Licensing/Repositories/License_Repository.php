@@ -296,4 +296,21 @@ final class License_Repository {
 
 		return $product !== null && $product->is_valid();
 	}
+
+	/**
+	 * Whether a product has a valid, active license in the cached catalog.
+	 *
+	 * TODO: Add grace period concept to allow for some time after license expiration to still consider the license active.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $slug Product slug.
+	 *
+	 * @return bool
+	 */
+	public function is_product_active( string $slug ): bool {
+		$product = $this->get_product( $slug );
+
+		return $product !== null && $product->is_valid();
+	}
 }

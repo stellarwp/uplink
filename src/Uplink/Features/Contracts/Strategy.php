@@ -2,41 +2,39 @@
 
 namespace StellarWP\Uplink\Features\Contracts;
 
-use StellarWP\Uplink\Features\Types\Feature;
 use WP_Error;
 
 /**
  * Strategy interface for enabling, disabling, and checking
  * the active state of a Feature.
  *
+ * Each Strategy instance is bound to a single Feature at construction time.
+ * The Strategy_Factory creates the right Strategy for each Feature.
+ *
  * @since 3.0.0
  */
 interface Strategy {
 
 	/**
-	 * Enables a feature.
+	 * Enables the feature.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature The feature to enable.
-	 *
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
-	public function enable( Feature $feature );
+	public function enable();
 
 	/**
-	 * Disables a feature.
+	 * Disables the feature.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature The feature to disable.
-	 *
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
-	public function disable( Feature $feature );
+	public function disable();
 
 	/**
-	 * Checks whether a feature is currently active.
+	 * Checks whether the feature is currently active.
 	 *
 	 * Implementations should check live state rather than a cached flag.
 	 * If the live state differs from any stored flag, the stored flag
@@ -44,9 +42,7 @@ interface Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature $feature The feature to check.
-	 *
 	 * @return bool Whether the feature is currently active.
 	 */
-	public function is_active( Feature $feature ): bool;
+	public function is_active(): bool;
 }

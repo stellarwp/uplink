@@ -2,17 +2,18 @@
 
 namespace StellarWP\Uplink\Features\Types;
 
+use StellarWP\Uplink\Features\Contracts\Installable;
 use StellarWP\Uplink\Utils\Cast;
 
 /**
  * A Feature delivered as a standalone WordPress plugin.
  *
  * The Plugin_Strategy installs the plugin via plugins_api() + Plugin_Upgrader,
- * and uses plugin_file to activate/deactivate it.
+ * and uses plugin_file (plugin file path) to activate/deactivate it.
  *
  * @since 3.0.0
  */
-final class Plugin extends Feature {
+final class Plugin extends Feature implements Installable {
 
 	/**
 	 * Constructor for a Feature delivered as a standalone WordPress plugin.
@@ -24,7 +25,7 @@ final class Plugin extends Feature {
 	 * @return void
 	 */
 	public function __construct( array $attributes ) {
-		$attributes['type'] = 'plugin';
+		$attributes['type'] = self::TYPE_PLUGIN;
 
 		parent::__construct( $attributes );
 	}
@@ -40,24 +41,21 @@ final class Plugin extends Feature {
 	 */
 	public static function from_array( array $data ) {
 		return new self(
-			[
-				'slug'              => $data['slug'],
-				'group'             => $data['group'],
-				'tier'              => $data['tier'],
-				'name'              => $data['name'],
-				'description'       => $data['description'] ?? '',
-				'type'              => 'plugin',
-				'plugin_file'       => $data['plugin_file'] ?? '',
-				'plugin_slug'       => $data['plugin_slug'] ?? '',
-				'is_available'      => $data['is_available'],
-				'documentation_url' => $data['documentation_url'] ?? '',
-				'authors'           => $data['authors'] ?? [],
-			]
+			array_merge(
+				self::base_attributes( $data ),
+				[
+					'plugin_file' => $data['plugin_file'] ?? '',
+					'plugin_slug' => $data['plugin_slug'] ?? '',
+					'authors'     => $data['authors'] ?? [],
+					'is_dot_org'  => $data['is_dot_org'] ?? false,
+				]
+			)
 		);
 	}
 
 	/**
-	 * Gets the plugin file path relative to the plugins directory.
+	 * Gets the plugin file path relative to the plugins directory
+	 * (e.g. "stellar-export/stellar-export.php").
 	 *
 	 * @since 3.0.0
 	 *
@@ -82,6 +80,17 @@ final class Plugin extends Feature {
 		}
 
 		return array_values( array_filter( $authors, 'is_string' ) );
+	}
+
+	/**
+	 * Whether this plugin is available on WordPress.org.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return bool
+	 */
+	public function is_dot_org(): bool {
+		return Cast::to_bool( $this->attributes['is_dot_org'] ?? false );
 	}
 
 	/**

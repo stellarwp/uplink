@@ -30,9 +30,7 @@
         "name": "Kadence Theme",
         "description": "A lightweight, performant WordPress theme for site building.",
         "category": "theme",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -45,9 +43,7 @@
         "name": "Blocks Pro",
         "description": "Premium Gutenberg blocks for advanced page building.",
         "category": "blocks",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -60,9 +56,7 @@
         "name": "Theme Kit Pro",
         "description": "Advanced theme customization options and header/footer builder.",
         "category": "theme",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -75,9 +69,7 @@
         "name": "Shop Kit",
         "description": "WooCommerce enhancements \u2014 product galleries, swatches, quick view, and more.",
         "category": "woocommerce",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -90,9 +82,7 @@
         "name": "Creative Kit",
         "description": "Advanced design tools including animations and effects.",
         "category": "design",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -105,9 +95,7 @@
         "name": "Insights (A/B Testing)",
         "description": "Run A/B tests on your content to optimize conversions.",
         "category": "analytics",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -118,9 +106,7 @@
         "name": "Pattern Hub",
         "description": "Access to premium design patterns and starter templates.",
         "category": "design",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -133,9 +119,7 @@
         "name": "Conversions",
         "description": "Popups, slide-ins, and banners for conversion optimization.",
         "category": "marketing",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -148,9 +132,7 @@
         "name": "Galleries",
         "description": "Advanced image and video gallery blocks.",
         "category": "blocks",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -161,9 +143,7 @@
         "name": "Captcha",
         "description": "Spam protection for forms with reCAPTCHA and hCaptcha.",
         "category": "forms",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -174,9 +154,7 @@
         "name": "Simple Share",
         "description": "Social sharing buttons for posts and pages.",
         "category": "social",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -187,9 +165,7 @@
         "name": "Custom Fonts",
         "description": "Upload and use custom fonts across your site.",
         "category": "design",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -200,9 +176,7 @@
         "name": "Reading Time",
         "description": "Display estimated reading time on posts.",
         "category": "content",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -215,9 +189,7 @@
         "name": "Solid Security Pro",
         "description": "Comprehensive WordPress security with malware scanning, 2FA, and brute force protection.",
         "category": "security",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -230,9 +202,7 @@
         "name": "Solid Backups",
         "description": "Automated WordPress backups with cloud storage and one-click restore.",
         "category": "security",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -245,9 +215,7 @@
         "name": "Solid Central",
         "description": "Manage multiple WordPress sites from one dashboard.",
         "category": "management",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -260,9 +228,7 @@
         "name": "Solid Performance",
         "description": "Caching and performance optimization for WordPress.",
         "category": "performance",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -275,9 +241,7 @@
         "name": "Solid Mail",
         "description": "Reliable email delivery with SMTP and email logging.",
         "category": "email",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -290,9 +254,7 @@
         "name": "Flux Checkout",
         "description": "Streamlined, fast WooCommerce checkout experience.",
         "category": "woocommerce",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -305,9 +267,7 @@
         "name": "WooCommerce Delivery Slots",
         "description": "Let customers choose delivery dates and time slots.",
         "category": "woocommerce",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -320,9 +280,7 @@
         "name": "WooThumbs",
         "description": "Advanced product image gallery with zoom and video support.",
         "category": "woocommerce",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -335,9 +293,7 @@
         "name": "Attribute Swatches",
         "description": "Visual color and image swatches for product variations.",
         "category": "woocommerce",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -350,9 +306,7 @@
         "name": "Show Single Variations",
         "description": "Display product variations as individual products in shop listings.",
         "category": "woocommerce",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -365,9 +319,7 @@
         "name": "Iconic Sales Booster",
         "description": "Cross-sells, upsells, and order bumps to increase average order value.",
         "category": "woocommerce",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -380,9 +332,7 @@
         "name": "Image Swap for WooCommerce",
         "description": "Swap product images on hover in shop listings.",
         "category": "woocommerce",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -395,9 +345,7 @@
         "name": "Linked Variations",
         "description": "Link product variations across different products.",
         "category": "woocommerce",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -410,9 +358,7 @@
         "name": "Product Configurator",
         "description": "Visual step-by-step product builder for complex products.",
         "category": "woocommerce",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -425,9 +371,7 @@
         "name": "Quickview",
         "description": "Quick product preview popup without leaving the shop page.",
         "category": "woocommerce",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -440,9 +384,7 @@
         "name": "Wishlist for WooCommerce",
         "description": "Let customers save products to wishlists.",
         "category": "woocommerce",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -455,9 +397,7 @@
         "name": "Account Pages",
         "description": "Customize WooCommerce My Account pages.",
         "category": "woocommerce",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -470,9 +410,7 @@
         "name": "Custom Fields for Variations",
         "description": "Add custom data fields to product variations.",
         "category": "woocommerce",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
@@ -485,9 +423,7 @@
         "name": "Bundled Products",
         "description": "Create product bundles and kits with flexible pricing.",
         "category": "woocommerce",
-        "authors": [
-          "KadenceWP"
-        ],
+        "authors": ["KadenceWP"],
         "documentation_url": "https://www.kadencewp.com/help-center/"
       }
     ]
@@ -538,9 +474,7 @@
         "name": "Instructor Role",
         "description": "Allow multiple instructors to create and manage their own courses.",
         "category": "core",
-        "authors": [
-          "LearnDash"
-        ],
+        "authors": ["LearnDash"],
         "documentation_url": "https://www.learndash.com/support/"
       },
       {
@@ -551,9 +485,7 @@
         "name": "Ratings, Reviews & Feedback",
         "description": "Enable students to rate and review courses.",
         "category": "core",
-        "authors": [
-          "LearnDash"
-        ],
+        "authors": ["LearnDash"],
         "documentation_url": "https://www.learndash.com/support/"
       },
       {
@@ -566,9 +498,7 @@
         "name": "ProPanel",
         "description": "Real-time reporting dashboard for course activity and student progress.",
         "category": "reporting",
-        "authors": [
-          "LearnDash"
-        ],
+        "authors": ["LearnDash"],
         "documentation_url": "https://www.learndash.com/support/"
       },
       {
@@ -579,9 +509,7 @@
         "name": "Notes",
         "description": "Allow students to take and save notes within lessons.",
         "category": "core",
-        "authors": [
-          "LearnDash"
-        ],
+        "authors": ["LearnDash"],
         "documentation_url": "https://www.learndash.com/support/"
       },
       {
@@ -592,9 +520,7 @@
         "name": "Gradebook",
         "description": "Comprehensive gradebook for tracking student performance across courses.",
         "category": "reporting",
-        "authors": [
-          "LearnDash"
-        ],
+        "authors": ["LearnDash"],
         "documentation_url": "https://www.learndash.com/support/"
       },
       {
@@ -605,9 +531,7 @@
         "name": "Groups Management",
         "description": "Organize learners into groups with group leaders and bulk enrollment.",
         "category": "management",
-        "authors": [
-          "LearnDash"
-        ],
+        "authors": ["LearnDash"],
         "documentation_url": "https://www.learndash.com/support/"
       },
       {
@@ -620,9 +544,7 @@
         "name": "MemberDash",
         "description": "Membership and content restriction functionality.",
         "category": "membership",
-        "authors": [
-          "LearnDash"
-        ],
+        "authors": ["LearnDash"],
         "documentation_url": "https://www.learndash.com/support/"
       }
     ]
@@ -674,9 +596,7 @@
         "name": "Recurring Donations",
         "description": "Accept recurring donations on a schedule.",
         "category": "core",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -689,9 +609,7 @@
         "name": "Fee Recovery",
         "description": "Optionally pass processing fees to donors.",
         "category": "core",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -704,9 +622,7 @@
         "name": "Form Field Manager",
         "description": "Add custom fields to donation forms.",
         "category": "core",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -719,9 +635,7 @@
         "name": "Annual Receipts",
         "description": "Generate annual tax-deductible receipts for donors.",
         "category": "core",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -734,9 +648,7 @@
         "name": "Funds & Designations",
         "description": "Allow donors to designate gifts to specific funds.",
         "category": "core",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -749,9 +661,7 @@
         "name": "Tributes",
         "description": "Allow donors to make tribute donations in honor of someone.",
         "category": "core",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -764,9 +674,7 @@
         "name": "PDF Receipts",
         "description": "Generate downloadable PDF donation receipts.",
         "category": "core",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -779,9 +687,7 @@
         "name": "Manual Donations",
         "description": "Record offline or manual donations in the system.",
         "category": "core",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -794,9 +700,7 @@
         "name": "Peer-to-Peer",
         "description": "Enable supporters to create their own fundraising pages.",
         "category": "campaigns",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -809,9 +713,7 @@
         "name": "Text to Give",
         "description": "Accept donations via SMS text messages.",
         "category": "campaigns",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -824,9 +726,7 @@
         "name": "Stripe Gateway",
         "description": "Accept donations through Stripe.",
         "category": "gateway",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -839,9 +739,7 @@
         "name": "Authorize.net",
         "description": "Accept donations through Authorize.net.",
         "category": "gateway",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -854,9 +752,7 @@
         "name": "Square",
         "description": "Accept donations through Square.",
         "category": "gateway",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -869,9 +765,7 @@
         "name": "PayPal Commerce",
         "description": "Accept donations through PayPal Commerce.",
         "category": "gateway",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -884,9 +778,7 @@
         "name": "Mollie",
         "description": "Accept donations through Mollie.",
         "category": "gateway",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -899,9 +791,7 @@
         "name": "RazorPay",
         "description": "Accept donations through RazorPay.",
         "category": "gateway",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -914,9 +804,7 @@
         "name": "GoCardless",
         "description": "Accept donations through GoCardless direct debit.",
         "category": "gateway",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -929,9 +817,7 @@
         "name": "Braintree",
         "description": "Accept donations through Braintree.",
         "category": "gateway",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -944,9 +830,7 @@
         "name": "Currency Switcher",
         "description": "Allow donors to give in their local currency.",
         "category": "integration",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -959,9 +843,7 @@
         "name": "Salesforce",
         "description": "Sync donation data with Salesforce CRM.",
         "category": "integration",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -974,9 +856,7 @@
         "name": "Gift Aid",
         "description": "UK Gift Aid declarations for tax-efficient giving.",
         "category": "integration",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -989,9 +869,7 @@
         "name": "Webhooks",
         "description": "Send donation events to external services via webhooks.",
         "category": "integration",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -1004,9 +882,7 @@
         "name": "MailChimp",
         "description": "Sync donors with MailChimp email lists.",
         "category": "integration",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -1019,9 +895,7 @@
         "name": "ActiveCampaign",
         "description": "Sync donors with ActiveCampaign.",
         "category": "integration",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -1034,9 +908,7 @@
         "name": "Zapier",
         "description": "Connect donations to 5000+ apps via Zapier.",
         "category": "integration",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -1049,9 +921,7 @@
         "name": "Constant Contact",
         "description": "Sync donors with Constant Contact.",
         "category": "integration",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -1064,9 +934,7 @@
         "name": "ConvertKit",
         "description": "Sync donors with ConvertKit.",
         "category": "integration",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -1079,9 +947,7 @@
         "name": "Google Analytics Tracking",
         "description": "Track donation events in Google Analytics.",
         "category": "integration",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -1094,9 +960,7 @@
         "name": "WooCommerce Upsells",
         "description": "Offer products as upsells during donations.",
         "category": "integration",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       },
       {
@@ -1109,9 +973,7 @@
         "name": "Double the Donations",
         "description": "Corporate gift matching integration.",
         "category": "integration",
-        "authors": [
-          "GiveWP"
-        ],
+        "authors": ["GiveWP"],
         "documentation_url": "https://givewp.com/documentation/"
       }
     ]
@@ -1161,9 +1023,7 @@
         "name": "Calendar",
         "description": "Full-featured event calendar with multiple views.",
         "category": "core",
-        "authors": [
-          "StellarWP"
-        ],
+        "authors": ["StellarWP"],
         "documentation_url": "https://theeventscalendar.com/knowledgebase/"
       },
       {
@@ -1176,9 +1036,7 @@
         "name": "Tickets & RSVP",
         "description": "Sell tickets and collect RSVPs for events.",
         "category": "core",
-        "authors": [
-          "StellarWP"
-        ],
+        "authors": ["StellarWP"],
         "documentation_url": "https://theeventscalendar.com/knowledgebase/"
       },
       {
@@ -1191,9 +1049,7 @@
         "name": "Event Aggregator",
         "description": "Import events from other calendars, Meetup, and more.",
         "category": "import",
-        "authors": [
-          "StellarWP"
-        ],
+        "authors": ["StellarWP"],
         "documentation_url": "https://theeventscalendar.com/knowledgebase/"
       },
       {
@@ -1206,9 +1062,7 @@
         "name": "Community",
         "description": "Allow community members to submit events from the frontend.",
         "category": "community",
-        "authors": [
-          "StellarWP"
-        ],
+        "authors": ["StellarWP"],
         "documentation_url": "https://theeventscalendar.com/knowledgebase/"
       },
       {
@@ -1221,9 +1075,7 @@
         "name": "Promoter",
         "description": "Automated email marketing for events and attendees.",
         "category": "marketing",
-        "authors": [
-          "StellarWP"
-        ],
+        "authors": ["StellarWP"],
         "documentation_url": "https://theeventscalendar.com/knowledgebase/"
       },
       {
@@ -1236,9 +1088,7 @@
         "name": "Seating",
         "description": "Assigned seating charts and seat selection for events.",
         "category": "ticketing",
-        "authors": [
-          "StellarWP"
-        ],
+        "authors": ["StellarWP"],
         "documentation_url": "https://theeventscalendar.com/knowledgebase/"
       },
       {
@@ -1251,9 +1101,7 @@
         "name": "Filter Bar",
         "description": "Advanced filtering for event calendars by category, venue, and more.",
         "category": "core",
-        "authors": [
-          "StellarWP"
-        ],
+        "authors": ["StellarWP"],
         "documentation_url": "https://theeventscalendar.com/knowledgebase/"
       },
       {
@@ -1266,9 +1114,7 @@
         "name": "Eventbrite Tickets",
         "description": "Sync events and tickets with Eventbrite.",
         "category": "integration",
-        "authors": [
-          "StellarWP"
-        ],
+        "authors": ["StellarWP"],
         "documentation_url": "https://theeventscalendar.com/knowledgebase/"
       },
       {
@@ -1281,9 +1127,7 @@
         "name": "Event Schedule Manager",
         "description": "Create multi-track schedules for conferences and multi-day events.",
         "category": "management",
-        "authors": [
-          "StellarWP"
-        ],
+        "authors": ["StellarWP"],
         "documentation_url": "https://theeventscalendar.com/knowledgebase/"
       }
     ]

@@ -12,9 +12,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-register_deactivation_hook(
-	__FILE__,
-	function () {
-		activate_plugin( plugin_basename( __FILE__ ) );
-	}
+// Hook into update_option_active_plugins instead of register_deactivation_hook.
+// WordPress's deactivate_plugins() fetches the active list BEFORE firing deactivation
+// hooks, then overwrites the option AFTER. So calling activate_plugin() inside a
+// deactivation hook gets clobbered. This hook fires when the option is actually
+// written, letting us add ourselves back after the overwrite.
+add_action(
+	'update_option_active_plugins',
+	static function ( $old_value, $value ) {
+		$basename = plugin_basename( __FILE__ );
+
+		if ( in_array( $basename, $old_value, true ) && ! in_array( $basename, $value, true ) ) {
+			$value[] = $basename;
+			remove_all_actions( 'update_option_active_plugins' );
+			update_option( 'active_plugins', $value );
+		}
+	},
+	10,
+	2
 );

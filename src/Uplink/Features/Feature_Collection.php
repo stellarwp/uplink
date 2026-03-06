@@ -5,6 +5,7 @@ namespace StellarWP\Uplink\Features;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Features\Types\Plugin;
+use StellarWP\Uplink\Features\Types\Theme;
 use StellarWP\Uplink\Utils\Collection;
 
 /**
@@ -82,9 +83,15 @@ class Feature_Collection extends Collection {
 			if ( $item instanceof Feature ) {
 				$collection->add( $item );
 			} elseif ( is_array( $item ) ) {
-				$feature = ( $item['type'] ?? '' ) === 'plugin'
-					? Plugin::from_array( $item )
-					: Flag::from_array( $item );
+				$type = $item['type'] ?? '';
+
+				if ( $type === Feature::TYPE_PLUGIN ) {
+					$feature = Plugin::from_array( $item );
+				} elseif ( $type === Feature::TYPE_THEME ) {
+					$feature = Theme::from_array( $item );
+				} else {
+					$feature = Flag::from_array( $item );
+				}
 
 				$collection->add( $feature );
 			}
@@ -103,7 +110,7 @@ class Feature_Collection extends Collection {
 	 * @param string|null $group     Filter by product group (e.g. 'LearnDash', 'TEC').
 	 * @param string|null $tier      Filter by tier (e.g. 'Tier 1', 'Tier 2').
 	 * @param bool|null   $available Filter by availability (true/false).
-	 * @param string|null $type      Filter by feature type (e.g. 'plugin', 'flag').
+	 * @param string|null $type      Filter by feature type (a Feature::TYPE_* constant).
 	 *
 	 * @return Feature_Collection
 	 */

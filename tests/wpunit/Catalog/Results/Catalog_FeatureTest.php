@@ -71,6 +71,7 @@ final class Catalog_FeatureTest extends UplinkTestCase {
 
 		$this->assertNull( $feature->get_plugin_file() );
 		$this->assertNull( $feature->get_download_url() );
+		$this->assertNull( $feature->get_authors() );
 	}
 
 	public function test_dot_org_theme(): void {

@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\Features;
 
-use StellarWP\Uplink\Features\Strategy\Resolver;
+use StellarWP\Uplink\Features\Strategy\Strategy_Factory;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Error_Code;
 use WP_Error;
@@ -27,13 +27,13 @@ class Manager {
 	private Feature_Repository $repository;
 
 	/**
-	 * The strategy resolver for determining how to toggle features.
+	 * The strategy factory for determining how to toggle features.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @var Resolver
+	 * @var Strategy_Factory
 	 */
-	private Resolver $resolver;
+	private Strategy_Factory $strategy_factory;
 
 	/**
 	 * The license key.
@@ -59,17 +59,17 @@ class Manager {
 	 * @since 3.0.0
 	 *
 	 * @param Feature_Repository $repository The repository for fetching available features.
-	 * @param Resolver           $resolver   The strategy resolver.
-	 * @param string             $key        The license key.
-	 * @param string             $domain     The site domain.
+	 * @param Strategy_Factory   $strategy_factory The strategy factory.
+	 * @param string             $key              The license key.
+	 * @param string             $domain           The site domain.
 	 *
 	 * @return void
 	 */
-	public function __construct( Feature_Repository $repository, Resolver $resolver, string $key, string $domain ) {
-		$this->repository = $repository;
-		$this->resolver   = $resolver;
-		$this->key        = $key;
-		$this->domain     = $domain;
+	public function __construct( Feature_Repository $repository, Strategy_Factory $strategy_factory, string $key, string $domain ) {
+		$this->repository       = $repository;
+		$this->strategy_factory = $strategy_factory;
+		$this->key              = $key;
+		$this->domain           = $domain;
 	}
 
 	/**
@@ -94,7 +94,7 @@ class Manager {
 			);
 		}
 
-		$strategy = $this->resolver->resolve( $feature );
+		$strategy = $this->strategy_factory->make( $feature );
 
 		/**
 		 * Fires before a feature is enabled.
@@ -118,7 +118,7 @@ class Manager {
 		 */
 		do_action( "stellarwp/uplink/{$slug}/feature_enabling", $feature->to_array() );
 
-		$result = $strategy->enable( $feature );
+		$result = $strategy->enable();
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -171,7 +171,7 @@ class Manager {
 			);
 		}
 
-		$strategy = $this->resolver->resolve( $feature );
+		$strategy = $this->strategy_factory->make( $feature );
 
 		/**
 		 * Fires before a feature is disabled.
@@ -195,7 +195,7 @@ class Manager {
 		 */
 		do_action( "stellarwp/uplink/{$slug}/feature_disabling", $feature->to_array() );
 
-		$result = $strategy->disable( $feature );
+		$result = $strategy->disable();
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -251,9 +251,9 @@ class Manager {
 			return false;
 		}
 
-		$strategy = $this->resolver->resolve( $feature );
+		$strategy = $this->strategy_factory->make( $feature );
 
-		return $strategy->is_active( $feature );
+		return $strategy->is_active();
 	}
 
 	/**

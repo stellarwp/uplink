@@ -15,6 +15,33 @@ use StellarWP\Uplink\Utils\Cast;
 abstract class Feature {
 
 	/**
+	 * A feature delivered as a standalone WordPress plugin.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const TYPE_PLUGIN = 'plugin';
+
+	/**
+	 * A feature built in to an existing plugin, gated by a DB option flag.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const TYPE_FLAG = 'flag';
+
+	/**
+	 * A feature delivered as a WordPress theme.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const TYPE_THEME = 'theme';
+
+	/**
 	 * The feature attributes.
 	 *
 	 * @since 3.0.0
@@ -144,6 +171,27 @@ abstract class Feature {
 	 */
 	public function get_documentation_url(): string {
 		return Cast::to_string( $this->attributes['documentation_url'] ?? '' );
+	}
+
+	/**
+	 * Extracts the common base attributes shared by all feature types.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param array<string, mixed> $data The feature data from the API response.
+	 *
+	 * @return array<string, mixed>
+	 */
+	protected static function base_attributes( array $data ): array {
+		return [
+			'slug'              => Cast::to_string( $data['slug'] ?? '' ),
+			'group'             => Cast::to_string( $data['group'] ?? '' ),
+			'tier'              => Cast::to_string( $data['tier'] ?? '' ),
+			'name'              => Cast::to_string( $data['name'] ?? '' ),
+			'description'       => Cast::to_string( $data['description'] ?? '' ),
+			'is_available'      => Cast::to_bool( $data['is_available'] ?? false ),
+			'documentation_url' => Cast::to_string( $data['documentation_url'] ?? '' ),
+		];
 	}
 
 	/**

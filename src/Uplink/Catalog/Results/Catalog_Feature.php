@@ -22,7 +22,7 @@ use StellarWP\Uplink\Utils\Cast;
  *     name: string,
  *     description: string,
  *     category: string,
- *     authors: list<string>,
+ *     authors: ?list<string>,
  *     documentation_url: string,
  * }
  */
@@ -46,7 +46,7 @@ final class Catalog_Feature {
 		'name'              => '',
 		'description'       => '',
 		'category'          => '',
-		'authors'           => [],
+		'authors'           => null,
 		'documentation_url' => '',
 	];
 
@@ -62,7 +62,7 @@ final class Catalog_Feature {
 	 * @return void
 	 */
 	public function __construct( array $attributes ) {
-		$this->attributes = $attributes;
+		$this->attributes = array_merge( $this->attributes, $attributes );
 	}
 
 	/**
@@ -89,7 +89,7 @@ final class Catalog_Feature {
 				'category'          => Cast::to_string( $data['category'] ?? '' ),
 				'authors'           => isset( $data['authors'] ) && is_array( $data['authors'] )
 					? array_map( [ Cast::class, 'to_string' ], array_values( $data['authors'] ) )
-					: [],
+					: null,
 				'documentation_url' => Cast::to_string( $data['documentation_url'] ?? '' ),
 			]
 		);
@@ -140,7 +140,9 @@ final class Catalog_Feature {
 	}
 
 	/**
-	 * Gets the plugin file path, or null if not a plugin.
+	 * Gets the plugin file path relative to the plugins directory, or null if not applicable.
+	 *
+	 * Only present for plugin features.
 	 *
 	 * @since 3.0.0
 	 *
@@ -217,13 +219,13 @@ final class Catalog_Feature {
 	}
 
 	/**
-	 * Gets the author/brand names.
+	 * Gets the author/brand names, or null if not applicable for this feature type.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @return string[]
+	 * @return string[]|null
 	 */
-	public function get_authors(): array {
+	public function get_authors(): ?array {
 		return $this->attributes['authors'];
 	}
 

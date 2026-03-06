@@ -40,7 +40,27 @@ function uplink_fn_registry( string $key, string $version = '', ?callable $callb
 }
 ```
 
-The `static` variable lives inside the function rather than in `$GLOBALS` — there is only ever one `$registry` array in the process, shared by every caller.
+The `static` variable lives inside the function — there is only ever one `$registry` array in the process, shared by every caller.
+
+```
+uplink_fn_registry()
+└── static $registry = [
+        'has_unified_license_key' => [
+            '3.0.0' => Closure(GiveWP instance),    ← registered by Give's copy
+            '3.0.1' => Closure(TEC instance),        ← registered by TEC's copy
+            '3.0.3' => Closure(Kadence instance),    ← registered by Kadence's copy
+        ],
+        'is_product_license_active' => [
+            '3.0.0' => Closure(GiveWP instance),
+            '3.0.1' => Closure(TEC instance),
+            '3.0.3' => Closure(Kadence instance),
+        ],
+        ...
+    ]
+
+Read path: apply_filters('stellarwp/uplink/highest_version') → '3.0.3'
+           $registry['has_unified_license_key']['3.0.3'] → Kadence's Closure
+```
 
 **Write mode** — called with a version and callback:
 

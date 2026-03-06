@@ -92,11 +92,11 @@ class Theme_Strategy extends Installable_Strategy {
 	}
 
 	/**
-	 * Mark the theme as enabled in stored state.
+	 * Activate the theme feature.
 	 *
 	 * Unlike plugins, themes are not activated through the feature system.
 	 * The theme is installed and ready for the user to activate through
-	 * WordPress's Appearance → Themes UI.
+	 * WordPress's Appearance → Themes UI. No further action needed.
 	 *
 	 * @since 3.0.0
 	 *

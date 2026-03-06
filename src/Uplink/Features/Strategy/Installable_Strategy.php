@@ -76,11 +76,11 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	abstract protected function do_install();
 
 	/**
-	 * Activate the extension and update stored state.
+	 * Activate the extension.
 	 *
-	 * The subclass owns the full activation flow including state updates,
-	 * because activation logic varies significantly between plugins and themes
-	 * (e.g. fatal error protection for plugins).
+	 * The subclass owns the full activation flow because activation logic
+	 * varies significantly between plugins and themes (e.g. fatal error
+	 * protection for plugins).
 	 *
 	 * @since 3.0.0
 	 *

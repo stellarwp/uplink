@@ -1,7 +1,7 @@
 ---
 ticket: SCON-258
 url: https://stellarwp.atlassian.net/browse/SCON-258
-status: todo
+status: done
 ---
 
 # Plugin update delivery via consolidated server

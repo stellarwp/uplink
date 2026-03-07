@@ -1,7 +1,7 @@
 ---
 ticket: SCON-263
 url: https://stellarwp.atlassian.net/browse/SCON-263
-status: todo
+status: done
 ---
 
 # Add frontend UplinkError

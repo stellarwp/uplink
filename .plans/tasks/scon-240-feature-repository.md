@@ -1,7 +1,7 @@
 ---
 ticket: SCON-240
 url: https://stellarwp.atlassian.net/browse/SCON-240
-status: todo
+status: done
 ---
 
 # Feature Repository: resolve features from catalog + licensing

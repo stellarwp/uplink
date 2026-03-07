@@ -1,7 +1,7 @@
 ---
 ticket: SCON-207
 url: https://stellarwp.atlassian.net/browse/SCON-207
-status: todo
+status: done
 ---
 
 # Wire features into the React app

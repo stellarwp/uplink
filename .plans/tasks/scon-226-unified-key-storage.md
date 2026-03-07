@@ -1,7 +1,7 @@
 ---
 ticket: SCON-226
 url: https://stellarwp.atlassian.net/browse/SCON-226
-status: todo
+status: done
 ---
 
 # Unified license key storage and instance reporting

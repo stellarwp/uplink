@@ -1,7 +1,7 @@
 ---
 ticket: SCON-259
 url: https://stellarwp.atlassian.net/browse/SCON-259
-status: todo
+status: done
 ---
 
 # Theme update delivery via consolidated server

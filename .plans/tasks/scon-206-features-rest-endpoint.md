@@ -1,7 +1,7 @@
 ---
 ticket: SCON-206
 url: https://stellarwp.atlassian.net/browse/SCON-206
-status: todo
+status: done
 ---
 
 # Features REST endpoint with mock client

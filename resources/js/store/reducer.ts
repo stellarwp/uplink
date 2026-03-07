@@ -3,77 +3,147 @@
  *
  * @package StellarWP\Uplink
  */
-import type { Action } from './actions';
-import type { Feature } from '@/types/api';
+import { combineReducers } from '@wordpress/data';
+import type { Action, FeaturesState, LicenseState } from './types';
 
-export interface LicenseState {
-    /** The stored unified license key, or null if none is set. */
-    key:             string | null;
-    isActivating:    boolean;
-    isDeleting:      boolean;
-    activateError:   string | null;
-    deleteError:     string | null;
+export const reducer = combineReducers({ features, license });
+
+// ---------------------------------------------------------------------------
+// Features
+// ---------------------------------------------------------------------------
+
+const FEATURES_DEFAULT: FeaturesState = {
+	bySlug: {},
+	toggling: {},
+	errorBySlug: {},
+};
+
+function features(
+	state: FeaturesState = FEATURES_DEFAULT,
+	action: Action
+): FeaturesState {
+	switch (action.type) {
+		case 'RECEIVE_FEATURES': {
+			return {
+				...state,
+				bySlug: Object.fromEntries(
+					action.features.map((f) => [f.slug, f])
+				),
+			};
+		}
+
+		case 'TOGGLE_FEATURE_START': {
+			const { [action.slug]: _, ...remainingErrors } = state.errorBySlug;
+			return {
+				...state,
+				toggling: { ...state.toggling, [action.slug]: true },
+				errorBySlug: remainingErrors,
+			};
+		}
+
+		case 'TOGGLE_FEATURE_FINISHED': {
+			const { slug } = action.feature;
+			const { [slug]: _, ...remainingToggling } = state.toggling;
+			return {
+				...state,
+				bySlug: {
+					...state.bySlug,
+					[slug]: action.feature,
+				},
+				toggling: remainingToggling,
+			};
+		}
+
+		case 'TOGGLE_FEATURE_FAILED': {
+			const { [action.slug]: _, ...remainingToggling } = state.toggling;
+			return {
+				...state,
+				toggling: remainingToggling,
+				errorBySlug: {
+					...state.errorBySlug,
+					[action.slug]: action.error,
+				},
+			};
+		}
+
+		default:
+			return state;
+	}
 }
+
+// ---------------------------------------------------------------------------
+// License
+// ---------------------------------------------------------------------------
 
 const LICENSE_DEFAULT: LicenseState = {
-    key:           null,
-    isActivating:  false,
-    isDeleting:    false,
-    activateError: null,
-    deleteError:   null,
+	key: null,
+	isActivating: false,
+	isDeleting: false,
+	activateError: null,
+	deleteError: null,
 };
 
-export interface State {
-    /** Feature objects keyed by slug — populated by the getFeatures resolver */
-    features: Record<string, Feature>;
-    /** Action-scoped error messages, e.g. `feature:give-stripe-gateway` */
-    errors:   Record<string, string>;
-    /** Unified license key state — populated by the getLicense resolver */
-    license:  LicenseState;
-}
+function license(
+	state: LicenseState = LICENSE_DEFAULT,
+	action: Action
+): LicenseState {
+	switch (action.type) {
+		case 'RECEIVE_LICENSE': {
+			return {
+				...state,
+				key: action.key,
+			};
+		}
 
-const DEFAULT_STATE: State = {
-    features: {},
-    errors:   {},
-    license:  LICENSE_DEFAULT,
-};
+		case 'ACTIVATE_LICENSE_START': {
+			return {
+				...state,
+				isActivating: true,
+				activateError: null,
+			};
+		}
 
-export function reducer( state: State = DEFAULT_STATE, action: Action ): State {
-    switch ( action.type ) {
-        case 'SET_ERROR':
-            return { ...state, errors: { ...state.errors, [ action.key ]: action.message } };
-        case 'CLEAR_ERROR': {
-            const { [ action.key ]: _, ...rest } = state.errors;
-            return { ...state, errors: rest };
-        }
-        case 'RECEIVE_FEATURES':
-            return {
-                ...state,
-                features: Object.fromEntries( action.features.map( ( f ) => [ f.slug, f ] ) ),
-            };
-        case 'PATCH_FEATURE':
-            return {
-                ...state,
-                features: {
-                    ...state.features,
-                    [ action.slug ]: { ...state.features[ action.slug ], is_enabled: action.enabled },
-                },
-            };
-        case 'RECEIVE_LICENSE':
-            return { ...state, license: { ...state.license, key: action.key } };
-        case 'ACTIVATE_LICENSE_START':
-            return { ...state, license: { ...state.license, isActivating: true, activateError: null } };
-        case 'ACTIVATE_LICENSE_FINISHED':
-            return { ...state, license: { ...state.license, isActivating: false, key: action.key } };
-        case 'ACTIVATE_LICENSE_FAILED':
-            return { ...state, license: { ...state.license, isActivating: false, activateError: action.error } };
-        case 'DELETE_LICENSE_START':
-            return { ...state, license: { ...state.license, isDeleting: true, deleteError: null } };
-        case 'DELETE_LICENSE_FINISHED':
-            return { ...state, license: { ...state.license, isDeleting: false, key: null } };
-        case 'DELETE_LICENSE_FAILED':
-            return { ...state, license: { ...state.license, isDeleting: false, deleteError: action.error } };
-        default:
-            return state;
-    }
+		case 'DELETE_LICENSE_START': {
+			return {
+				...state,
+				isDeleting: true,
+				deleteError: null,
+			};
+		}
+
+		case 'ACTIVATE_LICENSE_FINISHED': {
+			return {
+				...state,
+				isActivating: false,
+				key: action.key,
+			};
+		}
+
+		case 'DELETE_LICENSE_FINISHED': {
+			return {
+				...state,
+				isDeleting: false,
+				key: null,
+			};
+		}
+
+		case 'ACTIVATE_LICENSE_FAILED': {
+			return {
+				...state,
+				isActivating: false,
+				activateError: action.error,
+			};
+		}
+
+		case 'DELETE_LICENSE_FAILED': {
+			return {
+				...state,
+				isDeleting: false,
+				deleteError: action.error,
+			};
+		}
+
+		default:
+			return state;
+	}
 }

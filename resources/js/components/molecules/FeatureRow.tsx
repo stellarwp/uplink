@@ -7,7 +7,7 @@
  *
  * @package StellarWP\\Uplink
  */
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { cn } from '@/lib/utils';
@@ -17,112 +17,137 @@ import { PurchaseLink } from '@/components/atoms/PurchaseLink';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/context/toast-context';
 import { store as uplinkStore } from '@/store';
+import { UplinkError } from '@/errors';
 import type { Feature, Product } from '@/types/api';
 
 interface FeatureRowProps {
-    feature: Feature;
-    product: Product;
+	feature: Feature;
+	product: Product;
 }
 
 /**
  * @since 3.0.0
  */
-export function FeatureRow( { feature, product }: FeatureRowProps ) {
-    const { addToast } = useToast();
-    const { enableFeature, disableFeature } = useDispatch( uplinkStore );
+export function FeatureRow({ feature, product }: FeatureRowProps) {
+	const { addToast } = useToast();
+	const { enableFeature, disableFeature } = useDispatch(uplinkStore);
 
-    const featureError = useSelect(
-        ( select ) => select( uplinkStore ).getFeatureError( feature.slug ),
-        [ feature.slug ],
-    );
+	// When this feature is a plugin or theme, block toggling while any
+	// other installable feature is mid-toggle (WordPress cannot safely
+	// install/activate/deactivate multiple plugins or themes at once).
+	const installableBusy = useSelect(
+		(select) =>
+			feature.type !== 'flag' &&
+			select(uplinkStore).isAnyInstallableToggling(),
+		[feature.type]
+	);
 
-    const [ pendingAction, setPendingAction ] = useState<'enabling' | 'disabling' | null>( null );
+	const [pendingAction, setPendingAction] = useState<
+		'enabling' | 'disabling' | null
+	>(null);
 
-    // Surface store errors as error toasts.
-    useEffect( () => {
-        if ( featureError ) {
-            addToast( featureError, 'error' );
-        }
-    }, [ featureError, addToast ] );
+	// TODO: Refactor error display to use an error modal instead of
+	// toasts. The modal will show safe, user-facing messages from the
+	// UplinkError chain.
 
-    // Feature not available on this license — show locked/upgrade state.
-    if ( ! feature.is_available ) {
-        const requiredTierObj = product.tiers.find( ( t ) => t.slug === feature.tier );
-        const tierName   = requiredTierObj?.name   ?? feature.tier;
-        const upgradeUrl = requiredTierObj?.upgradeUrl ?? '#';
+	// Feature not available on this license — show locked/upgrade state.
+	if (!feature.is_available) {
+		const requiredTierObj = product.tiers.find(
+			(t) => t.slug === feature.tier
+		);
+		const tierName = requiredTierObj?.name ?? feature.tier;
+		const upgradeUrl = requiredTierObj?.upgradeUrl ?? '#';
 
-        return (
-            <div className="flex items-center justify-between px-4 py-3 bg-slate-50/50">
-                <FeatureInfo
-                    name={ feature.name }
-                    description={ feature.description }
-                    isLocked={ true }
-                />
-                <div className="flex items-center gap-3 shrink-0 ml-4">
-                    <StatusBadge status="locked" requiredTier={ tierName } />
-                    <PurchaseLink tierName={ tierName } upgradeUrl={ upgradeUrl } />
-                </div>
-            </div>
-        );
-    }
+		return (
+			<div className="flex items-center justify-between px-4 py-3 bg-slate-50/50">
+				<FeatureInfo
+					name={feature.name}
+					description={feature.description}
+					isLocked={true}
+				/>
+				<div className="flex items-center gap-3 shrink-0 ml-4">
+					<StatusBadge status="locked" requiredTier={tierName} />
+					<PurchaseLink tierName={tierName} upgradeUrl={upgradeUrl} />
+				</div>
+			</div>
+		);
+	}
 
-    const featureEnabled = feature.is_enabled;
+	const featureEnabled = feature.is_enabled;
 
-    const handleToggle = async ( checked: boolean ) => {
-        setPendingAction( checked ? 'enabling' : 'disabling' );
-        if ( checked ) {
-            const error = await enableFeature( feature.slug );
-            if ( ! error ) {
-                /* translators: %s is the name of the feature being enabled */
-                addToast( sprintf( __( '%s enabled', '%TEXTDOMAIN%' ), feature.name ), 'success' );
-            }
-        } else {
-            const error = await disableFeature( feature.slug );
-            if ( ! error ) {
-                /* translators: %s is the name of the feature being disabled */
-                addToast( sprintf( __( '%s disabled', '%TEXTDOMAIN%' ), feature.name ), 'default' );
-            }
-        }
-        setPendingAction( null );
-    };
+	const handleToggle = async (checked: boolean) => {
+		setPendingAction(checked ? 'enabling' : 'disabling');
+		if (checked) {
+			const result = await enableFeature(feature.slug);
+			if (result instanceof UplinkError) {
+				addToast(result.message, 'error');
+			} else {
+				/* translators: %s is the name of the feature being enabled */
+				addToast(
+					sprintf(__('%s enabled', '%TEXTDOMAIN%'), feature.name),
+					'success'
+				);
+			}
+		} else {
+			const result = await disableFeature(feature.slug);
+			if (result instanceof UplinkError) {
+				addToast(result.message, 'error');
+			} else {
+				/* translators: %s is the name of the feature being disabled */
+				addToast(
+					sprintf(__('%s disabled', '%TEXTDOMAIN%'), feature.name),
+					'default'
+				);
+			}
+		}
+		setPendingAction(null);
+	};
 
-    const badgeStatus = pendingAction ?? ( featureEnabled ? 'enabled' : 'available' );
+	const badgeStatus =
+		pendingAction ?? (featureEnabled ? 'enabled' : 'available');
 
-    // While a request is in-flight, reflect the intended state visually so
-    // the switch position and badge stay in sync with pendingAction.
-    const switchChecked = pendingAction === 'enabling'
-        ? true
-        : pendingAction === 'disabling'
-            ? false
-            : featureEnabled;
+	// While a request is in-flight, reflect the intended state visually so
+	// the switch position and badge stay in sync with pendingAction.
+	const switchChecked =
+		pendingAction === 'enabling'
+			? true
+			: pendingAction === 'disabling'
+				? false
+				: featureEnabled;
 
-    return (
-        <div
-            className={ cn(
-                'flex items-center justify-between px-4 py-3 transition-colors',
-                pendingAction ? 'opacity-75' : 'hover:bg-slate-50'
-            ) }
-        >
-            <FeatureInfo
-                name={ feature.name }
-                description={ feature.description }
-                isLocked={ false }
-            />
-            <div className="flex items-center gap-3 shrink-0 ml-4">
-                <StatusBadge status={ badgeStatus } />
-                <Switch
-                    checked={ switchChecked }
-                    onCheckedChange={ handleToggle }
-                    disabled={ !! pendingAction }
-                    aria-label={
-                        switchChecked
-                            ? /* translators: %s is the name of the feature to disable */
-                              sprintf( __( 'Disable %s', '%TEXTDOMAIN%' ), feature.name )
-                            : /* translators: %s is the name of the feature to enable */
-                              sprintf( __( 'Enable %s', '%TEXTDOMAIN%' ), feature.name )
-                    }
-                />
-            </div>
-        </div>
-    );
+	return (
+		<div
+			className={cn(
+				'flex items-center justify-between px-4 py-3 transition-colors',
+				pendingAction ? 'opacity-75' : 'hover:bg-slate-50'
+			)}
+		>
+			<FeatureInfo
+				name={feature.name}
+				description={feature.description}
+				isLocked={false}
+			/>
+			<div className="flex items-center gap-3 shrink-0 ml-4">
+				<StatusBadge status={badgeStatus} />
+				<Switch
+					checked={switchChecked}
+					onCheckedChange={handleToggle}
+					disabled={!!pendingAction || installableBusy}
+					aria-label={
+						switchChecked
+							? /* translators: %s is the name of the feature to disable */
+								sprintf(
+									__('Disable %s', '%TEXTDOMAIN%'),
+									feature.name
+								)
+							: /* translators: %s is the name of the feature to enable */
+								sprintf(
+									__('Enable %s', '%TEXTDOMAIN%'),
+									feature.name
+								)
+					}
+				/>
+			</div>
+		</div>
+	);
 }

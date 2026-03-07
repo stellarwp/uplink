@@ -93,6 +93,6 @@ export type Thunk<
 	A extends Action,
 	S extends StoreDescriptor< AnyConfig >,
 	T extends unknown = void,
-> = T extends Awaited< infer R >
+> = [T] extends [Awaited< infer R >]
 	? ( args: ThunkArgs< A, S > ) => Promise< R >
 	: ( args: ThunkArgs< A, S > ) => T;

@@ -1,149 +1,157 @@
 /**
  * Action creators for the stellarwp/uplink @wordpress/data store.
  *
- * Plain action creators (returning objects) are handled by the reducer.
- * Thunk action creators (returning async functions) are handled by the
- * @wordpress/data thunk middleware — automatically included in v10+.
- *
  * @package StellarWP\Uplink
  */
+
 import apiFetch from '@wordpress/api-fetch';
-import { dispatch as wpDispatch } from '@wordpress/data';
-import { STORE_NAME } from './constants';
+import { __ } from '@wordpress/i18n';
+import { UplinkError, ErrorCode } from '@/errors';
 import type { Feature, License } from '@/types/api';
+import type { Action, Thunk } from './types';
 
 // ---------------------------------------------------------------------------
-// Discriminated union for plain (reducer-handled) actions only.
-// Thunk actions are not part of this union.
+// Plain action creators (synchronous)
 // ---------------------------------------------------------------------------
 
-export type Action =
-    | { type: 'SET_ERROR';                key: string; message: string }
-    | { type: 'CLEAR_ERROR';              key: string }
-    | { type: 'RECEIVE_FEATURES';         features: Feature[] }
-    | { type: 'PATCH_FEATURE';            slug: string; enabled: boolean }
-    | { type: 'RECEIVE_LICENSE';          key: string | null }
-    | { type: 'ACTIVATE_LICENSE_START' }
-    | { type: 'ACTIVATE_LICENSE_FINISHED'; key: string }
-    | { type: 'ACTIVATE_LICENSE_FAILED';   error: string }
-    | { type: 'DELETE_LICENSE_START' }
-    | { type: 'DELETE_LICENSE_FINISHED' }
-    | { type: 'DELETE_LICENSE_FAILED';     error: string };
+export const receiveFeatures = (features: Feature[]): Action => ({
+	type: 'RECEIVE_FEATURES',
+	features,
+});
+
+export const receiveLicense = (key: string | null): Action => ({
+	type: 'RECEIVE_LICENSE',
+	key,
+});
 
 // ---------------------------------------------------------------------------
-// Thunk dispatch interfaces — the object passed to thunk action bodies.
+// Thunk action creators (async)
 // ---------------------------------------------------------------------------
 
-type ThunkDispatch = {
-    setError:          ( key: string, message: string ) => void;
-    clearError:        ( key: string ) => void;
-    setFeatureEnabled: ( slug: string, enabled: boolean ) => void;
-};
+/**
+ * Enable a feature via the REST API.
+ *
+ * @since 3.0.0
+ */
+export const enableFeature =
+	(slug: string): Thunk<UplinkError | null> =>
+	async ({ dispatch }) => {
+		dispatch({ type: 'TOGGLE_FEATURE_START', slug });
+		try {
+			const feature = await apiFetch<Feature>({
+				path: `/stellarwp/uplink/v1/features/${slug}/enable`,
+				method: 'POST',
+			});
+			dispatch({ type: 'TOGGLE_FEATURE_FINISHED', feature });
+			return null;
+		} catch (err) {
+			const error = UplinkError.wrap(
+				err,
+				ErrorCode.FeatureEnableFailed,
+				__('Liquid Web Software failed to enable your feature.', '%TEXTDOMAIN%')
+			);
+			dispatch({ type: 'TOGGLE_FEATURE_FAILED', slug, error });
+			return error;
+		}
+	};
 
-type LicenseThunkDispatch = ( action: Action ) => void;
+/**
+ * Disable a feature via the REST API.
+ *
+ * @since 3.0.0
+ */
+export const disableFeature =
+	(slug: string): Thunk<UplinkError | null> =>
+	async ({ dispatch }) => {
+		dispatch({ type: 'TOGGLE_FEATURE_START', slug });
+		try {
+			const feature = await apiFetch<Feature>({
+				path: `/stellarwp/uplink/v1/features/${slug}/disable`,
+				method: 'POST',
+			});
+			dispatch({ type: 'TOGGLE_FEATURE_FINISHED', feature });
+			return null;
+		} catch (err) {
+			const error = UplinkError.wrap(
+				err,
+				ErrorCode.FeatureDisableFailed,
+				__('Liquid Web Software failed to disable your feature.', '%TEXTDOMAIN%')
+			);
+			dispatch({ type: 'TOGGLE_FEATURE_FAILED', slug, error });
+			return error;
+		}
+	};
 
-// ---------------------------------------------------------------------------
-// Action creators
-// ---------------------------------------------------------------------------
+/**
+ * Activate a license key via the REST API, then invalidate the
+ * features resolver so the UI refreshes with the new entitlements.
+ *
+ * @since 3.0.0
+ */
+export const activateLicense =
+	(key: string): Thunk<UplinkError | null> =>
+	async ({ dispatch, select }) => {
+		if (!select.canModifyLicense()) {
+			return new UplinkError(
+				ErrorCode.LicenseActionInProgress,
+				__('Liquid Web Software failed to activate your license, another action is in progress.', '%TEXTDOMAIN%')
+			);
+		}
+		dispatch({ type: 'ACTIVATE_LICENSE_START' });
+		try {
+			const result = await apiFetch<License>({
+				path: '/stellarwp/uplink/v1/license',
+				method: 'POST',
+				data: { key },
+			});
+			dispatch({
+				type: 'ACTIVATE_LICENSE_FINISHED',
+				key: result.key,
+			});
+			dispatch.invalidateResolution('getFeatures', []);
+			return null;
+		} catch (err) {
+			const error = UplinkError.wrap(
+				err,
+				ErrorCode.LicenseActivateFailed,
+				__('Liquid Web Software failed to activate your license.', '%TEXTDOMAIN%')
+			);
+			dispatch({ type: 'ACTIVATE_LICENSE_FAILED', error });
+			return error;
+		}
+	};
 
-export const actions = {
-    // -- Plain action creators (synchronous) --
-
-    setError: ( key: string, message: string ) =>
-        ( { type: 'SET_ERROR' as const, key, message } ),
-
-    clearError: ( key: string ) =>
-        ( { type: 'CLEAR_ERROR' as const, key } ),
-
-    receiveFeatures: ( features: Feature[] ) =>
-        ( { type: 'RECEIVE_FEATURES' as const, features } ),
-
-    setFeatureEnabled: ( slug: string, enabled: boolean ) =>
-        ( { type: 'PATCH_FEATURE' as const, slug, enabled } ),
-
-    receiveLicense: ( key: string | null ) =>
-        ( { type: 'RECEIVE_LICENSE' as const, key } ),
-
-    // -- Thunk action creators (async, with optimistic update + rollback) --
-
-    /**
-     * Enable a feature: POST to REST API → update store on success.
-     * @since 3.0.0
-     */
-    enableFeature: ( slug: string ) =>
-        async ( { dispatch }: { dispatch: ThunkDispatch } ): Promise<string | null> => {
-            dispatch.clearError( `feature:${ slug }` );
-            try {
-                await apiFetch<void>( {
-                    path:   `/stellarwp/uplink/v1/features/${ slug }/enable`,
-                    method: 'POST',
-                } );
-                dispatch.setFeatureEnabled( slug, true );
-                return null;
-            } catch ( err ) {
-                const message = ( err as Error ).message;
-                dispatch.setError( `feature:${ slug }`, message );
-                return message;
-            }
-        },
-
-    /**
-     * Disable a feature: POST to REST API → update store on success.
-     * @since 3.0.0
-     */
-    disableFeature: ( slug: string ) =>
-        async ( { dispatch }: { dispatch: ThunkDispatch } ): Promise<string | null> => {
-            dispatch.clearError( `feature:${ slug }` );
-            try {
-                await apiFetch<void>( {
-                    path:   `/stellarwp/uplink/v1/features/${ slug }/disable`,
-                    method: 'POST',
-                } );
-                dispatch.setFeatureEnabled( slug, false );
-                return null;
-            } catch ( err ) {
-                const message = ( err as Error ).message;
-                dispatch.setError( `feature:${ slug }`, message );
-                return message;
-            }
-        },
-
-    /**
-     * Activate a license key: POST to REST API → store key → invalidate features resolver.
-     * @since 3.0.0
-     */
-    activateLicense: ( key: string ) =>
-        async ( { dispatch }: { dispatch: LicenseThunkDispatch } ): Promise<void> => {
-            dispatch( { type: 'ACTIVATE_LICENSE_START' } );
-            try {
-                const result = await apiFetch<License>( {
-                    path:   '/stellarwp/uplink/v1/license',
-                    method: 'POST',
-                    data:   { key },
-                } );
-                dispatch( { type: 'ACTIVATE_LICENSE_FINISHED', key: result.key } );
-                wpDispatch( STORE_NAME ).invalidateResolution( 'getFeatures', [] );
-            } catch ( err ) {
-                dispatch( { type: 'ACTIVATE_LICENSE_FAILED', error: ( err as Error ).message } );
-            }
-        },
-
-    /**
-     * Delete the stored license key: DELETE to REST API → clear key → invalidate features resolver.
-     * @since 3.0.0
-     */
-    deleteLicense: () =>
-        async ( { dispatch }: { dispatch: LicenseThunkDispatch } ): Promise<void> => {
-            dispatch( { type: 'DELETE_LICENSE_START' } );
-            try {
-                await apiFetch<void>( {
-                    path:   '/stellarwp/uplink/v1/license',
-                    method: 'DELETE',
-                } );
-                dispatch( { type: 'DELETE_LICENSE_FINISHED' } );
-                wpDispatch( STORE_NAME ).invalidateResolution( 'getFeatures', [] );
-            } catch ( err ) {
-                dispatch( { type: 'DELETE_LICENSE_FAILED', error: ( err as Error ).message } );
-            }
-        },
-};
+/**
+ * Delete the stored license key via the REST API, then invalidate the
+ * features resolver so the UI refreshes.
+ *
+ * @since 3.0.0
+ */
+export const deleteLicense =
+	(): Thunk<UplinkError | null> =>
+	async ({ dispatch, select }) => {
+		if (!select.canModifyLicense()) {
+			return new UplinkError(
+				ErrorCode.LicenseActionInProgress,
+				__('Liquid Web Software failed to delete your license, another action is in progress.', '%TEXTDOMAIN%')
+			);
+		}
+		dispatch({ type: 'DELETE_LICENSE_START' });
+		try {
+			await apiFetch<void>({
+				path: '/stellarwp/uplink/v1/license',
+				method: 'DELETE',
+			});
+			dispatch({ type: 'DELETE_LICENSE_FINISHED' });
+			dispatch.invalidateResolution('getFeatures', []);
+			return null;
+		} catch (err) {
+			const error = UplinkError.wrap(
+				err,
+				ErrorCode.LicenseDeleteFailed,
+				__('Liquid Web Software failed to remove your license.', '%TEXTDOMAIN%')
+			);
+			dispatch({ type: 'DELETE_LICENSE_FAILED', error });
+			return error;
+		}
+	};

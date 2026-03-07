@@ -7,7 +7,6 @@ use StellarWP\Uplink\Traits\With_Debugging;
 use WP_Error;
 use WP_Http;
 
-use function StellarWP\Uplink\is_authorized;
 
 /**
  * Manages authorization.
@@ -31,32 +30,37 @@ class Token_Authorizer implements Contracts\Token_Authorizer {
 	 * @see is_authorized()
 	 * @see Token_Authorizer_Cache_Decorator
 	 *
-	 * @param  string  $license  The license key.
-	 * @param  string  $slug     The plugin/service slug.
-	 * @param  string  $token    The stored token.
-	 * @param  string  $domain   The user's domain.
+	 * @param string $license  The license key.
+	 * @param string $slug     The plugin/service slug.
+	 * @param string $token    The stored token.
+	 * @param string $domain   The user's domain.
 	 *
 	 * @return bool
 	 *
 	 * @see is_authorized()
 	 */
 	public function is_authorized( string $license, string $slug, string $token, string $domain ): bool {
-		$response = $this->client->get( 'tokens/auth', [
-			'license' => $license,
-			'slug'    => $slug,
-			'token'   => $token,
-			'domain'  => $domain,
-		] );
+		$response = $this->client->get(
+			'tokens/auth',
+			[
+				'license' => $license,
+				'slug'    => $slug,
+				'token'   => $token,
+				'domain'  => $domain,
+			] 
+		);
 
 		if ( $response instanceof WP_Error ) {
 			if ( $this->is_wp_debug() ) {
-				error_log( sprintf(
-					__( 'Authorization error occurred: License: "%s", Token: "%s", Domain: "%s". Errors: %s', '%TEXTDOMAIN%' ),
-					$license,
-					$token,
-					$domain,
-					implode( ', ', $response->get_error_messages() )
-				) );
+				error_log(
+					sprintf(
+						__( 'Authorization error occurred: License: "%1$s", Token: "%2$s", Domain: "%3$s". Errors: %4$s', '%TEXTDOMAIN%' ),
+						$license,
+						$token,
+						$domain,
+						implode( ', ', $response->get_error_messages() )
+					) 
+				);
 			}
 
 			return false;
@@ -64,5 +68,4 @@ class Token_Authorizer implements Contracts\Token_Authorizer {
 
 		return $response['response']['code'] === WP_Http::OK;
 	}
-
 }

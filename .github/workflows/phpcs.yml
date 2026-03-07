@@ -1,0 +1,44 @@
+# cspell:ignore shivammathur reqs
+name: PHP Code Standards
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  phpcs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Configure PHP environment
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.0"
+          extensions: mbstring, intl
+          coverage: none
+
+      - uses: ramsey/composer-install@v3
+        with:
+          composer-options: "--ignore-platform-reqs --optimize-autoloader"
+
+      - if: github.ref == 'refs/heads/main'
+        name: Run full phpcs check
+        run: composer phpcs
+
+      - if: github.ref != 'refs/heads/main'
+        name: Run partial phpcs check
+        run: |
+          # if the base branch is not set, we assume it's main
+          if [ -z "$GITHUB_BASE_REF" ]; then
+            GITHUB_BASE_REF="main"
+          fi
+
+          git remote set-branches origin "$GITHUB_BASE_REF"
+          git fetch origin --depth=1
+          composer phpcs:ci "origin/$GITHUB_BASE_REF"

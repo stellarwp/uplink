@@ -12,5 +12,4 @@ trait With_Debugging {
 	protected function is_wp_debug(): bool {
 		return defined( 'WP_DEBUG' ) && WP_DEBUG;
 	}
-
 }

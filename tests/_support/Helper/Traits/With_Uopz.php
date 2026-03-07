@@ -6,7 +6,7 @@ use PHPUnit\Framework\Assert;
 
 trait With_Uopz {
 	private $uopz_set_returns = [];
-	private $uopz_redefines = [];
+	private $uopz_redefines   = [];
 
 	/**
 	 * @after
@@ -24,7 +24,8 @@ trait With_Uopz {
 		}
 
 		if ( function_exists( 'uopz_redefine' ) ) {
-			foreach ( $this->uopz_redefines as $restore_callback ) { $restore_callback();
+			foreach ( $this->uopz_redefines as $restore_callback ) {
+				$restore_callback();
 			}
 		}
 	}
@@ -76,9 +77,9 @@ trait With_Uopz {
 		}
 
 		// Static class const redefinition.
-		$class = $const;
+		$class                 = $const;
 		list( $const, $value ) = $args;
-		$previous_value = defined( $class . '::' . $const ) ?
+		$previous_value        = defined( $class . '::' . $const ) ?
 			constant( $class . '::' . $const )
 			: null;
 

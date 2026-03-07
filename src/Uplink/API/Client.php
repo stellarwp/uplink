@@ -107,7 +107,7 @@ class Client {
 	 *
 	 * @return string
 	 */
-	public function get_api_base_url() : string {
+	public function get_api_base_url(): string {
 		/**
 		 * Filter the API base URL.
 		 *
@@ -236,7 +236,12 @@ class Client {
 
 			$results = $this->post( 'license/validate', $args );
 
-			$this->container->bind( $cache_key, function() use ( $results ) { return $results; } );
+			$this->container->bind(
+				$cache_key,
+				function () use ( $results ) {
+					return $results;
+				} 
+			);
 		}
 
 		if ( $results !== null && ! is_object( $results ) ) {

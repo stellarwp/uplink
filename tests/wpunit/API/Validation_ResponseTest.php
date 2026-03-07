@@ -14,15 +14,18 @@ class Validation_ResponseTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->resource = $this->getMockBuilder( Plugin::class )->setConstructorArgs( [ 'sample',
-			'Lib Sample',
-			'1.0.10',
-			'uplink/plugin.php',
-			Uplink::class,
-			Uplink::class
-		] )->getMock();
+		$this->resource = $this->getMockBuilder( Plugin::class )->setConstructorArgs(
+			[
+				'sample',
+				'Lib Sample',
+				'1.0.10',
+				'uplink/plugin.php',
+				Uplink::class,
+				Uplink::class,
+			] 
+		)->getMock();
 
-		$this->resource->method('get_installed_version')->willReturn( '1.0.10' );
+		$this->resource->method( 'get_installed_version' )->willReturn( '1.0.10' );
 	}
 
 	public function get_dummy_valid_response(): \stdClass {
@@ -54,5 +57,4 @@ class Validation_ResponseTest extends UplinkTestCase {
 		$this->assertEquals( 'invalid_license', $update->package );
 		$this->assertStringContainsString( '<p>There is a new version of Lib Sample available but your license key is invalid. View ', $update->license_error );
 	}
-
 }

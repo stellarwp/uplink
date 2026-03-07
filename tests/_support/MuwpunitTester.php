@@ -16,11 +16,11 @@
  *
  * @SuppressWarnings(PHPMD)
 */
-class MuwpunitTester extends \Codeception\Actor
-{
-    use _generated\MuwpunitTesterActions;
+class MuwpunitTester extends \Codeception\Actor {
 
-    /**
-     * Define custom actions here
-     */
+	use _generated\MuwpunitTesterActions;
+
+	/**
+	 * Define custom actions here
+	 */
 }

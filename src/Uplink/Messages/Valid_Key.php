@@ -18,7 +18,7 @@ class Valid_Key extends Message_Abstract {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $expiration Expiration date.
+	 * @param string                  $expiration Expiration date.
 	 * @param ContainerInterface|null $container Container instance.
 	 */
 	public function __construct( $expiration, $container = null ) {

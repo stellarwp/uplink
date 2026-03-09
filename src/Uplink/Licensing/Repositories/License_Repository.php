@@ -384,7 +384,7 @@ final class License_Repository {
 	 *
 	 * @return int
 	 */
-	public function get_grace_period_in_seconds(): int {
+	private function get_grace_period_in_seconds(): int {
 		return 30 * DAY_IN_SECONDS;
 	}
 

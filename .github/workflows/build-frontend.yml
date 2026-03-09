@@ -36,3 +36,4 @@ jobs:
         with:
           commit_message: "Build frontend production assets"
           file_pattern: "build/*"
+          add_options: "-f"

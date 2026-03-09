@@ -512,7 +512,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// is_product_active() — grace period behaviour
+	// is_product_active() — grace period tests
 	// -------------------------------------------------------------------------
 
 	public function test_is_product_active_returns_true_when_product_is_valid(): void {

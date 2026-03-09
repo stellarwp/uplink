@@ -602,5 +602,9 @@ class Plugin_Strategy extends Installable_Strategy {
 		if ( ! class_exists( 'WP_Ajax_Upgrader_Skin' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/class-wp-ajax-upgrader-skin.php';
 		}
+
+		if ( ! function_exists( 'request_filesystem_credentials' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
 	}
 }

@@ -235,6 +235,10 @@ final class License_Manager {
 	/**
 	 * Fetch the product catalog from the API and cache the result.
 	 *
+	 * After a successful fetch, the last active date is updated for every
+	 * product that reports a valid license. This anchors the grace period
+	 * to the most recent confirmed-good state.
+	 *
 	 * @since 3.0.0
 	 *
 	 * @param string $key    License key.
@@ -255,6 +259,15 @@ final class License_Manager {
 		$collection = Product_Collection::from_array( $result );
 
 		$this->repository->set_products( $collection );
+
+		$current_time = time();
+
+		foreach ( $collection as $product ) {
+			/** @var Product_Entry $product */
+			if ( $product->is_valid() ) {
+				$this->repository->set_last_active_date( $product->get_product_slug(), $current_time );
+			}
+		}
 
 		return $collection;
 	}

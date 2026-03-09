@@ -43,11 +43,11 @@ final class Disconnect_Controller {
 	private $cache;
 
 	/**
-	 * @param  Authorizer                        $authorizer     The authorizer.
-	 * @param  Disconnector                      $disconnect     Disconnects a Token, if the user has the capability.
-	 * @param  Token_Manager                     $token_manager  Manages token storage.
-	 * @param  Notice_Handler                    $notice         Handles storing and displaying notices.
-	 * @param  Token_Authorizer_Cache_Decorator  $cache          The token cache.
+	 * @param Authorizer                       $authorizer     The authorizer.
+	 * @param Disconnector                     $disconnect     Disconnects a Token, if the user has the capability.
+	 * @param Token_Manager                    $token_manager  Manages token storage.
+	 * @param Notice_Handler                   $notice         Handles storing and displaying notices.
+	 * @param Token_Authorizer_Cache_Decorator $cache          The token cache.
 	 */
 	public function __construct(
 		Authorizer $authorizer,
@@ -66,7 +66,7 @@ final class Disconnect_Controller {
 	/**
 	 * Get the disconnect URL to render.
 	 *
-	 * @param  Resource  $plugin  The plugin/service.
+	 * @param Resource $plugin  The plugin/service.
 	 *
 	 * @return string
 	 */
@@ -79,11 +79,17 @@ final class Disconnect_Controller {
 
 		$cache_key = $this->cache->build_transient_no_prefix( [ $token ] );
 
-		return wp_nonce_url( add_query_arg( [
-			self::ARG       => true,
-			self::SLUG      => $plugin->get_slug(),
-			self::CACHE_KEY => $cache_key,
-		], get_admin_url( get_current_blog_id() ) ), self::ARG );
+		return wp_nonce_url(
+			add_query_arg(
+				[
+					self::ARG       => true,
+					self::SLUG      => $plugin->get_slug(),
+					self::CACHE_KEY => $cache_key,
+				],
+				get_admin_url( get_current_blog_id() ) 
+			),
+			self::ARG 
+		);
 	}
 
 	/**
@@ -107,7 +113,8 @@ final class Disconnect_Controller {
 		if ( wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), self::ARG ) ) {
 			if ( $this->authorizer->can_auth() && $this->disconnect->disconnect( $_GET[ self::SLUG ], $_GET[ self::CACHE_KEY ] ) ) {
 				$this->notice->add(
-					new Notice( Notice::SUCCESS,
+					new Notice(
+						Notice::SUCCESS,
 						__( 'Token disconnected.', '%TEXTDOMAIN%' ),
 						true
 					)
@@ -132,7 +139,8 @@ final class Disconnect_Controller {
 				do_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/disconnected', $_GET[ self::SLUG ] );
 			} else {
 				$this->notice->add(
-					new Notice( Notice::ERROR,
+					new Notice(
+						Notice::ERROR,
 						__( 'Unable to disconnect token, ensure you have admin permissions.', '%TEXTDOMAIN%' ),
 						true
 					)
@@ -140,7 +148,8 @@ final class Disconnect_Controller {
 			}
 		} else {
 			$this->notice->add(
-				new Notice( Notice::ERROR,
+				new Notice(
+					Notice::ERROR,
 					__( 'Unable to disconnect token: nonce verification failed.', '%TEXTDOMAIN%' ),
 					true
 				)
@@ -180,5 +189,4 @@ final class Disconnect_Controller {
 		wp_safe_redirect( esc_url_raw( $referer ) );
 		exit;
 	}
-
 }

@@ -6,7 +6,6 @@ use StellarWP\Uplink\Config;
 use StellarWP\Uplink\View\Contracts\View;
 use StellarWP\Uplink\Resources\Resource;
 // Use function statement is problematic with Strauss.
-use StellarWP\Uplink as UplinkNamespace;
 use StellarWP\Uplink\Admin\Asset_Manager;
 use StellarWP\Uplink\Admin\Group;
 
@@ -69,7 +68,7 @@ class Field {
 	/**
 	 * Constructor!
 	 *
-	 * @param  View  $view  The View Engine to render views.
+	 * @param View $view  The View Engine to render views.
 	 */
 	public function __construct( View $view, Asset_Manager $asset_manager, Group $group ) {
 		$this->view          = $view;
@@ -80,7 +79,7 @@ class Field {
 	/**
 	 * Sets the resource.
 	 *
-	 * @param  Resource  $resource  The resource.
+	 * @param Resource $resource  The resource.
 	 *
 	 * @return static
 	 */
@@ -152,7 +151,7 @@ class Field {
 	 *
 	 * @return string
 	 */
-	public function get_nonce_action() : string {
+	public function get_nonce_action(): string {
 		/**
 		 * Filters the nonce action.
 		 *
@@ -167,7 +166,7 @@ class Field {
 	 * @return string
 	 */
 	public function get_nonce_field(): string {
-		$nonce_name   = "stellarwp-uplink-license-key-nonce__" . $this->get_slug();
+		$nonce_name   = 'stellarwp-uplink-license-key-nonce__' . $this->get_slug();
 		$nonce_action = $this->group->get_name();
 
 		return '<input type="hidden" class="wp-nonce-fluent" name="' . esc_attr( $nonce_name ) . '" value="' . esc_attr( wp_create_nonce( $nonce_action ) ) . '" />';
@@ -236,9 +235,9 @@ class Field {
 		$this->asset_manager->enqueue_assets();
 
 		$args = [
-			'field' => $this,
+			'field'    => $this,
 			'resource' => $this->resource,
-			'group' => $this->group->get_name( $this->get_slug() ),
+			'group'    => $this->group->get_name( $this->get_slug() ),
 		];
 
 		$html = $this->view->render( self::VIEW, $args );

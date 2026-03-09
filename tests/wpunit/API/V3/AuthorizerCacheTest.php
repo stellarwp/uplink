@@ -28,11 +28,14 @@ final class AuthorizerCacheTest extends UplinkTestCase {
 	}
 
 	public function test_it_caches_a_valid_token_response(): void {
-		$authorizer_mock = $this->makeEmpty( \StellarWP\Uplink\API\V3\Auth\Token_Authorizer::class, [
-			'is_authorized' => static function (): bool {
-				return true;
-			},
-		] );
+		$authorizer_mock = $this->makeEmpty(
+			\StellarWP\Uplink\API\V3\Auth\Token_Authorizer::class,
+			[
+				'is_authorized' => static function (): bool {
+					return true;
+				},
+			] 
+		);
 
 		$this->container->bind( \StellarWP\Uplink\API\V3\Auth\Token_Authorizer::class, $authorizer_mock );
 
@@ -42,21 +45,24 @@ final class AuthorizerCacheTest extends UplinkTestCase {
 		// No cache should exist.
 		$this->assertNull( $this->storage->get( $transient ) );
 
-		$authorized = $decorator->is_authorized( '1234', 'kadence-blocks-pro','dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840', 'test.com' );
+		$authorized = $decorator->is_authorized( '1234', 'kadence-blocks-pro', 'dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840', 'test.com' );
 
 		$this->assertTrue( $authorized );
 
 		// Cache should now be present.
 		$this->assertTrue( $this->storage->get( $transient ) );
-		$this->assertTrue( $decorator->is_authorized( '1234', 'kadence-blocks-pro','dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840', 'test.com' ) );
+		$this->assertTrue( $decorator->is_authorized( '1234', 'kadence-blocks-pro', 'dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840', 'test.com' ) );
 	}
 
 	public function test_it_does_not_cache_an_invalid_token_response(): void {
-		$authorizer_mock = $this->makeEmpty( \StellarWP\Uplink\API\V3\Auth\Token_Authorizer::class, [
-			'is_authorized' => static function (): bool {
-				return false;
-			},
-		] );
+		$authorizer_mock = $this->makeEmpty(
+			\StellarWP\Uplink\API\V3\Auth\Token_Authorizer::class,
+			[
+				'is_authorized' => static function (): bool {
+					return false;
+				},
+			] 
+		);
 
 		$this->container->bind( \StellarWP\Uplink\API\V3\Auth\Token_Authorizer::class, $authorizer_mock );
 
@@ -66,12 +72,11 @@ final class AuthorizerCacheTest extends UplinkTestCase {
 		// No cache should exist.
 		$this->assertNull( $this->storage->get( $transient ) );
 
-		$authorized = $decorator->is_authorized( '1234', 'kadence-blocks-pro','dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840', 'test.com' );
+		$authorized = $decorator->is_authorized( '1234', 'kadence-blocks-pro', 'dc2c98d9-9ff8-4409-bfd2-a3cce5b5c840', 'test.com' );
 
 		$this->assertFalse( $authorized );
 
 		// Cache should still be empty, unfortunately the default is "false" for transients, so this isn't the best test.
 		$this->assertNull( $this->storage->get( $transient ) );
 	}
-
 }

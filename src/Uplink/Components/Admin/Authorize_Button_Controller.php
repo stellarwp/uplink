@@ -45,10 +45,10 @@ final class Authorize_Button_Controller extends Controller {
 	private $disconnect_controller;
 
 	/**
-	 * @param  View  $view  The View Engine to render views.
-	 * @param  Authorizer  $authorizer  Determines if the current user can perform actions.
-	 * @param  Token_Manager  $token_manager  The Token Manager.
-	 * @param  Auth_Url_Builder  $url_builder  The Auth URL Builder.
+	 * @param View             $view  The View Engine to render views.
+	 * @param Authorizer       $authorizer  Determines if the current user can perform actions.
+	 * @param Token_Manager    $token_manager  The Token Manager.
+	 * @param Auth_Url_Builder $url_builder  The Auth URL Builder.
 	 */
 	public function __construct(
 		View $view,
@@ -70,7 +70,7 @@ final class Authorize_Button_Controller extends Controller {
 	/**
 	 * Renders the authorize-button view.
 	 *
-	 * @param  array{slug?: string, domain?: string, license?: string} $args The Product slug and license domain.
+	 * @param array{slug?: string, domain?: string, license?: string} $args The Product slug and license domain.
 	 *
 	 * @see src/views/admin/authorize-button.php
 	 *
@@ -83,7 +83,7 @@ final class Authorize_Button_Controller extends Controller {
 		$domain  = $args['domain'] ?? '';
 		$license = $args['license'] ?? '';
 
-		if ( empty ( $slug ) ) {
+		if ( empty( $slug ) ) {
 			throw new InvalidArgumentException( __( 'The Product slug cannot be empty', '%TEXTDOMAIN%' ) );
 		}
 
@@ -125,9 +125,9 @@ final class Authorize_Button_Controller extends Controller {
 		/**
 		 * Filter the link text.
 		 *
-		 * @param  string  $link_text  The current link text.
-		 * @param  bool  $authenticated  Whether they are authenticated.
-		 * @param  string|null  $pagenow  The value of WordPress's pagenow.
+		 * @param string  $link_text  The current link text.
+		 * @param bool  $authenticated  Whether they are authenticated.
+		 * @param string|null  $pagenow  The value of WordPress's pagenow.
 		 */
 		$link_text = apply_filters(
 			"stellarwp/uplink/$hook_prefix/view/authorize_button/link_text",
@@ -139,9 +139,9 @@ final class Authorize_Button_Controller extends Controller {
 		/**
 		 * Filter the link text for the slug.
 		 *
-		 * @param  string  $link_text  The current link text.
-		 * @param  bool  $authenticated  Whether they are authenticated.
-		 * @param  string|null  $pagenow  The value of WordPress's pagenow.
+		 * @param string  $link_text  The current link text.
+		 * @param bool  $authenticated  Whether they are authenticated.
+		 * @param string|null  $pagenow  The value of WordPress's pagenow.
 		 */
 		$link_text = apply_filters(
 			"stellarwp/uplink/$hook_prefix/$slug/view/authorize_button/link_text",
@@ -153,9 +153,9 @@ final class Authorize_Button_Controller extends Controller {
 		/**
 		 * Filter the hyperlink url.
 		 *
-		 * @param  string  $url  The current hyperlink url.
-		 * @param  bool  $authenticated  Whether they are authenticated.
-		 * @param  string|null  $pagenow  The value of WordPress's pagenow.
+		 * @param string  $url  The current hyperlink url.
+		 * @param bool  $authenticated  Whether they are authenticated.
+		 * @param string|null  $pagenow  The value of WordPress's pagenow.
 		 */
 		$url = apply_filters(
 			"stellarwp/uplink/$hook_prefix/view/authorize_button/url",
@@ -167,9 +167,9 @@ final class Authorize_Button_Controller extends Controller {
 		/**
 		 * Filter the link target.
 		 *
-		 * @param  string  $target  The current link target.
-		 * @param  bool  $authenticated  Whether they are authenticated.
-		 * @param  string|null  $pagenow  The value of WordPress's pagenow.
+		 * @param string  $target  The current link target.
+		 * @param bool  $authenticated  Whether they are authenticated.
+		 * @param string|null  $pagenow  The value of WordPress's pagenow.
 		 */
 		$target = apply_filters(
 			"stellarwp/uplink/$hook_prefix/view/authorize_button/target",
@@ -181,9 +181,9 @@ final class Authorize_Button_Controller extends Controller {
 		/**
 		 * Filter the HTML wrapper tag.
 		 *
-		 * @param  string  $tag  The HTML tag to use for the wrapper.
-		 * @param  bool  $authenticated  Whether they are authenticated.
-		 * @param  string|null  $pagenow  The value of WordPress's pagenow.
+		 * @param string  $tag  The HTML tag to use for the wrapper.
+		 * @param bool  $authenticated  Whether they are authenticated.
+		 * @param string|null  $pagenow  The value of WordPress's pagenow.
 		 */
 		$tag = apply_filters(
 			"stellarwp/uplink/$hook_prefix/view/authorize_button/tag",
@@ -195,9 +195,9 @@ final class Authorize_Button_Controller extends Controller {
 		/**
 		 * Filter the CSS classes
 		 *
-		 * @param  array  $classes  An array of CSS classes.
-		 * @param  bool  $authenticated  Whether they are authenticated.
-		 * @param  string|null  $pagenow  The value of WordPress's pagenow.
+		 * @param array  $classes  An array of CSS classes.
+		 * @param bool  $authenticated  Whether they are authenticated.
+		 * @param string|null  $pagenow  The value of WordPress's pagenow.
 		 */
 		$classes = (array) apply_filters(
 			"stellarwp/uplink/$hook_prefix/view/authorize_button/classes",
@@ -206,14 +206,16 @@ final class Authorize_Button_Controller extends Controller {
 			$pagenow
 		);
 
-		echo $this->view->render( self::VIEW, [
-			'link_text' => $link_text,
-			'url'       => $url,
-			'target'    => $target,
-			'tag'       => $tag,
-			'classes'   => $this->classes( $classes ),
-			'slug'      => $slug,
-		] );
+		echo $this->view->render(
+			self::VIEW,
+			[
+				'link_text' => $link_text,
+				'url'       => $url,
+				'target'    => $target,
+				'tag'       => $tag,
+				'classes'   => $this->classes( $classes ),
+				'slug'      => $slug,
+			] 
+		);
 	}
-
 }

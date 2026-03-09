@@ -13,15 +13,20 @@ final class Provider extends Abstract_Provider {
 	 * @inheritDoc
 	 */
 	public function register() {
-		$this->container->singleton( Option_Storage::class, function () {
-			$option_name = Config::get_hook_prefix() . '_storage';
+		$this->container->singleton(
+			Option_Storage::class,
+			function () {
+				$option_name = Config::get_hook_prefix() . '_storage';
 
-			return new Option_Storage( $option_name );
-		} );
+				return new Option_Storage( $option_name );
+			} 
+		);
 
-		$this->container->singleton( Storage::class, static function( $c ): Storage {
-			return $c->get( Config::get_storage_driver() );
-		} );
+		$this->container->singleton(
+			Storage::class,
+			static function ( $c ): Storage {
+				return $c->get( Config::get_storage_driver() );
+			} 
+		);
 	}
-
 }

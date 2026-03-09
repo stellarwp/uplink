@@ -138,6 +138,8 @@ class Feature extends WP_CLI_Command {
 
 		if ( is_wp_error( $features ) ) {
 			WP_CLI::error( $features->get_error_message() );
+
+			return; // WP_CLI::error() exits, but PHPStan needs this for type narrowing.
 		}
 
 		$group     = $assoc_args['group'] ?? null;
@@ -200,6 +202,8 @@ class Feature extends WP_CLI_Command {
 
 		if ( ! $feature ) {
 			WP_CLI::error( sprintf( 'Feature "%s" not found.', $slug ) );
+
+			return; // WP_CLI::error() exits, but PHPStan needs this for type narrowing.
 		}
 
 		$item = $this->feature_to_display_item( $feature );
@@ -318,7 +322,7 @@ class Feature extends WP_CLI_Command {
 	 *
 	 * @param Feature_Collection $features The feature collection.
 	 *
-	 * @return array<int, array<string, string>>
+	 * @return list<array<string, mixed>>
 	 */
 	private function collection_to_display_items( Feature_Collection $features ): array {
 		$items = [];
@@ -340,7 +344,7 @@ class Feature extends WP_CLI_Command {
 	 *
 	 * @param Feature_Type $feature The feature instance.
 	 *
-	 * @return array<string, string>
+	 * @return array<string, mixed>
 	 */
 	private function feature_to_display_item( Feature_Type $feature ): array {
 		$is_enabled = $this->manager->is_enabled( $feature->get_slug() );

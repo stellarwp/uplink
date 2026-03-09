@@ -1,121 +1,170 @@
-# Uplink features
+# Features
 
-The goals of this library are to provide a simple way to register one or more plugins / services for licensing and updates. It should provide:
+## Summary
 
-* An API and documentation for registering plugins/services
-* Support for plugins that embed license keys within the code
-* A user interface for entering / changing license keys
-* Support for fetching and installing plugin updates from Stellar Licensing
+The Features subsystem is the resolved output of combining [Catalog](catalog.md) data with [Licensing](licensing.md) data. The catalog says "Kadence includes Blocks Pro at the Basic tier." Licensing says "this key has Kadence at the Pro tier." Features joins the two and concludes: "Blocks Pro is available, and here's how to install it."
 
-## Expectations
+Features are not a third data source. They are the computed intersection of what exists (catalog) and what's entitled (licensing), plus local state tracking for what's actually enabled on the site.
 
-1. This library will exist within multiple plugins--ideally included via Compuser using Strauss to avoid collisions with other installed versions of the same library.
-2. This library may be included in a plugin collection that has a shared codebase, so multiple plugins need to be able to register themselves using a shared library. An example of this usecase would be The Events Calendar and Event Tickets, which have a shared library that all of The Events Calendar add-ons utilize.
-3. This library should be as unopinionated as possible when it comes to the UI. It should provide page content that plugins can render where they see fit.
+> **Development status.** The resolution algorithm, strategy pattern, and caching approach are stable. The specific data shapes that feed into resolution (catalog features, tier slugs, licensing responses) are still being finalized.
 
-## Features
+## Feature States
 
-### Registration
+Every feature has two independent states:
 
-Registration of plugins and services should happen programmatically and the intended API is documented in this repository's [README](/README.md).
+- **Available**: the customer's license tier meets or exceeds the feature's minimum tier requirement. Computed from catalog + licensing data.
+- **Enabled**: the feature is actively turned on for this site. A feature cannot be enabled without being available, with one exception: grandfathered flags.
 
-### License keys & validation
+## Feature Types
 
-The Uplink library should communicate with the Stellar Licensing system at specific moments. Those moments are:
+Each feature type has a strategy that defines how enable, disable, and active-state checking work. The mapping from catalog delivery types to feature classes:
 
-1. When a user interacts with a page in the dashboard where Uplink's license key field UI is rendered.
-2. When an authorized user* navigates to the plugins page and there has not been a request to the Stellar Licensing system within the past 12 hours.
-3. When an authorized user* attempts to upgrade plugins.
+### Plugin
 
-_* An authorized user is defined as a user with the `install_plugins` capability._
+An installable WordPress plugin. The catalog provides `plugin_file`, `plugin_slug`, `download_url`/`is_dot_org`.
 
-When a page is loaded where the Uplink library should call home to the Stellar Licensing system, this flow should be followed:
+| Aspect              | Behavior                                                                               |
+| ------------------- | -------------------------------------------------------------------------------------- |
+| **Source of truth** | Live WordPress plugin activation state — no DB option stored                           |
+| **Enable**          | Installs (if needed) and activates the plugin                                          |
+| **Disable**         | Deactivates the plugin but never deletes files                                         |
+| **Ownership**       | Author header checked against expected authors to prevent managing third-party plugins |
 
-```mermaid
-sequenceDiagram
-	autonumber
-	participant wp as WordPress
-	participant plugin as Plugin
-	participant uplink as Uplink
-	participant stellar as Stellar Licensing
-	link uplink: stellarwp/uplink @ https://github.com/stellarwp/uplink
-	link stellar: the-events-calendar/pue-service @ https://github.com/the-events-calendar/pue-service
-	link stellar: stellarwp/licensing @ https://github.com/stellarwp/licensing
+### Theme
 
-	wp->>plugin: plugins_loaded action
-	plugin->>uplink: Register::plugin()
-	Note over wp, stellar: The following is triggered by the 3 conditions mentioned above.
-	alt License key in wp_options
-		uplink-->>+wp: Check for license key in wp_options
-		wp->>-uplink: license key
-	else License key embedded in plugin
-		uplink-->>+plugin: Check for embedded license key in plugin
-		plugin->>-uplink: license key
-	end
+An installable WordPress theme. The theme's `feature_slug` is its WordPress slug (used for installation, `get_stylesheet()`, etc.). The catalog provides `download_url`/`is_dot_org`.
 
-	uplink->>stellar: POST /api/plugins/v2/license/validate
+| Aspect              | Behavior                                                                                                                                                                                               |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Source of truth** | Theme disk presence — no DB option stored                                                                                                                                                              |
+| **Enable**          | Installs the theme but does not switch to it. Users activate themes via Appearance > Themes                                                                                                            |
+| **Disable**         | Does **not** delete files. Returns success if already absent; returns `THEME_DELETE_REQUIRED` if still on disk. Programmatic deletion is intentionally unsupported — it's destructive and irreversible |
+| **Ownership**       | Author header checked via `wp_get_theme()`                                                                                                                                                             |
 
-	stellar-->>+uplink: 200 OK response
-	uplink-->>wp: Store response in wp_options
-	uplink->>uplink: Check for response_key in response
-	opt replacement_key in response
-		uplink-->>-wp: Update stored license key in wp_options
-		Note over wp, uplink: The replacement_key is typically only set if the provided license key is a placeholder key from the<br>WordPress Marketplace.
-	end
-```
+### Flag
 
+A capability toggle within an existing plugin, not a separate installable. The owning plugin checks a WordPress option to unlock functionality.
 
-#### Embedded keys
+| Aspect              | Behavior                                                                         |
+| ------------------- | -------------------------------------------------------------------------------- |
+| **Source of truth** | WordPress option `stellarwp_uplink_feature_{slug}_active` (autoloaded)           |
+| **Enable**          | Sets option to `'1'`. Requires a qualifying tier                                 |
+| **Disable**         | Sets option to `'0'`. Always allowed, but re-enabling requires a qualifying tier |
 
-The Stellar Licensing service has the capability of embedding license keys within the plugin code for products that have that capability enabled. The embedding happens at the moment of download. For plugins that expect an embedded license key to exist, the Uplink library needs to be notified of that license key's existence during registration of the plugin. You can see the expected structure in the [README](/README.md#embedding-a-license-in-your-plugin).
+**Grandfathering:** Once a flag is enabled, it stays enabled even if the license expires or the customer downgrades. The stored option is never cleared by the system. New flags cannot be enabled without a qualifying license, and a disabled grandfathered flag cannot be re-enabled without one.
 
-You can see an example of this in the wild within the [Events Calendar Pro plugin](https://github.com/the-events-calendar/events-pro/blob/master/src/Tribe/PUE/Helper.php).
+### Install Lock
 
-#### UI for entering keys
+Plugin and Theme features share a global transient lock (`stellarwp_uplink_install_lock`, 120s TTL). Only one installable feature can install at a time. Flags are unaffected.
 
-Uplink should provide a UI for entering license keys. Ideally, Uplink should have a way to render license key fields, notifications, enqueue relevent styles & JS, etc within an administrative page as dictated by the plugin. For example, The Events Calendar needs to be able to choose to have the license keys fields/notices for Events Calendar Pro, Filter Bar, Virtual Events, etc (which are all add-ons of TEC) rendered on the _Events > Settings > Licenses_ page in the dashboard. Whereas Restrict Content Pro should be able to have _its_ license key fields rendered on a different Dashboard page.
+## Resolution
 
-When a license field is rendered, manipulated, or saved, a validation request should be triggered (see the diagram above).
+`Resolve_Feature_Collection` joins catalog and licensing data to produce a `Feature_Collection`. Availability is determined by comparing integer tier ranks, not slug strings. The catalog defines ranks (e.g., `kadence-basic` = 1, `kadence-pro` = 2). A feature is available when the customer's tier rank >= the feature's minimum tier rank.
 
-##### Site & Network-level
+Edge cases:
 
-When a plugin that includes the Uplink library is activated at the network level, License keys should be able to be entered at both the network and the site level.
+- No licensing entry for a product: tier rank = `0`, all features unavailable
+- Feature's `minimum_tier` slug not in tier collection: rank = `PHP_INT_MAX`, feature unavailable
 
-### API Configuration Constants
+## The Manager
 
-Uplink provides PHP constants that allow you to override the default API base URL and root paths used to communicate with the Stellar Licensing system. These are useful for development, testing, or pointing to a custom licensing server.
+The `Manager` is the public interface for all feature operations.
 
-#### `STELLARWP_UPLINK_API_BASE_URL`
+| Method                       | Returns                        | Purpose                                |
+| ---------------------------- | ------------------------------ | -------------------------------------- |
+| `get_features()`             | `Feature_Collection\|WP_Error` | Get all resolved features              |
+| `get_feature(string $slug)`  | `Feature\|null`                | Look up a single feature               |
+| `is_available(string $slug)` | `bool\|WP_Error`               | Check if the customer's tier qualifies |
+| `is_enabled(string $slug)`   | `bool\|WP_Error`               | Check if the feature is active locally |
+| `enable(string $slug)`       | `true\|WP_Error`               | Enable a feature                       |
+| `disable(string $slug)`      | `true\|WP_Error`               | Disable a feature                      |
 
-Overrides the base URL for **both** the V2 and V3 API clients. The default base URL is `https://licensing.stellarwp.com`. A trailing slash is automatically stripped.
+Global convenience functions in `src/Uplink/global-functions.php` (non-namespaced, always delegate to the version leader):
 
-```php
-// In wp-config.php or an mu-plugin:
-define( 'STELLARWP_UPLINK_API_BASE_URL', 'https://my-custom-licensing-server.example.com' );
-```
+- **`stellarwp_uplink_is_feature_enabled(string $slug): bool|WP_Error`** — in the catalog AND active locally?
+- **`stellarwp_uplink_is_feature_available(string $slug): bool|WP_Error`** — in the catalog and tier qualifies?
 
-#### `STELLARWP_UPLINK_API_ROOT`
+### WordPress Hooks
 
-Overrides the V2 API root path. The default is `/api/plugins/v2/`. A trailing slash is automatically appended.
+Actions fired before and after enable/disable, both globally and per-slug:
 
-```php
-define( 'STELLARWP_UPLINK_API_ROOT', '/api/plugins/v2-custom/' );
-```
+- `stellarwp/uplink/feature_enabling` / `stellarwp/uplink/{slug}/feature_enabling`
+- `stellarwp/uplink/feature_enabled` / `stellarwp/uplink/{slug}/feature_enabled`
+- `stellarwp/uplink/feature_disabling` / `stellarwp/uplink/{slug}/feature_disabling`
+- `stellarwp/uplink/feature_disabled` / `stellarwp/uplink/{slug}/feature_disabled`
 
-#### `STELLARWP_UPLINK_V3_API_ROOT`
+## Caching
 
-Overrides the V3 API root path. The default is `/api/stellarwp/v3/`.
+The `Feature_Repository` caches the resolved `Feature_Collection` in a transient (`stellarwp_uplink_feature_catalog`, 12h TTL). The cache includes a hash of the license key — if the key changes, the cache auto-invalidates. `refresh()` explicitly clears and re-resolves.
+
+## Feature Collection
+
+A typed, keyed collection of `Feature` objects with filtering:
 
 ```php
-define( 'STELLARWP_UPLINK_V3_API_ROOT', '/api/stellarwp/v3-custom/' );
+$features->filter(
+    group: 'kadence',      // product family
+    tier: 'kadence-pro',   // minimum tier
+    available: true,       // only available features
+    type: 'plugin',        // only installable features
+);
 ```
 
-> **Note:** In addition to these constants, the V3 client exposes WordPress filters (`stellarwp/uplink/{hook_prefix}/v3/client/base_url` and `stellarwp/uplink/{hook_prefix}/v3/client/api_root`) that allow runtime overrides.
+All parameters optional. Returns a new collection without mutating the original.
 
-### Product updates
+## REST API
 
-The Uplink library should mark a registered plugin as needing an update when a validation response comes back from the Stellar Licensing system with a version number greater than the version number that is currently installed. You can see a reference implementation in [`tribe-common`](https://github.com/the-events-calendar/tribe-common/blob/master/src/Tribe/PUE/Checker.php#L1537).
+Four endpoints under `stellarwp/uplink/v1`. All require `manage_options`.
 
-#### Plugin page
+| Route                      | Method | Purpose                                                       |
+| -------------------------- | ------ | ------------------------------------------------------------- |
+| `/features`                | GET    | List features (filters: `group`, `tier`, `available`, `type`) |
+| `/features/{slug}`         | GET    | Get a single feature                                          |
+| `/features/{slug}/enable`  | POST   | Enable a feature                                              |
+| `/features/{slug}/disable` | POST   | Disable a feature                                             |
 
-On the _Plugins_ page in the WP Dashboard, any plugin that has an update available should display the update similar to how WordPress core does it. If a user click on `Update`, the zip files should be fetched from the Stellar Licensing system and installed if their license key is valid.
+Each response includes `is_enabled` computed live from the strategy, not cached state.
+
+## Error Codes
+
+| Constant                         | HTTP | Meaning                                            |
+| -------------------------------- | ---- | -------------------------------------------------- |
+| `FEATURE_NOT_FOUND`              | 404  | Slug doesn't exist in the resolved catalog         |
+| `FEATURE_TYPE_MISMATCH`          | 400  | Type doesn't match the strategy                    |
+| `FEATURE_REQUEST_FAILED`         | 502  | Resolution failed (catalog or licensing API error) |
+| `FEATURE_CHECK_FAILED`           | 502  | Unexpected error during availability check         |
+| `INVALID_RESPONSE`               | 502  | Catalog response couldn't be parsed                |
+| `UNKNOWN_FEATURE_TYPE`           | 422  | No Feature subclass for the catalog type           |
+| `INSTALL_LOCKED`                 | 409  | Another install already in progress                |
+| `REQUIREMENTS_NOT_MET`           | 422  | PHP or WordPress version requirements not met      |
+| **Plugin-specific**              |      |                                                    |
+| `PLUGIN_OWNERSHIP_MISMATCH`      | 409  | Different developer's plugin in the directory      |
+| `DEACTIVATION_FAILED`            | 409  | Plugin stayed active after deactivation            |
+| `INSTALL_FAILED`                 | 422  | `Plugin_Upgrader::install()` failed                |
+| `ACTIVATION_FATAL`               | 422  | Fatal error during plugin activation               |
+| `ACTIVATION_FAILED`              | 422  | `activate_plugin()` returned an error              |
+| `PLUGIN_NOT_FOUND_AFTER_INSTALL` | 422  | Plugin file missing after ZIP extraction           |
+| `DOWNLOAD_LINK_MISSING`          | 422  | `plugins_api()` returned no download link          |
+| `PLUGINS_API_FAILED`             | 502  | `plugins_api()` call failed                        |
+| **Theme-specific**               |      |                                                    |
+| `THEME_OWNERSHIP_MISMATCH`       | 409  | Different developer's theme in the directory       |
+| `THEME_IS_ACTIVE`                | 409  | Active theme cannot be disabled                    |
+| `THEME_DELETE_REQUIRED`          | 409  | Theme on disk; user must delete manually           |
+| `THEME_NOT_FOUND_AFTER_INSTALL`  | 422  | Theme directory missing after ZIP extraction       |
+| `THEMES_API_FAILED`              | 502  | `themes_api()` call failed                         |
+
+## Data Sources
+
+| Data                                                    | Source                                                              |
+| ------------------------------------------------------- | ------------------------------------------------------------------- |
+| Feature exists, minimum tier, delivery type, tier ranks | Catalog                                                             |
+| Customer's tier, key validity                           | Licensing                                                           |
+| **Whether available**                                   | **Computed: catalog min rank vs. licensing tier rank**              |
+| Whether enabled                                         | Live WordPress state (plugin activation / theme disk / flag option) |
+
+## What Features Does Not Do
+
+- **Fetch its own data** — resolved from catalog and licensing. No separate "features API."
+- **Delete extensions** — plugins are deactivated, never removed. Themes require manual deletion.
+- **Manage seats** — seat consumption is in the licensing layer, not feature enable/disable.
+- **Handle updates** — plugin/theme updates use a separate system hooking into WordPress's native update infrastructure.

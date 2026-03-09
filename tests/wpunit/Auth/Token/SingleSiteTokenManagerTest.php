@@ -65,7 +65,6 @@ final class SingleSiteTokenManagerTest extends UplinkTestCase {
 		$this->assertSame( $token, $this->token_manager->get( $this->plugin ) );
 
 		$this->assertSame( $token, get_option( $this->token_manager->option_name() )[ $this->slug ] );
-
 	}
 
 	/**
@@ -115,5 +114,4 @@ final class SingleSiteTokenManagerTest extends UplinkTestCase {
 
 		$this->assertNull( $this->token_manager->get( $this->plugin ) );
 	}
-
 }

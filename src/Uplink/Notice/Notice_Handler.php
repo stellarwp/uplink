@@ -42,7 +42,7 @@ final class Notice_Handler {
 	/**
 	 * Add a notice to display.
 	 *
-	 * @param  Notice  $notice
+	 * @param Notice $notice
 	 *
 	 * @return void
 	 */
@@ -96,5 +96,4 @@ final class Notice_Handler {
 	private function clear(): bool {
 		return $this->storage->delete( self::STORAGE_KEY );
 	}
-
 }

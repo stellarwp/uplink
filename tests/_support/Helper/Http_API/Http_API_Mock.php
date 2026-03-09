@@ -71,7 +71,7 @@ abstract class Http_API_Mock {
 		507 => 'Insufficient Storage',
 		508 => 'Loop Detected',
 		510 => 'Not Extended',
-		511 => 'Network Authentication Required'
+		511 => 'Network Authentication Required',
 	];
 
 	/**
@@ -92,38 +92,40 @@ abstract class Http_API_Mock {
 	 *
 	 * @throws \JsonException If the response body cannot be encoded as JSON.
 	 */
-	public function make_response( int $status_code, $body, string $content_type = 'applicaton/json' ): array {
+	public function make_response( int $status_code, $body, string $content_type = 'application/json' ): array {
 		if ( $content_type === 'application/json' ) {
 			$body = is_string( $body ) ? $body : json_encode( $body, JSON_THROW_ON_ERROR );
 		} elseif ( $content_type === 'application/x-www-form-urlencoded' ) {
 			$body = is_string( $body ) ? $body : http_build_query( $body );
 		}
 
-		$url = rtrim( $this->get_url(), '/' );
-		$current_date = ( new \DateTime( 'now', new \DateTimezone( 'GMT' ) ) )->format( 'D, d M Y H:i:s GMT' );
-		$request_response = new Requests_Response();
-		$request_response->headers = new \Requests_Response_Headers( [
-			'date'                          => [ $current_date ],
-			'content-type'                  => [ "$content_type; charset=UTF-8" ],
-			'server'                        => [ 'nginx' ],
-			'vary'                          => [ 'Accept-Encoding' ],
-			'x-robots-tag'                  => [ 'noindex' ],
-			'link'                          => [ '<' . $url . '>; rel="https://api.w.org/"' ],
-			'x-content-type-options'        => [ 'nosniff' ],
-			'access-control-expose-headers' => [ 'X-WP-Total, X-WP-TotalPages, Link' ],
-			'access-control-allow-headers'  => [ 'Authorization, X-WP-Nonce, Content-Disposition, Content-MD5, Content-Type' ],
-			'allow'                         => [ 'GET, POST' ],
-			'strict-transport-security'     => [ 'max-age=31536000; includeSubdomains; preload;' ],
-			'cache-control'                 => [ 'store, must-revalidate, post-check=0, pre-check=0' ],
-			'access-control-allow-origin'   => [ '*' ],
-			'x-frame-options'               => [ 'SAMEORIGIN' ],
-			'x-xss-protection'              => [ '1; mode=block' ],
-			'alternate-protocol'            => [ '443:npn-spdy/3' ],
-			'x-ua-compatible'               => [ 'IE=Edge' ],
-			'content-encoding'              => [ 'gzip' ],
-		] );
+		$url                       = rtrim( $this->get_url(), '/' );
+		$current_date              = ( new \DateTime( 'now', new \DateTimezone( 'GMT' ) ) )->format( 'D, d M Y H:i:s GMT' );
+		$request_response          = new Requests_Response();
+		$request_response->headers = new \Requests_Response_Headers(
+			[
+				'date'                          => [ $current_date ],
+				'content-type'                  => [ "$content_type; charset=UTF-8" ],
+				'server'                        => [ 'nginx' ],
+				'vary'                          => [ 'Accept-Encoding' ],
+				'x-robots-tag'                  => [ 'noindex' ],
+				'link'                          => [ '<' . $url . '>; rel="https://api.w.org/"' ],
+				'x-content-type-options'        => [ 'nosniff' ],
+				'access-control-expose-headers' => [ 'X-WP-Total, X-WP-TotalPages, Link' ],
+				'access-control-allow-headers'  => [ 'Authorization, X-WP-Nonce, Content-Disposition, Content-MD5, Content-Type' ],
+				'allow'                         => [ 'GET, POST' ],
+				'strict-transport-security'     => [ 'max-age=31536000; includeSubdomains; preload;' ],
+				'cache-control'                 => [ 'store, must-revalidate, post-check=0, pre-check=0' ],
+				'access-control-allow-origin'   => [ '*' ],
+				'x-frame-options'               => [ 'SAMEORIGIN' ],
+				'x-xss-protection'              => [ '1; mode=block' ],
+				'alternate-protocol'            => [ '443:npn-spdy/3' ],
+				'x-ua-compatible'               => [ 'IE=Edge' ],
+				'content-encoding'              => [ 'gzip' ],
+			] 
+		);
 		$request_response->cookies = new \Requests_Cookie_Jar( [] );
-		$status_message = self::$status_messages[ $status_code ] ?? 'Unknown';
+		$status_message            = self::$status_messages[ $status_code ] ?? 'Unknown';
 		foreach (
 			[
 				'body'             => $body,
@@ -192,7 +194,10 @@ $body",
 					]
 				),
 			'body'          => $body,
-			'response'      => [ 'code' => $status_code, 'message' => $status_message, ],
+			'response'      => [
+				'code'    => $status_code,
+				'message' => $status_message,
+			],
 			'cookies'       => [],
 			'filename'      => null,
 			'http_response' => $http_response,
@@ -200,7 +205,7 @@ $body",
 	}
 
 	/**
-	 * Sets up the HPTT API mock to return a response to a specific request.
+	 * Sets up the HTTP API mock to return a response to a specific request.
 	 *
 	 * @param string         $method   The HTTP method to mock, defaults to `GET`.
 	 * @param string         $uri      The URI to mock, relative to the URL specified by the extending class `get_url`
@@ -211,9 +216,9 @@ $body",
 	 * @return void The corresponding mock will be set up.
 	 */
 	public function will_reply_to_request( string $method, string $uri, $response ): void {
-		$method = strtoupper( $method );
-		$uri = '/' . ltrim( $uri, '/' );
-		$key = "$method $uri";
+		$method                       = strtoupper( $method );
+		$uri                          = '/' . ltrim( $uri, '/' );
+		$key                          = "$method $uri";
 		$this->mock_responses[ $key ] = $response;
 		if ( ! has_filter( 'pre_http_request', [ $this, 'mock_http_response' ] ) ) {
 			add_filter( 'pre_http_request', [ $this, 'mock_http_response' ], 10, 3 );
@@ -230,9 +235,9 @@ $body",
 	 * @return false|mixed Either the mocked response or `false` to let the request go through.
 	 */
 	public function mock_http_response( $preempt, array $parsed_args, string $url ) {
-		$uri = '/' . ltrim( str_replace( $this->get_url(), '', $url ), '/' );
+		$uri    = '/' . ltrim( str_replace( $this->get_url(), '', $url ), '/' );
 		$method = $parsed_args['method'] ?? 'GET';
-		$key = "$method $uri";
+		$key    = "$method $uri";
 
 		if ( ! isset( $this->mock_responses[ $key ] ) ) {
 			// We do not have a mock for this, let the HTTP API run its course.
@@ -254,5 +259,4 @@ $body",
 	 * @return string The root URL to use for the mocked HTTP API requests.
 	 */
 	abstract protected function get_url(): string;
-
 }

@@ -23,8 +23,7 @@ class Plugin_FilterIterator extends FilterIterator implements Countable {
 	/**
 	 * @inheritDoc
 	 */
-	public function count() : int {
+	public function count(): int {
 		return iterator_count( $this );
 	}
-
 }

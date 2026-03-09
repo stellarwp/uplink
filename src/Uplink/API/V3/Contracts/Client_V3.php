@@ -10,8 +10,8 @@ interface Client_V3 {
 	/**
 	 * Perform a GET request.
 	 *
-	 * @param  string  $endpoint
-	 * @param  array<string, mixed>  $params
+	 * @param string               $endpoint
+	 * @param array<string, mixed> $params
 	 *
 	 * @return WP_Error|array{
 	 *      'body' : array<string, mixed>,
@@ -31,8 +31,8 @@ interface Client_V3 {
 	/**
 	 * Perform a POST request.
 	 *
-	 * @param  string  $endpoint
-	 * @param  array<string, mixed>  $params
+	 * @param string               $endpoint
+	 * @param array<string, mixed> $params
 	 *
 	 * @return WP_Error|array{
 	 *       'body' : array<string, mixed>,
@@ -51,9 +51,9 @@ interface Client_V3 {
 	/**
 	 * Perform any other request.
 	 *
-	 * @param  string  $endpoint
-	 * @param  string  $method
-	 * @param  array<string, mixed>  $params
+	 * @param string               $endpoint
+	 * @param string               $method
+	 * @param array<string, mixed> $params
 	 *
 	 * @return WP_Error|array{
 	 *       'body' : array<string, mixed>,
@@ -68,5 +68,4 @@ interface Client_V3 {
 	 *   }
 	 */
 	public function request( string $endpoint, string $method = 'GET', array $params = [] );
-
 }

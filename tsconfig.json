@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*":           ["./resources/js/*"],
+      "@components/*": ["./resources/js/components/*"],
+      "@lib/*":        ["./resources/js/lib/*"],
+      "@css/*":        ["./resources/css/*"]
+    }
+  },
+  "include": ["resources/js/**/*.ts", "resources/js/**/*.tsx"],
+  "exclude": ["node_modules", "build", "build-dev", "vendor"]
+}

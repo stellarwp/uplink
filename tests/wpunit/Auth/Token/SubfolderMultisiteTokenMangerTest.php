@@ -123,5 +123,4 @@ final class SubfolderMultisiteTokenMangerTest extends UplinkTestCase {
 
 		$this->assertNull( $this->token_manager->get( $this->plugin ) );
 	}
-
 }

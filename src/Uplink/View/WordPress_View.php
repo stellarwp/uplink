@@ -30,8 +30,8 @@ final class WordPress_View implements Contracts\View {
 	private $extension;
 
 	/**
-	 * @param  string  $directory The server path to the views folder.
-	 * @param  string  $extension The file extension of view files.
+	 * @param string $directory The server path to the views folder.
+	 * @param string $extension The file extension of view files.
 	 */
 	public function __construct( string $directory, string $extension = '.php' ) {
 		$this->directory = trailingslashit( realpath( $directory ) );
@@ -44,9 +44,9 @@ final class WordPress_View implements Contracts\View {
 	 * @example If the server path is /app/views, and you wish to load /app/views/admin/notice.php,
 	 * pass `admin/notice` as the view name.
 	 *
-	 * @param  string  $name  The relative path/name of the view file without extension.
+	 * @param string  $name  The relative path/name of the view file without extension.
 	 *
-	 * @param  mixed[]  $args  Arguments to be extracted and passed to the view.
+	 * @param mixed[] $args  Arguments to be extracted and passed to the view.
 	 *
 	 * @throws FileNotFoundException If the view file cannot be found.
 	 *
@@ -75,7 +75,7 @@ final class WordPress_View implements Contracts\View {
 	/**
 	 * Get the absolute server path to a view file.
 	 *
-	 * @param  string  $name  The relative view path/name, e.g. `admin/notice`.
+	 * @param string $name  The relative view path/name, e.g. `admin/notice`.
 	 *
 	 * @throws FileNotFoundException If the view file cannot be found.
 	 *
@@ -85,7 +85,7 @@ final class WordPress_View implements Contracts\View {
 		$file = $this->directory . $name . $this->extension;
 		$path = realpath( $file );
 
-		if( $path === false ) {
+		if ( $path === false ) {
 			throw new FileNotFoundException(
 				sprintf( __( 'View file "%s" not found or not readable.', '%TEXTDOMAIN%' ), $file )
 			);
@@ -93,5 +93,4 @@ final class WordPress_View implements Contracts\View {
 
 		return $path;
 	}
-
 }

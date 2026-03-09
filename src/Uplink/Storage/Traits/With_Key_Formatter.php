@@ -24,5 +24,4 @@ trait With_Key_Formatter {
 
 		return is_scalar( $key ) ? (string) $key : md5( (string) wp_json_encode( $key ) );
 	}
-
 }

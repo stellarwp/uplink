@@ -13,7 +13,7 @@ class NoticeTest extends UplinkTestCase {
 		$notice->add_notice( Notice::EXPIRED_KEY, 'uplink' );
 
 		$notices = get_option( Notice::STORE_KEY );
-		$this->assertTrue( $notices[ Notice::EXPIRED_KEY ][ 'uplink' ] );
+		$this->assertTrue( $notices[ Notice::EXPIRED_KEY ]['uplink'] );
 	}
 
 	public function test_it_should_display_notice() {
@@ -34,5 +34,4 @@ class NoticeTest extends UplinkTestCase {
 
 		$notice->setup_notices();
 	}
-
 }

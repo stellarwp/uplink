@@ -6,7 +6,6 @@ use StellarWP\Uplink\Auth\Admin\Connect_Controller;
 use StellarWP\Uplink\Auth\Admin\Disconnect_Controller;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Resources\Collection;
-use StellarWP\Uplink\Resources\Resource;
 
 /**
  * Manages Token Authorization WordPress actions to connect/disconnect
@@ -32,9 +31,9 @@ final class Action_Manager {
 	private $resources;
 
 	/**
-	 * @param  Disconnect_Controller  $disconnect_controller
-	 * @param  Connect_Controller     $connect_controller
-	 * @param  Collection             $resources
+	 * @param Disconnect_Controller $disconnect_controller
+	 * @param Connect_Controller    $connect_controller
+	 * @param Collection            $resources
 	 */
 	public function __construct(
 		Disconnect_Controller $disconnect_controller,
@@ -49,7 +48,7 @@ final class Action_Manager {
 	/**
 	 * Get the resource's unique hook name.
 	 *
-	 * @param  string  $slug The plugin/service slug.
+	 * @param string $slug The plugin/service slug.
 	 *
 	 * @example stellarwp/uplink/my_hook_prefix/admin_action_my_plugin_slug
 	 *
@@ -58,7 +57,8 @@ final class Action_Manager {
 	 * @return string
 	 */
 	public function get_hook_name( string $slug ): string {
-		return sprintf( 'stellarwp/uplink/%s/%s_%s',
+		return sprintf(
+			'stellarwp/uplink/%s/%s_%s',
 			Config::get_hook_prefix(),
 			self::ACTION,
 			$slug
@@ -118,5 +118,4 @@ final class Action_Manager {
 		 */
 		do_action( $this->get_hook_name( $slug ) );
 	}
-
 }

@@ -57,5 +57,4 @@ class Service_Mock extends Http_API_Mock {
 	protected function get_url(): string {
 		return 'https://licensing.stellarwp.com/api/';
 	}
-
 }

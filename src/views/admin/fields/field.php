@@ -19,11 +19,11 @@ use StellarWP\Uplink\Components\Admin\Authorize_Button_Controller;
  *
  * @param string $slug The slug of the field.
  */
-do_action( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_field_before_field', $field->get_slug() );
+do_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/license_field_before_field', $field->get_slug() );
 ?>
 <?php if ( $field->should_show_label() ) : ?>
 	<table class="form-table" role="presentation">
-	<tr class="stellarwp-uplink-license-key-field">
+	<tr class="stellarwp-uplink-license-key-field-row">
 	<th scope="row">
 		<label for="<?php echo esc_attr( $field->get_field_id() ); ?>"><?php echo esc_html( $field->get_label() ); ?></label>
 	</th>
@@ -62,11 +62,13 @@ do_action( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_field_befo
 				<?php if ( $resource->is_using_oauth() ) : ?>
 					<?php
 					try {
-						Config::get_container()->get( Authorize_Button_Controller::class )->render( [
-							'slug' => $field->get_slug(),
-							'domain' => get_site_url(),
-							'license' => $resource->license_key ?? '',
-						] );
+						Config::get_container()->get( Authorize_Button_Controller::class )->render(
+							[
+								'slug'    => $field->get_slug(),
+								'domain'  => get_site_url(),
+								'license' => $resource->license_key ?? '',
+							] 
+						);
 					} catch ( Throwable $e ) {
 						if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 							error_log( "Unable to render authorize button: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
@@ -90,4 +92,4 @@ do_action( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_field_befo
  *
  * @since 2.0.0
  */
-do_action( 'stellarwp/uplink/' . Config::get_hook_prefix(). '/license_field_after_field', $field->get_slug() );
+do_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/license_field_after_field', $field->get_slug() );

@@ -26,7 +26,7 @@ final class NonceTest extends UplinkTestCase {
 
 		$this->assertNotEmpty( $nonce );
 		$this->assertSame( 16, strlen( $nonce ) );
-		$this->assertFalse( $this->nonce->verify( '') );
+		$this->assertFalse( $this->nonce->verify( '' ) );
 		$this->assertTrue( $this->nonce->verify( $nonce ) );
 	}
 
@@ -43,11 +43,11 @@ final class NonceTest extends UplinkTestCase {
 
 		parse_str( $query, $parts );
 
-		$nonce = $parts[ '_uplink_nonce' ];
+		$nonce = $parts['_uplink_nonce'];
 
 		$this->assertNotEmpty( $nonce );
 		$this->assertSame( 16, strlen( $nonce ) );
-		$this->assertFalse( $this->nonce->verify( '') );
+		$this->assertFalse( $this->nonce->verify( '' ) );
 		$this->assertTrue( $this->nonce->verify( $nonce ) );
 	}
 
@@ -72,5 +72,4 @@ final class NonceTest extends UplinkTestCase {
 		$this->assertFalse( $this->nonce->verify( '' ) );
 		$this->assertTrue( $this->nonce->verify( $nonce ) );
 	}
-
 }

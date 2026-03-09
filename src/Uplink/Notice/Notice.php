@@ -59,11 +59,11 @@ final class Notice {
 	private $large;
 
 	/**
-	 * @param  string  $type  The notice type, one of the above constants.
-	 * @param  string  $message  The already translated message to display.
-	 * @param  bool  $dismissible  Whether this notice is dismissible.
-	 * @param  bool  $alt  Whether this is an alt-notice.
-	 * @param  bool  $large  Whether this should be a large notice.
+	 * @param string $type  The notice type, one of the above constants.
+	 * @param string $message  The already translated message to display.
+	 * @param bool   $dismissible  Whether this notice is dismissible.
+	 * @param bool   $alt  Whether this is an alt-notice.
+	 * @param bool   $large  Whether this should be a large notice.
 	 */
 	public function __construct(
 		string $type,
@@ -73,9 +73,11 @@ final class Notice {
 		bool $large = false
 	) {
 		if ( ! in_array( $type, self::ALLOWED_TYPES, true ) ) {
-			throw new InvalidArgumentException( sprintf(
+			throw new InvalidArgumentException(
+				sprintf(
 					__( 'Notice $type must be one of: %s', '%TEXTDOMAIN%' ),
-					implode( ', ', self::ALLOWED_TYPES ) )
+					implode( ', ', self::ALLOWED_TYPES ) 
+				)
 			);
 		}
 
@@ -96,5 +98,4 @@ final class Notice {
 	public function toArray(): array {
 		return get_object_vars( $this );
 	}
-
 }

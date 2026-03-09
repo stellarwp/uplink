@@ -1,0 +1,4 @@
+significance: minor
+type: feature
+entry: Added support for simple license files (e.g. auth-token.php, PLUGIN_LICENSE.php) that return the license key directly, in addition to the existing class constant (KEY/DATA) approach.
+timestamp: 2026-02-23T14:30:43.000Z

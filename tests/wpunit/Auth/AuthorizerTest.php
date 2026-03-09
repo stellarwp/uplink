@@ -116,5 +116,4 @@ final class AuthorizerTest extends UplinkTestCase {
 
 		$this->assertTrue( $this->authorizer->can_auth() );
 	}
-
 }

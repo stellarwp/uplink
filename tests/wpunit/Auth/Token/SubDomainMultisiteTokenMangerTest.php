@@ -123,5 +123,4 @@ final class SubDomainMultisiteTokenMangerTest extends UplinkTestCase {
 
 		$this->assertNull( $this->token_manager->get( $this->plugin ) );
 	}
-
 }

@@ -2,9 +2,10 @@
 
 namespace StellarWP\Uplink\API\REST\V1;
 
-use StellarWP\Uplink\Licensing\Error_Code;
+use StellarWP\Uplink\Licensing\Product_Collection;
 use StellarWP\Uplink\Utils\License_Key;
 use StellarWP\Uplink\Licensing\License_Manager;
+use StellarWP\Uplink\Site\Data;
 use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Request;
@@ -51,16 +52,27 @@ final class License_Controller extends WP_REST_Controller {
 	private License_Manager $manager;
 
 	/**
+	 * The site data provider.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var Data
+	 */
+	private Data $site_data;
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param License_Manager $manager The license manager.
+	 * @param License_Manager $manager   The license manager.
+	 * @param Data            $site_data The site data provider.
 	 *
 	 * @return void
 	 */
-	public function __construct( License_Manager $manager ) {
-		$this->manager = $manager;
+	public function __construct( License_Manager $manager, Data $site_data ) {
+		$this->manager   = $manager;
+		$this->site_data = $site_data;
 	}
 
 	/**
@@ -95,6 +107,19 @@ final class License_Controller extends WP_REST_Controller {
 				'schema' => [ $this, 'get_public_item_schema' ],
 			]
 		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/validate',
+			[
+				[
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => [ $this, 'validate_item' ],
+					'permission_callback' => [ $this, 'check_permissions' ],
+					'args'                => $this->get_validate_args(),
+				],
+			]
+		);
 	}
 
 	/**
@@ -109,7 +134,7 @@ final class License_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Returns the current unified license key.
+	 * Returns the current unified license key and its associated products.
 	 *
 	 * Always returns 200. The key field will be null if no key is stored
 	 * and none is discoverable from the product registry.
@@ -121,11 +146,22 @@ final class License_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public function get_item( $request ): WP_REST_Response {
-		return new WP_REST_Response( [ 'key' => $this->manager->get_key() ] );
+		$domain   = $this->site_data->get_domain();
+		$products = $this->manager->get_products( $domain );
+
+		$data = [
+			'key'      => $this->manager->get_key(),
+			'products' => $products instanceof Product_Collection ? $products->to_array() : [],
+		];
+
+		return new WP_REST_Response( $data );
 	}
 
 	/**
-	 * Stores the unified license key.
+	 * Validates a license key against the remote API and stores it.
+	 *
+	 * Verifies the key is recognized (has products) but does not activate
+	 * any product or consume a seat. Returns the stored key on success.
 	 *
 	 * @since 3.0.0
 	 *
@@ -137,22 +173,65 @@ final class License_Controller extends WP_REST_Controller {
 		/** @var string $key */
 		$key     = $request->get_param( 'key' );
 		$network = (bool) $request->get_param( 'network' );
-		$domain  = (string) wp_parse_url( get_site_url(), PHP_URL_HOST );
+		$domain  = $this->site_data->get_domain();
 
 		$result = $this->manager->validate_and_store( $key, $domain, $network );
 
 		if ( is_wp_error( $result ) ) {
-			$status = $result->get_error_code() === Error_Code::INVALID_KEY ? 422 : 500;
-			$result->add_data( [ 'status' => $status ] );
+			$data = $result->get_error_data();
+
+			if ( ! is_array( $data ) || empty( $data['status'] ) ) {
+				$result->add_data( [ 'status' => 500 ] );
+			}
 
 			return $result;
 		}
 
-		return new WP_REST_Response( [ 'key' => $this->manager->get_key() ] );
+		$data = [
+			'key'      => $key,
+			'products' => Product_Collection::from_array( $result )->to_array(),
+		];
+
+		return new WP_REST_Response( $data );
+	}
+
+	/**
+	 * Validates a product on this domain using the stored license key.
+	 *
+	 * Calls the licensing API validate endpoint, which may consume an
+	 * activation seat. Returns the validation result.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function validate_item( $request ) {
+		/** @var string $product_slug */
+		$product_slug = $request->get_param( 'product_slug' );
+		$domain       = $this->site_data->get_domain();
+
+		$result = $this->manager->validate_product( $domain, $product_slug );
+
+		if ( is_wp_error( $result ) ) {
+			$data = $result->get_error_data();
+
+			if ( ! is_array( $data ) || empty( $data['status'] ) ) {
+				$result->add_data( [ 'status' => 500 ] );
+			}
+
+			return $result;
+		}
+
+		return new WP_REST_Response( null, 201 );
 	}
 
 	/**
 	 * Deletes the stored unified license key.
+	 *
+	 * This only removes the locally stored key. It does not free any
+	 * activation seats on the licensing service.
 	 *
 	 * @since 3.0.0
 	 *
@@ -165,7 +244,7 @@ final class License_Controller extends WP_REST_Controller {
 
 		$this->manager->delete_key( $network );
 
-		return new WP_REST_Response( [ 'deleted' => true ] );
+		return new WP_REST_Response( null, 204 );
 	}
 
 	/**
@@ -220,6 +299,24 @@ final class License_Controller extends WP_REST_Controller {
 			],
 			$this->get_network_args()
 		);
+	}
+
+	/**
+	 * Gets the argument definitions for the validate (POST) endpoint.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return array<string, array<string, mixed>>
+	 */
+	private function get_validate_args(): array {
+		return [
+			'product_slug' => [
+				'description'       => __( 'The product to validate.', '%TEXTDOMAIN%' ),
+				'type'              => 'string',
+				'required'          => true,
+				'sanitize_callback' => 'sanitize_text_field',
+			],
+		];
 	}
 
 	/**

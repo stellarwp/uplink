@@ -7,6 +7,7 @@ use StellarWP\Uplink\Licensing\Contracts\Licensing_Client;
 use StellarWP\Uplink\Licensing\Registry\Product_Registry;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
 use StellarWP\Uplink\Licensing\Results\Product_Entry;
+use StellarWP\Uplink\Licensing\Results\Validation_Result;
 use WP_Error;
 
 /**
@@ -113,10 +114,10 @@ final class License_Manager {
 	}
 
 	/**
-	 * Validate a license key against the remote licensing API and store it on success.
+	 * Verify a license key is recognized by the remote API and store it.
 	 *
-	 * Fetches the product catalog for the given key to verify it is recognized,
-	 * primes the cache, then persists the key.
+	 * Fetches the product catalog to confirm the key exists, then persists it.
+	 * Does not activate any products or consume seats.
 	 *
 	 * @since 3.0.0
 	 *
@@ -124,13 +125,14 @@ final class License_Manager {
 	 * @param string $domain  The site domain sent to the licensing API.
 	 * @param bool   $network Whether to store at the network level (multisite only).
 	 *
-	 * @return true|WP_Error True on success, WP_Error on validation or storage failure.
+	 * @return Product_Entry[]|WP_Error The product list on success, WP_Error on failure.
 	 */
 	public function validate_and_store( string $key, string $domain, bool $network = false ) {
 		if ( ! License_Key::is_valid_format( $key ) ) {
 			return new WP_Error(
 				Error_Code::INVALID_KEY,
-				__( 'The license key format is invalid.', '%TEXTDOMAIN%' )
+				__( 'The license key format is invalid.', '%TEXTDOMAIN%' ),
+				[ 'status' => 400 ]
 			);
 		}
 
@@ -138,6 +140,12 @@ final class License_Manager {
 		$result = $this->client->get_products( $key, $domain );
 
 		if ( is_wp_error( $result ) ) {
+			$data = $result->get_error_data();
+
+			if ( ! is_array( $data ) || empty( $data['status'] ) ) {
+				$result->add_data( [ 'status' => 500 ] );
+			}
+
 			return $result;
 		}
 
@@ -146,11 +154,62 @@ final class License_Manager {
 		if ( ! $this->repository->store_key( $key, $network ) ) {
 			return new WP_Error(
 				Error_Code::STORE_FAILED,
-				__( 'The license key could not be stored.', '%TEXTDOMAIN%' )
+				__( 'The license key could not be stored.', '%TEXTDOMAIN%' ),
+				[ 'status' => 500 ]
 			);
 		}
 
-		return true;
+		return $result;
+	}
+
+	/**
+	 * Validate a product on this domain using the stored license key.
+	 *
+	 * Calls the licensing API validate endpoint to check (and potentially
+	 * consume) an activation seat for the given product. On success the
+	 * product cache is cleared so the next read reflects the new state.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $domain       The site domain.
+	 * @param string $product_slug The product to validate.
+	 *
+	 * @return Validation_Result|WP_Error
+	 */
+	public function validate_product( string $domain, string $product_slug ) {
+		$key = $this->get_key();
+
+		if ( $key === null ) {
+			return new WP_Error(
+				Error_Code::INVALID_KEY,
+				__( 'No license key is stored.', '%TEXTDOMAIN%' ),
+				[ 'status' => 422 ]
+			);
+		}
+
+		$result = $this->client->validate( $key, $domain, $product_slug );
+
+		if ( is_wp_error( $result ) ) {
+			$data = $result->get_error_data();
+
+			if ( ! is_array( $data ) || empty( $data['status'] ) ) {
+				$result->add_data( [ 'status' => 500 ] );
+			}
+
+			return $result;
+		}
+
+		if ( ! $result->is_valid() ) {
+			return new WP_Error(
+				$result->error_code(),
+				$result->error_message(),
+				[ 'status' => 422 ]
+			);
+		}
+
+		$this->fetch_and_cache( $key, $domain );
+
+		return $result;
 	}
 
 	/**
@@ -195,7 +254,8 @@ final class License_Manager {
 		if ( $key === null ) {
 			return new WP_Error(
 				Error_Code::INVALID_KEY,
-				__( 'No license key is stored.', '%TEXTDOMAIN%' )
+				__( 'No license key is stored.', '%TEXTDOMAIN%' ),
+				[ 'status' => 422 ]
 			);
 		}
 
@@ -223,7 +283,8 @@ final class License_Manager {
 		if ( $key === null ) {
 			return new WP_Error(
 				Error_Code::INVALID_KEY,
-				__( 'No license key is stored.', '%TEXTDOMAIN%' )
+				__( 'No license key is stored.', '%TEXTDOMAIN%' ),
+				[ 'status' => 422 ]
 			);
 		}
 

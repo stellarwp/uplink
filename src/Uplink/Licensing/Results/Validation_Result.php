@@ -163,4 +163,40 @@ final class Validation_Result {
 	public function is_valid(): bool {
 		return $this->get_status() === Validation_Status::VALID;
 	}
+
+	/**
+	 * Returns the WP_Error code for a non-valid result.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string An Error_Code constant value.
+	 */
+	public function error_code(): string {
+		return Validation_Status::error_code( $this->get_status() );
+	}
+
+	/**
+	 * Returns a human-readable error message for a non-valid result.
+	 *
+	 * Uses subscription data to provide contextual detail when available,
+	 * such as the site limit for out_of_activations.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string
+	 */
+	public function error_message(): string {
+		$status       = $this->get_status();
+		$subscription = $this->get_subscription();
+
+		if ( $status === Validation_Status::OUT_OF_ACTIVATIONS && $subscription !== null ) {
+			return sprintf(
+				/* translators: %d: number of activation seats */
+				__( 'All %d activation seats are in use.', '%TEXTDOMAIN%' ),
+				$subscription['site_limit']
+			);
+		}
+
+		return Validation_Status::message( $status );
+	}
 }

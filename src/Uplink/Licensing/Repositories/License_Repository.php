@@ -12,7 +12,9 @@ use WP_Error;
  *
  * Covers two storage layers:
  *   - WordPress options: the unified license key (single key per site).
- *   - WordPress transients: the product catalog cache (keyed by a fixed name).
+ *   - WordPress options: the license state (last successful products, fetch
+ *     timestamp, last error). Stored without a TTL so product data survives
+ *     indefinitely even when the licensing server is unreachable.
  *
  * This class is a pure data-access layer — it only reads from and writes to
  * WordPress storage. It never calls external APIs or applies business logic.
@@ -36,35 +38,31 @@ final class License_Repository {
 	public const KEY_OPTION_NAME = 'stellarwp_uplink_unified_license_key';
 
 	/**
-	 * Transient key for the cached product catalog.
+	 * Option name for the license state envelope.
+	 *
+	 * Stores an associative array with three keys:
+	 *   - collection     (array|null)    Product_Collection::to_array() from the last
+	 *                                    successful API fetch, or null if never fetched.
+	 *   - last_success_at (int|null)     Unix timestamp of the last successful fetch.
+	 *   - last_error      (WP_Error|null) Error from the most recent failed attempt, or
+	 *                                    null when the last fetch succeeded.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @var string
 	 */
-	public const PRODUCTS_TRANSIENT_KEY = 'stellarwp_uplink_licensing_products';
+	public const PRODUCTS_STATE_OPTION_NAME = 'stellarwp_uplink_licensing_products_state';
 
 	/**
 	 * Option name for the map of per-product last-active timestamps.
 	 *
 	 * Stored as an associative array keyed by product slug.
 	 *
-	 * TODO: Decide where to store this data. See discussion in https://github.com/stellarwp/uplink/pull/162/changes#r2906722318
-	 *
 	 * @since 3.0.0
 	 *
 	 * @var string
 	 */
 	public const PRODUCTS_LAST_ACTIVE_DATES_OPTION_NAME = 'stellarwp_uplink_licensing_products_last_active_dates';
-
-	/**
-	 * Default cache duration in seconds (12 hours).
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var int
-	 */
-	public const CACHE_DURATION = HOUR_IN_SECONDS * 12;
 
 	/**
 	 * Get the stored unified license key.
@@ -204,61 +202,139 @@ final class License_Repository {
 	}
 
 	/**
-	 * Read the cached product catalog from the transient.
+	 * Read the stored license state and return the products portion.
 	 *
-	 * Returns null when no catalog has been cached yet. Use
-	 * License_Manager::get_products() for a call that will fetch from the
-	 * API on a cache miss.
+	 * When a successful product catalog has been stored, it is returned even if
+	 * a subsequent fetch failed. When no catalog exists but a previous error was
+	 * recorded, that WP_Error is returned so callers can surface it. Returns
+	 * null when nothing has been stored yet.
+	 *
+	 * Use License_Manager::get_products() for a call that will fetch from the
+	 * API on a miss.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @return Product_Collection|WP_Error|null Cached value, WP_Error on error, or null on miss.
+	 * @return Product_Collection|WP_Error|null
 	 */
 	public function get_products() {
-		$products = get_transient( self::PRODUCTS_TRANSIENT_KEY );
+		$state = $this->read_products_state();
 
-		if ( is_wp_error( $products ) ) {
-			return $products;
+		if ( is_array( $state['collection'] ) ) {
+			return Product_Collection::from_array( $state['collection'] );
 		}
 
-		if ( is_array( $products ) ) {
-			/** @var array<array<string, mixed>> $products */
-			return Product_Collection::from_array( $products );
+		if ( $state['last_error'] instanceof WP_Error ) {
+			return $state['last_error'];
 		}
 
 		return null;
 	}
 
 	/**
-	 * Write the product catalog to the transient cache.
+	 * Persist the product catalog or a fetch error to the license state option.
+	 *
+	 * On success (Product_Collection): updates collection and last_success_at,
+	 * clears last_error.
+	 *
+	 * On failure (WP_Error): stores last_error only. The existing collection and
+	 * last_success_at are preserved so callers can still use the last known-good
+	 * catalog.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Product_Collection|WP_Error $data The catalog data to cache.
+	 * @param Product_Collection|WP_Error $data
 	 *
 	 * @return void
 	 */
 	public function set_products( $data ): void {
 		if ( $data instanceof Product_Collection ) {
-			set_transient( self::PRODUCTS_TRANSIENT_KEY, $data->to_array(), self::CACHE_DURATION );
+			$state                    = $this->read_products_state();
+			$state['collection']      = $data->to_array();
+			$state['last_success_at'] = time();
+			$state['last_error']      = null;
+			update_option( self::PRODUCTS_STATE_OPTION_NAME, $state, false );
 
 			return;
 		}
 
 		if ( is_wp_error( $data ) ) {
-			set_transient( self::PRODUCTS_TRANSIENT_KEY, $data, self::CACHE_DURATION );
+			$state               = $this->read_products_state();
+			$state['last_error'] = $data;
+			update_option( self::PRODUCTS_STATE_OPTION_NAME, $state, false );
 		}
 	}
 
 	/**
-	 * Delete the cached product catalog.
+	 * Delete the entire license state option.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @return void
 	 */
 	public function delete_products(): void {
-		delete_transient( self::PRODUCTS_TRANSIENT_KEY );
+		delete_option( self::PRODUCTS_STATE_OPTION_NAME );
+	}
+
+	/**
+	 * Unix timestamp of the last successful products fetch, or null if never fetched.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return int|null
+	 */
+	public function get_products_last_success_at(): ?int {
+		$value = $this->read_products_state()['last_success_at'];
+
+		return is_int( $value ) ? $value : null;
+	}
+
+	/**
+	 * WP_Error from the most recent failed fetch attempt, or null if the last
+	 * fetch was successful (or no fetch has occurred).
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return WP_Error|null
+	 */
+	public function get_products_last_error(): ?WP_Error {
+		$error = $this->read_products_state()['last_error'];
+
+		return $error instanceof WP_Error ? $error : null;
+	}
+
+	/**
+	 * Read the raw license state array from the option, returning a zeroed
+	 * default when nothing has been stored.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return array{collection: array<array<string,mixed>>|null, last_success_at: int|null, last_error: WP_Error|null}
+	 */
+	private function read_products_state(): array {
+		$raw = get_option( self::PRODUCTS_STATE_OPTION_NAME, null );
+
+		if ( ! is_array( $raw ) ) {
+			return [
+				'collection'      => null,
+				'last_success_at' => null,
+				'last_error'      => null,
+			];
+		}
+
+		$collection = null;
+		if ( isset( $raw['collection'] ) && is_array( $raw['collection'] ) ) {
+			/** @var array<array<string, mixed>> $collection */
+			$collection = $raw['collection'];
+		}
+
+		$last_success_at = isset( $raw['last_success_at'] ) && is_int( $raw['last_success_at'] ) ? $raw['last_success_at'] : null;
+		$last_error      = isset( $raw['last_error'] ) && $raw['last_error'] instanceof WP_Error ? $raw['last_error'] : null;
+
+		return [
+			'collection'      => $collection,
+			'last_success_at' => $last_success_at,
+			'last_error'      => $last_error,
+		];
 	}
 
 	/**

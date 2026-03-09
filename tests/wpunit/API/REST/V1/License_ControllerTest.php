@@ -24,7 +24,7 @@ final class License_ControllerTest extends UplinkTestCase {
 		parent::setUp();
 
 		delete_option( License_Repository::KEY_OPTION_NAME );
-		delete_transient( License_Repository::PRODUCTS_TRANSIENT_KEY );
+		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
 
 		$repository    = new License_Repository();
 		$registry      = new Product_Registry();
@@ -56,7 +56,7 @@ final class License_ControllerTest extends UplinkTestCase {
 		$wp_rest_server = null;
 
 		delete_option( License_Repository::KEY_OPTION_NAME );
-		delete_transient( License_Repository::PRODUCTS_TRANSIENT_KEY );
+		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
 
 		parent::tearDown();
 	}

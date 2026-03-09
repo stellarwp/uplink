@@ -111,17 +111,18 @@ The unified key is stored in a WordPress option (`stellarwp_uplink_unified_licen
 
 ### License State Storage
 
-The full product catalog and related metadata are stored in a WordPress option (`stellarwp_uplink_licensing_products_state`) as a state envelope with three keys:
+The full product catalog and related metadata are stored in a WordPress option (`stellarwp_uplink_licensing_products_state`) as a state envelope with four keys:
 
-| Key               | Type                | Description                                                                                 |
-| ----------------- | ------------------- | ------------------------------------------------------------------------------------------- |
-| `collection`      | `array&#124;null`   | `Product_Collection::to_array()` from the last successful fetch, or `null` if never fetched |
-| `last_success_at` | `int&#124;null`     | Unix timestamp of the last successful fetch                                                 |
-| `last_error`      | `WP_Error&#124;null`| Error from the most recent failed attempt, or `null` if the last fetch succeeded            |
+| Key                | Type                 | Description                                                                                 |
+| ------------------ | -------------------- | ------------------------------------------------------------------------------------------- |
+| `collection`       | `array&#124;null`    | `Product_Collection::to_array()` from the last successful fetch, or `null` if never fetched |
+| `last_success_at`  | `int&#124;null`      | Unix timestamp of the last successful fetch                                                 |
+| `last_failure_at`  | `int&#124;null`      | Unix timestamp of the most recent failed fetch, or `null` if no failure has occurred        |
+| `last_error`       | `WP_Error&#124;null` | Error from the most recent failed attempt, or `null` if the last fetch succeeded            |
 
 Unlike a transient, this option has no TTL — product data persists indefinitely. Re-validation frequency (how often the API is called to refresh) is a separate concern from data persistence.
 
-On a successful fetch, `collection` and `last_success_at` are updated and `last_error` is cleared. On a failed fetch, only `last_error` is updated; the existing `collection` and `last_success_at` are preserved so the last known-good catalog remains available even when the licensing server is unreachable.
+On a successful fetch, `collection` and `last_success_at` are updated and `last_error` is cleared. `last_failure_at` is not touched so callers can always see when the last failure occurred. On a failed fetch, `last_error` and `last_failure_at` are updated; the existing `collection` and `last_success_at` are preserved so the last known-good catalog remains available even when the licensing server is unreachable.
 
 Since there is only one unified key per site, there is only one state entry. Invalidation is simple: `delete_products()` removes the option entirely, causing the next read to return `null` and trigger a fresh API call.
 
@@ -212,7 +213,7 @@ License_Manager::get_products($key, $domain)
 ├─ if only last_error present → return WP_Error
 ├─ if null → Licensing_Client::get_products()
 │  ├─ on success → update collection + last_success_at, clear last_error
-│  └─ on failure → update last_error only, preserve existing collection
+│  └─ on failure → update last_error + last_failure_at, preserve existing collection
 └─ return Product_Collection|WP_Error
 ```
 

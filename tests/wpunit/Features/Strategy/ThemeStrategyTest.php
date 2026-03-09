@@ -285,6 +285,60 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	}
 
 	// -------------------------------------------------------------------------
+	// Install fatal error tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * enable() returns INSTALL_FAILED when Theme_Upgrader::install() throws
+	 * a fatal error (Throwable), and releases the install lock afterward.
+	 *
+	 * Simulates a catastrophic failure during the download/unpack phase by
+	 * hooking into the HTTP layer to throw an exception.
+	 */
+	public function test_enable_returns_install_failed_when_upgrader_install_throws(): void {
+		// Make themes_api() return a valid download link.
+		$api_filter = static function ( $result, $action, $args ) {
+			if ( 'theme_information' === $action && $args->slug === self::STYLESHEET ) {
+				return (object) [
+					'slug'          => self::STYLESHEET,
+					'download_link' => 'https://example.com/test-theme.zip',
+				];
+			}
+			return $result;
+		};
+		add_filter( 'themes_api', $api_filter, 10, 3 );
+
+		// Force the HTTP request to throw a Throwable during download.
+		$http_filter = static function ( $response, $parsed_args, $url ) {
+			if ( strpos( $url, 'example.com/test-theme.zip' ) !== false ) {
+				throw new \RuntimeException( 'Simulated fatal during theme download.' );
+			}
+			return $response;
+		};
+		add_filter( 'pre_http_request', $http_filter, 10, 3 );
+
+		try {
+			$ob_level = ob_get_level();
+			$result   = $this->strategy->enable();
+
+			while ( ob_get_level() > $ob_level ) {
+				ob_end_clean();
+			}
+
+			$this->assertWPError( $result );
+			$this->assertSame( Error_Code::INSTALL_FAILED, $result->get_error_code() );
+			$this->assertStringContainsString( 'fatal error occurred', $result->get_error_message() );
+			// Exception details must not leak.
+			$this->assertStringNotContainsString( 'Simulated fatal', $result->get_error_message() );
+			// Lock should be released even after a fatal throw.
+			$this->assertFalse( get_transient( 'stellarwp_uplink_install_lock' ) );
+		} finally {
+			remove_filter( 'themes_api', $api_filter, 10 );
+			remove_filter( 'pre_http_request', $http_filter, 10 );
+		}
+	}
+
+	// -------------------------------------------------------------------------
 	// Helpers
 	// -------------------------------------------------------------------------
 

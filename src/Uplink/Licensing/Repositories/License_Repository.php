@@ -45,6 +45,19 @@ final class License_Repository {
 	public const PRODUCTS_TRANSIENT_KEY = 'stellarwp_uplink_licensing_products';
 
 	/**
+	 * Option name for the map of per-product last-active timestamps.
+	 *
+	 * Stored as an associative array keyed by product slug.
+	 *
+	 * TODO: Decide where to store this data. See discussion in https://github.com/stellarwp/uplink/pull/162/changes#r2906722318
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const PRODUCTS_LAST_ACTIVE_DATES_OPTION_NAME = 'stellarwp_uplink_licensing_products_last_active_dates';
+
+	/**
 	 * Default cache duration in seconds (12 hours).
 	 *
 	 * @since 3.0.0
@@ -298,9 +311,12 @@ final class License_Repository {
 	}
 
 	/**
-	 * Whether a product has a valid, active license in the cached catalog.
+	 * Whether a product has a valid, active license.
 	 *
-	 * TODO: Add grace period concept to allow for some time after license expiration to still consider the license active.
+	 * Returns true when the cached catalog shows the product as valid, or when
+	 * the product is within the grace period after its last confirmed active date.
+	 * This prevents platform fees from being charged immediately after a license
+	 * expires or when a network issue prevents reaching the licensing server.
 	 *
 	 * @since 3.0.0
 	 *
@@ -309,8 +325,89 @@ final class License_Repository {
 	 * @return bool
 	 */
 	public function is_product_active( string $slug ): bool {
-		$product = $this->get_product( $slug );
+		if ( $this->is_product_valid( $slug ) ) {
+			return true;
+		}
 
-		return $product !== null && $product->is_valid();
+		return $this->is_in_grace_period( $slug );
+	}
+
+	/**
+	 * Get the timestamp of the last time a product was confirmed active.
+	 *
+	 * Returns null when no active date has been recorded for the slug.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $slug Product slug.
+	 *
+	 * @return int|null Unix timestamp (UTC), or null if never recorded.
+	 */
+	public function get_last_active_date( string $slug ): ?int {
+		$raw_dates = get_option( self::PRODUCTS_LAST_ACTIVE_DATES_OPTION_NAME, [] );
+
+		/** @var array<string, int> $dates */
+		$dates = is_array( $raw_dates ) ? $raw_dates : [];
+
+		return $dates[ $slug ] ?? null;
+	}
+
+	/**
+	 * Record the current time as the last active date for a product.
+	 *
+	 * Called whenever a fetch confirms the product has a valid license so that
+	 * the grace period is anchored to the most recent known-good state.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $slug      Product slug.
+	 * @param int    $timestamp Unix timestamp (UTC) to record.
+	 *
+	 * @return void
+	 */
+	public function set_last_active_date( string $slug, int $timestamp ): void {
+		$raw_dates = get_option( self::PRODUCTS_LAST_ACTIVE_DATES_OPTION_NAME, [] );
+
+		/** @var array<string, int> $dates */
+		$dates = is_array( $raw_dates ) ? $raw_dates : [];
+
+		$dates[ $slug ] = $timestamp;
+		update_option( self::PRODUCTS_LAST_ACTIVE_DATES_OPTION_NAME, $dates, false );
+	}
+
+	/**
+	 * The grace period in seconds after the last active date during which
+	 * a product is still considered active.
+	 *
+	 * 30 days gives customers and the licensing server reasonable time to
+	 * recover from network issues or an unintentional lapse in renewal.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return int
+	 */
+	private function get_grace_period_in_seconds(): int {
+		return 30 * DAY_IN_SECONDS;
+	}
+
+	/**
+	 * Whether a product is within the grace period after its last active date.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $slug Product slug.
+	 *
+	 * @return bool
+	 */
+	private function is_in_grace_period( string $slug ): bool {
+		$last_active = $this->get_last_active_date( $slug );
+
+		if ( $last_active === null ) {
+			return false;
+		}
+
+		$current_time = time();
+
+		return $current_time <= $last_active + $this->get_grace_period_in_seconds();
 	}
 }

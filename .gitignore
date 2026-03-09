@@ -7,7 +7,8 @@ node_modules/
 
 local-scripts/
 
-# Frontend build outputs (dev only — production /build/ is committed via CI)
+# Frontend build outputs (production /build/ is committed via CI with git add -f)
+/build/
 /build-dev/
 
 # Track Claude commands and settings (ignore everything else in .claude/).

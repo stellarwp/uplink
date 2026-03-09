@@ -56,6 +56,42 @@ final class License_Repository {
 	public const PRODUCTS_STATE_OPTION_NAME = 'stellarwp_uplink_licensing_products_state';
 
 	/**
+	 * State envelope key for the serialized product collection array.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	private const STATE_KEY_COLLECTION = 'collection';
+
+	/**
+	 * State envelope key for the last successful fetch timestamp.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	private const STATE_KEY_LAST_SUCCESS_AT = 'last_success_at';
+
+	/**
+	 * State envelope key for the last failed fetch timestamp.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	private const STATE_KEY_LAST_FAILURE_AT = 'last_failure_at';
+
+	/**
+	 * State envelope key for the last fetch error.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	private const STATE_KEY_LAST_ERROR = 'last_error';
+
+	/**
 	 * Option name for the map of per-product last-active timestamps.
 	 *
 	 * Stored as an associative array keyed by product slug.
@@ -223,12 +259,12 @@ final class License_Repository {
 	public function get_products() {
 		$state = $this->read_products_state();
 
-		if ( is_array( $state['collection'] ) ) {
-			return Product_Collection::from_array( $state['collection'] );
+		if ( is_array( $state[ self::STATE_KEY_COLLECTION ] ) ) {
+			return Product_Collection::from_array( $state[ self::STATE_KEY_COLLECTION ] );
 		}
 
-		if ( $state['last_error'] instanceof WP_Error ) {
-			return $state['last_error'];
+		if ( $state[ self::STATE_KEY_LAST_ERROR ] instanceof WP_Error ) {
+			return $state[ self::STATE_KEY_LAST_ERROR ];
 		}
 
 		return null;
@@ -252,19 +288,19 @@ final class License_Repository {
 	 */
 	public function set_products( $data ): void {
 		if ( $data instanceof Product_Collection ) {
-			$state                    = $this->read_products_state();
-			$state['collection']      = $data->to_array();
-			$state['last_success_at'] = time();
-			$state['last_error']      = null;
+			$state                                    = $this->read_products_state();
+			$state[ self::STATE_KEY_COLLECTION ]      = $data->to_array();
+			$state[ self::STATE_KEY_LAST_SUCCESS_AT ] = time();
+			$state[ self::STATE_KEY_LAST_ERROR ]      = null;
 			update_option( self::PRODUCTS_STATE_OPTION_NAME, $state, false );
 
 			return;
 		}
 
 		if ( is_wp_error( $data ) ) {
-			$state                    = $this->read_products_state();
-			$state['last_error']      = $data;
-			$state['last_failure_at'] = time();
+			$state                                    = $this->read_products_state();
+			$state[ self::STATE_KEY_LAST_ERROR ]      = $data;
+			$state[ self::STATE_KEY_LAST_FAILURE_AT ] = time();
 			update_option( self::PRODUCTS_STATE_OPTION_NAME, $state, false );
 		}
 	}
@@ -288,7 +324,7 @@ final class License_Repository {
 	 * @return int|null
 	 */
 	public function get_products_last_success_at(): ?int {
-		$value = $this->read_products_state()['last_success_at'];
+		$value = $this->read_products_state()[ self::STATE_KEY_LAST_SUCCESS_AT ];
 
 		return is_int( $value ) ? $value : null;
 	}
@@ -302,7 +338,7 @@ final class License_Repository {
 	 * @return int|null
 	 */
 	public function get_products_last_failure_at(): ?int {
-		$value = $this->read_products_state()['last_failure_at'];
+		$value = $this->read_products_state()[ self::STATE_KEY_LAST_FAILURE_AT ];
 
 		return is_int( $value ) ? $value : null;
 	}
@@ -316,7 +352,7 @@ final class License_Repository {
 	 * @return WP_Error|null
 	 */
 	public function get_products_last_error(): ?WP_Error {
-		$error = $this->read_products_state()['last_error'];
+		$error = $this->read_products_state()[ self::STATE_KEY_LAST_ERROR ];
 
 		return $error instanceof WP_Error ? $error : null;
 	}
@@ -334,28 +370,28 @@ final class License_Repository {
 
 		if ( ! is_array( $raw ) ) {
 			return [
-				'collection'      => null,
-				'last_success_at' => null,
-				'last_failure_at' => null,
-				'last_error'      => null,
+				self::STATE_KEY_COLLECTION      => null,
+				self::STATE_KEY_LAST_SUCCESS_AT => null,
+				self::STATE_KEY_LAST_FAILURE_AT => null,
+				self::STATE_KEY_LAST_ERROR      => null,
 			];
 		}
 
 		$collection = null;
-		if ( isset( $raw['collection'] ) && is_array( $raw['collection'] ) ) {
+		if ( isset( $raw[ self::STATE_KEY_COLLECTION ] ) && is_array( $raw[ self::STATE_KEY_COLLECTION ] ) ) {
 			/** @var array<array<string, mixed>> $collection */
-			$collection = $raw['collection'];
+			$collection = $raw[ self::STATE_KEY_COLLECTION ];
 		}
 
-		$last_success_at = isset( $raw['last_success_at'] ) && is_int( $raw['last_success_at'] ) ? $raw['last_success_at'] : null;
-		$last_failure_at = isset( $raw['last_failure_at'] ) && is_int( $raw['last_failure_at'] ) ? $raw['last_failure_at'] : null;
-		$last_error      = isset( $raw['last_error'] ) && $raw['last_error'] instanceof WP_Error ? $raw['last_error'] : null;
+		$last_success_at = isset( $raw[ self::STATE_KEY_LAST_SUCCESS_AT ] ) && is_int( $raw[ self::STATE_KEY_LAST_SUCCESS_AT ] ) ? $raw[ self::STATE_KEY_LAST_SUCCESS_AT ] : null;
+		$last_failure_at = isset( $raw[ self::STATE_KEY_LAST_FAILURE_AT ] ) && is_int( $raw[ self::STATE_KEY_LAST_FAILURE_AT ] ) ? $raw[ self::STATE_KEY_LAST_FAILURE_AT ] : null;
+		$last_error      = isset( $raw[ self::STATE_KEY_LAST_ERROR ] ) && $raw[ self::STATE_KEY_LAST_ERROR ] instanceof WP_Error ? $raw[ self::STATE_KEY_LAST_ERROR ] : null;
 
 		return [
-			'collection'      => $collection,
-			'last_success_at' => $last_success_at,
-			'last_failure_at' => $last_failure_at,
-			'last_error'      => $last_error,
+			self::STATE_KEY_COLLECTION      => $collection,
+			self::STATE_KEY_LAST_SUCCESS_AT => $last_success_at,
+			self::STATE_KEY_LAST_FAILURE_AT => $last_failure_at,
+			self::STATE_KEY_LAST_ERROR      => $last_error,
 		];
 	}
 

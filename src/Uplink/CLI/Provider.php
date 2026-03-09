@@ -23,7 +23,7 @@ final class Provider extends Abstract_Provider {
 	 * @inheritDoc
 	 */
 	public function register(): void {
-		if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
+		if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) { // @phpstan-ignore booleanNot.alwaysFalse, booleanOr.alwaysFalse
 			return;
 		}
 

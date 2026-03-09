@@ -61,30 +61,34 @@ final class FeatureTest extends UplinkTestCase {
 
 		$this->collection = new Feature_Collection();
 		$this->collection->add(
-			Flag::from_array( [
-				'slug'              => 'test-flag',
-				'name'              => 'Test Flag',
-				'description'       => 'A test flag feature.',
-				'group'             => 'TestGroup',
-				'tier'              => 'Tier 1',
-				'is_available'      => true,
-				'documentation_url' => 'https://example.com/docs/test-flag',
-			] )
+			Flag::from_array(
+				[
+					'slug'              => 'test-flag',
+					'name'              => 'Test Flag',
+					'description'       => 'A test flag feature.',
+					'group'             => 'TestGroup',
+					'tier'              => 'Tier 1',
+					'is_available'      => true,
+					'documentation_url' => 'https://example.com/docs/test-flag',
+				]
+			)
 		);
 		$this->collection->add(
-			Plugin::from_array( [
-				'slug'              => 'test-plugin',
-				'name'              => 'Test Plugin',
-				'description'       => 'A test plugin feature.',
-				'group'             => 'OtherGroup',
-				'tier'              => 'Tier 2',
-				'is_available'      => false,
-				'documentation_url' => 'https://example.com/docs/test-plugin',
-				'plugin_file'       => 'test-plugin/test-plugin.php',
-				'plugin_slug'       => 'test-plugin',
-				'authors'           => [ 'StellarWP' ],
-				'is_dot_org'        => true,
-			] )
+			Plugin::from_array(
+				[
+					'slug'              => 'test-plugin',
+					'name'              => 'Test Plugin',
+					'description'       => 'A test plugin feature.',
+					'group'             => 'OtherGroup',
+					'tier'              => 'Tier 2',
+					'is_available'      => false,
+					'documentation_url' => 'https://example.com/docs/test-plugin',
+					'plugin_file'       => 'test-plugin/test-plugin.php',
+					'plugin_slug'       => 'test-plugin',
+					'authors'           => [ 'StellarWP' ],
+					'is_dot_org'        => true,
+				]
+			)
 		);
 
 		$this->mock_strategy = $this->makeEmpty(
@@ -111,7 +115,7 @@ final class FeatureTest extends UplinkTestCase {
 		);
 
 		$this->manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
-		$this->command  = new Feature_Command( $this->manager );
+		$this->command = new Feature_Command( $this->manager );
 	}
 
 	protected function tearDown(): void {
@@ -135,12 +139,15 @@ final class FeatureTest extends UplinkTestCase {
 	}
 
 	public function test_list_calls_error_on_wp_error(): void {
-		$repository = $this->makeEmpty( Feature_Repository::class, [
-			'get' => new WP_Error( 'api_error', 'Could not fetch features.' ),
-		] );
-		$factory = $this->makeEmpty( Strategy_Factory::class );
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
-		$command = new Feature_Command( $manager );
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
+			[
+				'get' => new WP_Error( 'api_error', 'Could not fetch features.' ),
+			]
+		);
+		$factory    = $this->makeEmpty( Strategy_Factory::class );
+		$manager    = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$command    = new Feature_Command( $manager );
 
 		$command->list_( [], [] );
 
@@ -176,12 +183,14 @@ final class FeatureTest extends UplinkTestCase {
 	}
 
 	public function test_list_filters_combine(): void {
-		$items = $this->run_list_json( [
-			'group'     => 'TestGroup',
-			'type'      => 'flag',
-			'available' => 'true',
-			'tier'      => 'Tier 1',
-		] );
+		$items = $this->run_list_json(
+			[
+				'group'     => 'TestGroup',
+				'type'      => 'flag',
+				'available' => 'true',
+				'tier'      => 'Tier 1',
+			]
+		);
 
 		$this->assertCount( 1, $items );
 		$this->assertSame( 'test-flag', $items[0]['slug'] );
@@ -335,17 +344,19 @@ final class FeatureTest extends UplinkTestCase {
 	}
 
 	public function test_feature_to_display_item_joins_authors(): void {
-		$plugin = Plugin::from_array( [
-			'slug'         => 'test-plugin',
-			'name'         => 'Test Plugin',
-			'group'        => 'OtherGroup',
-			'tier'         => 'Tier 2',
-			'is_available' => true,
-			'plugin_file'  => 'test-plugin/test-plugin.php',
-			'plugin_slug'  => 'test-plugin',
-			'authors'      => [ 'Alice', 'Bob' ],
-			'is_dot_org'   => false,
-		] );
+		$plugin = Plugin::from_array(
+			[
+				'slug'         => 'test-plugin',
+				'name'         => 'Test Plugin',
+				'group'        => 'OtherGroup',
+				'tier'         => 'Tier 2',
+				'is_available' => true,
+				'plugin_file'  => 'test-plugin/test-plugin.php',
+				'plugin_slug'  => 'test-plugin',
+				'authors'      => [ 'Alice', 'Bob' ],
+				'is_dot_org'   => false,
+			]
+		);
 
 		/** @var array<string, mixed> $item */
 		$item = $this->invoke_feature_to_display_item( $this->command, $plugin );

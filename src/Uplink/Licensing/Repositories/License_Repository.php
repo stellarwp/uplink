@@ -58,6 +58,8 @@ final class License_Repository {
 	 *
 	 * Stored as an associative array keyed by product slug.
 	 *
+	 *  TODO: Decide where to store this data. See discussion in https://github.com/stellarwp/uplink/pull/162/changes#r2906722318
+	 *
 	 * @since 3.0.0
 	 *
 	 * @var string

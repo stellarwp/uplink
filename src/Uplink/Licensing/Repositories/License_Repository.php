@@ -53,7 +53,7 @@ final class License_Repository {
 	 *
 	 * @var string
 	 */
-	public const LAST_ACTIVE_DATES_OPTION_NAME = 'stellarwp_uplink_product_last_active_dates';
+	public const PRODUCTS_LAST_ACTIVE_DATES_OPTION_NAME = 'stellarwp_uplink_licensing_products_last_active_dates';
 
 	/**
 	 * Default cache duration in seconds (12 hours).
@@ -342,7 +342,7 @@ final class License_Repository {
 	 * @return int|null Unix timestamp (UTC), or null if never recorded.
 	 */
 	public function get_last_active_date( string $slug ): ?int {
-		$raw_dates = get_option( self::LAST_ACTIVE_DATES_OPTION_NAME, [] );
+		$raw_dates = get_option( self::PRODUCTS_LAST_ACTIVE_DATES_OPTION_NAME, [] );
 
 		/** @var array<string, int> $dates */
 		$dates = is_array( $raw_dates ) ? $raw_dates : [];
@@ -364,13 +364,13 @@ final class License_Repository {
 	 * @return void
 	 */
 	public function set_last_active_date( string $slug, int $timestamp ): void {
-		$raw_dates = get_option( self::LAST_ACTIVE_DATES_OPTION_NAME, [] );
+		$raw_dates = get_option( self::PRODUCTS_LAST_ACTIVE_DATES_OPTION_NAME, [] );
 
 		/** @var array<string, int> $dates */
 		$dates = is_array( $raw_dates ) ? $raw_dates : [];
 
 		$dates[ $slug ] = $timestamp;
-		update_option( self::LAST_ACTIVE_DATES_OPTION_NAME, $dates, false );
+		update_option( self::PRODUCTS_LAST_ACTIVE_DATES_OPTION_NAME, $dates, false );
 	}
 
 	/**

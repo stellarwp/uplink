@@ -20,13 +20,13 @@ final class License_RepositoryTest extends UplinkTestCase {
 		parent::setUp();
 		$this->repository = new License_Repository();
 		delete_option( License_Repository::KEY_OPTION_NAME );
-		delete_option( License_Repository::LAST_ACTIVE_DATES_OPTION_NAME );
+		delete_option( License_Repository::PRODUCTS_LAST_ACTIVE_DATES_OPTION_NAME );
 		delete_transient( License_Repository::PRODUCTS_TRANSIENT_KEY );
 	}
 
 	protected function tearDown(): void {
 		delete_option( License_Repository::KEY_OPTION_NAME );
-		delete_option( License_Repository::LAST_ACTIVE_DATES_OPTION_NAME );
+		delete_option( License_Repository::PRODUCTS_LAST_ACTIVE_DATES_OPTION_NAME );
 		delete_transient( License_Repository::PRODUCTS_TRANSIENT_KEY );
 		parent::tearDown();
 	}

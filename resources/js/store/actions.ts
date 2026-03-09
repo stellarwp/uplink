@@ -7,7 +7,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { UplinkError, ErrorCode } from '@/errors';
-import type { Feature, License, ProductCatalog } from '@/types/api';
+import type { Feature, License, LicenseProduct, ProductCatalog } from '@/types/api';
 import type { Action, Thunk } from './types';
 
 // ---------------------------------------------------------------------------
@@ -19,9 +19,10 @@ export const receiveFeatures = (features: Feature[]): Action => ({
 	features,
 });
 
-export const receiveLicense = (key: string | null): Action => ({
+export const receiveLicense = (key: string | null, products: LicenseProduct[]): Action => ({
 	type: 'RECEIVE_LICENSE',
 	key,
+	products,
 });
 
 export const receiveCatalog = (catalogs: ProductCatalog[]): Action => ({
@@ -88,12 +89,12 @@ export const disableFeature =
 	};
 
 /**
- * Activate a license key via the REST API, then invalidate the
- * features resolver so the UI refreshes with the new entitlements.
+ * Store a license key via the REST API, then invalidate the license
+ * and features resolvers so the UI refreshes with the new entitlements.
  *
  * @since 3.0.0
  */
-export const activateLicense =
+export const storeLicense =
 	(key: string): Thunk<UplinkError | null> =>
 	async ({ dispatch, select }) => {
 		if (!select.canModifyLicense()) {
@@ -102,7 +103,7 @@ export const activateLicense =
 				__('Liquid Web Software failed to activate your license, another action is in progress.', '%TEXTDOMAIN%')
 			);
 		}
-		dispatch({ type: 'ACTIVATE_LICENSE_START' });
+		dispatch({ type: 'STORE_LICENSE_START' });
 		try {
 			const result = await apiFetch<License>({
 				path: '/stellarwp/uplink/v1/license',
@@ -110,18 +111,56 @@ export const activateLicense =
 				data: { key },
 			});
 			dispatch({
-				type: 'ACTIVATE_LICENSE_FINISHED',
-				key: result.key,
+				type: 'STORE_LICENSE_FINISHED',
+				key: result.key as string,
+				products: result.products,
 			});
+			dispatch.invalidateResolution('getLicense', []);
 			dispatch.invalidateResolution('getFeatures', []);
 			return null;
 		} catch (err) {
 			const error = UplinkError.wrap(
 				err,
-				ErrorCode.LicenseActivateFailed,
+				ErrorCode.LicenseStoreFailed,
 				__('Liquid Web Software failed to activate your license.', '%TEXTDOMAIN%')
 			);
-			dispatch({ type: 'ACTIVATE_LICENSE_FAILED', error });
+			dispatch({ type: 'STORE_LICENSE_FAILED', error });
+			return error;
+		}
+	};
+
+/**
+ * Validate a specific product against the license via the REST API.
+ *
+ * @since 3.0.0
+ */
+export const validateProduct =
+	(productSlug: string): Thunk<UplinkError | null> =>
+	async ({ dispatch, select }) => {
+		if (!select.canModifyLicense()) {
+			return new UplinkError(
+				ErrorCode.LicenseActionInProgress,
+				__('Liquid Web Software failed to validate your product, another action is in progress.', '%TEXTDOMAIN%')
+			);
+		}
+		dispatch({ type: 'VALIDATE_PRODUCT_START' });
+		try {
+			await apiFetch<void>({
+				path: '/stellarwp/uplink/v1/license/validate',
+				method: 'POST',
+				data: { product_slug: productSlug },
+			});
+			dispatch({ type: 'VALIDATE_PRODUCT_FINISHED' });
+			dispatch.invalidateResolution('getLicense', []);
+			dispatch.invalidateResolution('getFeatures', []);
+			return null;
+		} catch (err) {
+			const error = UplinkError.wrap(
+				err,
+				ErrorCode.LicenseValidateFailed,
+				__('Liquid Web Software failed to validate your product.', '%TEXTDOMAIN%')
+			);
+			dispatch({ type: 'VALIDATE_PRODUCT_FAILED', error });
 			return error;
 		}
 	};
@@ -148,6 +187,7 @@ export const deleteLicense =
 				method: 'DELETE',
 			});
 			dispatch({ type: 'DELETE_LICENSE_FINISHED' });
+			dispatch.invalidateResolution('getLicense', []);
 			dispatch.invalidateResolution('getFeatures', []);
 			return null;
 		} catch (err) {

@@ -10,7 +10,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { UplinkError, ErrorCode } from '@/errors';
-import type { Feature, ProductCatalog } from '@/types/api';
+import type { Feature, License, ProductCatalog } from '@/types/api';
 import type { Thunk } from './types';
 import { forwardResolver, forwardResolverWithoutArgs } from '@/lib/forward-resolver';
 
@@ -79,10 +79,10 @@ export const getLicense =
 	(): Thunk =>
 	async ({ dispatch }) => {
 		try {
-			const result = await apiFetch<{ key: string | null }>({
+			const result = await apiFetch<License>({
 				path: '/stellarwp/uplink/v1/license',
 			});
-			dispatch.receiveLicense(result.key);
+			dispatch.receiveLicense(result.key, result.products);
 		} catch (err) {
 			throw UplinkError.wrap(
 				err,

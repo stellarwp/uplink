@@ -104,10 +104,13 @@ function features(
 
 const LICENSE_DEFAULT: LicenseState = {
 	key: null,
-	isActivating: false,
+	products: [],
+	isStoring: false,
 	isDeleting: false,
-	activateError: null,
+	isValidating: false,
+	storeError: null,
 	deleteError: null,
+	validateError: null,
 };
 
 function license(
@@ -119,14 +122,32 @@ function license(
 			return {
 				...state,
 				key: action.key,
+				products: action.products,
 			};
 		}
 
-		case 'ACTIVATE_LICENSE_START': {
+		case 'STORE_LICENSE_START': {
 			return {
 				...state,
-				isActivating: true,
-				activateError: null,
+				isStoring: true,
+				storeError: null,
+			};
+		}
+
+		case 'STORE_LICENSE_FINISHED': {
+			return {
+				...state,
+				isStoring: false,
+				key: action.key,
+				products: action.products,
+			};
+		}
+
+		case 'STORE_LICENSE_FAILED': {
+			return {
+				...state,
+				isStoring: false,
+				storeError: action.error,
 			};
 		}
 
@@ -138,27 +159,12 @@ function license(
 			};
 		}
 
-		case 'ACTIVATE_LICENSE_FINISHED': {
-			return {
-				...state,
-				isActivating: false,
-				key: action.key,
-			};
-		}
-
 		case 'DELETE_LICENSE_FINISHED': {
 			return {
 				...state,
 				isDeleting: false,
 				key: null,
-			};
-		}
-
-		case 'ACTIVATE_LICENSE_FAILED': {
-			return {
-				...state,
-				isActivating: false,
-				activateError: action.error,
+				products: [],
 			};
 		}
 
@@ -167,6 +173,29 @@ function license(
 				...state,
 				isDeleting: false,
 				deleteError: action.error,
+			};
+		}
+
+		case 'VALIDATE_PRODUCT_START': {
+			return {
+				...state,
+				isValidating: true,
+				validateError: null,
+			};
+		}
+
+		case 'VALIDATE_PRODUCT_FINISHED': {
+			return {
+				...state,
+				isValidating: false,
+			};
+		}
+
+		case 'VALIDATE_PRODUCT_FAILED': {
+			return {
+				...state,
+				isValidating: false,
+				validateError: action.error,
 			};
 		}
 

@@ -5,7 +5,7 @@
  */
 import { createSelector } from '@wordpress/data';
 import type { State } from './types';
-import type { CatalogTier, Feature, ProductCatalog } from '@/types/api';
+import type { CatalogTier, Feature, LicenseProduct, ProductCatalog } from '@/types/api';
 import type UplinkError from '@/errors/uplink-error';
 
 // ---------------------------------------------------------------------------
@@ -89,17 +89,26 @@ export const getLicense = (state: State): string | null => state.license.key;
 export const hasLicense = (state: State): boolean =>
 	state.license.key !== null;
 
-export const isLicenseActivating = (state: State): boolean =>
-	state.license.isActivating;
+export const getLicenseProducts = (state: State): LicenseProduct[] =>
+	state.license.products;
+
+export const isLicenseStoring = (state: State): boolean =>
+	state.license.isStoring;
 
 export const isLicenseDeleting = (state: State): boolean =>
 	state.license.isDeleting;
 
-export const canModifyLicense = (state: State): boolean =>
-	!state.license.isActivating && !state.license.isDeleting;
+export const isProductValidating = (state: State): boolean =>
+	state.license.isValidating;
 
-export const getActivateLicenseError = (state: State): UplinkError | null =>
-	state.license.activateError;
+export const canModifyLicense = (state: State): boolean =>
+	!state.license.isStoring && !state.license.isValidating && !state.license.isDeleting;
+
+export const getStoreLicenseError = (state: State): UplinkError | null =>
+	state.license.storeError;
 
 export const getDeleteLicenseError = (state: State): UplinkError | null =>
 	state.license.deleteError;
+
+export const getValidateProductError = (state: State): UplinkError | null =>
+	state.license.validateError;

@@ -148,6 +148,22 @@ export interface CatalogFeature {
      */
     minimum_tier: string;
     /**
+     * Plugin file path (plugin type only), or null for non-plugin features.
+     */
+    plugin_file: string | null;
+    /**
+     * Whether the feature is hosted on WordPress.org.
+     */
+    is_dot_org: boolean;
+    /**
+     * Download URL for the feature archive, or null when unavailable.
+     */
+    download_url: string | null;
+    /**
+     * Latest version string, or null when unavailable.
+     */
+    version: string | null;
+    /**
      * Human-readable feature name.
      */
     name: string;
@@ -160,29 +176,13 @@ export interface CatalogFeature {
      */
     category: string;
     /**
-     * Feature authors.
+     * Feature authors, or null when not applicable.
      */
-    authors: string[];
+    authors: string[] | null;
     /**
      * URL to documentation or learn-more page.
      */
     documentation_url: string;
-    /**
-     * Plugin file path (plugin type only).
-     */
-    plugin_file: string;
-    /**
-     * Whether the feature is hosted on WordPress.org.
-     */
-    is_dot_org: boolean;
-    /**
-     * Download URL for the feature archive.
-     */
-    download_url: string;
-    /**
-     * Latest version string.
-     */
-    version: string;
 }
 
 /**

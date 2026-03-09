@@ -10,7 +10,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { UplinkError, ErrorCode } from '@/errors';
-import type { Feature } from '@/types/api';
+import type { Feature, ProductCatalog } from '@/types/api';
 import type { Thunk } from './types';
 import { forwardResolver, forwardResolverWithoutArgs } from '@/lib/forward-resolver';
 
@@ -38,6 +38,38 @@ export const getFeatures =
 export const getFeaturesByGroup = forwardResolverWithoutArgs('getFeatures');
 export const getFeature = forwardResolverWithoutArgs('getFeatures');
 export const isFeatureEnabled = forwardResolverWithoutArgs('getFeatures');
+
+// ---------------------------------------------------------------------------
+// Catalog
+// ---------------------------------------------------------------------------
+
+/**
+ * Fetches all product catalogs from the REST API and stores them.
+ * Triggered automatically when getCatalog is first called.
+ */
+export const getCatalog =
+	(): Thunk =>
+	async ({ dispatch }) => {
+		try {
+			const catalogs = await apiFetch<ProductCatalog[]>({
+				path: '/stellarwp/uplink/v1/catalog',
+			});
+			dispatch.receiveCatalog(catalogs);
+		} catch (err) {
+			throw UplinkError.wrap(
+				err,
+				ErrorCode.CatalogFetchFailed,
+				__('Liquid Web Software failed to load the product catalog.', '%TEXTDOMAIN%')
+			);
+		}
+	};
+
+export const getProductCatalog = forwardResolver('getCatalog');
+export const getProductTiers = forwardResolver('getCatalog');
+
+// ---------------------------------------------------------------------------
+// License
+// ---------------------------------------------------------------------------
 
 /**
  * Fetches the stored license key from the REST API.

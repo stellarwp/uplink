@@ -7,7 +7,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { UplinkError, ErrorCode } from '@/errors';
-import type { Feature, License } from '@/types/api';
+import type { Feature, License, ProductCatalog } from '@/types/api';
 import type { Action, Thunk } from './types';
 
 // ---------------------------------------------------------------------------
@@ -22,6 +22,11 @@ export const receiveFeatures = (features: Feature[]): Action => ({
 export const receiveLicense = (key: string | null): Action => ({
 	type: 'RECEIVE_LICENSE',
 	key,
+});
+
+export const receiveCatalog = (catalogs: ProductCatalog[]): Action => ({
+	type: 'RECEIVE_CATALOG',
+	catalogs,
 });
 
 // ---------------------------------------------------------------------------

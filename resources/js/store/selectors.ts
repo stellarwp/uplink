@@ -5,7 +5,7 @@
  */
 import { createSelector } from '@wordpress/data';
 import type { State } from './types';
-import type { Feature } from '@/types/api';
+import type { CatalogTier, Feature, ProductCatalog } from '@/types/api';
 import type UplinkError from '@/errors/uplink-error';
 
 // ---------------------------------------------------------------------------
@@ -54,6 +54,27 @@ export const isAnyInstallableToggling = createSelector(
 			return feature !== undefined && feature.type !== 'flag';
 		}),
 	(state: State) => [state.features.toggling, state.features.bySlug]
+);
+
+// ---------------------------------------------------------------------------
+// Catalog
+// ---------------------------------------------------------------------------
+
+export const getCatalog = createSelector(
+	(state: State): ProductCatalog[] =>
+		Object.values(state.catalog.byProductSlug),
+	(state: State) => [state.catalog.byProductSlug]
+);
+
+export const getProductCatalog = (
+	state: State,
+	slug: string
+): ProductCatalog | null => state.catalog.byProductSlug[slug] ?? null;
+
+export const getProductTiers = createSelector(
+	(state: State, slug: string): CatalogTier[] =>
+		state.catalog.byProductSlug[slug]?.tiers ?? [],
+	(state: State, slug: string) => [state.catalog.byProductSlug, slug]
 );
 
 // ---------------------------------------------------------------------------

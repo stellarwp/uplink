@@ -27,8 +27,8 @@ use WP_CLI_Command;
  *     # Get a single feature
  *     wp uplink feature get my-feature
  *
- *     # Check if a feature is active
- *     wp uplink feature is-active my-feature
+ *     # Check if a feature is enabled
+ *     wp uplink feature is-enabled my-feature
  *
  *     # Enable a feature by slug
  *     wp uplink feature enable my-feature
@@ -114,6 +114,10 @@ class Feature extends WP_CLI_Command {
 	 * * is_available
 	 * * is_enabled
 	 * * documentation_url
+	 * * plugin_file
+	 * * plugin_slug
+	 * * authors
+	 * * is_dot_org
 	 *
 	 * ## EXAMPLES
 	 *
@@ -217,10 +221,10 @@ class Feature extends WP_CLI_Command {
 	}
 
 	/**
-	 * Checks whether a feature is currently active.
+	 * Checks whether a feature is currently enabled.
 	 *
-	 * Exits with code 0 if the feature is active, 1 if inactive or not found.
-	 * Useful in shell scripts: `if wp uplink feature is-active my-feature; then ...`
+	 * Exits with code 0 if the feature is enabled, 1 if not enabled or not found.
+	 * Useful in shell scripts: `if wp uplink feature is-enabled my-feature; then ...`
 	 *
 	 * ## OPTIONS
 	 *
@@ -229,33 +233,41 @@ class Feature extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     # Check if a feature is active (exit code 0 = active)
-	 *     wp uplink feature is-active my-feature
+	 *     # Check if a feature is enabled (exit code 0 = enabled)
+	 *     wp uplink feature is-enabled my-feature
 	 *
 	 *     # Use in a script
-	 *     if wp uplink feature is-active my-feature; then
-	 *       echo "Feature is active"
+	 *     if wp uplink feature is-enabled my-feature; then
+	 *       echo "Feature is enabled"
 	 *     fi
 	 *
-	 * @subcommand is-active
+	 * @subcommand is-enabled
 	 *
 	 * @param array<int, string>    $args       Positional arguments.
 	 * @param array<string, string> $assoc_args Associative arguments.
 	 *
 	 * @return void
 	 */
-	public function is_active( array $args, array $assoc_args ): void {
-		$slug   = $args[0];
+	public function is_enabled( array $args, array $assoc_args ): void {
+		$slug = $args[0];
+
+		if ( ! $this->manager->get_feature( $slug ) ) {
+			WP_CLI::log( sprintf( 'Feature "%s" not found.', $slug ) );
+			exit( 1 );
+		}
+
 		$result = $this->manager->is_enabled( $slug );
 
 		if ( is_wp_error( $result ) ) {
-			WP_CLI::error( $result->get_error_message() );
+			WP_CLI::log( $result->get_error_message() );
+			exit( 1 );
 		}
 
 		if ( $result ) {
-			WP_CLI::success( sprintf( 'Feature "%s" is active.', $slug ) );
+			WP_CLI::log( sprintf( 'Feature "%s" is enabled.', $slug ) );
 		} else {
-			WP_CLI::error( sprintf( 'Feature "%s" is not active.', $slug ) );
+			WP_CLI::log( sprintf( 'Feature "%s" is not enabled.', $slug ) );
+			exit( 1 );
 		}
 	}
 
@@ -278,13 +290,14 @@ class Feature extends WP_CLI_Command {
 	 * @return void
 	 */
 	public function enable( array $args, array $assoc_args ): void {
-		$result = $this->manager->enable( $args[0] );
+		$slug   = $args[0];
+		$result = $this->manager->enable( $slug );
 
 		if ( is_wp_error( $result ) ) {
 			WP_CLI::error( $result->get_error_message() );
 		}
 
-		WP_CLI::success( sprintf( 'Feature "%s" enabled.', $args[0] ) );
+		WP_CLI::success( sprintf( 'Feature "%s" enabled.', $slug ) );
 	}
 
 	/**
@@ -306,13 +319,14 @@ class Feature extends WP_CLI_Command {
 	 * @return void
 	 */
 	public function disable( array $args, array $assoc_args ): void {
-		$result = $this->manager->disable( $args[0] );
+		$slug   = $args[0];
+		$result = $this->manager->disable( $slug );
 
 		if ( is_wp_error( $result ) ) {
 			WP_CLI::error( $result->get_error_message() );
 		}
 
-		WP_CLI::success( sprintf( 'Feature "%s" disabled.', $args[0] ) );
+		WP_CLI::success( sprintf( 'Feature "%s" disabled.', $slug ) );
 	}
 
 	/**
@@ -353,6 +367,11 @@ class Feature extends WP_CLI_Command {
 
 		$item['is_available'] = $item['is_available'] ? 'true' : 'false';
 		$item['is_enabled']   = ( $is_enabled === true ) ? 'true' : 'false';
+		$item['is_dot_org']   = ! empty( $item['is_dot_org'] ) ? 'true' : 'false';
+
+		if ( isset( $item['authors'] ) && is_array( $item['authors'] ) ) {
+			$item['authors'] = implode( ', ', $item['authors'] );
+		}
 
 		return $item;
 	}

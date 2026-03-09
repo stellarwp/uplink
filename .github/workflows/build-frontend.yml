@@ -31,11 +31,9 @@ jobs:
       - name: Build production assets
         run: bun run build:prod
 
-      - name: Stage built assets (force-add gitignored files)
-        run: git add -f build/
-
       - name: Commit and push built assets
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "Build frontend production assets"
-          skip_dirty_check: true
+          file_pattern: "build/*"
+          add_options: "-f"

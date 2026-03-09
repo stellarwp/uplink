@@ -189,6 +189,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 		$this->assertCount( 1, $state['collection'] );
 		$this->assertSame( 'give', $state['collection'][0]['product_slug'] );
 		$this->assertIsInt( $state['last_success_at'] );
+		$this->assertNull( $state['last_failure_at'] );
 		$this->assertNull( $state['last_error'] );
 	}
 
@@ -275,6 +276,45 @@ final class License_RepositoryTest extends UplinkTestCase {
 		$this->repository->set_products( new WP_Error( Error_Code::INVALID_KEY, 'fail' ) );
 
 		$this->assertSame( $first_last_success_at, $this->repository->get_products_last_success_at() );
+	}
+
+	public function test_get_products_last_failure_at_returns_null_before_first_failure(): void {
+		$this->assertNull( $this->repository->get_products_last_failure_at() );
+	}
+
+	public function test_get_products_last_failure_at_returns_timestamp_after_failed_set(): void {
+		$before = time();
+
+		$this->repository->set_products( new WP_Error( Error_Code::INVALID_KEY, 'fail' ) );
+
+		$last_failure_at = $this->repository->get_products_last_failure_at();
+
+		$this->assertIsInt( $last_failure_at );
+		$this->assertGreaterThanOrEqual( $before, $last_failure_at );
+	}
+
+	public function test_get_products_last_failure_at_not_updated_on_success(): void {
+		$this->repository->set_products( new WP_Error( Error_Code::INVALID_KEY, 'fail' ) );
+
+		$first_last_failure_at = $this->repository->get_products_last_failure_at();
+
+		$this->repository->set_products(
+			Product_Collection::from_array(
+				[
+					Product_Entry::from_array(
+						[
+							'product_slug' => 'give',
+							'tier'         => 'give-pro',
+							'status'       => 'active',
+							'expires'      => '2026-12-31 23:59:59',
+							'activations'  => [ 'site_limit' => 0, 'active_count' => 0 ],
+						]
+					),
+				]
+			)
+		);
+
+		$this->assertSame( $first_last_failure_at, $this->repository->get_products_last_failure_at() );
 	}
 
 	public function test_get_products_last_error_returns_null_when_no_error(): void {

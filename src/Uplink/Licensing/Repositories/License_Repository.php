@@ -40,12 +40,14 @@ final class License_Repository {
 	/**
 	 * Option name for the license state envelope.
 	 *
-	 * Stores an associative array with three keys:
-	 *   - collection     (array|null)    Product_Collection::to_array() from the last
-	 *                                    successful API fetch, or null if never fetched.
-	 *   - last_success_at (int|null)     Unix timestamp of the last successful fetch.
+	 * Stores an associative array with four keys:
+	 *   - collection      (array|null)     Product_Collection::to_array() from the last
+	 *                                     successful API fetch, or null if never fetched.
+	 *   - last_success_at (int|null)      Unix timestamp of the last successful fetch.
+	 *   - last_failure_at (int|null)      Unix timestamp of the most recent failed fetch,
+	 *                                     or null if no failure has occurred.
 	 *   - last_error      (WP_Error|null) Error from the most recent failed attempt, or
-	 *                                    null when the last fetch succeeded.
+	 *                                     null when the last fetch succeeded.
 	 *
 	 * @since 3.0.0
 	 *
@@ -260,8 +262,9 @@ final class License_Repository {
 		}
 
 		if ( is_wp_error( $data ) ) {
-			$state               = $this->read_products_state();
-			$state['last_error'] = $data;
+			$state                    = $this->read_products_state();
+			$state['last_error']      = $data;
+			$state['last_failure_at'] = time();
 			update_option( self::PRODUCTS_STATE_OPTION_NAME, $state, false );
 		}
 	}
@@ -291,6 +294,20 @@ final class License_Repository {
 	}
 
 	/**
+	 * Unix timestamp of the most recent failed products fetch, or null if no
+	 * failure has occurred.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return int|null
+	 */
+	public function get_products_last_failure_at(): ?int {
+		$value = $this->read_products_state()['last_failure_at'];
+
+		return is_int( $value ) ? $value : null;
+	}
+
+	/**
 	 * WP_Error from the most recent failed fetch attempt, or null if the last
 	 * fetch was successful (or no fetch has occurred).
 	 *
@@ -310,7 +327,7 @@ final class License_Repository {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @return array{collection: array<array<string,mixed>>|null, last_success_at: int|null, last_error: WP_Error|null}
+	 * @return array{collection: array<array<string,mixed>>|null, last_success_at: int|null, last_failure_at: int|null, last_error: WP_Error|null}
 	 */
 	private function read_products_state(): array {
 		$raw = get_option( self::PRODUCTS_STATE_OPTION_NAME, null );
@@ -319,6 +336,7 @@ final class License_Repository {
 			return [
 				'collection'      => null,
 				'last_success_at' => null,
+				'last_failure_at' => null,
 				'last_error'      => null,
 			];
 		}
@@ -330,11 +348,13 @@ final class License_Repository {
 		}
 
 		$last_success_at = isset( $raw['last_success_at'] ) && is_int( $raw['last_success_at'] ) ? $raw['last_success_at'] : null;
+		$last_failure_at = isset( $raw['last_failure_at'] ) && is_int( $raw['last_failure_at'] ) ? $raw['last_failure_at'] : null;
 		$last_error      = isset( $raw['last_error'] ) && $raw['last_error'] instanceof WP_Error ? $raw['last_error'] : null;
 
 		return [
 			'collection'      => $collection,
 			'last_success_at' => $last_success_at,
+			'last_failure_at' => $last_failure_at,
 			'last_error'      => $last_error,
 		];
 	}

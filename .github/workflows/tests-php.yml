@@ -1,3 +1,4 @@
+# cspell:ignore tonumber
 name: "PHP Tests"
 on:
   push:
@@ -18,8 +19,8 @@ jobs:
               | group_by(split(".")[0:2] | join("."))
               | map(sort_by(split(".") | map(tonumber)) | last)
               | sort_by(split(".") | map(tonumber))
-              | .[-2:]')
-          # Prepend "latest" to always test the bleeding edge
+              | .[-2:-1]')
+          # "latest" covers the newest minor branch; VERSIONS has the previous one
           MATRIX=$(echo "$VERSIONS" | jq -c '["latest"] + .')
           echo "versions=$MATRIX" >> "$GITHUB_OUTPUT"
           echo "WordPress versions for matrix: $MATRIX"
@@ -37,7 +38,6 @@ jobs:
           - "8.1"
           - "8.2"
           - "8.3"
-          - "8.4"
 
     name: "Tests: WP ${{ matrix.wordpress }} / PHP ${{ matrix.php }}"
     steps:

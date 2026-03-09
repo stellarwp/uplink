@@ -194,9 +194,25 @@ class Theme_Strategy extends Installable_Strategy {
 		$skin     = new WP_Ajax_Upgrader_Skin();
 		$upgrader = new Theme_Upgrader( $skin );
 
-		$result = $upgrader->install(
-			Cast::to_string( $theme_info->download_link )
-		);
+		try {
+			$result = $upgrader->install(
+				Cast::to_string( $theme_info->download_link )
+			);
+		} catch ( \Throwable $e ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
+				error_log( "Uplink: fatal error installing theme \"{$this->feature->get_slug()}\": {$e->getMessage()} {$e->getFile()}:{$e->getLine()}" );
+			}
+
+			return new WP_Error(
+				Error_Code::INSTALL_FAILED,
+				sprintf(
+					/* translators: %s: feature name */
+					__( 'A fatal error occurred while installing "%s".', '%TEXTDOMAIN%' ),
+					$this->feature->get_name()
+				)
+			);
+		}
 
 		if ( is_wp_error( $result ) ) {
 			return new WP_Error(

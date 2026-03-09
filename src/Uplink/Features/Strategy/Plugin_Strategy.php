@@ -232,7 +232,23 @@ class Plugin_Strategy extends Installable_Strategy {
 		$skin     = new WP_Ajax_Upgrader_Skin();
 		$upgrader = new Plugin_Upgrader( $skin );
 
-		$result = $upgrader->install( Cast::to_string( $plugin_info->download_link ) );
+		try {
+			$result = $upgrader->install( Cast::to_string( $plugin_info->download_link ) );
+		} catch ( \Throwable $e ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
+				error_log( "Uplink: fatal error installing plugin \"{$this->feature->get_slug()}\": {$e->getMessage()} {$e->getFile()}:{$e->getLine()}" );
+			}
+
+			return new WP_Error(
+				Error_Code::INSTALL_FAILED,
+				sprintf(
+					/* translators: %s: feature name */
+					__( 'A fatal error occurred while installing "%s".', '%TEXTDOMAIN%' ),
+					$this->feature->get_name()
+				)
+			);
+		}
 
 		// Plugin_Upgrader::install() returns true on success or WP_Error on
 		// failure. The skin may also collect errors separately.
@@ -370,13 +386,17 @@ class Plugin_Strategy extends Installable_Strategy {
 				ob_end_clean();
 			}
 
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
+				error_log( "Uplink: fatal error activating plugin \"{$this->feature->get_slug()}\": {$e->getMessage()} {$e->getFile()}:{$e->getLine()}" );
+			}
+
 			return new WP_Error(
 				Error_Code::ACTIVATION_FATAL,
 				sprintf(
-					/* translators: %1$s: feature name, %2$s: error message */
-					__( 'A fatal error occurred while activating "%1$s": %2$s', '%TEXTDOMAIN%' ),
-					$this->feature->get_name(),
-					Cast::to_string( $e->getMessage() )
+					/* translators: %s: feature name */
+					__( 'A fatal error occurred while activating "%s".', '%TEXTDOMAIN%' ),
+					$this->feature->get_name()
 				)
 			);
 		}

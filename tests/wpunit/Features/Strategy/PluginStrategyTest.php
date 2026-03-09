@@ -698,6 +698,180 @@ final class PluginStrategyTest extends UplinkTestCase {
 	}
 
 	// -------------------------------------------------------------------------
+	// Activation fatal error tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * enable() returns ACTIVATION_FATAL when a plugin throws on include.
+	 *
+	 * The "fatal-plugin-feature" fixture throws a RuntimeException at the
+	 * top level (outside any hook), simulating a plugin that fatals on
+	 * first load during activate_plugin().
+	 *
+	 * Also verifies the error message does NOT leak exception details
+	 * (message, file path) to the user — only the feature name is shown.
+	 */
+	public function test_enable_returns_activation_fatal_when_plugin_throws_on_include(): void {
+		$plugin_slug = 'fatal-plugin-feature';
+		$plugin_file = $plugin_slug . '/' . $plugin_slug . '.php';
+		$plugin_dir  = WP_PLUGIN_DIR . '/' . $plugin_slug;
+		$source_dir  = codecept_data_dir( 'Features/Plugins/' . $plugin_slug );
+
+		if ( ! is_dir( $plugin_dir ) ) {
+			mkdir( $plugin_dir, 0755, true );
+		}
+		copy( $source_dir . '/' . $plugin_slug . '.php', $plugin_dir . '/' . $plugin_slug . '.php' );
+
+		try {
+			$feature  = $this->make_plugin_feature( $plugin_slug, $plugin_file, [ 'StellarWP' ] );
+			$strategy = new Plugin_Strategy( $feature );
+			$result   = $strategy->enable();
+
+			$this->assertWPError( $result );
+			$this->assertSame( Error_Code::ACTIVATION_FATAL, $result->get_error_code() );
+
+			$message = $result->get_error_message();
+
+			// The exception message from the fixture must not appear in the user-facing error.
+			$this->assertStringNotContainsString( 'Intentional fatal error', $message );
+			// Server file paths must not leak.
+			$this->assertStringNotContainsString( '.php', $message );
+		} finally {
+			deactivate_plugins( $plugin_file );
+			if ( file_exists( $plugin_dir . '/' . $plugin_slug . '.php' ) ) {
+				unlink( $plugin_dir . '/' . $plugin_slug . '.php' );
+			}
+			if ( is_dir( $plugin_dir ) ) {
+				rmdir( $plugin_dir );
+			}
+		}
+	}
+
+	/**
+	 * enable() returns ACTIVATION_FATAL when a plugin's activation hook throws.
+	 *
+	 * The "activation-fatal-plugin-feature" fixture registers a
+	 * register_activation_hook() callback that throws a RuntimeException.
+	 */
+	public function test_enable_returns_activation_fatal_when_activation_hook_throws(): void {
+		$plugin_slug = 'activation-fatal-plugin-feature';
+		$plugin_file = $plugin_slug . '/' . $plugin_slug . '.php';
+		$plugin_dir  = WP_PLUGIN_DIR . '/' . $plugin_slug;
+		$source_dir  = codecept_data_dir( 'Features/Plugins/' . $plugin_slug );
+
+		if ( ! is_dir( $plugin_dir ) ) {
+			mkdir( $plugin_dir, 0755, true );
+		}
+		copy( $source_dir . '/' . $plugin_slug . '.php', $plugin_dir . '/' . $plugin_slug . '.php' );
+
+		try {
+			$feature  = $this->make_plugin_feature( $plugin_slug, $plugin_file, [ 'StellarWP' ] );
+			$strategy = new Plugin_Strategy( $feature );
+			$result   = $strategy->enable();
+
+			$this->assertWPError( $result );
+			$this->assertSame( Error_Code::ACTIVATION_FATAL, $result->get_error_code() );
+		} finally {
+			deactivate_plugins( $plugin_file );
+			if ( file_exists( $plugin_dir . '/' . $plugin_slug . '.php' ) ) {
+				unlink( $plugin_dir . '/' . $plugin_slug . '.php' );
+			}
+			if ( is_dir( $plugin_dir ) ) {
+				rmdir( $plugin_dir );
+			}
+		}
+	}
+
+	/**
+	 * enable() returns ACTIVATION_FATAL when a plugin has a PHP syntax error
+	 * (ParseError thrown during include).
+	 */
+	public function test_enable_returns_activation_fatal_for_syntax_error_plugin(): void {
+		$plugin_slug = 'syntax-error-plugin-feature';
+		$plugin_file = $plugin_slug . '/' . $plugin_slug . '.php';
+		$plugin_dir  = WP_PLUGIN_DIR . '/' . $plugin_slug;
+		$source_dir  = codecept_data_dir( 'Features/Plugins/' . $plugin_slug );
+
+		if ( ! is_dir( $plugin_dir ) ) {
+			mkdir( $plugin_dir, 0755, true );
+		}
+		copy( $source_dir . '/' . $plugin_slug . '.php', $plugin_dir . '/' . $plugin_slug . '.php' );
+
+		try {
+			$feature  = $this->make_plugin_feature( $plugin_slug, $plugin_file, [ 'StellarWP' ] );
+			$strategy = new Plugin_Strategy( $feature );
+			$result   = $strategy->enable();
+
+			$this->assertWPError( $result );
+			$this->assertSame( Error_Code::ACTIVATION_FATAL, $result->get_error_code() );
+			// Must not leak the parse error details.
+			$this->assertStringNotContainsString( 'syntax', $result->get_error_message() );
+		} finally {
+			deactivate_plugins( $plugin_file );
+			if ( file_exists( $plugin_dir . '/' . $plugin_slug . '.php' ) ) {
+				unlink( $plugin_dir . '/' . $plugin_slug . '.php' );
+			}
+			if ( is_dir( $plugin_dir ) ) {
+				rmdir( $plugin_dir );
+			}
+		}
+	}
+
+	// -------------------------------------------------------------------------
+	// Install fatal error tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * enable() returns INSTALL_FAILED when Plugin_Upgrader::install() throws
+	 * a fatal error (Throwable), and releases the install lock afterward.
+	 *
+	 * Simulates a catastrophic failure during the download/unpack phase by
+	 * hooking into the HTTP layer to throw an exception.
+	 */
+	public function test_enable_returns_install_failed_when_upgrader_install_throws(): void {
+		// Make plugins_api() return a valid download link.
+		$api_filter = static function ( $result, $action, $args ) {
+			if ( 'plugin_information' === $action && $args->slug === 'test-feature' ) {
+				return (object) [
+					'slug'          => 'test-feature',
+					'download_link' => 'https://example.com/test-feature.zip',
+				];
+			}
+			return $result;
+		};
+		add_filter( 'plugins_api', $api_filter, 10, 3 );
+
+		// Force the HTTP request to throw a Throwable during download.
+		$http_filter = static function ( $response, $parsed_args, $url ) {
+			if ( strpos( $url, 'example.com/test-feature.zip' ) !== false ) {
+				throw new \RuntimeException( 'Simulated fatal during plugin download.' );
+			}
+			return $response;
+		};
+		add_filter( 'pre_http_request', $http_filter, 10, 3 );
+
+		try {
+			$ob_level = ob_get_level();
+			$result   = $this->strategy->enable();
+
+			while ( ob_get_level() > $ob_level ) {
+				ob_end_clean();
+			}
+
+			$this->assertWPError( $result );
+			$this->assertSame( Error_Code::INSTALL_FAILED, $result->get_error_code() );
+			$this->assertStringContainsString( 'fatal error occurred', $result->get_error_message() );
+			// Exception details must not leak.
+			$this->assertStringNotContainsString( 'Simulated fatal', $result->get_error_message() );
+			// Lock should be released even after a fatal throw.
+			$this->assertFalse( get_transient( 'stellarwp_uplink_install_lock' ) );
+		} finally {
+			remove_filter( 'plugins_api', $api_filter, 10 );
+			remove_filter( 'pre_http_request', $http_filter, 10 );
+		}
+	}
+
+	// -------------------------------------------------------------------------
 	// Helpers
 	// -------------------------------------------------------------------------
 

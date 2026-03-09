@@ -178,6 +178,18 @@ final class Catalog_Controller extends WP_REST_Controller {
 							'minimum_tier'      => [
 								'type' => 'string',
 							],
+							'plugin_file'       => [
+								'type' => [ 'string', 'null' ],
+							],
+							'is_dot_org'        => [
+								'type' => 'boolean',
+							],
+							'download_url'      => [
+								'type' => [ 'string', 'null' ],
+							],
+							'version'           => [
+								'type' => [ 'string', 'null' ],
+							],
 							'name'              => [
 								'type' => 'string',
 							],
@@ -188,7 +200,7 @@ final class Catalog_Controller extends WP_REST_Controller {
 								'type' => 'string',
 							],
 							'authors'           => [
-								'type'  => 'array',
+								'type'  => [ 'array', 'null' ],
 								'items' => [
 									'type' => 'string',
 								],

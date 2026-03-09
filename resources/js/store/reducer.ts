@@ -4,9 +4,36 @@
  * @package StellarWP\Uplink
  */
 import { combineReducers } from '@wordpress/data';
-import type { Action, FeaturesState, LicenseState } from './types';
+import type { Action, CatalogState, FeaturesState, LicenseState } from './types';
 
-export const reducer = combineReducers({ features, license });
+export const reducer = combineReducers({ features, license, catalog });
+
+// ---------------------------------------------------------------------------
+// Catalog
+// ---------------------------------------------------------------------------
+
+const CATALOG_DEFAULT: CatalogState = {
+	byProductSlug: {},
+};
+
+function catalog(
+	state: CatalogState = CATALOG_DEFAULT,
+	action: Action
+): CatalogState {
+	switch (action.type) {
+		case 'RECEIVE_CATALOG': {
+			return {
+				...state,
+				byProductSlug: Object.fromEntries(
+					action.catalogs.map((c) => [c.product_slug, c])
+				),
+			};
+		}
+
+		default:
+			return state;
+	}
+}
 
 // ---------------------------------------------------------------------------
 // Features

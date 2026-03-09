@@ -10,7 +10,7 @@ import type {
 import type { Thunk as BaseThunk } from '@/types/data';
 
 import type UplinkError from '@/errors/uplink-error';
-import type { Feature } from '@/types/api';
+import type { Feature, ProductCatalog } from '@/types/api';
 
 import type * as actions from './actions';
 import type * as selectors from './selectors';
@@ -18,6 +18,13 @@ import type * as selectors from './selectors';
 // ---------------------------------------------------------------------------
 // State
 // ---------------------------------------------------------------------------
+
+export interface CatalogState {
+	/**
+	 * Product catalogs keyed by product slug, populated by the getCatalog resolver.
+	 */
+	byProductSlug: Record<string, ProductCatalog>;
+}
 
 export interface FeaturesState {
 	/**
@@ -62,6 +69,7 @@ export interface LicenseState {
 export interface State {
 	features: FeaturesState;
 	license: LicenseState;
+	catalog: CatalogState;
 }
 
 // ---------------------------------------------------------------------------
@@ -69,6 +77,7 @@ export interface State {
 // ---------------------------------------------------------------------------
 
 export type Action =
+	| { type: 'RECEIVE_CATALOG'; catalogs: ProductCatalog[] }
 	| { type: 'RECEIVE_FEATURES'; features: Feature[] }
 	| { type: 'TOGGLE_FEATURE_START'; slug: string }
 	| { type: 'TOGGLE_FEATURE_FINISHED'; feature: Feature }

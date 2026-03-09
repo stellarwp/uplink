@@ -244,7 +244,7 @@ final class License_Repository {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Product_Collection|WP_Error $data
+	 * @param Product_Collection|WP_Error $data The product catalog or fetch error to store.
 	 *
 	 * @return void
 	 */
@@ -346,7 +346,7 @@ final class License_Repository {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $slug Product slug.
+	 * @param string $slug The product slug to retrieve.
 	 *
 	 * @return Product_Entry|null
 	 */
@@ -365,7 +365,7 @@ final class License_Repository {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $slug Product slug.
+	 * @param string $slug The product slug to check.
 	 *
 	 * @return bool
 	 */
@@ -378,7 +378,7 @@ final class License_Repository {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $slug Product slug.
+	 * @param string $slug The product slug to check.
 	 *
 	 * @return bool
 	 */
@@ -398,7 +398,7 @@ final class License_Repository {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $slug Product slug.
+	 * @param string $slug The product slug to retrieve.
 	 *
 	 * @return bool
 	 */
@@ -417,7 +417,7 @@ final class License_Repository {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $slug Product slug.
+	 * @param string $slug The product slug to retrieve.
 	 *
 	 * @return int|null Unix timestamp (UTC), or null if never recorded.
 	 */
@@ -438,7 +438,7 @@ final class License_Repository {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $slug      Product slug.
+	 * @param string $slug      The product slug to record.
 	 * @param int    $timestamp Unix timestamp (UTC) to record.
 	 *
 	 * @return void
@@ -473,7 +473,7 @@ final class License_Repository {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $slug Product slug.
+	 * @param string $slug The product slug to check.
 	 *
 	 * @return bool
 	 */

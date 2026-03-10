@@ -299,21 +299,18 @@ final class FeatureTest extends UplinkTestCase {
 		$this->assertSame( 'Feature "test-flag" is enabled.', $this->logger->last_info );
 	}
 
-	public function test_is_enabled_logs_not_enabled_when_strategy_inactive(): void {
+	public function test_is_enabled_calls_error_when_strategy_inactive(): void {
 		$command = $this->make_command_with_strategy( [ 'is_active' => false ] );
 
 		$command->is_enabled( [ 'test-flag' ], [] );
 
-		$this->assertSame( 'Feature "test-flag" is not enabled.', $this->logger->last_info );
+		$this->assertSame( 'Feature "test-flag" is not enabled.', $this->logger->last_error );
 	}
 
-	public function test_is_enabled_logs_not_found_for_nonexistent_feature(): void {
+	public function test_is_enabled_calls_error_for_nonexistent_feature(): void {
 		$this->command->is_enabled( [ 'nonexistent' ], [] );
 
-		// The first log message is "not found"; execution continues past exit()
-		// because uopz suppresses it, so we check the first message logged.
-		$this->assertNotEmpty( $this->logger->info_messages );
-		$this->assertSame( 'Feature "nonexistent" not found.', $this->logger->info_messages[0] );
+		$this->assertSame( 'Feature "nonexistent" not found.', $this->logger->last_error );
 	}
 
 	// ------------------------------------------------------------------

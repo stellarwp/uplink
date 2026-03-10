@@ -252,22 +252,23 @@ class Feature extends WP_CLI_Command {
 		$slug = $args[0];
 
 		if ( ! $this->manager->get_feature( $slug ) ) {
-			WP_CLI::log( sprintf( 'Feature "%s" not found.', $slug ) );
-			exit( 1 );
+			WP_CLI::error( sprintf( 'Feature "%s" not found.', $slug ) );
+
+			return;
 		}
 
 		$result = $this->manager->is_enabled( $slug );
 
 		if ( is_wp_error( $result ) ) {
-			WP_CLI::log( $result->get_error_message() );
-			exit( 1 );
+			WP_CLI::error( $result->get_error_message() );
+
+			return;
 		}
 
 		if ( $result ) {
 			WP_CLI::log( sprintf( 'Feature "%s" is enabled.', $slug ) );
 		} else {
-			WP_CLI::log( sprintf( 'Feature "%s" is not enabled.', $slug ) );
-			exit( 1 );
+			WP_CLI::error( sprintf( 'Feature "%s" is not enabled.', $slug ) );
 		}
 	}
 
@@ -365,14 +366,29 @@ class Feature extends WP_CLI_Command {
 
 		$item = $feature->to_array();
 
-		$item['is_available'] = $item['is_available'] ? 'true' : 'false';
-		$item['is_enabled']   = ( $is_enabled === true ) ? 'true' : 'false';
-		$item['is_dot_org']   = ! empty( $item['is_dot_org'] ) ? 'true' : 'false';
+		$item['is_available'] = $this->to_display_bool( $item['is_available'] ?? false );
+		$item['is_enabled']   = $this->to_display_bool( $is_enabled === true );
+		$item['is_dot_org']   = $this->to_display_bool( ! empty( $item['is_dot_org'] ) );
 
-		if ( isset( $item['authors'] ) && is_array( $item['authors'] ) ) {
-			$item['authors'] = implode( ', ', $item['authors'] );
+		foreach ( $item as $key => $value ) {
+			if ( is_array( $value ) ) {
+				$item[ $key ] = implode( ', ', $value );
+			}
 		}
 
 		return $item;
+	}
+
+	/**
+	 * Converts a boolean to a display-friendly 'true'/'false' string.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param bool $value The boolean value.
+	 *
+	 * @return string
+	 */
+	private function to_display_bool( bool $value ): string {
+		return $value ? 'true' : 'false';
 	}
 }

@@ -386,4 +386,5 @@ bunx @stellarwp/changelogger write --overwrite-version <version>
 
 ### General
 
+- [CLI Commands](/docs/cli.md) — WP-CLI commands for feature management.
 - [Testing](/docs/testing.md) — How to set up and run automated tests with Codeception and `slic`.

@@ -10,7 +10,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { UplinkError, ErrorCode } from '@/errors';
-import type { Feature, ProductCatalog } from '@/types/api';
+import type { Feature, ProductCatalog, License } from '@/types/api';
 import type { Thunk } from './types';
 import { forwardResolver, forwardResolverWithoutArgs } from '@/lib/forward-resolver';
 
@@ -72,17 +72,17 @@ export const getProductTiers = forwardResolver('getCatalog');
 // ---------------------------------------------------------------------------
 
 /**
- * Fetches the stored license key from the REST API.
- * Triggered automatically when getLicense is first called.
+ * Fetches the stored license from the REST API.
+ * Triggered automatically when getLicenseKey is first called.
  */
-export const getLicense =
+export const getLicenseKey =
 	(): Thunk =>
 	async ({ dispatch }) => {
 		try {
-			const result = await apiFetch<{ key: string | null }>({
+			const result = await apiFetch<License>({
 				path: '/stellarwp/uplink/v1/license',
 			});
-			dispatch.receiveLicense(result.key);
+			dispatch.receiveLicense(result);
 		} catch (err) {
 			throw UplinkError.wrap(
 				err,
@@ -92,4 +92,4 @@ export const getLicense =
 		}
 	};
 
-export const hasLicense = forwardResolver('getLicense');
+export const hasLicense = forwardResolver('getLicenseKey');

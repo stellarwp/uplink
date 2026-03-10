@@ -101,7 +101,7 @@ final class ManagerTest extends UplinkTestCase {
 		delete_option( 'stellarwp_uplink_feature_kad-pattern-hub_active' );
 		delete_option( License_Repository::KEY_OPTION_NAME );
 		delete_transient( Feature_Repository::TRANSIENT_KEY );
-		delete_transient( Catalog_Repository::TRANSIENT_KEY );
+		delete_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
 		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
 
 		parent::tearDown();

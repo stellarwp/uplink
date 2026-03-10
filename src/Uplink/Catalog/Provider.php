@@ -41,7 +41,7 @@ final class Provider extends Abstract_Provider {
 		add_action(
 			'stellarwp/uplink/unified_license_key_changed',
 			static function () {
-				delete_transient( Catalog_Repository::TRANSIENT_KEY );
+				delete_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
 			}
 		);
 	}

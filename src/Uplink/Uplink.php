@@ -55,6 +55,7 @@ class Uplink {
 		$container->singleton( Licensing\Provider::class, Licensing\Provider::class );
 		$container->singleton( Catalog\Provider::class, Catalog\Provider::class );
 		$container->singleton( API\REST\V1\Provider::class, API\REST\V1\Provider::class );
+		$container->singleton( CLI\Provider::class, CLI\Provider::class );
 
 		if ( static::is_enabled() ) {
 			$container->get( Storage\Provider::class )->register();
@@ -74,6 +75,7 @@ class Uplink {
 		$container->get( Catalog\Provider::class )->register();
 		$container->get( API\REST\V1\Provider::class )->register();
 		$container->get( API\Functions\Provider::class )->register();
+		$container->get( CLI\Provider::class )->register();
 
 		static::register_cross_instance_hooks( $container );
 

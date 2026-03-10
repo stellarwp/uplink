@@ -54,7 +54,8 @@
         "phpstan/phpstan": "^2",
         "phpunit/phpunit": "*",
         "stellarwp/coding-standards": "^2",
-        "szepeviktor/phpstan-wordpress": ">=1.0"
+        "szepeviktor/phpstan-wordpress": ">=1.0",
+        "wp-cli/wp-cli": "^2"
     },
     "scripts": {
       "test:analysis": [

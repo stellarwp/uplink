@@ -23,7 +23,7 @@ final class Catalog_ControllerTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		delete_transient( Catalog_Repository::TRANSIENT_KEY );
+		delete_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
 
 		$client     = $this->make_client( $this->build_catalog_from_fixture() );
 		$repository = new Catalog_Repository( $client );
@@ -54,7 +54,7 @@ final class Catalog_ControllerTest extends UplinkTestCase {
 		global $wp_rest_server;
 		$wp_rest_server = null;
 
-		delete_transient( Catalog_Repository::TRANSIENT_KEY );
+		delete_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
 
 		parent::tearDown();
 	}

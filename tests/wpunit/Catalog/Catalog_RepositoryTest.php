@@ -4,7 +4,6 @@ namespace StellarWP\Uplink\Tests\Catalog;
 
 use StellarWP\Uplink\Catalog\Catalog_Collection;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
-use StellarWP\Uplink\Catalog\Error_Code;
 use StellarWP\Uplink\Catalog\Fixture_Client;
 use StellarWP\Uplink\Catalog\Results\Product_Catalog;
 use StellarWP\Uplink\Tests\UplinkTestCase;
@@ -20,11 +19,11 @@ final class Catalog_RepositoryTest extends UplinkTestCase {
 		$client           = new Fixture_Client( codecept_data_dir( 'catalog/default.json' ) );
 		$this->repository = new Catalog_Repository( $client );
 
-		delete_transient( Catalog_Repository::TRANSIENT_KEY );
+		delete_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
 	}
 
 	protected function tearDown(): void {
-		delete_transient( Catalog_Repository::TRANSIENT_KEY );
+		delete_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
 
 		parent::tearDown();
 	}
@@ -40,32 +39,39 @@ final class Catalog_RepositoryTest extends UplinkTestCase {
 		}
 	}
 
-	public function test_get_stores_in_transient(): void {
+	public function test_get_stores_in_option(): void {
 		$this->repository->get();
 
-		$cached = get_transient( Catalog_Repository::TRANSIENT_KEY );
+		$state = get_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
 
-		$this->assertIsArray( $cached );
-		$this->assertCount( 4, $cached );
+		$this->assertIsArray( $state );
+		$this->assertArrayHasKey( 'collection', $state );
+		$this->assertIsArray( $state['collection'] );
+		$this->assertCount( 4, $state['collection'] );
 	}
 
-	public function test_get_serves_from_transient(): void {
+	public function test_get_serves_from_option(): void {
 		$stale = [
-			[
-				'product_slug' => 'cached-product',
-				'tiers'        => [
-					[
-						'slug'         => 'basic',
-						'name'         => 'Basic',
-						'rank'         => 1,
-						'purchase_url' => '',
+			'collection'      => [
+				[
+					'product_slug' => 'cached-product',
+					'tiers'        => [
+						[
+							'slug'         => 'basic',
+							'name'         => 'Basic',
+							'rank'         => 1,
+							'purchase_url' => '',
+						],
 					],
+					'features'     => [],
 				],
-				'features'     => [],
 			],
+			'last_success_at' => time(),
+			'last_failure_at' => null,
+			'last_error'      => null,
 		];
 
-		set_transient( Catalog_Repository::TRANSIENT_KEY, $stale );
+		update_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME, $stale );
 
 		$result = $this->repository->get();
 
@@ -81,31 +87,54 @@ final class Catalog_RepositoryTest extends UplinkTestCase {
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 
-		$cached = get_transient( Catalog_Repository::TRANSIENT_KEY );
+		$state = get_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
 
-		$this->assertInstanceOf( WP_Error::class, $cached );
+		$this->assertIsArray( $state );
+		$this->assertNull( $state['collection'] );
+		$this->assertInstanceOf( WP_Error::class, $state['last_error'] );
 	}
 
-	public function test_get_returns_cached_wp_error(): void {
-		$error = new WP_Error( Error_Code::INVALID_RESPONSE, 'Cached error' );
-		set_transient( Catalog_Repository::TRANSIENT_KEY, $error );
+	public function test_get_preserves_collection_on_error(): void {
+		// Seed a valid collection first via a successful fetch.
+		$this->repository->get();
 
+		$state = get_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
+		$this->assertIsArray( $state['collection'] );
+		$this->assertCount( 4, $state['collection'] );
+
+		// Now refresh with a bad client — simulates an API failure.
+		$bad_client  = new Fixture_Client( '/tmp/does-not-exist-' . uniqid() . '.json' );
+		$bad_repo    = new Catalog_Repository( $bad_client );
+
+		// Manually trigger a failed set_catalog to share the same option.
+		$error = $bad_client->get_catalog();
+		$this->repository->set_catalog( $error );
+
+		// get() should still return the previously stored collection.
 		$result = $this->repository->get();
 
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'Cached error', $result->get_error_message() );
+		$this->assertInstanceOf( Catalog_Collection::class, $result );
+		$this->assertCount( 4, $result );
+
+		// The error is also persisted alongside the preserved collection.
+		$this->assertInstanceOf( WP_Error::class, $this->repository->get_last_error() );
 	}
 
 	public function test_refresh_clears_and_refetches(): void {
 		$stale = [
-			[
-				'product_slug' => 'stale-product',
-				'tiers'        => [],
-				'features'     => [],
+			'collection'      => [
+				[
+					'product_slug' => 'stale-product',
+					'tiers'        => [],
+					'features'     => [],
+				],
 			],
+			'last_success_at' => time() - 100,
+			'last_failure_at' => null,
+			'last_error'      => null,
 		];
 
-		set_transient( Catalog_Repository::TRANSIENT_KEY, $stale );
+		update_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME, $stale );
 
 		$result = $this->repository->refresh();
 

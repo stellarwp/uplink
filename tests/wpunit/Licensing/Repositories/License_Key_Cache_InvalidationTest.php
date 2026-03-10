@@ -62,7 +62,7 @@ final class License_Key_Cache_InvalidationTest extends UplinkTestCase {
 		add_action(
 			'stellarwp/uplink/unified_license_key_changed',
 			static function () {
-				delete_transient( Catalog_Repository::TRANSIENT_KEY );
+				delete_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
 			}
 		);
 		add_action(
@@ -73,7 +73,7 @@ final class License_Key_Cache_InvalidationTest extends UplinkTestCase {
 		);
 
 		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
-		delete_transient( Catalog_Repository::TRANSIENT_KEY );
+		delete_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
 		delete_transient( Feature_Repository::TRANSIENT_KEY );
 		delete_option( License_Repository::KEY_OPTION_NAME );
 	}
@@ -82,7 +82,7 @@ final class License_Key_Cache_InvalidationTest extends UplinkTestCase {
 		remove_all_filters( 'stellarwp/uplink/unified_license_key_changed' );
 
 		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
-		delete_transient( Catalog_Repository::TRANSIENT_KEY );
+		delete_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
 		delete_transient( Feature_Repository::TRANSIENT_KEY );
 		delete_option( License_Repository::KEY_OPTION_NAME );
 
@@ -110,22 +110,27 @@ final class License_Key_Cache_InvalidationTest extends UplinkTestCase {
 	}
 
 	public function test_catalog_repository_fetches_fresh_after_key_change(): void {
-		// Seed a stale catalog array with a single fake product.
-		$stale = [
-			[
-				'product_slug' => 'stale-product',
-				'tiers'        => [],
-				'features'     => [],
+		// Seed a stale catalog state with a single fake product.
+		$stale_state = [
+			'collection'      => [
+				[
+					'product_slug' => 'stale-product',
+					'tiers'        => [],
+					'features'     => [],
+				],
 			],
+			'last_success_at' => time() - 100,
+			'last_failure_at' => null,
+			'last_error'      => null,
 		];
-		set_transient( Catalog_Repository::TRANSIENT_KEY, $stale );
+		update_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME, $stale_state );
 
 		// Confirm the stale cache is served.
 		$cached = $this->catalog_repository->get();
 		$this->assertCount( 1, $cached );
 		$this->assertNotNull( $cached->get( 'stale-product' ) );
 
-		// Change the license key — invalidates the catalog transient.
+		// Change the license key — invalidates the catalog option.
 		$this->license_repository->store_key( 'LWSW-UNIFIED-BASIC-2026' );
 
 		// Fresh fetch should return the real catalog, not the stale single-product one.
@@ -180,14 +185,14 @@ final class License_Key_Cache_InvalidationTest extends UplinkTestCase {
 		$this->feature_repository->get( 'LWSW-UNIFIED-KAD-PRO-2026', 'example.com' );
 
 		$this->assertInstanceOf( Product_Collection::class, $this->license_repository->get_products() );
-		$this->assertNotFalse( get_transient( Catalog_Repository::TRANSIENT_KEY ) );
+		$this->assertNotFalse( get_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME ) );
 		$this->assertNotFalse( get_transient( Feature_Repository::TRANSIENT_KEY ) );
 
-		// Storing a new key should clear all three transients.
+		// Storing a new key should clear the catalog option and feature transient.
 		$this->license_repository->store_key( 'LWSW-UNIFIED-BASIC-2026' );
 
 		$this->assertNull( $this->license_repository->get_products() );
-		$this->assertFalse( get_transient( Catalog_Repository::TRANSIENT_KEY ) );
+		$this->assertFalse( get_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME ) );
 		$this->assertFalse( get_transient( Feature_Repository::TRANSIENT_KEY ) );
 	}
 
@@ -200,14 +205,14 @@ final class License_Key_Cache_InvalidationTest extends UplinkTestCase {
 		$this->feature_repository->get( 'LWSW-UNIFIED-KAD-PRO-2026', 'example.com' );
 
 		$this->assertInstanceOf( Product_Collection::class, $this->license_repository->get_products() );
-		$this->assertNotFalse( get_transient( Catalog_Repository::TRANSIENT_KEY ) );
+		$this->assertNotFalse( get_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME ) );
 		$this->assertNotFalse( get_transient( Feature_Repository::TRANSIENT_KEY ) );
 
-		// Deleting the key should clear all three transients.
+		// Deleting the key should clear the catalog option and feature transient.
 		$this->license_repository->delete_key();
 
 		$this->assertNull( $this->license_repository->get_products() );
-		$this->assertFalse( get_transient( Catalog_Repository::TRANSIENT_KEY ) );
+		$this->assertFalse( get_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME ) );
 		$this->assertFalse( get_transient( Feature_Repository::TRANSIENT_KEY ) );
 	}
 
@@ -223,7 +228,7 @@ final class License_Key_Cache_InvalidationTest extends UplinkTestCase {
 		$this->license_repository->store_key( 'LWSW-UNIFIED-PRO-2026' );
 
 		$this->assertInstanceOf( Product_Collection::class, $this->license_repository->get_products() );
-		$this->assertNotFalse( get_transient( Catalog_Repository::TRANSIENT_KEY ) );
+		$this->assertNotFalse( get_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME ) );
 		$this->assertNotFalse( get_transient( Feature_Repository::TRANSIENT_KEY ) );
 	}
 }

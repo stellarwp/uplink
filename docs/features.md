@@ -75,6 +75,7 @@ The `Manager` is the public interface for all feature operations.
 | `get_all()`                | `Feature_Collection\|WP_Error`  | Get all resolved features with live is_enabled |
 | `get(string $slug)`        | `Feature\|null`                 | Look up a single feature with live is_enabled  |
 | `exists(string $slug)`     | `bool\|WP_Error`                | Check if the feature is in the catalog         |
+| `is_available(string $slug)` | `bool\|WP_Error`              | Check if the customer's tier includes this feature |
 | `is_enabled(string $slug)` | `bool\|WP_Error`                | Check if the feature is active locally         |
 | `enable(string $slug)`     | `Feature\|WP_Error`             | Enable a feature, return updated Feature       |
 | `disable(string $slug)`    | `Feature\|WP_Error`             | Disable a feature, return updated Feature      |

@@ -72,7 +72,7 @@ final class License_Key_Cache_InvalidationTest extends UplinkTestCase {
 			}
 		);
 
-		delete_transient( License_Repository::PRODUCTS_TRANSIENT_KEY );
+		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
 		delete_transient( Catalog_Repository::TRANSIENT_KEY );
 		delete_transient( Feature_Repository::TRANSIENT_KEY );
 		delete_option( License_Repository::KEY_OPTION_NAME );
@@ -81,7 +81,7 @@ final class License_Key_Cache_InvalidationTest extends UplinkTestCase {
 	protected function tearDown(): void {
 		remove_all_filters( 'stellarwp/uplink/unified_license_key_changed' );
 
-		delete_transient( License_Repository::PRODUCTS_TRANSIENT_KEY );
+		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
 		delete_transient( Catalog_Repository::TRANSIENT_KEY );
 		delete_transient( Feature_Repository::TRANSIENT_KEY );
 		delete_option( License_Repository::KEY_OPTION_NAME );

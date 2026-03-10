@@ -23,12 +23,12 @@ final class GlobalFunctionsTest extends UplinkTestCase {
 		parent::setUp();
 
 		delete_option( License_Repository::KEY_OPTION_NAME );
-		delete_transient( License_Repository::PRODUCTS_TRANSIENT_KEY );
+		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
 	}
 
 	protected function tearDown(): void {
 		delete_option( License_Repository::KEY_OPTION_NAME );
-		delete_transient( License_Repository::PRODUCTS_TRANSIENT_KEY );
+		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
 
 		parent::tearDown();
 	}
@@ -131,7 +131,14 @@ final class GlobalFunctionsTest extends UplinkTestCase {
 			]
 		);
 
-		set_transient( License_Repository::PRODUCTS_TRANSIENT_KEY, $collection->to_array() );
+		update_option(
+			License_Repository::PRODUCTS_STATE_OPTION_NAME,
+			[
+				'collection'      => $collection->to_array(),
+				'last_success_at' => null,
+				'last_error'      => null,
+			] 
+		);
 
 		$this->assertTrue( stellarwp_uplink_is_product_license_active( 'give' ) );
 	}
@@ -151,7 +158,14 @@ final class GlobalFunctionsTest extends UplinkTestCase {
 			]
 		);
 
-		set_transient( License_Repository::PRODUCTS_TRANSIENT_KEY, $collection->to_array() );
+		update_option(
+			License_Repository::PRODUCTS_STATE_OPTION_NAME,
+			[
+				'collection'      => $collection->to_array(),
+				'last_success_at' => null,
+				'last_error'      => null,
+			] 
+		);
 
 		$this->assertFalse( stellarwp_uplink_is_product_license_active( 'give' ) );
 	}
@@ -171,7 +185,14 @@ final class GlobalFunctionsTest extends UplinkTestCase {
 			]
 		);
 
-		set_transient( License_Repository::PRODUCTS_TRANSIENT_KEY, $collection->to_array() );
+		update_option(
+			License_Repository::PRODUCTS_STATE_OPTION_NAME,
+			[
+				'collection'      => $collection->to_array(),
+				'last_success_at' => null,
+				'last_error'      => null,
+			] 
+		);
 
 		$this->assertFalse( stellarwp_uplink_is_product_license_active( 'learndash' ) );
 	}

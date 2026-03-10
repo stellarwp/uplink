@@ -138,7 +138,7 @@ class Feature extends WP_CLI_Command {
 	 * @return void
 	 */
 	public function list_( array $args, array $assoc_args ): void {
-		$features = $this->manager->get_features();
+		$features = $this->manager->get_all();
 
 		if ( is_wp_error( $features ) ) {
 			WP_CLI::error( $features->get_error_message() );
@@ -202,7 +202,7 @@ class Feature extends WP_CLI_Command {
 	 */
 	public function get( array $args, array $assoc_args ): void {
 		$slug    = $args[0];
-		$feature = $this->manager->get_feature( $slug );
+		$feature = $this->manager->get( $slug );
 
 		if ( ! $feature ) {
 			WP_CLI::error( sprintf( 'Feature "%s" not found.', $slug ) );
@@ -249,20 +249,13 @@ class Feature extends WP_CLI_Command {
 	 * @return void
 	 */
 	public function is_enabled( array $args, array $assoc_args ): void {
-		$slug = $args[0];
-
-		if ( ! $this->manager->get_feature( $slug ) ) {
-			WP_CLI::error( sprintf( 'Feature "%s" not found.', $slug ) );
-
-			return;
-		}
-
+		$slug   = $args[0];
 		$result = $this->manager->is_enabled( $slug );
 
 		if ( is_wp_error( $result ) ) {
 			WP_CLI::error( $result->get_error_message() );
 
-			return;
+			return; // WP_CLI::error() exits, but PHPStan needs this for type narrowing.
 		}
 
 		if ( $result ) {
@@ -291,14 +284,14 @@ class Feature extends WP_CLI_Command {
 	 * @return void
 	 */
 	public function enable( array $args, array $assoc_args ): void {
-		$slug   = $args[0];
-		$result = $this->manager->enable( $slug );
+		$slug    = $args[0];
+		$feature = $this->manager->enable( $slug );
 
-		if ( is_wp_error( $result ) ) {
-			WP_CLI::error( $result->get_error_message() );
+		if ( is_wp_error( $feature ) ) {
+			WP_CLI::error( $feature->get_error_message() );
+		} else {
+			WP_CLI::success( sprintf( 'Feature "%s" enabled.', $slug ) );
 		}
-
-		WP_CLI::success( sprintf( 'Feature "%s" enabled.', $slug ) );
 	}
 
 	/**
@@ -320,14 +313,14 @@ class Feature extends WP_CLI_Command {
 	 * @return void
 	 */
 	public function disable( array $args, array $assoc_args ): void {
-		$slug   = $args[0];
-		$result = $this->manager->disable( $slug );
+		$slug    = $args[0];
+		$feature = $this->manager->disable( $slug );
 
-		if ( is_wp_error( $result ) ) {
-			WP_CLI::error( $result->get_error_message() );
+		if ( is_wp_error( $feature ) ) {
+			WP_CLI::error( $feature->get_error_message() );
+		} else {
+			WP_CLI::success( sprintf( 'Feature "%s" disabled.', $slug ) );
 		}
-
-		WP_CLI::success( sprintf( 'Feature "%s" disabled.', $slug ) );
 	}
 
 	/**
@@ -362,12 +355,10 @@ class Feature extends WP_CLI_Command {
 	 * @return array<string, mixed>
 	 */
 	private function feature_to_display_item( Feature_Type $feature ): array {
-		$is_enabled = $this->manager->is_enabled( $feature->get_slug() );
-
 		$item = $feature->to_array();
 
 		$item['is_available'] = $this->to_display_bool( ! empty( $item['is_available'] ) );
-		$item['is_enabled']   = $this->to_display_bool( $is_enabled === true );
+		$item['is_enabled']   = $this->to_display_bool( ! empty( $item['is_enabled'] ) );
 		$item['is_dot_org']   = $this->to_display_bool( ! empty( $item['is_dot_org'] ) );
 
 		foreach ( $item as $key => $value ) {

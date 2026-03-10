@@ -54,7 +54,17 @@ final class ManagerTest extends UplinkTestCase {
 		delete_transient( 'stellarwp_uplink_feature_catalog' );
 
 		$this->collection = new Feature_Collection();
-		$this->collection->add( $this->makeEmpty( Feature::class, [ 'get_slug' => 'test-feature' ] ) );
+		$this->collection->add(
+			Flag::from_array(
+				[
+					'slug'         => 'test-feature',
+					'group'        => 'TestGroup',
+					'tier'         => 'Tier 1',
+					'name'         => 'Test Feature',
+					'is_available' => true,
+				]
+			)
+		);
 
 		$repository = $this->makeEmpty(
 			Feature_Repository::class,
@@ -105,7 +115,7 @@ final class ManagerTest extends UplinkTestCase {
 	public function test_it_enables_a_feature(): void {
 		$result = $this->manager->enable( 'test-feature' );
 
-		$this->assertTrue( $result );
+		$this->assertInstanceOf( Feature::class, $result );
 	}
 
 	/**
@@ -128,7 +138,7 @@ final class ManagerTest extends UplinkTestCase {
 	public function test_it_disables_a_feature(): void {
 		$result = $this->manager->disable( 'test-feature' );
 
-		$this->assertTrue( $result );
+		$this->assertInstanceOf( Feature::class, $result );
 	}
 
 	/**
@@ -153,30 +163,15 @@ final class ManagerTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Tests is_enabled returns false for a feature not in the catalog.
+	 * Tests is_enabled returns WP_Error for a feature not in the catalog.
 	 *
 	 * @return void
 	 */
-	public function test_is_enabled_returns_false_for_unknown_feature(): void {
-		$this->assertFalse( $this->manager->is_enabled( 'nonexistent' ) );
-	}
+	public function test_is_enabled_returns_wp_error_for_unknown_feature(): void {
+		$result = $this->manager->is_enabled( 'nonexistent' );
 
-	/**
-	 * Tests is_available returns true for a feature present in the catalog.
-	 *
-	 * @return void
-	 */
-	public function test_is_available_returns_true_for_catalog_feature(): void {
-		$this->assertTrue( $this->manager->is_available( 'test-feature' ) );
-	}
-
-	/**
-	 * Tests is_available returns false for a feature not in the catalog.
-	 *
-	 * @return void
-	 */
-	public function test_is_available_returns_false_for_unknown_feature(): void {
-		$this->assertFalse( $this->manager->is_available( 'nonexistent' ) );
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( Error_Code::FEATURE_NOT_FOUND, $result->get_error_code() );
 	}
 
 	/**
@@ -185,7 +180,7 @@ final class ManagerTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_get_features_returns_collection(): void {
-		$features = $this->manager->get_features();
+		$features = $this->manager->get_all();
 
 		$this->assertInstanceOf( Feature_Collection::class, $features );
 		$this->assertSame( 1, $features->count() );
@@ -201,11 +196,11 @@ final class ManagerTest extends UplinkTestCase {
 
 		$manager = $this->container->get( Manager::class );
 
-		$flag = $manager->get_feature( 'kad-pattern-hub' );
+		$flag = $manager->get( 'kad-pattern-hub' );
 		$this->assertInstanceOf( Flag::class, $flag );
 		$this->assertSame( 'kad-pattern-hub', $flag->get_slug() );
 
-		$plugin = $manager->get_feature( 'kad-blocks-pro' );
+		$plugin = $manager->get( 'kad-blocks-pro' );
 		$this->assertInstanceOf( Plugin::class, $plugin );
 		$this->assertSame( 'kad-blocks-pro', $plugin->get_slug() );
 	}
@@ -221,13 +216,17 @@ final class ManagerTest extends UplinkTestCase {
 		$manager    = $this->container->get( Manager::class );
 		$option_key = 'stellarwp_uplink_feature_kad-pattern-hub_active';
 
-		// Enable — DB flag set, is_enabled agrees.
-		$this->assertTrue( $manager->enable( 'kad-pattern-hub' ) );
+		// Enable — DB flag set, returned feature and is_enabled agree.
+		$enabled = $manager->enable( 'kad-pattern-hub' );
+		$this->assertInstanceOf( Feature::class, $enabled );
+		$this->assertTrue( $enabled->is_enabled() );
 		$this->assertSame( '1', get_option( $option_key ) );
 		$this->assertTrue( $manager->is_enabled( 'kad-pattern-hub' ) );
 
-		// Disable — DB flag cleared, is_enabled agrees.
-		$this->assertTrue( $manager->disable( 'kad-pattern-hub' ) );
+		// Disable — DB flag cleared, returned feature and is_enabled agree.
+		$disabled = $manager->disable( 'kad-pattern-hub' );
+		$this->assertInstanceOf( Feature::class, $disabled );
+		$this->assertFalse( $disabled->is_enabled() );
 		$this->assertSame( '0', get_option( $option_key ) );
 		$this->assertFalse( $manager->is_enabled( 'kad-pattern-hub' ) );
 	}
@@ -437,11 +436,11 @@ final class ManagerTest extends UplinkTestCase {
 
 		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
 
-		$this->assertInstanceOf( WP_Error::class, $manager->get_features() );
+		$this->assertInstanceOf( WP_Error::class, $manager->get_all() );
 	}
 
 	/**
-	 * Tests that is_enabled returns a WP_Error when the catalog returns a WP_Error.
+	 * Tests that is_enabled returns WP_Error when the catalog returns a WP_Error.
 	 *
 	 * @return void
 	 */
@@ -460,12 +459,79 @@ final class ManagerTest extends UplinkTestCase {
 		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
 
 		$result = $manager->is_enabled( 'test-feature' );
+
 		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( Error_Code::FEATURE_CHECK_FAILED, $result->get_error_code() );
+		$this->assertSame( 'api_error', $result->get_error_code() );
 	}
 
 	/**
-	 * Tests that is_available returns a WP_Error when the catalog returns a WP_Error.
+	 * Tests is_available returns true for a feature with is_available set.
+	 *
+	 * @return void
+	 */
+	public function test_is_available_returns_true_for_available_feature(): void {
+		$this->assertTrue( $this->manager->is_available( 'test-feature' ) );
+	}
+
+	/**
+	 * Tests is_available returns false for a feature with is_available unset.
+	 *
+	 * @return void
+	 */
+	public function test_is_available_returns_false_for_unavailable_feature(): void {
+		$collection = new Feature_Collection();
+		$collection->add(
+			Flag::from_array(
+				[
+					'slug'         => 'locked-feature',
+					'group'        => 'TestGroup',
+					'tier'         => 'Pro',
+					'name'         => 'Locked Feature',
+					'is_available' => false,
+				]
+			)
+		);
+
+		$strategy = $this->makeEmpty(
+			Strategy::class,
+			[
+				'is_active' => false,
+			]
+		);
+
+		$factory = $this->makeEmpty(
+			Strategy_Factory::class,
+			[
+				'make' => $strategy,
+			]
+		);
+
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
+			[
+				'get' => $collection,
+			]
+		);
+
+		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+
+		$this->assertFalse( $manager->is_available( 'locked-feature' ) );
+	}
+
+	/**
+	 * Tests is_available returns WP_Error for an unknown feature.
+	 *
+	 * @return void
+	 */
+	public function test_is_available_returns_wp_error_for_unknown_feature(): void {
+		$result = $this->manager->is_available( 'nonexistent' );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( Error_Code::FEATURE_NOT_FOUND, $result->get_error_code() );
+	}
+
+	/**
+	 * Tests is_available returns WP_Error when the catalog errors.
 	 *
 	 * @return void
 	 */
@@ -483,9 +549,117 @@ final class ManagerTest extends UplinkTestCase {
 
 		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
 
-		$result = $manager->is_available( 'test-feature' );
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( Error_Code::FEATURE_CHECK_FAILED, $result->get_error_code() );
+		$this->assertInstanceOf( WP_Error::class, $manager->is_available( 'test-feature' ) );
+	}
+
+	/**
+	 * Tests that exists returns true for a feature in the catalog.
+	 *
+	 * @return void
+	 */
+	public function test_exists_returns_true_for_catalog_feature(): void {
+		$this->assertTrue( $this->manager->exists( 'test-feature' ) );
+	}
+
+	/**
+	 * Tests that exists returns false for a feature not in the catalog.
+	 *
+	 * @return void
+	 */
+	public function test_exists_returns_false_for_unknown_feature(): void {
+		$this->assertFalse( $this->manager->exists( 'nonexistent' ) );
+	}
+
+	/**
+	 * Tests that exists returns WP_Error when the catalog errors.
+	 *
+	 * @return void
+	 */
+	public function test_exists_returns_wp_error_when_catalog_errors(): void {
+		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
+
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
+			[
+				'get' => $error,
+			]
+		);
+
+		$factory = $this->makeEmpty( Strategy_Factory::class );
+
+		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+
+		$this->assertInstanceOf( WP_Error::class, $manager->exists( 'test-feature' ) );
+	}
+
+	/**
+	 * Tests that get returns null when the catalog errors.
+	 *
+	 * @return void
+	 */
+	public function test_get_returns_null_when_catalog_errors(): void {
+		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
+
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
+			[
+				'get' => $error,
+			]
+		);
+
+		$factory = $this->makeEmpty( Strategy_Factory::class );
+
+		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+
+		$this->assertNull( $manager->get( 'test-feature' ) );
+	}
+
+	/**
+	 * Tests that enable returns a Feature with is_enabled stamped.
+	 *
+	 * @return void
+	 */
+	public function test_enable_returns_feature_with_enabled_state(): void {
+		$result = $this->manager->enable( 'test-feature' );
+
+		$this->assertInstanceOf( Feature::class, $result );
+		$this->assertTrue( $result->is_enabled() );
+	}
+
+	/**
+	 * Tests that disable returns a Feature with is_enabled stamped.
+	 *
+	 * @return void
+	 */
+	public function test_disable_returns_feature_with_disabled_state(): void {
+		$inactive_strategy = $this->makeEmpty(
+			Strategy::class,
+			[
+				'disable'   => true,
+				'is_active' => false,
+			]
+		);
+
+		$factory = $this->makeEmpty(
+			Strategy_Factory::class,
+			[
+				'make' => $inactive_strategy,
+			]
+		);
+
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
+			[
+				'get' => $this->collection,
+			]
+		);
+
+		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+
+		$result = $manager->disable( 'test-feature' );
+
+		$this->assertInstanceOf( Feature::class, $result );
+		$this->assertFalse( $result->is_enabled() );
 	}
 
 	/**

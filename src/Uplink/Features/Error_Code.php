@@ -193,6 +193,24 @@ class Error_Code {
 	public const THEME_OWNERSHIP_MISMATCH = 'stellarwp-uplink-theme-ownership-mismatch';
 
 	/**
+	 * A feature could not be enabled (strategy threw an exception).
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const FEATURE_ENABLE_FAILED = 'stellarwp-uplink-feature-enable-failed';
+
+	/**
+	 * A feature could not be disabled (strategy threw an exception).
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const FEATURE_DISABLE_FAILED = 'stellarwp-uplink-feature-disable-failed';
+
+	/**
 	 * A catalog feature has a type with no registered Feature subclass.
 	 *
 	 * @since 3.0.0
@@ -231,7 +249,9 @@ class Error_Code {
 
 			// 422 Unprocessable Entity — the request was understood but the operation
 			// could not be completed (requirements not met, install/activation failure,
-			// missing download link, or unexpected package structure).
+			// missing download link, unexpected package structure, or enable/disable failure).
+			self::FEATURE_ENABLE_FAILED          => 422,
+			self::FEATURE_DISABLE_FAILED         => 422,
 			self::REQUIREMENTS_NOT_MET           => 422,
 			self::INSTALL_FAILED                 => 422,
 			self::ACTIVATION_FATAL               => 422,

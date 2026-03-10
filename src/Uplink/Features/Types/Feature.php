@@ -163,6 +163,17 @@ abstract class Feature {
 	}
 
 	/**
+	 * Checks whether the feature is currently enabled/active.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return bool
+	 */
+	public function is_enabled(): bool {
+		return Cast::to_bool( $this->attributes['is_enabled'] ?? false );
+	}
+
+	/**
 	 * Gets the URL to the feature documentation or learn-more page.
 	 *
 	 * @since 3.0.0
@@ -190,6 +201,7 @@ abstract class Feature {
 			'name'              => Cast::to_string( $data['name'] ?? '' ),
 			'description'       => Cast::to_string( $data['description'] ?? '' ),
 			'is_available'      => Cast::to_bool( $data['is_available'] ?? false ),
+			'is_enabled'        => Cast::to_bool( $data['is_enabled'] ?? false ),
 			'documentation_url' => Cast::to_string( $data['documentation_url'] ?? '' ),
 		];
 	}

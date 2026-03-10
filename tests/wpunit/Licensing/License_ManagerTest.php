@@ -2,12 +2,14 @@
 
 namespace StellarWP\Uplink\Tests\Licensing;
 
+use StellarWP\Uplink\Licensing\Enums\Validation_Status;
 use StellarWP\Uplink\Licensing\Error_Code;
 use StellarWP\Uplink\Licensing\Fixture_Client;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Product_Collection;
 use StellarWP\Uplink\Licensing\Registry\Product_Registry;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
+use StellarWP\Uplink\Licensing\Results\Validation_Result;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
 
@@ -199,10 +201,11 @@ final class License_ManagerTest extends UplinkTestCase {
 	// validate_and_store()
 	// -------------------------------------------------------------------------
 
-	public function test_validate_and_store_returns_true_for_recognized_key(): void {
+	public function test_validate_and_store_returns_products_for_recognized_key(): void {
 		$result = $this->manager->validate_and_store( 'LWSW-UNIFIED-PRO-2026', 'example.com' );
 
-		$this->assertTrue( $result );
+		$this->assertIsArray( $result );
+		$this->assertNotEmpty( $result );
 	}
 
 	public function test_validate_and_store_persists_key_on_success(): void {
@@ -229,6 +232,67 @@ final class License_ManagerTest extends UplinkTestCase {
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( Error_Code::INVALID_KEY, $result->get_error_code() );
+	}
+
+	// -------------------------------------------------------------------------
+	// validate_product()
+	// -------------------------------------------------------------------------
+
+	public function test_validate_product_returns_validation_result(): void {
+		$this->manager->store_key( 'LWSW-UNIFIED-PRO-2026' );
+
+		$result = $this->manager->validate_product( 'example.com', 'give' );
+
+		$this->assertInstanceOf( Validation_Result::class, $result );
+	}
+
+	public function test_validate_product_result_has_expected_status(): void {
+		$this->manager->store_key( 'LWSW-UNIFIED-PRO-2026' );
+
+		/** @var Validation_Result $result */
+		$result = $this->manager->validate_product( 'example.com', 'give' );
+
+		$this->assertSame( Validation_Status::VALID, $result->get_status() );
+		$this->assertTrue( $result->is_valid() );
+	}
+
+	public function test_validate_product_result_contains_subscription_data(): void {
+		$this->manager->store_key( 'LWSW-UNIFIED-PRO-2026' );
+
+		/** @var Validation_Result $result */
+		$result = $this->manager->validate_product( 'example.com', 'give' );
+
+		$subscription = $result->get_subscription();
+
+		$this->assertNotNull( $subscription );
+		$this->assertSame( 'give', $subscription['product_slug'] );
+		$this->assertSame( 'give-pro', $subscription['tier'] );
+	}
+
+	public function test_validate_product_refreshes_product_cache(): void {
+		$this->manager->store_key( 'LWSW-UNIFIED-PRO-2026' );
+		$this->manager->get_products( 'example.com' );
+		$this->assertNotEmpty( get_option( License_Repository::PRODUCTS_STATE_OPTION_NAME ) );
+
+		$this->manager->validate_product( 'example.com', 'give' );
+
+		$this->assertNotEmpty( get_option( License_Repository::PRODUCTS_STATE_OPTION_NAME ) );
+	}
+
+	public function test_validate_product_returns_error_when_no_key_stored(): void {
+		$result = $this->manager->validate_product( 'example.com', 'give' );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( Error_Code::INVALID_KEY, $result->get_error_code() );
+	}
+
+	public function test_validate_product_returns_error_for_unknown_product(): void {
+		$this->manager->store_key( 'LWSW-UNIFIED-PRO-2026' );
+
+		$result = $this->manager->validate_product( 'example.com', 'unknown-product' );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( Error_Code::PRODUCT_NOT_FOUND, $result->get_error_code() );
 	}
 
 	// -------------------------------------------------------------------------

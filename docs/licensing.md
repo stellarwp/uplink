@@ -58,8 +58,8 @@ When the site calls `validate()` for a single product, Licensing returns a more 
 
 ```json
 {
- "key": "LWSW-...",
- "status": "active"
+    "key": "LWSW-...",
+    "status": "active"
 }
 ```
 
@@ -67,11 +67,11 @@ When the site calls `validate()` for a single product, Licensing returns a more 
 
 ```json
 {
- "product_slug": "give",
- "tier": "give-pro",
- "site_limit": 3,
- "expiration_date": "2026-12-31 23:59:59",
- "status": "active"
+    "product_slug": "give",
+    "tier": "give-pro",
+    "site_limit": 3,
+    "expiration_date": "2026-12-31 23:59:59",
+    "status": "active"
 }
 ```
 
@@ -79,8 +79,8 @@ When the site calls `validate()` for a single product, Licensing returns a more 
 
 ```json
 {
- "domain": "example.com",
- "activated_at": "2024-03-04 12:34:56"
+    "domain": "example.com",
+    "activated_at": "2024-03-04 12:34:56"
 }
 ```
 
@@ -194,28 +194,44 @@ License_Manager::get()
 ```
 License_Manager::validate_and_store($key, $domain)
 ├─ validate LWSW- prefix format
-├─ License_Manager::get_products($key, $domain)
-│  ├─ check license state option (collection key)
-│  ├─ if miss → Licensing_Client::get_products()
-│  └─ persist result to license state option
+├─ Licensing_Client::get_products($key, $domain)
 ├─ if API error → return WP_Error
-├─ License_Repository::store($key)
-└─ return true
+├─ persist Product_Collection to license state option
+├─ License_Repository::store_key($key)
+└─ return Product_Entry[] (the fetched product list)
+```
+
+### Product Validation
+
+Validation is separate from key storage. Storing a key verifies it and fetches its products, but does not consume any seats. Validation explicitly requests a seat for a specific product on this domain.
+
+```
+License_Manager::validate_product($domain, $product_slug)
+├─ get stored key (return WP_Error if none)
+├─ Licensing_Client::validate($key, $domain, $product_slug)
+├─ if API error → return WP_Error
+├─ delete cached products (so next read reflects new activation state)
+└─ return Validation_Result
 ```
 
 ### Periodic Status Check
 
 ```
-License_Manager::get_products($key, $domain)
+License_Manager::get_products($domain)
+├─ get stored key (return WP_Error if none)
 ├─ License_Repository::get_products()
 │  └─ read license state option
-├─ if collection present → return Product_Collection
-├─ if only last_error present → return WP_Error
-├─ if null → Licensing_Client::get_products()
-│  ├─ on success → update collection + last_success_at, clear last_error
-│  └─ on failure → update last_error + last_failure_at, preserve existing collection
+├─ if Product_Collection present → return it
+├─ fetch_and_cache($key, $domain)
+│  ├─ Licensing_Client::get_products()
+│  ├─ on success → persist Product_Collection, update last_active dates
+│  └─ on failure → persist WP_Error
 └─ return Product_Collection|WP_Error
 ```
+
+## REST API
+
+See [rest/license.md](rest/license.md) for the endpoint reference.
 
 ## Relationship to Catalog and Features
 

@@ -2,11 +2,7 @@
 
 namespace StellarWP\Uplink\API\REST\V1;
 
-use StellarWP\ContainerContract\ContainerInterface;
-use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
-use StellarWP\Uplink\Features\Manager;
-use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Utils\Version;
 
 /**
@@ -20,26 +16,9 @@ final class Provider extends Abstract_Provider {
 	 * @inheritDoc
 	 */
 	public function register(): void {
-		$this->container->singleton(
-			Feature_Controller::class,
-			static function ( ContainerInterface $c ) {
-				return new Feature_Controller( $c->get( Manager::class ) );
-			}
-		);
-
-		$this->container->singleton(
-			License_Controller::class,
-			static function ( ContainerInterface $c ) {
-				return new License_Controller( $c->get( License_Manager::class ) );
-			}
-		);
-
-		$this->container->singleton(
-			Catalog_Controller::class,
-			static function ( ContainerInterface $c ) {
-				return new Catalog_Controller( $c->get( Catalog_Repository::class ) );
-			}
-		);
+		$this->container->singleton( Feature_Controller::class );
+		$this->container->singleton( License_Controller::class );
+		$this->container->singleton( Catalog_Controller::class );
 
 		add_action( 'rest_api_init', [ $this, 'register_rest_routes' ] );
 	}

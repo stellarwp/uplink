@@ -55,7 +55,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 * Creates a Resolve_Feature_Collection with the given repository dependencies.
 	 *
 	 * @param Catalog_Repository $catalog  The catalog repository.
-	 * @param License_Repository $licensing The licensing repository.
+	 * @param License_Manager    $licensing The licensing manager.
 	 *
 	 * @return Resolve_Feature_Collection
 	 */

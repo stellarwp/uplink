@@ -70,19 +70,19 @@ Edge cases:
 
 The `Manager` is the public interface for all feature operations.
 
-| Method                       | Returns                        | Purpose                                |
-| ---------------------------- | ------------------------------ | -------------------------------------- |
-| `get_features()`             | `Feature_Collection\|WP_Error` | Get all resolved features              |
-| `get_feature(string $slug)`  | `Feature\|null`                | Look up a single feature               |
-| `is_available(string $slug)` | `bool\|WP_Error`               | Check if the customer's tier qualifies |
-| `is_enabled(string $slug)`   | `bool\|WP_Error`               | Check if the feature is active locally |
-| `enable(string $slug)`       | `true\|WP_Error`               | Enable a feature                       |
-| `disable(string $slug)`      | `true\|WP_Error`               | Disable a feature                      |
+| Method                     | Returns                         | Purpose                                        |
+| -------------------------- | ------------------------------- | ---------------------------------------------- |
+| `get_all()`                | `Feature_Collection\|WP_Error`  | Get all resolved features with live is_enabled |
+| `get(string $slug)`        | `Feature\|null`                 | Look up a single feature with live is_enabled  |
+| `exists(string $slug)`     | `bool\|WP_Error`                | Check if the feature is in the catalog         |
+| `is_enabled(string $slug)` | `bool\|WP_Error`                | Check if the feature is active locally         |
+| `enable(string $slug)`     | `Feature\|WP_Error`             | Enable a feature, return updated Feature       |
+| `disable(string $slug)`    | `Feature\|WP_Error`             | Disable a feature, return updated Feature      |
 
 Global convenience functions in `src/Uplink/global-functions.php` (non-namespaced, always delegate to the version leader):
 
 - **`stellarwp_uplink_is_feature_enabled(string $slug): bool|WP_Error`** — in the catalog AND active locally?
-- **`stellarwp_uplink_is_feature_available(string $slug): bool|WP_Error`** — in the catalog and tier qualifies?
+- **`stellarwp_uplink_is_feature_available(string $slug): bool|WP_Error`** — does the customer's tier include this feature?
 
 ### WordPress Hooks
 
@@ -123,7 +123,7 @@ Four endpoints under `stellarwp/uplink/v1`. All require `manage_options`.
 | `/features/{slug}/enable`  | POST   | Enable a feature                                              |
 | `/features/{slug}/disable` | POST   | Disable a feature                                             |
 
-Each response includes `is_enabled` computed live from the strategy, not cached state.
+Each Feature object includes `is_enabled`, stamped with live state from its strategy by the Manager before any consumer receives it.
 
 ## Error Codes
 
@@ -133,6 +133,8 @@ Each response includes `is_enabled` computed live from the strategy, not cached 
 | `FEATURE_TYPE_MISMATCH`          | 400  | Type doesn't match the strategy                    |
 | `FEATURE_REQUEST_FAILED`         | 502  | Resolution failed (catalog or licensing API error) |
 | `FEATURE_CHECK_FAILED`           | 502  | Unexpected error during availability check         |
+| `FEATURE_ENABLE_FAILED`          | 422  | Strategy threw an exception during enable          |
+| `FEATURE_DISABLE_FAILED`         | 422  | Strategy threw an exception during disable         |
 | `INVALID_RESPONSE`               | 502  | Catalog response couldn't be parsed                |
 | `UNKNOWN_FEATURE_TYPE`           | 422  | No Feature subclass for the catalog type           |
 | `INSTALL_LOCKED`                 | 409  | Another install already in progress                |
@@ -155,12 +157,12 @@ Each response includes `is_enabled` computed live from the strategy, not cached 
 
 ## Data Sources
 
-| Data                                                    | Source                                                              |
-| ------------------------------------------------------- | ------------------------------------------------------------------- |
-| Feature exists, minimum tier, delivery type, tier ranks | Catalog                                                             |
-| Customer's tier, key validity                           | Licensing                                                           |
-| **Whether available**                                   | **Computed: catalog min rank vs. licensing tier rank**              |
-| Whether enabled                                         | Live WordPress state (plugin activation / theme disk / flag option) |
+| Data                                                    | Source                                                                                    |
+| ------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Feature exists, minimum tier, delivery type, tier ranks | Catalog                                                                                   |
+| Customer's tier, key validity                           | Licensing                                                                                 |
+| **Whether available** (`is_available`)                  | **Computed: catalog min rank vs. licensing tier rank**                                    |
+| **Whether enabled** (`is_enabled`)                      | Live WordPress state (plugin activation / theme disk / flag option), stamped by Manager   |
 
 ## What Features Does Not Do
 

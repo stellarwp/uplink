@@ -83,6 +83,7 @@ final class FlagTest extends UplinkTestCase {
 			'description'       => 'Test feature description.',
 			'type'              => 'flag',
 			'is_available'      => true,
+			'is_enabled'        => false,
 			'documentation_url' => 'https://example.com/docs',
 		];
 

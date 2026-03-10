@@ -5,6 +5,7 @@ namespace StellarWP\Uplink\Features;
 use StellarWP\Uplink\Features\Strategy\Strategy_Factory;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Error_Code;
+use Throwable;
 use WP_Error;
 
 /**
@@ -82,10 +83,16 @@ class Manager {
 	 *
 	 * @param string $slug The feature slug.
 	 *
-	 * @return true|WP_Error True on success, WP_Error on failure.
+	 * @return Feature|WP_Error The feature with updated is_enabled state, or WP_Error on failure.
 	 */
 	public function enable( string $slug ) {
-		$feature = $this->get_feature( $slug );
+		$features = $this->repository->get( $this->key, $this->domain );
+
+		if ( is_wp_error( $features ) ) {
+			return $features;
+		}
+
+		$feature = $features->get( $slug );
 
 		if ( ! $feature ) {
 			return new WP_Error(
@@ -93,8 +100,6 @@ class Manager {
 				sprintf( 'Feature "%s" not found in the catalog.', $slug )
 			);
 		}
-
-		$strategy = $this->strategy_factory->make( $feature );
 
 		/**
 		 * Fires before a feature is enabled.
@@ -118,10 +123,28 @@ class Manager {
 		 */
 		do_action( "stellarwp/uplink/{$slug}/feature_enabling", $feature->to_array() );
 
-		$result = $strategy->enable();
+		try {
+			$strategy = $this->strategy_factory->make( $feature );
+
+			$result = $strategy->enable();
+		} catch ( Throwable $e ) {
+			return new WP_Error(
+				Error_Code::FEATURE_ENABLE_FAILED,
+				$e->getMessage()
+			);
+		}
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
+		}
+
+		$feature = $this->get( $slug );
+
+		if ( ! $feature ) {
+			return new WP_Error(
+				Error_Code::FEATURE_NOT_FOUND,
+				sprintf( 'Feature "%s" not found after enabling.', $slug )
+			);
 		}
 
 		/**
@@ -146,7 +169,7 @@ class Manager {
 		 */
 		do_action( "stellarwp/uplink/{$slug}/feature_enabled", $feature->to_array() );
 
-		return true;
+		return $feature;
 	}
 
 	/**
@@ -159,10 +182,16 @@ class Manager {
 	 *
 	 * @param string $slug The feature slug.
 	 *
-	 * @return true|WP_Error True on success, WP_Error on failure.
+	 * @return Feature|WP_Error The feature with updated is_enabled state, or WP_Error on failure.
 	 */
 	public function disable( string $slug ) {
-		$feature = $this->get_feature( $slug );
+		$features = $this->repository->get( $this->key, $this->domain );
+
+		if ( is_wp_error( $features ) ) {
+			return $features;
+		}
+
+		$feature = $features->get( $slug );
 
 		if ( ! $feature ) {
 			return new WP_Error(
@@ -170,8 +199,6 @@ class Manager {
 				sprintf( 'Feature "%s" not found in the catalog.', $slug )
 			);
 		}
-
-		$strategy = $this->strategy_factory->make( $feature );
 
 		/**
 		 * Fires before a feature is disabled.
@@ -195,10 +222,28 @@ class Manager {
 		 */
 		do_action( "stellarwp/uplink/{$slug}/feature_disabling", $feature->to_array() );
 
-		$result = $strategy->disable();
+		try {
+			$strategy = $this->strategy_factory->make( $feature );
+
+			$result = $strategy->disable();
+		} catch ( Throwable $e ) {
+			return new WP_Error(
+				Error_Code::FEATURE_DISABLE_FAILED,
+				$e->getMessage()
+			);
+		}
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
+		}
+
+		$feature = $this->get( $slug );
+
+		if ( ! $feature ) {
+			return new WP_Error(
+				Error_Code::FEATURE_NOT_FOUND,
+				sprintf( 'Feature "%s" not found after disabling.', $slug )
+			);
 		}
 
 		/**
@@ -223,7 +268,7 @@ class Manager {
 		 */
 		do_action( "stellarwp/uplink/{$slug}/feature_disabled", $feature->to_array() );
 
-		return true;
+		return $feature;
 	}
 
 	/**
@@ -233,31 +278,57 @@ class Manager {
 	 *
 	 * @param string $slug The feature slug.
 	 *
-	 * @return bool|WP_Error
+	 * @return bool|WP_Error True if enabled, false if disabled, WP_Error on failure.
 	 */
 	public function is_enabled( string $slug ) {
-		$features = $this->repository->get( $this->key, $this->domain );
+		$features = $this->get_all();
 
 		if ( is_wp_error( $features ) ) {
-			return new WP_Error(
-				Error_Code::FEATURE_CHECK_FAILED,
-				$features->get_error_message()
-			);
+			return $features;
 		}
 
 		$feature = $features->get( $slug );
 
 		if ( ! $feature ) {
-			return false;
+			return new WP_Error(
+				Error_Code::FEATURE_NOT_FOUND,
+				sprintf( 'Feature "%s" not found in the catalog.', $slug )
+			);
 		}
 
-		$strategy = $this->strategy_factory->make( $feature );
-
-		return $strategy->is_active();
+		return $feature->is_enabled();
 	}
 
 	/**
-	 * Checks whether a feature exists in the cached catalog.
+	 * Checks whether a feature is available for the current site's tier.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $slug The feature slug.
+	 *
+	 * @return bool|WP_Error True if available, false if not, WP_Error on failure.
+	 */
+	public function is_available( string $slug ) {
+		$features = $this->get_all();
+
+		if ( is_wp_error( $features ) ) {
+			return $features;
+		}
+
+		$feature = $features->get( $slug );
+
+		if ( ! $feature ) {
+			return new WP_Error(
+				Error_Code::FEATURE_NOT_FOUND,
+				sprintf( 'Feature "%s" not found in the catalog.', $slug )
+			);
+		}
+
+		return $feature->is_available();
+	}
+
+	/**
+	 * Checks whether a feature exists in the catalog.
 	 *
 	 * @since 3.0.0
 	 *
@@ -265,32 +336,37 @@ class Manager {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public function is_available( string $slug ) {
+	public function exists( string $slug ) {
 		$features = $this->repository->get( $this->key, $this->domain );
 
 		if ( is_wp_error( $features ) ) {
-			return new WP_Error(
-				Error_Code::FEATURE_CHECK_FAILED,
-				$features->get_error_message()
-			);
+			return $features;
 		}
 
 		return $features->get( $slug ) !== null;
 	}
 
 	/**
-	 * Gets the feature collection from the catalog.
+	 * Gets the feature collection from the catalog with live enabled state.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @return Feature_Collection|WP_Error
 	 */
-	public function get_features() {
-		return $this->repository->get( $this->key, $this->domain );
+	public function get_all() {
+		$features = $this->repository->get( $this->key, $this->domain );
+
+		if ( is_wp_error( $features ) ) {
+			return $features;
+		}
+
+		$this->stamp_enabled_state( $features );
+
+		return $features;
 	}
 
 	/**
-	 * Looks up a feature by slug from the cached catalog.
+	 * Looks up a feature by slug from the cached catalog with live enabled state.
 	 *
 	 * Returns null when the feature is not found or when the API
 	 * request fails, since the catalog is unavailable.
@@ -301,13 +377,37 @@ class Manager {
 	 *
 	 * @return Feature|null
 	 */
-	public function get_feature( string $slug ): ?Feature {
-		$features = $this->repository->get( $this->key, $this->domain );
+	public function get( string $slug ): ?Feature {
+		$features = $this->get_all();
 
 		if ( is_wp_error( $features ) ) {
 			return null;
 		}
 
 		return $features->get( $slug );
+	}
+
+	/**
+	 * Stamps live enabled state onto every feature in the collection.
+	 *
+	 * The Feature_Collection may come from a transient cache where
+	 * is_enabled values are stale. This method overwrites each
+	 * feature's is_enabled with the current live state from its strategy.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param Feature_Collection $features The collection to stamp.
+	 *
+	 * @return void
+	 */
+	private function stamp_enabled_state( Feature_Collection $features ): void {
+		foreach ( $features as $feature ) {
+			$strategy           = $this->strategy_factory->make( $feature );
+			$class              = get_class( $feature );
+			$data               = $feature->to_array();
+			$data['is_enabled'] = $strategy->is_active();
+
+			$features->offsetSet( $feature->get_slug(), $class::from_array( $data ) );
+		}
 	}
 }

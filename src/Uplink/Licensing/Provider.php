@@ -15,15 +15,34 @@ use StellarWP\Uplink\Licensing\Repositories\License_Repository;
 final class Provider extends Abstract_Provider {
 
 	/**
+	 * Default base URL for the licensing API.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const DEFAULT_BASE_URL = 'https://licensing.stellarwp.com';
+
+	/**
 	 * @inheritDoc
 	 */
 	public function register(): void {
 		$this->container->singleton(
 			Licensing_Client::class,
 			static function () {
-				return new Fixture_Client(
-					dirname( __DIR__, 3 ) . '/tests/_data/licensing'
+				/**
+				 * Filters the base URL for the licensing API.
+				 *
+				 * @since 3.0.0
+				 *
+				 * @param string $base_url The base URL (no trailing slash).
+				 */
+				$base_url = (string) apply_filters(
+					'stellarwp/uplink/licensing/base_url',
+					self::DEFAULT_BASE_URL
 				);
+
+				return new Http_Client( $base_url );
 			}
 		);
 

@@ -3,12 +3,12 @@
 namespace StellarWP\Uplink\Tests\API\REST\V1;
 
 use StellarWP\Uplink\Licensing\Error_Code;
-use StellarWP\Uplink\Licensing\Fixture_Client;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Registry\Product_Registry;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
 use StellarWP\Uplink\API\REST\V1\License_Controller;
 use StellarWP\Uplink\Site\Data;
+use StellarWP\Uplink\Tests\Traits\With_Fixture_Http;
 use StellarWP\Uplink\Tests\Traits\With_Uopz;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_REST_Request;
@@ -17,6 +17,7 @@ use WP_REST_Server;
 final class License_ControllerTest extends UplinkTestCase {
 
 	use With_Uopz;
+	use With_Fixture_Http;
 
 	private WP_REST_Server $server;
 	private License_Manager $manager;
@@ -27,9 +28,11 @@ final class License_ControllerTest extends UplinkTestCase {
 		delete_option( License_Repository::KEY_OPTION_NAME );
 		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
 
+		$this->register_fixture_http_interceptor();
+
 		$repository    = new License_Repository();
 		$registry      = new Product_Registry();
-		$this->manager = new License_Manager( $repository, $registry, new Fixture_Client( codecept_data_dir( 'licensing' ) ) );
+		$this->manager = new License_Manager( $repository, $registry, $this->make_licensing_http_client() );
 
 		/** @var WP_REST_Server $wp_rest_server */
 		global $wp_rest_server;
@@ -55,6 +58,8 @@ final class License_ControllerTest extends UplinkTestCase {
 	protected function tearDown(): void {
 		global $wp_rest_server;
 		$wp_rest_server = null;
+
+		$this->unregister_fixture_http_interceptor();
 
 		delete_option( License_Repository::KEY_OPTION_NAME );
 		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );

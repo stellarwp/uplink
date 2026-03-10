@@ -14,6 +14,15 @@ use StellarWP\Uplink\Licensing\License_Manager;
 final class Provider extends Abstract_Provider {
 
 	/**
+	 * Default base URL for the catalog API.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const DEFAULT_BASE_URL = 'https://licensing.stellarwp.com';
+
+	/**
 	 * @inheritDoc
 	 */
 	public function register(): void {
@@ -22,17 +31,23 @@ final class Provider extends Abstract_Provider {
 		$this->container->singleton(
 			Catalog_Client::class,
 			static function () use ( $container ) {
-				$catalog_dir = trailingslashit( dirname( __DIR__, 3 ) ) . 'tests/_data/catalog';
+				/**
+				 * Filters the base URL for the catalog API.
+				 *
+				 * @since 3.0.0
+				 *
+				 * @param string $base_url The base URL (no trailing slash).
+				 */
+				$base_url = (string) apply_filters(
+					'stellarwp/uplink/catalog/base_url',
+					self::DEFAULT_BASE_URL
+				);
 
 				/** @var License_Manager $license_manager */
 				$license_manager = $container->get( License_Manager::class );
 				$key             = $license_manager->get_key();
 
-				if ( $key !== null && file_exists( trailingslashit( $catalog_dir ) . $key . '.json' ) ) {
-					return new Fixture_Client( trailingslashit( $catalog_dir ) . $key . '.json' );
-				}
-
-				return new Fixture_Client( trailingslashit( $catalog_dir ) . 'default.json' );
+				return new Http_Client( $base_url, $key );
 			}
 		);
 

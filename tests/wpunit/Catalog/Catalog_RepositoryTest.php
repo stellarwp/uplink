@@ -5,25 +5,31 @@ namespace StellarWP\Uplink\Tests\Catalog;
 use StellarWP\Uplink\Catalog\Catalog_Collection;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Catalog\Contracts\Catalog_Client;
-use StellarWP\Uplink\Catalog\Fixture_Client;
 use StellarWP\Uplink\Catalog\Results\Product_Catalog;
+use StellarWP\Uplink\Tests\Traits\With_Fixture_Http;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
 
 final class Catalog_RepositoryTest extends UplinkTestCase {
+
+	use With_Fixture_Http;
 
 	private Catalog_Repository $repository;
 
 	protected function setUp(): void {
 		parent::setUp();
 
-		$client           = new Fixture_Client( codecept_data_dir( 'catalog/default.json' ) );
+		$this->register_fixture_http_interceptor();
+
+		$client           = $this->make_catalog_http_client();
 		$this->repository = new Catalog_Repository( $client );
 
 		delete_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
 	}
 
 	protected function tearDown(): void {
+		$this->unregister_fixture_http_interceptor();
+
 		delete_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
 
 		parent::tearDown();
@@ -82,8 +88,10 @@ final class Catalog_RepositoryTest extends UplinkTestCase {
 	}
 
 	public function test_get_caches_wp_error(): void {
-		$client     = new Fixture_Client( '/tmp/does-not-exist-' . uniqid() . '.json' );
-		$repository = new Catalog_Repository( $client );
+		// Use a mock client that returns an error, simulating a failed HTTP call.
+		$error      = new WP_Error( 'catalog_error', 'API unavailable.' );
+		$bad_client = $this->makeEmpty( Catalog_Client::class, [ 'get_catalog' => $error ] );
+		$repository = new Catalog_Repository( $bad_client );
 		$result     = $repository->get();
 
 		$this->assertInstanceOf( WP_Error::class, $result );

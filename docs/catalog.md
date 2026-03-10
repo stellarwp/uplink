@@ -104,7 +104,7 @@ The `Catalog_Client` contract defines a single operation:
 
 Unlike the licensing client, this is not parameterized by key or domain. The catalog describes the full product universe. It is the same regardless of who is asking.
 
-During development, the `Fixture_Client` is wired in. It reads a single JSON fixture file (`tests/_data/catalog.json`) containing all products.
+The `Http_Client` (`src/Uplink/Catalog/Http_Client.php`) is the production implementation. The base URL defaults to `https://licensing.stellarwp.com` and is filterable via `stellarwp/uplink/catalog/base_url`. For local development, the sample plugin intercepts these requests and serves fixture JSON from `tests/_data/catalog/`.
 
 ## Error Codes
 

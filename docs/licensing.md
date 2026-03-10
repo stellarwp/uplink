@@ -149,7 +149,7 @@ The `Licensing_Client` contract defines two operations:
 - **`get_products(string $key, string $domain): Product_Entry[]|WP_Error`**: bulk fetch of all products on a key. Read-only, no seat consumption.
 - **`validate(string $key, string $domain, string $product_slug): Validation_Result|WP_Error`**: validate a single product. May consume a seat on first activation.
 
-During development, the `Fixture_Client` is wired in place of the real API client. It reads JSON fixture files from `tests/_data/licensing/`, mapping key values to filenames (e.g., `LWSW-unified-pro-2026` reads from `lwsw-unified-pro-2026.json`).
+The `Http_Client` is the production implementation, making real HTTP requests via `wp_remote_request()`. The base URL defaults to `https://licensing.stellarwp.com` and is filterable via `stellarwp/uplink/licensing/base_url`. For local development, the sample plugin (`uplink-sample-plugin`) intercepts these requests via `pre_http_request` and serves fixture JSON from `tests/_data/licensing/`, mapping key values to filenames (e.g., `LWSW-unified-pro-2026` reads from `lwsw-unified-pro-2026.json`).
 
 The fixture set covers the common scenarios:
 

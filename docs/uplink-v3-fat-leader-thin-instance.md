@@ -22,7 +22,7 @@ The leader stores the site's unified key and the full product catalog response f
 
 The leader delegates to the v4 licensing client, an external Composer package consumed through the `Licensing_Client` contract (`src/Uplink/Licensing/Contracts/Licensing_Client.php`). That contract exposes two operations. `get_products()` is a read-only bulk fetch — it sends the key and gets back the status of all products in a single response without consuming seats. `validate()` validates a single product against its key and may consume a seat as a side effect if the product hasn't been activated on this domain before.
 
-A mock implementation (`src/Uplink/Licensing/Fixture_Client.php`) is wired during development. The `Product_Repository` (`src/Uplink/Licensing/Product_Repository.php`) wraps the client with transient caching so the rest of Uplink never touches the client directly.
+The `Http_Client` (`src/Uplink/Licensing/Http_Client.php`) is the production implementation. The base URL is filterable so consumers can point at different environments. The `Product_Repository` (`src/Uplink/Licensing/Product_Repository.php`) wraps the client with transient caching so the rest of Uplink never touches the client directly.
 
 ### Feature Catalog
 

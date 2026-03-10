@@ -3,7 +3,7 @@
 namespace StellarWP\Uplink\Tests\Licensing;
 
 use StellarWP\Uplink\Licensing\Contracts\Licensing_Client;
-use StellarWP\Uplink\Licensing\Fixture_Client;
+use StellarWP\Uplink\Licensing\Http_Client;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Registry\Product_Registry;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
@@ -13,7 +13,7 @@ final class ProviderTest extends UplinkTestCase {
 
 	public function test_it_registers_licensing_client(): void {
 		$this->assertInstanceOf(
-			Fixture_Client::class,
+			Http_Client::class,
 			$this->container->get( Licensing_Client::class )
 		);
 	}

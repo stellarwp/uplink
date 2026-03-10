@@ -3,16 +3,15 @@
 namespace StellarWP\Uplink\Tests\Licensing\Repositories;
 
 use StellarWP\Uplink\Catalog\Catalog_Repository;
-use StellarWP\Uplink\Catalog\Fixture_Client as Catalog_Fixture;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Resolve_Feature_Collection;
 use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Features\Types\Plugin;
-use StellarWP\Uplink\Licensing\Fixture_Client as Licensing_Fixture;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Product_Collection;
 use StellarWP\Uplink\Licensing\Registry\Product_Registry;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
+use StellarWP\Uplink\Tests\Traits\With_Fixture_Http;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
 /**
@@ -24,6 +23,8 @@ use StellarWP\Uplink\Tests\UplinkTestCase;
  */
 final class License_Key_Cache_InvalidationTest extends UplinkTestCase {
 
+	use With_Fixture_Http;
+
 	private License_Repository $license_repository;
 	private License_Manager $license_manager;
 	private Catalog_Repository $catalog_repository;
@@ -32,16 +33,18 @@ final class License_Key_Cache_InvalidationTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
+		$this->register_fixture_http_interceptor();
+
 		$this->license_repository = new License_Repository();
 
-		$licensing_client      = new Licensing_Fixture( codecept_data_dir( 'licensing' ) );
+		$licensing_client      = $this->make_licensing_http_client();
 		$this->license_manager = new License_Manager(
 			$this->license_repository,
 			new Product_Registry(),
 			$licensing_client
 		);
 
-		$catalog_client           = new Catalog_Fixture( codecept_data_dir( 'catalog/default.json' ) );
+		$catalog_client           = $this->make_catalog_http_client();
 		$this->catalog_repository = new Catalog_Repository( $catalog_client );
 
 		$resolver = new Resolve_Feature_Collection(
@@ -79,6 +82,8 @@ final class License_Key_Cache_InvalidationTest extends UplinkTestCase {
 	}
 
 	protected function tearDown(): void {
+		$this->unregister_fixture_http_interceptor();
+
 		remove_all_filters( 'stellarwp/uplink/unified_license_key_changed' );
 
 		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );

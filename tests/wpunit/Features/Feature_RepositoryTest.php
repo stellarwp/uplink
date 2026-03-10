@@ -4,7 +4,7 @@ namespace StellarWP\Uplink\Tests\Features;
 
 use ReflectionMethod;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
-use StellarWP\Uplink\Catalog\Fixture_Client as Catalog_Fixture;
+use StellarWP\Uplink\Catalog\Contracts\Catalog_Client;
 use StellarWP\Uplink\Catalog\Results\Catalog_Feature;
 use StellarWP\Uplink\Catalog\Results\Catalog_Tier;
 use StellarWP\Uplink\Catalog\Results\Product_Catalog;
@@ -16,14 +16,16 @@ use StellarWP\Uplink\Features\Resolve_Feature_Collection;
 use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Licensing\Contracts\Licensing_Client;
-use StellarWP\Uplink\Licensing\Fixture_Client as Licensing_Fixture;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Registry\Product_Registry;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
+use StellarWP\Uplink\Tests\Traits\With_Fixture_Http;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
 
 final class Feature_RepositoryTest extends UplinkTestCase {
+
+	use With_Fixture_Http;
 
 	/**
 	 * Clears all relevant transients before each test.
@@ -32,6 +34,8 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 */
 	protected function setUp(): void {
 		parent::setUp();
+
+		$this->register_fixture_http_interceptor();
 
 		delete_transient( Feature_Repository::TRANSIENT_KEY );
 		delete_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
@@ -44,6 +48,8 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 * @return void
 	 */
 	protected function tearDown(): void {
+		$this->unregister_fixture_http_interceptor();
+
 		delete_transient( Feature_Repository::TRANSIENT_KEY );
 		delete_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
 		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
@@ -73,15 +79,15 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Creates a Feature_Repository backed by the real fixture files.
+	 * Creates a Feature_Repository backed by HTTP clients with fixture interception.
 	 *
-	 * @param string|null $licensing_override Optional. Pass a key for the Licensing_Fixture,
+	 * @param string|null $licensing_override Optional. Pass a key for the licensing client,
 	 *                                        or null to use a mock that returns a WP_Error.
 	 *
 	 * @return Feature_Repository
 	 */
 	private function make_repository( ?string $licensing_override = null ): Feature_Repository {
-		$catalog_client = new Catalog_Fixture( codecept_data_dir( 'catalog/default.json' ) );
+		$catalog_client = $this->make_catalog_http_client();
 
 		if ( $licensing_override === null ) {
 			$licensing_client = $this->makeEmpty(
@@ -89,7 +95,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 				[ 'get_products' => new WP_Error( 'license_error', 'Licensing failed.' ) ]
 			);
 		} else {
-			$licensing_client = new Licensing_Fixture( codecept_data_dir( 'licensing' ) );
+			$licensing_client = $this->make_licensing_http_client();
 		}
 
 		$catalog   = new Catalog_Repository( $catalog_client );
@@ -203,9 +209,10 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_catalog_error_returns_wp_error(): void {
-		$catalog_client = new Catalog_Fixture( '/tmp/does-not-exist-' . uniqid() . '.json' );
+		$error          = new WP_Error( 'catalog_error', 'API unavailable.' );
+		$catalog_client = $this->makeEmpty( Catalog_Client::class, [ 'get_catalog' => $error ] );
 
-		$licensing_client = new Licensing_Fixture( codecept_data_dir( 'licensing' ) );
+		$licensing_client = $this->make_licensing_http_client();
 
 		$catalog   = new Catalog_Repository( $catalog_client );
 		$licensing = new License_Manager( new License_Repository(), new Product_Registry(), $licensing_client );
@@ -310,8 +317,8 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 */
 	public function test_hydrate_feature_returns_wp_error_for_unknown_type(): void {
 		$resolver = $this->make_resolver(
-			new Catalog_Repository( new Catalog_Fixture( codecept_data_dir( 'catalog/default.json' ) ) ),
-			new License_Manager( new License_Repository(), new Product_Registry(), new Licensing_Fixture( codecept_data_dir( 'licensing' ) ) )
+			new Catalog_Repository( $this->make_catalog_http_client() ),
+			new License_Manager( new License_Repository(), new Product_Registry(), $this->make_licensing_http_client() )
 		);
 
 		// Do NOT register 'unknown_type' — only plugin/flag/theme are registered.
@@ -356,8 +363,8 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 */
 	public function test_hydrate_feature_returns_feature_for_known_type(): void {
 		$resolver = $this->make_resolver(
-			new Catalog_Repository( new Catalog_Fixture( codecept_data_dir( 'catalog/default.json' ) ) ),
-			new License_Manager( new License_Repository(), new Product_Registry(), new Licensing_Fixture( codecept_data_dir( 'licensing' ) ) )
+			new Catalog_Repository( $this->make_catalog_http_client() ),
+			new License_Manager( new License_Repository(), new Product_Registry(), $this->make_licensing_http_client() )
 		);
 
 		$catalog_feature = Catalog_Feature::from_array(

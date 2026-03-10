@@ -4,12 +4,12 @@ namespace StellarWP\Uplink\Tests\Licensing;
 
 use StellarWP\Uplink\Licensing\Enums\Validation_Status;
 use StellarWP\Uplink\Licensing\Error_Code;
-use StellarWP\Uplink\Licensing\Fixture_Client;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Product_Collection;
 use StellarWP\Uplink\Licensing\Registry\Product_Registry;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
 use StellarWP\Uplink\Licensing\Results\Validation_Result;
+use StellarWP\Uplink\Tests\Traits\With_Fixture_Http;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
 
@@ -18,21 +18,27 @@ use WP_Error;
  */
 final class License_ManagerTest extends UplinkTestCase {
 
+	use With_Fixture_Http;
+
 	private License_Manager $manager;
 
 	protected function setUp(): void {
 		parent::setUp();
 
+		$this->register_fixture_http_interceptor();
+
 		$this->manager = new License_Manager(
 			new License_Repository(),
 			new Product_Registry(),
-			new Fixture_Client( codecept_data_dir( 'licensing' ) )
+			$this->make_licensing_http_client()
 		);
 
 		delete_option( License_Repository::KEY_OPTION_NAME );
 	}
 
 	protected function tearDown(): void {
+		$this->unregister_fixture_http_interceptor();
+
 		remove_all_filters( Product_Registry::FILTER );
 		delete_option( License_Repository::KEY_OPTION_NAME );
 		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
@@ -65,7 +71,7 @@ final class License_ManagerTest extends UplinkTestCase {
 					'group'        => 'givewp',
 				];
 				return $products;
-			} 
+			}
 		);
 
 		$this->assertSame( 'LWSW-EMBEDDED-KEY', $this->manager->get_key() );
@@ -80,7 +86,7 @@ final class License_ManagerTest extends UplinkTestCase {
 					'embedded_key' => 'LWSW-EMBEDDED-KEY',
 				];
 				return $products;
-			} 
+			}
 		);
 
 		$this->manager->get_key();
@@ -99,7 +105,7 @@ final class License_ManagerTest extends UplinkTestCase {
 					'embedded_key' => 'LWSW-EMBEDDED-KEY',
 				];
 				return $products;
-			} 
+			}
 		);
 
 		$this->assertSame( 'LWSW-STORED-KEY', $this->manager->get_key() );
@@ -114,7 +120,7 @@ final class License_ManagerTest extends UplinkTestCase {
 			static function ( array $products ) use ( &$filter_called ) {
 				$filter_called = true;
 				return $products;
-			} 
+			}
 		);
 
 		$this->manager->get_key();
@@ -131,7 +137,7 @@ final class License_ManagerTest extends UplinkTestCase {
 					'name' => 'GiveWP',
 				];
 				return $products;
-			} 
+			}
 		);
 
 		$this->assertNull( $this->manager->get_key() );

@@ -366,7 +366,7 @@ class Feature extends WP_CLI_Command {
 
 		$item = $feature->to_array();
 
-		$item['is_available'] = $this->to_display_bool( $item['is_available'] ?? false );
+		$item['is_available'] = $this->to_display_bool( ! empty( $item['is_available'] ) );
 		$item['is_enabled']   = $this->to_display_bool( $is_enabled === true );
 		$item['is_dot_org']   = $this->to_display_bool( ! empty( $item['is_dot_org'] ) );
 

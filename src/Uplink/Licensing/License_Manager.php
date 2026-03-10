@@ -200,11 +200,7 @@ final class License_Manager {
 		}
 
 		if ( ! $result->is_valid() ) {
-			return new WP_Error(
-				$result->error_code(),
-				$result->error_message(),
-				[ 'status' => 422 ]
-			);
+			return $result->to_wp_error();
 		}
 
 		$this->fetch_and_cache( $key, $domain );
@@ -291,6 +287,43 @@ final class License_Manager {
 		$this->repository->delete_products();
 
 		return $this->fetch_and_cache( $key, $domain );
+	}
+
+	/**
+	 * Look up the products for a license key without storing anything.
+	 *
+	 * Validates the key format, calls the remote API, and returns the
+	 * product collection. Never persists the key or caches results.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $key    The license key to look up.
+	 * @param string $domain The site domain.
+	 *
+	 * @return Product_Collection|WP_Error
+	 */
+	public function lookup_products( string $key, string $domain ) {
+		if ( ! License_Key::is_valid_format( $key ) ) {
+			return new WP_Error(
+				Error_Code::INVALID_KEY,
+				__( 'The license key format is invalid.', '%TEXTDOMAIN%' ),
+				[ 'status' => 400 ]
+			);
+		}
+
+		$result = $this->client->get_products( $key, $domain );
+
+		if ( is_wp_error( $result ) ) {
+			$data = $result->get_error_data();
+
+			if ( ! is_array( $data ) || empty( $data['status'] ) ) {
+				$result->add_data( [ 'status' => 500 ] );
+			}
+
+			return $result;
+		}
+
+		return Product_Collection::from_array( $result );
 	}
 
 	/**

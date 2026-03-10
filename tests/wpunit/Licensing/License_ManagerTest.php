@@ -272,11 +272,11 @@ final class License_ManagerTest extends UplinkTestCase {
 	public function test_validate_product_refreshes_product_cache(): void {
 		$this->manager->store_key( 'LWSW-UNIFIED-PRO-2026' );
 		$this->manager->get_products( 'example.com' );
-		$this->assertNotFalse( get_transient( License_Repository::PRODUCTS_TRANSIENT_KEY ) );
+		$this->assertNotEmpty( get_option( License_Repository::PRODUCTS_STATE_OPTION_NAME ) );
 
 		$this->manager->validate_product( 'example.com', 'give' );
 
-		$this->assertNotFalse( get_transient( License_Repository::PRODUCTS_TRANSIENT_KEY ) );
+		$this->assertNotEmpty( get_option( License_Repository::PRODUCTS_STATE_OPTION_NAME ) );
 	}
 
 	public function test_validate_product_returns_error_when_no_key_stored(): void {

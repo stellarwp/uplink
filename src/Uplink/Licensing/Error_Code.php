@@ -109,6 +109,15 @@ final class Error_Code {
 	public const OUT_OF_ACTIVATIONS = 'stellarwp-uplink-out-of-activations';
 
 	/**
+	 * An unexpected or unrecognized error occurred.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const UNKNOWN_ERROR = 'stellarwp-uplink-unknown-error';
+
+	/**
 	 * Maps an error code to its recommended HTTP status code.
 	 *
 	 * @since 3.0.0
@@ -136,6 +145,9 @@ final class Error_Code {
 
 			// 500 Internal Server Error — storage failure.
 			self::STORE_FAILED         => 500,
+
+			// 500 Internal Server Error — unexpected or unrecognized error.
+			self::UNKNOWN_ERROR        => 500,
 
 			// 502 Bad Gateway — upstream service returned an invalid response.
 			self::INVALID_RESPONSE     => 502,

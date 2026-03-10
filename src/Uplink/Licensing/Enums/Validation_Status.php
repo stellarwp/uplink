@@ -184,6 +184,6 @@ final class Validation_Status {
 			self::INVALID_KEY        => Error_Code::INVALID_KEY,
 		];
 
-		return $map[ $value ] ?? Error_Code::INVALID_RESPONSE;
+		return $map[ $value ] ?? Error_Code::UNKNOWN_ERROR;
 	}
 }

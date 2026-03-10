@@ -2,9 +2,9 @@
 
 namespace StellarWP\Uplink\API\REST\V1;
 
-use StellarWP\Uplink\Licensing\Product_Collection;
 use StellarWP\Uplink\Utils\License_Key;
 use StellarWP\Uplink\Licensing\License_Manager;
+use StellarWP\Uplink\Licensing\Product_Collection;
 use StellarWP\Uplink\Site\Data;
 use WP_Error;
 use WP_REST_Controller;
@@ -110,6 +110,29 @@ final class License_Controller extends WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
+			'/' . $this->rest_base . '/(?P<key>[A-Za-z0-9-]+)',
+			[
+				[
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => [ $this, 'lookup_item' ],
+					'permission_callback' => [ $this, 'check_permissions' ],
+					'args'                => [
+						'key' => [
+							'description'       => __( 'The license key to look up.', '%TEXTDOMAIN%' ),
+							'type'              => 'string',
+							'required'          => true,
+							'validate_callback' => static function ( $value ): bool {
+								return is_string( $value ) && License_Key::is_valid_format( $value );
+							},
+						],
+					],
+				],
+				'schema' => [ $this, 'get_public_item_schema' ],
+			]
+		);
+
+		register_rest_route(
+			$this->namespace,
 			'/' . $this->rest_base . '/validate',
 			[
 				[
@@ -118,6 +141,7 @@ final class License_Controller extends WP_REST_Controller {
 					'permission_callback' => [ $this, 'check_permissions' ],
 					'args'                => $this->get_validate_args(),
 				],
+				'schema' => [ $this, 'get_public_item_schema' ],
 			]
 		);
 	}
@@ -147,14 +171,40 @@ final class License_Controller extends WP_REST_Controller {
 	 */
 	public function get_item( $request ): WP_REST_Response {
 		$domain   = $this->site_data->get_domain();
+		$key      = $this->manager->get_key();
 		$products = $this->manager->get_products( $domain );
 
-		$data = [
-			'key'      => $this->manager->get_key(),
-			'products' => $products instanceof Product_Collection ? $products->to_array() : [],
-		];
+		if ( is_wp_error( $products ) ) {
+			$products = new Product_Collection();
+		}
 
-		return new WP_REST_Response( $data );
+		return new WP_REST_Response(
+			License_Response::make( $key, $products )
+		);
+	}
+
+	/**
+	 * Looks up the products for a license key, skipping storage.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function lookup_item( $request ) {
+		/** @var string $key */
+		$key    = $request->get_param( 'key' );
+		$domain = $this->site_data->get_domain();
+		$result = $this->manager->lookup_products( $key, $domain );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return new WP_REST_Response(
+			License_Response::make( $key, $result )
+		);
 	}
 
 	/**
@@ -187,12 +237,15 @@ final class License_Controller extends WP_REST_Controller {
 			return $result;
 		}
 
-		$data = [
-			'key'      => $key,
-			'products' => Product_Collection::from_array( $result )->to_array(),
-		];
+		$products = $this->manager->get_products( $domain );
 
-		return new WP_REST_Response( $data );
+		if ( is_wp_error( $products ) ) {
+			$products = new Product_Collection();
+		}
+
+		return new WP_REST_Response(
+			License_Response::make( $this->manager->get_key(), $products )
+		);
 	}
 
 	/**
@@ -224,7 +277,16 @@ final class License_Controller extends WP_REST_Controller {
 			return $result;
 		}
 
-		return new WP_REST_Response( null, 201 );
+		// Product validation fetched the updated products list.
+		$products = $this->manager->get_products( $domain );
+
+		if ( is_wp_error( $products ) ) {
+			$products = new Product_Collection();
+		}
+
+		return new WP_REST_Response(
+			License_Response::make( $this->manager->get_key(), $products )
+		);
 	}
 
 	/**
@@ -265,10 +327,71 @@ final class License_Controller extends WP_REST_Controller {
 			'title'      => 'license',
 			'type'       => 'object',
 			'properties' => [
-				'key' => [
+				'key'      => [
 					'description' => __( 'The unified license key.', '%TEXTDOMAIN%' ),
 					'type'        => [ 'string', 'null' ],
 					'context'     => [ 'view' ],
+				],
+				'products' => [
+					'description' => __( 'The products associated with the license key.', '%TEXTDOMAIN%' ),
+					'type'        => 'array',
+					'context'     => [ 'view' ],
+					'items'       => [
+						'type'       => 'object',
+						'properties' => [
+							'product_slug'      => [
+								'description' => __( 'The product identifier.', '%TEXTDOMAIN%' ),
+								'type'        => 'string',
+							],
+							'tier'              => [
+								'description' => __( 'The subscription tier.', '%TEXTDOMAIN%' ),
+								'type'        => 'string',
+							],
+							'pending_tier'      => [
+								'description' => __( 'The pending tier on next renewal.', '%TEXTDOMAIN%' ),
+								'type'        => [ 'string', 'null' ],
+							],
+							'status'            => [
+								'description' => __( 'The subscription status.', '%TEXTDOMAIN%' ),
+								'type'        => 'string',
+							],
+							'expires'           => [
+								'description' => __( 'The expiration date.', '%TEXTDOMAIN%' ),
+								'type'        => 'string',
+								'format'      => 'date-time',
+							],
+							'activations'       => [
+								'description' => __( 'Activation seat data.', '%TEXTDOMAIN%' ),
+								'type'        => 'object',
+								'properties'  => [
+									'site_limit'   => [
+										'description' => __( 'Maximum activation seats (0 = unlimited).', '%TEXTDOMAIN%' ),
+										'type'        => 'integer',
+									],
+									'active_count' => [
+										'description' => __( 'Current active activations.', '%TEXTDOMAIN%' ),
+										'type'        => 'integer',
+									],
+									'over_limit'   => [
+										'description' => __( 'Whether the seat limit is exceeded.', '%TEXTDOMAIN%' ),
+										'type'        => 'boolean',
+									],
+								],
+							],
+							'installed_here'    => [
+								'description' => __( 'Whether the product is activated on this domain.', '%TEXTDOMAIN%' ),
+								'type'        => [ 'boolean', 'null' ],
+							],
+							'validation_status' => [
+								'description' => __( 'The validation status for this product.', '%TEXTDOMAIN%' ),
+								'type'        => [ 'string', 'null' ],
+							],
+							'is_valid'          => [
+								'description' => __( 'Whether the product has a valid license.', '%TEXTDOMAIN%' ),
+								'type'        => 'boolean',
+							],
+						],
+					],
 				],
 			],
 		];

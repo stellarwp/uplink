@@ -5,8 +5,8 @@ namespace StellarWP\Uplink\Features\Update;
 use StellarWP\Uplink\Catalog\Catalog_Collection;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Catalog\Results\Catalog_Feature;
+use StellarWP\Uplink\Features\Contracts\Installable;
 use StellarWP\Uplink\Features\Feature_Repository;
-use StellarWP\Uplink\Features\Types\Plugin;
 use WP_Error;
 
 /**
@@ -16,8 +16,12 @@ use WP_Error;
  * (availability). The Catalog provides the download URL and latest version.
  *
  * Only features where is_available() returns true are included,
- * ensuring plugins_api() only serves updates the site is licensed for.
+ * ensuring the update API only serves updates the site is licensed for.
  * Dot-org features are excluded since WordPress.org serves their updates.
+ *
+ * Works for both Plugin and Theme features — the caller passes the desired
+ * feature type constant, and the handler is responsible for reading any
+ * type-specific fields (e.g. plugin_file, stylesheet) from the Feature object.
  *
  * @since 3.0.0
  */
@@ -58,7 +62,7 @@ class Resolve_Update_Data {
 	}
 
 	/**
-	 * Fetches available Plugin features and transforms them into update data.
+	 * Fetches available Installable features of the given type and transforms them into update data.
 	 *
 	 * Joins feature availability from the Feature_Repository with download
 	 * URLs and versions from the Catalog_Repository.
@@ -67,10 +71,11 @@ class Resolve_Update_Data {
 	 *
 	 * @param string $key    The unified license key.
 	 * @param string $domain The site domain.
+	 * @param string $type   The feature type to resolve (a Feature::TYPE_* constant).
 	 *
 	 * @return array<string, array<string, mixed>>|WP_Error Keyed by slug, each entry contains update fields.
 	 */
-	public function __invoke( string $key, string $domain ) {
+	public function __invoke( string $key, string $domain, string $type ) {
 		$features = $this->feature_repository->get( $key, $domain );
 
 		if ( is_wp_error( $features ) ) {
@@ -85,12 +90,12 @@ class Resolve_Update_Data {
 
 		$catalog_features = $this->build_catalog_feature_map( $catalog );
 
-		$available_plugins = $features->filter( null, null, true, 'plugin' );
+		$available = $features->filter( null, null, true, $type );
 
 		$updates = [];
 
-		foreach ( $available_plugins as $feature ) {
-			if ( ! $feature instanceof Plugin ) { // TODO: We might be able to generalize this in a way to also work with Themes.
+		foreach ( $available as $feature ) {
+			if ( ! $feature instanceof Installable ) {
 				continue;
 			}
 
@@ -102,14 +107,13 @@ class Resolve_Update_Data {
 			}
 
 			$updates[ $slug ] = [
-				'name'        => $feature->get_name(),
-				'slug'        => $slug,
-				'version'     => $catalog_feature->get_version() ?? '',
-				'package'     => $catalog_feature->get_download_url() ?? '',
-				'url'         => $feature->get_documentation_url(),
-				'author'      => implode( ', ', $feature->get_authors() ),
-				'plugin_file' => $feature->get_plugin_file(),
-				'sections'    => [
+				'name'     => $feature->get_name(),
+				'slug'     => $slug,
+				'version'  => $catalog_feature->get_version() ?? '',
+				'package'  => $catalog_feature->get_download_url() ?? '',
+				'url'      => $feature->get_documentation_url(),
+				'author'   => implode( ', ', $feature->get_authors() ),
+				'sections' => [
 					'description' => $feature->get_description(),
 				],
 			];

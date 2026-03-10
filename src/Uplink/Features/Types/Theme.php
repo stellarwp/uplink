@@ -78,4 +78,41 @@ final class Theme extends Feature implements Installable {
 	public function is_dot_org(): bool {
 		return Cast::to_bool( $this->attributes['is_dot_org'] ?? false );
 	}
+
+	/**
+	 * Checks whether this theme feature is currently installed.
+	 *
+	 * Uses the feature slug as the stylesheet (directory name) to check
+	 * whether the theme exists on disk.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return bool
+	 */
+	public function is_installed(): bool {
+		if ( ! function_exists( 'wp_get_theme' ) ) {
+			return false;
+		}
+
+		return wp_get_theme( $this->get_slug() )->exists();
+	}
+
+	/**
+	 * Gets the currently installed version of this theme feature.
+	 * Returns null if the theme is not installed.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string|null
+	 */
+	public function get_installed_version(): ?string {
+		if ( ! $this->is_installed() ) {
+			return null;
+		}
+
+		$theme   = wp_get_theme( $this->get_slug() );
+		$version = $theme->get( 'Version' );
+
+		return is_string( $version ) && $version !== '' ? $version : null;
+	}
 }

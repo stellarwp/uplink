@@ -7,7 +7,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { UplinkError, ErrorCode } from '@/errors';
-import type { Feature, License, LicenseProduct, ProductCatalog } from '@/types/api';
+import type { Feature, License, ProductCatalog } from '@/types/api';
 import type { Action, Thunk } from './types';
 
 // ---------------------------------------------------------------------------
@@ -19,10 +19,9 @@ export const receiveFeatures = (features: Feature[]): Action => ({
 	features,
 });
 
-export const receiveLicense = (key: string | null, products: LicenseProduct[]): Action => ({
+export const receiveLicense = (license: License): Action => ({
 	type: 'RECEIVE_LICENSE',
-	key,
-	products,
+	license,
 });
 
 export const receiveCatalog = (catalogs: ProductCatalog[]): Action => ({
@@ -112,10 +111,8 @@ export const storeLicense =
 			});
 			dispatch({
 				type: 'STORE_LICENSE_FINISHED',
-				key: result.key as string,
-				products: result.products,
+				license: result,
 			});
-			dispatch.invalidateResolution('getLicense', []);
 			dispatch.invalidateResolution('getFeatures', []);
 			return null;
 		} catch (err) {
@@ -145,13 +142,15 @@ export const validateProduct =
 		}
 		dispatch({ type: 'VALIDATE_PRODUCT_START' });
 		try {
-			await apiFetch<void>({
+			const result = await apiFetch<License>({
 				path: '/stellarwp/uplink/v1/license/validate',
 				method: 'POST',
 				data: { product_slug: productSlug },
 			});
-			dispatch({ type: 'VALIDATE_PRODUCT_FINISHED' });
-			dispatch.invalidateResolution('getLicense', []);
+			dispatch({
+				type: 'VALIDATE_PRODUCT_FINISHED',
+				license: result,
+			});
 			dispatch.invalidateResolution('getFeatures', []);
 			return null;
 		} catch (err) {
@@ -187,7 +186,6 @@ export const deleteLicense =
 				method: 'DELETE',
 			});
 			dispatch({ type: 'DELETE_LICENSE_FINISHED' });
-			dispatch.invalidateResolution('getLicense', []);
 			dispatch.invalidateResolution('getFeatures', []);
 			return null;
 		} catch (err) {

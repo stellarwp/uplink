@@ -103,8 +103,7 @@ function features(
 // ---------------------------------------------------------------------------
 
 const LICENSE_DEFAULT: LicenseState = {
-	key: null,
-	products: [],
+	license: { key: null, products: [] },
 	isStoring: false,
 	isDeleting: false,
 	isValidating: false,
@@ -121,8 +120,7 @@ function license(
 		case 'RECEIVE_LICENSE': {
 			return {
 				...state,
-				key: action.key,
-				products: action.products,
+				license: action.license,
 			};
 		}
 
@@ -138,8 +136,7 @@ function license(
 			return {
 				...state,
 				isStoring: false,
-				key: action.key,
-				products: action.products,
+				license: action.license,
 			};
 		}
 
@@ -163,8 +160,7 @@ function license(
 			return {
 				...state,
 				isDeleting: false,
-				key: null,
-				products: [],
+				license: { key: null, products: [] },
 			};
 		}
 
@@ -188,6 +184,7 @@ function license(
 			return {
 				...state,
 				isValidating: false,
+				license: action.license,
 			};
 		}
 

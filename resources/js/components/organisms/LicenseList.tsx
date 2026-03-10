@@ -44,9 +44,8 @@ export function LicenseList( { openAddDialog = false, onAddDialogClose }: Licens
         onAddDialogClose?.();
     };
 
-    // Calling getLicense() inside useSelect triggers the getLicense resolver.
     const licenseKey = useSelect(
-        ( select ) => select( uplinkStore ).getLicense(),
+        ( select ) => select( uplinkStore ).getLicenseKey(),
         [],
     );
 

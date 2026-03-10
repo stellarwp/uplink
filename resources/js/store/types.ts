@@ -10,7 +10,7 @@ import type {
 import type { Thunk as BaseThunk } from '@/types/data';
 
 import type UplinkError from '@/errors/uplink-error';
-import type { Feature, LicenseProduct, ProductCatalog } from '@/types/api';
+import type { Feature, License, ProductCatalog } from '@/types/api';
 
 import type * as actions from './actions';
 import type * as selectors from './selectors';
@@ -43,13 +43,9 @@ export interface FeaturesState {
 
 export interface LicenseState {
 	/**
-	 * The stored unified license key, or null if none is set.
+	 * The license data from the API.
 	 */
-	key: string | null;
-	/**
-	 * Licensed products associated with this key.
-	 */
-	products: LicenseProduct[];
+	license: License;
 	/**
 	 * Whether a license store (activation) is in progress.
 	 */
@@ -95,15 +91,15 @@ export type Action =
 	| { type: 'TOGGLE_FEATURE_START'; slug: string }
 	| { type: 'TOGGLE_FEATURE_FINISHED'; feature: Feature }
 	| { type: 'TOGGLE_FEATURE_FAILED'; slug: string; error: UplinkError }
-	| { type: 'RECEIVE_LICENSE'; key: string | null; products: LicenseProduct[] }
+	| { type: 'RECEIVE_LICENSE'; license: License }
 	| { type: 'STORE_LICENSE_START' }
-	| { type: 'STORE_LICENSE_FINISHED'; key: string; products: LicenseProduct[] }
+	| { type: 'STORE_LICENSE_FINISHED'; license: License }
 	| { type: 'STORE_LICENSE_FAILED'; error: UplinkError }
 	| { type: 'DELETE_LICENSE_START' }
 	| { type: 'DELETE_LICENSE_FINISHED' }
 	| { type: 'DELETE_LICENSE_FAILED'; error: UplinkError }
 	| { type: 'VALIDATE_PRODUCT_START' }
-	| { type: 'VALIDATE_PRODUCT_FINISHED' }
+	| { type: 'VALIDATE_PRODUCT_FINISHED'; license: License }
 	| { type: 'VALIDATE_PRODUCT_FAILED'; error: UplinkError };
 
 // ---------------------------------------------------------------------------

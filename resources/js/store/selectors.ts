@@ -82,15 +82,15 @@ export const getProductTiers = createSelector(
 // ---------------------------------------------------------------------------
 
 /**
- * Returns the stored unified license key, or null. Triggers getLicense resolver.
+ * Returns the stored unified license key, or null. Triggers getLicenseKey resolver.
  */
-export const getLicense = (state: State): string | null => state.license.key;
+export const getLicenseKey = (state: State): string | null => state.license.license.key;
 
 export const hasLicense = (state: State): boolean =>
-	state.license.key !== null;
+	state.license.license.key !== null;
 
 export const getLicenseProducts = (state: State): LicenseProduct[] =>
-	state.license.products;
+	state.license.license.products;
 
 export const isLicenseStoring = (state: State): boolean =>
 	state.license.isStoring;

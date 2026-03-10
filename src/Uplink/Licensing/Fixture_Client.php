@@ -74,7 +74,8 @@ final class Fixture_Client implements Licensing_Client {
 		if ( ! file_exists( $file ) ) {
 			$this->cache[ $cache_key ] = new WP_Error(
 				Error_Code::INVALID_KEY,
-				sprintf( 'License key not recognized: %s', $key )
+				sprintf( 'License key not recognized: %s', $key ),
+				[ 'status' => Error_Code::http_status( Error_Code::INVALID_KEY ) ]
 			);
 
 			return $this->cache[ $cache_key ];
@@ -85,7 +86,8 @@ final class Fixture_Client implements Licensing_Client {
 		if ( $json === false ) {
 			$this->cache[ $cache_key ] = new WP_Error(
 				Error_Code::INVALID_RESPONSE,
-				sprintf( 'License response could not be read: %s', $file )
+				sprintf( 'License response could not be read: %s', $file ),
+				[ 'status' => Error_Code::http_status( Error_Code::INVALID_RESPONSE ) ]
 			);
 
 			return $this->cache[ $cache_key ];
@@ -96,7 +98,8 @@ final class Fixture_Client implements Licensing_Client {
 		if ( ! is_array( $data ) || ! isset( $data['products'] ) || ! is_array( $data['products'] ) ) {
 			$this->cache[ $cache_key ] = new WP_Error(
 				Error_Code::INVALID_RESPONSE,
-				sprintf( 'License response could not be decoded: %s', $file )
+				sprintf( 'License response could not be decoded: %s', $file ),
+				[ 'status' => Error_Code::http_status( Error_Code::INVALID_RESPONSE ) ]
 			);
 
 			return $this->cache[ $cache_key ];
@@ -138,7 +141,8 @@ final class Fixture_Client implements Licensing_Client {
 		if ( $entry === null ) {
 			return new WP_Error(
 				Error_Code::PRODUCT_NOT_FOUND,
-				sprintf( 'Product not found: %s', $product_slug )
+				sprintf( 'Product not found: %s', $product_slug ),
+				[ 'status' => Error_Code::http_status( Error_Code::PRODUCT_NOT_FOUND ) ]
 			);
 		}
 

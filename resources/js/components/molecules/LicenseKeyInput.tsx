@@ -33,16 +33,16 @@ export function LicenseKeyInput({
 	const [key, setKey] = useState('');
 	const [localError, setLocalError] = useState<string | null>(null);
 
-	const { activateLicense } = useDispatch(uplinkStore);
+	const { storeLicense } = useDispatch(uplinkStore);
 	const { addToast } = useToast();
 
 	// TODO: Refactor error display to use an error modal instead of inline
 	// text. The modal will show safe, user-facing messages from the UplinkError
 	// chain.
 
-	const { isActivating, canModifyLicense } = useSelect(
+	const { isStoring, canModifyLicense } = useSelect(
 		(select) => ({
-			isActivating: select(uplinkStore).isLicenseActivating(),
+			isStoring: select(uplinkStore).isLicenseStoring(),
 			canModifyLicense: select(uplinkStore).canModifyLicense(),
 		}),
 		[]
@@ -62,7 +62,7 @@ export function LicenseKeyInput({
 			return;
 		}
 		setLocalError(null);
-		const result = await activateLicense(trimmedKey);
+		const result = await storeLicense(trimmedKey);
 
 		if (result instanceof UplinkError) {
 			addToast(result.message, 'error');
@@ -114,7 +114,7 @@ export function LicenseKeyInput({
 					onClick={handleActivate}
 					disabled={!canModifyLicense || !key.trim()}
 				>
-					{isActivating ? (
+					{isStoring ? (
 						<>
 							<Loader2 className="w-4 h-4 animate-spin" />
 							{__('Verifying…', '%TEXTDOMAIN%')}
@@ -124,7 +124,7 @@ export function LicenseKeyInput({
 					)}
 				</Button>
 			</div>
-			{isActivating && (
+			{isStoring && (
 				<p className="text-sm text-muted-foreground flex items-center gap-1.5">
 					<Loader2 className="w-3.5 h-3.5 animate-spin" />
 					{__('Checking license with server…', '%TEXTDOMAIN%')}

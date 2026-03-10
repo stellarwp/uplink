@@ -8,6 +8,7 @@ use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Registry\Product_Registry;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
 use StellarWP\Uplink\API\REST\V1\License_Controller;
+use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Tests\Traits\With_Uopz;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_REST_Request;
@@ -47,7 +48,7 @@ final class License_ControllerTest extends UplinkTestCase {
 			true
 		);
 
-		$controller = new License_Controller( $this->manager );
+		$controller = new License_Controller( $this->manager, new Data() );
 		$controller->register_routes();
 	}
 
@@ -73,6 +74,7 @@ final class License_ControllerTest extends UplinkTestCase {
 
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertNull( $response->get_data()['key'] );
+		$this->assertSame( [], $response->get_data()['products'] );
 	}
 
 	public function test_get_returns_stored_key(): void {
@@ -85,6 +87,21 @@ final class License_ControllerTest extends UplinkTestCase {
 
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame( 'LWSW-UNIFIED-PRO-2026', $response->get_data()['key'] );
+	}
+
+	public function test_get_returns_products_array(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$this->manager->store_key( 'LWSW-UNIFIED-PRO-2026' );
+
+		$request  = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/license' );
+		$response = $this->server->dispatch( $request );
+
+		$products = $response->get_data()['products'];
+
+		$this->assertIsArray( $products );
+		$this->assertNotEmpty( $products );
+		$this->assertArrayHasKey( 'product_slug', $products[0] );
 	}
 
 	public function test_get_requires_manage_options(): void {
@@ -106,7 +123,7 @@ final class License_ControllerTest extends UplinkTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// POST
+	// POST /license
 	// -------------------------------------------------------------------------
 
 	public function test_store_saves_key_and_returns_it(): void {
@@ -116,9 +133,10 @@ final class License_ControllerTest extends UplinkTestCase {
 		$request->set_param( 'key', 'LWSW-UNIFIED-PRO-2026' );
 
 		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
 
 		$this->assertSame( 200, $response->get_status() );
-		$this->assertSame( 'LWSW-UNIFIED-PRO-2026', $response->get_data()['key'] );
+		$this->assertSame( 'LWSW-UNIFIED-PRO-2026', $data['key'] );
 	}
 
 	public function test_store_persists_to_options(): void {
@@ -164,6 +182,73 @@ final class License_ControllerTest extends UplinkTestCase {
 	}
 
 	// -------------------------------------------------------------------------
+	// POST /license/validate
+	// -------------------------------------------------------------------------
+
+	public function test_validate_returns_key_and_products_on_success(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$this->manager->store_key( 'LWSW-UNIFIED-PRO-2026' );
+
+		$request = new WP_REST_Request( 'POST', '/stellarwp/uplink/v1/license/validate' );
+		$request->set_param( 'product_slug', 'give' );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'LWSW-UNIFIED-PRO-2026', $data['key'] );
+		$this->assertIsArray( $data['products'] );
+		$this->assertNotEmpty( $data['products'] );
+	}
+
+	public function test_validate_requires_product_slug(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$this->manager->store_key( 'LWSW-UNIFIED-PRO-2026' );
+
+		$request  = new WP_REST_Request( 'POST', '/stellarwp/uplink/v1/license/validate' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+	}
+
+	public function test_validate_returns_error_when_no_key_stored(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$request = new WP_REST_Request( 'POST', '/stellarwp/uplink/v1/license/validate' );
+		$request->set_param( 'product_slug', 'give' );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 422, $response->get_status() );
+	}
+
+	public function test_validate_returns_error_for_unknown_product(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$this->manager->store_key( 'LWSW-UNIFIED-PRO-2026' );
+
+		$request = new WP_REST_Request( 'POST', '/stellarwp/uplink/v1/license/validate' );
+		$request->set_param( 'product_slug', 'unknown-product' );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 422, $response->get_status() );
+	}
+
+	public function test_validate_requires_manage_options(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'subscriber' ] ) );
+
+		$request = new WP_REST_Request( 'POST', '/stellarwp/uplink/v1/license/validate' );
+		$request->set_param( 'product_slug', 'give' );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 403, $response->get_status() );
+	}
+
+	// -------------------------------------------------------------------------
 	// DELETE
 	// -------------------------------------------------------------------------
 
@@ -175,8 +260,8 @@ final class License_ControllerTest extends UplinkTestCase {
 		$request  = new WP_REST_Request( 'DELETE', '/stellarwp/uplink/v1/license' );
 		$response = $this->server->dispatch( $request );
 
-		$this->assertSame( 200, $response->get_status() );
-		$this->assertTrue( $response->get_data()['deleted'] );
+		$this->assertSame( 204, $response->get_status() );
+		$this->assertNull( $response->get_data() );
 		$this->assertNull( $this->manager->get_key() );
 	}
 
@@ -193,12 +278,16 @@ final class License_ControllerTest extends UplinkTestCase {
 	// Schema
 	// -------------------------------------------------------------------------
 
-	public function test_schema_has_key_property(): void {
-		$controller = new License_Controller( $this->manager );
+	public function test_schema_has_key_and_products_properties(): void {
+		$controller = new License_Controller( $this->manager, new Data() );
 		$schema     = $controller->get_item_schema();
 
 		$this->assertArrayHasKey( 'properties', $schema );
 		$this->assertArrayHasKey( 'key', $schema['properties'] );
+		$this->assertArrayHasKey( 'products', $schema['properties'] );
+		$this->assertSame( 'array', $schema['properties']['products']['type'] );
+		$this->assertArrayHasKey( 'product_slug', $schema['properties']['products']['items']['properties'] );
+		$this->assertArrayHasKey( 'activations', $schema['properties']['products']['items']['properties'] );
 	}
 
 	public function test_store_rejects_key_not_recognized_by_api(): void {
@@ -209,7 +298,7 @@ final class License_ControllerTest extends UplinkTestCase {
 
 		$response = $this->server->dispatch( $request );
 
-		$this->assertSame( 422, $response->get_status() );
+		$this->assertSame( 400, $response->get_status() );
 	}
 
 	public function test_store_does_not_persist_key_not_recognized_by_api(): void {
@@ -221,6 +310,60 @@ final class License_ControllerTest extends UplinkTestCase {
 		$this->server->dispatch( $request );
 
 		$this->assertEmpty( get_option( License_Repository::KEY_OPTION_NAME ) );
+	}
+
+	// -------------------------------------------------------------------------
+	// GET /license/{key}
+	// -------------------------------------------------------------------------
+
+	public function test_lookup_returns_key_and_products(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$request  = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/license/LWSW-UNIFIED-PRO-2026' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'LWSW-UNIFIED-PRO-2026', $data['key'] );
+		$this->assertIsArray( $data['products'] );
+		$this->assertNotEmpty( $data['products'] );
+		$this->assertArrayHasKey( 'product_slug', $data['products'][0] );
+	}
+
+	public function test_lookup_rejects_invalid_key_format(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$request  = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/license/INVALID-KEY-NO-PREFIX' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+	}
+
+	public function test_lookup_returns_error_for_unrecognized_key(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$request  = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/license/LWSW-NOT-A-REAL-KEY' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+	}
+
+	public function test_lookup_does_not_store_key(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$request = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/license/LWSW-UNIFIED-PRO-2026' );
+		$this->server->dispatch( $request );
+
+		$this->assertEmpty( get_option( License_Repository::KEY_OPTION_NAME ) );
+	}
+
+	public function test_lookup_requires_manage_options(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'subscriber' ] ) );
+
+		$request  = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/license/LWSW-UNIFIED-PRO-2026' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 403, $response->get_status() );
 	}
 
 	// -------------------------------------------------------------------------

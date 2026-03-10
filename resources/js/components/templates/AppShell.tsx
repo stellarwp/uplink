@@ -31,9 +31,9 @@ export function AppShell() {
             const s = select( uplinkStore ) as unknown as {
                 hasFinishedResolution: ( name: string, args?: unknown[] ) => boolean;
             };
-            select( uplinkStore ).getLicense();
+            select( uplinkStore ).getLicenseKey();
             select( uplinkStore ).getFeatures();
-            return ! s.hasFinishedResolution( 'getLicense', [] )
+            return ! s.hasFinishedResolution( 'getLicenseKey', [] )
                 || ! s.hasFinishedResolution( 'getFeatures', [] );
         },
         [],

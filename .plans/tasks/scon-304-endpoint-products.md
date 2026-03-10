@@ -1,7 +1,7 @@
 ---
 ticket: SCON-304
 url: https://stellarwp.atlassian.net/browse/SCON-304
-status: todo
+status: in-progress
 ---
 
 # Include products in the license REST response
@@ -12,35 +12,34 @@ The `GET /stellarwp/uplink/v1/license` endpoint only returns `{ key: string | nu
 
 The frontend needs this data to support upcoming work around license validity, grace periods, and product-level status. Without it, the UI can't show which tier the user is on, whether a subscription is expiring, or make decisions about feature validity on the client side.
 
-## Proposed solution
+## Solution
 
-Expand the `GET /license` response to include the full `Product_Collection` alongside the key. The response shape should look something like:
+### GET /license
 
-```json
-{
-  "key": "LWSW-...",
-  "products": [
-    {
-      "product_slug": "give",
-      "tier": "pro",
-      "pending_tier": null,
-      "status": "active",
-      "expires": "2026-12-31 00:00:00",
-      "activations": {
-        "site_limit": 0,
-        "active_count": 1,
-        "over_limit": false
-      },
-      "installed_here": true,
-      "validation_status": "VALID",
-      "is_valid": true
-    }
-  ]
-}
-```
+Returns `{ key, products[] }`. Products come from the cached `Product_Collection` (originally fetched from the v4 `/products` endpoint). When no license key is stored, `products` is an empty array.
 
-When no license key is stored, `products` should be an empty array.
+### POST /license
 
-The `POST /license` and `DELETE /license` responses should also include the products array so the frontend state stays in sync after activation or removal without needing a separate fetch.
+Accepts `key` (required) and `network` (optional). Fetches the product catalog from the v4 API to verify the key is recognized, then stores it. Does not activate any product or consume a seat. Returns `{ key }` on success.
 
-The frontend store, types, and resolvers will need to be updated to consume and store the products data. That can happen in the same PR or as a follow-up.
+After a successful POST, the frontend invalidates the GET `/license` resolver to refetch the product list.
+
+### POST /license/validate
+
+Accepts `product_slug` (required). Operates on the stored license key. Calls the v4 validate endpoint, which may consume an activation seat. Returns the `Validation_Result` (status, license, subscription, activation). On success, clears the cached product list so the next GET reflects the new activation state.
+
+This is a separate endpoint because storing a key and consuming a seat are different concerns. The user may want to enter/change their key without immediately activating a product.
+
+### DELETE /license
+
+Returns `204 No Content` with no body. This only removes the locally stored key. It does not free activation seats on the licensing service.
+
+### Frontend
+
+The store has three async operations, each with their own loading/error state:
+
+- `storeLicense(key)` - POST /license
+- `validateProduct(productSlug)` - POST /license/validate
+- `deleteLicense()` - DELETE /license
+
+The `getLicense` resolver fetches `{ key, products[] }` from GET and populates the store.

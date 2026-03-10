@@ -33,24 +33,12 @@ export function ProductSection( { product, onAddLicense }: ProductSectionProps )
     // store action + selector so the state is persisted server-side.
     const [ productActive, setProductActive ] = useState( true );
 
-    // Calling getLicense() triggers the getLicense resolver.
-    const hasLicense = useSelect(
-        ( select ) => {
-            select( uplinkStore ).getLicense();
-            return select( uplinkStore ).hasLicense();
-        },
-        [],
-    );
-
-    // Features come from the REST API via the store resolver.
-    // Calling getFeatures() inside useSelect triggers the resolver;
-    // getFeaturesByGroup then filters the cached result for this product.
-    const features = useSelect(
-        ( select ) => {
-            select( uplinkStore ).getFeatures();
-            return select( uplinkStore ).getFeaturesByGroup( product.slug );
-        },
-        [ product.slug ],
+    const { features, hasLicense } = useSelect(
+        ( select ) => ({
+            features: select( uplinkStore ).getFeaturesByGroup( product.slug ),
+            hasLicense: select( uplinkStore ).hasLicense(),
+        }),
+        [product.slug],
     );
 
     return (

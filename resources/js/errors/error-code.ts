@@ -9,7 +9,8 @@ export enum ErrorCode {
 	FeatureDisableFailed = 'feature-disable-failed',
 	LicenseFetchFailed = 'license-fetch-failed',
 	LicenseActionInProgress = 'license-action-in-progress',
-	LicenseActivateFailed = 'license-activate-failed',
+	LicenseStoreFailed = 'license-store-failed',
 	LicenseDeleteFailed = 'license-delete-failed',
+	LicenseValidateFailed = 'license-validate-failed',
 	CatalogFetchFailed = 'catalog-fetch-failed',
 }

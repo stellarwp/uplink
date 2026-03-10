@@ -3,7 +3,9 @@
 namespace StellarWP\Uplink\Licensing\Results;
 
 use StellarWP\Uplink\Licensing\Enums\Validation_Status;
+use StellarWP\Uplink\Licensing\Error_Code;
 use StellarWP\Uplink\Utils\Cast;
+use WP_Error;
 
 /**
  * The outcome of validating a license for a product on a domain.
@@ -162,5 +164,38 @@ final class Validation_Result {
 	 */
 	public function is_valid(): bool {
 		return $this->get_status() === Validation_Status::VALID;
+	}
+
+	/**
+	 * Converts a non-valid result to a WP_Error.
+	 *
+	 * Uses subscription data to provide contextual detail when available,
+	 * such as the site limit for out_of_activations. Falls back to a
+	 * generic unknown error when the status has no mapping.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return WP_Error
+	 */
+	public function to_wp_error(): WP_Error {
+		$status       = $this->get_status();
+		$code         = Validation_Status::error_code( $status );
+		$subscription = $this->get_subscription();
+
+		if ( $status === Validation_Status::OUT_OF_ACTIVATIONS && $subscription !== null ) {
+			$message = sprintf(
+				/* translators: %d: number of activation seats */
+				__( 'All %d activation seats are in use.', '%TEXTDOMAIN%' ),
+				$subscription['site_limit']
+			);
+		} else {
+			$message = Validation_Status::message( $status );
+		}
+
+		return new WP_Error(
+			$code,
+			$message,
+			[ 'status' => Error_Code::http_status( $code ) ]
+		);
 	}
 }

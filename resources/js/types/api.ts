@@ -285,6 +285,31 @@ export interface Product {
     tiers: Tier[];
 }
 
+// ---------------------------------------------------------------------------
+// License types — GET/POST /stellarwp/uplink/v1/license
+// ---------------------------------------------------------------------------
+
+/**
+ * A licensed product entry as returned alongside the license key.
+ *
+ * @since 3.0.0
+ */
+export interface LicenseProduct {
+    product_slug: string;
+    tier: string;
+    pending_tier: string | null;
+    status: string;
+    expires: string;
+    activations: {
+        site_limit: number;
+        active_count: number;
+        over_limit: boolean;
+    };
+    installed_here?: boolean;
+    validation_status?: string;
+    is_valid?: boolean;
+}
+
 /**
  * Unified license key as returned by GET/POST /stellarwp/uplink/v1/license.
  *
@@ -292,7 +317,11 @@ export interface Product {
  */
 export interface License {
     /**
-     * The stored unified license key.
+     * The stored unified license key, or null if none is set.
      */
-    key: string;
+    key: string | null;
+    /**
+     * Licensed products associated with this key.
+     */
+    products: LicenseProduct[];
 }

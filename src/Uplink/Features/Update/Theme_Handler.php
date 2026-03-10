@@ -169,8 +169,8 @@ class Theme_Handler {
 
 		foreach ( $response as $slug => $update_data ) {
 			/** @var string $new_version */
-			$new_version       = $update_data['version'] ?? '';
-			$installed_version = $update_data['installed_version'] ?? '';
+			$new_version       = Cast::to_string( $update_data['version'] ?? '' );
+			$installed_version = Cast::to_string( $update_data['installed_version'] ?? '' );
 
 			$update_array = $this->to_update_array( $slug, $update_data );
 

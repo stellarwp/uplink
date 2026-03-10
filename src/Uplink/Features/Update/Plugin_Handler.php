@@ -6,6 +6,7 @@ use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Site\Data;
 use stdClass;
+use StellarWP\Uplink\Utils\Cast;
 
 /**
  * Consolidated update handler for Plugin features.
@@ -175,8 +176,8 @@ class Plugin_Handler {
 			}
 
 			/** @var string $new_version */
-			$new_version       = $update_data['version'] ?? '';
-			$installed_version = $update_data['installed_version'] ?? '';
+			$new_version       = Cast::to_string( $update_data['version'] ?? '' );
+			$installed_version = Cast::to_string( $update_data['installed_version'] ?? '' );
 
 			$update_object = $this->to_update_object( $slug, $plugin_file, $update_data );
 

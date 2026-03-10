@@ -2,7 +2,6 @@
 
 namespace StellarWP\Uplink\Tests\Features;
 
-use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Contracts\Strategy;
@@ -23,14 +22,18 @@ final class FunctionsTest extends UplinkTestCase {
 		parent::setUp();
 
 		$collection = new Feature_Collection();
-		$collection->add( Flag::from_array( [
-			'slug'         => 'test-feature',
-			'name'         => 'Test Feature',
-			'description'  => '',
-			'group'        => 'test',
-			'tier'         => 'free',
-			'is_available' => true,
-		] ) );
+		$collection->add(
+			Flag::from_array(
+				[
+					'slug'         => 'test-feature',
+					'name'         => 'Test Feature',
+					'description'  => '',
+					'group'        => 'test',
+					'tier'         => 'free',
+					'is_available' => true,
+				]
+			)
+		);
 
 		$mock_strategy = $this->makeEmpty(
 			Strategy::class,
@@ -101,14 +104,18 @@ final class FunctionsTest extends UplinkTestCase {
 	 */
 	public function test_is_feature_available_returns_false_for_unavailable_feature(): void {
 		$collection = new Feature_Collection();
-		$collection->add( Flag::from_array( [
-			'slug'         => 'locked-feature',
-			'name'         => 'Locked Feature',
-			'description'  => '',
-			'group'        => 'test',
-			'tier'         => 'pro',
-			'is_available' => false,
-		] ) );
+		$collection->add(
+			Flag::from_array(
+				[
+					'slug'         => 'locked-feature',
+					'name'         => 'Locked Feature',
+					'description'  => '',
+					'group'        => 'test',
+					'tier'         => 'pro',
+					'is_available' => false,
+				]
+			)
+		);
 
 		$mock_strategy = $this->makeEmpty(
 			Strategy::class,

@@ -46,26 +46,30 @@ final class Feature_ControllerTest extends UplinkTestCase {
 
 		$collection = new Feature_Collection();
 		$collection->add(
-			Plugin::from_array( [
-				'slug'              => 'feature-alpha',
-				'group'             => 'GroupA',
-				'tier'              => 'Tier 1',
-				'name'              => 'Feature Alpha',
-				'description'       => 'Alpha description',
-				'is_available'      => true,
-				'documentation_url' => 'https://example.com/alpha',
-			] )
+			Plugin::from_array(
+				[
+					'slug'              => 'feature-alpha',
+					'group'             => 'GroupA',
+					'tier'              => 'Tier 1',
+					'name'              => 'Feature Alpha',
+					'description'       => 'Alpha description',
+					'is_available'      => true,
+					'documentation_url' => 'https://example.com/alpha',
+				]
+			)
 		);
 		$collection->add(
-			Flag::from_array( [
-				'slug'              => 'feature-beta',
-				'group'             => 'GroupB',
-				'tier'              => 'Tier 2',
-				'name'              => 'Feature Beta',
-				'description'       => 'Beta description',
-				'is_available'      => false,
-				'documentation_url' => 'https://example.com/beta',
-			] )
+			Flag::from_array(
+				[
+					'slug'              => 'feature-beta',
+					'group'             => 'GroupB',
+					'tier'              => 'Tier 2',
+					'name'              => 'Feature Beta',
+					'description'       => 'Beta description',
+					'is_available'      => false,
+					'documentation_url' => 'https://example.com/beta',
+				]
+			)
 		);
 
 		$active = false;
@@ -463,7 +467,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		);
 
 		$factory = $this->makeEmpty( Strategy_Factory::class );
-		$manager  = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
@@ -729,7 +733,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 			]
 		);
 
-		$factory   = $this->makeEmpty( Strategy_Factory::class, [ 'make' => $error_strategy ] );
+		$factory    = $this->makeEmpty( Strategy_Factory::class, [ 'make' => $error_strategy ] );
 		$repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => $this->manager->get_all() ] );
 		$manager    = new Manager( $repository, $factory, 'test-key', 'example.com' );
 
@@ -765,7 +769,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		);
 
 		$factory = $this->makeEmpty( Strategy_Factory::class );
-		$manager  = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
@@ -800,7 +804,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 			]
 		);
 
-		$factory   = $this->makeEmpty( Strategy_Factory::class, [ 'make' => $error_strategy ] );
+		$factory    = $this->makeEmpty( Strategy_Factory::class, [ 'make' => $error_strategy ] );
 		$repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => $this->manager->get_all() ] );
 		$manager    = new Manager( $repository, $factory, 'test-key', 'example.com' );
 
@@ -838,7 +842,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 			]
 		);
 
-		$factory   = $this->makeEmpty( Strategy_Factory::class, [ 'make' => $error_strategy ] );
+		$factory    = $this->makeEmpty( Strategy_Factory::class, [ 'make' => $error_strategy ] );
 		$repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => $this->manager->get_all() ] );
 		$manager    = new Manager( $repository, $factory, 'test-key', 'example.com' );
 

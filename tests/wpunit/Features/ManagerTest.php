@@ -54,13 +54,17 @@ final class ManagerTest extends UplinkTestCase {
 		delete_transient( 'stellarwp_uplink_feature_catalog' );
 
 		$this->collection = new Feature_Collection();
-		$this->collection->add( Flag::from_array( [
-			'slug'         => 'test-feature',
-			'group'        => 'TestGroup',
-			'tier'         => 'Tier 1',
-			'name'         => 'Test Feature',
-			'is_available' => true,
-		] ) );
+		$this->collection->add(
+			Flag::from_array(
+				[
+					'slug'         => 'test-feature',
+					'group'        => 'TestGroup',
+					'tier'         => 'Tier 1',
+					'name'         => 'Test Feature',
+					'is_available' => true,
+				]
+			)
+		);
 
 		$repository = $this->makeEmpty(
 			Feature_Repository::class,
@@ -476,13 +480,17 @@ final class ManagerTest extends UplinkTestCase {
 	 */
 	public function test_is_available_returns_false_for_unavailable_feature(): void {
 		$collection = new Feature_Collection();
-		$collection->add( Flag::from_array( [
-			'slug'         => 'locked-feature',
-			'group'        => 'TestGroup',
-			'tier'         => 'Pro',
-			'name'         => 'Locked Feature',
-			'is_available' => false,
-		] ) );
+		$collection->add(
+			Flag::from_array(
+				[
+					'slug'         => 'locked-feature',
+					'group'        => 'TestGroup',
+					'tier'         => 'Pro',
+					'name'         => 'Locked Feature',
+					'is_available' => false,
+				]
+			)
+		);
 
 		$strategy = $this->makeEmpty(
 			Strategy::class,

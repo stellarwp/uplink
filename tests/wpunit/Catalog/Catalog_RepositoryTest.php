@@ -4,6 +4,7 @@ namespace StellarWP\Uplink\Tests\Catalog;
 
 use StellarWP\Uplink\Catalog\Catalog_Collection;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
+use StellarWP\Uplink\Catalog\Contracts\Catalog_Client;
 use StellarWP\Uplink\Catalog\Fixture_Client;
 use StellarWP\Uplink\Catalog\Results\Product_Catalog;
 use StellarWP\Uplink\Tests\UplinkTestCase;
@@ -102,13 +103,10 @@ final class Catalog_RepositoryTest extends UplinkTestCase {
 		$this->assertIsArray( $state['collection'] );
 		$this->assertCount( 4, $state['collection'] );
 
-		// Now refresh with a bad client — simulates an API failure.
-		$bad_client  = new Fixture_Client( '/tmp/does-not-exist-' . uniqid() . '.json' );
-		$bad_repo    = new Catalog_Repository( $bad_client );
-
-		// Manually trigger a failed set_catalog to share the same option.
-		$error = $bad_client->get_catalog();
-		$this->repository->set_catalog( $error );
+		// Simulate an API failure using a mock client — refresh writes to the shared option.
+		$error      = new WP_Error( 'catalog_error', 'API unavailable.' );
+		$bad_client = $this->makeEmpty( Catalog_Client::class, [ 'get_catalog' => $error ] );
+		( new Catalog_Repository( $bad_client ) )->refresh();
 
 		// get() should still return the previously stored collection.
 		$result = $this->repository->get();

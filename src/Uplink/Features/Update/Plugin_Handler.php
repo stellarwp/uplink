@@ -4,7 +4,6 @@ namespace StellarWP\Uplink\Features\Update;
 
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Types\Feature;
-use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Site\Data;
 use stdClass;
 
@@ -167,20 +166,9 @@ class Plugin_Handler {
 		/** @var array<string, stdClass> $wp_no_update */
 		$wp_no_update = $transient->no_update;
 
-		$features = $this->feature_repository->get( $this->key, $domain );
-
-		if ( is_wp_error( $features ) ) {
-			return $transient;
-		}
-
 		foreach ( $response as $slug => $update_data ) {
-			$feature = $features->get( $slug );
-
-			if ( ! $feature instanceof Plugin ) {
-				continue;
-			}
-
-			$plugin_file = $feature->get_plugin_file();
+			/** @var string $plugin_file */
+			$plugin_file = $update_data['plugin_file'] ?? '';
 
 			if ( empty( $plugin_file ) ) {
 				continue;
@@ -188,7 +176,7 @@ class Plugin_Handler {
 
 			/** @var string $new_version */
 			$new_version       = $update_data['version'] ?? '';
-			$installed_version = $feature->get_installed_version() ?? '';
+			$installed_version = $update_data['installed_version'] ?? '';
 
 			$update_object = $this->to_update_object( $slug, $plugin_file, $update_data );
 

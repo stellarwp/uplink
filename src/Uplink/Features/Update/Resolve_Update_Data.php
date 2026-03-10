@@ -106,17 +106,7 @@ class Resolve_Update_Data {
 				continue;
 			}
 
-			$updates[ $slug ] = [
-				'name'     => $feature->get_name(),
-				'slug'     => $slug,
-				'version'  => $catalog_feature->get_version() ?? '',
-				'package'  => $catalog_feature->get_download_url() ?? '',
-				'url'      => $feature->get_documentation_url(),
-				'author'   => implode( ', ', $feature->get_authors() ),
-				'sections' => [
-					'description' => $feature->get_description(),
-				],
-			];
+			$updates[ $slug ] = $feature->get_update_data( $catalog_feature );
 		}
 
 		return $updates;

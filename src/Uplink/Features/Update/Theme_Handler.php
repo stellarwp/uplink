@@ -4,7 +4,6 @@ namespace StellarWP\Uplink\Features\Update;
 
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Types\Feature;
-use StellarWP\Uplink\Features\Types\Theme;
 use StellarWP\Uplink\Site\Data;
 use stdClass;
 use StellarWP\Uplink\Utils\Cast;
@@ -168,24 +167,10 @@ class Theme_Handler {
 		/** @var array<string, array<string, mixed>> $wp_no_update */
 		$wp_no_update = $transient->no_update;
 
-		$features = $this->feature_repository->get( $this->key, $domain );
-
-		if ( is_wp_error( $features ) ) {
-			return $transient;
-		}
-
 		foreach ( $response as $slug => $update_data ) {
-			$feature = $features->get( $slug );
-
-			if ( ! $feature instanceof Theme ) {
-				continue;
-			}
-
-			$stylesheet = $slug;
-
 			/** @var string $new_version */
 			$new_version       = $update_data['version'] ?? '';
-			$installed_version = $feature->get_installed_version() ?? '';
+			$installed_version = $update_data['installed_version'] ?? '';
 
 			$update_array = $this->to_update_array( $slug, $update_data );
 
@@ -198,10 +183,10 @@ class Theme_Handler {
 			 * clearing updates we didn't provide.
 			 */
 			if ( version_compare( $new_version, $installed_version, '>' ) ) {
-				$wp_response[ $stylesheet ] = $update_array;
-				unset( $wp_no_update[ $stylesheet ] );
-			} elseif ( ! isset( $wp_response[ $stylesheet ] ) ) {
-				$wp_no_update[ $stylesheet ] = $update_array;
+				$wp_response[ $slug ] = $update_array;
+				unset( $wp_no_update[ $slug ] );
+			} elseif ( ! isset( $wp_response[ $slug ] ) ) {
+				$wp_no_update[ $slug ] = $update_array;
 			}
 		}
 

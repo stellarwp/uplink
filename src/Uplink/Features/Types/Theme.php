@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Features\Types;
 
+use StellarWP\Uplink\Catalog\Results\Catalog_Feature;
 use StellarWP\Uplink\Features\Contracts\Installable;
 use StellarWP\Uplink\Utils\Cast;
 
@@ -77,6 +78,30 @@ final class Theme extends Feature implements Installable {
 	 */
 	public function is_dot_org(): bool {
 		return Cast::to_bool( $this->attributes['is_dot_org'] ?? false );
+	}
+
+	/**
+	 * Builds the complete update data array for this Theme feature.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param Catalog_Feature $catalog_feature The catalog entry providing version and download URL.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function get_update_data( Catalog_Feature $catalog_feature ): array {
+		return [
+			'name'              => $this->get_name(),
+			'slug'              => $this->get_slug(),
+			'version'           => $catalog_feature->get_version() ?? '',
+			'package'           => $catalog_feature->get_download_url() ?? '',
+			'url'               => $this->get_documentation_url(),
+			'author'            => implode( ', ', $this->get_authors() ),
+			'sections'          => [
+				'description' => $this->get_description(),
+			],
+			'installed_version' => $this->get_installed_version() ?? '',
+		];
 	}
 
 	/**

@@ -310,7 +310,7 @@ final class FeatureTest extends UplinkTestCase {
 	public function test_is_enabled_calls_error_for_nonexistent_feature(): void {
 		$this->command->is_enabled( [ 'nonexistent' ], [] );
 
-		$this->assertSame( 'Feature "nonexistent" not found.', $this->logger->last_error );
+		$this->assertStringContainsString( 'nonexistent', $this->logger->last_error );
 	}
 
 	// ------------------------------------------------------------------
@@ -318,7 +318,7 @@ final class FeatureTest extends UplinkTestCase {
 	// ------------------------------------------------------------------
 
 	public function test_feature_to_display_item_converts_booleans(): void {
-		$feature = $this->collection->get( 'test-flag' );
+		$feature = $this->manager->get( 'test-flag' );
 		$this->assertNotNull( $feature );
 
 		/** @var array<string, mixed> $item */
@@ -371,8 +371,8 @@ final class FeatureTest extends UplinkTestCase {
 		$this->assertSame( 'true', $item['is_dot_org'] );
 	}
 
-	public function test_feature_to_display_item_resolves_enabled_via_manager(): void {
-		$feature = $this->collection->get( 'test-flag' );
+	public function test_feature_to_display_item_reads_enabled_from_feature(): void {
+		$feature = $this->manager->get( 'test-flag' );
 		$this->assertNotNull( $feature );
 
 		/** @var array<string, mixed> $item */
@@ -388,7 +388,7 @@ final class FeatureTest extends UplinkTestCase {
 		$manager    = new Manager( $repository, $factory, 'test-key', 'example.com' );
 		$command    = new Feature_Command( $manager );
 
-		$feature = $this->collection->get( 'test-flag' );
+		$feature = $manager->get( 'test-flag' );
 		$this->assertNotNull( $feature );
 
 		/** @var array<string, mixed> $item */

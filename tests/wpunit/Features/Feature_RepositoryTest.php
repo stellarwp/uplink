@@ -35,7 +35,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 
 		delete_transient( Feature_Repository::TRANSIENT_KEY );
 		delete_transient( Catalog_Repository::TRANSIENT_KEY );
-		delete_transient( License_Repository::PRODUCTS_TRANSIENT_KEY );
+		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
 	}
 
 	/**
@@ -46,7 +46,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	protected function tearDown(): void {
 		delete_transient( Feature_Repository::TRANSIENT_KEY );
 		delete_transient( Catalog_Repository::TRANSIENT_KEY );
-		delete_transient( License_Repository::PRODUCTS_TRANSIENT_KEY );
+		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
 
 		parent::tearDown();
 	}
@@ -55,7 +55,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 * Creates a Resolve_Feature_Collection with the given repository dependencies.
 	 *
 	 * @param Catalog_Repository $catalog  The catalog repository.
-	 * @param License_Repository $licensing The licensing repository.
+	 * @param License_Manager    $licensing The licensing manager.
 	 *
 	 * @return Resolve_Feature_Collection
 	 */

@@ -130,6 +130,7 @@ final class ThemeTest extends UplinkTestCase {
 			'description'       => 'Test theme description.',
 			'type'              => 'theme',
 			'is_available'      => true,
+			'is_enabled'        => false,
 			'documentation_url' => 'https://example.com/docs',
 			'authors'           => [ 'StellarWP' ],
 			'is_dot_org'        => false,

@@ -35,6 +35,8 @@ final class Error_CodeTest extends UplinkTestCase {
 			'PLUGINS_API_FAILED'             => [ Error_Code::PLUGINS_API_FAILED, 502 ],
 			'THEMES_API_FAILED'              => [ Error_Code::THEMES_API_FAILED, 502 ],
 			'UNKNOWN_FEATURE_TYPE'           => [ Error_Code::UNKNOWN_FEATURE_TYPE, 422 ],
+			'FEATURE_ENABLE_FAILED'          => [ Error_Code::FEATURE_ENABLE_FAILED, 422 ],
+			'FEATURE_DISABLE_FAILED'         => [ Error_Code::FEATURE_DISABLE_FAILED, 422 ],
 		];
 	}
 

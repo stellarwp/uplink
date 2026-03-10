@@ -154,7 +154,7 @@ class Feature_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function get_items( $request ) {
-		$features = $this->manager->get_features();
+		$features = $this->manager->get_all();
 
 		if ( is_wp_error( $features ) ) {
 			return $this->ensure_error_status( $features );
@@ -177,7 +177,7 @@ class Feature_Controller extends WP_REST_Controller {
 		$data = [];
 
 		foreach ( $features as $feature ) {
-			$data[] = $this->prepare_feature_data( $feature );
+			$data[] = $feature->to_array();
 		}
 
 		return new WP_REST_Response( $data );
@@ -194,7 +194,7 @@ class Feature_Controller extends WP_REST_Controller {
 	 */
 	public function get_item( $request ) {
 		$slug     = Cast::to_string( $request->get_param( 'slug' ) );
-		$features = $this->manager->get_features();
+		$features = $this->manager->get_all();
 
 		if ( is_wp_error( $features ) ) {
 			return $this->ensure_error_status( $features );
@@ -210,7 +210,7 @@ class Feature_Controller extends WP_REST_Controller {
 			);
 		}
 
-		return new WP_REST_Response( $this->prepare_feature_data( $feature ) );
+		return new WP_REST_Response( $feature->to_array() );
 	}
 
 	/**
@@ -223,25 +223,16 @@ class Feature_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function enable( WP_REST_Request $request ) {
-		$slug    = Cast::to_string( $request->get_param( 'slug' ) );
-		$feature = $this->manager->get_feature( $slug );
+		$slug = Cast::to_string( $request->get_param( 'slug' ) );
 
-		if ( ! $feature ) {
-			return new WP_Error(
-				Error_Code::FEATURE_NOT_FOUND,
-				sprintf( 'Feature "%s" not found.', $slug ),
-				[ 'status' => 404 ]
-			);
-		}
+		$feature = $this->manager->enable( $slug );
 
-		$result = $this->manager->enable( $slug );
-
-		if ( is_wp_error( $result ) ) {
-			return $this->ensure_error_status( $result );
+		if ( is_wp_error( $feature ) ) {
+			return $this->ensure_error_status( $feature );
 		}
 
 		return new WP_REST_Response(
-			$this->prepare_feature_data( $feature )
+			$feature->to_array()
 		);
 	}
 
@@ -256,24 +247,14 @@ class Feature_Controller extends WP_REST_Controller {
 	 */
 	public function disable( WP_REST_Request $request ) {
 		$slug    = Cast::to_string( $request->get_param( 'slug' ) );
-		$feature = $this->manager->get_feature( $slug );
+		$feature = $this->manager->disable( $slug );
 
-		if ( ! $feature ) {
-			return new WP_Error(
-				Error_Code::FEATURE_NOT_FOUND,
-				sprintf( 'Feature "%s" not found.', $slug ),
-				[ 'status' => 404 ]
-			);
-		}
-
-		$result = $this->manager->disable( $slug );
-
-		if ( is_wp_error( $result ) ) {
-			return $this->ensure_error_status( $result );
+		if ( is_wp_error( $feature ) ) {
+			return $this->ensure_error_status( $feature );
 		}
 
 		return new WP_REST_Response(
-			$this->prepare_feature_data( $feature )
+			$feature->to_array()
 		);
 	}
 
@@ -454,21 +435,6 @@ class Feature_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Prepares feature data for the response.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param Feature $feature The feature instance.
-	 *
-	 * @return array<string, mixed>
-	 */
-	private function prepare_feature_data( Feature $feature ): array {
-		return $feature->to_array() + [
-			'is_enabled' => $this->manager->is_enabled( $feature->get_slug() ),
-		];
-	}
-
-	/**
 	 * Ensures a WP_Error has an HTTP status code in its data.
 	 *
 	 * Errors from the Manager and its strategies do not carry HTTP
@@ -514,7 +480,11 @@ class Feature_Controller extends WP_REST_Controller {
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 				'validate_callback' => function ( $slug ): bool {
-					return Cast::to_bool( $this->manager->is_available( Cast::to_string( $slug ) ) );
+					return Cast::to_bool(
+						$this->manager->exists(
+							Cast::to_string( $slug )
+						)
+					);
 				},
 			],
 		];

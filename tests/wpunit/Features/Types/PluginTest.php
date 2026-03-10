@@ -137,10 +137,11 @@ final class PluginTest extends UplinkTestCase {
 			'name'              => 'Test Feature',
 			'description'       => 'Test feature description.',
 			'type'              => 'plugin',
+			'is_available'      => true,
+			'is_enabled'        => false,
+			'documentation_url' => 'https://example.com/docs',
 			'plugin_file'       => 'test-feature/test-feature.php',
 			'plugin_slug'       => '',
-			'is_available'      => true,
-			'documentation_url' => 'https://example.com/docs',
 			'authors'           => [ 'StellarWP' ],
 			'is_dot_org'        => false,
 		];

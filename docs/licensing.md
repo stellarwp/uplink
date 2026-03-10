@@ -4,7 +4,7 @@
 
 The Licensing subsystem is how a WordPress site learns what a unified license key covers. The site presents its `LWSW-`-prefixed key to the Licensing API, and the API returns which products are entitled, what tier each is on, and whether seats are available. The site stores this response and uses it as the source of truth for all entitlement decisions.
 
-This document describes the data the site gets from Licensing, how it stores and caches that data, and the workflows that drive key discovery and validation.
+This document describes the data the site gets from Licensing, how it stores that data, and the workflows that drive key discovery and validation.
 
 > **Development status.** The architectural patterns here (key discovery, caching, repository structure) are stable. The upstream API is not. The current implementation targets a v4 Licensing API that is still in development. If v4 does not ship in time or does not meet our needs, we may fall back to the existing v3 Licensing API. The v3 API is already plugin/theme-aware and gives us most of the entitlement data we need, though it lacks some catalog-style information like upsell data. Specific data shapes, tier slugs, and response formats are all subject to change. Fixture data in `tests/_data/licensing/` reflects our current working assumptions, not a finalized spec.
 
@@ -103,31 +103,40 @@ The `Validation_Status` enum covers every state a product can be in:
 | `out_of_activations` | All seats are consumed                                |
 | `invalid_key`        | Key is not recognized                                 |
 
-## Caching and Storage
+## Storage
 
 ### Key Storage
 
 The unified key is stored in a WordPress option (`stellarwp_uplink_unified_license_key`). The `License_Repository` handles reads and writes, including multisite-aware lookups.
 
-### Product Catalog Cache
+### License State Storage
 
-The full product catalog response is cached in a WordPress transient (`stellarwp_uplink_licensing_products`) with a 12-hour TTL. The `Product_Repository` manages this cache transparently. Callers use `get()` and never touch the client directly.
+The full product catalog and related metadata are stored in a WordPress option (`stellarwp_uplink_licensing_products_state`) as a state envelope with four keys:
 
-Since there's only one unified key per site, there's only one cache entry. Cache invalidation is simple: `refresh()` deletes the transient and re-fetches.
+| Key                | Type                 | Description                                                                                 |
+| ------------------ | -------------------- | ------------------------------------------------------------------------------------------- |
+| `collection`       | `array&#124;null`    | `Product_Collection::to_array()` from the last successful fetch, or `null` if never fetched |
+| `last_success_at`  | `int&#124;null`      | Unix timestamp of the last successful fetch                                                 |
+| `last_failure_at`  | `int&#124;null`      | Unix timestamp of the most recent failed fetch, or `null` if no failure has occurred        |
+| `last_error`       | `WP_Error&#124;null` | Error from the most recent failed attempt, or `null` if the last fetch succeeded            |
 
-Both successful responses and errors are cached. If the API returns an error, the error is stored for the full TTL so the site doesn't hammer the API on repeated failures.
+Unlike a transient, this option has no TTL — product data persists indefinitely. Re-validation frequency (how often the API is called to refresh) is a separate concern from data persistence.
+
+On a successful fetch, `collection` and `last_success_at` are updated and `last_error` is cleared. `last_failure_at` is not touched so callers can always see when the last failure occurred. On a failed fetch, `last_error` and `last_failure_at` are updated; the existing `collection` and `last_success_at` are preserved so the last known-good catalog remains available even when the licensing server is unreachable.
+
+Since there is only one unified key per site, there is only one state entry. Invalidation is simple: `delete_products()` removes the option entirely, causing the next read to return `null` and trigger a fresh API call.
 
 ## Product Registry
 
 Products opt into unified licensing by declaring themselves through a WordPress filter (`stellarwp/uplink/product_registry`). Each product contributes:
 
-| Field          | Required | Description                                         |
-| -------------- | -------- | --------------------------------------------------- |
-| `slug`         | Yes      | Product identifier, must match what Licensing knows |
-| `embedded_key` | No       | `LWSW-`-prefixed key if the product ships with one  |
-| `name`         | No       | Human-readable display name                         |
-| `version`      | No       | Currently installed version                         |
-| `group`        | No       | Product brand/family (e.g., `givewp`, `kadence`)    |
+| Field           | Required | Description                                         |
+| --------------- | -------- | --------------------------------------------------- |
+| `slug`          | Yes      | Product identifier, must match what Licensing knows |
+| `embedded_key`  | No       | `LWSW-`-prefixed key if the product ships with one  |
+| `name`          | No       | Human-readable display name                         |
+| `version`       | No       | Currently installed version                         |
+| `group`         | No       | Product brand/family (e.g., `givewp`, `kadence`)    |
 
 Only `slug` is required. Products do not declare their tier. Tiers are a property of the license, not the product.
 
@@ -185,10 +194,10 @@ License_Manager::get()
 ```
 License_Manager::validate_and_store($key, $domain)
 ├─ validate LWSW- prefix format
-├─ Product_Repository::get($key, $domain)
-│  ├─ check transient cache
+├─ License_Manager::get_products($key, $domain)
+│  ├─ check license state option (collection key)
 │  ├─ if miss → Licensing_Client::get_products()
-│  └─ cache response (12hr TTL)
+│  └─ persist result to license state option
 ├─ if API error → return WP_Error
 ├─ License_Repository::store($key)
 └─ return true
@@ -197,11 +206,14 @@ License_Manager::validate_and_store($key, $domain)
 ### Periodic Status Check
 
 ```
-Product_Repository::get($key, $domain)
-├─ check transient cache
-├─ if hit → return cached Product_Collection
-├─ if miss → Licensing_Client::get_products()
-├─ cache result (success or error, 12hr TTL)
+License_Manager::get_products($key, $domain)
+├─ License_Repository::get_products()
+│  └─ read license state option
+├─ if collection present → return Product_Collection
+├─ if only last_error present → return WP_Error
+├─ if null → Licensing_Client::get_products()
+│  ├─ on success → update collection + last_success_at, clear last_error
+│  └─ on failure → update last_error + last_failure_at, preserve existing collection
 └─ return Product_Collection|WP_Error
 ```
 

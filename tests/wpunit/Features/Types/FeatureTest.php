@@ -30,6 +30,7 @@ final class FeatureTest extends UplinkTestCase {
 			'description'       => 'A test feature.',
 			'type'              => 'test-type',
 			'is_available'      => true,
+			'is_enabled'        => false,
 			'documentation_url' => 'https://example.com/docs',
 		] ) extends Feature {
 
@@ -50,8 +51,9 @@ final class FeatureTest extends UplinkTestCase {
 						'description'       => $data['description'] ?? '',
 						'type'              => $data['type'] ?? 'test-type',
 						'is_available'      => $data['is_available'],
+						'is_enabled'        => $data['is_enabled'] ?? false,
 						'documentation_url' => $data['documentation_url'] ?? '',
-					] 
+					]
 				);
 			}
 		};
@@ -121,6 +123,31 @@ final class FeatureTest extends UplinkTestCase {
 	}
 
 	/**
+	 * Tests that is_enabled defaults to false.
+	 *
+	 * @return void
+	 */
+	public function test_is_enabled_defaults_to_false(): void {
+		$this->assertFalse( $this->feature->is_enabled() );
+	}
+
+	/**
+	 * Tests that is_enabled is preserved through from_array round-trip.
+	 *
+	 * @return void
+	 */
+	public function test_is_enabled_round_trips_through_from_array(): void {
+		$data                = $this->feature->to_array();
+		$data['is_enabled'] = true;
+
+		$rebuilt = $this->feature::from_array( $data );
+
+		$this->assertTrue( $rebuilt->is_enabled() );
+		$this->assertTrue( $rebuilt->to_array()['is_enabled'] );
+		$this->assertFalse( $this->feature->is_enabled(), 'Original should be unchanged.' );
+	}
+
+	/**
 	 * Tests that get_documentation_url returns the URL passed to the constructor.
 	 *
 	 * @return void
@@ -146,9 +173,10 @@ final class FeatureTest extends UplinkTestCase {
 				'description'       => 'A test feature.',
 				'type'              => 'test-type',
 				'is_available'      => true,
+				'is_enabled'        => false,
 				'documentation_url' => 'https://example.com/docs',
 			],
-			$result 
+			$result
 		);
 	}
 

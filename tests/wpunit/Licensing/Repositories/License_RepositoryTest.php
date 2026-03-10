@@ -21,13 +21,13 @@ final class License_RepositoryTest extends UplinkTestCase {
 		$this->repository = new License_Repository();
 		delete_option( License_Repository::KEY_OPTION_NAME );
 		delete_option( License_Repository::PRODUCTS_LAST_ACTIVE_DATES_OPTION_NAME );
-		delete_transient( License_Repository::PRODUCTS_TRANSIENT_KEY );
+		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
 	}
 
 	protected function tearDown(): void {
 		delete_option( License_Repository::KEY_OPTION_NAME );
 		delete_option( License_Repository::PRODUCTS_LAST_ACTIVE_DATES_OPTION_NAME );
-		delete_transient( License_Repository::PRODUCTS_TRANSIENT_KEY );
+		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
 		parent::tearDown();
 	}
 
@@ -151,7 +151,14 @@ final class License_RepositoryTest extends UplinkTestCase {
 			],
 		];
 
-		set_transient( License_Repository::PRODUCTS_TRANSIENT_KEY, $raw );
+		update_option(
+			License_Repository::PRODUCTS_STATE_OPTION_NAME,
+			[
+				'collection'      => $raw,
+				'last_success_at' => null,
+				'last_error'      => null,
+			]
+		);
 
 		$result = $this->repository->get_products();
 
@@ -159,7 +166,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 		$this->assertSame( 'give', $result->get( 'give' )->get_product_slug() );
 	}
 
-	public function test_set_products_stores_plain_array_in_transient(): void {
+	public function test_set_products_stores_plain_array_in_option(): void {
 		$collection = Product_Collection::from_array(
 			[
 				Product_Entry::from_array(
@@ -175,15 +182,18 @@ final class License_RepositoryTest extends UplinkTestCase {
 
 		$this->repository->set_products( $collection );
 
-		$raw = get_transient( License_Repository::PRODUCTS_TRANSIENT_KEY );
+		$state = get_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
 
-		$this->assertIsArray( $raw );
-		$this->assertCount( 1, $raw );
-		$this->assertIsArray( $raw[0] );
-		$this->assertSame( 'give', $raw[0]['product_slug'] );
+		$this->assertIsArray( $state );
+		$this->assertIsArray( $state['collection'] );
+		$this->assertCount( 1, $state['collection'] );
+		$this->assertSame( 'give', $state['collection'][0]['product_slug'] );
+		$this->assertIsInt( $state['last_success_at'] );
+		$this->assertNull( $state['last_failure_at'] );
+		$this->assertNull( $state['last_error'] );
 	}
 
-	public function test_set_products_caches_wp_error(): void {
+	public function test_set_products_stores_wp_error_in_last_error(): void {
 		$error = new WP_Error( Error_Code::INVALID_KEY, 'Bad key' );
 
 		$this->repository->set_products( $error );
@@ -191,6 +201,158 @@ final class License_RepositoryTest extends UplinkTestCase {
 		$result = $this->repository->get_products();
 
 		$this->assertInstanceOf( WP_Error::class, $result );
+	}
+
+	public function test_set_products_error_preserves_existing_products(): void {
+		$collection = Product_Collection::from_array(
+			[
+				Product_Entry::from_array(
+					[
+						'product_slug' => 'give',
+						'tier'         => 'give-pro',
+						'status'       => 'active',
+						'expires'      => '2026-12-31 23:59:59',
+					]
+				),
+			]
+		);
+
+		$this->repository->set_products( $collection );
+		$this->repository->set_products( new WP_Error( Error_Code::INVALID_KEY, 'Network failure' ) );
+
+		// Products from the successful fetch must survive the error.
+		$result = $this->repository->get_products();
+
+		$this->assertInstanceOf( Product_Collection::class, $result );
+		$this->assertSame( 'give', $result->get( 'give' )->get_product_slug() );
+	}
+
+	public function test_get_products_last_success_at_returns_null_before_first_fetch(): void {
+		$this->assertNull( $this->repository->get_products_last_success_at() );
+	}
+
+	public function test_get_products_last_success_at_returns_timestamp_after_successful_set(): void {
+		$before = time();
+
+		$this->repository->set_products(
+			Product_Collection::from_array(
+				[
+					Product_Entry::from_array(
+						[
+							'product_slug' => 'give',
+							'tier'         => 'give-pro',
+							'status'       => 'active',
+							'expires'      => '2026-12-31 23:59:59',
+						]
+					),
+				]
+			)
+		);
+
+		$last_success_at = $this->repository->get_products_last_success_at();
+
+		$this->assertIsInt( $last_success_at );
+		$this->assertGreaterThanOrEqual( $before, $last_success_at );
+	}
+
+	public function test_get_products_last_success_at_not_updated_on_error(): void {
+		$this->repository->set_products(
+			Product_Collection::from_array(
+				[
+					Product_Entry::from_array(
+						[
+							'product_slug' => 'give',
+							'tier'         => 'give-pro',
+							'status'       => 'active',
+							'expires'      => '2026-12-31 23:59:59',
+						]
+					),
+				]
+			)
+		);
+
+		$first_last_success_at = $this->repository->get_products_last_success_at();
+
+		$this->repository->set_products( new WP_Error( Error_Code::INVALID_KEY, 'fail' ) );
+
+		$this->assertSame( $first_last_success_at, $this->repository->get_products_last_success_at() );
+	}
+
+	public function test_get_products_last_failure_at_returns_null_before_first_failure(): void {
+		$this->assertNull( $this->repository->get_products_last_failure_at() );
+	}
+
+	public function test_get_products_last_failure_at_returns_timestamp_after_failed_set(): void {
+		$before = time();
+
+		$this->repository->set_products( new WP_Error( Error_Code::INVALID_KEY, 'fail' ) );
+
+		$last_failure_at = $this->repository->get_products_last_failure_at();
+
+		$this->assertIsInt( $last_failure_at );
+		$this->assertGreaterThanOrEqual( $before, $last_failure_at );
+	}
+
+	public function test_get_products_last_failure_at_not_updated_on_success(): void {
+		$this->repository->set_products( new WP_Error( Error_Code::INVALID_KEY, 'fail' ) );
+
+		$first_last_failure_at = $this->repository->get_products_last_failure_at();
+
+		$this->repository->set_products(
+			Product_Collection::from_array(
+				[
+					Product_Entry::from_array(
+						[
+							'product_slug' => 'give',
+							'tier'         => 'give-pro',
+							'status'       => 'active',
+							'expires'      => '2026-12-31 23:59:59',
+							'activations'  => [
+								'site_limit'   => 0,
+								'active_count' => 0,
+							],
+						]
+					),
+				]
+			)
+		);
+
+		$this->assertSame( $first_last_failure_at, $this->repository->get_products_last_failure_at() );
+	}
+
+	public function test_get_products_last_error_returns_null_when_no_error(): void {
+		$this->assertNull( $this->repository->get_products_last_error() );
+	}
+
+	public function test_get_products_last_error_returns_error_after_failed_set(): void {
+		$error = new WP_Error( Error_Code::INVALID_KEY, 'Bad key' );
+
+		$this->repository->set_products( $error );
+
+		$result = $this->repository->get_products_last_error();
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( Error_Code::INVALID_KEY, $result->get_error_code() );
+	}
+
+	public function test_get_products_last_error_cleared_after_successful_set(): void {
+		$this->repository->set_products( new WP_Error( Error_Code::INVALID_KEY, 'fail' ) );
+		$this->repository->set_products(
+			Product_Collection::from_array(
+				[
+					Product_Entry::from_array(
+						[
+							'product_slug' => 'give',
+							'tier'         => 'give-pro',
+							'status'       => 'active',
+							'expires'      => '2026-12-31 23:59:59',
+						]
+					),
+				]
+			)
+		);
+
+		$this->assertNull( $this->repository->get_products_last_error() );
 	}
 
 	public function test_delete_products_clears_cache(): void {

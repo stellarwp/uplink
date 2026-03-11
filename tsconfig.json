@@ -16,7 +16,8 @@
       "@/*":           ["./resources/js/*"],
       "@components/*": ["./resources/js/components/*"],
       "@lib/*":        ["./resources/js/lib/*"],
-      "@css/*":        ["./resources/css/*"]
+      "@css/*":        ["./resources/css/*"],
+      "@img/*":        ["./resources/img/*"]
     }
   },
   "include": ["resources/js/**/*.ts", "resources/js/**/*.tsx"],

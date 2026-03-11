@@ -12,7 +12,7 @@ import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { PRODUCTS } from '@/data/products';
-import logoLW from '@/img/logo-lw-software.svg';
+import logoLW from '@img/logo-lw-software.svg';
 
 /**
  * @since 3.0.0

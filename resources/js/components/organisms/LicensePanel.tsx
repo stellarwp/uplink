@@ -19,10 +19,10 @@ import { store as uplinkStore } from '@/store';
 import { PRODUCTS } from '@/data/products';
 import { useToast } from '@/context/toast-context';
 import { UplinkError } from '@/errors';
-import logoGiveNobg from '@/img/logo-give-nobg.svg';
-import logoLearnDashNobg from '@/img/logo-learndash-nobg.svg';
-import logoTecNobg from '@/img/logo-tec-nobg.svg';
-import logoKadenceNobg from '@/img/logo-kadence-nobg.svg';
+import logoGiveNobg from '@img/logo-give-nobg.svg';
+import logoLearnDashNobg from '@img/logo-learndash-nobg.svg';
+import logoTecNobg from '@img/logo-tec-nobg.svg';
+import logoKadenceNobg from '@img/logo-kadence-nobg.svg';
 
 const NOBG_LOGOS: Record<string, string> = {
     give: logoGiveNobg,

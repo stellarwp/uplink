@@ -5,10 +5,10 @@
  *
  * @package StellarWP\Uplink
  */
-import logoGive from '@/img/logo-give.svg';
-import logoTheEventsCalendar from '@/img/logo-the-events-calendar.svg';
-import logoLearnDash from '@/img/logo-learndash.svg';
-import logoKadence from '@/img/logo-kadence.svg';
+import logoGive from '@img/logo-give.svg';
+import logoTheEventsCalendar from '@img/logo-the-events-calendar.svg';
+import logoLearnDash from '@img/logo-learndash.svg';
+import logoKadence from '@img/logo-kadence.svg';
 
 const PRODUCT_LOGOS: Record<string, string> = {
     give: logoGive,

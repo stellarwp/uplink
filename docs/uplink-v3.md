@@ -116,7 +116,7 @@ All three data layers cache their results in WordPress transients with a 12-hour
 
 | Cache             | Transient key                         | Invalidation                    |
 | ----------------- | ------------------------------------- | ------------------------------- |
-| Licensed products | `stellarwp_uplink_licensing_products` | `Product_Repository::refresh()` |
+| Licensed products | `stellarwp_uplink_licensing_products` | `License_Repository::refresh()` |
 | Product catalog   | `stellarwp_uplink_catalog`            | `Catalog_Repository::refresh()` |
 | Resolved features | `stellarwp_uplink_feature_catalog`    | `Feature_Repository::refresh()` |
 

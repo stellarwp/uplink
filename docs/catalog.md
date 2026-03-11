@@ -104,7 +104,9 @@ The `Catalog_Client` contract defines a single operation:
 
 Unlike the licensing client, this is not parameterized by key or domain. The catalog describes the full product universe. It is the same regardless of who is asking.
 
-During development, the `Fixture_Client` is wired in. It reads a single JSON fixture file (`tests/_data/catalog.json`) containing all products.
+The production implementation is `Clients\Http_Client`, which uses the same PSR-18 HTTP infrastructure as the licensing client (see [Licensing: HTTP Infrastructure](licensing.md#http-infrastructure)). The base URL comes from `Config::get_api_base_url()`.
+During development, the `Clients\Fixture_Client` is wired in. It reads a single JSON fixture file (`tests/_data/catalog.json`) containing all products.
+Tests use a fixture PSR-18 client that serves local JSON from `tests/_data/catalog/`.
 
 ## Error Codes
 

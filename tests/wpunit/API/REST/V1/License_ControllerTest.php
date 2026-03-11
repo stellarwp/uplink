@@ -3,7 +3,7 @@
 namespace StellarWP\Uplink\Tests\API\REST\V1;
 
 use StellarWP\Uplink\Licensing\Error_Code;
-use StellarWP\Uplink\Licensing\Fixture_Client;
+use StellarWP\Uplink\Licensing\Clients\Fixture_Client;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Registry\Product_Registry;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;

@@ -3,7 +3,7 @@
 namespace StellarWP\Uplink\Tests\Catalog;
 
 use StellarWP\Uplink\Catalog\Catalog_Collection;
-use StellarWP\Uplink\Catalog\Fixture_Client;
+use StellarWP\Uplink\Catalog\Clients\Fixture_Client;
 use StellarWP\Uplink\Catalog\Results\Catalog_Tier;
 use StellarWP\Uplink\Catalog\Results\Product_Catalog;
 use StellarWP\Uplink\Tests\UplinkTestCase;

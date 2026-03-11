@@ -4,8 +4,8 @@ namespace StellarWP\Uplink\Tests\Catalog;
 
 use StellarWP\Uplink\Catalog\Catalog_Collection;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
-use StellarWP\Uplink\Catalog\Contracts\Catalog_Client;
-use StellarWP\Uplink\Catalog\Fixture_Client;
+use StellarWP\Uplink\Catalog\Clients\Catalog_Client;
+use StellarWP\Uplink\Catalog\Clients\Fixture_Client;
 use StellarWP\Uplink\Catalog\Results\Product_Catalog;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;

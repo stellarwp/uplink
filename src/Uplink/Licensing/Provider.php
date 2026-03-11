@@ -2,8 +2,13 @@
 
 namespace StellarWP\Uplink\Licensing;
 
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\StreamFactoryInterface;
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
-use StellarWP\Uplink\Licensing\Contracts\Licensing_Client;
+use StellarWP\Uplink\Licensing\Clients\Http_Client;
+use StellarWP\Uplink\Licensing\Clients\Licensing_Client;
 use StellarWP\Uplink\Licensing\Registry\Product_Registry;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
 
@@ -20,9 +25,12 @@ final class Provider extends Abstract_Provider {
 	public function register(): void {
 		$this->container->singleton(
 			Licensing_Client::class,
-			static function () {
-				return new Fixture_Client(
-					dirname( __DIR__, 3 ) . '/tests/_data/licensing'
+			function () {
+				return new Http_Client(
+					$this->container->get( ClientInterface::class ),
+					$this->container->get( RequestFactoryInterface::class ),
+					$this->container->get( StreamFactoryInterface::class ),
+					Config::get_api_base_url()
 				);
 			}
 		);

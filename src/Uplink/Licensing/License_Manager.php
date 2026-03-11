@@ -3,7 +3,7 @@
 namespace StellarWP\Uplink\Licensing;
 
 use StellarWP\Uplink\Utils\License_Key;
-use StellarWP\Uplink\Licensing\Contracts\Licensing_Client;
+use StellarWP\Uplink\Licensing\Clients\Licensing_Client;
 use StellarWP\Uplink\Licensing\Registry\Product_Registry;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
 use StellarWP\Uplink\Licensing\Results\Product_Entry;

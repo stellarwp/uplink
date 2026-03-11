@@ -201,7 +201,7 @@ class Plugin_Strategy extends Installable_Strategy {
 		$plugin_info = plugins_api(
 			'plugin_information',
 			[
-				'slug'   => sanitize_key( $this->feature->get_slug() ),
+				'slug'   => sanitize_key( $this->feature->get_plugin_slug() ),
 				'fields' => [ 'sections' => false ],
 			]
 		);

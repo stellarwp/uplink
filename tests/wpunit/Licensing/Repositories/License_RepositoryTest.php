@@ -293,10 +293,10 @@ final class License_RepositoryTest extends UplinkTestCase {
 		$this->assertGreaterThanOrEqual( $before, $last_failure_at );
 	}
 
-	public function test_get_products_last_failure_at_not_updated_on_success(): void {
+	public function test_set_products_collection_clears_last_failure_at(): void {
 		$this->repository->set_products( new WP_Error( Error_Code::INVALID_KEY, 'fail' ) );
 
-		$first_last_failure_at = $this->repository->get_products_last_failure_at();
+		$this->assertNotNull( $this->repository->get_products_last_failure_at() );
 
 		$this->repository->set_products(
 			Product_Collection::from_array(
@@ -317,7 +317,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 			)
 		);
 
-		$this->assertSame( $first_last_failure_at, $this->repository->get_products_last_failure_at() );
+		$this->assertNull( $this->repository->get_products_last_failure_at() );
 	}
 
 	public function test_get_products_last_error_returns_null_when_no_error(): void {

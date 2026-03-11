@@ -98,19 +98,13 @@ final class Catalog_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|\WP_Error
 	 */
 	public function get_items( $request ) {
-		$catalogs = $this->repository->get();
+		$catalog = $this->repository->get();
 
-		if ( is_wp_error( $catalogs ) ) {
-			return $catalogs;
+		if ( is_wp_error( $catalog ) ) {
+			return $catalog;
 		}
 
-		$data = [];
-
-		foreach ( $catalogs as $catalog ) {
-			$data[] = $catalog->to_array();
-		}
-
-		return new WP_REST_Response( $data );
+		return new WP_REST_Response( $catalog->to_array() );
 	}
 
 	/**

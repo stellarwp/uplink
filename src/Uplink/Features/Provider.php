@@ -98,8 +98,10 @@ class Provider extends Abstract_Provider {
 	 * @return void
 	 */
 	private function register_hooks(): void {
-		add_filter( 'plugins_api', [ $this, 'mock_plugins_api_for_plugin_features' ], 5, 3 );
-		add_filter( 'themes_api', [ $this, 'mock_themes_api_for_theme_features' ], 5, 3 );
+		// Priority 20: run after the real Update handlers (priority 15) so the
+		// mock only kicks in when the catalog doesn't provide a download link.
+		add_filter( 'plugins_api', [ $this, 'mock_plugins_api_for_plugin_features' ], 20, 3 );
+		add_filter( 'themes_api', [ $this, 'mock_themes_api_for_theme_features' ], 20, 3 );
 
 		// TODO: Remove this once the real plugins_api filter is implemented.
 		add_filter( 'upgrader_pre_download', [ $this, 'serve_local_zip_for_upgrader' ], 10, 2 );
@@ -132,6 +134,11 @@ class Provider extends Abstract_Provider {
 	 */
 	public function mock_plugins_api_for_plugin_features( $result, $action, $args ) {
 		if ( $action !== 'plugin_information' ) {
+			return $result;
+		}
+
+		// A previous filter already provided a response with a download link.
+		if ( is_object( $result ) && ! empty( $result->download_link ) ) {
 			return $result;
 		}
 
@@ -177,6 +184,11 @@ class Provider extends Abstract_Provider {
 	 */
 	public function mock_themes_api_for_theme_features( $result, $action, $args ) {
 		if ( $action !== 'theme_information' ) {
+			return $result;
+		}
+
+		// A previous filter already provided a response with a download link.
+		if ( is_object( $result ) && ! empty( $result->download_link ) ) {
 			return $result;
 		}
 

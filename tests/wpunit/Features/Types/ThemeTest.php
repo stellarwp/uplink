@@ -318,6 +318,48 @@ final class ThemeTest extends UplinkTestCase {
 	}
 
 	// -------------------------------------------------------------------------
+	// is_installed / version / update checks
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Tests is_installed returns false when the theme does not exist on disk.
+	 *
+	 * @return void
+	 */
+	public function test_is_installed_returns_false_when_theme_missing(): void {
+		$feature = Theme::from_array(
+			[
+				'slug'         => 'nonexistent-theme',
+				'group'        => 'Kadence',
+				'tier'         => 'Tier 2',
+				'name'         => 'Nonexistent Theme',
+				'is_available' => true,
+			]
+		);
+
+		$this->assertFalse( $feature->is_installed() );
+	}
+
+	/**
+	 * Tests get_installed_version returns null when the theme is not installed.
+	 *
+	 * @return void
+	 */
+	public function test_get_installed_version_returns_null_when_not_installed(): void {
+		$feature = Theme::from_array(
+			[
+				'slug'         => 'nonexistent-theme',
+				'group'        => 'Kadence',
+				'tier'         => 'Tier 2',
+				'name'         => 'Nonexistent Theme',
+				'is_available' => true,
+			]
+		);
+
+		$this->assertNull( $feature->get_installed_version() );
+	}
+
+	// -------------------------------------------------------------------------
 	// Full round-trip
 	// -------------------------------------------------------------------------
 

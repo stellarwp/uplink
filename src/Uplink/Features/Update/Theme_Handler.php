@@ -9,15 +9,15 @@ use stdClass;
 use StellarWP\Uplink\Utils\Cast;
 
 /**
- * Consolidated update handler for Plugin features.
+ * Consolidated update handler for Theme features.
  *
- * Filters `plugins_api`, `pre_set_site_transient_update_plugins`,
- * and `site_transient_update_plugins` to provide update information
+ * Filters `themes_api`, `pre_set_site_transient_update_themes`,
+ * and `site_transient_update_themes` to provide update information
  * from the consolidation server.
  *
  * @since 3.0.0
  */
-class Plugin_Handler {
+class Theme_Handler {
 
 	/**
 	 * The update data resolver.
@@ -56,7 +56,7 @@ class Plugin_Handler {
 	private string $key;
 
 	/**
-	 * Constructor for the consolidated update handler.
+	 * Constructor for the consolidated theme update handler.
 	 *
 	 * @since 3.0.0
 	 *
@@ -80,7 +80,7 @@ class Plugin_Handler {
 	}
 
 	/**
-	 * Filters the plugins_api response for Plugin features.
+	 * Filters the themes_api response for Theme features.
 	 *
 	 * Resolves update data by joining the Feature_Repository and Catalog.
 	 *
@@ -92,8 +92,8 @@ class Plugin_Handler {
 	 *
 	 * @return mixed
 	 */
-	public function filter_plugins_api( $result, ?string $action = null, $args = null ) {
-		if ( 'plugin_information' !== $action || ! is_object( $args ) || empty( $args->slug ) ) {
+	public function filter_themes_api( $result, ?string $action = null, $args = null ) {
+		if ( 'theme_information' !== $action || ! is_object( $args ) || empty( $args->slug ) ) {
 			return $result;
 		}
 
@@ -104,7 +104,7 @@ class Plugin_Handler {
 		/** @var string $slug */
 		$slug = $args->slug;
 
-		// Check whether the requested slug belongs to a known Plugin feature.
+		// Check whether the requested slug belongs to a known Theme feature.
 		$features = $this->feature_repository->get( $this->key, $this->site_data->get_domain() );
 
 		if ( is_wp_error( $features ) || $features->get( $slug ) === null ) {
@@ -112,7 +112,7 @@ class Plugin_Handler {
 		}
 
 		$domain   = $this->site_data->get_domain();
-		$response = ( $this->resolver )( $this->key, $domain, Feature::TYPE_PLUGIN );
+		$response = ( $this->resolver )( $this->key, $domain, Feature::TYPE_THEME );
 
 		if ( is_wp_error( $response ) || empty( $response[ $slug ] ) ) {
 			return $result;
@@ -122,11 +122,11 @@ class Plugin_Handler {
 	}
 
 	/**
-	 * Filters the update_plugins transient to inject consolidated updates.
+	 * Filters the update_themes transient to inject consolidated updates.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param mixed $transient The update_plugins transient value.
+	 * @param mixed $transient The update_themes transient value.
 	 *
 	 * @return mixed
 	 */
@@ -140,18 +140,18 @@ class Plugin_Handler {
 		}
 
 		$domain   = $this->site_data->get_domain();
-		$response = ( $this->resolver )( $this->key, $domain, Feature::TYPE_PLUGIN );
+		$response = ( $this->resolver )( $this->key, $domain, Feature::TYPE_THEME );
 
 		if ( is_wp_error( $response ) || empty( $response ) ) {
 			return $transient;
 		}
 
 		/**
-		 * WordPress stores update data in two arrays on the transient object:
-		 * - `response`: plugins that have a newer version available.
-		 * - `no_update`: plugins that are up-to-date (checked, but no update).
+		 * WordPress stores theme update data in two arrays on the transient object:
+		 * - `response`: themes that have a newer version available.
+		 * - `no_update`: themes that are up-to-date (checked, but no update).
 		 *
-		 * Both are keyed by plugin file path and contain stdClass objects.
+		 * Both are keyed by stylesheet (theme directory name) and contain arrays (not objects).
 		 */
 		/** @var stdClass $transient */
 		if ( ! property_exists( $transient, 'response' ) ) {
@@ -162,38 +162,31 @@ class Plugin_Handler {
 			$transient->no_update = [];
 		}
 
-		/** @var array<string, stdClass> $wp_response */
+		/** @var array<string, array<string, mixed>> $wp_response */
 		$wp_response = $transient->response;
-		/** @var array<string, stdClass> $wp_no_update */
+		/** @var array<string, array<string, mixed>> $wp_no_update */
 		$wp_no_update = $transient->no_update;
 
 		foreach ( $response as $slug => $update_data ) {
-			/** @var string $plugin_file */
-			$plugin_file = $update_data['plugin_file'] ?? '';
-
-			if ( empty( $plugin_file ) ) {
-				continue;
-			}
-
 			/** @var string $new_version */
 			$new_version       = Cast::to_string( $update_data['version'] ?? '' );
 			$installed_version = Cast::to_string( $update_data['installed_version'] ?? '' );
 
-			$update_object = $this->to_update_object( $slug, $plugin_file, $update_data );
+			$update_array = $this->to_update_array( $slug, $update_data );
 
 			/**
-			 * Place the update object in `response` if a newer version is available.
-			 * WordPress uses this distinction to show (or hide) the plugin on the Updates page.
+			 * Place the update data in `response` if a newer version is available.
+			 * WordPress uses this distinction to show (or hide) the theme on the Updates page.
 			 *
-			 * When we don't have an update, only write to `no_update` if the plugin isn't
+			 * When we don't have an update, only write to `no_update` if the theme isn't
 			 * already in `response` from another system (e.g. legacy licensing) to avoid
 			 * clearing updates we didn't provide.
 			 */
 			if ( version_compare( $new_version, $installed_version, '>' ) ) {
-				$wp_response[ $plugin_file ] = $update_object;
-				unset( $wp_no_update[ $plugin_file ] );
-			} elseif ( ! isset( $wp_response[ $plugin_file ] ) ) {
-				$wp_no_update[ $plugin_file ] = $update_object;
+				$wp_response[ $slug ] = $update_array;
+				unset( $wp_no_update[ $slug ] );
+			} elseif ( ! isset( $wp_response[ $slug ] ) ) {
+				$wp_no_update[ $slug ] = $update_array;
 			}
 		}
 
@@ -204,11 +197,11 @@ class Plugin_Handler {
 	}
 
 	/**
-	 * Builds a WordPress-format plugin info object for plugins_api responses.
+	 * Builds a WordPress-format theme info object for themes_api responses.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string               $slug        The plugin slug.
+	 * @param string               $slug        The theme slug.
 	 * @param array<string, mixed> $update_data The update data from the consolidation server.
 	 *
 	 * @return stdClass
@@ -231,28 +224,24 @@ class Plugin_Handler {
 	}
 
 	/**
-	 * Builds an update object for the update_plugins transient.
+	 * Builds an update array for the update_themes transient.
+	 *
+	 * WordPress theme transients use arrays (not stdClass objects) keyed by stylesheet.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string               $slug        The plugin slug.
-	 * @param string               $plugin_file The plugin file path.
+	 * @param string               $slug        The theme slug (stylesheet).
 	 * @param array<string, mixed> $update_data The update data from the consolidation server.
 	 *
-	 * @return stdClass
+	 * @return array<string, string>
 	 */
-	private function to_update_object( string $slug, string $plugin_file, array $update_data ): stdClass {
-		$update = new stdClass();
-
-		$update->id          = $update_data['id'] ?? sprintf( 'stellarwp/plugins/%s', $slug );
-		$update->plugin      = $plugin_file;
-		$update->slug        = $slug;
-		$update->new_version = $update_data['version'] ?? '';
-		$update->url         = $update_data['url'] ?? '';
-		$update->package     = $update_data['package'] ?? '';
-		$update->tested      = $update_data['tested'] ?? '';
-		$update->requires    = $update_data['requires'] ?? '';
-
-		return $update;
+	private function to_update_array( string $slug, array $update_data ): array {
+		return [
+			'theme'       => $slug,
+			'new_version' => Cast::to_string( $update_data['version'] ?? '' ),
+			'url'         => Cast::to_string( $update_data['url'] ?? '' ),
+			'package'     => Cast::to_string( $update_data['package'] ?? '' ),
+			'requires'    => Cast::to_string( $update_data['requires'] ?? '' ),
+		];
 	}
 }

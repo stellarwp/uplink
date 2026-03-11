@@ -5,6 +5,7 @@ namespace StellarWP\Uplink\Tests\Features\Update;
 use StellarWP\Uplink\Features\Update\Plugin_Handler;
 use StellarWP\Uplink\Features\Update\Provider;
 use StellarWP\Uplink\Features\Update\Resolve_Update_Data;
+use StellarWP\Uplink\Features\Update\Theme_Handler;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
 final class ProviderTest extends UplinkTestCase {
@@ -23,8 +24,17 @@ final class ProviderTest extends UplinkTestCase {
 	 *
 	 * @return void
 	 */
-	public function test_it_registers_handler_singleton(): void {
+	public function test_it_registers_plugin_handler_singleton(): void {
 		$this->assertInstanceOf( Plugin_Handler::class, $this->container->get( Plugin_Handler::class ) );
+	}
+
+	/**
+	 * Tests that Theme_Handler is registered as a singleton in the container.
+	 *
+	 * @return void
+	 */
+	public function test_it_registers_theme_handler_singleton(): void {
+		$this->assertInstanceOf( Theme_Handler::class, $this->container->get( Theme_Handler::class ) );
 	}
 
 	/**
@@ -60,6 +70,18 @@ final class ProviderTest extends UplinkTestCase {
 			has_filter( 'pre_set_site_transient_update_plugins', [ $this->container->get( Plugin_Handler::class ), 'filter_update_check' ] ),
 			'pre_set_site_transient_update_plugins should have a callback at priority 15.'
 		);
+
+		$this->assertSame(
+			15,
+			has_filter( 'themes_api', [ $this->container->get( Theme_Handler::class ), 'filter_themes_api' ] ),
+			'themes_api should have a callback at priority 15.'
+		);
+
+		$this->assertSame(
+			15,
+			has_filter( 'pre_set_site_transient_update_themes', [ $this->container->get( Theme_Handler::class ), 'filter_update_check' ] ),
+			'pre_set_site_transient_update_themes should have a callback at priority 15.'
+		);
 	}
 
 	/**
@@ -82,6 +104,11 @@ final class ProviderTest extends UplinkTestCase {
 		$this->assertFalse(
 			has_filter( 'plugins_api', [ $this->container->get( Plugin_Handler::class ), 'filter_plugins_api' ] ),
 			'plugins_api should not have a callback when a higher version exists.'
+		);
+
+		$this->assertFalse(
+			has_filter( 'themes_api', [ $this->container->get( Theme_Handler::class ), 'filter_themes_api' ] ),
+			'themes_api should not have a callback when a higher version exists.'
 		);
 	}
 }

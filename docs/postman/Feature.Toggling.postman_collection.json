@@ -119,6 +119,28 @@
             "description": "Disables the flag feature via DB option flag.\n\nExpected: HTTP 200 — Feature object with is_enabled: false. Idempotent (calling twice returns 200 both times)."
           },
           "response": []
+        },
+        {
+          "name": "Update Flag Feature (Unsupported)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/flag-feature/update",
+              "host": ["{{WP_SITE}}"],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "flag-feature",
+                "update"
+              ]
+            },
+            "description": "Tests UPDATE_NOT_SUPPORTED — flag features have no version to update.\n\nExpected: HTTP 422 — Error code: UPDATE_NOT_SUPPORTED\n\nFlow: Flag features are simple boolean toggles with no installable artifact. The Flag_Strategy::update() method returns UPDATE_NOT_SUPPORTED immediately."
+          },
+          "response": []
         }
       ]
     },
@@ -189,6 +211,28 @@
             "description": "Deactivates the valid plugin feature. Does not delete plugin files.\n\nExpected: HTTP 200 — Feature object with is_enabled: false. Idempotent (calling when already inactive returns 200)."
           },
           "response": []
+        },
+        {
+          "name": "Update Valid Plugin Feature",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/valid-plugin-feature/update",
+              "host": ["{{WP_SITE}}"],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "valid-plugin-feature",
+                "update"
+              ]
+            },
+            "description": "Updates the valid plugin feature to the latest version.\n\nExpected behavior depends on state:\n- Plugin not active: HTTP 422 — Error code: FEATURE_NOT_ACTIVE. The plugin must be enabled before it can be updated.\n- No update available: HTTP 422 — Error code: NO_UPDATE_AVAILABLE. The installed version is already the latest.\n- Update available: HTTP 200 — Feature object reflecting the updated version. Downloads the latest ZIP via plugins_api(), verifies ownership, and upgrades using Plugin_Upgrader.\n\nRequires: Run \"Enable Valid Plugin Feature\" first."
+          },
+          "response": []
         }
       ]
     },
@@ -257,6 +301,28 @@
               ]
             },
             "description": "Deactivates the LearnDash certificate builder plugin. Does not delete plugin files.\n\nExpected: HTTP 200 — Feature object with is_enabled: false. Idempotent (calling when already inactive returns 200)."
+          },
+          "response": []
+        },
+        {
+          "name": "Update LearnDash certificate builder Feature",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/learndash-certificate-builder/update",
+              "host": ["{{WP_SITE}}"],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "learndash-certificate-builder",
+                "update"
+              ]
+            },
+            "description": "Updates the LearnDash certificate builder plugin to the latest version.\n\nExpected behavior depends on state:\n- Plugin not active: HTTP 422 — Error code: FEATURE_NOT_ACTIVE. The plugin must be enabled before it can be updated.\n- No update available: HTTP 422 — Error code: NO_UPDATE_AVAILABLE. The installed version is already the latest.\n- Update available: HTTP 200 — Feature object reflecting the updated version. Downloads the latest ZIP via plugins_api(), verifies ownership, and upgrades using Plugin_Upgrader.\n\nRequires: Run \"Enable LearnDash certificate builder Feature\" first."
           },
           "response": []
         }
@@ -766,6 +832,28 @@
               ]
             },
             "description": "Attempts to disable the valid theme feature.\n\nExpected behavior depends on disk state:\n- Theme NOT on disk: HTTP 200 — Feature object with is_enabled: false (already disabled, nothing to do).\n- Theme IS on disk: HTTP 409 — Error code: THEME_DELETE_REQUIRED. The system cannot delete theme files programmatically. The user must remove the theme manually via Appearance → Themes in the WordPress admin."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Valid Theme Feature",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{WP_SITE}}/wp-json/stellarwp/uplink/v1/features/valid-theme-feature/update",
+              "host": ["{{WP_SITE}}"],
+              "path": [
+                "wp-json",
+                "stellarwp",
+                "uplink",
+                "v1",
+                "features",
+                "valid-theme-feature",
+                "update"
+              ]
+            },
+            "description": "Updates the valid theme feature to the latest version.\n\nExpected behavior depends on state:\n- Theme not installed: HTTP 422 — Error code: FEATURE_NOT_ACTIVE. The theme must be enabled (installed) before it can be updated.\n- No update available: HTTP 422 — Error code: NO_UPDATE_AVAILABLE. The installed version is already the latest.\n- Update available: HTTP 200 — Feature object reflecting the updated version. Downloads the latest ZIP via themes_api(), verifies ownership, and upgrades using Theme_Upgrader.\n\nRequires: Run \"Enable Valid Theme Feature\" first."
           },
           "response": []
         }

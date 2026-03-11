@@ -15,7 +15,7 @@ use WP_REST_Server;
 /**
  * WP REST API controller for managing features.
  *
- * Supports listing, retrieving, enabling, and disabling features.
+ * Supports listing, retrieving, enabling, disabling, and updating features.
  * Restricted to logged-in Administrators (manage_options capability).
  *
  * @since 3.0.0

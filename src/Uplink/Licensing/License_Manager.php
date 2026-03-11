@@ -23,9 +23,27 @@ use WP_Error;
  *      the first registered product with an embedded key wins and it is
  *      auto-stored for subsequent requests.
  *
+ * Any method that would call the remote API first checks whether a recent
+ * failure is within the ERROR_THROTTLE_TTL window. When throttled, the
+ * cached WP_Error is returned immediately without hitting the upstream
+ * service. The throttle resets automatically on the next successful call.
+ *
  * @since 3.0.0
  */
 final class License_Manager {
+
+	/**
+	 * How long (in seconds) to suppress outbound API calls after a failure.
+	 *
+	 * When a remote API call fails, subsequent calls that would hit the API
+	 * again are short-circuited and return the cached error until this window
+	 * expires. This prevents hammering a degraded upstream service.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var int
+	 */
+	const ERROR_THROTTLE_TTL = 60;
 
 	/**
 	 * @since 3.0.0
@@ -136,6 +154,12 @@ final class License_Manager {
 			);
 		}
 
+		$throttled = $this->get_throttled_error();
+
+		if ( $throttled !== null ) {
+			return $throttled;
+		}
+
 		/** @var Product_Entry[]|WP_Error $result */
 		$result = $this->client->get_products( $key, $domain );
 
@@ -145,6 +169,8 @@ final class License_Manager {
 			if ( ! is_array( $data ) || empty( $data['status'] ) ) {
 				$result->add_data( [ 'status' => 500 ] );
 			}
+
+			$this->repository->set_products( $result );
 
 			return $result;
 		}
@@ -187,6 +213,12 @@ final class License_Manager {
 			);
 		}
 
+		$throttled = $this->get_throttled_error();
+
+		if ( $throttled !== null ) {
+			return $throttled;
+		}
+
 		$result = $this->client->validate( $key, $domain, $product_slug );
 
 		if ( is_wp_error( $result ) ) {
@@ -195,6 +227,8 @@ final class License_Manager {
 			if ( ! is_array( $data ) || empty( $data['status'] ) ) {
 				$result->add_data( [ 'status' => 500 ] );
 			}
+
+			$this->repository->set_products( $result );
 
 			return $result;
 		}
@@ -261,6 +295,12 @@ final class License_Manager {
 			return $cached;
 		}
 
+		$throttled = $this->get_throttled_error();
+
+		if ( $throttled !== null ) {
+			return $throttled;
+		}
+
 		return $this->fetch_and_cache( $key, $domain );
 	}
 
@@ -324,6 +364,52 @@ final class License_Manager {
 		}
 
 		return Product_Collection::from_array( $result );
+	}
+
+	/**
+	 * Unix timestamp of the most recent failed API call, or null if no failure
+	 * has occurred since the last successful call.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return int|null
+	 */
+	public function get_last_failure_at(): ?int {
+		return $this->repository->get_products_last_failure_at();
+	}
+
+	/**
+	 * WP_Error from the most recent failed API call, or null if the last call
+	 * was successful (or no call has occurred).
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return WP_Error|null
+	 */
+	public function get_last_error(): ?WP_Error {
+		return $this->repository->get_products_last_error();
+	}
+
+	/**
+	 * Returns the cached WP_Error if a recent API failure is within the
+	 * ERROR_THROTTLE_TTL window, or null if the call should proceed.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return WP_Error|null
+	 */
+	private function get_throttled_error(): ?WP_Error {
+		$failure_at = $this->repository->get_products_last_failure_at();
+
+		if ( $failure_at === null ) {
+			return null;
+		}
+
+		if ( ( time() - $failure_at ) > self::ERROR_THROTTLE_TTL ) {
+			return null;
+		}
+
+		return $this->repository->get_products_last_error();
 	}
 
 	/**

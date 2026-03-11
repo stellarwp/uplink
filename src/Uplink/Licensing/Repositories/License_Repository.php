@@ -292,6 +292,7 @@ final class License_Repository {
 			$state[ self::STATE_KEY_COLLECTION ]      = $data->to_array();
 			$state[ self::STATE_KEY_LAST_SUCCESS_AT ] = time();
 			$state[ self::STATE_KEY_LAST_ERROR ]      = null;
+			$state[ self::STATE_KEY_LAST_FAILURE_AT ] = null;
 			update_option( self::PRODUCTS_STATE_OPTION_NAME, $state, false );
 
 			return;
@@ -355,6 +356,23 @@ final class License_Repository {
 		$error = $this->read_products_state()[ self::STATE_KEY_LAST_ERROR ];
 
 		return $error instanceof WP_Error ? $error : null;
+	}
+
+	/**
+	 * Clear the last error and last failure timestamp from the license state.
+	 *
+	 * Called after a successful API response to reset the throttle window so
+	 * future errors start a fresh throttle period.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return void
+	 */
+	public function clear_error_state(): void {
+		$state                                    = $this->read_products_state();
+		$state[ self::STATE_KEY_LAST_ERROR ]      = null;
+		$state[ self::STATE_KEY_LAST_FAILURE_AT ] = null;
+		update_option( self::PRODUCTS_STATE_OPTION_NAME, $state, false );
 	}
 
 	/**

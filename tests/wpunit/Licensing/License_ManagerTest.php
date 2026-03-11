@@ -10,6 +10,7 @@ use StellarWP\Uplink\Licensing\Product_Collection;
 use StellarWP\Uplink\Licensing\Registry\Product_Registry;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
 use StellarWP\Uplink\Licensing\Results\Validation_Result;
+use StellarWP\Uplink\Tests\Traits\With_Uopz;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
 
@@ -18,13 +19,17 @@ use WP_Error;
  */
 final class License_ManagerTest extends UplinkTestCase {
 
+	use With_Uopz;
+
 	private License_Manager $manager;
+	private License_Repository $repository;
 
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->manager = new License_Manager(
-			new License_Repository(),
+		$this->repository = new License_Repository();
+		$this->manager    = new License_Manager(
+			$this->repository,
 			new Product_Registry(),
 			new Fixture_Client( codecept_data_dir( 'licensing' ) )
 		);
@@ -323,5 +328,119 @@ final class License_ManagerTest extends UplinkTestCase {
 		$this->assertNotNull( $result->get( 'give' ) );
 		$this->assertNotNull( $result->get( 'the-events-calendar' ) );
 		$this->assertNotNull( $result->get( 'kadence' ) );
+	}
+
+	// -------------------------------------------------------------------------
+	// Error throttling
+	// -------------------------------------------------------------------------
+
+	public function test_get_products_returns_cached_error_when_within_throttle_window(): void {
+		$this->manager->store_key( 'LWSW-UNIFIED-PRO-2026' );
+
+		// Write error state at a fixed time.
+		$this->set_fn_return( 'time', 1000000 );
+		$this->repository->set_products( new WP_Error( Error_Code::INVALID_KEY, 'API failure' ) );
+
+		// Advance to 30 s later — still within the 60 s TTL.
+		$this->set_fn_return( 'time', 1000030 );
+
+		$result = $this->manager->get_products( 'example.com' );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( Error_Code::INVALID_KEY, $result->get_error_code() );
+	}
+
+	public function test_get_products_retries_api_after_throttle_window_expires(): void {
+		$this->manager->store_key( 'LWSW-UNIFIED-PRO-2026' );
+
+		// Write error state at a fixed time.
+		$this->set_fn_return( 'time', 1000000 );
+		$this->repository->set_products( new WP_Error( Error_Code::INVALID_KEY, 'API failure' ) );
+
+		// Advance past the 60 s TTL.
+		$this->set_fn_return( 'time', 1000061 );
+
+		$result = $this->manager->get_products( 'example.com' );
+
+		$this->assertInstanceOf( Product_Collection::class, $result );
+	}
+
+	public function test_validate_and_store_returns_cached_error_when_within_throttle_window(): void {
+		// Write error state at a fixed time.
+		$this->set_fn_return( 'time', 1000000 );
+		$this->repository->set_products( new WP_Error( Error_Code::INVALID_KEY, 'API failure' ) );
+
+		// Advance to 30 s later — still within the 60 s TTL.
+		$this->set_fn_return( 'time', 1000030 );
+
+		$result = $this->manager->validate_and_store( 'LWSW-UNIFIED-PRO-2026', 'example.com' );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( Error_Code::INVALID_KEY, $result->get_error_code() );
+	}
+
+	public function test_validate_and_store_retries_api_after_throttle_window_expires(): void {
+		// Write error state at a fixed time.
+		$this->set_fn_return( 'time', 1000000 );
+		$this->repository->set_products( new WP_Error( Error_Code::INVALID_KEY, 'API failure' ) );
+
+		// Advance past the 60 s TTL.
+		$this->set_fn_return( 'time', 1000061 );
+
+		$result = $this->manager->validate_and_store( 'LWSW-UNIFIED-PRO-2026', 'example.com' );
+
+		$this->assertIsArray( $result );
+		$this->assertNotEmpty( $result );
+	}
+
+	public function test_validate_product_returns_cached_error_when_within_throttle_window(): void {
+		$this->manager->store_key( 'LWSW-UNIFIED-PRO-2026' );
+
+		// Write error state at a fixed time.
+		$this->set_fn_return( 'time', 1000000 );
+		$this->repository->set_products( new WP_Error( Error_Code::INVALID_KEY, 'API failure' ) );
+
+		// Advance to 30 s later — still within the 60 s TTL.
+		$this->set_fn_return( 'time', 1000030 );
+
+		$result = $this->manager->validate_product( 'example.com', 'give' );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( Error_Code::INVALID_KEY, $result->get_error_code() );
+	}
+
+	public function test_validate_product_retries_api_after_throttle_window_expires(): void {
+		$this->manager->store_key( 'LWSW-UNIFIED-PRO-2026' );
+
+		// Write error state at a fixed time.
+		$this->set_fn_return( 'time', 1000000 );
+		$this->repository->set_products( new WP_Error( Error_Code::INVALID_KEY, 'API failure' ) );
+
+		// Advance past the 60 s TTL.
+		$this->set_fn_return( 'time', 1000061 );
+
+		$result = $this->manager->validate_product( 'example.com', 'give' );
+
+		$this->assertInstanceOf( Validation_Result::class, $result );
+		$this->assertTrue( $result->is_valid() );
+	}
+
+	public function test_successful_call_clears_error_state(): void {
+		$this->manager->store_key( 'LWSW-UNIFIED-PRO-2026' );
+
+		// Write error state at a fixed time.
+		$this->set_fn_return( 'time', 1000000 );
+		$this->repository->set_products( new WP_Error( Error_Code::INVALID_KEY, 'API failure' ) );
+
+		$this->assertNotNull( $this->repository->get_products_last_failure_at() );
+		$this->assertNotNull( $this->repository->get_products_last_error() );
+
+		// Advance past TTL so the request is not throttled and reaches the API.
+		$this->set_fn_return( 'time', 1000061 );
+
+		$this->manager->get_products( 'example.com' );
+
+		$this->assertNull( $this->repository->get_products_last_failure_at() );
+		$this->assertNull( $this->repository->get_products_last_error() );
 	}
 }

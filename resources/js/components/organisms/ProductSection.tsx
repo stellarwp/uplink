@@ -1,8 +1,8 @@
 /**
- * Product section: sticky dark header + feature list.
+ * Product section: sticky dark header + feature list + tier group accordions.
  *
- * Renders for both licensed and unlicensed products.
- * License state and feature availability come from the stellarwp/uplink store.
+ * Available features render as FeatureRow entries. Locked features are
+ * grouped by tier and rendered inside collapsible TierGroup accordions.
  *
  * @package StellarWP\\Uplink
  */
@@ -11,6 +11,7 @@ import { useSelect } from '@wordpress/data';
 import { Badge } from '@/components/ui/badge';
 import { ProductLogo } from '@/components/atoms/ProductLogo';
 import { FeatureRow } from '@/components/molecules/FeatureRow';
+import { TierGroup } from '@/components/molecules/TierGroup';
 import { store as uplinkStore } from '@/store';
 import type { Product } from '@/types/api';
 
@@ -37,12 +38,26 @@ export function ProductSection( { product }: ProductSectionProps ) {
         [ product.slug ],
     );
 
-    const activeCount = features.filter( ( f ) => f.is_enabled ).length;
-    const deactivatedCount = features.filter( ( f ) => ! f.is_enabled ).length;
+    const availableFeatures = features.filter( ( f ) => f.is_available );
+    const lockedFeatures = features.filter( ( f ) => ! f.is_available );
+
+    const activeCount = availableFeatures.filter( ( f ) => f.is_enabled ).length;
+    const deactivatedCount = availableFeatures.filter( ( f ) => ! f.is_enabled ).length;
 
     const tierName = licenseProduct
         ? ( catalogTiers.find( ( t ) => t.slug === licenseProduct.tier )?.name ?? licenseProduct.tier )
         : null;
+
+    // Group locked features by their minimum tier slug.
+    const lockedByTier = product.tiers.reduce<Record<string, typeof lockedFeatures>>(
+        ( acc, tier ) => {
+            acc[ tier.slug ] = lockedFeatures.filter( ( f ) => f.tier === tier.slug );
+            return acc;
+        },
+        {}
+    );
+
+    const hasContent = availableFeatures.length > 0 || lockedFeatures.length > 0;
 
     return (
         <section id={ product.slug } className="scroll-mt-20">
@@ -68,24 +83,36 @@ export function ProductSection( { product }: ProductSectionProps ) {
                 </span>
             </div>
 
-            {/* Feature list */}
-            { hasLicense && features.length > 0 && (
+            { ! hasLicense && (
+                <div className="border border-t-0 rounded-b-lg">
+                    <p className="px-4 py-6 text-sm text-muted-foreground text-center">
+                        { __( 'Add a license to unlock features.', '%TEXTDOMAIN%' ) }
+                    </p>
+                </div>
+            ) }
+
+            { hasLicense && hasContent && (
                 <div className="border border-t-0 rounded-b-lg overflow-hidden">
-                    { features.map( ( feature ) => (
+                    { availableFeatures.map( ( feature ) => (
                         <FeatureRow
                             key={ feature.slug }
                             feature={ feature }
                             product={ product }
                         />
                     ) ) }
-                </div>
-            ) }
 
-            { ! hasLicense && (
-                <div className="border border-t-0 rounded-b-lg">
-                    <p className="px-4 py-6 text-sm text-muted-foreground text-center">
-                        { __( 'Add a license to unlock features.', '%TEXTDOMAIN%' ) }
-                    </p>
+                    { product.tiers.map( ( tier ) => {
+                        const locked = lockedByTier[ tier.slug ] ?? [];
+                        if ( locked.length === 0 ) return null;
+                        return (
+                            <TierGroup
+                                key={ tier.slug }
+                                tier={ tier }
+                                features={ locked }
+                                product={ product }
+                            />
+                        );
+                    } ) }
                 </div>
             ) }
         </section>

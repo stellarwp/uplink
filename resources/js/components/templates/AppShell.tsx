@@ -1,31 +1,27 @@
 /**
- * Application shell — header + 2-tab navigation.
+ * Application shell — full-width two-column layout.
  *
- * Tabs: My Products | Licenses
+ * Main area: product sections.
+ * Sidebar: license panel (wired in Phase 5).
  *
  * @package StellarWP\Uplink
  */
-import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { Cloud, Loader2 } from 'lucide-react';
 import { useSelect } from '@wordpress/data';
-import { MyProductsTab } from '@/components/organisms/MyProductsTab';
-import { LicenseList } from '@/components/organisms/LicenseList';
+import { Shell } from '@/components/templates/Shell';
+import { LegacyLicenseBanner } from '@/components/molecules/LegacyLicenseBanner';
+import { ProductSection } from '@/components/organisms/ProductSection';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { PRODUCTS } from '@/data/products';
 import { store as uplinkStore } from '@/store';
-import { cn } from '@/lib/utils';
-
-type Tab = 'my-products' | 'licenses';
 
 /**
  * @since 3.0.0
  */
 export function AppShell() {
-    const [ activeTab, setActiveTab ] = useState<Tab>( 'my-products' );
-    const [ addLicenseOpen, setAddLicenseOpen ] = useState( false );
-
     // Trigger both resolvers and wait for them to complete before rendering
-    // tab content, so we never flash a "No license" state on first load.
+    // content, so we never flash a "No license" state on first load.
     const isLoading = useSelect(
         ( select ) => {
             const s = select( uplinkStore ) as unknown as {
@@ -39,19 +35,10 @@ export function AppShell() {
         [],
     );
 
-    // When MyProductsTab requests to open the Add License dialog,
-    // switch to the Licenses tab which owns the dialog.
-    const handleAddLicenseRequest = () => {
-        setActiveTab( 'licenses' );
-        // Small delay so tab content mounts first, then dialog can be triggered.
-        // LicenseList manages its own dialog state; we signal via a key prop trick.
-        setAddLicenseOpen( true );
-    };
-
     return (
-        <div className="max-w-[1200px] mx-auto p-4 md:p-8 space-y-6">
-            {/* Page Header */}
-            <div className="flex items-center gap-3">
+        <Shell>
+            {/* Page Header — replaced by FilterBar in Phase 6 */}
+            <div className="flex items-center gap-3 py-4">
                 <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary text-primary-foreground">
                     <Cloud className="w-6 h-6" />
                 </div>
@@ -71,50 +58,19 @@ export function AppShell() {
                     { __( 'Loading…', '%TEXTDOMAIN%' ) }
                 </div>
             ) : (
-                <>
-                    {/* Tab Navigation */}
-                    <div className="border-b border-border">
-                        <nav className="flex gap-0" aria-label={ __( 'Dashboard tabs', '%TEXTDOMAIN%' ) }>
-                            { (
-                                [
-                                    { id: 'my-products', label: __( 'My Products', '%TEXTDOMAIN%' ) },
-                                    { id: 'licenses', label: __( 'Licenses', '%TEXTDOMAIN%' ) },
-                                ] as const
-                            ).map( ( tab ) => (
-                                <button
-                                    key={ tab.id }
-                                    type="button"
-                                    role="tab"
-                                    aria-selected={ activeTab === tab.id }
-                                    onClick={ () => setActiveTab( tab.id ) }
-                                    className={ cn(
-                                        'px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors',
-                                        activeTab === tab.id
-                                            ? 'border-primary text-primary'
-                                            : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
-                                    ) }
-                                >
-                                    { tab.label }
-                                </button>
-                            ) ) }
-                        </nav>
+                <ErrorBoundary>
+                    <div className="flex flex-col gap-4">
+                        <LegacyLicenseBanner />
+                        { PRODUCTS.map( ( product ) => (
+                            <ProductSection
+                                key={ product.slug }
+                                product={ product }
+                                onAddLicense={ () => {} }
+                            />
+                        ) ) }
                     </div>
-
-                    {/* Tab Content */}
-                    <div role="tabpanel">
-                        { activeTab === 'my-products' && (
-                            <ErrorBoundary>
-                                <MyProductsTab onAddLicense={ handleAddLicenseRequest } />
-                            </ErrorBoundary>
-                        ) }
-                        { activeTab === 'licenses' && (
-                            <ErrorBoundary>
-                                <LicenseList openAddDialog={ addLicenseOpen } onAddDialogClose={ () => setAddLicenseOpen( false ) } />
-                            </ErrorBoundary>
-                        ) }
-                    </div>
-                </>
+                </ErrorBoundary>
             ) }
-        </div>
+        </Shell>
     );
 }

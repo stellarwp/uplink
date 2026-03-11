@@ -372,15 +372,18 @@ final class ThemeStrategyTest extends UplinkTestCase {
 		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
 
 		// Seed the update transient.
-		set_site_transient( 'update_themes', (object) [
-			'response' => [
-				self::STYLESHEET => [
-					'theme'       => self::STYLESHEET,
-					'new_version' => '2.0.0',
-					'package'     => 'https://example.com/test-theme-2.0.0.zip',
+		set_site_transient(
+			'update_themes',
+			(object) [
+				'response' => [
+					self::STYLESHEET => [
+						'theme'       => self::STYLESHEET,
+						'new_version' => '2.0.0',
+						'package'     => 'https://example.com/test-theme-2.0.0.zip',
+					],
 				],
-			],
-		] );
+			]
+		);
 
 		set_transient( 'stellarwp_uplink_install_lock', '1', 120 );
 

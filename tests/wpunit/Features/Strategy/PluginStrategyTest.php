@@ -932,15 +932,18 @@ final class PluginStrategyTest extends UplinkTestCase {
 			$this->mock_activate_plugin( self::PLUGIN_FILE );
 
 			// Seed the update transient.
-			set_site_transient( 'update_plugins', (object) [
-				'response' => [
-					self::PLUGIN_FILE => (object) [
-						'slug'        => 'test-feature',
-						'new_version' => '2.0.0',
-						'package'     => 'https://example.com/test-feature-2.0.0.zip',
+			set_site_transient(
+				'update_plugins',
+				(object) [
+					'response' => [
+						self::PLUGIN_FILE => (object) [
+							'slug'        => 'test-feature',
+							'new_version' => '2.0.0',
+							'package'     => 'https://example.com/test-feature-2.0.0.zip',
+						],
 					],
-				],
-			] );
+				]
+			);
 
 			set_transient( 'stellarwp_uplink_install_lock', '1', 120 );
 

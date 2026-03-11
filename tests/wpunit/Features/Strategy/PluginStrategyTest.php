@@ -872,6 +872,128 @@ final class PluginStrategyTest extends UplinkTestCase {
 	}
 
 	// -------------------------------------------------------------------------
+	// update() tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * update() returns FEATURE_NOT_ACTIVE when the plugin is not installed.
+	 */
+	public function test_update_returns_not_active_when_plugin_not_installed(): void {
+		$result = $this->strategy->update();
+
+		$this->assertWPError( $result );
+		$this->assertSame( Error_Code::FEATURE_NOT_ACTIVE, $result->get_error_code() );
+	}
+
+	/**
+	 * update() returns NO_UPDATE_AVAILABLE when the plugin is active but
+	 * the WordPress update transient has no update for this plugin.
+	 */
+	public function test_update_returns_no_update_available_when_transient_empty(): void {
+		$plugin_dir  = WP_PLUGIN_DIR . '/test-feature';
+		$plugin_path = $plugin_dir . '/test-feature.php';
+
+		if ( ! is_dir( $plugin_dir ) ) {
+			mkdir( $plugin_dir, 0755, true );
+		}
+		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Test Feature\n * Author: StellarWP\n */\n" );
+
+		try {
+			$this->mock_activate_plugin( self::PLUGIN_FILE );
+
+			$result = $this->strategy->update();
+
+			$this->assertWPError( $result );
+			$this->assertSame( Error_Code::NO_UPDATE_AVAILABLE, $result->get_error_code() );
+		} finally {
+			deactivate_plugins( self::PLUGIN_FILE );
+			if ( file_exists( $plugin_path ) ) {
+				unlink( $plugin_path );
+			}
+			if ( is_dir( $plugin_dir ) ) {
+				rmdir( $plugin_dir );
+			}
+		}
+	}
+
+	/**
+	 * update() returns INSTALL_LOCKED when the global lock is held.
+	 */
+	public function test_update_returns_install_locked_when_lock_held(): void {
+		$plugin_dir  = WP_PLUGIN_DIR . '/test-feature';
+		$plugin_path = $plugin_dir . '/test-feature.php';
+
+		if ( ! is_dir( $plugin_dir ) ) {
+			mkdir( $plugin_dir, 0755, true );
+		}
+		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Test Feature\n * Author: StellarWP\n * Version: 1.0.0\n */\n" );
+
+		try {
+			$this->mock_activate_plugin( self::PLUGIN_FILE );
+
+			// Seed the update transient.
+			set_site_transient( 'update_plugins', (object) [
+				'response' => [
+					self::PLUGIN_FILE => (object) [
+						'slug'        => 'test-feature',
+						'new_version' => '2.0.0',
+						'package'     => 'https://example.com/test-feature-2.0.0.zip',
+					],
+				],
+			] );
+
+			set_transient( 'stellarwp_uplink_install_lock', '1', 120 );
+
+			$result = $this->strategy->update();
+
+			$this->assertWPError( $result );
+			$this->assertSame( Error_Code::INSTALL_LOCKED, $result->get_error_code() );
+		} finally {
+			deactivate_plugins( self::PLUGIN_FILE );
+			delete_site_transient( 'update_plugins' );
+			if ( file_exists( $plugin_path ) ) {
+				unlink( $plugin_path );
+			}
+			if ( is_dir( $plugin_dir ) ) {
+				rmdir( $plugin_dir );
+			}
+		}
+	}
+
+	/**
+	 * update() returns PLUGIN_OWNERSHIP_MISMATCH when the plugin belongs to
+	 * a different developer.
+	 */
+	public function test_update_returns_ownership_mismatch(): void {
+		$plugin_dir  = WP_PLUGIN_DIR . '/test-feature';
+		$plugin_path = $plugin_dir . '/test-feature.php';
+
+		if ( ! is_dir( $plugin_dir ) ) {
+			mkdir( $plugin_dir, 0755, true );
+		}
+		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Test Feature\n * Author: Foreign Developer\n */\n" );
+
+		try {
+			$this->mock_activate_plugin( self::PLUGIN_FILE );
+
+			$feature  = $this->make_plugin_feature( 'test-feature', self::PLUGIN_FILE, [ 'StellarWP' ] );
+			$strategy = new Plugin_Strategy( $feature );
+			$result   = $strategy->update();
+
+			$this->assertWPError( $result );
+			$this->assertSame( Error_Code::PLUGIN_OWNERSHIP_MISMATCH, $result->get_error_code() );
+		} finally {
+			deactivate_plugins( self::PLUGIN_FILE );
+			if ( file_exists( $plugin_path ) ) {
+				unlink( $plugin_path );
+			}
+			if ( is_dir( $plugin_dir ) ) {
+				rmdir( $plugin_dir );
+			}
+		}
+	}
+
+	// -------------------------------------------------------------------------
 	// Helpers
 	// -------------------------------------------------------------------------
 

@@ -193,6 +193,42 @@ class Error_Code {
 	public const THEME_OWNERSHIP_MISMATCH = 'stellarwp-uplink-theme-ownership-mismatch';
 
 	/**
+	 * The feature is not currently active (installed and enabled).
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const FEATURE_NOT_ACTIVE = 'stellarwp-uplink-feature-not-active';
+
+	/**
+	 * The feature type does not support updates (e.g. flag features).
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const UPDATE_NOT_SUPPORTED = 'stellarwp-uplink-update-not-supported';
+
+	/**
+	 * No update is available for the feature.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const NO_UPDATE_AVAILABLE = 'stellarwp-uplink-no-update-available';
+
+	/**
+	 * The feature update failed.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const UPDATE_FAILED = 'stellarwp-uplink-update-failed';
+
+	/**
 	 * A feature could not be enabled (strategy threw an exception).
 	 *
 	 * @since 3.0.0
@@ -249,7 +285,11 @@ class Error_Code {
 
 			// 422 Unprocessable Entity — the request was understood but the operation
 			// could not be completed (requirements not met, install/activation failure,
-			// missing download link, unexpected package structure, or enable/disable failure).
+			// missing download link, unexpected package structure, enable/disable/update failure).
+			self::FEATURE_NOT_ACTIVE             => 422,
+			self::UPDATE_NOT_SUPPORTED           => 422,
+			self::NO_UPDATE_AVAILABLE            => 422,
+			self::UPDATE_FAILED                  => 422,
 			self::FEATURE_ENABLE_FAILED          => 422,
 			self::FEATURE_DISABLE_FAILED         => 422,
 			self::REQUIREMENTS_NOT_MET           => 422,

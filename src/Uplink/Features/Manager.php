@@ -272,6 +272,105 @@ class Manager {
 	}
 
 	/**
+	 * Updates a feature by slug.
+	 *
+	 * Fires 'stellarwp/uplink/feature_updating' and 'stellarwp/uplink/{slug}/feature_updating'
+	 * before the operation, and the corresponding 'feature_updated' actions after success.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $slug The feature slug.
+	 *
+	 * @return Feature|WP_Error The feature with updated state, or WP_Error on failure.
+	 */
+	public function update( string $slug ) {
+		$features = $this->repository->get( $this->key, $this->domain );
+
+		if ( is_wp_error( $features ) ) {
+			return $features;
+		}
+
+		$feature = $features->get( $slug );
+
+		if ( ! $feature ) {
+			return new WP_Error(
+				Error_Code::FEATURE_NOT_FOUND,
+				sprintf( 'Feature "%s" not found in the catalog.', $slug )
+			);
+		}
+
+		/**
+		 * Fires before a feature is updated.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param array<string, mixed> $feature The feature being updated.
+		 *
+		 * @return void
+		 */
+		do_action( 'stellarwp/uplink/feature_updating', $feature->to_array() );
+
+		/**
+		 * Fires before a specific feature is updated.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param array<string, mixed> $feature The feature being updated.
+		 *
+		 * @return void
+		 */
+		do_action( "stellarwp/uplink/{$slug}/feature_updating", $feature->to_array() );
+
+		try {
+			$strategy = $this->strategy_factory->make( $feature );
+
+			$result = $strategy->update();
+		} catch ( Throwable $e ) {
+			return new WP_Error(
+				Error_Code::UPDATE_FAILED,
+				$e->getMessage()
+			);
+		}
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		$feature = $this->get( $slug );
+
+		if ( ! $feature ) {
+			return new WP_Error(
+				Error_Code::FEATURE_NOT_FOUND,
+				sprintf( 'Feature "%s" not found after updating.', $slug )
+			);
+		}
+
+		/**
+		 * Fires after a feature has been successfully updated.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param array<string, mixed> $feature The feature that was updated.
+		 *
+		 * @return void
+		 */
+		do_action( 'stellarwp/uplink/feature_updated', $feature->to_array() );
+
+		/**
+		 * Fires after a specific feature has been successfully updated.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param array<string, mixed> $feature The feature that was updated.
+		 *
+		 * @return void
+		 */
+		do_action( "stellarwp/uplink/{$slug}/feature_updated", $feature->to_array() );
+
+		return $feature;
+	}
+
+	/**
 	 * Checks whether a feature is in the catalog AND currently enabled/active.
 	 *
 	 * @since 3.0.0

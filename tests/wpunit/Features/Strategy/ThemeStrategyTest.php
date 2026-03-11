@@ -339,6 +339,77 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	}
 
 	// -------------------------------------------------------------------------
+	// update() tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * update() returns FEATURE_NOT_ACTIVE when the theme is not installed.
+	 */
+	public function test_update_returns_not_active_when_theme_not_installed(): void {
+		$result = $this->strategy->update();
+
+		$this->assertWPError( $result );
+		$this->assertSame( Error_Code::FEATURE_NOT_ACTIVE, $result->get_error_code() );
+	}
+
+	/**
+	 * update() returns NO_UPDATE_AVAILABLE when the theme is installed but
+	 * the WordPress update transient has no update for this theme.
+	 */
+	public function test_update_returns_no_update_available_when_transient_empty(): void {
+		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
+
+		$result = $this->strategy->update();
+
+		$this->assertWPError( $result );
+		$this->assertSame( Error_Code::NO_UPDATE_AVAILABLE, $result->get_error_code() );
+	}
+
+	/**
+	 * update() returns INSTALL_LOCKED when the global lock is held.
+	 */
+	public function test_update_returns_install_locked_when_lock_held(): void {
+		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
+
+		// Seed the update transient.
+		set_site_transient( 'update_themes', (object) [
+			'response' => [
+				self::STYLESHEET => [
+					'theme'       => self::STYLESHEET,
+					'new_version' => '2.0.0',
+					'package'     => 'https://example.com/test-theme-2.0.0.zip',
+				],
+			],
+		] );
+
+		set_transient( 'stellarwp_uplink_install_lock', '1', 120 );
+
+		try {
+			$result = $this->strategy->update();
+
+			$this->assertWPError( $result );
+			$this->assertSame( Error_Code::INSTALL_LOCKED, $result->get_error_code() );
+		} finally {
+			delete_site_transient( 'update_themes' );
+		}
+	}
+
+	/**
+	 * update() returns THEME_OWNERSHIP_MISMATCH when the theme belongs to
+	 * a different developer.
+	 */
+	public function test_update_returns_ownership_mismatch(): void {
+		$this->install_test_theme( self::STYLESHEET, 'Foreign Developer' );
+
+		$feature  = $this->make_theme_feature( self::STYLESHEET, [ 'StellarWP' ] );
+		$strategy = new Theme_Strategy( $feature );
+		$result   = $strategy->update();
+
+		$this->assertWPError( $result );
+		$this->assertSame( Error_Code::THEME_OWNERSHIP_MISMATCH, $result->get_error_code() );
+	}
+
+	// -------------------------------------------------------------------------
 	// Helpers
 	// -------------------------------------------------------------------------
 

@@ -79,6 +79,7 @@ The `Manager` is the public interface for all feature operations.
 | `is_enabled(string $slug)`   | `bool\|WP_Error`               | Check if the feature is active locally             |
 | `enable(string $slug)`       | `Feature\|WP_Error`            | Enable a feature, return updated Feature           |
 | `disable(string $slug)`      | `Feature\|WP_Error`            | Disable a feature, return updated Feature          |
+| `update(string $slug)`       | `Feature\|WP_Error`            | Update a feature to latest version                 |
 
 Global convenience functions in `src/Uplink/global-functions.php` (non-namespaced, always delegate to the version leader):
 
@@ -93,6 +94,8 @@ Actions fired before and after enable/disable, both globally and per-slug:
 - `stellarwp/uplink/feature_enabled` / `stellarwp/uplink/{slug}/feature_enabled`
 - `stellarwp/uplink/feature_disabling` / `stellarwp/uplink/{slug}/feature_disabling`
 - `stellarwp/uplink/feature_disabled` / `stellarwp/uplink/{slug}/feature_disabled`
+- `stellarwp/uplink/feature_updating` / `stellarwp/uplink/{slug}/feature_updating`
+- `stellarwp/uplink/feature_updated` / `stellarwp/uplink/{slug}/feature_updated`
 
 ## Caching
 
@@ -115,7 +118,7 @@ All parameters optional. Returns a new collection without mutating the original.
 
 ## REST API
 
-Four endpoints under `stellarwp/uplink/v1`. All require `manage_options`.
+Five endpoints under `stellarwp/uplink/v1`. All require `manage_options`.
 
 | Route                      | Method | Purpose                                                       |
 | -------------------------- | ------ | ------------------------------------------------------------- |
@@ -123,6 +126,7 @@ Four endpoints under `stellarwp/uplink/v1`. All require `manage_options`.
 | `/features/{slug}`         | GET    | Get a single feature                                          |
 | `/features/{slug}/enable`  | POST   | Enable a feature                                              |
 | `/features/{slug}/disable` | POST   | Disable a feature                                             |
+| `/features/{slug}/update`  | POST   | Update a feature to the latest available version              |
 
 Each Feature object includes `is_enabled`, stamped with live state from its strategy by the Manager before any consumer receives it.
 
@@ -136,6 +140,10 @@ Each Feature object includes `is_enabled`, stamped with live state from its stra
 | `FEATURE_CHECK_FAILED`           | 502  | Unexpected error during availability check         |
 | `FEATURE_ENABLE_FAILED`          | 422  | Strategy threw an exception during enable          |
 | `FEATURE_DISABLE_FAILED`         | 422  | Strategy threw an exception during disable         |
+| `FEATURE_NOT_ACTIVE`             | 422  | Feature is not installed or active                 |
+| `UPDATE_NOT_SUPPORTED`           | 422  | Feature type does not support updates (e.g. flags) |
+| `NO_UPDATE_AVAILABLE`            | 422  | No update available for the feature                |
+| `UPDATE_FAILED`                  | 422  | The update operation failed                        |
 | `INVALID_RESPONSE`               | 502  | Catalog response couldn't be parsed                |
 | `UNKNOWN_FEATURE_TYPE`           | 422  | No Feature subclass for the catalog type           |
 | `INSTALL_LOCKED`                 | 409  | Another install already in progress                |
@@ -170,4 +178,3 @@ Each Feature object includes `is_enabled`, stamped with live state from its stra
 - **Fetch its own data** — resolved from catalog and licensing. No separate "features API."
 - **Delete extensions** — plugins are deactivated, never removed. Themes require manual deletion.
 - **Manage seats** — seat consumption is in the licensing layer, not feature enable/disable.
-- **Handle updates** — plugin/theme updates use a separate system hooking into WordPress's native update infrastructure.

@@ -2,6 +2,9 @@
 
 namespace StellarWP\Uplink\Features\Strategy;
 
+use StellarWP\Uplink\Features\Error_Code;
+use WP_Error;
+
 /**
  * Flag Strategy — toggles features via a wp_options flag.
  *
@@ -39,6 +42,24 @@ class Flag_Strategy extends Abstract_Strategy {
 		update_option( $this->get_option_key(), '1', true );
 
 		return true;
+	}
+
+	/**
+	 * Flag features do not support updates.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return WP_Error Always returns an error.
+	 */
+	public function update() {
+		return new WP_Error(
+			Error_Code::UPDATE_NOT_SUPPORTED,
+			sprintf(
+				/* translators: %s: feature name */
+				__( 'The feature "%s" does not support updates.', '%TEXTDOMAIN%' ),
+				$this->feature->get_name()
+			)
+		);
 	}
 
 	/**

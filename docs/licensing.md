@@ -149,7 +149,9 @@ The `Licensing_Client` contract defines two operations:
 - **`get_products(string $key, string $domain): Product_Entry[]|WP_Error`**: bulk fetch of all products on a key. Read-only, no seat consumption.
 - **`validate(string $key, string $domain, string $product_slug): Validation_Result|WP_Error`**: validate a single product. May consume a seat on first activation.
 
-During development, the `Fixture_Client` is wired in place of the real API client. It reads JSON fixture files from `tests/_data/licensing/`, mapping key values to filenames (e.g., `LWSW-unified-pro-2026` reads from `lwsw-unified-pro-2026.json`).
+The production implementation is `Clients\Http_Client`, which uses PSR-18 HTTP interfaces (see [HTTP Infrastructure](#http-infrastructure) below). The `Licensing_Client` contract exists so the backend can be swapped without affecting the rest of the system.
+During development, the `Clients\Fixture_Client` is wired in place of the real API client. It reads JSON fixture files from `tests/_data/licensing/`, mapping key values to filenames (e.g., `LWSW-unified-pro-2026` reads from `lwsw-unified-pro-2026.json`).
+Tests use a fixture PSR-18 client that routes requests to local JSON files in `tests/_data/licensing/`, mapping key values to filenames (e.g., `LWSW-unified-pro-2026` reads from `lwsw-unified-pro-2026.json`).
 
 The fixture set covers the common scenarios:
 
@@ -171,6 +173,20 @@ All errors use `WP_Error` with these codes:
 | `stellarwp-uplink-invalid-response`  | `INVALID_RESPONSE`  | API response couldn't be decoded                   |
 | `stellarwp-uplink-product-not-found` | `PRODUCT_NOT_FOUND` | Product slug not found in the catalog for this key |
 | `stellarwp-uplink-store-failed`      | `STORE_FAILED`      | Key couldn't be persisted to the database          |
+
+## HTTP Infrastructure
+
+The `Clients\Http_Client` implements `Licensing_Client` using PSR-18 (`ClientInterface`) for HTTP transport and PSR-17 (`RequestFactoryInterface`, `StreamFactoryInterface`) for message creation. It does not call `wp_remote_get` or `wp_remote_post` directly.
+
+The default wiring (registered by `Http\Provider`) uses Symfony HttpClient as the PSR-18 adapter and Nyholm PSR-7 for message factories. These are standard, well-tested implementations that can be swapped by rebinding the PSR interfaces in the container.
+
+Using PSR-18 instead of the WordPress HTTP API is deliberate:
+
+- **Testability**: tests swap in a fixture PSR-18 client at the container level. No WordPress filter hacks (`pre_http_request`) needed.
+- **Portability**: the HTTP clients depend on standard interfaces, not WordPress internals. The same code works in any PHP environment.
+- **Swappability**: consumers can rebind `ClientInterface` to use Guzzle, a WordPress adapter, or any PSR-18 implementation without touching the licensing code.
+
+The base URL for all API requests comes from `Config::get_api_base_url()`, which defaults to `https://licensing.stellarwp.com`. It can be overridden via `Config::set_api_base_url()` — one setting shared by both the licensing and catalog subsystems.
 
 ## Workflows
 
@@ -243,7 +259,7 @@ Both Licensing and the Catalog use the same product-prefixed tier slug conventio
 
 ### How Licensing Data Feeds Feature Resolution
 
-The `Resolve_Feature_Collection` class consumes the `Product_Collection` from the licensing `Product_Repository` alongside the `Catalog_Collection` from the catalog `Catalog_Repository`. For each product in the catalog, it looks up the matching licensing entry to determine:
+The `Resolve_Feature_Collection` class consumes the `Product_Collection` from the licensing `License_Repository` alongside the `Catalog_Collection` from the catalog `Catalog_Repository`. For each product in the catalog, it looks up the matching licensing entry to determine:
 
 1. **Whether the site has a license** for that product at all
 2. **What tier rank** the license grants (by looking up the tier slug in the catalog's tier collection)

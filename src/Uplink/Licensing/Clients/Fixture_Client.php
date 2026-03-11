@@ -1,9 +1,10 @@
 <?php declare( strict_types=1 );
 
-namespace StellarWP\Uplink\Licensing;
+namespace StellarWP\Uplink\Licensing\Clients;
 
-use StellarWP\Uplink\Licensing\Contracts\Licensing_Client;
 use StellarWP\Uplink\Licensing\Enums\Validation_Status;
+use StellarWP\Uplink\Licensing\Error_Code;
+use StellarWP\Uplink\Licensing\Product_Collection;
 use StellarWP\Uplink\Licensing\Results\Product_Entry;
 use StellarWP\Uplink\Licensing\Results\Validation_Result;
 use WP_Error;

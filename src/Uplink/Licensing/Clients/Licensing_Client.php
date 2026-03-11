@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace StellarWP\Uplink\Licensing\Contracts;
+namespace StellarWP\Uplink\Licensing\Clients;
 
 use StellarWP\Uplink\Licensing\Results\Product_Entry;
 use StellarWP\Uplink\Licensing\Results\Validation_Result;

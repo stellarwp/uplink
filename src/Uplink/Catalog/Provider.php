@@ -2,9 +2,12 @@
 
 namespace StellarWP\Uplink\Catalog;
 
-use StellarWP\Uplink\Catalog\Contracts\Catalog_Client;
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestFactoryInterface;
+use StellarWP\Uplink\Catalog\Clients\Catalog_Client;
+use StellarWP\Uplink\Catalog\Clients\Http_Client;
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
-use StellarWP\Uplink\Licensing\License_Manager;
 
 /**
  * Registers the Catalog subsystem in the DI container.
@@ -17,22 +20,14 @@ final class Provider extends Abstract_Provider {
 	 * @inheritDoc
 	 */
 	public function register(): void {
-		$container = $this->container;
-
 		$this->container->singleton(
 			Catalog_Client::class,
-			static function () use ( $container ) {
-				$catalog_dir = trailingslashit( dirname( __DIR__, 3 ) ) . 'tests/_data/catalog';
-
-				/** @var License_Manager $license_manager */
-				$license_manager = $container->get( License_Manager::class );
-				$key             = $license_manager->get_key();
-
-				if ( $key !== null && file_exists( trailingslashit( $catalog_dir ) . $key . '.json' ) ) {
-					return new Fixture_Client( trailingslashit( $catalog_dir ) . $key . '.json' );
-				}
-
-				return new Fixture_Client( trailingslashit( $catalog_dir ) . 'default.json' );
+			function () {
+				return new Http_Client(
+					$this->container->get( ClientInterface::class ),
+					$this->container->get( RequestFactoryInterface::class ),
+					Config::get_api_base_url()
+				);
 			}
 		);
 

@@ -31,7 +31,12 @@
     "require": {
         "php": ">=7.4",
         "ext-json": "*",
-        "stellarwp/container-contract": "^1.0"
+        "nyholm/psr7": "^1.0",
+        "psr/http-client": "^1.0",
+        "psr/http-factory": "^1.0",
+        "psr/http-message": "^1.1",
+        "stellarwp/container-contract": "^1.0",
+        "symfony/http-client": "^5.4"
     },
     "config": {
         "preferred-install": "dist",

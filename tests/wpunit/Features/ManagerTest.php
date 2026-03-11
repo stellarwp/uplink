@@ -3,6 +3,8 @@
 namespace StellarWP\Uplink\Tests\Features;
 
 use StellarWP\Uplink\Catalog\Catalog_Repository;
+use StellarWP\Uplink\Catalog\Clients\Catalog_Client;
+use StellarWP\Uplink\Catalog\Clients\Fixture_Client as Catalog_Fixture;
 use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Feature_Repository;
@@ -12,6 +14,8 @@ use StellarWP\Uplink\Features\Strategy\Strategy_Factory;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Features\Types\Plugin;
+use StellarWP\Uplink\Licensing\Clients\Fixture_Client as Licensing_Fixture;
+use StellarWP\Uplink\Licensing\Clients\Licensing_Client;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
@@ -108,6 +112,28 @@ final class ManagerTest extends UplinkTestCase {
 	}
 
 	/**
+	 * Rebinds the container's HTTP clients to fixture clients so integration
+	 * tests that resolve Manager from the container don't hit the real API.
+	 *
+	 * @return void
+	 */
+	private function bind_fixture_clients(): void {
+		$this->container->singleton(
+			Catalog_Client::class,
+			static function () {
+				return new Catalog_Fixture( codecept_data_dir( 'catalog/default.json' ) );
+			}
+		);
+
+		$this->container->singleton(
+			Licensing_Client::class,
+			static function () {
+				return new Licensing_Fixture( codecept_data_dir( 'licensing' ) );
+			}
+		);
+	}
+
+	/**
 	 * Tests a known feature can be enabled successfully.
 	 *
 	 * @return void
@@ -194,6 +220,7 @@ final class ManagerTest extends UplinkTestCase {
 	public function test_get_feature_resolves_typed_features_from_catalog(): void {
 		update_option( License_Repository::KEY_OPTION_NAME, 'lwsw-unified-kad-pro-2026' );
 
+		$this->bind_fixture_clients();
 		$manager = $this->container->get( Manager::class );
 
 		$flag = $manager->get( 'kad-pattern-hub' );
@@ -213,6 +240,7 @@ final class ManagerTest extends UplinkTestCase {
 	public function test_enable_and_disable_write_db_flags(): void {
 		update_option( License_Repository::KEY_OPTION_NAME, 'lwsw-unified-kad-pro-2026' );
 
+		$this->bind_fixture_clients();
 		$manager    = $this->container->get( Manager::class );
 		$option_key = 'stellarwp_uplink_feature_kad-pattern-hub_active';
 

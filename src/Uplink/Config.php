@@ -20,6 +20,13 @@ class Config {
 	public const DEFAULT_AUTH_CACHE = 21600;
 
 	/**
+	 * The default base URL for the StellarWP licensing and catalog API.
+	 *
+	 * @since 3.0.0
+	 */
+	public const DEFAULT_API_BASE_URL = 'https://licensing.stellarwp.com';
+
+	/**
 	 * Container object.
 	 *
 	 * @since 1.0.0
@@ -53,11 +60,20 @@ class Config {
 	protected static $storage_driver = Option_Storage::class;
 
 	/**
+	 * The base URL for the StellarWP licensing and catalog API.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	protected static $api_base_url = self::DEFAULT_API_BASE_URL;
+
+	/**
 	 * Get the container.
 	 *
 	 * @since 1.0.0
 	 *
-	 * @throws RuntimeException
+	 * @throws RuntimeException If the container has not been set.
 	 *
 	 * @return ContainerInterface
 	 */
@@ -76,6 +92,8 @@ class Config {
 	 *
 	 * @since 1.0.0
 	 *
+	 * @throws RuntimeException If the hook prefix has not been set.
+	 *
 	 * @return string
 	 */
 	public static function get_hook_prefix(): string {
@@ -92,6 +110,8 @@ class Config {
 	 * Gets the hook underscored prefix.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @throws RuntimeException If the hook prefix has not been set.
 	 *
 	 * @return string
 	 */
@@ -126,6 +146,7 @@ class Config {
 	public static function reset(): void {
 		static::$hook_prefix           = '';
 		static::$auth_cache_expiration = self::DEFAULT_AUTH_CACHE;
+		static::$api_base_url          = self::DEFAULT_API_BASE_URL;
 
 		if ( self::has_container() ) {
 			self::$container->singleton( self::TOKEN_OPTION_NAME, null );
@@ -150,7 +171,7 @@ class Config {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $prefix
+	 * @param string $prefix The hook prefix.
 	 *
 	 * @return void
 	 */
@@ -165,9 +186,10 @@ class Config {
 	 *
 	 * @since 1.3.0
 	 *
-	 * @param string $prefix
+	 * @param string $prefix The token auth prefix.
 	 *
-	 * @throws RuntimeException|InvalidArgumentException
+	 * @throws RuntimeException          If the container has not been set.
+	 * @throws InvalidArgumentException  If the prefix is too long.
 	 *
 	 * @return void
 	 */
@@ -181,12 +203,13 @@ class Config {
 		$prefix = Sanitize::sanitize_title_with_hyphens( rtrim( $prefix, '_' ) );
 		$key    = sprintf( '%s_%s', $prefix, Token_Manager::TOKEN_SUFFIX );
 
-		// The option_name column in wp_options is a varchar(191)
+		// The option_name column in wp_options is a varchar(191).
 		$max_length = 191;
 
 		if ( strlen( $key ) > $max_length ) {
 			throw new InvalidArgumentException(
 				sprintf(
+					/* translators: %d is the maximum character length for the token auth prefix. */
 					__( 'The token auth prefix must be at most %d characters, including a trailing hyphen.', '%TEXTDOMAIN%' ),
 					absint( $max_length - strlen( Token_Manager::TOKEN_SUFFIX ) )
 				)
@@ -220,7 +243,9 @@ class Config {
 	/**
 	 * Set the underlying storage driver.
 	 *
-	 * @param class-string<Storage> $class_name The FQCN to a storage driver.
+	 * @param string $class_name The FQCN to a storage driver.
+	 *
+	 * @phpstan-param class-string<Storage> $class_name
 	 *
 	 * @return void
 	 */
@@ -237,5 +262,29 @@ class Config {
 		$driver = static::$storage_driver;
 
 		return $driver ?: Option_Storage::class;
+	}
+
+	/**
+	 * Set the base URL for the StellarWP licensing and catalog API.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $url The API base URL (no trailing slash).
+	 *
+	 * @return void
+	 */
+	public static function set_api_base_url( string $url ): void {
+		static::$api_base_url = rtrim( $url, '/' );
+	}
+
+	/**
+	 * Get the base URL for the StellarWP licensing and catalog API.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string
+	 */
+	public static function get_api_base_url(): string {
+		return static::$api_base_url;
 	}
 }

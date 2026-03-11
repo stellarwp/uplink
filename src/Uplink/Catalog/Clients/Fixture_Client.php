@@ -1,8 +1,9 @@
 <?php declare( strict_types=1 );
 
-namespace StellarWP\Uplink\Catalog;
+namespace StellarWP\Uplink\Catalog\Clients;
 
-use StellarWP\Uplink\Catalog\Contracts\Catalog_Client;
+use StellarWP\Uplink\Catalog\Catalog_Collection;
+use StellarWP\Uplink\Catalog\Error_Code;
 use StellarWP\Uplink\Catalog\Results\Product_Catalog;
 use WP_Error;
 

@@ -3,12 +3,12 @@
 namespace StellarWP\Uplink\Tests\Licensing\Repositories;
 
 use StellarWP\Uplink\Catalog\Catalog_Repository;
-use StellarWP\Uplink\Catalog\Fixture_Client as Catalog_Fixture;
+use StellarWP\Uplink\Catalog\Clients\Fixture_Client as Catalog_Fixture;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Resolve_Feature_Collection;
 use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Features\Types\Plugin;
-use StellarWP\Uplink\Licensing\Fixture_Client as Licensing_Fixture;
+use StellarWP\Uplink\Licensing\Clients\Fixture_Client as Licensing_Fixture;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Product_Collection;
 use StellarWP\Uplink\Licensing\Registry\Product_Registry;

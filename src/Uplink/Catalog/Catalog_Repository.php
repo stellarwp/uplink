@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\Catalog;
 
-use StellarWP\Uplink\Catalog\Contracts\Catalog_Client;
+use StellarWP\Uplink\Catalog\Clients\Catalog_Client;
 use WP_Error;
 
 /**

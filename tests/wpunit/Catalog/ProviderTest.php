@@ -3,15 +3,15 @@
 namespace StellarWP\Uplink\Tests\Catalog;
 
 use StellarWP\Uplink\Catalog\Catalog_Repository;
-use StellarWP\Uplink\Catalog\Contracts\Catalog_Client;
-use StellarWP\Uplink\Catalog\Fixture_Client;
+use StellarWP\Uplink\Catalog\Clients\Catalog_Client;
+use StellarWP\Uplink\Catalog\Clients\Http_Client;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
 final class ProviderTest extends UplinkTestCase {
 
 	public function test_it_registers_catalog_client(): void {
 		$this->assertInstanceOf(
-			Fixture_Client::class,
+			Http_Client::class,
 			$this->container->get( Catalog_Client::class )
 		);
 	}

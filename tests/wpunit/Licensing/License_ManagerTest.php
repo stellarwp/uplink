@@ -4,7 +4,7 @@ namespace StellarWP\Uplink\Tests\Licensing;
 
 use StellarWP\Uplink\Licensing\Enums\Validation_Status;
 use StellarWP\Uplink\Licensing\Error_Code;
-use StellarWP\Uplink\Licensing\Fixture_Client;
+use StellarWP\Uplink\Licensing\Clients\Fixture_Client;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Product_Collection;
 use StellarWP\Uplink\Licensing\Registry\Product_Registry;

@@ -10,6 +10,7 @@ import { __ } from '@wordpress/i18n';
 import { Cloud, Loader2 } from 'lucide-react';
 import { useSelect } from '@wordpress/data';
 import { Shell } from '@/components/templates/Shell';
+import { LicensePanel } from '@/components/organisms/LicensePanel';
 import { LegacyLicenseBanner } from '@/components/molecules/LegacyLicenseBanner';
 import { ProductSection } from '@/components/organisms/ProductSection';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -36,7 +37,7 @@ export function AppShell() {
     );
 
     return (
-        <Shell>
+        <Shell sideContent={ <LicensePanel /> }>
             {/* Page Header — replaced by FilterBar in Phase 6 */}
             <div className="flex items-center gap-3 py-4">
                 <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary text-primary-foreground">

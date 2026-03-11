@@ -376,56 +376,6 @@ final class License_RepositoryTest extends UplinkTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// clear_error_state()
-	// -------------------------------------------------------------------------
-
-	public function test_clear_error_state_clears_last_error_and_last_failure_at(): void {
-		$this->repository->set_products( new WP_Error( Error_Code::INVALID_KEY, 'API failure' ) );
-
-		$this->assertNotNull( $this->repository->get_products_last_error() );
-		$this->assertNotNull( $this->repository->get_products_last_failure_at() );
-
-		$this->repository->clear_error_state();
-
-		$this->assertNull( $this->repository->get_products_last_error() );
-		$this->assertNull( $this->repository->get_products_last_failure_at() );
-	}
-
-	public function test_clear_error_state_preserves_collection_and_last_success_at(): void {
-		$collection = Product_Collection::from_array(
-			[
-				Product_Entry::from_array(
-					[
-						'product_slug' => 'give',
-						'tier'         => 'give-pro',
-						'status'       => 'active',
-						'expires'      => '2026-12-31 23:59:59',
-					]
-				),
-			]
-		);
-
-		$this->repository->set_products( $collection );
-		$last_success_at = $this->repository->get_products_last_success_at();
-
-		// Simulate a subsequent failure, then clear.
-		$this->repository->set_products( new WP_Error( Error_Code::INVALID_KEY, 'fail' ) );
-		$this->repository->clear_error_state();
-
-		$result = $this->repository->get_products();
-		$this->assertInstanceOf( Product_Collection::class, $result );
-		$this->assertSame( 'give', $result->get( 'give' )->get_product_slug() );
-		$this->assertSame( $last_success_at, $this->repository->get_products_last_success_at() );
-	}
-
-	public function test_clear_error_state_is_noop_when_nothing_stored(): void {
-		$this->repository->clear_error_state();
-
-		$this->assertNull( $this->repository->get_products_last_error() );
-		$this->assertNull( $this->repository->get_products_last_failure_at() );
-	}
-
-	// -------------------------------------------------------------------------
 	// get_product()
 	// -------------------------------------------------------------------------
 

@@ -359,23 +359,6 @@ final class License_Repository {
 	}
 
 	/**
-	 * Clear the last error and last failure timestamp from the license state.
-	 *
-	 * Called after a successful API response to reset the throttle window so
-	 * future errors start a fresh throttle period.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return void
-	 */
-	public function clear_error_state(): void {
-		$state                                    = $this->read_products_state();
-		$state[ self::STATE_KEY_LAST_ERROR ]      = null;
-		$state[ self::STATE_KEY_LAST_FAILURE_AT ] = null;
-		update_option( self::PRODUCTS_STATE_OPTION_NAME, $state, false );
-	}
-
-	/**
 	 * Read the raw license state array from the option, returning a zeroed
 	 * default when nothing has been stored.
 	 *

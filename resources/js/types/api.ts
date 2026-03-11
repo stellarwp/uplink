@@ -53,6 +53,10 @@ interface BaseFeature {
      * Whether the feature is currently enabled (persisted server-side).
      */
     is_enabled: boolean;
+    /**
+     * Installed version string, if known.
+     */
+    version?: string;
 }
 
 /**

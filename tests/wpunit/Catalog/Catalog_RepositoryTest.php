@@ -131,7 +131,7 @@ final class Catalog_RepositoryTest extends UplinkTestCase {
 
 		$this->assertNotNull( $this->repository->get_last_failure_at() );
 
-		$this->repository->get(); // triggers a successful fetch via the fixture client
+		$this->repository->refresh(); // bypasses throttle, triggers successful fetch via the fixture client
 
 		$this->assertNull( $this->repository->get_last_failure_at() );
 	}

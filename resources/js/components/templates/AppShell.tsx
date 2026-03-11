@@ -1,15 +1,16 @@
 /**
  * Application shell — full-width two-column layout.
  *
- * Main area: product sections.
- * Sidebar: license panel (wired in Phase 5).
+ * Main area: FilterBar header + product sections.
+ * Sidebar: license panel.
  *
  * @package StellarWP\Uplink
  */
 import { __ } from '@wordpress/i18n';
-import { Cloud, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useSelect } from '@wordpress/data';
 import { Shell } from '@/components/templates/Shell';
+import { FilterBar } from '@/components/molecules/FilterBar';
 import { LicensePanel } from '@/components/organisms/LicensePanel';
 import { LegacyLicenseBanner } from '@/components/molecules/LegacyLicenseBanner';
 import { ProductSection } from '@/components/organisms/ProductSection';
@@ -37,22 +38,10 @@ export function AppShell() {
     );
 
     return (
-        <Shell sideContent={ <LicensePanel /> }>
-            {/* Page Header — replaced by FilterBar in Phase 6 */}
-            <div className="flex items-center gap-3 py-4">
-                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary text-primary-foreground">
-                    <Cloud className="w-6 h-6" />
-                </div>
-                <div>
-                    <h1 className="text-xl font-normal tracking-tight m-0 p-0">
-                        { __( 'Liquid Web Software', '%TEXTDOMAIN%' ) }
-                    </h1>
-                    <p className="text-sm text-muted-foreground leading-tight m-0 p-0">
-                        { __( 'Manage your product licenses and features', '%TEXTDOMAIN%' ) }
-                    </p>
-                </div>
-            </div>
-
+        <Shell
+            header={ <FilterBar /> }
+            sideContent={ <LicensePanel /> }
+        >
             { isLoading ? (
                 <div className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
                     <Loader2 className="w-5 h-5 animate-spin" />
@@ -60,7 +49,7 @@ export function AppShell() {
                 </div>
             ) : (
                 <ErrorBoundary>
-                    <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-4 pb-8">
                         <LegacyLicenseBanner />
                         { PRODUCTS.map( ( product ) => (
                             <ProductSection

@@ -76,21 +76,13 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 * Creates a Feature_Repository backed by the real fixture files.
 	 *
 	 * @param string|null $licensing_override Optional. Pass a key for the Licensing_Fixture,
-	 *                                        or null to use a mock that returns a WP_Error.
+	 *                                        or null to use no stored key.
 	 *
 	 * @return Feature_Repository
 	 */
 	private function make_repository( ?string $licensing_override = null ): Feature_Repository {
-		$catalog_client = new Catalog_Fixture( codecept_data_dir( 'catalog/default.json' ) );
-
-		if ( $licensing_override === null ) {
-			$licensing_client = $this->makeEmpty(
-				Licensing_Client::class,
-				[ 'get_products' => new WP_Error( 'license_error', 'Licensing failed.' ) ]
-			);
-		} else {
-			$licensing_client = new Licensing_Fixture( codecept_data_dir( 'licensing' ) );
-		}
+		$catalog_client   = new Catalog_Fixture( codecept_data_dir( 'catalog/default.json' ) );
+		$licensing_client = new Licensing_Fixture( codecept_data_dir( 'licensing' ) );
 
 		$catalog   = new Catalog_Repository( $catalog_client );
 		$licensing = new License_Manager( new License_Repository(), new Product_Registry(), $licensing_client );
@@ -98,6 +90,27 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		if ( $licensing_override !== null ) {
 			$licensing->store_key( $licensing_override );
 		}
+
+		return new Feature_Repository(
+			$this->make_resolver( $catalog, $licensing )
+		);
+	}
+
+	/**
+	 * Creates a Feature_Repository with a stored key but a licensing client that always fails.
+	 *
+	 * @return Feature_Repository
+	 */
+	private function make_error_repository(): Feature_Repository {
+		$catalog_client   = new Catalog_Fixture( codecept_data_dir( 'catalog/default.json' ) );
+		$licensing_client = $this->makeEmpty(
+			Licensing_Client::class,
+			[ 'get_products' => new WP_Error( 'license_error', 'Licensing failed.' ) ]
+		);
+
+		$catalog   = new Catalog_Repository( $catalog_client );
+		$licensing = new License_Manager( new License_Repository(), new Product_Registry(), $licensing_client );
+		$licensing->store_key( 'LWSW-test-error-key' );
 
 		return new Feature_Repository(
 			$this->make_resolver( $catalog, $licensing )
@@ -185,16 +198,36 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Tests that a licensing error returns a WP_Error.
+	 * Tests that a licensing API error (with a stored key) returns a WP_Error.
 	 *
 	 * @return void
 	 */
 	public function test_licensing_error_returns_wp_error(): void {
-		$repository = $this->make_repository();
+		$repository = $this->make_error_repository();
 
-		$result = $repository->get( 'invalid-key', 'example.com' );
+		$result = $repository->get( 'LWSW-test-error-key', 'example.com' );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
+	}
+
+	/**
+	 * Tests that feature resolution succeeds and returns a Feature_Collection when no license key is stored.
+	 *
+	 * All features should be unavailable since there is no licensed tier.
+	 *
+	 * @return void
+	 */
+	public function test_it_resolves_catalog_without_license_key(): void {
+		$repository = $this->make_repository();
+
+		$result = $repository->get( '', 'example.com' );
+
+		$this->assertInstanceOf( Feature_Collection::class, $result );
+		$this->assertGreaterThan( 0, $result->count() );
+
+		foreach ( $result as $feature ) {
+			$this->assertFalse( $feature->is_available(), 'All features should be unavailable without a license.' );
+		}
 	}
 
 	/**

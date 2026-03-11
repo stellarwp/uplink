@@ -394,6 +394,8 @@ final class License_ControllerTest extends UplinkTestCase {
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( Error_Code::INVALID_KEY, $response->get_data()['code'] );
+		$this->assertSame( 'API failure', $response->get_data()['message'] );
 	}
 
 	public function test_store_returns_error_when_throttled(): void {
@@ -410,6 +412,8 @@ final class License_ControllerTest extends UplinkTestCase {
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( Error_Code::INVALID_KEY, $response->get_data()['code'] );
+		$this->assertSame( 'API failure', $response->get_data()['message'] );
 	}
 
 	public function test_validate_returns_error_when_throttled(): void {
@@ -428,5 +432,7 @@ final class License_ControllerTest extends UplinkTestCase {
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( Error_Code::INVALID_KEY, $response->get_data()['code'] );
+		$this->assertSame( 'API failure', $response->get_data()['message'] );
 	}
 }

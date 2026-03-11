@@ -65,7 +65,6 @@ export function AppShell() {
                             <ProductSection
                                 key={ product.slug }
                                 product={ product }
-                                onAddLicense={ () => {} }
                             />
                         ) ) }
                     </div>

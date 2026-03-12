@@ -253,7 +253,6 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 				'is_available'      => true,
 				'documentation_url' => '',
 				'plugin_file'       => '',
-				'plugin_slug'       => '',
 				'authors'           => [],
 			],
 		];

@@ -22,31 +22,41 @@ To run tests for the first time, there are a couple of things you need to do:
 
 You can simply run `slic run` or `slic run SUITE_YOU_WANT_TO_RUN` to quickly run automated tests for this library. If you want to use xdebug with your tests, you'll need to open a `slic ssh` session and turn xdebugging on (there's help text to show you how).
 
-## Postman collection
+## Local development with fixtures
 
-The `docs/postman/` directory contains Postman collections for manual API testing.
+During development the [sample plugin](https://github.com/stellarwp/uplink-sample-plugin) replaces the real API clients with fixture clients that read local JSON files. The admin settings page (under **Uplink Sample Plugin**) exposes three controls:
 
-### Feature Toggling
+- **Fixture Mode** — toggle between fixture files and the real API.
+- **Fixture Key** — select which fixture set to use.
+- **API Base URL** — override the real API endpoint (ignored when fixture mode is on).
 
-**File:** `Feature.Toggling.postman_collection.json`
+For how catalog and licensing data join to produce features, see [Data Sources in features.md](features.md#data-sources).
 
-This collection covers the Feature Toggling REST API (`/wp-json/stellarwp/uplink/v1/features`). It includes requests grouped by scenario:
+### What happens when you switch the fixture key
 
-- **Features List** - list all features with optional filters (group, tier, available, type).
-- **Flag Feature** - get, enable, and disable a flag feature.
-- **Plugin Feature - Valid Scenarios** - get, enable, and disable a valid plugin feature.
-- **Plugin Feature - Invalid Scenarios** - Invalid scenarios for the plugin feature (fatal errors, requirements not met, ownership mismatch, etc.).
-- **Edge Cases** - Edge cases for the feature toggling API (nonexistent feature, invalid request, etc.).
+Each fixture key maps to JSON files in two directories — one for catalog, one for licensing:
 
-### Setup
+1. The **licensing** client loads `licensing/{key}.json`. Each file represents a different license scenario (basic tier, pro tier, expired, etc.).
+2. The **catalog** client looks for `catalog/{key}.json`. If no key-specific file exists, it falls back to `catalog/default.json` — the full product catalog.
 
-1. Import the collection into Postman.
-2. Set the collection variables before running any requests:
+Most fixture keys only have a licensing file. They share the same `default.json` catalog because the catalog doesn't change per customer — only licensing does. This means you'll see features from **all** products in the output. The `is_available` column shows which ones the fixture key actually entitles.
 
-| Variable                  | Description                                       |
-| ------------------------- | ------------------------------------------------- |
-| `WP_SITE`                 | Your WordPress site URL (e.g. `https://wp.test`). |
-| `WP_USER`                 | An admin username.                                |
-| `WP_APPLICATION_PASSWORD` | A WordPress application password for that user.   |
+For example, with the full `default.json` catalog:
 
-The collection uses **Basic Auth** with the credentials above, so make sure the [Application Passwords](https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/) feature is enabled on your site.
+- **`lwsw-unified-give-basic-2026`** — licensing says "GiveWP at basic tier." Features from all products appear, but only basic-tier GiveWP features have `is_available: true`. Kadence features have `is_available: false` (no license entry).
+- **`lwsw-unified-pro-2026`** — licensing says "pro tier across multiple products." More features become available.
+
+Some fixture keys (like `lwsw-unified-test-fixtures`) ship a dedicated catalog file with a curated subset of products. When that file exists, it replaces the full catalog entirely — so fewer features appear in the output.
+
+### File resolution order
+
+The sample plugin resolves fixture files from two directories, in order:
+
+1. `fixtures/` inside the sample plugin — custom or one-off files
+2. `WP_PLUGIN_DIR/uplink/tests/_data/` — shared uplink test fixtures
+
+The first match wins. For the catalog, if no key-specific file is found in either location, it falls back to `default.json` in the same order.
+
+### Adding custom fixtures
+
+Drop JSON files into the sample plugin's `fixtures/catalog/` and `fixtures/licensing/` directories. The filename (without `.json`) becomes a selectable key in the settings dropdown. See the existing fixture files for the expected format.

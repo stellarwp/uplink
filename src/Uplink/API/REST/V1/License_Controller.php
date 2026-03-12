@@ -160,22 +160,31 @@ final class License_Controller extends WP_REST_Controller {
 	/**
 	 * Returns the current unified license key and its associated products.
 	 *
-	 * Always returns 200. The key field will be null if no key is stored
-	 * and none is discoverable from the product registry.
+	 * Returns 200 on success. Returns a WP_Error if the API call fails or a
+	 * recent failure is still within the throttle window. The key field will
+	 * be null if no key is stored and none is discoverable from the product
+	 * registry.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 *
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
-	public function get_item( $request ): WP_REST_Response {
-		$domain   = $this->site_data->get_domain();
-		$key      = $this->manager->get_key();
+	public function get_item( $request ) {
+		$domain = $this->site_data->get_domain();
+		$key    = $this->manager->get_key();
+
+		if ( $key === null ) {
+			return new WP_REST_Response(
+				License_Response::make( null, new Product_Collection() )
+			);
+		}
+
 		$products = $this->manager->get_products( $domain );
 
 		if ( is_wp_error( $products ) ) {
-			$products = new Product_Collection();
+			return $products;
 		}
 
 		return new WP_REST_Response(

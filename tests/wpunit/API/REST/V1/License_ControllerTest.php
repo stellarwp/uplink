@@ -11,6 +11,7 @@ use StellarWP\Uplink\API\REST\V1\License_Controller;
 use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Tests\Traits\With_Uopz;
 use StellarWP\Uplink\Tests\UplinkTestCase;
+use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
 
@@ -20,6 +21,7 @@ final class License_ControllerTest extends UplinkTestCase {
 
 	private WP_REST_Server $server;
 	private License_Manager $manager;
+	private License_Repository $repository;
 
 	protected function setUp(): void {
 		parent::setUp();
@@ -27,9 +29,9 @@ final class License_ControllerTest extends UplinkTestCase {
 		delete_option( License_Repository::KEY_OPTION_NAME );
 		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
 
-		$repository    = new License_Repository();
-		$registry      = new Product_Registry();
-		$this->manager = new License_Manager( $repository, $registry, new Fixture_Client( codecept_data_dir( 'licensing' ) ) );
+		$this->repository = new License_Repository();
+		$registry         = new Product_Registry();
+		$this->manager    = new License_Manager( $this->repository, $registry, new Fixture_Client( codecept_data_dir( 'licensing' ) ) );
 
 		/** @var WP_REST_Server $wp_rest_server */
 		global $wp_rest_server;
@@ -372,5 +374,65 @@ final class License_ControllerTest extends UplinkTestCase {
 
 	public function test_store_error_code_constant(): void {
 		$this->assertSame( 'stellarwp-uplink-store-failed', Error_Code::STORE_FAILED );
+	}
+
+	// -------------------------------------------------------------------------
+	// Error throttling
+	// -------------------------------------------------------------------------
+
+	public function test_get_returns_error_when_throttled(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$this->manager->store_key( 'LWSW-UNIFIED-PRO-2026' );
+
+		// Write error state at a fixed time, then advance within the TTL.
+		$this->set_fn_return( 'time', 1000000 );
+		$this->repository->set_products( new WP_Error( Error_Code::INVALID_KEY, 'API failure', [ 'status' => 400 ] ) );
+		$this->set_fn_return( 'time', 1000030 );
+
+		$request  = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/license' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( Error_Code::INVALID_KEY, $response->get_data()['code'] );
+		$this->assertSame( 'API failure', $response->get_data()['message'] );
+	}
+
+	public function test_store_returns_error_when_throttled(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		// Write error state at a fixed time, then advance within the TTL.
+		$this->set_fn_return( 'time', 1000000 );
+		$this->repository->set_products( new WP_Error( Error_Code::INVALID_KEY, 'API failure', [ 'status' => 400 ] ) );
+		$this->set_fn_return( 'time', 1000030 );
+
+		$request = new WP_REST_Request( 'POST', '/stellarwp/uplink/v1/license' );
+		$request->set_param( 'key', 'LWSW-UNIFIED-PRO-2026' );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( Error_Code::INVALID_KEY, $response->get_data()['code'] );
+		$this->assertSame( 'API failure', $response->get_data()['message'] );
+	}
+
+	public function test_validate_returns_error_when_throttled(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$this->manager->store_key( 'LWSW-UNIFIED-PRO-2026' );
+
+		// Write error state at a fixed time, then advance within the TTL.
+		$this->set_fn_return( 'time', 1000000 );
+		$this->repository->set_products( new WP_Error( Error_Code::INVALID_KEY, 'API failure', [ 'status' => 400 ] ) );
+		$this->set_fn_return( 'time', 1000030 );
+
+		$request = new WP_REST_Request( 'POST', '/stellarwp/uplink/v1/license/validate' );
+		$request->set_param( 'product_slug', 'give' );
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( Error_Code::INVALID_KEY, $response->get_data()['code'] );
+		$this->assertSame( 'API failure', $response->get_data()['message'] );
 	}
 }

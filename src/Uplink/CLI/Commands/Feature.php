@@ -118,7 +118,6 @@ class Feature extends WP_CLI_Command {
 	 * * is_enabled
 	 * * documentation_url
 	 * * plugin_file
-	 * * plugin_slug
 	 * * authors
 	 * * is_dot_org
 	 *

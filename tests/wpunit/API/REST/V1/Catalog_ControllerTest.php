@@ -19,14 +19,15 @@ final class Catalog_ControllerTest extends UplinkTestCase {
 	use With_Uopz;
 
 	private WP_REST_Server $server;
+	private Catalog_Repository $repository;
 
 	protected function setUp(): void {
 		parent::setUp();
 
 		delete_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
 
-		$client     = $this->make_client( $this->build_catalog_from_fixture() );
-		$repository = new Catalog_Repository( $client );
+		$client           = $this->make_client( $this->build_catalog_from_fixture() );
+		$this->repository = new Catalog_Repository( $client );
 
 		/** @var WP_REST_Server $wp_rest_server */
 		global $wp_rest_server;
@@ -46,7 +47,7 @@ final class Catalog_ControllerTest extends UplinkTestCase {
 			true
 		);
 
-		$controller = new Catalog_Controller( $repository );
+		$controller = new Catalog_Controller( $this->repository );
 		$controller->register_routes();
 	}
 
@@ -101,6 +102,26 @@ final class Catalog_ControllerTest extends UplinkTestCase {
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 401, $response->get_status() );
+	}
+
+	// -------------------------------------------------------------------------
+	// Error throttling
+	// -------------------------------------------------------------------------
+
+	public function test_get_returns_error_when_throttled(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		// Write error state at a fixed time, then advance within the TTL.
+		$this->set_fn_return( 'time', 1000000 );
+		$this->repository->set_catalog( new WP_Error( Error_Code::INVALID_RESPONSE, 'API unavailable.', [ 'status' => 502 ] ) );
+		$this->set_fn_return( 'time', 1000030 );
+
+		$request  = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/catalog' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 502, $response->get_status() );
+		$this->assertSame( Error_Code::INVALID_RESPONSE, $response->get_data()['code'] );
+		$this->assertSame( 'API unavailable.', $response->get_data()['message'] );
 	}
 
 	public function test_client_error_is_forwarded(): void {

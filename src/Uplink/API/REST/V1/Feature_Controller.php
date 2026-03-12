@@ -390,12 +390,6 @@ class Feature_Controller extends WP_REST_Controller {
 				'readonly'    => true,
 				'context'     => [ 'view' ],
 			],
-			'plugin_slug' => [
-				'description' => __( 'The slug used for plugins_api() lookups.', '%TEXTDOMAIN%' ),
-				'type'        => 'string',
-				'readonly'    => true,
-				'context'     => [ 'view' ],
-			],
 		];
 
 		$this->schema = [

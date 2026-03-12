@@ -26,25 +26,23 @@ use WP_Error;
 final class Feature_RepositoryTest extends UplinkTestCase {
 
 	/**
-	 * Clears all relevant transients before each test.
+	 * Clears upstream caches before each test.
 	 *
 	 * @return void
 	 */
 	protected function setUp(): void {
 		parent::setUp();
 
-		delete_transient( Feature_Repository::TRANSIENT_KEY );
 		delete_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
 		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
 	}
 
 	/**
-	 * Clears all relevant transients after each test.
+	 * Clears upstream caches after each test.
 	 *
 	 * @return void
 	 */
 	protected function tearDown(): void {
-		delete_transient( Feature_Repository::TRANSIENT_KEY );
 		delete_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
 		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
 
@@ -254,85 +252,33 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Tests that the feature catalog is stored in a WordPress transient after fetching.
+	 * Tests that the same instance is returned on repeated calls within one request.
 	 *
 	 * @return void
 	 */
-	public function test_it_caches_in_transient(): void {
+	public function test_it_returns_cached_collection_within_request(): void {
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
 
-		$repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$first  = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$second = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
 
-		$cached = get_transient( Feature_Repository::TRANSIENT_KEY );
-
-		$this->assertIsArray( $cached );
-		$this->assertNotEmpty( $cached );
+		$this->assertSame( $first, $second );
 	}
 
 	/**
-	 * Tests that a cached transient is returned without calling the clients again.
-	 *
-	 * @return void
-	 */
-	public function test_it_returns_cached_collection(): void {
-		$cached = [
-			[
-				'slug'              => 'cached-feature',
-				'group'             => 'test',
-				'tier'              => 'free',
-				'name'              => 'Cached',
-				'description'       => '',
-				'type'              => 'plugin',
-				'is_available'      => true,
-				'documentation_url' => '',
-				'plugin_file'       => '',
-				'authors'           => [],
-			],
-		];
-
-		// Set the transient after make_repository() so that store_key() inside
-		// make_repository() does not fire the key-changed hook and wipe the cache.
-		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
-		set_transient( Feature_Repository::TRANSIENT_KEY, $cached );
-		$result = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
-
-		$this->assertCount( 1, $result );
-		$this->assertSame( 'cached-feature', $result->get( 'cached-feature' )->get_slug() );
-	}
-
-	/**
-	 * Tests that a cached WP_Error transient is returned directly.
-	 *
-	 * @return void
-	 */
-	public function test_it_returns_cached_wp_error(): void {
-		$error = new WP_Error( 'api_error', 'Cached error' );
-
-		// Set the transient after make_repository() so that store_key() inside
-		// make_repository() does not fire the key-changed hook and wipe the cache.
-		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
-		set_transient( Feature_Repository::TRANSIENT_KEY, $error );
-		$result = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
-
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'Cached error', $result->get_error_message() );
-	}
-
-	/**
-	 * Tests refresh clears and re-fetches the transient cache.
+	 * Tests refresh clears the in-memory cache and re-resolves.
 	 *
 	 * @return void
 	 */
 	public function test_refresh_clears_and_refetches(): void {
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
 
-		$repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$first  = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$second = $repository->refresh( 'lwsw-unified-kad-pro-2026', 'example.com' );
 
-		$this->assertIsArray( get_transient( Feature_Repository::TRANSIENT_KEY ) );
-
-		$repository->refresh( 'lwsw-unified-kad-pro-2026', 'example.com' );
-
-		$this->assertIsArray( get_transient( Feature_Repository::TRANSIENT_KEY ) );
+		$this->assertInstanceOf( Feature_Collection::class, $first );
+		$this->assertInstanceOf( Feature_Collection::class, $second );
+		$this->assertNotSame( $first, $second );
 	}
 
 	/**

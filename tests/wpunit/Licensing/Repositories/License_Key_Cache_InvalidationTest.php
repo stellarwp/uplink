@@ -4,10 +4,6 @@ namespace StellarWP\Uplink\Tests\Licensing\Repositories;
 
 use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Catalog\Clients\Fixture_Client as Catalog_Fixture;
-use StellarWP\Uplink\Features\Feature_Repository;
-use StellarWP\Uplink\Features\Resolve_Feature_Collection;
-use StellarWP\Uplink\Features\Types\Flag;
-use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Licensing\Clients\Fixture_Client as Licensing_Fixture;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Product_Collection;
@@ -17,7 +13,7 @@ use StellarWP\Uplink\Tests\UplinkTestCase;
 
 /**
  * Integration tests verifying that changing the unified license key
- * invalidates all repository transient caches, causing fresh data
+ * invalidates upstream repository caches, causing fresh data
  * to be fetched on the next call.
  *
  * @since 3.0.0
@@ -27,7 +23,6 @@ final class License_Key_Cache_InvalidationTest extends UplinkTestCase {
 	private License_Repository $license_repository;
 	private License_Manager $license_manager;
 	private Catalog_Repository $catalog_repository;
-	private Feature_Repository $feature_repository;
 
 	protected function setUp(): void {
 		parent::setUp();
@@ -44,16 +39,6 @@ final class License_Key_Cache_InvalidationTest extends UplinkTestCase {
 		$catalog_client           = new Catalog_Fixture( codecept_data_dir( 'catalog/default.json' ) );
 		$this->catalog_repository = new Catalog_Repository( $catalog_client );
 
-		$resolver = new Resolve_Feature_Collection(
-			$this->catalog_repository,
-			$this->license_manager
-		);
-		$resolver->register_type( 'plugin', Plugin::class );
-		$resolver->register_type( 'flag', Flag::class );
-		$resolver->register_type( 'theme', Plugin::class ); // TODO: Will be replaced with Theme type.
-
-		$this->feature_repository = new Feature_Repository( $resolver );
-
 		// Register cache invalidation hooks that providers normally wire up.
 		add_action(
 			'stellarwp/uplink/unified_license_key_changed',
@@ -65,16 +50,9 @@ final class License_Key_Cache_InvalidationTest extends UplinkTestCase {
 				delete_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
 			}
 		);
-		add_action(
-			'stellarwp/uplink/unified_license_key_changed',
-			static function () {
-				delete_transient( Feature_Repository::TRANSIENT_KEY );
-			}
-		);
 
 		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
 		delete_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
-		delete_transient( Feature_Repository::TRANSIENT_KEY );
 		delete_option( License_Repository::KEY_OPTION_NAME );
 	}
 
@@ -83,7 +61,6 @@ final class License_Key_Cache_InvalidationTest extends UplinkTestCase {
 
 		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
 		delete_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
-		delete_transient( Feature_Repository::TRANSIENT_KEY );
 		delete_option( License_Repository::KEY_OPTION_NAME );
 
 		parent::tearDown();
@@ -140,95 +117,50 @@ final class License_Key_Cache_InvalidationTest extends UplinkTestCase {
 		$this->assertNotNull( $fresh->get( 'kadence' ) );
 	}
 
-	public function test_feature_repository_returns_different_availability_after_key_change(): void {
-		// With a pro key, pro-tier features like kad-shop-kit (min: kadence-pro) are available.
-		$this->license_repository->store_key( 'LWSW-UNIFIED-KAD-PRO-2026' );
-		$pro_result = $this->feature_repository->get( 'LWSW-UNIFIED-KAD-PRO-2026', 'example.com' );
-
-		$this->assertTrue(
-			$pro_result->get( 'kad-shop-kit' )->is_available(),
-			'Pro tier (rank 2) should have access to kad-shop-kit (min: kadence-pro, rank 2).'
-		);
-		$this->assertTrue(
-			$pro_result->get( 'kad-blocks-pro' )->is_available(),
-			'Pro tier (rank 2) should have access to kad-blocks-pro (min: kadence-basic, rank 1).'
-		);
-
-		// Cached — even after changing stored key, stale pro features are returned until cache clears.
-		$stale = $this->feature_repository->get( 'LWSW-UNIFIED-BASIC-2026', 'example.com' );
-		$this->assertTrue(
-			$stale->get( 'kad-shop-kit' )->is_available(),
-			'Should still be cached pro feature data.'
-		);
-
-		// Change the license key — invalidates the feature transient.
-		$this->license_repository->store_key( 'LWSW-UNIFIED-BASIC-2026' );
-
-		// With a basic key, pro-tier features should no longer be available.
-		$basic_result = $this->feature_repository->get( 'LWSW-UNIFIED-BASIC-2026', 'example.com' );
-
-		$this->assertFalse(
-			$basic_result->get( 'kad-shop-kit' )->is_available(),
-			'Basic tier (rank 1) should NOT have access to kad-shop-kit (min: kadence-pro, rank 2).'
-		);
-		$this->assertTrue(
-			$basic_result->get( 'kad-blocks-pro' )->is_available(),
-			'Basic tier (rank 1) should still have access to kad-blocks-pro (min: kadence-basic, rank 1).'
-		);
-	}
-
 	public function test_all_caches_invalidated_on_key_change(): void {
-		// Populate all three caches.
+		// Populate upstream caches.
 		$this->license_repository->store_key( 'LWSW-UNIFIED-PRO-2026' );
 		$this->license_manager->get_products( 'example.com' );
 		$this->catalog_repository->get();
-		$this->feature_repository->get( 'LWSW-UNIFIED-KAD-PRO-2026', 'example.com' );
 
 		$this->assertInstanceOf( Product_Collection::class, $this->license_repository->get_products() );
 		$this->assertNotFalse( get_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME ) );
-		$this->assertNotFalse( get_transient( Feature_Repository::TRANSIENT_KEY ) );
 
-		// Storing a new key should clear the catalog option and feature transient.
+		// Storing a new key should clear the upstream caches.
 		$this->license_repository->store_key( 'LWSW-UNIFIED-BASIC-2026' );
 
 		$this->assertNull( $this->license_repository->get_products() );
 		$this->assertFalse( get_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME ) );
-		$this->assertFalse( get_transient( Feature_Repository::TRANSIENT_KEY ) );
 	}
 
 	public function test_all_caches_invalidated_on_key_delete(): void {
 		$this->license_repository->store_key( 'LWSW-UNIFIED-PRO-2026' );
 
-		// Populate all three caches.
+		// Populate upstream caches.
 		$this->license_manager->get_products( 'example.com' );
 		$this->catalog_repository->get();
-		$this->feature_repository->get( 'LWSW-UNIFIED-KAD-PRO-2026', 'example.com' );
 
 		$this->assertInstanceOf( Product_Collection::class, $this->license_repository->get_products() );
 		$this->assertNotFalse( get_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME ) );
-		$this->assertNotFalse( get_transient( Feature_Repository::TRANSIENT_KEY ) );
 
-		// Deleting the key should clear the catalog option and feature transient.
+		// Deleting the key should clear the upstream caches.
 		$this->license_repository->delete_key();
 
 		$this->assertNull( $this->license_repository->get_products() );
 		$this->assertFalse( get_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME ) );
-		$this->assertFalse( get_transient( Feature_Repository::TRANSIENT_KEY ) );
 	}
 
 	public function test_caches_not_invalidated_when_same_key_stored(): void {
 		$this->license_repository->store_key( 'LWSW-UNIFIED-PRO-2026' );
 
-		// Populate all three caches.
+		// Populate upstream caches.
 		$this->license_manager->get_products( 'example.com' );
 		$this->catalog_repository->get();
-		$this->feature_repository->get( 'LWSW-UNIFIED-KAD-PRO-2026', 'example.com' );
 
 		// Re-store the same key — caches should remain intact.
 		$this->license_repository->store_key( 'LWSW-UNIFIED-PRO-2026' );
 
 		$this->assertInstanceOf( Product_Collection::class, $this->license_repository->get_products() );
 		$this->assertNotFalse( get_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME ) );
-		$this->assertNotFalse( get_transient( Feature_Repository::TRANSIENT_KEY ) );
 	}
 }

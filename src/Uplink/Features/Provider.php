@@ -67,8 +67,6 @@ class Provider extends Abstract_Provider {
 			}
 		);
 
-		$this->register_hooks();
-
 		$this->container->singleton( Update\Provider::class, Update\Provider::class );
 		$this->container->get( Update\Provider::class )->register();
 	}
@@ -86,22 +84,6 @@ class Provider extends Abstract_Provider {
 		$resolver->register_type( Feature::TYPE_PLUGIN, Plugin::class );
 		$resolver->register_type( Feature::TYPE_FLAG, Flag::class );
 		$resolver->register_type( Feature::TYPE_THEME, Theme::class );
-	}
-
-	/**
-	 * Registers WordPress hooks for the Features subsystem.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return void
-	 */
-	private function register_hooks(): void {
-		add_action(
-			'stellarwp/uplink/unified_license_key_changed',
-			static function () {
-				delete_transient( Feature_Repository::TRANSIENT_KEY );
-			}
-		);
 	}
 
 }

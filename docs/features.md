@@ -61,6 +61,8 @@ Plugin and Theme features share a global transient lock (`stellarwp_uplink_insta
 
 `Resolve_Feature_Collection` joins catalog and licensing data to produce a `Feature_Collection`. Availability is determined by comparing integer tier ranks, not slug strings. The catalog defines ranks (e.g., `kadence-basic` = 1, `kadence-pro` = 2). A feature is available when the customer's tier rank >= the feature's minimum tier rank.
 
+For `Installable` features (Plugin, Theme), the resolver also reads `installed_version` from disk and stores it on the resolved Feature. This is the version currently on the site, distinct from the catalog's `version` which is the latest available. Flag features always have `installed_version: null`.
+
 Edge cases:
 
 - No licensing entry for a product: tier rank = `0`, all features unavailable
@@ -166,12 +168,14 @@ Each Feature object includes `is_enabled`, stamped with live state from its stra
 
 ## Data Sources
 
-| Data                                                    | Source                                                                                    |
-| ------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| Feature exists, minimum tier, delivery type, tier ranks | Catalog                                                                                   |
-| Customer's tier, key validity                           | Licensing                                                                                 |
-| **Whether available** (`is_available`)                  | **Computed: catalog min rank vs. licensing tier rank**                                    |
-| **Whether enabled** (`is_enabled`)                      | Live WordPress state (plugin activation / theme disk / flag option), stamped by Manager   |
+| Data                                                    | Source                                                                                        |
+| ------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Feature exists, minimum tier, delivery type, tier ranks | Catalog                                                                                       |
+| Latest version, release date, changelog                 | Catalog (`version`, `released_at`, `changelog`)                                               |
+| Customer's tier, key validity                           | Licensing                                                                                     |
+| **Whether available** (`is_available`)                  | **Computed: catalog min rank vs. licensing tier rank**                                        |
+| **Whether enabled** (`is_enabled`)                      | Live WordPress state (plugin activation / theme disk / flag option), stamped by Manager       |
+| **Installed version** (`installed_version`)             | Read from disk during resolution via `Installable`. Null for flags and uninstalled extensions |
 
 ## What Features Does Not Do
 

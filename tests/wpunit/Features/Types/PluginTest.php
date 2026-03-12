@@ -104,6 +104,8 @@ final class PluginTest extends UplinkTestCase {
 				'is_available'      => true,
 				'documentation_url' => 'https://example.com/docs',
 				'authors'           => [ 'StellarWP' ],
+				'released_at'       => '2025-11-15',
+				'installed_version' => '1.0.0',
 			]
 		);
 
@@ -118,6 +120,8 @@ final class PluginTest extends UplinkTestCase {
 				'is_available'      => true,
 				'documentation_url' => 'https://example.com/docs',
 				'authors'           => [ 'StellarWP' ],
+				'released_at'       => '2025-11-15',
+				'installed_version' => '1.0.0',
 				'type'              => 'plugin',
 			],
 			$feature->to_array()
@@ -143,6 +147,8 @@ final class PluginTest extends UplinkTestCase {
 			'plugin_file'       => 'test-feature/test-feature.php',
 			'authors'           => [ 'StellarWP' ],
 			'is_dot_org'        => false,
+			'released_at'       => '2025-11-15',
+			'installed_version' => '1.2.3',
 		];
 
 		$feature = Plugin::from_array( $data );

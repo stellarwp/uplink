@@ -24,13 +24,22 @@ export function useFilteredFeatures( productSlug: string ): Feature[] {
         [ productSlug ],
     );
 
-    const query = searchQuery.trim().toLowerCase();
+    const query = searchQuery.trim();
 
     if ( ! query ) return features;
 
+    // Try to use the query as a regex; fall back to a literal match if invalid.
+    let pattern: RegExp;
+    try {
+        pattern = new RegExp( query, 'i' );
+    } catch {
+        pattern = new RegExp( query.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' ), 'i' );
+    }
+
     return features.filter(
         ( f ) =>
-            f.name.toLowerCase().includes( query ) ||
-            f.description.toLowerCase().includes( query ),
+            pattern.test( f.name ) ||
+            pattern.test( f.slug ) ||
+            pattern.test( f.description ),
     );
 }

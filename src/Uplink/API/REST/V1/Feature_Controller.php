@@ -15,7 +15,7 @@ use WP_REST_Server;
 /**
  * WP REST API controller for managing features.
  *
- * Supports listing, retrieving, enabling, and disabling features.
+ * Supports listing, retrieving, enabling, disabling, and updating features.
  * Restricted to logged-in Administrators (manage_options capability).
  *
  * @since 3.0.0
@@ -125,6 +125,20 @@ class Feature_Controller extends WP_REST_Controller {
 				[
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => [ $this, 'disable' ],
+					'permission_callback' => [ $this, 'check_permissions' ],
+					'args'                => $this->get_slug_args(),
+				],
+				'schema' => [ $this, 'get_public_item_schema' ],
+			]
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<slug>[a-zA-Z0-9_-]+)/update',
+			[
+				[
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => [ $this, 'update_item' ],
 					'permission_callback' => [ $this, 'check_permissions' ],
 					'args'                => $this->get_slug_args(),
 				],
@@ -248,6 +262,28 @@ class Feature_Controller extends WP_REST_Controller {
 	public function disable( WP_REST_Request $request ) {
 		$slug    = Cast::to_string( $request->get_param( 'slug' ) );
 		$feature = $this->manager->disable( $slug );
+
+		if ( is_wp_error( $feature ) ) {
+			return $this->ensure_error_status( $feature );
+		}
+
+		return new WP_REST_Response(
+			$feature->to_array()
+		);
+	}
+
+	/**
+	 * Triggers an update for a feature.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function update_item( $request ) {
+		$slug    = Cast::to_string( $request->get_param( 'slug' ) );
+		$feature = $this->manager->update( $slug );
 
 		if ( is_wp_error( $feature ) ) {
 			return $this->ensure_error_status( $feature );

@@ -36,6 +36,9 @@ use WP_CLI_Command;
  *     # Disable a feature by slug
  *     wp uplink feature disable my-feature
  *
+ *     # Update a feature to the latest version
+ *     wp uplink feature update my-feature
+ *
  * @since 3.0.0
  */
 class Feature extends WP_CLI_Command {
@@ -319,6 +322,38 @@ class Feature extends WP_CLI_Command {
 			WP_CLI::error( $feature->get_error_message() );
 		} else {
 			WP_CLI::success( sprintf( 'Feature "%s" disabled.', $slug ) );
+		}
+	}
+
+	/**
+	 * Updates a feature to the latest version.
+	 *
+	 * For plugin and theme features, this upgrades the installed version to the
+	 * latest available from the catalog. Flag features do not support updates.
+	 *
+	 * ## OPTIONS
+	 *
+	 * <slug>
+	 * : The feature slug. Use `wp uplink feature list` to see available slugs.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Update a feature
+	 *     wp uplink feature update my-feature
+	 *
+	 * @param array<int, string>    $args       Positional arguments.
+	 * @param array<string, string> $assoc_args Associative arguments.
+	 *
+	 * @return void
+	 */
+	public function update( array $args, array $assoc_args ): void {
+		$slug    = $args[0];
+		$feature = $this->manager->update( $slug );
+
+		if ( is_wp_error( $feature ) ) {
+			WP_CLI::error( $feature->get_error_message() );
+		} else {
+			WP_CLI::success( sprintf( 'Feature "%s" updated.', $slug ) );
 		}
 	}
 

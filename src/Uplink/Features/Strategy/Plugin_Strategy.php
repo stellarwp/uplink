@@ -17,6 +17,7 @@ use function get_plugin_data;
 use function is_plugin_active;
 use function is_plugin_active_for_network;
 use function plugins_api;
+use function get_site_transient;
 use function rest_convert_error_to_response;
 use function sanitize_key;
 use function wp_json_encode;
@@ -25,11 +26,12 @@ use function wp_json_encode;
  * Plugin Strategy — installs, activates, and deactivates WordPress plugins as
  * "features" using ZIP file downloads.
  *
- * The shared enable/disable/is_active/ensure_installed flow is templated by
- * Installable_Strategy. This class provides the WP-specific hooks:
+ * The shared enable/disable/update/is_active/ensure_installed flow is templated
+ * by Installable_Strategy. This class provides the WP-specific hooks:
  * - do_install()     → plugins_api() + Plugin_Upgrader
  * - do_activate()    → activate_plugin() with fatal error protection
  * - do_deactivate()  → deactivate_plugins() + verification
+ * - do_update()      → Plugin_Upgrader::upgrade()
  * - verify_ownership → Author header checks (3 cases)
  *
  * A plugin feature is active when WordPress reports the plugin as active.
@@ -43,21 +45,6 @@ class Plugin_Strategy extends Installable_Strategy {
 	 * @var Plugin
 	 */
 	protected Feature $feature;
-
-	/**
-	 * Construct the strategy with a Plugin feature.
-	 *
-	 * Narrows the parent's Feature type to Plugin.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param Plugin $feature The plugin feature this strategy operates on.
-	 *
-	 * phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found -- Narrows parameter type from Feature to Plugin.
-	 */
-	public function __construct( Plugin $feature ) {
-		parent::__construct( $feature );
-	}
 
 	/**
 	 * WordPress error codes that indicate PHP or WP version requirements are not met.
@@ -107,97 +94,15 @@ class Plugin_Strategy extends Installable_Strategy {
 	/**
 	 * Install the plugin via plugins_api() and Plugin_Upgrader.
 	 *
+	 * Resolves the download link through plugins_api(), which is expected to
+	 * be filtered by the Features Provider to return catalog data for known
+	 * feature slugs.
+	 *
 	 * @since 3.0.0
 	 *
 	 * @return true|WP_Error
 	 */
 	protected function do_install() {
-		return $this->install_plugin();
-	}
-
-	/**
-	 * Activate the plugin with fatal error protection.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return true|WP_Error
-	 */
-	protected function do_activate() {
-		return $this->activate_plugin();
-	}
-
-	/**
-	 * Deactivate the plugin.
-	 *
-	 * Never deletes plugin files — deactivation is safe and reversible.
-	 * Idempotent: returns true if the plugin is already inactive.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return true|WP_Error
-	 */
-	protected function do_deactivate() {
-		$plugin_file = $this->feature->get_plugin_file();
-
-		// Idempotent: if already inactive, bail.
-		if ( ! $this->check_active() ) {
-			return true;
-		}
-
-		// deactivate_plugins() returns void — it never errors. We verify the
-		// actual state afterward to confirm deactivation succeeded.
-		deactivate_plugins( $plugin_file, false, is_plugin_active_for_network( $plugin_file ) );
-
-		// Verify the plugin is actually inactive now. This catches edge cases
-		// where a deactivation hook re-activates the plugin or WordPress's
-		// plugin state is otherwise inconsistent.
-		// @phpstan-ignore-next-line if.alwaysTrue -- (deactivate_plugins() changes active state via DB side effects invisible to static analysis).
-		if ( $this->check_active() ) {
-			return new WP_Error(
-				Error_Code::DEACTIVATION_FAILED,
-				sprintf(
-					/* translators: %s: feature name */
-					__( '"%s" could not be deactivated. The plugin may have been reactivated by another process.', '%TEXTDOMAIN%' ),
-					$this->feature->get_name()
-				)
-			);
-		}
-
-		return true; // @phpstan-ignore deadCode.unreachable (The check above is a double check)
-	}
-
-	/**
-	 * Verify plugin ownership.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return true|WP_Error
-	 */
-	protected function verify_ownership() {
-		return $this->verify_plugin_ownership();
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	protected function get_not_found_after_install_error_code(): string {
-		return Error_Code::PLUGIN_NOT_FOUND_AFTER_INSTALL;
-	}
-
-	// ── Private helpers ─────────────────────────────────────────────────
-
-	/**
-	 * Install a plugin via plugins_api() and Plugin_Upgrader.
-	 *
-	 * Resolves the download link through plugins_api(), which is expected to
-	 * be filtered by the Features Provider to return catalog data for known
-	 * feature slugs. Uses WP_Ajax_Upgrader_Skin to suppress output.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return true|WP_Error True on success, WP_Error on failure.
-	 */
-	private function install_plugin() {
 		$plugin_info = plugins_api(
 			'plugin_information',
 			[
@@ -229,72 +134,18 @@ class Plugin_Strategy extends Installable_Strategy {
 			);
 		}
 
-		$skin     = new WP_Ajax_Upgrader_Skin();
-		$upgrader = new Plugin_Upgrader( $skin );
+		$skin          = new WP_Ajax_Upgrader_Skin();
+		$upgrader      = new Plugin_Upgrader( $skin );
+		$download_link = Cast::to_string( $plugin_info->download_link );
 
-		try {
-			$result = $upgrader->install( Cast::to_string( $plugin_info->download_link ) );
-		} catch ( \Throwable $e ) {
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
-				error_log( "Uplink: fatal error installing plugin \"{$this->feature->get_slug()}\": {$e->getMessage()} {$e->getFile()}:{$e->getLine()}" );
-			}
-
-			return new WP_Error(
-				Error_Code::INSTALL_FAILED,
-				sprintf(
-					/* translators: %s: feature name */
-					__( 'A fatal error occurred while installing "%s".', '%TEXTDOMAIN%' ),
-					$this->feature->get_name()
-				)
-			);
-		}
-
-		// Plugin_Upgrader::install() returns true on success or WP_Error on
-		// failure. The skin may also collect errors separately.
-		if ( is_wp_error( $result ) ) {
-			return new WP_Error(
-				Error_Code::INSTALL_FAILED,
-				sprintf(
-					/* translators: %1$s: feature name, %2$s: error message */
-					__( 'Installation of "%1$s" failed: %2$s', '%TEXTDOMAIN%' ),
-					$this->feature->get_name(),
-					$result->get_error_message()
-				)
-			);
-		}
-
-		if ( $result !== true ) {
-			// Defensive: covers any unexpected falsy return not typed in stubs.
-			// When check_package() rejects a plugin for PHP/WP version requirements,
-			// Plugin_Upgrader::install() returns a falsy value (empty array) rather
-			// than a WP_Error. The specific error is captured in the skin.
-			$skin_errors = $skin->get_errors();
-			$error_code  = Error_Code::INSTALL_FAILED;
-
-			if ( $skin_errors->has_errors() && array_intersect( $skin_errors->get_error_codes(), self::REQUIREMENTS_ERROR_CODES ) ) {
-				$error_code = Error_Code::REQUIREMENTS_NOT_MET;
-			}
-
-			// Use the skin's get_error_messages() which concatenates the error
-			// message with its data, providing the specific reason (e.g.
-			// "The PHP version on your server is X, however the plugin requires Y").
-			$message = $skin_errors->has_errors()
-				? $skin->get_error_messages()
-				: __( 'An unknown error occurred during installation.', '%TEXTDOMAIN%' );
-
-			return new WP_Error(
-				$error_code,
-				sprintf(
-					/* translators: %1$s: feature name, %2$s: error message */
-					__( 'Installation of "%1$s" failed: %2$s', '%TEXTDOMAIN%' ),
-					$this->feature->get_name(),
-					$message
-				)
-			);
-		}
-
-		return true;
+		return $this->run_upgrader(
+			static function () use ( $upgrader, $download_link ) {
+				return $upgrader->install( $download_link );
+			},
+			$skin,
+			Error_Code::INSTALL_FAILED,
+			false
+		);
 	}
 
 	/**
@@ -306,9 +157,9 @@ class Plugin_Strategy extends Installable_Strategy {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @return true|WP_Error True on success, WP_Error on failure.
+	 * @return true|WP_Error
 	 */
-	private function activate_plugin() {
+	protected function do_activate() {
 		$plugin_file = $this->feature->get_plugin_file();
 		$completed   = false;
 		$die_output  = '';
@@ -439,6 +290,68 @@ class Plugin_Strategy extends Installable_Strategy {
 	}
 
 	/**
+	 * Deactivate the plugin.
+	 *
+	 * Never deletes plugin files — deactivation is safe and reversible.
+	 * Idempotent: returns true if the plugin is already inactive.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return true|WP_Error
+	 */
+	protected function do_deactivate() {
+		$plugin_file = $this->feature->get_plugin_file();
+
+		// Idempotent: if already inactive, bail.
+		if ( ! $this->check_active() ) {
+			return true;
+		}
+
+		// deactivate_plugins() returns void — it never errors. We verify the
+		// actual state afterward to confirm deactivation succeeded.
+		deactivate_plugins( $plugin_file, false, is_plugin_active_for_network( $plugin_file ) );
+
+		// Verify the plugin is actually inactive now. This catches edge cases
+		// where a deactivation hook re-activates the plugin or WordPress's
+		// plugin state is otherwise inconsistent.
+		// @phpstan-ignore-next-line if.alwaysTrue -- (deactivate_plugins() changes active state via DB side effects invisible to static analysis).
+		if ( $this->check_active() ) {
+			return new WP_Error(
+				Error_Code::DEACTIVATION_FAILED,
+				sprintf(
+					/* translators: %s: feature name */
+					__( '"%s" could not be deactivated. The plugin may have been reactivated by another process.', '%TEXTDOMAIN%' ),
+					$this->feature->get_name()
+				)
+			);
+		}
+
+		return true; // @phpstan-ignore deadCode.unreachable (The check above is a double check)
+	}
+
+	/**
+	 * Run the plugin upgrade.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return true|WP_Error
+	 */
+	protected function do_update() {
+		$skin        = new WP_Ajax_Upgrader_Skin();
+		$upgrader    = new Plugin_Upgrader( $skin );
+		$plugin_file = $this->feature->get_plugin_file();
+
+		return $this->run_upgrader(
+			static function () use ( $upgrader, $plugin_file ) {
+				return $upgrader->upgrade( $plugin_file );
+			},
+			$skin,
+			Error_Code::UPDATE_FAILED,
+			true
+		);
+	}
+
+	/**
 	 * Verify that the plugin directory is not occupied by a different developer.
 	 *
 	 * Handles three cases:
@@ -457,7 +370,7 @@ class Plugin_Strategy extends Installable_Strategy {
 	 *
 	 * @return true|WP_Error True if ownership matches, WP_Error on mismatch.
 	 */
-	private function verify_plugin_ownership() {
+	protected function verify_ownership() {
 		$expected_authors = $this->feature->get_authors();
 
 		if ( $expected_authors === [] ) {
@@ -484,6 +397,39 @@ class Plugin_Strategy extends Installable_Strategy {
 		// Case 3: neither the file nor the folder exists — no conflict.
 		return true;
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function get_not_found_after_install_error_code(): string {
+		return Error_Code::PLUGIN_NOT_FOUND_AFTER_INSTALL;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function get_requirements_error_codes(): array {
+		return self::REQUIREMENTS_ERROR_CODES;
+	}
+
+	/**
+	 * Check whether an update is available for this plugin.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return bool
+	 */
+	protected function check_update_available(): bool {
+		$update_plugins = get_site_transient( 'update_plugins' );
+
+		if ( ! is_object( $update_plugins ) || empty( $update_plugins->response ) || ! is_array( $update_plugins->response ) ) {
+			return false;
+		}
+
+		return isset( $update_plugins->response[ $this->feature->get_plugin_file() ] );
+	}
+
+	// ── Private helpers ─────────────────────────────────────────────────
 
 	/**
 	 * Check whether a specific plugin file's Author header matches expected authors.

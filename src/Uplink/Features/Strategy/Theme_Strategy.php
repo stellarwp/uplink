@@ -10,6 +10,7 @@ use WP_Error;
 use WP_Ajax_Upgrader_Skin;
 use Theme_Upgrader;
 
+use function get_site_transient;
 use function sanitize_key;
 use function themes_api;
 use function wp_get_theme;
@@ -17,11 +18,12 @@ use function wp_get_theme;
 /**
  * Theme Strategy — installs WordPress themes as "features".
  *
- * The shared enable/disable/is_active/ensure_installed flow is templated by
- * Installable_Strategy. This class provides the WP-specific hooks:
+ * The shared enable/disable/update/is_active/ensure_installed flow is templated
+ * by Installable_Strategy. This class provides the WP-specific hooks:
  * - do_install()     → themes_api() + Theme_Upgrader
  * - do_activate()    → no-op (theme is already installed)
- * - do_deactivate()  → no-op (theme files are never deleted)
+ * - do_deactivate()  → returns error (theme files are never deleted)
+ * - do_update()      → Theme_Upgrader::upgrade()
  * - verify_ownership → Author header check via wp_get_theme()
  *
  * A theme feature is active when the theme is installed on disk.
@@ -36,21 +38,6 @@ class Theme_Strategy extends Installable_Strategy {
 	 * @var Theme
 	 */
 	protected Feature $feature;
-
-	/**
-	 * Construct the strategy with a Theme feature.
-	 *
-	 * Narrows the parent's Feature type to Theme.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param Theme $feature The theme feature this strategy operates on.
-	 *
-	 * phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found -- Narrows parameter type from Feature to Theme.
-	 */
-	public function __construct( Theme $feature ) {
-		parent::__construct( $feature );
-	}
 
 	// ── Abstract method implementations ─────────────────────────────────
 
@@ -83,12 +70,58 @@ class Theme_Strategy extends Installable_Strategy {
 	/**
 	 * Install the theme via themes_api() and Theme_Upgrader.
 	 *
+	 * Resolves the download link through themes_api(), which is expected to
+	 * be filtered by the Features Provider to return catalog data for known
+	 * feature slugs.
+	 *
 	 * @since 3.0.0
 	 *
 	 * @return true|WP_Error
 	 */
 	protected function do_install() {
-		return $this->install_theme();
+		$theme_info = themes_api(
+			'theme_information',
+			[
+				'slug'   => sanitize_key( $this->feature->get_slug() ),
+				'fields' => [ 'sections' => false ],
+			]
+		);
+
+		if ( is_wp_error( $theme_info ) ) {
+			return new WP_Error(
+				Error_Code::THEMES_API_FAILED,
+				sprintf(
+					/* translators: %1$s: feature name, %2$s: error message */
+					__( 'Could not retrieve download information for "%1$s": %2$s', '%TEXTDOMAIN%' ),
+					$this->feature->get_name(),
+					$theme_info->get_error_message()
+				)
+			);
+		}
+
+		if ( empty( $theme_info->download_link ) ) {
+			return new WP_Error(
+				Error_Code::DOWNLOAD_LINK_MISSING,
+				sprintf(
+					/* translators: %s: feature name */
+					__( 'No download link is available for "%s".', '%TEXTDOMAIN%' ),
+					$this->feature->get_name()
+				)
+			);
+		}
+
+		$skin          = new WP_Ajax_Upgrader_Skin();
+		$upgrader      = new Theme_Upgrader( $skin );
+		$download_link = Cast::to_string( $theme_info->download_link );
+
+		return $this->run_upgrader(
+			static function () use ( $upgrader, $download_link ) {
+				return $upgrader->install( $download_link );
+			},
+			$skin,
+			Error_Code::INSTALL_FAILED,
+			false
+		);
 	}
 
 	/**
@@ -133,118 +166,25 @@ class Theme_Strategy extends Installable_Strategy {
 	}
 
 	/**
-	 * Verify theme ownership.
+	 * Run the theme upgrade.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @return true|WP_Error
 	 */
-	protected function verify_ownership() {
-		return $this->verify_theme_ownership();
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	protected function get_not_found_after_install_error_code(): string {
-		return Error_Code::THEME_NOT_FOUND_AFTER_INSTALL;
-	}
-
-	// ── Private helpers ─────────────────────────────────────────────────
-
-	/**
-	 * Install a theme via themes_api() and Theme_Upgrader.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return true|WP_Error True on success, WP_Error on failure.
-	 */
-	private function install_theme() {
-		$theme_info = themes_api(
-			'theme_information',
-			[
-				'slug'   => sanitize_key( $this->feature->get_slug() ),
-				'fields' => [ 'sections' => false ],
-			]
-		);
-
-		if ( is_wp_error( $theme_info ) ) {
-			return new WP_Error(
-				Error_Code::THEMES_API_FAILED,
-				sprintf(
-					/* translators: %1$s: feature name, %2$s: error message */
-					__( 'Could not retrieve download information for "%1$s": %2$s', '%TEXTDOMAIN%' ),
-					$this->feature->get_name(),
-					$theme_info->get_error_message()
-				)
-			);
-		}
-
-		if ( empty( $theme_info->download_link ) ) {
-			return new WP_Error(
-				Error_Code::DOWNLOAD_LINK_MISSING,
-				sprintf(
-					/* translators: %s: feature name */
-					__( 'No download link is available for "%s".', '%TEXTDOMAIN%' ),
-					$this->feature->get_name()
-				)
-			);
-		}
-
+	protected function do_update() {
 		$skin     = new WP_Ajax_Upgrader_Skin();
 		$upgrader = new Theme_Upgrader( $skin );
+		$slug     = $this->feature->get_slug();
 
-		try {
-			$result = $upgrader->install(
-				Cast::to_string( $theme_info->download_link )
-			);
-		} catch ( \Throwable $e ) {
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
-				error_log( "Uplink: fatal error installing theme \"{$this->feature->get_slug()}\": {$e->getMessage()} {$e->getFile()}:{$e->getLine()}" );
-			}
-
-			return new WP_Error(
-				Error_Code::INSTALL_FAILED,
-				sprintf(
-					/* translators: %s: feature name */
-					__( 'A fatal error occurred while installing "%s".', '%TEXTDOMAIN%' ),
-					$this->feature->get_name()
-				)
-			);
-		}
-
-		if ( is_wp_error( $result ) ) {
-			return new WP_Error(
-				Error_Code::INSTALL_FAILED,
-				sprintf(
-					/* translators: %1$s: feature name, %2$s: error message */
-					__( 'Installation of "%1$s" failed: %2$s', '%TEXTDOMAIN%' ),
-					$this->feature->get_name(),
-					$result->get_error_message()
-				)
-			);
-		}
-
-		if ( $result !== true ) {
-			$skin_errors = $skin->get_errors();
-
-			$message = $skin_errors->has_errors()
-				? $skin->get_error_messages()
-				: __( 'An unknown error occurred during installation.', '%TEXTDOMAIN%' );
-
-			return new WP_Error(
-				Error_Code::INSTALL_FAILED,
-				sprintf(
-					/* translators: %1$s: feature name, %2$s: error message */
-					__( 'Installation of "%1$s" failed: %2$s', '%TEXTDOMAIN%' ),
-					$this->feature->get_name(),
-					$message
-				)
-			);
-		}
-
-		return true;
+		return $this->run_upgrader(
+			static function () use ( $upgrader, $slug ) {
+				return $upgrader->upgrade( $slug );
+			},
+			$skin,
+			Error_Code::UPDATE_FAILED,
+			true
+		);
 	}
 
 	/**
@@ -254,7 +194,7 @@ class Theme_Strategy extends Installable_Strategy {
 	 *
 	 * @return true|WP_Error True if ownership matches or no theme on disk, WP_Error on mismatch.
 	 */
-	private function verify_theme_ownership() {
+	protected function verify_ownership() {
 		$expected_authors = $this->feature->get_authors();
 
 		if ( $expected_authors === [] ) {
@@ -287,6 +227,30 @@ class Theme_Strategy extends Installable_Strategy {
 				$actual_author
 			)
 		);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function get_not_found_after_install_error_code(): string {
+		return Error_Code::THEME_NOT_FOUND_AFTER_INSTALL;
+	}
+
+	/**
+	 * Check whether an update is available for this theme.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return bool
+	 */
+	protected function check_update_available(): bool {
+		$update_themes = get_site_transient( 'update_themes' );
+
+		if ( ! is_object( $update_themes ) || empty( $update_themes->response ) || ! is_array( $update_themes->response ) ) {
+			return false;
+		}
+
+		return isset( $update_themes->response[ $this->feature->get_slug() ] );
 	}
 
 	/**

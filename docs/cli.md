@@ -112,6 +112,20 @@ wp uplink feature disable <slug>
 wp uplink feature disable my-feature
 ```
 
+### update
+
+Updates a feature to the latest available version. Only applies to plugin and theme features — flag features do not support updates.
+
+```bash
+wp uplink feature update <slug>
+```
+
+**Examples:**
+
+```bash
+wp uplink feature update my-feature
+```
+
 ## Scripting Patterns
 
 ### JSON piping

@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Tests\Features\Strategy;
 
+use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Strategy\Flag_Strategy;
 use StellarWP\Uplink\Features\Types\Flag;
 use StellarWP\Uplink\Tests\UplinkTestCase;
@@ -154,6 +155,29 @@ final class FlagStrategyTest extends UplinkTestCase {
 	 */
 	public function test_is_active_returns_false_when_no_option_exists(): void {
 		$this->assertFalse( $this->strategy->is_active() );
+	}
+
+	// -------------------------------------------------------------------------
+	// update() tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * update() always returns UPDATE_NOT_SUPPORTED for flag features.
+	 */
+	public function test_update_returns_update_not_supported(): void {
+		$result = $this->strategy->update();
+
+		$this->assertWPError( $result );
+		$this->assertSame( Error_Code::UPDATE_NOT_SUPPORTED, $result->get_error_code() );
+	}
+
+	/**
+	 * update() includes the feature name in the error message.
+	 */
+	public function test_update_error_message_includes_feature_name(): void {
+		$result = $this->strategy->update();
+
+		$this->assertStringContainsString( 'Advanced Tickets', $result->get_error_message() );
 	}
 
 	// -------------------------------------------------------------------------

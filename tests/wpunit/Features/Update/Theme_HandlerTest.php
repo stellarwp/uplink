@@ -404,4 +404,33 @@ final class Theme_HandlerTest extends UplinkTestCase {
 		$this->assertSame( $existing_update, $result->response['my-theme'], 'The existing update array should not be modified.' );
 		$this->assertArrayNotHasKey( 'my-theme', $result->no_update, 'Theme should not appear in no_update when it has an existing update.' );
 	}
+
+	/**
+	 * Tests filter_update_check does not inject update data for a theme that is
+	 * not installed on the site.
+	 *
+	 * @return void
+	 */
+	public function test_filter_update_check_skips_uninstalled_theme(): void {
+		$update_data = [
+			'my-theme' => [
+				'version' => '2.0.0',
+				'package' => 'https://example.com/my-theme.zip',
+			],
+		];
+
+		$handler = $this->handler_with_feature( $update_data );
+
+		// Remove the theme from disk so wp_get_themes() no longer reports it as installed.
+		$this->remove_test_theme();
+
+		$transient            = new stdClass();
+		$transient->response  = [];
+		$transient->no_update = [];
+
+		$result = $handler->filter_update_check( $transient );
+
+		$this->assertArrayNotHasKey( 'my-theme', $result->response, 'Uninstalled theme must not appear in response.' );
+		$this->assertArrayNotHasKey( 'my-theme', $result->no_update, 'Uninstalled theme must not appear in no_update.' );
+	}
 }

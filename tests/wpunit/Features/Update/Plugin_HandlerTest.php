@@ -368,4 +368,34 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 		$this->assertSame( $existing_update, $result->response['my-plugin/my-plugin.php'], 'The existing update object should not be modified.' );
 		$this->assertArrayNotHasKey( 'my-plugin/my-plugin.php', $result->no_update, 'Plugin should not appear in no_update when it has an existing update.' );
 	}
+
+	/**
+	 * Tests filter_update_check does not inject update data for a plugin that is
+	 * not installed on the site.
+	 *
+	 * @return void
+	 */
+	public function test_filter_update_check_skips_uninstalled_plugin(): void {
+		$update_data = [
+			'my-plugin' => [
+				'version'     => '2.0.0',
+				'package'     => 'https://example.com/my-plugin.zip',
+				'plugin_file' => 'my-plugin/my-plugin.php',
+			],
+		];
+
+		$handler = $this->handler_with_feature( $update_data );
+
+		// Remove the plugin from disk so get_plugins() no longer reports it as installed.
+		$this->remove_test_plugin();
+
+		$transient           = new stdClass();
+		$transient->response  = [];
+		$transient->no_update = [];
+
+		$result = $handler->filter_update_check( $transient );
+
+		$this->assertArrayNotHasKey( 'my-plugin/my-plugin.php', $result->response, 'Uninstalled plugin must not appear in response.' );
+		$this->assertArrayNotHasKey( 'my-plugin/my-plugin.php', $result->no_update, 'Uninstalled plugin must not appear in no_update.' );
+	}
 }

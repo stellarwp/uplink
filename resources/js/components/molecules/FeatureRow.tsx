@@ -49,13 +49,21 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 
 	const Chevron = expanded ? ChevronDown : ChevronRight;
 
+	// Prefer the API's purchase_url for the locked-feature upgrade link;
+	// fall back to the static fixture upgradeUrl. Hoisted unconditionally
+	// to satisfy React's Rules of Hooks.
+	const catalogTierForUpgrade = useSelect(
+		( select ) => select( uplinkStore ).getCatalogTier( product.slug, feature.tier ),
+		[ product.slug, feature.tier ]
+	);
+
 	// Locked / unavailable feature row.
 	if ( ! feature.is_available ) {
 		const requiredTierObj = product.tiers.find(
 			( t ) => t.slug === feature.tier
 		);
 		const tierName = requiredTierObj?.name ?? feature.tier;
-		const upgradeUrl = requiredTierObj?.upgradeUrl ?? '#';
+		const upgradeUrl = catalogTierForUpgrade?.purchase_url ?? requiredTierObj?.upgradeUrl ?? '#';
 
 		return (
 			<div className="border-b last:border-b-0 bg-muted/30">

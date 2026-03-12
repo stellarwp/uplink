@@ -242,7 +242,7 @@ export interface ProductCatalog {
  *
  * @since 3.0.0
  */
-export type TierSlug = 'starter' | 'pro' | 'agency';
+export type TierSlug = 'starter' | 'pro' | 'agency' | ( string & {} );
 
 /**
  * A plan tier definition.
@@ -250,7 +250,7 @@ export type TierSlug = 'starter' | 'pro' | 'agency';
  * @since 3.0.0
  */
 export interface Tier {
-    slug: TierSlug;
+    slug: string;
     /**
      * Display name (e.g. "Pro").
      */

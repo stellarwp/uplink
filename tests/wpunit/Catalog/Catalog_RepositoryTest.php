@@ -7,10 +7,14 @@ use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Catalog\Clients\Catalog_Client;
 use StellarWP\Uplink\Catalog\Clients\Fixture_Client;
 use StellarWP\Uplink\Catalog\Results\Product_Catalog;
+use StellarWP\Uplink\Catalog\Error_Code;
+use StellarWP\Uplink\Tests\Traits\With_Uopz;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
 
 final class Catalog_RepositoryTest extends UplinkTestCase {
+
+	use With_Uopz;
 
 	private Catalog_Repository $repository;
 
@@ -116,6 +120,65 @@ final class Catalog_RepositoryTest extends UplinkTestCase {
 
 		// The error is also persisted alongside the preserved collection.
 		$this->assertInstanceOf( WP_Error::class, $this->repository->get_last_error() );
+	}
+
+	// -------------------------------------------------------------------------
+	// Error throttling
+	// -------------------------------------------------------------------------
+
+	public function test_set_catalog_collection_clears_last_failure_at(): void {
+		$this->repository->set_catalog( new WP_Error( Error_Code::INVALID_RESPONSE, 'API failure' ) );
+
+		$this->assertNotNull( $this->repository->get_last_failure_at() );
+
+		$this->repository->refresh(); // bypasses throttle, triggers successful fetch via the fixture client
+
+		$this->assertNull( $this->repository->get_last_failure_at() );
+	}
+
+	public function test_get_returns_cached_error_when_within_throttle_window(): void {
+		// Write error state at a fixed time.
+		$this->set_fn_return( 'time', 1000000 );
+		$this->repository->set_catalog( new WP_Error( Error_Code::INVALID_RESPONSE, 'API failure' ) );
+
+		// Advance to 30 s later — still within the 60 s TTL.
+		$this->set_fn_return( 'time', 1000030 );
+
+		$result = $this->repository->get();
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( Error_Code::INVALID_RESPONSE, $result->get_error_code() );
+	}
+
+	public function test_get_retries_api_after_throttle_window_expires(): void {
+		// Write error state at a fixed time.
+		$this->set_fn_return( 'time', 1000000 );
+		$this->repository->set_catalog( new WP_Error( Error_Code::INVALID_RESPONSE, 'API failure' ) );
+
+		// Advance past the 60 s TTL.
+		$this->set_fn_return( 'time', 1000061 );
+
+		$result = $this->repository->get();
+
+		$this->assertInstanceOf( Catalog_Collection::class, $result );
+		$this->assertCount( 4, $result );
+	}
+
+	public function test_successful_fetch_clears_error_state(): void {
+		// Write error state at a fixed time.
+		$this->set_fn_return( 'time', 1000000 );
+		$this->repository->set_catalog( new WP_Error( Error_Code::INVALID_RESPONSE, 'API failure' ) );
+
+		$this->assertNotNull( $this->repository->get_last_failure_at() );
+		$this->assertNotNull( $this->repository->get_last_error() );
+
+		// Advance past TTL so the request is not throttled and reaches the API.
+		$this->set_fn_return( 'time', 1000061 );
+
+		$this->repository->get();
+
+		$this->assertNull( $this->repository->get_last_failure_at() );
+		$this->assertNull( $this->repository->get_last_error() );
 	}
 
 	public function test_refresh_clears_and_refetches(): void {

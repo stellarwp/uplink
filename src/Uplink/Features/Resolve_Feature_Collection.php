@@ -8,6 +8,7 @@ use StellarWP\Uplink\Catalog\Results\Product_Catalog;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Product_Collection;
+use StellarWP\Uplink\Site\Data;
 use WP_Error;
 
 /**
@@ -39,6 +40,15 @@ class Resolve_Feature_Collection {
 	private License_Manager $licensing;
 
 	/**
+	 * The site data provider.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var Data
+	 */
+	private Data $site_data;
+
+	/**
 	 * Map of catalog type strings to Feature subclass names.
 	 *
 	 * @since 3.0.0
@@ -54,13 +64,16 @@ class Resolve_Feature_Collection {
 	 *
 	 * @param Catalog_Repository $catalog   The catalog repository.
 	 * @param License_Manager    $licensing The license manager.
+	 * @param Data               $site_data The site data provider.
 	 */
 	public function __construct(
 		Catalog_Repository $catalog,
-		License_Manager $licensing
+		License_Manager $licensing,
+		Data $site_data
 	) {
 		$this->catalog   = $catalog;
 		$this->licensing = $licensing;
+		$this->site_data = $site_data;
 	}
 
 	/**
@@ -85,21 +98,23 @@ class Resolve_Feature_Collection {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $domain Site domain.
-	 *
 	 * @return Feature_Collection|WP_Error
 	 */
-	public function __invoke( string $domain ) {
+	public function __invoke() {
 		$catalog = $this->catalog->get();
 
 		if ( is_wp_error( $catalog ) ) {
 			return $catalog;
 		}
 
-		$products = $this->licensing->get_products( $domain );
+		$products = $this->licensing->get_products( $this->site_data->get_domain() );
 
 		if ( is_wp_error( $products ) ) {
-			return $products;
+			if ( $this->licensing->get_key() === null ) {
+				$products = new Product_Collection();
+			} else {
+				return $products;
+			}
 		}
 
 		$collection = new Feature_Collection();
@@ -200,6 +215,7 @@ class Resolve_Feature_Collection {
 			'is_available'      => $is_available,
 			'documentation_url' => $catalog_feature->get_documentation_url(),
 			'plugin_file'       => $catalog_feature->get_plugin_file() ?? '',
+			'is_dot_org'        => $catalog_feature->is_dot_org(),
 			'authors'           => $catalog_feature->get_authors() ?? [],
 		];
 

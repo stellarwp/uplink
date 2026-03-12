@@ -37,40 +37,18 @@ class Manager {
 	private Strategy_Factory $strategy_factory;
 
 	/**
-	 * The license key.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var string
-	 */
-	private string $key;
-
-	/**
-	 * The site domain.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var string
-	 */
-	private string $domain;
-
-	/**
 	 * Constructor for the central feature orchestrator.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature_Repository $repository The repository for fetching available features.
+	 * @param Feature_Repository $repository       The repository for fetching available features.
 	 * @param Strategy_Factory   $strategy_factory The strategy factory.
-	 * @param string             $key              The license key.
-	 * @param string             $domain           The site domain.
 	 *
 	 * @return void
 	 */
-	public function __construct( Feature_Repository $repository, Strategy_Factory $strategy_factory, string $key, string $domain ) {
+	public function __construct( Feature_Repository $repository, Strategy_Factory $strategy_factory ) {
 		$this->repository       = $repository;
 		$this->strategy_factory = $strategy_factory;
-		$this->key              = $key;
-		$this->domain           = $domain;
 	}
 
 	/**
@@ -86,7 +64,7 @@ class Manager {
 	 * @return Feature|WP_Error The feature with updated is_enabled state, or WP_Error on failure.
 	 */
 	public function enable( string $slug ) {
-		$features = $this->repository->get( $this->key, $this->domain );
+		$features = $this->repository->get();
 
 		if ( is_wp_error( $features ) ) {
 			return $features;
@@ -185,7 +163,7 @@ class Manager {
 	 * @return Feature|WP_Error The feature with updated is_enabled state, or WP_Error on failure.
 	 */
 	public function disable( string $slug ) {
-		$features = $this->repository->get( $this->key, $this->domain );
+		$features = $this->repository->get();
 
 		if ( is_wp_error( $features ) ) {
 			return $features;
@@ -272,6 +250,105 @@ class Manager {
 	}
 
 	/**
+	 * Updates a feature by slug.
+	 *
+	 * Fires 'stellarwp/uplink/feature_updating' and 'stellarwp/uplink/{slug}/feature_updating'
+	 * before the operation, and the corresponding 'feature_updated' actions after success.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $slug The feature slug.
+	 *
+	 * @return Feature|WP_Error The feature with updated state, or WP_Error on failure.
+	 */
+	public function update( string $slug ) {
+		$features = $this->repository->get();
+
+		if ( is_wp_error( $features ) ) {
+			return $features;
+		}
+
+		$feature = $features->get( $slug );
+
+		if ( ! $feature ) {
+			return new WP_Error(
+				Error_Code::FEATURE_NOT_FOUND,
+				sprintf( 'Feature "%s" not found in the catalog.', $slug )
+			);
+		}
+
+		/**
+		 * Fires before a feature is updated.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param array<string, mixed> $feature The feature being updated.
+		 *
+		 * @return void
+		 */
+		do_action( 'stellarwp/uplink/feature_updating', $feature->to_array() );
+
+		/**
+		 * Fires before a specific feature is updated.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param array<string, mixed> $feature The feature being updated.
+		 *
+		 * @return void
+		 */
+		do_action( "stellarwp/uplink/{$slug}/feature_updating", $feature->to_array() );
+
+		try {
+			$strategy = $this->strategy_factory->make( $feature );
+
+			$result = $strategy->update();
+		} catch ( Throwable $e ) {
+			return new WP_Error(
+				Error_Code::UPDATE_FAILED,
+				$e->getMessage()
+			);
+		}
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		$feature = $this->get( $slug );
+
+		if ( ! $feature ) {
+			return new WP_Error(
+				Error_Code::FEATURE_NOT_FOUND,
+				sprintf( 'Feature "%s" not found after updating.', $slug )
+			);
+		}
+
+		/**
+		 * Fires after a feature has been successfully updated.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param array<string, mixed> $feature The feature that was updated.
+		 *
+		 * @return void
+		 */
+		do_action( 'stellarwp/uplink/feature_updated', $feature->to_array() );
+
+		/**
+		 * Fires after a specific feature has been successfully updated.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param array<string, mixed> $feature The feature that was updated.
+		 *
+		 * @return void
+		 */
+		do_action( "stellarwp/uplink/{$slug}/feature_updated", $feature->to_array() );
+
+		return $feature;
+	}
+
+	/**
 	 * Checks whether a feature is in the catalog AND currently enabled/active.
 	 *
 	 * @since 3.0.0
@@ -337,7 +414,7 @@ class Manager {
 	 * @return bool|WP_Error
 	 */
 	public function exists( string $slug ) {
-		$features = $this->repository->get( $this->key, $this->domain );
+		$features = $this->repository->get();
 
 		if ( is_wp_error( $features ) ) {
 			return $features;
@@ -354,7 +431,7 @@ class Manager {
 	 * @return Feature_Collection|WP_Error
 	 */
 	public function get_all() {
-		$features = $this->repository->get( $this->key, $this->domain );
+		$features = $this->repository->get();
 
 		if ( is_wp_error( $features ) ) {
 			return $features;
@@ -390,9 +467,9 @@ class Manager {
 	/**
 	 * Stamps live enabled state onto every feature in the collection.
 	 *
-	 * The Feature_Collection may come from a transient cache where
-	 * is_enabled values are stale. This method overwrites each
-	 * feature's is_enabled with the current live state from its strategy.
+	 * The Feature_Collection from the repository does not include
+	 * is_enabled state. This method overwrites each feature's
+	 * is_enabled with the current live state from its strategy.
 	 *
 	 * @since 3.0.0
 	 *

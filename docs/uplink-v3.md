@@ -112,13 +112,13 @@ The leader renders the Software Manager, a React-based admin page for managing a
 
 ## Caching
 
-All three data layers cache their results in WordPress transients with a 12-hour TTL:
+The data layers use different caching strategies:
 
-| Cache             | Transient key                         | Invalidation                    |
-| ----------------- | ------------------------------------- | ------------------------------- |
-| Licensed products | `stellarwp_uplink_licensing_products` | `License_Repository::refresh()` |
-| Product catalog   | `stellarwp_uplink_catalog`            | `Catalog_Repository::refresh()` |
-| Resolved features | `stellarwp_uplink_feature_catalog`    | `Feature_Repository::refresh()` |
+| Cache             | Type      | TTL             | Key / Location                        | Invalidation                    |
+| ----------------- | --------- | --------------- | ------------------------------------- | ------------------------------- |
+| Licensed products | Option    | None (persist)  | `stellarwp_uplink_licensing_products` | `License_Repository::refresh()` |
+| Product catalog   | Option    | None (persist)  | `stellarwp_uplink_catalog_state`      | `Catalog_Repository::refresh()` |
+| Resolved features | In-memory | Current request | —                                     | `Feature_Repository::refresh()` |
 
 The unified key itself is stored in a WordPress option (`stellarwp_uplink_unified_license_key`), not a transient.
 

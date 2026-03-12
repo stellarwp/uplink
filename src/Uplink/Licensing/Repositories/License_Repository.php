@@ -292,6 +292,7 @@ final class License_Repository {
 			$state[ self::STATE_KEY_COLLECTION ]      = $data->to_array();
 			$state[ self::STATE_KEY_LAST_SUCCESS_AT ] = time();
 			$state[ self::STATE_KEY_LAST_ERROR ]      = null;
+			$state[ self::STATE_KEY_LAST_FAILURE_AT ] = null;
 			update_option( self::PRODUCTS_STATE_OPTION_NAME, $state, false );
 
 			return;

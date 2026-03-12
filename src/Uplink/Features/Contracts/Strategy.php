@@ -34,6 +34,18 @@ interface Strategy {
 	public function disable();
 
 	/**
+	 * Updates the feature to the latest available version.
+	 *
+	 * Returns a WP_Error if the feature is not installed or active,
+	 * if no update is available, or if the update fails.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return true|WP_Error True on success, WP_Error on failure.
+	 */
+	public function update();
+
+	/**
 	 * Checks whether the feature is currently active.
 	 *
 	 * Implementations should check live state rather than a cached flag.

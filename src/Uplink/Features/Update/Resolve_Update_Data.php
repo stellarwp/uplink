@@ -69,14 +69,12 @@ class Resolve_Update_Data {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $key    The unified license key.
-	 * @param string $domain The site domain.
-	 * @param string $type   The feature type to resolve (a Feature::TYPE_* constant).
+	 * @param string $type The feature type to resolve (a Feature::TYPE_* constant).
 	 *
 	 * @return array<string, array<string, mixed>>|WP_Error Keyed by slug, each entry contains update fields.
 	 */
-	public function __invoke( string $key, string $domain, string $type ) {
-		$features = $this->feature_repository->get( $key, $domain );
+	public function __invoke( string $type ) {
+		$features = $this->feature_repository->get();
 
 		if ( is_wp_error( $features ) ) {
 			return $features;

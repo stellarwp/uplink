@@ -37,6 +37,10 @@ final class Error_CodeTest extends UplinkTestCase {
 			'UNKNOWN_FEATURE_TYPE'           => [ Error_Code::UNKNOWN_FEATURE_TYPE, 422 ],
 			'FEATURE_ENABLE_FAILED'          => [ Error_Code::FEATURE_ENABLE_FAILED, 422 ],
 			'FEATURE_DISABLE_FAILED'         => [ Error_Code::FEATURE_DISABLE_FAILED, 422 ],
+			'FEATURE_NOT_ACTIVE'             => [ Error_Code::FEATURE_NOT_ACTIVE, 422 ],
+			'UPDATE_NOT_SUPPORTED'           => [ Error_Code::UPDATE_NOT_SUPPORTED, 422 ],
+			'NO_UPDATE_AVAILABLE'            => [ Error_Code::NO_UPDATE_AVAILABLE, 422 ],
+			'UPDATE_FAILED'                  => [ Error_Code::UPDATE_FAILED, 422 ],
 		];
 	}
 

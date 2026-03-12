@@ -366,7 +366,13 @@ class Feature_Controller extends WP_REST_Controller {
 		];
 
 		$installable_properties = [
-			'authors'    => [
+			'released_at'       => [
+				'description' => __( 'Release date of the latest version (ISO 8601), or null if not applicable.', '%TEXTDOMAIN%' ),
+				'type'        => [ 'string', 'null' ],
+				'readonly'    => true,
+				'context'     => [ 'view' ],
+			],
+			'authors'           => [
 				'description' => __( 'Expected authors for ownership verification.', '%TEXTDOMAIN%' ),
 				'type'        => 'array',
 				'items'       => [
@@ -375,9 +381,15 @@ class Feature_Controller extends WP_REST_Controller {
 				'readonly'    => true,
 				'context'     => [ 'view' ],
 			],
-			'is_dot_org' => [
+			'is_dot_org'        => [
 				'description' => __( 'Whether the feature is available on WordPress.org.', '%TEXTDOMAIN%' ),
 				'type'        => 'boolean',
+				'readonly'    => true,
+				'context'     => [ 'view' ],
+			],
+			'installed_version' => [
+				'description' => __( 'The currently installed version, or null if not installed.', '%TEXTDOMAIN%' ),
+				'type'        => [ 'string', 'null' ],
 				'readonly'    => true,
 				'context'     => [ 'view' ],
 			],

@@ -45,6 +45,9 @@ Features are the individual capabilities, plugins, themes, and flags that make u
 | `plugin_file`       | string\|null   | Plugin file path relative to the plugins directory (e.g., `kadence-blocks-pro/kadence-blocks-pro.php`). Null for themes and flags. |
 | `is_dot_org`        | bool           | Whether the feature is available on WordPress.org                                                                                  |
 | `download_url`      | string\|null   | Download URL for features not on WordPress.org                                                                                     |
+| `version`           | string\|null   | Latest available version from the Commerce Portal. Null for flags.                                                                 |
+| `released_at`       | string\|null   | Release date of the latest version (ISO 8601). Null for flags.                                                                     |
+| `changelog`         | string\|null   | Changelog HTML for the latest version, consistent with `plugins_api()` sections. Null for flags.                                   |
 | `name`              | string         | Display name                                                                                                                       |
 | `description`       | string         | Short description of what the feature does                                                                                         |
 | `category`          | string         | Grouping category (e.g., `blocks`, `theme`, `security`, `woocommerce`)                                                             |
@@ -171,12 +174,13 @@ The catalog uses delivery-oriented type names (`plugin`, `theme`, `flag`). The F
 
 The catalog describes what exists. It does not know:
 
-| Question                                     | Answer comes from                                   |
-| -------------------------------------------- | --------------------------------------------------- |
-| What tier is the customer on?                | [Licensing](licensing.md)                           |
-| Is this key valid?                           | [Licensing](licensing.md)                           |
-| Is a feature available to this customer?     | [Features](features.md) (joins catalog + licensing) |
-| Is a feature currently enabled on this site? | [Features](features.md) (checks local state)        |
+| Question                                     | Answer comes from                                         |
+| -------------------------------------------- | --------------------------------------------------------- |
+| What tier is the customer on?                | [Licensing](licensing.md)                                 |
+| Is this key valid?                           | [Licensing](licensing.md)                                 |
+| Is a feature available to this customer?     | [Features](features.md) (joins catalog + licensing)       |
+| Is a feature currently enabled on this site? | [Features](features.md) (checks local state)              |
+| What version is installed on this site?      | [Features](features.md) (reads from disk via Installable) |
 
 The catalog is the menu. Licensing is the receipt. Feature resolution is the waiter who checks both before serving.
 

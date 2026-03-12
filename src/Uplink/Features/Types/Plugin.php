@@ -45,9 +45,11 @@ final class Plugin extends Feature implements Installable {
 			array_merge(
 				self::base_attributes( $data ),
 				[
-					'plugin_file' => $data['plugin_file'] ?? '',
-					'authors'     => $data['authors'] ?? [],
-					'is_dot_org'  => $data['is_dot_org'] ?? false,
+					'plugin_file'       => $data['plugin_file'] ?? '',
+					'authors'           => $data['authors'] ?? [],
+					'is_dot_org'        => $data['is_dot_org'] ?? false,
+					'released_at'       => $data['released_at'] ?? null,
+					'installed_version' => $data['installed_version'] ?? null,
 				]
 			)
 		);

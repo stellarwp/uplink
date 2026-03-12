@@ -19,6 +19,8 @@ use StellarWP\Uplink\Utils\Cast;
  *     is_dot_org: bool,
  *     download_url: ?string,
  *     version: ?string,
+ *     released_at: ?string,
+ *     changelog: ?string,
  *     name: string,
  *     description: string,
  *     category: string,
@@ -43,6 +45,8 @@ final class Catalog_Feature {
 		'is_dot_org'        => false,
 		'download_url'      => null,
 		'version'           => null,
+		'released_at'       => null,
+		'changelog'         => null,
 		'name'              => '',
 		'description'       => '',
 		'category'          => '',
@@ -84,6 +88,8 @@ final class Catalog_Feature {
 				'is_dot_org'        => Cast::to_bool( $data['is_dot_org'] ?? false ),
 				'download_url'      => isset( $data['download_url'] ) ? Cast::to_string( $data['download_url'] ) : null,
 				'version'           => isset( $data['version'] ) ? Cast::to_string( $data['version'] ) : null,
+				'released_at'       => isset( $data['released_at'] ) ? Cast::to_string( $data['released_at'] ) : null,
+				'changelog'         => isset( $data['changelog'] ) ? Cast::to_string( $data['changelog'] ) : null,
 				'name'              => Cast::to_string( $data['name'] ?? '' ),
 				'description'       => Cast::to_string( $data['description'] ?? '' ),
 				'category'          => Cast::to_string( $data['category'] ?? '' ),
@@ -183,6 +189,28 @@ final class Catalog_Feature {
 	 */
 	public function get_version(): ?string {
 		return $this->attributes['version'];
+	}
+
+	/**
+	 * Gets the release date (ISO 8601), or null if not provided.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string|null
+	 */
+	public function get_released_at(): ?string {
+		return $this->attributes['released_at'];
+	}
+
+	/**
+	 * Gets the changelog as an HTML string, or null if not provided.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string|null
+	 */
+	public function get_changelog(): ?string {
+		return $this->attributes['changelog'];
 	}
 
 	/**

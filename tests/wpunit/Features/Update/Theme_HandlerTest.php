@@ -59,7 +59,7 @@ final class Theme_HandlerTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Creates a minimal theme directory so wp_get_themes() recognises 'my-theme'
+	 * Creates a minimal theme directory so wp_get_themes() recognizes 'my-theme'
 	 * as installed. WordPress reads theme headers from style.css on disk, so a
 	 * real directory is required — there is no filter hook on wp_get_themes().
 	 *

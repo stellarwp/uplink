@@ -92,4 +92,5 @@ export const getLicenseKey =
 		}
 	};
 
-export const hasLicense = forwardResolver('getLicenseKey');
+export const hasLicense         = forwardResolver( 'getLicenseKey' );
+export const getLicenseProducts = forwardResolverWithoutArgs( 'getLicenseKey' );

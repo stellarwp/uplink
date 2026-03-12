@@ -17,6 +17,7 @@ import { ProductSection } from '@/components/organisms/ProductSection';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { PRODUCTS } from '@/data/products';
 import { store as uplinkStore } from '@/store';
+import { useFilter } from '@/context/filter-context';
 
 /**
  * @since 3.0.0
@@ -37,6 +38,12 @@ export function AppShell() {
         [],
     );
 
+    const { productFilter } = useFilter();
+
+    const visibleProducts = productFilter === 'all'
+        ? PRODUCTS
+        : PRODUCTS.filter( ( p ) => p.slug === productFilter );
+
     return (
         <Shell
             header={ <FilterBar /> }
@@ -51,7 +58,7 @@ export function AppShell() {
                 <ErrorBoundary>
                     <div className="flex flex-col gap-4 pb-8">
                         <LegacyLicenseBanner />
-                        { PRODUCTS.map( ( product ) => (
+                        { visibleProducts.map( ( product ) => (
                             <ProductSection
                                 key={ product.slug }
                                 product={ product }

@@ -108,14 +108,13 @@ if ( ! function_exists( 'stellarwp_uplink_is_feature_enabled' ) ) {
 	 *
 	 * @param string $slug The feature slug.
 	 *
-	 * @return bool|WP_Error
+	 * @return bool
 	 */
-	function stellarwp_uplink_is_feature_enabled( string $slug ) {
+	function stellarwp_uplink_is_feature_enabled( string $slug ): bool {
 		// @phpstan-ignore function.internal
 		$callback = _stellarwp_uplink_global_function_registry( 'stellarwp_uplink_is_feature_enabled' );
 
-		// @phpstan-ignore return.type
-		return $callback ? $callback( $slug ) : false;
+		return $callback ? (bool) $callback( $slug ) : false;
 	}
 }
 
@@ -127,13 +126,12 @@ if ( ! function_exists( 'stellarwp_uplink_is_feature_available' ) ) {
 	 *
 	 * @param string $slug The feature slug.
 	 *
-	 * @return bool|WP_Error
+	 * @return bool
 	 */
-	function stellarwp_uplink_is_feature_available( string $slug ) {
+	function stellarwp_uplink_is_feature_available( string $slug ): bool {
 		// @phpstan-ignore function.internal
 		$callback = _stellarwp_uplink_global_function_registry( 'stellarwp_uplink_is_feature_available' );
 
-		// @phpstan-ignore return.type
-		return $callback ? $callback( $slug ) : false;
+		return $callback ? (bool) $callback( $slug ) : false;
 	}
 }

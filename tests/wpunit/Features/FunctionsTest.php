@@ -78,14 +78,12 @@ final class FunctionsTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Tests is_feature_enabled returns WP_Error for a feature not in the catalog.
+	 * Tests is_feature_enabled returns false for a feature not in the catalog.
 	 *
 	 * @return void
 	 */
-	public function test_is_feature_enabled_returns_wp_error_for_unknown_feature(): void {
-		$result = stellarwp_uplink_is_feature_enabled( 'nonexistent' );
-
-		$this->assertInstanceOf( WP_Error::class, $result );
+	public function test_is_feature_enabled_returns_false_for_unknown_feature(): void {
+		$this->assertFalse( stellarwp_uplink_is_feature_enabled( 'nonexistent' ) );
 	}
 
 	/**
@@ -151,22 +149,20 @@ final class FunctionsTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Tests is_feature_available returns WP_Error for a feature not in the catalog.
+	 * Tests is_feature_available returns false for a feature not in the catalog.
 	 *
 	 * @return void
 	 */
-	public function test_is_feature_available_returns_wp_error_for_unknown_feature(): void {
-		$result = stellarwp_uplink_is_feature_available( 'nonexistent' );
-
-		$this->assertInstanceOf( WP_Error::class, $result );
+	public function test_is_feature_available_returns_false_for_unknown_feature(): void {
+		$this->assertFalse( stellarwp_uplink_is_feature_available( 'nonexistent' ) );
 	}
 
 	/**
-	 * Tests that is_feature_enabled returns WP_Error when the catalog returns a WP_Error.
+	 * Tests that is_feature_enabled returns false when the catalog returns a WP_Error.
 	 *
 	 * @return void
 	 */
-	public function test_is_feature_enabled_returns_wp_error_when_catalog_errors(): void {
+	public function test_is_feature_enabled_returns_false_when_catalog_errors(): void {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
 		$repository = $this->makeEmpty(
@@ -187,16 +183,15 @@ final class FunctionsTest extends UplinkTestCase {
 			}
 		);
 
-		$result = stellarwp_uplink_is_feature_enabled( 'test-feature' );
-		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertFalse( stellarwp_uplink_is_feature_enabled( 'test-feature' ) );
 	}
 
 	/**
-	 * Tests that is_feature_available returns a WP_Error when the catalog returns a WP_Error.
+	 * Tests that is_feature_available returns false when the catalog returns a WP_Error.
 	 *
 	 * @return void
 	 */
-	public function test_is_feature_available_returns_wp_error_when_catalog_errors(): void {
+	public function test_is_feature_available_returns_false_when_catalog_errors(): void {
 		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
 
 		$repository = $this->makeEmpty(
@@ -217,8 +212,6 @@ final class FunctionsTest extends UplinkTestCase {
 			}
 		);
 
-		$result = stellarwp_uplink_is_feature_available( 'test-feature' );
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'api_error', $result->get_error_code() );
+		$this->assertFalse( stellarwp_uplink_is_feature_available( 'test-feature' ) );
 	}
 }

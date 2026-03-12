@@ -2,8 +2,7 @@
  * Page header filter bar.
  *
  * Displays the brand logo, a feature search input, and a product filter
- * dropdown. Search and filter functionality is deferred — the inputs are
- * rendered but state wiring is not implemented in this phase.
+ * dropdown. Both inputs are wired to FilterContext via useFilter().
  *
  * @package StellarWP\Uplink
  */
@@ -12,12 +11,22 @@ import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { PRODUCTS } from '@/data/products';
+import { useFilter } from '@/context/filter-context';
 import logoLW from '@img/logo-lw-software.svg';
 
 /**
  * @since 3.0.0
  */
 export function FilterBar() {
+    const { searchQuery, setSearchQuery, productFilter, setProductFilter } = useFilter();
+
+    const handleProductChange = ( slug: string ) => {
+        setProductFilter( slug );
+        if ( slug !== 'all' ) {
+            setSearchQuery( '' );
+        }
+    };
+
     return (
         <div className="flex flex-wrap items-center gap-3 py-4">
             <img
@@ -29,13 +38,18 @@ export function FilterBar() {
             <div className="relative w-[260px]">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                 <Input
+                    value={ searchQuery }
+                    onChange={ ( e ) => setSearchQuery( e.target.value ) }
                     placeholder={ __( 'Search features…', '%TEXTDOMAIN%' ) }
                     className="pl-10 text-sm"
-                    disabled
                 />
             </div>
 
-            <Select className="w-[168px]" disabled>
+            <Select
+                value={ productFilter }
+                onValueChange={ handleProductChange }
+                className="w-[168px]"
+            >
                 <option value="all">{ __( 'All Products', '%TEXTDOMAIN%' ) }</option>
                 { PRODUCTS.map( ( p ) => (
                     <option key={ p.slug } value={ p.slug }>{ p.name }</option>

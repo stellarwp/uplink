@@ -93,6 +93,24 @@ export function LicensePanel() {
         return map;
     }, [ catalogs ] );
 
+    // Build a product slug → lowest-tier purchase URL map from the API catalog.
+    // Falls back to the static fixture's first tier upgradeUrl when unavailable.
+    const upsellUrlMap = useMemo( () => {
+        const map: Record<string, string> = {};
+        catalogs.forEach( ( catalog ) => {
+            const sorted = catalog.tiers.slice().sort( ( a, b ) => a.rank - b.rank );
+            if ( sorted[ 0 ]?.purchase_url ) {
+                map[ catalog.product_slug ] = sorted[ 0 ].purchase_url;
+            }
+        } );
+        return map;
+    }, [ catalogs ] );
+
+    const upsellUrl = ( slug: string ): string =>
+        upsellUrlMap[ slug ] ??
+        PRODUCTS.find( ( p ) => p.slug === slug )?.tiers[ 0 ]?.upgradeUrl ??
+        '#';
+
     const licensedSlugs = new Set( licenseProducts.map( ( lp ) => lp.product_slug ) );
     const upsellProducts = PRODUCTS.filter( ( p ) => ! licensedSlugs.has( p.slug ) );
 
@@ -197,8 +215,9 @@ export function LicensePanel() {
                                 return (
                                     <a
                                         key={ p.slug }
-                                        href="#"
-                                        onClick={ ( e ) => e.preventDefault() }
+                                        href={ upsellUrl( p.slug ) }
+                                        target="_blank"
+                                        rel="noopener noreferrer"
                                         className="flex items-center gap-2.5 rounded-xl border bg-card px-4 py-3 hover:bg-muted/50 transition-colors"
                                     >
                                         { logo ? (

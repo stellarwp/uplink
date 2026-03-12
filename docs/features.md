@@ -21,7 +21,7 @@ Each feature type has a strategy that defines how enable, disable, and active-st
 
 ### Plugin
 
-An installable WordPress plugin. The catalog provides `plugin_file`, `plugin_slug`, `download_url`/`is_dot_org`.
+An installable WordPress plugin. The catalog provides `plugin_file`, `download_url`/`is_dot_org`.
 
 | Aspect              | Behavior                                                                               |
 | ------------------- | -------------------------------------------------------------------------------------- |

@@ -31,7 +31,7 @@ wp uplink feature list [--group=<group>] [--tier=<tier>] [--available=<bool>] [-
 
 - All types: `slug`, `name`, `description`, `type`, `group`, `tier`, `is_available`, `is_enabled`, `documentation_url`
 - Plugin and Theme: `installed_version`, `released_at`, `authors`, `is_dot_org`
-- Plugin only: `plugin_file`, `plugin_slug`
+- Plugin only: `plugin_file`
 
 **Examples:**
 

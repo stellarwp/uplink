@@ -9,7 +9,7 @@
 import { __ } from '@wordpress/i18n';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { PRODUCTS } from '@/data/products';
 import { useFilter } from '@/context/filter-context';
 import logoLW from '@img/logo-lw-software.svg';
@@ -45,15 +45,16 @@ export function FilterBar() {
                 />
             </div>
 
-            <Select
-                value={ productFilter }
-                onValueChange={ handleProductChange }
-                className="w-[168px]"
-            >
-                <option value="all">{ __( 'All Products', '%TEXTDOMAIN%' ) }</option>
-                { PRODUCTS.map( ( p ) => (
-                    <option key={ p.slug } value={ p.slug }>{ p.name }</option>
-                ) ) }
+            <Select value={ productFilter } onValueChange={ handleProductChange }>
+                <SelectTrigger className="w-[168px]">
+                    <SelectValue placeholder={ __( 'All Products', '%TEXTDOMAIN%' ) } />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">{ __( 'All Products', '%TEXTDOMAIN%' ) }</SelectItem>
+                    { PRODUCTS.map( ( p ) => (
+                        <SelectItem key={ p.slug } value={ p.slug }>{ p.name }</SelectItem>
+                    ) ) }
+                </SelectContent>
             </Select>
         </div>
     );

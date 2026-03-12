@@ -99,7 +99,11 @@ class Resolve_Feature_Collection {
 		$products = $this->licensing->get_products( $domain );
 
 		if ( is_wp_error( $products ) ) {
-			return $products;
+			if ( $this->licensing->get_key() === null ) {
+				$products = new Product_Collection();
+			} else {
+				return $products;
+			}
 		}
 
 		$collection = new Feature_Collection();

@@ -58,7 +58,7 @@ final class FunctionsTest extends UplinkTestCase {
 			]
 		);
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$this->container->bind(
 			Manager::class,
@@ -138,7 +138,7 @@ final class FunctionsTest extends UplinkTestCase {
 			]
 		);
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$this->container->bind(
 			Manager::class,
@@ -178,7 +178,7 @@ final class FunctionsTest extends UplinkTestCase {
 
 		$factory = $this->makeEmpty( Strategy_Factory::class );
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$this->container->bind(
 			Manager::class,
@@ -208,7 +208,7 @@ final class FunctionsTest extends UplinkTestCase {
 
 		$factory = $this->makeEmpty( Strategy_Factory::class );
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$this->container->bind(
 			Manager::class,

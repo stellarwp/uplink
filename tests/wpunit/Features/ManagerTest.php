@@ -92,7 +92,7 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$this->manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$this->manager = new Manager( $repository, $factory );
 	}
 
 	/**
@@ -276,7 +276,7 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$updated_fired = false;
 
@@ -310,7 +310,7 @@ final class ManagerTest extends UplinkTestCase {
 
 		$factory = $this->makeEmpty( Strategy_Factory::class );
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$result = $manager->update( 'test-feature' );
 
@@ -520,7 +520,7 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$enabled_fired = false;
 
@@ -566,7 +566,7 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$disabled_fired = false;
 
@@ -600,7 +600,7 @@ final class ManagerTest extends UplinkTestCase {
 
 		$factory = $this->makeEmpty( Strategy_Factory::class );
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$this->assertInstanceOf( WP_Error::class, $manager->get_all() );
 	}
@@ -622,7 +622,7 @@ final class ManagerTest extends UplinkTestCase {
 
 		$factory = $this->makeEmpty( Strategy_Factory::class );
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$result = $manager->is_enabled( 'test-feature' );
 
@@ -679,7 +679,7 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$this->assertFalse( $manager->is_available( 'locked-feature' ) );
 	}
@@ -713,7 +713,7 @@ final class ManagerTest extends UplinkTestCase {
 
 		$factory = $this->makeEmpty( Strategy_Factory::class );
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$this->assertInstanceOf( WP_Error::class, $manager->is_available( 'test-feature' ) );
 	}
@@ -753,7 +753,7 @@ final class ManagerTest extends UplinkTestCase {
 
 		$factory = $this->makeEmpty( Strategy_Factory::class );
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$this->assertInstanceOf( WP_Error::class, $manager->exists( 'test-feature' ) );
 	}
@@ -775,7 +775,7 @@ final class ManagerTest extends UplinkTestCase {
 
 		$factory = $this->makeEmpty( Strategy_Factory::class );
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$this->assertNull( $manager->get( 'test-feature' ) );
 	}
@@ -820,7 +820,7 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$result = $manager->disable( 'test-feature' );
 
@@ -845,7 +845,7 @@ final class ManagerTest extends UplinkTestCase {
 
 		$factory = $this->makeEmpty( Strategy_Factory::class );
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$result = $manager->enable( 'test-feature' );
 
@@ -869,7 +869,7 @@ final class ManagerTest extends UplinkTestCase {
 
 		$factory = $this->makeEmpty( Strategy_Factory::class );
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$result = $manager->disable( 'test-feature' );
 

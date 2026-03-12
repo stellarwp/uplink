@@ -49,17 +49,14 @@ class Feature_Repository {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $key    License key.
-	 * @param string $domain Site domain.
-	 *
 	 * @return Feature_Collection|WP_Error
 	 */
-	public function get( string $key, string $domain ) {
+	public function get() {
 		if ( $this->cached !== null ) {
 			return $this->cached;
 		}
 
-		return $this->resolve( $key, $domain );
+		return $this->resolve();
 	}
 
 	/**
@@ -67,15 +64,12 @@ class Feature_Repository {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $key    License key.
-	 * @param string $domain Site domain.
-	 *
 	 * @return Feature_Collection|WP_Error
 	 */
-	public function refresh( string $key, string $domain ) {
+	public function refresh() {
 		$this->cached = null;
 
-		return $this->resolve( $key, $domain );
+		return $this->resolve();
 	}
 
 	/**
@@ -83,13 +77,10 @@ class Feature_Repository {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $key    License key.
-	 * @param string $domain Site domain.
-	 *
 	 * @return Feature_Collection|WP_Error
 	 */
-	protected function resolve( string $key, string $domain ) {
-		$this->cached = ( $this->resolver )( $domain );
+	protected function resolve() {
+		$this->cached = ( $this->resolver )();
 
 		return $this->cached;
 	}

@@ -61,7 +61,8 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		Catalog_Repository $catalog,
 		License_Manager $licensing
 	): Resolve_Feature_Collection {
-		$resolver = new Resolve_Feature_Collection( $catalog, $licensing );
+		$site_data = $this->makeEmpty( \StellarWP\Uplink\Site\Data::class, [ 'get_domain' => 'example.com' ] );
+		$resolver  = new Resolve_Feature_Collection( $catalog, $licensing, $site_data );
 
 		$resolver->register_type( 'plugin', Plugin::class );
 		$resolver->register_type( 'flag', Flag::class );
@@ -123,7 +124,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	public function test_get_returns_collection(): void {
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
 
-		$result = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$result = $repository->get();
 
 		$this->assertInstanceOf( Feature_Collection::class, $result );
 		$this->assertGreaterThan( 0, $result->count() );
@@ -136,7 +137,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 */
 	public function test_it_maps_plugin_type_to_plugin(): void {
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
-		$result     = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$result     = $repository->get();
 		$feature    = $result->get( 'kad-blocks-pro' );
 
 		$this->assertInstanceOf( Plugin::class, $feature );
@@ -150,7 +151,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 */
 	public function test_it_maps_flag_type_to_flag(): void {
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
-		$result     = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$result     = $repository->get();
 		$feature    = $result->get( 'kad-pattern-hub' );
 
 		$this->assertInstanceOf( Flag::class, $feature );
@@ -166,7 +167,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 */
 	public function test_available_when_tier_meets_minimum(): void {
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
-		$result     = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$result     = $repository->get();
 
 		$this->assertTrue(
 			$result->get( 'kad-blocks-pro' )->is_available(),
@@ -187,7 +188,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 */
 	public function test_unavailable_when_tier_below_minimum(): void {
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
-		$result     = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$result     = $repository->get();
 
 		$this->assertFalse(
 			$result->get( 'solid-central' )->is_available(),
@@ -203,7 +204,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	public function test_licensing_error_returns_wp_error(): void {
 		$repository = $this->make_error_repository();
 
-		$result = $repository->get( 'LWSW-test-error-key', 'example.com' );
+		$result = $repository->get();
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 	}
@@ -218,7 +219,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	public function test_it_resolves_catalog_without_license_key(): void {
 		$repository = $this->make_repository();
 
-		$result = $repository->get( '', 'example.com' );
+		$result = $repository->get();
 
 		$this->assertInstanceOf( Feature_Collection::class, $result );
 		$this->assertGreaterThan( 0, $result->count() );
@@ -246,7 +247,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 			$this->make_resolver( $catalog, $licensing )
 		);
 
-		$result = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$result = $repository->get();
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 	}
@@ -259,8 +260,8 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	public function test_it_returns_cached_collection_within_request(): void {
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
 
-		$first  = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
-		$second = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$first  = $repository->get();
+		$second = $repository->get();
 
 		$this->assertSame( $first, $second );
 	}
@@ -273,8 +274,8 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	public function test_refresh_clears_and_refetches(): void {
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
 
-		$first  = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
-		$second = $repository->refresh( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$first  = $repository->get();
+		$second = $repository->refresh();
 
 		$this->assertInstanceOf( Feature_Collection::class, $first );
 		$this->assertInstanceOf( Feature_Collection::class, $second );
@@ -377,7 +378,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 */
 	public function test_it_maps_feature_data_correctly(): void {
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
-		$result     = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$result     = $repository->get();
 		$feature    = $result->get( 'kad-blocks-pro' );
 
 		$this->assertSame( 'kad-blocks-pro', $feature->get_slug() );

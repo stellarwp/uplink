@@ -5,7 +5,7 @@ namespace StellarWP\Uplink\Features\Update;
 use StellarWP\Uplink\Features\Contracts\Installable;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Types\Feature;
-use StellarWP\Uplink\Site\Data;
+use StellarWP\Uplink\Licensing\License_Manager;
 use stdClass;
 use StellarWP\Uplink\Utils\Cast;
 
@@ -39,22 +39,13 @@ class Plugin_Handler {
 	private Feature_Repository $feature_repository;
 
 	/**
-	 * The site data provider.
+	 * The license manager.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @var Data
+	 * @var License_Manager
 	 */
-	private Data $site_data;
-
-	/**
-	 * The license key.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var string
-	 */
-	private string $key;
+	private License_Manager $license_manager;
 
 	/**
 	 * Constructor for the consolidated update handler.
@@ -63,21 +54,18 @@ class Plugin_Handler {
 	 *
 	 * @param Resolve_Update_Data $resolver           The update data resolver.
 	 * @param Feature_Repository  $feature_repository The feature repository.
-	 * @param Data                $site_data          The site data provider.
-	 * @param string              $key                The license key.
+	 * @param License_Manager     $license_manager    The license manager.
 	 *
 	 * @return void
 	 */
 	public function __construct(
 		Resolve_Update_Data $resolver,
 		Feature_Repository $feature_repository,
-		Data $site_data,
-		string $key
+		License_Manager $license_manager
 	) {
 		$this->resolver           = $resolver;
 		$this->feature_repository = $feature_repository;
-		$this->site_data          = $site_data;
-		$this->key                = $key;
+		$this->license_manager    = $license_manager;
 	}
 
 	/**
@@ -98,7 +86,7 @@ class Plugin_Handler {
 			return $result;
 		}
 
-		if ( empty( $this->key ) ) {
+		if ( empty( $this->license_manager->get_key() ) ) {
 			return $result;
 		}
 
@@ -106,7 +94,7 @@ class Plugin_Handler {
 		$slug = $args->slug;
 
 		// Check whether the requested slug belongs to a known Plugin feature.
-		$features = $this->feature_repository->get( $this->key, $this->site_data->get_domain() );
+		$features = $this->feature_repository->get();
 
 		if ( is_wp_error( $features ) ) {
 			return $result;
@@ -124,8 +112,7 @@ class Plugin_Handler {
 			return $result;
 		}
 
-		$domain   = $this->site_data->get_domain();
-		$response = ( $this->resolver )( $this->key, $domain, Feature::TYPE_PLUGIN );
+		$response = ( $this->resolver )( Feature::TYPE_PLUGIN );
 
 		if ( is_wp_error( $response ) || empty( $response[ $slug ] ) ) {
 			return $result;
@@ -148,12 +135,11 @@ class Plugin_Handler {
 			return $transient;
 		}
 
-		if ( empty( $this->key ) ) {
+		if ( empty( $this->license_manager->get_key() ) ) {
 			return $transient;
 		}
 
-		$domain   = $this->site_data->get_domain();
-		$response = ( $this->resolver )( $this->key, $domain, Feature::TYPE_PLUGIN );
+		$response = ( $this->resolver )( Feature::TYPE_PLUGIN );
 
 		if ( is_wp_error( $response ) || empty( $response ) ) {
 			return $transient;

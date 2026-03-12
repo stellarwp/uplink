@@ -144,7 +144,7 @@ class Global_Function_Registry {
 	 * Logs a WP_Error message and trace when WP_DEBUG is enabled.
 	 *
 	 * @param WP_Error $error The WP_Error to log.
-	 * @param string $context The context of the log.
+	 * @param string   $context The context of the log.
 	 * @return void
 	 */
 	private static function debug_log_wp_error( WP_Error $error, string $context ): void {

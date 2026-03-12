@@ -64,8 +64,8 @@ export const getCatalog =
 		}
 	};
 
-export const getProductCatalog = forwardResolver('getCatalog');
-export const getProductTiers = forwardResolver('getCatalog');
+export const getProductCatalog = forwardResolverWithoutArgs('getCatalog');
+export const getProductTiers   = forwardResolverWithoutArgs('getCatalog');
 
 // ---------------------------------------------------------------------------
 // License

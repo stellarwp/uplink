@@ -7,7 +7,7 @@ use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Types\Theme;
 use StellarWP\Uplink\Features\Update\Theme_Handler;
-use StellarWP\Uplink\Site\Data;
+use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use stdClass;
 use WP_Error;
@@ -31,13 +31,11 @@ final class Theme_HandlerTest extends UplinkTestCase {
 
 		$resolver           = $this->makeEmpty( Resolve_Update_Data::class );
 		$feature_repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => new Feature_Collection() ] );
-		$site_data          = $this->makeEmpty( Data::class, [ 'get_domain' => 'example.com' ] );
 
 		$this->handler = new Theme_Handler(
 			$resolver,
 			$feature_repository,
-			$site_data,
-			'test-key'
+			$this->container->get( License_Manager::class )
 		);
 	}
 
@@ -67,11 +65,13 @@ final class Theme_HandlerTest extends UplinkTestCase {
 		$resolver           = $this->makeEmpty( Resolve_Update_Data::class, [ '__invoke' => $check_updates_return ] );
 		$feature_repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => $features ] );
 
+		$license_manager = $this->container->get( License_Manager::class );
+		$license_manager->store_key( 'LWSW-test-handler-key' );
+
 		return new Theme_Handler(
 			$resolver,
 			$feature_repository,
-			$this->makeEmpty( Data::class, [ 'get_domain' => 'example.com' ] ),
-			'test-key'
+			$license_manager
 		);
 	}
 
@@ -317,10 +317,10 @@ final class Theme_HandlerTest extends UplinkTestCase {
 			'package'     => 'https://legacy.example.com/my-theme.zip',
 		];
 
-		$transient                        = new stdClass();
-		$transient->response              = [];
-		$transient->response['my-theme']  = $existing_update;
-		$transient->no_update             = [];
+		$transient                       = new stdClass();
+		$transient->response             = [];
+		$transient->response['my-theme'] = $existing_update;
+		$transient->no_update            = [];
 
 		$result = $handler->filter_update_check( $transient );
 

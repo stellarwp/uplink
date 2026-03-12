@@ -37,40 +37,18 @@ class Manager {
 	private Strategy_Factory $strategy_factory;
 
 	/**
-	 * The license key.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var string
-	 */
-	private string $key;
-
-	/**
-	 * The site domain.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var string
-	 */
-	private string $domain;
-
-	/**
 	 * Constructor for the central feature orchestrator.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Feature_Repository $repository The repository for fetching available features.
+	 * @param Feature_Repository $repository       The repository for fetching available features.
 	 * @param Strategy_Factory   $strategy_factory The strategy factory.
-	 * @param string             $key              The license key.
-	 * @param string             $domain           The site domain.
 	 *
 	 * @return void
 	 */
-	public function __construct( Feature_Repository $repository, Strategy_Factory $strategy_factory, string $key, string $domain ) {
+	public function __construct( Feature_Repository $repository, Strategy_Factory $strategy_factory ) {
 		$this->repository       = $repository;
 		$this->strategy_factory = $strategy_factory;
-		$this->key              = $key;
-		$this->domain           = $domain;
 	}
 
 	/**
@@ -86,7 +64,7 @@ class Manager {
 	 * @return Feature|WP_Error The feature with updated is_enabled state, or WP_Error on failure.
 	 */
 	public function enable( string $slug ) {
-		$features = $this->repository->get( $this->key, $this->domain );
+		$features = $this->repository->get();
 
 		if ( is_wp_error( $features ) ) {
 			return $features;
@@ -185,7 +163,7 @@ class Manager {
 	 * @return Feature|WP_Error The feature with updated is_enabled state, or WP_Error on failure.
 	 */
 	public function disable( string $slug ) {
-		$features = $this->repository->get( $this->key, $this->domain );
+		$features = $this->repository->get();
 
 		if ( is_wp_error( $features ) ) {
 			return $features;
@@ -284,7 +262,7 @@ class Manager {
 	 * @return Feature|WP_Error The feature with updated state, or WP_Error on failure.
 	 */
 	public function update( string $slug ) {
-		$features = $this->repository->get( $this->key, $this->domain );
+		$features = $this->repository->get();
 
 		if ( is_wp_error( $features ) ) {
 			return $features;
@@ -436,7 +414,7 @@ class Manager {
 	 * @return bool|WP_Error
 	 */
 	public function exists( string $slug ) {
-		$features = $this->repository->get( $this->key, $this->domain );
+		$features = $this->repository->get();
 
 		if ( is_wp_error( $features ) ) {
 			return $features;
@@ -453,7 +431,7 @@ class Manager {
 	 * @return Feature_Collection|WP_Error
 	 */
 	public function get_all() {
-		$features = $this->repository->get( $this->key, $this->domain );
+		$features = $this->repository->get();
 
 		if ( is_wp_error( $features ) ) {
 			return $features;

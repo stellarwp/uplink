@@ -7,7 +7,7 @@ use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Features\Update\Plugin_Handler;
-use StellarWP\Uplink\Site\Data;
+use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use stdClass;
 use WP_Error;
@@ -31,13 +31,11 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 
 		$resolver           = $this->makeEmpty( Resolve_Update_Data::class );
 		$feature_repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => new Feature_Collection() ] );
-		$site_data          = $this->makeEmpty( Data::class, [ 'get_domain' => 'example.com' ] );
 
 		$this->handler = new Plugin_Handler(
 			$resolver,
 			$feature_repository,
-			$site_data,
-			'test-key'
+			$this->container->get( License_Manager::class )
 		);
 	}
 
@@ -67,11 +65,13 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 		$resolver           = $this->makeEmpty( Resolve_Update_Data::class, [ '__invoke' => $check_updates_return ] );
 		$feature_repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => $features ] );
 
+		$license_manager = $this->container->get( License_Manager::class );
+		$license_manager->store_key( 'LWSW-test-handler-key' );
+
 		return new Plugin_Handler(
 			$resolver,
 			$feature_repository,
-			$this->makeEmpty( Data::class, [ 'get_domain' => 'example.com' ] ),
-			'test-key'
+			$license_manager
 		);
 	}
 
@@ -175,7 +175,7 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 	public function test_it_returns_wp_format_for_feature(): void {
 		$update_data = [
 			'my-plugin' => [
-				'version' => '2.0.0',
+				'version'     => '2.0.0',
 				'package'     => 'https://example.com/my-plugin.zip',
 				'name'        => 'My Plugin',
 				'plugin_file' => 'my-plugin/my-plugin.php',
@@ -245,7 +245,7 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 	public function test_filter_update_check_adds_to_response_when_update_available(): void {
 		$update_data = [
 			'my-plugin' => [
-				'version' => '2.0.0',
+				'version'     => '2.0.0',
 				'package'     => 'https://example.com/my-plugin.zip',
 				'plugin_file' => 'my-plugin/my-plugin.php',
 			],
@@ -270,7 +270,7 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 	public function test_filter_update_check_adds_to_no_update_when_no_newer_version(): void {
 		$update_data = [
 			'my-plugin' => [
-				'version' => '',
+				'version'     => '',
 				'package'     => 'https://example.com/my-plugin.zip',
 				'plugin_file' => 'my-plugin/my-plugin.php',
 			],
@@ -296,7 +296,7 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 	public function test_filter_update_check_preserves_existing_update_from_other_system(): void {
 		$update_data = [
 			'my-plugin' => [
-				'version' => '',
+				'version'     => '',
 				'package'     => 'https://example.com/my-plugin.zip',
 				'plugin_file' => 'my-plugin/my-plugin.php',
 			],

@@ -38,9 +38,9 @@ interface BaseFeature {
      */
     group: string;
     /**
-     * Minimum tier required to access this feature.
+     * Minimum tier slug required to access this feature, or null for free features.
      */
-    tier: TierSlug;
+    tier: string | null;
     /**
      * Whether the feature is available on this site.
      */
@@ -234,39 +234,13 @@ export interface ProductCatalog {
 }
 
 // ---------------------------------------------------------------------------
-// Tier / product types (display layer, hardcoded fixture data for now)
+// Product types (display layer)
 // ---------------------------------------------------------------------------
 
 /**
- * Plan tier for a product.
- *
- * @since 3.0.0
- */
-export type TierSlug = 'starter' | 'pro' | 'agency' | ( string & {} );
-
-/**
- * A plan tier definition.
- *
- * @since 3.0.0
- */
-export interface Tier {
-    slug: string;
-    /**
-     * Display name (e.g. "Pro").
-     */
-    name: string;
-    /**
-     * Marketing description.
-     */
-    description: string;
-    /**
-     * Upgrade URL for purchasing this tier.
-     */
-    upgradeUrl: string;
-}
-
-/**
  * A product with tiered plans.
+ *
+ * Tier definitions come from the catalog API (CatalogTier[]) — not stored here.
  *
  * @since 3.0.0
  */
@@ -283,10 +257,6 @@ export interface Product {
      * Short tagline.
      */
     tagline: string;
-    /**
-     * Available tiers (ordered starter, pro, agency).
-     */
-    tiers: Tier[];
 }
 
 // ---------------------------------------------------------------------------

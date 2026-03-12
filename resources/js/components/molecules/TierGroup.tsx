@@ -8,16 +8,14 @@
  */
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { useSelect } from '@wordpress/data';
 import { ChevronRight, ChevronDown, Lock, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { FeatureRow } from '@/components/molecules/FeatureRow';
-import { store as uplinkStore } from '@/store';
-import type { Feature, Product, Tier } from '@/types/api';
+import type { CatalogTier, Feature, Product } from '@/types/api';
 
 interface TierGroupProps {
-    tier:       Tier;
+    tier:       CatalogTier;
     features:   Feature[];
     product:    Product;
     forceOpen?: boolean;
@@ -30,13 +28,6 @@ export function TierGroup( { tier, features, product, forceOpen = false }: TierG
     const [ expanded, setExpanded ] = useState( false );
     const isOpen = expanded || forceOpen;
     const Chevron = isOpen ? ChevronDown : ChevronRight;
-
-    // Prefer the API's purchase_url; fall back to the static fixture upgradeUrl.
-    const catalogTier = useSelect(
-        ( select ) => select( uplinkStore ).getCatalogTier( product.slug, tier.slug ),
-        [ product.slug, tier.slug ]
-    );
-    const upgradeUrl = catalogTier?.purchase_url ?? tier.upgradeUrl;
 
     return (
         <>
@@ -61,7 +52,7 @@ export function TierGroup( { tier, features, product, forceOpen = false }: TierG
                     className="gap-1 text-xs h-7"
                     onClick={ ( e ) => {
                         e.stopPropagation();
-                        window.open( upgradeUrl, '_blank', 'noopener,noreferrer' );
+                        window.open( tier.purchase_url, '_blank', 'noopener,noreferrer' );
                     } }
                 >
                     <ExternalLink className="w-3 h-3" />

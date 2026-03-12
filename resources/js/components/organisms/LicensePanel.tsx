@@ -107,9 +107,7 @@ export function LicensePanel() {
     }, [ catalogs ] );
 
     const upsellUrl = ( slug: string ): string =>
-        upsellUrlMap[ slug ] ??
-        PRODUCTS.find( ( p ) => p.slug === slug )?.tiers[ 0 ]?.upgradeUrl ??
-        '#';
+        upsellUrlMap[ slug ] ?? '#';
 
     const licensedSlugs = new Set( licenseProducts.map( ( lp ) => lp.product_slug ) );
     const upsellProducts = PRODUCTS.filter( ( p ) => ! licensedSlugs.has( p.slug ) );

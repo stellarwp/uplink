@@ -49,8 +49,11 @@ export function ProductSection( { product }: ProductSectionProps ) {
     // Filtered set — used for rendering rows.
     const allFeatures = useFilteredFeatures( product.slug );
 
-    const availableFeatures = allFeatures.filter( ( f ) => f.is_available );
-    const lockedFeatures    = allFeatures.filter( ( f ) => ! f.is_available );
+    // Features with no tier are free — always available regardless of license.
+    const isFreeFeature = ( f: (typeof allFeatures)[0] ) => ! f.tier;
+
+    const availableFeatures = allFeatures.filter( ( f ) => f.is_available || isFreeFeature( f ) );
+    const lockedFeatures    = allFeatures.filter( ( f ) => ! f.is_available && ! isFreeFeature( f ) );
 
     // Counts derived from the unfiltered set — unaffected by search.
     const activeCount      = allFeaturesUnfiltered.filter( ( f ) => f.is_available && f.is_enabled ).length;
@@ -60,8 +63,11 @@ export function ProductSection( { product }: ProductSectionProps ) {
         ? ( catalogTiers.find( ( t ) => t.slug === licenseProduct.tier )?.name ?? licenseProduct.tier )
         : null;
 
-    // Group locked features by their minimum tier slug.
-    const lockedByTier = product.tiers.reduce<Record<string, typeof lockedFeatures>>(
+    // Catalog tiers sorted by rank — these slugs match feature.tier values from the API.
+    const sortedCatalogTiers = catalogTiers.slice().sort( ( a, b ) => a.rank - b.rank );
+
+    // Group locked features by their minimum catalog-tier slug.
+    const lockedByTier = sortedCatalogTiers.reduce<Record<string, typeof lockedFeatures>>(
         ( acc, tier ) => {
             acc[ tier.slug ] = lockedFeatures.filter( ( f ) => f.tier === tier.slug );
             return acc;
@@ -119,7 +125,7 @@ export function ProductSection( { product }: ProductSectionProps ) {
                         />
                     ) ) }
 
-                    { product.tiers.map( ( tier ) => {
+                    { sortedCatalogTiers.map( ( tier ) => {
                         const locked = lockedByTier[ tier.slug ] ?? [];
                         if ( locked.length === 0 ) return null;
                         return (

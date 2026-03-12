@@ -100,17 +100,7 @@ final class Legacy_License_Controller extends WP_REST_Controller {
 	 */
 	public function get_items( $request ): WP_REST_Response {
 		$licenses = array_map(
-			static function ( Legacy_License $license ): array {
-				return [
-					'key'        => $license->key,
-					'slug'       => $license->slug,
-					'name'       => $license->name,
-					'brand'      => $license->brand,
-					'status'     => $license->status,
-					'page_url'   => $license->page_url,
-					'expires_at' => $license->expires_at,
-				];
-			},
+			static fn( Legacy_License $license ): array => $license->to_array(),
 			$this->repository->all()
 		);
 

@@ -15,17 +15,19 @@ import { FeatureRow } from '@/components/molecules/FeatureRow';
 import type { Feature, Product, Tier } from '@/types/api';
 
 interface TierGroupProps {
-    tier: Tier;
-    features: Feature[];
-    product: Product;
+    tier:       Tier;
+    features:   Feature[];
+    product:    Product;
+    forceOpen?: boolean;
 }
 
 /**
  * @since 3.0.0
  */
-export function TierGroup( { tier, features, product }: TierGroupProps ) {
+export function TierGroup( { tier, features, product, forceOpen = false }: TierGroupProps ) {
     const [ expanded, setExpanded ] = useState( false );
-    const Chevron = expanded ? ChevronDown : ChevronRight;
+    const isOpen = expanded || forceOpen;
+    const Chevron = isOpen ? ChevronDown : ChevronRight;
 
     return (
         <>
@@ -58,7 +60,7 @@ export function TierGroup( { tier, features, product }: TierGroupProps ) {
                 </Button>
             </button>
 
-            { expanded && features.map( ( feature ) => (
+            { isOpen && features.map( ( feature ) => (
                 <FeatureRow
                     key={ feature.slug }
                     feature={ feature }

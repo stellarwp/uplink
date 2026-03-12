@@ -56,8 +56,13 @@ export function AppShell() {
                 </div>
             ) : (
                 <ErrorBoundary>
-                    <div className="flex flex-col gap-4 pb-8">
+                    <div className="space-y-8">
                         <LegacyLicenseBanner />
+
+						<div className="flex items-center !mt-8 !mb-6">
+							<h2 className="!text-2xl !font-normal !m-0 !p-0">{ __( 'Your Features', '%TEXTDOMAIN%' ) }</h2>
+						</div>
+
                         { visibleProducts.map( ( product ) => (
                             <ProductSection
                                 key={ product.slug }

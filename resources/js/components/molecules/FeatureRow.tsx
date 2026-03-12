@@ -151,6 +151,7 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 				<span className="font-medium flex-1 min-w-0 text-sm">
 					{ feature.name }
 				</span>
+				<div className="flex-1" />
 				{ feature.version && (
 					<span className="text-xs font-mono text-muted-foreground w-16 text-right shrink-0">
 						{ feature.version }
@@ -182,7 +183,7 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 
 			{ expanded && (
 				<div className="px-4 pb-3 pl-[2.75rem]">
-					<p className="text-sm text-muted-foreground leading-relaxed mt-2 mb-0">
+					<p className="text-sm text-muted-foreground leading-relaxed !mt-[0.75em] !mb-0">
 						{ feature.description }
 					</p>
 				</div>

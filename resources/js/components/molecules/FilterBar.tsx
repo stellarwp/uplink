@@ -28,7 +28,7 @@ export function FilterBar() {
     };
 
     return (
-        <div className="flex flex-wrap items-center gap-3 py-4">
+        <div className="flex flex-wrap items-center gap-3">
             <img
                 src={ logoLW }
                 alt={ __( 'Liquid Web Software', '%TEXTDOMAIN%' ) }

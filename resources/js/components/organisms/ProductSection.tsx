@@ -73,10 +73,8 @@ export function ProductSection( { product }: ProductSectionProps ) {
 
     return (
         <section id={ product.slug } className="scroll-mt-20">
-            {/* Sticky dark product header — clears WP admin bar */}
-            <div className="sticky top-[var(--wp-admin--admin-bar--height,32px)] z-10
-                            flex items-center gap-3 px-4 py-3
-                            bg-neutral-800 text-white">
+			<div className="h-0"></div>
+            <div className="flex items-center gap-3 px-4 py-3 bg-neutral-800 text-white sticky top-0 z-10 border-x border-neutral-800 transition-[border-radius] rounded-t-lg border-t">
                 <ProductLogo slug={ product.slug } size={ 28 } />
                 <h2 className="text-base font-semibold m-0 p-0 text-white">
                     { product.name }

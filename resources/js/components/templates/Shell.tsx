@@ -18,21 +18,18 @@ interface ShellProps {
  */
 export function Shell( { header, sideContent, children }: ShellProps ) {
     return (
-        <div className="flex relative">
-            <main className="flex-1 min-w-0 px-8 pb-8 bg-neutral-50">
+        <div className="flex flex-col overflow-hidden h-[calc(100vh-32px)]">
+            <header className="shrink-0 border-b bg-background py-4 px-8 flex items-center gap-3">
                 { header }
-                { children }
-            </main>
-
-            <aside
-                className="w-[280px] shrink-0 border-l px-6 py-4
-                           sticky top-[var(--wp-admin--admin-bar--height,32px)]
-                           self-start
-                           max-h-[calc(100vh-var(--wp-admin--admin-bar--height,32px))]
-                           overflow-y-auto"
-            >
-                { sideContent }
-            </aside>
+            </header>
+			<div className="flex-1 min-h-0 flex overflow-hidden">
+				<main className="flex-1 min-w-0 overflow-y-auto pb-6 px-8 bg-neutral-50">
+					{ children }
+				</main>
+				<aside className="shrink-0 overflow-y-auto border-l px-8 py-4">
+					{ sideContent }
+				</aside>
+			</div>
         </div>
     );
 }

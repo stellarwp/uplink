@@ -19,7 +19,7 @@ import { store as uplinkStore } from '@/store';
 import { PRODUCTS } from '@/data/products';
 import { useToast } from '@/context/toast-context';
 import { UplinkError } from '@/errors';
-import logoGiveNobg from '@img/logo-give-nobg.svg';
+import logoGiveNobg from '@img/logo-givewp-nobg.svg';
 import logoLearnDashNobg from '@img/logo-learndash-nobg.svg';
 import logoTecNobg from '@img/logo-tec-nobg.svg';
 import logoKadenceNobg from '@img/logo-kadence-nobg.svg';
@@ -109,7 +109,7 @@ export function LicensePanel() {
     };
 
     return (
-        <div className="w-full space-y-6">
+        <div className="sticky top-4 w-[280px] shrink-0 space-y-6">
 
             {/* ── License section ── */}
             <div className="space-y-3">
@@ -182,7 +182,7 @@ export function LicensePanel() {
             {/* ── Upsell section ── */}
             { upsellProducts.length > 0 && (
                 <>
-                    <hr className="border-t border-border" />
+                    <hr className="border-t border-0 !border-b-0" />
 
                     <div className="space-y-3">
                         <div className="flex items-center gap-2.5">

@@ -40,8 +40,7 @@ export function StatusBadge( { status, requiredTier }: StatusBadgeProps ) {
     if ( status === 'enabled' ) {
         return (
             <Badge variant="success">
-                <Check className="w-3 h-3" />
-                { __( 'Enabled', '%TEXTDOMAIN%' ) }
+                { __( 'Activated', '%TEXTDOMAIN%' ) }
             </Badge>
         );
     }
@@ -49,7 +48,7 @@ export function StatusBadge( { status, requiredTier }: StatusBadgeProps ) {
     if ( status === 'available' ) {
         return (
             <Badge variant="secondary">
-                { __( 'Disabled', '%TEXTDOMAIN%' ) }
+                { __( 'Deactivated', '%TEXTDOMAIN%' ) }
             </Badge>
         );
     }

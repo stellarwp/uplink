@@ -4,7 +4,10 @@
  * Available features render as FeatureRow entries. Locked features are
  * grouped by tier and rendered inside collapsible TierGroup accordions.
  *
- * @package StellarWP\\Uplink
+ * Header counts (active / deactivated) always reflect the full unfiltered
+ * feature set so they remain stable while the user searches.
+ *
+ * @package StellarWP\Uplink
  */
 import { __ } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
@@ -13,6 +16,8 @@ import { ProductLogo } from '@/components/atoms/ProductLogo';
 import { FeatureRow } from '@/components/molecules/FeatureRow';
 import { TierGroup } from '@/components/molecules/TierGroup';
 import { store as uplinkStore } from '@/store';
+import { useFilter } from '@/context/filter-context';
+import { useFilteredFeatures } from '@/hooks/useFilteredFeatures';
 import type { Product } from '@/types/api';
 
 interface ProductSectionProps {
@@ -23,13 +28,16 @@ interface ProductSectionProps {
  * @since 3.0.0
  */
 export function ProductSection( { product }: ProductSectionProps ) {
-    const { features, hasLicense, licenseProduct, catalogTiers } = useSelect(
+    const { searchQuery } = useFilter();
+    const isSearching = searchQuery.trim().length > 0;
+
+    // Full unfiltered set — used only for header counts so they stay stable.
+    const { hasLicense, licenseProduct, catalogTiers, allFeaturesUnfiltered } = useSelect(
         ( select ) => {
-            const allFeatures = select( uplinkStore ).getFeaturesByGroup( product.slug );
             const licenseProducts = select( uplinkStore ).getLicenseProducts();
             const catalog = select( uplinkStore ).getProductCatalog( product.slug );
             return {
-                features: allFeatures,
+                allFeaturesUnfiltered: select( uplinkStore ).getFeaturesByGroup( product.slug ),
                 hasLicense: select( uplinkStore ).hasLicense(),
                 licenseProduct: licenseProducts.find( ( lp ) => lp.product_slug === product.slug ) ?? null,
                 catalogTiers: catalog?.tiers ?? [],
@@ -38,11 +46,15 @@ export function ProductSection( { product }: ProductSectionProps ) {
         [ product.slug ],
     );
 
-    const availableFeatures = features.filter( ( f ) => f.is_available );
-    const lockedFeatures = features.filter( ( f ) => ! f.is_available );
+    // Filtered set — used for rendering rows.
+    const allFeatures = useFilteredFeatures( product.slug );
 
-    const activeCount = availableFeatures.filter( ( f ) => f.is_enabled ).length;
-    const deactivatedCount = availableFeatures.filter( ( f ) => ! f.is_enabled ).length;
+    const availableFeatures = allFeatures.filter( ( f ) => f.is_available );
+    const lockedFeatures    = allFeatures.filter( ( f ) => ! f.is_available );
+
+    // Counts derived from the unfiltered set — unaffected by search.
+    const activeCount      = allFeaturesUnfiltered.filter( ( f ) => f.is_available && f.is_enabled ).length;
+    const deactivatedCount = allFeaturesUnfiltered.filter( ( f ) => f.is_available && ! f.is_enabled ).length;
 
     const tierName = licenseProduct
         ? ( catalogTiers.find( ( t ) => t.slug === licenseProduct.tier )?.name ?? licenseProduct.tier )
@@ -91,6 +103,14 @@ export function ProductSection( { product }: ProductSectionProps ) {
                 </div>
             ) }
 
+            { hasLicense && isSearching && ! hasContent && (
+                <div className="border border-t-0 rounded-b-lg">
+                    <p className="px-4 py-6 text-sm text-muted-foreground text-center">
+                        { __( 'No features match your search.', '%TEXTDOMAIN%' ) }
+                    </p>
+                </div>
+            ) }
+
             { hasLicense && hasContent && (
                 <div className="border border-t-0 rounded-b-lg overflow-hidden">
                     { availableFeatures.map( ( feature ) => (
@@ -110,6 +130,7 @@ export function ProductSection( { product }: ProductSectionProps ) {
                                 tier={ tier }
                                 features={ locked }
                                 product={ product }
+                                forceOpen={ isSearching }
                             />
                         );
                     } ) }

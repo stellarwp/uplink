@@ -3,7 +3,6 @@
 namespace StellarWP\Uplink\API\Functions;
 
 use StellarWP\ContainerContract\ContainerInterface;
-use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
 use Throwable;
@@ -83,13 +82,19 @@ class Global_Function_Registry {
 			$version,
 			static function ( string $slug ) use ( $container ) {
 				try {
-					return $container->get( Manager::class )->is_enabled( $slug );
+					$result = $container->get( Manager::class )->is_enabled( $slug );
+
+					if ( is_wp_error( $result ) ) {
+						self::debug_log_wp_error( $result, 'Error checking feature enabled state' );
+
+						return false;
+					}
+
+					return $result;
 				} catch ( Throwable $e ) {
 					self::debug_log( $e, 'Error checking feature enabled state' );
 
-					$message = $e instanceof \Exception ? $e->getMessage() : 'An unexpected error occurred.';
-
-					return new WP_Error( Error_Code::FEATURE_CHECK_FAILED, $message );
+					return false;
 				}
 			}
 		);
@@ -100,13 +105,19 @@ class Global_Function_Registry {
 			$version,
 			static function ( string $slug ) use ( $container ) {
 				try {
-					return $container->get( Manager::class )->is_available( $slug );
+					$result = $container->get( Manager::class )->is_available( $slug );
+
+					if ( is_wp_error( $result ) ) {
+						self::debug_log_wp_error( $result, 'Error checking feature availability' );
+
+						return false;
+					}
+
+					return $result;
 				} catch ( Throwable $e ) {
 					self::debug_log( $e, 'Error checking feature availability' );
 
-					$message = $e instanceof \Exception ? $e->getMessage() : 'An unexpected error occurred.';
-
-					return new WP_Error( Error_Code::FEATURE_CHECK_FAILED, $message );
+					return false;
 				}
 			}
 		);
@@ -126,6 +137,20 @@ class Global_Function_Registry {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
 			error_log( "{$context}: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
+		}
+	}
+
+	/**
+	 * Logs a WP_Error message and trace when WP_DEBUG is enabled.
+	 *
+	 * @param WP_Error $error The WP_Error to log.
+	 * @param string   $context The context of the log.
+	 * @return void
+	 */
+	private static function debug_log_wp_error( WP_Error $error, string $context ): void {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
+			error_log( "{$context}: [{$error->get_error_code()}] {$error->get_error_message()}" );
 		}
 	}
 }

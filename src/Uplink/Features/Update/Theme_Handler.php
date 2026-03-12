@@ -116,8 +116,11 @@ class Theme_Handler {
 
 		if (
 			$feature === null
-			|| ( $feature instanceof Installable && $feature->is_dot_org() ) // Dot-org features are served by WordPress.org.
-			) {
+			|| (
+				$feature instanceof Installable
+				&& $feature->is_dot_org() // Dot-org features are served by WordPress.org.
+			)
+		) {
 			return $result;
 		}
 

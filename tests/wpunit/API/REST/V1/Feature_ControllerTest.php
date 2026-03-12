@@ -889,7 +889,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$this->assertTrue( $plugin['additionalProperties'] );
 		$this->assertSame( [ Feature::TYPE_PLUGIN ], $plugin['properties']['type']['enum'] );
 
-		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled', 'plugin_file', 'plugin_slug', 'authors', 'is_dot_org' ];
+		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled', 'plugin_file', 'authors', 'is_dot_org' ];
 
 		foreach ( $expected as $property ) {
 			$this->assertArrayHasKey( $property, $plugin['properties'], "Missing plugin schema property: {$property}" );
@@ -918,7 +918,6 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		}
 
 		$this->assertArrayNotHasKey( 'plugin_file', $theme['properties'] );
-		$this->assertArrayNotHasKey( 'plugin_slug', $theme['properties'] );
 		$this->assertCount( count( $expected ), $theme['properties'] );
 	}
 
@@ -942,7 +941,6 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		}
 
 		$this->assertArrayNotHasKey( 'plugin_file', $flag['properties'] );
-		$this->assertArrayNotHasKey( 'plugin_slug', $flag['properties'] );
 		$this->assertArrayNotHasKey( 'authors', $flag['properties'] );
 		$this->assertArrayNotHasKey( 'is_dot_org', $flag['properties'] );
 		$this->assertCount( count( $expected ), $flag['properties'] );

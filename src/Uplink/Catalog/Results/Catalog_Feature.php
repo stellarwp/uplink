@@ -16,7 +16,6 @@ use StellarWP\Uplink\Utils\Cast;
  *     type: string,
  *     minimum_tier: string,
  *     plugin_file: ?string,
- *     plugin_slug: ?string,
  *     is_dot_org: bool,
  *     download_url: ?string,
  *     version: ?string,
@@ -41,7 +40,6 @@ final class Catalog_Feature {
 		'type'              => '',
 		'minimum_tier'      => '',
 		'plugin_file'       => null,
-		'plugin_slug'       => null,
 		'is_dot_org'        => false,
 		'download_url'      => null,
 		'version'           => null,
@@ -83,7 +81,6 @@ final class Catalog_Feature {
 				'type'              => Cast::to_string( $data['type'] ?? '' ),
 				'minimum_tier'      => Cast::to_string( $data['minimum_tier'] ?? '' ),
 				'plugin_file'       => isset( $data['plugin_file'] ) ? Cast::to_string( $data['plugin_file'] ) : null,
-				'plugin_slug'       => isset( $data['plugin_slug'] ) ? Cast::to_string( $data['plugin_slug'] ) : null,
 				'is_dot_org'        => Cast::to_bool( $data['is_dot_org'] ?? false ),
 				'download_url'      => isset( $data['download_url'] ) ? Cast::to_string( $data['download_url'] ) : null,
 				'version'           => isset( $data['version'] ) ? Cast::to_string( $data['version'] ) : null,
@@ -153,19 +150,6 @@ final class Catalog_Feature {
 	 */
 	public function get_plugin_file(): ?string {
 		return $this->attributes['plugin_file'];
-	}
-
-	/**
-	 * Gets the plugin slug or null if not applicable.
-	 *
-	 * Only present for plugin features.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return string|null
-	 */
-	public function get_plugin_slug(): ?string {
-		return $this->attributes['plugin_slug'];
 	}
 
 	/**

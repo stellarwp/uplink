@@ -84,7 +84,6 @@ final class FeatureTest extends UplinkTestCase {
 					'is_available'      => false,
 					'documentation_url' => 'https://example.com/docs/test-plugin',
 					'plugin_file'       => 'test-plugin/test-plugin.php',
-					'plugin_slug'       => 'test-plugin',
 					'authors'           => [ 'StellarWP' ],
 					'is_dot_org'        => true,
 				]
@@ -234,7 +233,6 @@ final class FeatureTest extends UplinkTestCase {
 		$item = $this->run_get_json( 'test-plugin' );
 
 		$this->assertSame( 'test-plugin/test-plugin.php', $item['plugin_file'] );
-		$this->assertSame( 'test-plugin', $item['plugin_slug'] );
 		$this->assertSame( 'StellarWP', $item['authors'] );
 		$this->assertSame( 'true', $item['is_dot_org'] );
 	}
@@ -349,7 +347,6 @@ final class FeatureTest extends UplinkTestCase {
 				'tier'         => 'Tier 2',
 				'is_available' => true,
 				'plugin_file'  => 'test-plugin/test-plugin.php',
-				'plugin_slug'  => 'test-plugin',
 				'authors'      => [ 'Alice', 'Bob' ],
 				'is_dot_org'   => false,
 			]

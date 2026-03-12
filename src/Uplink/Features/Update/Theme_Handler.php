@@ -132,7 +132,7 @@ class Theme_Handler {
 	 */
 	public function filter_update_check( $transient ) {
 		if ( ! is_object( $transient ) ) {
-			return $transient;
+			$transient = new stdClass();
 		}
 
 		if ( empty( $this->license_manager->get_key() ) ) {

@@ -23,8 +23,8 @@ import { useFilter } from '@/context/filter-context';
  * @since 3.0.0
  */
 export function AppShell() {
-    // Trigger both resolvers and wait for them to complete before rendering
-    // content, so we never flash a "No license" state on first load.
+    // Trigger all three resolvers and wait for completion before rendering
+    // content, so we never flash stale tier badges or a "No license" state.
     const isLoading = useSelect(
         ( select ) => {
             const s = select( uplinkStore ) as unknown as {
@@ -32,8 +32,10 @@ export function AppShell() {
             };
             select( uplinkStore ).getLicenseKey();
             select( uplinkStore ).getFeatures();
+            select( uplinkStore ).getCatalog();
             return ! s.hasFinishedResolution( 'getLicenseKey', [] )
-                || ! s.hasFinishedResolution( 'getFeatures', [] );
+                || ! s.hasFinishedResolution( 'getFeatures', [] )
+                || ! s.hasFinishedResolution( 'getCatalog', [] );
         },
         [],
     );

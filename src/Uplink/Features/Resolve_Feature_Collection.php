@@ -200,6 +200,7 @@ class Resolve_Feature_Collection {
 			'is_available'      => $is_available,
 			'documentation_url' => $catalog_feature->get_documentation_url(),
 			'plugin_file'       => $catalog_feature->get_plugin_file() ?? '',
+			'is_dot_org'        => $catalog_feature->is_dot_org(),
 			'authors'           => $catalog_feature->get_authors() ?? [],
 		];
 

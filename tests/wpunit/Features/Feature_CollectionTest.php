@@ -182,7 +182,6 @@ final class Feature_CollectionTest extends UplinkTestCase {
 				'is_available'      => false,
 				'documentation_url' => '',
 				'plugin_file'       => '',
-				'plugin_slug'       => '',
 				'authors'           => [],
 			] 
 		);
@@ -235,7 +234,6 @@ final class Feature_CollectionTest extends UplinkTestCase {
 				'description'       => '',
 				'type'              => 'plugin',
 				'plugin_file'       => 'my-plugin/my-plugin.php',
-				'plugin_slug'       => 'my-plugin',
 				'is_available'      => false,
 				'documentation_url' => '',
 				'authors'           => [],

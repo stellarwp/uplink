@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Features\Update;
 
+use StellarWP\Uplink\Features\Contracts\Installable;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Site\Data;
@@ -107,7 +108,19 @@ class Plugin_Handler {
 		// Check whether the requested slug belongs to a known Plugin feature.
 		$features = $this->feature_repository->get( $this->key, $this->site_data->get_domain() );
 
-		if ( is_wp_error( $features ) || $features->get( $slug ) === null ) {
+		if ( is_wp_error( $features ) ) {
+			return $result;
+		}
+
+		$feature = $features->get( $slug );
+
+		if (
+			$feature === null
+			|| (
+				$feature instanceof Installable
+				&& $feature->is_dot_org() // Dot-org features are served by WordPress.org.
+			)
+		) {
 			return $result;
 		}
 

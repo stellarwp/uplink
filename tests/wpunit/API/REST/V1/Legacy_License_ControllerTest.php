@@ -131,7 +131,13 @@ final class Legacy_License_ControllerTest extends UplinkTestCase {
 			function () {
 				return [
 					$this->license_data,
-					array_merge( $this->license_data, [ 'slug' => 'another-plugin', 'name' => 'Another Plugin' ] ),
+					array_merge(
+						$this->license_data,
+						[
+							'slug' => 'another-plugin',
+							'name' => 'Another Plugin',
+						] 
+					),
 				];
 			}
 		);

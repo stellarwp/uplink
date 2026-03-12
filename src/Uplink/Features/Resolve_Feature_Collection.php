@@ -6,6 +6,7 @@ use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Catalog\Results\Catalog_Feature;
 use StellarWP\Uplink\Catalog\Results\Product_Catalog;
 use StellarWP\Uplink\Features\Contracts\Installable;
+use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Product_Collection;
 use StellarWP\Uplink\Site\Data;

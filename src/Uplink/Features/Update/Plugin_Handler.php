@@ -166,11 +166,18 @@ class Plugin_Handler {
 		/** @var array<string, stdClass> $wp_no_update */
 		$wp_no_update = $transient->no_update;
 
+		$installed_plugins = get_plugins();
+
 		foreach ( $response as $slug => $update_data ) {
 			/** @var string $plugin_file */
 			$plugin_file = $update_data['plugin_file'] ?? '';
 
 			if ( empty( $plugin_file ) ) {
+				continue;
+			}
+
+			// Skip features that are not installed on this site.
+			if ( ! isset( $installed_plugins[ $plugin_file ] ) ) {
 				continue;
 			}
 

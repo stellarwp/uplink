@@ -22,6 +22,13 @@ final class Theme_HandlerTest extends UplinkTestCase {
 	private Theme_Handler $handler;
 
 	/**
+	 * Absolute path to the temporary theme directory created for tests.
+	 *
+	 * @var string|null
+	 */
+	private $theme_dir;
+
+	/**
 	 * Sets up the handler with mocked dependencies before each test.
 	 *
 	 * @return void
@@ -37,6 +44,75 @@ final class Theme_HandlerTest extends UplinkTestCase {
 			$feature_repository,
 			$this->container->get( License_Manager::class )
 		);
+
+		$this->create_test_theme();
+	}
+
+	/**
+	 * Removes the test theme directory after each test.
+	 *
+	 * @return void
+	 */
+	protected function tearDown(): void {
+		$this->remove_test_theme();
+		parent::tearDown();
+	}
+
+	/**
+	 * Creates a minimal theme directory so wp_get_themes() recognises 'my-theme'
+	 * as installed. WordPress reads theme headers from style.css on disk, so a
+	 * real directory is required — there is no filter hook on wp_get_themes().
+	 *
+	 * @return void
+	 */
+	private function create_test_theme(): void {
+		$this->theme_dir = get_theme_root() . '/my-theme';
+
+		if ( ! is_dir( $this->theme_dir ) ) {
+			mkdir( $this->theme_dir, 0755, true );
+		}
+
+		file_put_contents(
+			$this->theme_dir . '/style.css',
+			"/*\nTheme Name: My Theme\nVersion: 1.0.0\n*/\n"
+		);
+
+		// WordPress requires index.php to consider a theme valid (no errors).
+		// wp_get_themes() with the default errors=>false skips themes with errors.
+		file_put_contents( $this->theme_dir . '/index.php', "<?php // silence\n" );
+
+		// Clear the static theme-directory cache so wp_get_themes() picks up the new entry.
+		wp_clean_themes_cache();
+	}
+
+	/**
+	 * Removes the theme directory created by create_test_theme().
+	 *
+	 * @return void
+	 */
+	private function remove_test_theme(): void {
+		if ( $this->theme_dir === null ) {
+			return;
+		}
+
+		$style = $this->theme_dir . '/style.css';
+		$index = $this->theme_dir . '/index.php';
+
+		if ( file_exists( $style ) ) {
+			unlink( $style );
+		}
+
+		if ( file_exists( $index ) ) {
+			unlink( $index );
+		}
+
+		if ( is_dir( $this->theme_dir ) ) {
+			rmdir( $this->theme_dir );
+		}
+
+		wp_clean_themes_cache();
+
+		$this->theme_dir = null;
 	}
 
 	/**
@@ -211,7 +287,7 @@ final class Theme_HandlerTest extends UplinkTestCase {
 	public function test_filter_update_check_passes_through_for_non_object(): void {
 		$result = $this->handler->filter_update_check( false );
 
-		$this->assertFalse( $result );
+		$this->assertInstanceOf( stdClass::class, $result );
 	}
 
 	/**

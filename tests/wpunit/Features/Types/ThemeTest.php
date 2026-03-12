@@ -140,6 +140,8 @@ final class ThemeTest extends UplinkTestCase {
 			'is_dot_org'        => false,
 			'released_at'       => '2025-11-15',
 			'installed_version' => '2.0.0',
+			'version'           => null,
+			'changelog'         => null,
 		];
 
 		$feature = Theme::from_array( $data );

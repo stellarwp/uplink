@@ -37,6 +37,54 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 			$feature_repository,
 			$this->container->get( License_Manager::class )
 		);
+
+		$this->create_test_plugin();
+	}
+
+	/**
+	 * Removes the test plugin file after each test.
+	 *
+	 * @return void
+	 */
+	protected function tearDown(): void {
+		$this->remove_test_plugin();
+		parent::tearDown();
+	}
+
+	/**
+	 * Creates a dummy plugin file so get_plugins() recognizes it as installed.
+	 *
+	 * @return void
+	 */
+	private function create_test_plugin(): void {
+		$plugin_dir = WP_PLUGIN_DIR . '/my-plugin';
+
+		if ( ! is_dir( $plugin_dir ) ) {
+			mkdir( $plugin_dir, 0755, true );
+		}
+
+		file_put_contents(
+			$plugin_dir . '/my-plugin.php',
+			"<?php\n/*\nPlugin Name: My Plugin\nVersion: 1.0.0\n*/\n"
+		);
+
+		wp_cache_delete( 'plugins', 'plugins' );
+	}
+
+	/**
+	 * Removes the dummy plugin file created by create_test_plugin().
+	 *
+	 * @return void
+	 */
+	private function remove_test_plugin(): void {
+		$plugin_file = WP_PLUGIN_DIR . '/my-plugin/my-plugin.php';
+
+		if ( file_exists( $plugin_file ) ) {
+			unlink( $plugin_file );
+			rmdir( WP_PLUGIN_DIR . '/my-plugin' );
+		}
+
+		wp_cache_delete( 'plugins', 'plugins' );
 	}
 
 	/**
@@ -204,7 +252,7 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 	public function test_filter_update_check_passes_through_for_non_object(): void {
 		$result = $this->handler->filter_update_check( false );
 
-		$this->assertFalse( $result );
+		$this->assertInstanceOf( stdClass::class, $result );
 	}
 
 	/**

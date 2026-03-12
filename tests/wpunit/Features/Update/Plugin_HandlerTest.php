@@ -31,12 +31,11 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 
 		$resolver           = $this->makeEmpty( Resolve_Update_Data::class );
 		$feature_repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => new Feature_Collection() ] );
-		$license_manager    = $this->makeEmpty( License_Manager::class );
 
 		$this->handler = new Plugin_Handler(
 			$resolver,
 			$feature_repository,
-			$license_manager
+			$this->container->get( License_Manager::class )
 		);
 	}
 
@@ -66,10 +65,13 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 		$resolver           = $this->makeEmpty( Resolve_Update_Data::class, [ '__invoke' => $check_updates_return ] );
 		$feature_repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => $features ] );
 
+		$license_manager = $this->container->get( License_Manager::class );
+		$license_manager->store_key( 'LWSW-test-handler-key' );
+
 		return new Plugin_Handler(
 			$resolver,
 			$feature_repository,
-			$this->makeEmpty( License_Manager::class )
+			$license_manager
 		);
 	}
 

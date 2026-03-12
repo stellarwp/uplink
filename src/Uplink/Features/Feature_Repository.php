@@ -5,29 +5,15 @@ namespace StellarWP\Uplink\Features;
 use WP_Error;
 
 /**
- * Manages caching and delegates feature resolution to Resolve_Feature_Collection.
+ * Manages in-memory caching and delegates feature resolution to Resolve_Feature_Collection.
+ *
+ * Resolution is cheap (iterates cached catalog and licensing arrays), so this
+ * class only caches the result for the current request. Fresh requests always
+ * resolve from the upstream caches, which are the single source of truth.
  *
  * @since 3.0.0
  */
 class Feature_Repository {
-
-	/**
-	 * Transient key for the cached feature catalog.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var string
-	 */
-	public const TRANSIENT_KEY = 'stellarwp_uplink_feature_catalog';
-
-	/**
-	 * Default cache duration in seconds (12 hours).
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var int
-	 */
-	private const CACHE_DURATION = HOUR_IN_SECONDS * 12;
 
 	/**
 	 * The feature collection resolver.
@@ -37,6 +23,15 @@ class Feature_Repository {
 	 * @var Resolve_Feature_Collection
 	 */
 	private Resolve_Feature_Collection $resolver;
+
+	/**
+	 * In-memory cache of the resolved result for the current request.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var Feature_Collection|WP_Error|null
+	 */
+	private $cached;
 
 	/**
 	 * Constructor.
@@ -50,7 +45,7 @@ class Feature_Repository {
 	}
 
 	/**
-	 * Gets the resolved feature collection, using the transient cache when available.
+	 * Gets the resolved feature collection, using the in-memory cache when available.
 	 *
 	 * @since 3.0.0
 	 *
@@ -60,22 +55,15 @@ class Feature_Repository {
 	 * @return Feature_Collection|WP_Error
 	 */
 	public function get( string $key, string $domain ) {
-		$cached = get_transient( self::TRANSIENT_KEY );
-
-		if ( is_wp_error( $cached ) ) {
-			return $cached;
-		}
-
-		if ( is_array( $cached ) ) {
-			/** @var array<array<string, mixed>> $cached */
-			return Feature_Collection::from_array( $cached );
+		if ( $this->cached !== null ) {
+			return $this->cached;
 		}
 
 		return $this->resolve( $key, $domain );
 	}
 
 	/**
-	 * Deletes the transient cache and re-resolves.
+	 * Clears the in-memory cache and re-resolves.
 	 *
 	 * @since 3.0.0
 	 *
@@ -85,13 +73,13 @@ class Feature_Repository {
 	 * @return Feature_Collection|WP_Error
 	 */
 	public function refresh( string $key, string $domain ) {
-		delete_transient( self::TRANSIENT_KEY );
+		$this->cached = null;
 
 		return $this->resolve( $key, $domain );
 	}
 
 	/**
-	 * Delegates resolution to the resolver and caches the result.
+	 * Delegates resolution to the resolver and caches the result in memory.
 	 *
 	 * @since 3.0.0
 	 *
@@ -101,14 +89,8 @@ class Feature_Repository {
 	 * @return Feature_Collection|WP_Error
 	 */
 	protected function resolve( string $key, string $domain ) {
-		$result = ( $this->resolver )( $domain );
+		$this->cached = ( $this->resolver )( $domain );
 
-		if ( $result instanceof Feature_Collection ) {
-			set_transient( self::TRANSIENT_KEY, $result->to_array(), self::CACHE_DURATION );
-		} elseif ( is_wp_error( $result ) ) {
-			set_transient( self::TRANSIENT_KEY, $result, self::CACHE_DURATION );
-		}
-
-		return $result;
+		return $this->cached;
 	}
 }

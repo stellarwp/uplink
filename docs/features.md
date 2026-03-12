@@ -99,7 +99,7 @@ Actions fired before and after enable/disable, both globally and per-slug:
 
 ## Caching
 
-The `Feature_Repository` caches the resolved `Feature_Collection` in a transient (`stellarwp_uplink_feature_catalog`, 12h TTL). The cache includes a hash of the license key — if the key changes, the cache auto-invalidates. `refresh()` explicitly clears and re-resolves.
+The `Feature_Repository` caches the resolved `Feature_Collection` in memory for the current request. Resolution is cheap (iterates the cached catalog and licensing arrays), so no cross-request cache is needed. Fresh requests always resolve from the upstream caches (catalog and licensing), which are the single source of truth for staleness. `refresh()` clears the in-memory cache and re-resolves.
 
 ## Feature Collection
 

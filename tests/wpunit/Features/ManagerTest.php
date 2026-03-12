@@ -55,8 +55,6 @@ final class ManagerTest extends UplinkTestCase {
 			define( 'STELLARWP_UPLINK_FEATURES_USE_FIXTURE_DATA', true );
 		}
 
-		delete_transient( 'stellarwp_uplink_feature_catalog' );
-
 		$this->collection = new Feature_Collection();
 		$this->collection->add(
 			Flag::from_array(
@@ -105,7 +103,6 @@ final class ManagerTest extends UplinkTestCase {
 	protected function tearDown(): void {
 		delete_option( 'stellarwp_uplink_feature_kad-pattern-hub_active' );
 		delete_option( License_Repository::KEY_OPTION_NAME );
-		delete_transient( Feature_Repository::TRANSIENT_KEY );
 		delete_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
 		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
 

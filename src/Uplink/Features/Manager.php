@@ -489,9 +489,9 @@ class Manager {
 	/**
 	 * Stamps live enabled state onto every feature in the collection.
 	 *
-	 * The Feature_Collection may come from a transient cache where
-	 * is_enabled values are stale. This method overwrites each
-	 * feature's is_enabled with the current live state from its strategy.
+	 * The Feature_Collection from the repository does not include
+	 * is_enabled state. This method overwrites each feature's
+	 * is_enabled with the current live state from its strategy.
 	 *
 	 * @since 3.0.0
 	 *

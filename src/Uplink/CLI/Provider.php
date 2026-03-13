@@ -3,9 +3,15 @@
 namespace StellarWP\Uplink\CLI;
 
 use StellarWP\ContainerContract\ContainerInterface;
+use StellarWP\Uplink\Catalog\Catalog_Repository;
+use StellarWP\Uplink\CLI\Commands\Catalog;
 use StellarWP\Uplink\CLI\Commands\Feature;
+use StellarWP\Uplink\CLI\Commands\License;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\Features\Manager;
+use StellarWP\Uplink\Legacy\License_Repository as Legacy_License_Repository;
+use StellarWP\Uplink\Licensing\License_Manager;
+use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Utils\Version;
 use WP_CLI;
 
@@ -34,6 +40,24 @@ final class Provider extends Abstract_Provider {
 			}
 		);
 
+		$this->container->singleton(
+			License::class,
+			static function ( ContainerInterface $c ) {
+				return new License(
+					$c->get( License_Manager::class ),
+					$c->get( Data::class ),
+					$c->get( Legacy_License_Repository::class )
+				);
+			}
+		);
+
+		$this->container->singleton(
+			Catalog::class,
+			static function ( ContainerInterface $c ) {
+				return new Catalog( $c->get( Catalog_Repository::class ) );
+			}
+		);
+
 		WP_CLI::add_hook( 'after_wp_load', [ $this, 'register_commands' ] );
 	}
 
@@ -53,5 +77,7 @@ final class Provider extends Abstract_Provider {
 		}
 
 		WP_CLI::add_command( 'uplink feature', $this->container->get( Feature::class ) );
+		WP_CLI::add_command( 'uplink license', $this->container->get( License::class ) );
+		WP_CLI::add_command( 'uplink catalog', $this->container->get( Catalog::class ) );
 	}
 }

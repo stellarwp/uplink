@@ -25,7 +25,7 @@ use WP_Error;
  *     activation: ?ActivationData,
  * }
  */
-final class Validation_Result {
+class Validation_Result {
 
 	/**
 	 * The validation result attributes.

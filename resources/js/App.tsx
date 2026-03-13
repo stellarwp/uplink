@@ -15,3 +15,5 @@ export const App = () => {
         </ToastProvider>
     );
 };
+
+console.log( 'Triggering build' );

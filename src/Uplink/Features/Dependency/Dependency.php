@@ -252,19 +252,31 @@ class Dependency {
 	/**
 	 * Converts the dependency to an associative array.
 	 *
+	 * Only includes type-specific fields where they are meaningful:
+	 * - plugin_file is only present for plugin dependencies.
+	 * - is_dot_org and is_external are only present for plugin and theme dependencies (installable dependencies)
+	 *
 	 * @since 3.0.0
 	 *
 	 * @return array<string, mixed>
 	 */
 	public function to_array(): array {
-		return [
+		$data = [
 			'type'         => $this->type,
 			'feature_slug' => $this->feature_slug,
 			'name'         => $this->name,
-			'plugin_file'  => $this->plugin_file,
-			'is_dot_org'   => $this->is_dot_org,
 			'constraint'   => $this->constraint,
-			'is_external'  => $this->is_external,
 		];
+
+		if ( $this->type === self::TYPE_PLUGIN ) {
+			$data['plugin_file'] = $this->plugin_file;
+		}
+
+		if ( $this->type === self::TYPE_PLUGIN || $this->type === self::TYPE_THEME ) {
+			$data['is_dot_org']  = $this->is_dot_org;
+			$data['is_external'] = $this->is_external;
+		}
+
+		return $data;
 	}
 }

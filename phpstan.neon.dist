@@ -41,3 +41,15 @@ parameters:
 			- vendor/lucatume/wp-browser/includes/core-phpunit/includes/object-cache.php
 			- vendor/lucatume/wp-browser/includes/pluggables
 			- '**/node_modules/**'
+
+	# These underscore-prefixed functions are intentional cross-instance shared globals
+	# used to communicate across Strauss-prefixed copies of Uplink. PHPStan flags them
+	# as internal by convention, but that is not applicable here.
+	ignoreErrors:
+		-
+			identifier: function.internal
+			paths:
+				- src/Uplink/global-functions.php
+				- src/Uplink/Uplink.php
+				- src/Uplink/Utils/Version.php
+				- src/Uplink/API/Functions/Global_Function_Registry.php

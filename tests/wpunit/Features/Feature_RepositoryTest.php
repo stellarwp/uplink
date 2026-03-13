@@ -212,7 +212,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	/**
 	 * Tests that feature resolution succeeds and returns a Feature_Collection when no license key is stored.
 	 *
-	 * All features should be unavailable since there is no licensed tier.
+	 * Free-tier features (rank 0) are available without a license. Paid-tier features are not.
 	 *
 	 * @return void
 	 */
@@ -224,8 +224,51 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		$this->assertInstanceOf( Feature_Collection::class, $result );
 		$this->assertGreaterThan( 0, $result->count() );
 
-		foreach ( $result as $feature ) {
-			$this->assertFalse( $feature->is_available(), 'All features should be unavailable without a license.' );
+		// Free-tier features are available without a license (rank 0 >= rank 0).
+		$this->assertTrue(
+			$result->get( 'kad-blocks' )->is_available(),
+			'Free-tier plugin should be available without a license.'
+		);
+		$this->assertTrue(
+			$result->get( 'kadence' )->is_available(),
+			'Free-tier theme should be available without a license.'
+		);
+
+		// Paid-tier features are not available without a license.
+		$this->assertFalse(
+			$result->get( 'kad-blocks-pro' )->is_available(),
+			'Basic-tier feature should not be available without a license.'
+		);
+		$this->assertFalse(
+			$result->get( 'solid-central' )->is_available(),
+			'Agency-tier feature should not be available without a license.'
+		);
+	}
+
+	/**
+	 * Tests that free-tier features resolve as available for unlicensed users.
+	 *
+	 * An unlicensed user resolves to tier rank 0. Features with minimum_tier at the
+	 * free tier (rank 0) satisfy 0 >= 0 and are available without a license key.
+	 *
+	 * @return void
+	 */
+	public function test_free_tier_features_available_without_license(): void {
+		$repository = $this->make_repository();
+
+		$result = $repository->get();
+
+		$this->assertInstanceOf( Feature_Collection::class, $result );
+
+		$free_features = $result->filter( null, 'kadence-free' );
+
+		$this->assertGreaterThan( 0, $free_features->count() );
+
+		foreach ( $free_features as $feature ) {
+			$this->assertTrue(
+				$feature->is_available(),
+				sprintf( 'Free-tier feature "%s" should be available without a license.', $feature->get_slug() )
+			);
 		}
 	}
 

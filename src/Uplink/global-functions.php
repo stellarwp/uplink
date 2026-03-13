@@ -11,6 +11,39 @@
  * equivalents to ensure they always execute the most up-to-date implementation.
  */
 
+if ( ! function_exists( '_stellarwp_uplink_instance_registry' ) ) {
+	/**
+	 * Reads from or writes to the active Uplink instance registry.
+	 *
+	 * The static variable lives inside this single function so all
+	 * vendor-prefixed copies share the same registry. Only currently-active
+	 * instances can register themselves, so there is no stale-version problem.
+	 *
+	 * - Register: _stellarwp_uplink_instance_registry( '3.0.1' )
+	 * - Read all:  _stellarwp_uplink_instance_registry()
+	 *
+	 * @internal Not intended for direct use by plugins.
+	 *
+	 * @param string $version Version to register (omit when reading).
+	 *
+	 * @return array<string, true> Map of registered version strings.
+	 */
+	function _stellarwp_uplink_instance_registry( string $version = '' ): array {
+		/** @var array<string, true> $versions */
+		static $versions = [];
+
+		// Only accept registrations during the bootstrap window (before wp_loaded).
+		// All real Uplink instances initialize during plugins_loaded, so anything
+		// arriving after wp_loaded is outside the expected lifecycle and is ignored
+		// to prevent external code from injecting fake versions into the registry.
+		if ( $version !== '' && ! did_action( 'wp_loaded' ) ) {
+			$versions[ $version ] = true;
+		}
+
+		return $versions;
+	}
+}
+
 if ( ! function_exists( '_stellarwp_uplink_global_function_registry' ) ) {
 	/**
 	 * Reads from or writes to the global function registry.
@@ -34,12 +67,22 @@ if ( ! function_exists( '_stellarwp_uplink_global_function_registry' ) ) {
 		static $registry = [];
 
 		if ( $callback !== null ) {
-			$registry[ $key ][ $version ] = $callback;
+			// Mirror the instance registry's registration window: only accept
+			// writes before wp_loaded so callbacks can't be injected after bootstrap.
+			if ( ! did_action( 'wp_loaded' ) ) {
+				$registry[ $key ][ $version ] = $callback;
+			}
 			return null;
 		}
 
-		$result  = apply_filters( 'stellarwp/uplink/highest_version', '0.0.0' );
-		$highest = is_string( $result ) ? $result : '0.0.0';
+		$versions = array_keys( _stellarwp_uplink_instance_registry() );
+		$highest  = array_reduce(
+			$versions,
+			static function ( string $carry, string $v ): string {
+				return version_compare( $v, $carry, '>' ) ? $v : $carry;
+			},
+			'0.0.0' 
+		);
 
 		return $registry[ $key ][ $highest ] ?? null;
 	}
@@ -57,7 +100,6 @@ if ( ! function_exists( 'stellarwp_uplink_has_unified_license_key' ) ) {
 	 * @return bool
 	 */
 	function stellarwp_uplink_has_unified_license_key(): bool {
-		// @phpstan-ignore function.internal
 		$callback = _stellarwp_uplink_global_function_registry( 'stellarwp_uplink_has_unified_license_key' );
 
 		return $callback ? (bool) $callback() : false;
@@ -73,7 +115,6 @@ if ( ! function_exists( 'stellarwp_uplink_get_unified_license_key' ) ) {
 	 * @return string|null The unified license key, or null if not found.
 	 */
 	function stellarwp_uplink_get_unified_license_key(): ?string {
-		// @phpstan-ignore function.internal
 		$callback = _stellarwp_uplink_global_function_registry( 'stellarwp_uplink_get_unified_license_key' );
 
 		// @phpstan-ignore return.type
@@ -92,7 +133,6 @@ if ( ! function_exists( 'stellarwp_uplink_is_product_license_active' ) ) {
 	 * @return bool
 	 */
 	function stellarwp_uplink_is_product_license_active( string $product ): bool {
-		// @phpstan-ignore function.internal
 		$callback = _stellarwp_uplink_global_function_registry( 'stellarwp_uplink_is_product_license_active' );
 
 		return $callback ? (bool) $callback( $product ) : false;
@@ -111,7 +151,6 @@ if ( ! function_exists( 'stellarwp_uplink_is_feature_enabled' ) ) {
 	 * @return bool
 	 */
 	function stellarwp_uplink_is_feature_enabled( string $slug ): bool {
-		// @phpstan-ignore function.internal
 		$callback = _stellarwp_uplink_global_function_registry( 'stellarwp_uplink_is_feature_enabled' );
 
 		return $callback ? (bool) $callback( $slug ) : false;
@@ -129,7 +168,6 @@ if ( ! function_exists( 'stellarwp_uplink_is_feature_available' ) ) {
 	 * @return bool
 	 */
 	function stellarwp_uplink_is_feature_available( string $slug ): bool {
-		// @phpstan-ignore function.internal
 		$callback = _stellarwp_uplink_global_function_registry( 'stellarwp_uplink_is_feature_available' );
 
 		return $callback ? (bool) $callback( $slug ) : false;

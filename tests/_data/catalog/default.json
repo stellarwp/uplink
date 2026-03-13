@@ -3,6 +3,12 @@
     "product_slug": "kadence",
     "tiers": [
       {
+        "slug": "kadence-free",
+        "name": "Free",
+        "rank": 0,
+        "purchase_url": "https://software.liquidweb.com/kadence?tier=basic"
+      },
+      {
         "slug": "kadence-basic",
         "name": "Basic",
         "rank": 1,
@@ -23,9 +29,26 @@
     ],
     "features": [
       {
+        "feature_slug": "kad-blocks",
+        "type": "plugin",
+        "minimum_tier": "kadence-free",
+        "plugin_file": "kadence-blocks/kadence-blocks.php",
+        "is_dot_org": true,
+        "name": "Kadence Blocks",
+        "description": "A free Gutenberg block library for building pages with Kadence.",
+        "category": "blocks",
+        "authors": [
+          "KadenceWP"
+        ],
+        "documentation_url": "https://www.kadencewp.com/help-center/",
+        "version": "3.4.6",
+        "released_at": "2025-11-20",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
         "feature_slug": "kadence",
         "type": "theme",
-        "minimum_tier": "kadence-basic",
+        "minimum_tier": "kadence-free",
         "is_dot_org": true,
         "name": "Kadence Theme",
         "description": "A lightweight, performant WordPress theme for site building.",
@@ -665,6 +688,12 @@
     "product_slug": "give",
     "tiers": [
       {
+        "slug": "give-free",
+        "name": "Free",
+        "rank": 0,
+        "purchase_url": "https://software.liquidweb.com/give?tier=basic"
+      },
+      {
         "slug": "give-basic",
         "name": "Basic",
         "rank": 1,
@@ -687,7 +716,7 @@
       {
         "feature_slug": "give",
         "type": "plugin",
-        "minimum_tier": "give-basic",
+        "minimum_tier": "give-free",
         "plugin_file": "give/give.php",
         "is_dot_org": true,
         "name": "GiveWP",
@@ -1247,6 +1276,12 @@
     "product_slug": "the-events-calendar",
     "tiers": [
       {
+        "slug": "the-events-calendar-free",
+        "name": "Free",
+        "rank": 0,
+        "purchase_url": "https://software.liquidweb.com/the-events-calendar?tier=basic"
+      },
+      {
         "slug": "the-events-calendar-basic",
         "name": "Basic",
         "rank": 1,
@@ -1269,7 +1304,7 @@
       {
         "feature_slug": "the-events-calendar",
         "type": "plugin",
-        "minimum_tier": "the-events-calendar-basic",
+        "minimum_tier": "the-events-calendar-free",
         "plugin_file": "the-events-calendar/the-events-calendar.php",
         "is_dot_org": true,
         "name": "The Events Calendar",

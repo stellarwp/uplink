@@ -65,7 +65,7 @@ For `Installable` features (Plugin, Theme), the resolver also reads `installed_v
 
 Edge cases:
 
-- No licensing entry for a product: tier rank = `0`, all features unavailable
+- No licensing entry for a product: tier rank = `0`. Free-tier features (`minimum_tier` at rank 0) satisfy `0 >= 0` and are available. All paid-tier features are unavailable.
 - Feature's `minimum_tier` slug not in tier collection: rank = `PHP_INT_MAX`, feature unavailable
 
 ## The Manager

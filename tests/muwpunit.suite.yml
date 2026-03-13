@@ -19,3 +19,5 @@ modules:
             adminEmail: admin@tribe.localhost
             title: 'StellarWP Uplink Tests'
             theme: twentytwentythree
+            plugins:
+                - uplink/bootstrap-plugin.php

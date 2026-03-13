@@ -4,6 +4,7 @@ namespace StellarWP\Uplink;
 
 use RuntimeException;
 use StellarWP\ContainerContract\ContainerInterface;
+use StellarWP\Uplink\Utils\Version;
 
 class Uplink {
 
@@ -102,15 +103,7 @@ class Uplink {
 			return $container->get( Resources\Collection::class )->get( $slug );
 		};
 
-		add_filter(
-			'stellarwp/uplink/highest_version',
-			static function ( string $current_highest ) {
-				if ( version_compare( self::VERSION, $current_highest, '>' ) ) {
-					return self::VERSION;
-				}
-				return $current_highest;
-			}
-		);
+		_stellarwp_uplink_instance_registry( self::VERSION );
 
 		add_filter(
 			'stellarwp/uplink/validate_license',
@@ -152,6 +145,8 @@ class Uplink {
 			10,
 			3
 		);
+
+		Version::register_debug_info();
 	}
 
 	/**
@@ -178,4 +173,5 @@ class Uplink {
 	public static function is_enabled(): bool {
 		return ! static::is_disabled();
 	}
+
 }

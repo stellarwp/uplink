@@ -65,6 +65,23 @@ class Legacy_License {
 	/**
 	 * @since 3.0.0
 	 *
+	 * @return array<string, string>
+	 */
+	public function to_array(): array {
+		return [
+			'key'        => $this->key,
+			'slug'       => $this->slug,
+			'name'       => $this->name,
+			'brand'      => $this->brand,
+			'status'     => $this->status,
+			'page_url'   => $this->page_url,
+			'expires_at' => $this->expires_at,
+		];
+	}
+
+	/**
+	 * @since 3.0.0
+	 *
 	 * @param array<string, mixed> $data The legacy license data.
 	 */
 	public static function from_data( array $data ): Legacy_License {

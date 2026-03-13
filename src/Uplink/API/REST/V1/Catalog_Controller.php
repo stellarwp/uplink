@@ -184,6 +184,12 @@ final class Catalog_Controller extends WP_REST_Controller {
 							'version'           => [
 								'type' => [ 'string', 'null' ],
 							],
+							'released_at'       => [
+								'type' => [ 'string', 'null' ],
+							],
+							'changelog'         => [
+								'type' => [ 'string', 'null' ],
+							],
 							'name'              => [
 								'type' => 'string',
 							],

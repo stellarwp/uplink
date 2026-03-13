@@ -35,6 +35,24 @@ interface Installable {
 	public function is_dot_org(): bool;
 
 	/**
+	 * Whether this extension is currently installed on disk.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return bool
+	 */
+	public function is_installed(): bool;
+
+	/**
+	 * Gets the currently installed version of this extension, or null if not installed.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string|null
+	 */
+	public function get_installed_version(): ?string;
+
+	/**
 	 * Builds the complete update data array for this feature type.
 	 *
 	 * Each type includes common fields plus type-specific fields (e.g. plugin_file,

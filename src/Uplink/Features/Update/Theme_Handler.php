@@ -132,7 +132,7 @@ class Theme_Handler {
 	 */
 	public function filter_update_check( $transient ) {
 		if ( ! is_object( $transient ) ) {
-			return $transient;
+			$transient = new stdClass();
 		}
 
 		if ( empty( $this->license_manager->get_key() ) ) {
@@ -166,7 +166,14 @@ class Theme_Handler {
 		/** @var array<string, array<string, mixed>> $wp_no_update */
 		$wp_no_update = $transient->no_update;
 
+		$installed_themes = wp_get_themes();
+
 		foreach ( $response as $slug => $update_data ) {
+			// Skip features that are not installed on this site.
+			if ( ! isset( $installed_themes[ $slug ] ) ) {
+				continue;
+			}
+
 			/** @var string $new_version */
 			$new_version       = Cast::to_string( $update_data['version'] ?? '' );
 			$installed_version = Cast::to_string( $update_data['installed_version'] ?? '' );

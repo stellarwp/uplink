@@ -110,25 +110,25 @@ class Version {
 	 * @return void
 	 */
 	public static function debug_info(): void {
-		if (defined('WP_DEBUG') && WP_DEBUG) {
-			$container_parts = explode('\\', get_class(Config::get_container()));
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			$container_parts = explode( '\\', get_class( Config::get_container() ) );
 			$prefix          = Config::get_hook_prefix() ?: $container_parts[0];
 			$version         = Uplink::VERSION;
 
 			add_action(
 				'admin_footer',
-				static function () use ($prefix, $version) {
-					if (! Version::is_leader()) {
+				static function () use ( $prefix, $version ) {
+					if ( ! Version::is_leader() ) {
 						return;
 					}
 					$data = [
 						'stellarwp/uplink' => [
-							'leader' => $prefix,
+							'leader'  => $prefix,
 							'version' => $version,
 						],
 					];
 
-					echo "<script>console.log(" . json_encode($data) . ");</script>";
+					echo '<script>console.log(' . json_encode( $data ) . ');</script>';
 				}
 			);
 		}

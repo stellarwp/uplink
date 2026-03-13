@@ -104,7 +104,7 @@ class Version {
 	/**
 	 * Registers an admin_footer hook to print leader debug info when WP_DEBUG is enabled.
 	 *
-	 * TODO: We can remove this before launch.
+	 * @since 3.0.0
 	 *
 	 * @return void
 	 */

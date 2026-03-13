@@ -2,10 +2,9 @@
 
 namespace StellarWP\Uplink\CLI\Commands;
 
-use StellarWP\Uplink\Catalog\Catalog_Collection;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
-use StellarWP\Uplink\Catalog\Results\Catalog_Feature;
 use StellarWP\Uplink\Catalog\Results\Catalog_Tier;
+use StellarWP\Uplink\CLI\Display;
 use StellarWP\Uplink\Catalog\Results\Product_Catalog;
 use WP_CLI;
 use WP_CLI\Formatter;
@@ -245,7 +244,7 @@ class Catalog extends WP_CLI_Command {
 		foreach ( $features as $feature ) {
 			$item = $feature->to_array();
 
-			$item['is_dot_org'] = ! empty( $item['is_dot_org'] ) ? 'true' : 'false';
+			$item['is_dot_org'] = Display::bool( ! empty( $item['is_dot_org'] ) );
 
 			if ( is_array( $item['authors'] ) ) {
 				$item['authors'] = implode( ', ', $item['authors'] );
@@ -333,25 +332,31 @@ class Catalog extends WP_CLI_Command {
 		}
 
 		if ( $last_success !== null ) {
-			WP_CLI::log( sprintf(
-				'Last successful fetch: %s',
-				gmdate( 'Y-m-d H:i:s', $last_success )
-			) );
+			WP_CLI::log(
+				sprintf(
+					'Last successful fetch: %s',
+					gmdate( 'Y-m-d H:i:s', $last_success )
+				)
+			);
 		}
 
 		if ( $last_failure !== null ) {
-			WP_CLI::log( sprintf(
-				'Last failed fetch: %s',
-				gmdate( 'Y-m-d H:i:s', $last_failure )
-			) );
+			WP_CLI::log(
+				sprintf(
+					'Last failed fetch: %s',
+					gmdate( 'Y-m-d H:i:s', $last_failure )
+				)
+			);
 		}
 
 		if ( $last_error !== null ) {
-			WP_CLI::warning( sprintf(
-				'Last error: %s (%s)',
-				$last_error->get_error_message(),
-				$last_error->get_error_code()
-			) );
+			WP_CLI::warning(
+				sprintf(
+					'Last error: %s (%s)',
+					$last_error->get_error_message(),
+					$last_error->get_error_code()
+				)
+			);
 		}
 	}
 

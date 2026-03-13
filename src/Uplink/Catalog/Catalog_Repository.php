@@ -18,7 +18,7 @@ use WP_Error;
  *
  * @since 3.0.0
  */
-final class Catalog_Repository {
+class Catalog_Repository {
 
 	/**
 	 * How long (in seconds) to suppress outbound API calls after a failure.

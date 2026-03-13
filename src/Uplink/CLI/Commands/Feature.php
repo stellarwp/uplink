@@ -5,6 +5,7 @@ namespace StellarWP\Uplink\CLI\Commands;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Features\Types\Feature as Feature_Type;
+use StellarWP\Uplink\CLI\Display;
 use StellarWP\Uplink\Utils\Cast;
 use WP_CLI;
 use WP_CLI\Formatter;
@@ -391,9 +392,9 @@ class Feature extends WP_CLI_Command {
 	private function feature_to_display_item( Feature_Type $feature ): array {
 		$item = $feature->to_array();
 
-		$item['is_available'] = $this->to_display_bool( ! empty( $item['is_available'] ) );
-		$item['is_enabled']   = $this->to_display_bool( ! empty( $item['is_enabled'] ) );
-		$item['is_dot_org']   = $this->to_display_bool( ! empty( $item['is_dot_org'] ) );
+		$item['is_available'] = Display::bool( ! empty( $item['is_available'] ) );
+		$item['is_enabled']   = Display::bool( ! empty( $item['is_enabled'] ) );
+		$item['is_dot_org']   = Display::bool( ! empty( $item['is_dot_org'] ) );
 
 		foreach ( $item as $key => $value ) {
 			if ( is_array( $value ) ) {
@@ -402,18 +403,5 @@ class Feature extends WP_CLI_Command {
 		}
 
 		return $item;
-	}
-
-	/**
-	 * Converts a boolean to a display-friendly 'true'/'false' string.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param bool $value The boolean value.
-	 *
-	 * @return string
-	 */
-	private function to_display_bool( bool $value ): string {
-		return $value ? 'true' : 'false';
 	}
 }

@@ -6,6 +6,7 @@ use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Product_Collection;
 use StellarWP\Uplink\Licensing\Results\Product_Entry;
 use StellarWP\Uplink\Site\Data;
+use StellarWP\Uplink\CLI\Display;
 use StellarWP\Uplink\Utils\License_Key;
 use WP_CLI;
 use WP_CLI\Formatter;
@@ -319,8 +320,8 @@ class License extends WP_CLI_Command {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Product_Collection     $products   The product collection.
-	 * @param array<string, string>  $assoc_args Associative arguments for the formatter.
+	 * @param Product_Collection    $products   The product collection.
+	 * @param array<string, string> $assoc_args Associative arguments for the formatter.
 	 *
 	 * @return void
 	 */
@@ -339,7 +340,10 @@ class License extends WP_CLI_Command {
 
 		$formatter = new Formatter(
 			$assoc_args,
-			explode( ',', self::DEFAULT_PRODUCT_FIELDS )
+			explode(
+				',',
+				self::DEFAULT_PRODUCT_FIELDS
+			)
 		);
 
 		$formatter->display_items( $items );
@@ -355,20 +359,20 @@ class License extends WP_CLI_Command {
 	 * @return array<string, mixed>
 	 */
 	private function product_to_display_item( Product_Entry $product ): array {
-		$item = [
+		$site_limit = $product->get_site_limit();
+
+		return [
 			'product_slug'      => $product->get_product_slug(),
 			'tier'              => $product->get_tier(),
 			'pending_tier'      => $product->get_pending_tier() ?? '',
 			'status'            => $product->get_status(),
 			'expires'           => $product->get_expires()->format( 'Y-m-d H:i:s' ),
-			'site_limit'        => $product->get_site_limit() === 0 ? 'unlimited' : (string) $product->get_site_limit(),
+			'site_limit'        => $site_limit === 0 ? 'unlimited' : (string) $site_limit,
 			'active_count'      => (string) $product->get_active_count(),
-			'over_limit'        => $product->is_over_limit() ? 'true' : 'false',
-			'installed_here'    => $product->get_installed_here() === null ? '' : ( $product->get_installed_here() ? 'true' : 'false' ),
+			'over_limit'        => Display::bool( $product->is_over_limit() ),
+			'installed_here'    => Display::nullable_bool( $product->get_installed_here() ),
 			'validation_status' => $product->get_validation_status() ?? '',
-			'is_valid'          => $product->is_valid() ? 'true' : 'false',
+			'is_valid'          => Display::bool( $product->is_valid() ),
 		];
-
-		return $item;
 	}
 }

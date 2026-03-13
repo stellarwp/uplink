@@ -46,31 +46,42 @@ final class LicenseTest extends UplinkTestCase {
 		$this->logger = new Spy_Logger();
 		WP_CLI::set_logger( $this->logger );
 
-		$this->site_data = $this->makeEmpty( Data::class, [
-			'get_domain' => 'example.com',
-		] );
+		$this->site_data = $this->makeEmpty(
+			Data::class,
+			[
+				'get_domain' => 'example.com',
+			] 
+		);
 
 		$this->products = new Product_Collection();
-		$this->products->add( Product_Entry::from_array( [
-			'product_slug' => 'kadence',
-			'tier'         => 'starter',
-			'status'       => 'active',
-			'expires'      => '2027-01-01 00:00:00',
-			'activations'  => [
-				'site_limit'   => 5,
-				'active_count' => 2,
-			],
-		] ) );
-		$this->products->add( Product_Entry::from_array( [
-			'product_slug' => 'givewp',
-			'tier'         => 'pro',
-			'status'       => 'active',
-			'expires'      => '2027-06-15 00:00:00',
-			'activations'  => [
-				'site_limit'   => 0,
-				'active_count' => 10,
-			],
-		] ) );
+		$this->products->add(
+			Product_Entry::from_array(
+				[
+					'product_slug' => 'kadence',
+					'tier'         => 'starter',
+					'status'       => 'active',
+					'expires'      => '2027-01-01 00:00:00',
+					'activations'  => [
+						'site_limit'   => 5,
+						'active_count' => 2,
+					],
+				] 
+			) 
+		);
+		$this->products->add(
+			Product_Entry::from_array(
+				[
+					'product_slug' => 'givewp',
+					'tier'         => 'pro',
+					'status'       => 'active',
+					'expires'      => '2027-06-15 00:00:00',
+					'activations'  => [
+						'site_limit'   => 0,
+						'active_count' => 10,
+					],
+				] 
+			) 
+		);
 	}
 
 	protected function tearDown(): void {
@@ -86,10 +97,13 @@ final class LicenseTest extends UplinkTestCase {
 	// ------------------------------------------------------------------
 
 	public function test_get_shows_key_and_products(): void {
-		$manager = $this->makeEmpty( License_Manager::class, [
-			'get_key'      => 'LWSW-test-key-123',
-			'get_products' => $this->products,
-		] );
+		$manager = $this->makeEmpty(
+			License_Manager::class,
+			[
+				'get_key'      => 'LWSW-test-key-123',
+				'get_products' => $this->products,
+			] 
+		);
 
 		$command = new License_Command( $manager, $this->site_data );
 
@@ -102,9 +116,12 @@ final class LicenseTest extends UplinkTestCase {
 	}
 
 	public function test_get_warns_when_no_key_stored(): void {
-		$manager = $this->makeEmpty( License_Manager::class, [
-			'get_key' => null,
-		] );
+		$manager = $this->makeEmpty(
+			License_Manager::class,
+			[
+				'get_key' => null,
+			] 
+		);
 
 		$command = new License_Command( $manager, $this->site_data );
 		$command->get( [], [] );
@@ -113,10 +130,13 @@ final class LicenseTest extends UplinkTestCase {
 	}
 
 	public function test_get_warns_when_products_return_error(): void {
-		$manager = $this->makeEmpty( License_Manager::class, [
-			'get_key'      => 'LWSW-test-key-123',
-			'get_products' => new WP_Error( 'api_error', 'Could not fetch products.' ),
-		] );
+		$manager = $this->makeEmpty(
+			License_Manager::class,
+			[
+				'get_key'      => 'LWSW-test-key-123',
+				'get_products' => new WP_Error( 'api_error', 'Could not fetch products.' ),
+			] 
+		);
 
 		$command = new License_Command( $manager, $this->site_data );
 		$command->get( [], [] );
@@ -125,10 +145,13 @@ final class LicenseTest extends UplinkTestCase {
 	}
 
 	public function test_get_shows_product_fields(): void {
-		$manager = $this->makeEmpty( License_Manager::class, [
-			'get_key'      => 'LWSW-test-key-123',
-			'get_products' => $this->products,
-		] );
+		$manager = $this->makeEmpty(
+			License_Manager::class,
+			[
+				'get_key'      => 'LWSW-test-key-123',
+				'get_products' => $this->products,
+			] 
+		);
 
 		$command = new License_Command( $manager, $this->site_data );
 
@@ -141,10 +164,13 @@ final class LicenseTest extends UplinkTestCase {
 	}
 
 	public function test_get_shows_unlimited_for_zero_site_limit(): void {
-		$manager = $this->makeEmpty( License_Manager::class, [
-			'get_key'      => 'LWSW-test-key-123',
-			'get_products' => $this->products,
-		] );
+		$manager = $this->makeEmpty(
+			License_Manager::class,
+			[
+				'get_key'      => 'LWSW-test-key-123',
+				'get_products' => $this->products,
+			] 
+		);
 
 		$command = new License_Command( $manager, $this->site_data );
 
@@ -158,11 +184,14 @@ final class LicenseTest extends UplinkTestCase {
 	// ------------------------------------------------------------------
 
 	public function test_set_stores_key_on_success(): void {
-		$manager = $this->makeEmpty( License_Manager::class, [
-			'validate_and_store' => [],
-			'get_products'       => $this->products,
-			'get_key'            => 'LWSW-test-key-123',
-		] );
+		$manager = $this->makeEmpty(
+			License_Manager::class,
+			[
+				'validate_and_store' => [],
+				'get_products'       => $this->products,
+				'get_key'            => 'LWSW-test-key-123',
+			] 
+		);
 
 		$command = new License_Command( $manager, $this->site_data );
 		$command->set( [ 'LWSW-test-key-123' ], [] );
@@ -180,9 +209,12 @@ final class LicenseTest extends UplinkTestCase {
 	}
 
 	public function test_set_calls_error_on_api_failure(): void {
-		$manager = $this->makeEmpty( License_Manager::class, [
-			'validate_and_store' => new WP_Error( 'api_error', 'License not recognized.' ),
-		] );
+		$manager = $this->makeEmpty(
+			License_Manager::class,
+			[
+				'validate_and_store' => new WP_Error( 'api_error', 'License not recognized.' ),
+			] 
+		);
 
 		$command = new License_Command( $manager, $this->site_data );
 		$command->set( [ 'LWSW-bad-key' ], [] );
@@ -195,9 +227,12 @@ final class LicenseTest extends UplinkTestCase {
 	// ------------------------------------------------------------------
 
 	public function test_lookup_displays_products_for_key(): void {
-		$manager = $this->makeEmpty( License_Manager::class, [
-			'lookup_products' => $this->products,
-		] );
+		$manager = $this->makeEmpty(
+			License_Manager::class,
+			[
+				'lookup_products' => $this->products,
+			] 
+		);
 
 		$command = new License_Command( $manager, $this->site_data );
 
@@ -208,9 +243,12 @@ final class LicenseTest extends UplinkTestCase {
 	}
 
 	public function test_lookup_calls_error_on_failure(): void {
-		$manager = $this->makeEmpty( License_Manager::class, [
-			'lookup_products' => new WP_Error( 'invalid_key', 'Invalid key format.' ),
-		] );
+		$manager = $this->makeEmpty(
+			License_Manager::class,
+			[
+				'lookup_products' => new WP_Error( 'invalid_key', 'Invalid key format.' ),
+			] 
+		);
 
 		$command = new License_Command( $manager, $this->site_data );
 		$command->lookup( [ 'bad-key' ], [] );
@@ -223,12 +261,15 @@ final class LicenseTest extends UplinkTestCase {
 	// ------------------------------------------------------------------
 
 	public function test_validate_calls_success_on_valid_product(): void {
-		$manager = $this->makeEmpty( License_Manager::class, [
-			'validate_product' => $this->makeEmpty(
-				\StellarWP\Uplink\Licensing\Results\Validation_Result::class,
-				[ 'is_valid' => true ]
-			),
-		] );
+		$manager = $this->makeEmpty(
+			License_Manager::class,
+			[
+				'validate_product' => $this->makeEmpty(
+					\StellarWP\Uplink\Licensing\Results\Validation_Result::class,
+					[ 'is_valid' => true ]
+				),
+			] 
+		);
 
 		$command = new License_Command( $manager, $this->site_data );
 		$command->validate( [ 'kadence' ], [] );
@@ -237,9 +278,12 @@ final class LicenseTest extends UplinkTestCase {
 	}
 
 	public function test_validate_calls_error_on_failure(): void {
-		$manager = $this->makeEmpty( License_Manager::class, [
-			'validate_product' => new WP_Error( 'validation_failed', 'Product validation failed.' ),
-		] );
+		$manager = $this->makeEmpty(
+			License_Manager::class,
+			[
+				'validate_product' => new WP_Error( 'validation_failed', 'Product validation failed.' ),
+			] 
+		);
 
 		$command = new License_Command( $manager, $this->site_data );
 		$command->validate( [ 'kadence' ], [] );
@@ -252,9 +296,12 @@ final class LicenseTest extends UplinkTestCase {
 	// ------------------------------------------------------------------
 
 	public function test_delete_calls_success(): void {
-		$manager = $this->makeEmpty( License_Manager::class, [
-			'delete_key' => true,
-		] );
+		$manager = $this->makeEmpty(
+			License_Manager::class,
+			[
+				'delete_key' => true,
+			] 
+		);
 
 		$command = new License_Command( $manager, $this->site_data );
 		$command->delete( [], [] );
@@ -268,23 +315,30 @@ final class LicenseTest extends UplinkTestCase {
 
 	public function test_product_display_shows_boolean_fields(): void {
 		$products = new Product_Collection();
-		$products->add( Product_Entry::from_array( [
-			'product_slug'      => 'kadence',
-			'tier'              => 'starter',
-			'status'            => 'active',
-			'expires'           => '2027-01-01 00:00:00',
-			'installed_here'    => true,
-			'validation_status' => 'valid',
-			'activations'       => [
-				'site_limit'   => 1,
-				'active_count' => 2,
-			],
-		] ) );
+		$products->add(
+			Product_Entry::from_array(
+				[
+					'product_slug'      => 'kadence',
+					'tier'              => 'starter',
+					'status'            => 'active',
+					'expires'           => '2027-01-01 00:00:00',
+					'installed_here'    => true,
+					'validation_status' => 'valid',
+					'activations'       => [
+						'site_limit'   => 1,
+						'active_count' => 2,
+					],
+				] 
+			) 
+		);
 
-		$manager = $this->makeEmpty( License_Manager::class, [
-			'get_key'      => 'LWSW-test-key-123',
-			'get_products' => $products,
-		] );
+		$manager = $this->makeEmpty(
+			License_Manager::class,
+			[
+				'get_key'      => 'LWSW-test-key-123',
+				'get_products' => $products,
+			] 
+		);
 
 		$command = new License_Command( $manager, $this->site_data );
 
@@ -297,21 +351,28 @@ final class LicenseTest extends UplinkTestCase {
 
 	public function test_product_display_shows_empty_for_null_optional_fields(): void {
 		$products = new Product_Collection();
-		$products->add( Product_Entry::from_array( [
-			'product_slug' => 'kadence',
-			'tier'         => 'starter',
-			'status'       => 'active',
-			'expires'      => '2027-01-01 00:00:00',
-			'activations'  => [
-				'site_limit'   => 5,
-				'active_count' => 2,
-			],
-		] ) );
+		$products->add(
+			Product_Entry::from_array(
+				[
+					'product_slug' => 'kadence',
+					'tier'         => 'starter',
+					'status'       => 'active',
+					'expires'      => '2027-01-01 00:00:00',
+					'activations'  => [
+						'site_limit'   => 5,
+						'active_count' => 2,
+					],
+				] 
+			) 
+		);
 
-		$manager = $this->makeEmpty( License_Manager::class, [
-			'get_key'      => 'LWSW-test-key-123',
-			'get_products' => $products,
-		] );
+		$manager = $this->makeEmpty(
+			License_Manager::class,
+			[
+				'get_key'      => 'LWSW-test-key-123',
+				'get_products' => $products,
+			] 
+		);
 
 		$command = new License_Command( $manager, $this->site_data );
 
@@ -323,10 +384,13 @@ final class LicenseTest extends UplinkTestCase {
 	}
 
 	public function test_get_logs_no_products_for_empty_collection(): void {
-		$manager = $this->makeEmpty( License_Manager::class, [
-			'get_key'      => 'LWSW-test-key-123',
-			'get_products' => new Product_Collection(),
-		] );
+		$manager = $this->makeEmpty(
+			License_Manager::class,
+			[
+				'get_key'      => 'LWSW-test-key-123',
+				'get_products' => new Product_Collection(),
+			] 
+		);
 
 		$command = new License_Command( $manager, $this->site_data );
 		$command->get( [], [] );
@@ -347,7 +411,13 @@ final class LicenseTest extends UplinkTestCase {
 	 */
 	private function run_get_json( License_Command $command ): array {
 		ob_start();
-		$command->get( [], [ 'format' => 'json', 'fields' => 'product_slug,tier,status,expires,site_limit,active_count,over_limit,installed_here,validation_status,is_valid,pending_tier' ] );
+		$command->get(
+			[],
+			[
+				'format' => 'json',
+				'fields' => 'product_slug,tier,status,expires,site_limit,active_count,over_limit,installed_here,validation_status,is_valid,pending_tier',
+			] 
+		);
 		$output = ob_get_clean();
 
 		$decoded = json_decode( (string) $output, true );

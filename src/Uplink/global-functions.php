@@ -11,6 +11,39 @@
  * equivalents to ensure they always execute the most up-to-date implementation.
  */
 
+if ( ! function_exists( '_stellarwp_uplink_instance_registry' ) ) {
+	/**
+	 * Reads from or writes to the active Uplink instance registry.
+	 *
+	 * The static variable lives inside this single function so all
+	 * vendor-prefixed copies share the same registry. Only currently-active
+	 * instances can register themselves, so there is no stale-version problem.
+	 *
+	 * - Register: _stellarwp_uplink_instance_registry( '3.0.1' )
+	 * - Read all:  _stellarwp_uplink_instance_registry()
+	 *
+	 * @internal Not intended for direct use by plugins.
+	 *
+	 * @param string $version Version to register (omit when reading).
+	 *
+	 * @return array<string, true> Map of registered version strings.
+	 */
+	function _stellarwp_uplink_instance_registry( string $version = '' ): array {
+		/** @var array<string, true> $versions */
+		static $versions = [];
+
+		// Only accept registrations during the bootstrap window (before wp_loaded).
+		// All real Uplink instances initialize during plugins_loaded, so anything
+		// arriving after wp_loaded is outside the expected lifecycle and is ignored
+		// to prevent external code from injecting fake versions into the registry.
+		if ( $version !== '' && ! did_action( 'wp_loaded' ) ) {
+			$versions[ $version ] = true;
+		}
+
+		return $versions;
+	}
+}
+
 if ( ! function_exists( '_stellarwp_uplink_global_function_registry' ) ) {
 	/**
 	 * Reads from or writes to the global function registry.
@@ -38,8 +71,11 @@ if ( ! function_exists( '_stellarwp_uplink_global_function_registry' ) ) {
 			return null;
 		}
 
-		$result  = apply_filters( 'stellarwp/uplink/highest_version', '0.0.0' );
-		$highest = is_string( $result ) ? $result : '0.0.0';
+		// @phpstan-ignore function.internal
+		$versions = array_keys( _stellarwp_uplink_instance_registry() );
+		$highest  = array_reduce( $versions, static function ( string $carry, string $v ): string {
+			return version_compare( $v, $carry, '>' ) ? $v : $carry;
+		}, '0.0.0' );
 
 		return $registry[ $key ][ $highest ] ?? null;
 	}

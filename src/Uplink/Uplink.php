@@ -4,6 +4,7 @@ namespace StellarWP\Uplink;
 
 use RuntimeException;
 use StellarWP\ContainerContract\ContainerInterface;
+use StellarWP\Uplink\Utils\Version;
 
 class Uplink {
 
@@ -14,7 +15,7 @@ class Uplink {
 	 *
 	 * @var string
 	 */
-	public const VERSION = '3.0.0';
+	public const VERSION = '3.0.1';
 
 	public const UPLINK_ADMIN_VIEWS_PATH = 'uplink.admin-views.path';
 	public const UPLINK_ASSETS_URI       = 'uplink.assets.uri';
@@ -102,15 +103,20 @@ class Uplink {
 			return $container->get( Resources\Collection::class )->get( $slug );
 		};
 
-		add_filter(
-			'stellarwp/uplink/highest_version',
-			static function ( string $current_highest ) {
-				if ( version_compare( self::VERSION, $current_highest, '>' ) ) {
-					return self::VERSION;
+		// @phpstan-ignore function.internal
+		_stellarwp_uplink_instance_registry( self::VERSION );
+
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			$container_parts = explode( '\\', get_class( $container ) );
+			$prefix          = Config::get_hook_prefix() ?: $container_parts[0];
+			$version         = self::VERSION;
+			add_action( 'admin_footer', static function () use ( $prefix, $version ) {
+				if ( ! Version::is_highest() ) {
+					return;
 				}
-				return $current_highest;
-			}
-		);
+				echo '<script>console.log("[Uplink] Leader: ' . esc_js( $prefix ) . ' v' . esc_js( $version ) . '")</script>';
+			} );
+		}
 
 		add_filter(
 			'stellarwp/uplink/validate_license',

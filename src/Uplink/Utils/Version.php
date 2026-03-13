@@ -9,8 +9,8 @@ use StellarWP\Uplink\Uplink;
  *
  * When multiple vendor-prefixed copies of Uplink are active, only the
  * highest version should own shared responsibilities (admin page, REST
- * routes, etc.). This class centralizes that check using a global
- * WordPress action as the cross-copy mutex.
+ * routes, etc.). This class centralizes that check using the global
+ * _stellarwp_uplink_instance_registry() function as the cross-copy registry.
  *
  * @since 3.0.0
  */
@@ -24,7 +24,23 @@ class Version {
 	 * @return bool
 	 */
 	public static function is_highest(): bool {
-		$highest = Cast::to_string( apply_filters( 'stellarwp/uplink/highest_version', '0.0.0' ) );
+		// @phpstan-ignore function.internal
+		return self::is_highest_among( array_keys( _stellarwp_uplink_instance_registry() ) );
+	}
+
+	/**
+	 * Determines whether this Uplink instance is the highest among the given versions.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string[] $versions All registered version strings.
+	 *
+	 * @return bool
+	 */
+	public static function is_highest_among( array $versions ): bool {
+		$highest = array_reduce( $versions, static function ( string $carry, string $v ): string {
+			return version_compare( $v, $carry, '>' ) ? $v : $carry;
+		}, Uplink::VERSION );
 
 		return ! version_compare( Uplink::VERSION, $highest, '<' );
 	}

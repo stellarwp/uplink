@@ -158,10 +158,10 @@ class Dependency {
 	 *
 	 * @param array<string, mixed> $data Raw dependency data from the JSON fixture.
 	 *
-	 * @return static
+	 * @return self
 	 */
-	public static function from_array( array $data ) {
-		return new static(
+	public static function from_array( array $data ): self {
+		return new self(
 			Cast::to_string( $data['type'] ?? '' ),
 			Cast::to_string( $data['feature_slug'] ?? '' ),
 			Cast::to_string( $data['name'] ?? '' ),

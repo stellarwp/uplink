@@ -242,6 +242,7 @@ abstract class Feature {
 				if ( $item instanceof Dependency ) {
 					$deps[] = $item;
 				} elseif ( is_array( $item ) ) {
+					/** @var array<string, mixed> $item */
 					$deps[] = Dependency::from_array( $item );
 				}
 			}

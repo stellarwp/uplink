@@ -4,6 +4,7 @@ namespace StellarWP\Uplink\Features\Dependency\Clients;
 
 use StellarWP\Uplink\Features\Dependency\Dependency;
 use StellarWP\Uplink\Features\Dependency\Dependency_Collection;
+use StellarWP\Uplink\Utils\Cast;
 use WP_Error;
 
 /**
@@ -88,7 +89,7 @@ final class Fixture_Client implements Dependency_Client {
 				continue;
 			}
 
-			$slug     = (string) $entry['feature_slug'];
+			$slug     = Cast::to_string( $entry['feature_slug'] );
 			$versions = isset( $entry['versions'] ) && is_array( $entry['versions'] )
 				? $entry['versions']
 				: [];
@@ -101,6 +102,7 @@ final class Fixture_Client implements Dependency_Client {
 						continue;
 					}
 
+					/** @var array<string, mixed> $dep_data */
 					$deps[] = Dependency::from_array( $dep_data );
 				}
 

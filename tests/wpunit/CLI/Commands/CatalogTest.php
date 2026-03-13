@@ -82,9 +82,12 @@ final class CatalogTest extends UplinkTestCase {
 	}
 
 	public function test_list_calls_error_on_wp_error(): void {
-		$repository = $this->makeEmpty( Catalog_Repository::class, [
-			'get' => new WP_Error( 'api_error', 'Could not fetch catalog.' ),
-		] );
+		$repository = $this->makeEmpty(
+			Catalog_Repository::class,
+			[
+				'get' => new WP_Error( 'api_error', 'Could not fetch catalog.' ),
+			]
+		);
 
 		$command = new Catalog_Command( $repository );
 		$command->list_( [], [] );
@@ -118,7 +121,7 @@ final class CatalogTest extends UplinkTestCase {
 	}
 
 	public function test_tiers_logs_no_tiers_for_empty_tier_collection(): void {
-		$catalog = new Product_Catalog( 'empty-product', new Tier_Collection(), [] );
+		$catalog  = new Product_Catalog( 'empty-product', new Tier_Collection(), [] );
 		$catalogs = new Catalog_Collection();
 		$catalogs->add( $catalog );
 
@@ -170,7 +173,15 @@ final class CatalogTest extends UplinkTestCase {
 
 	public function test_features_logs_no_features_for_empty_list(): void {
 		$tiers = new Tier_Collection();
-		$tiers->add( Catalog_Tier::from_array( [ 'slug' => 'starter', 'name' => 'Starter', 'rank' => 1 ] ) );
+		$tiers->add(
+			Catalog_Tier::from_array(
+				[
+					'slug' => 'starter',
+					'name' => 'Starter',
+					'rank' => 1,
+				] 
+			) 
+		);
 		$catalog  = new Product_Catalog( 'empty-product', $tiers, [] );
 		$catalogs = new Catalog_Collection();
 		$catalogs->add( $catalog );
@@ -186,10 +197,13 @@ final class CatalogTest extends UplinkTestCase {
 	// ------------------------------------------------------------------
 
 	public function test_refresh_calls_success_on_success(): void {
-		$repository = $this->makeEmpty( Catalog_Repository::class, [
-			'refresh' => $this->catalogs,
-			'get'     => $this->catalogs,
-		] );
+		$repository = $this->makeEmpty(
+			Catalog_Repository::class,
+			[
+				'refresh' => $this->catalogs,
+				'get'     => $this->catalogs,
+			]
+		);
 
 		$command = new Catalog_Command( $repository );
 
@@ -201,9 +215,12 @@ final class CatalogTest extends UplinkTestCase {
 	}
 
 	public function test_refresh_calls_error_on_failure(): void {
-		$repository = $this->makeEmpty( Catalog_Repository::class, [
-			'refresh' => new WP_Error( 'api_error', 'API is down.' ),
-		] );
+		$repository = $this->makeEmpty(
+			Catalog_Repository::class,
+			[
+				'refresh' => new WP_Error( 'api_error', 'API is down.' ),
+			]
+		);
 
 		$command = new Catalog_Command( $repository );
 		$command->refresh( [], [] );
@@ -216,11 +233,14 @@ final class CatalogTest extends UplinkTestCase {
 	// ------------------------------------------------------------------
 
 	public function test_status_shows_never_fetched(): void {
-		$repository = $this->makeEmpty( Catalog_Repository::class, [
-			'get_last_success_at' => null,
-			'get_last_failure_at' => null,
-			'get_last_error'      => null,
-		] );
+		$repository = $this->makeEmpty(
+			Catalog_Repository::class,
+			[
+				'get_last_success_at' => null,
+				'get_last_failure_at' => null,
+				'get_last_error'      => null,
+			]
+		);
 
 		$command = new Catalog_Command( $repository );
 		$command->status( [], [] );
@@ -231,11 +251,14 @@ final class CatalogTest extends UplinkTestCase {
 	public function test_status_shows_last_success_timestamp(): void {
 		$timestamp = 1700000000;
 
-		$repository = $this->makeEmpty( Catalog_Repository::class, [
-			'get_last_success_at' => $timestamp,
-			'get_last_failure_at' => null,
-			'get_last_error'      => null,
-		] );
+		$repository = $this->makeEmpty(
+			Catalog_Repository::class,
+			[
+				'get_last_success_at' => $timestamp,
+				'get_last_failure_at' => null,
+				'get_last_error'      => null,
+			] 
+		);
 
 		$command = new Catalog_Command( $repository );
 		$command->status( [], [] );
@@ -248,11 +271,14 @@ final class CatalogTest extends UplinkTestCase {
 		$timestamp = 1700000000;
 		$error     = new WP_Error( 'timeout', 'Connection timed out.' );
 
-		$repository = $this->makeEmpty( Catalog_Repository::class, [
-			'get_last_success_at' => null,
-			'get_last_failure_at' => $timestamp,
-			'get_last_error'      => $error,
-		] );
+		$repository = $this->makeEmpty(
+			Catalog_Repository::class,
+			[
+				'get_last_success_at' => null,
+				'get_last_failure_at' => $timestamp,
+				'get_last_error'      => $error,
+			] 
+		);
 
 		$command = new Catalog_Command( $repository );
 		$command->status( [], [] );
@@ -267,9 +293,12 @@ final class CatalogTest extends UplinkTestCase {
 	// ------------------------------------------------------------------
 
 	public function test_delete_calls_success(): void {
-		$repository = $this->makeEmpty( Catalog_Repository::class, [
-			'delete_catalog' => null,
-		] );
+		$repository = $this->makeEmpty(
+			Catalog_Repository::class,
+			[
+				'delete_catalog' => null,
+			] 
+		);
 
 		$command = new Catalog_Command( $repository );
 		$command->delete( [], [] );
@@ -288,65 +317,83 @@ final class CatalogTest extends UplinkTestCase {
 	 */
 	private function build_test_catalogs(): Catalog_Collection {
 		$kadence_tiers = new Tier_Collection();
-		$kadence_tiers->add( Catalog_Tier::from_array( [
-			'slug'         => 'starter',
-			'name'         => 'Starter',
-			'rank'         => 1,
-			'purchase_url' => 'https://example.com/buy/starter',
-		] ) );
-		$kadence_tiers->add( Catalog_Tier::from_array( [
-			'slug'         => 'pro',
-			'name'         => 'Pro',
-			'rank'         => 2,
-			'purchase_url' => 'https://example.com/buy/pro',
-		] ) );
+		$kadence_tiers->add(
+			Catalog_Tier::from_array(
+				[
+					'slug'         => 'starter',
+					'name'         => 'Starter',
+					'rank'         => 1,
+					'purchase_url' => 'https://example.com/buy/starter',
+				] 
+			) 
+		);
+		$kadence_tiers->add(
+			Catalog_Tier::from_array(
+				[
+					'slug'         => 'pro',
+					'name'         => 'Pro',
+					'rank'         => 2,
+					'purchase_url' => 'https://example.com/buy/pro',
+				] 
+			) 
+		);
 
 		$kadence_features = [
-			Catalog_Feature::from_array( [
-				'feature_slug'      => 'kadence-blocks-pro',
-				'type'              => 'plugin',
-				'minimum_tier'      => 'starter',
-				'name'              => 'Starter Templates',
-				'description'       => 'Pro blocks for Kadence.',
-				'category'          => 'Design',
-				'plugin_file'       => 'kadence-blocks-pro/kadence-blocks-pro.php',
-				'is_dot_org'        => true,
-				'documentation_url' => 'https://example.com/docs',
-			] ),
-			Catalog_Feature::from_array( [
-				'feature_slug'      => 'kadence-pro-flag',
-				'type'              => 'flag',
-				'minimum_tier'      => 'pro',
-				'name'              => 'Pro Flag',
-				'description'       => 'A pro-only flag.',
-				'category'          => 'Design',
-				'is_dot_org'        => false,
-				'documentation_url' => 'https://example.com/docs/flag',
-			] ),
+			Catalog_Feature::from_array(
+				[
+					'feature_slug'      => 'kadence-blocks-pro',
+					'type'              => 'plugin',
+					'minimum_tier'      => 'starter',
+					'name'              => 'Starter Templates',
+					'description'       => 'Pro blocks for Kadence.',
+					'category'          => 'Design',
+					'plugin_file'       => 'kadence-blocks-pro/kadence-blocks-pro.php',
+					'is_dot_org'        => true,
+					'documentation_url' => 'https://example.com/docs',
+				] 
+			),
+			Catalog_Feature::from_array(
+				[
+					'feature_slug'      => 'kadence-pro-flag',
+					'type'              => 'flag',
+					'minimum_tier'      => 'pro',
+					'name'              => 'Pro Flag',
+					'description'       => 'A pro-only flag.',
+					'category'          => 'Design',
+					'is_dot_org'        => false,
+					'documentation_url' => 'https://example.com/docs/flag',
+				] 
+			),
 		];
 
 		$kadence = new Product_Catalog( 'kadence', $kadence_tiers, $kadence_features );
 
 		$givewp_tiers = new Tier_Collection();
-		$givewp_tiers->add( Catalog_Tier::from_array( [
-			'slug'         => 'basic',
-			'name'         => 'Basic',
-			'rank'         => 1,
-			'purchase_url' => 'https://example.com/buy/basic',
-		] ) );
+		$givewp_tiers->add(
+			Catalog_Tier::from_array(
+				[
+					'slug'         => 'basic',
+					'name'         => 'Basic',
+					'rank'         => 1,
+					'purchase_url' => 'https://example.com/buy/basic',
+				] 
+			) 
+		);
 
 		$givewp_features = [
-			Catalog_Feature::from_array( [
-				'feature_slug'      => 'give-recurring',
-				'type'              => 'plugin',
-				'minimum_tier'      => 'basic',
-				'name'              => 'Recurring Donations',
-				'description'       => 'Accept recurring donations.',
-				'category'          => 'Fundraising',
-				'plugin_file'       => 'give-recurring/give-recurring.php',
-				'is_dot_org'        => false,
-				'documentation_url' => 'https://example.com/docs/recurring',
-			] ),
+			Catalog_Feature::from_array(
+				[
+					'feature_slug'      => 'give-recurring',
+					'type'              => 'plugin',
+					'minimum_tier'      => 'basic',
+					'name'              => 'Recurring Donations',
+					'description'       => 'Accept recurring donations.',
+					'category'          => 'Fundraising',
+					'plugin_file'       => 'give-recurring/give-recurring.php',
+					'is_dot_org'        => false,
+					'documentation_url' => 'https://example.com/docs/recurring',
+				] 
+			),
 		];
 
 		$givewp = new Product_Catalog( 'givewp', $givewp_tiers, $givewp_features );
@@ -366,9 +413,12 @@ final class CatalogTest extends UplinkTestCase {
 	 * @return Catalog_Command
 	 */
 	private function make_command( Catalog_Collection $catalogs ): Catalog_Command {
-		$repository = $this->makeEmpty( Catalog_Repository::class, [
-			'get' => $catalogs,
-		] );
+		$repository = $this->makeEmpty(
+			Catalog_Repository::class,
+			[
+				'get' => $catalogs,
+			] 
+		);
 
 		return new Catalog_Command( $repository );
 	}
@@ -418,7 +468,13 @@ final class CatalogTest extends UplinkTestCase {
 	 */
 	private function run_features_json( Catalog_Command $command, string $product_slug ): array {
 		ob_start();
-		$command->features( [ $product_slug ], [ 'format' => 'json', 'fields' => 'feature_slug,type,minimum_tier,name,description,category,plugin_file,is_dot_org,documentation_url' ] );
+		$command->features(
+			[ $product_slug ],
+			[
+				'format' => 'json',
+				'fields' => 'feature_slug,type,minimum_tier,name,description,category,plugin_file,is_dot_org,documentation_url',
+			] 
+		);
 		$output = ob_get_clean();
 
 		$decoded = json_decode( (string) $output, true );

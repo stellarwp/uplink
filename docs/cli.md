@@ -16,22 +16,22 @@ wp uplink feature list [--group=<group>] [--tier=<tier>] [--available=<bool>] [-
 
 **Options:**
 
-| Option               | Description                                                       |
-|----------------------|-------------------------------------------------------------------|
-| `--group=<group>`    | Filter by product group (e.g. `kadence`)                          |
-| `--tier=<tier>`      | Filter by tier (e.g. `Tier 1`)                                    |
-| `--available=<bool>` | Filter by availability (`true` or `false`)                        |
-| `--type=<type>`      | Filter by type (`flag`, `plugin`, `theme`)                        |
-| `--fields=<fields>`  | Comma-separated field list                                        |
-| `--format=<format>`  | Output format: `table` (default), `json`, `csv`, `yaml`, `count`  |
+| Option               | Description                                                      |
+| -------------------- | ---------------------------------------------------------------- |
+| `--group=<group>`    | Filter by product group (e.g. `kadence`)                         |
+| `--tier=<tier>`      | Filter by tier (e.g. `Tier 1`)                                   |
+| `--available=<bool>` | Filter by availability (`true` or `false`)                       |
+| `--type=<type>`      | Filter by type (`flag`, `plugin`, `theme`)                       |
+| `--fields=<fields>`  | Comma-separated field list                                       |
+| `--format=<format>`  | Output format: `table` (default), `json`, `csv`, `yaml`, `count` |
 
 **Default fields:** `slug, name, type, group, is_available, is_enabled`
 
 **Available fields:**
 
 - All types: `slug`, `name`, `description`, `type`, `group`, `tier`, `is_available`, `is_enabled`, `documentation_url`
-- Plugin only: `plugin_file`, `plugin_slug`, `authors`, `is_dot_org`
-- Theme only: `authors`, `is_dot_org`
+- Plugin and Theme: `installed_version`, `released_at`, `authors`, `is_dot_org`
+- Plugin only: `plugin_file`
 
 **Examples:**
 

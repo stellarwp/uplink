@@ -5,6 +5,7 @@ namespace StellarWP\Uplink\Features;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Catalog\Results\Catalog_Feature;
 use StellarWP\Uplink\Catalog\Results\Product_Catalog;
+use StellarWP\Uplink\Features\Contracts\Installable;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Product_Collection;
@@ -214,11 +215,21 @@ class Resolve_Feature_Collection {
 			'type'              => $catalog_type,
 			'is_available'      => $is_available,
 			'documentation_url' => $catalog_feature->get_documentation_url(),
+			'released_at'       => $catalog_feature->get_released_at(),
 			'plugin_file'       => $catalog_feature->get_plugin_file() ?? '',
 			'is_dot_org'        => $catalog_feature->is_dot_org(),
 			'authors'           => $catalog_feature->get_authors() ?? [],
+			'version'           => $catalog_feature->get_version(),
+			'changelog'         => $catalog_feature->get_changelog(),
 		];
 
-		return $class::from_array( $data );
+		$feature = $class::from_array( $data );
+
+		if ( $feature instanceof Installable ) {
+			$data['installed_version'] = $feature->get_installed_version();
+			$feature                   = $class::from_array( $data );
+		}
+
+		return $feature;
 	}
 }

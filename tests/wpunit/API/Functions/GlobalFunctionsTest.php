@@ -201,18 +201,12 @@ final class GlobalFunctionsTest extends UplinkTestCase {
 	// stellarwp_uplink_is_feature_enabled() / stellarwp_uplink_is_feature_available()
 	// -------------------------------------------------------------------------
 
-	public function test_is_feature_enabled_returns_wp_error_when_no_license_key_stored(): void {
-		// Feature_Repository cannot fetch the catalog without a license key,
-		// so Manager converts the failure into a WP_Error.
-		$result = stellarwp_uplink_is_feature_enabled( 'any-feature' );
-
-		$this->assertInstanceOf( \WP_Error::class, $result );
+	public function test_is_feature_enabled_returns_false_when_no_license_key_stored(): void {
+		$this->assertFalse( stellarwp_uplink_is_feature_enabled( 'any-feature' ) );
 	}
 
-	public function test_is_feature_available_returns_wp_error_when_no_license_key_stored(): void {
-		$result = stellarwp_uplink_is_feature_available( 'any-feature' );
-
-		$this->assertInstanceOf( \WP_Error::class, $result );
+	public function test_is_feature_available_returns_false_when_no_license_key_stored(): void {
+		$this->assertFalse( stellarwp_uplink_is_feature_available( 'any-feature' ) );
 	}
 
 	// -------------------------------------------------------------------------

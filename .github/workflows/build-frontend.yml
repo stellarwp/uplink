@@ -28,12 +28,12 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Build production assets
-        run: bun run build:prod
+      - name: Build assets
+        run: bun run build
 
       - name: Commit and push built assets
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
-          commit_message: "Build frontend production assets"
-          file_pattern: "build/*"
+          commit_message: "Build frontend assets"
+          file_pattern: "build/* build-dev/*"
           add_options: "-f"

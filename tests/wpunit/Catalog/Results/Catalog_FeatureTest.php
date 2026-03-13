@@ -14,6 +14,9 @@ final class Catalog_FeatureTest extends UplinkTestCase {
 		'plugin_file'       => 'kadence-security-pro/kadence-security-pro.php',
 		'is_dot_org'        => false,
 		'download_url'      => 'https://licensing.stellarwp.com/api/plugins/kadence-security',
+		'version'           => '2.1.0',
+		'released_at'       => '2025-11-15',
+		'changelog'         => '<h4>2.1.0</h4><ul><li>Bug fixes.</li></ul>',
 		'name'              => 'Kadence Security Pro',
 		'description'       => 'WordPress security hardening and monitoring.',
 		'category'          => 'security',
@@ -35,6 +38,9 @@ final class Catalog_FeatureTest extends UplinkTestCase {
 		$this->assertSame( 'security', $feature->get_category() );
 		$this->assertSame( [ 'KadenceWP' ], $feature->get_authors() );
 		$this->assertSame( 'https://www.kadencewp.com/help-center/', $feature->get_documentation_url() );
+		$this->assertSame( '2.1.0', $feature->get_version() );
+		$this->assertSame( '2025-11-15', $feature->get_released_at() );
+		$this->assertSame( '<h4>2.1.0</h4><ul><li>Bug fixes.</li></ul>', $feature->get_changelog() );
 	}
 
 	public function test_to_array_produces_expected_shape(): void {
@@ -72,6 +78,9 @@ final class Catalog_FeatureTest extends UplinkTestCase {
 		$this->assertNull( $feature->get_plugin_file() );
 		$this->assertNull( $feature->get_download_url() );
 		$this->assertNull( $feature->get_authors() );
+		$this->assertNull( $feature->get_version() );
+		$this->assertNull( $feature->get_released_at() );
+		$this->assertNull( $feature->get_changelog() );
 	}
 
 	public function test_dot_org_theme(): void {

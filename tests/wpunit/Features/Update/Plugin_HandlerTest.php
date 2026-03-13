@@ -37,6 +37,54 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 			$feature_repository,
 			$this->container->get( License_Manager::class )
 		);
+
+		$this->create_test_plugin();
+	}
+
+	/**
+	 * Removes the test plugin file after each test.
+	 *
+	 * @return void
+	 */
+	protected function tearDown(): void {
+		$this->remove_test_plugin();
+		parent::tearDown();
+	}
+
+	/**
+	 * Creates a dummy plugin file so get_plugins() recognizes it as installed.
+	 *
+	 * @return void
+	 */
+	private function create_test_plugin(): void {
+		$plugin_dir = WP_PLUGIN_DIR . '/my-plugin';
+
+		if ( ! is_dir( $plugin_dir ) ) {
+			mkdir( $plugin_dir, 0755, true );
+		}
+
+		file_put_contents(
+			$plugin_dir . '/my-plugin.php',
+			"<?php\n/*\nPlugin Name: My Plugin\nVersion: 1.0.0\n*/\n"
+		);
+
+		wp_cache_delete( 'plugins', 'plugins' );
+	}
+
+	/**
+	 * Removes the dummy plugin file created by create_test_plugin().
+	 *
+	 * @return void
+	 */
+	private function remove_test_plugin(): void {
+		$plugin_file = WP_PLUGIN_DIR . '/my-plugin/my-plugin.php';
+
+		if ( file_exists( $plugin_file ) ) {
+			unlink( $plugin_file );
+			rmdir( WP_PLUGIN_DIR . '/my-plugin' );
+		}
+
+		wp_cache_delete( 'plugins', 'plugins' );
 	}
 
 	/**
@@ -204,7 +252,7 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 	public function test_filter_update_check_passes_through_for_non_object(): void {
 		$result = $this->handler->filter_update_check( false );
 
-		$this->assertFalse( $result );
+		$this->assertInstanceOf( stdClass::class, $result );
 	}
 
 	/**
@@ -319,5 +367,35 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 		$this->assertArrayHasKey( 'my-plugin/my-plugin.php', $result->response, 'Existing update from another system should be preserved in response.' );
 		$this->assertSame( $existing_update, $result->response['my-plugin/my-plugin.php'], 'The existing update object should not be modified.' );
 		$this->assertArrayNotHasKey( 'my-plugin/my-plugin.php', $result->no_update, 'Plugin should not appear in no_update when it has an existing update.' );
+	}
+
+	/**
+	 * Tests filter_update_check does not inject update data for a plugin that is
+	 * not installed on the site.
+	 *
+	 * @return void
+	 */
+	public function test_filter_update_check_skips_uninstalled_plugin(): void {
+		$update_data = [
+			'my-plugin' => [
+				'version'     => '2.0.0',
+				'package'     => 'https://example.com/my-plugin.zip',
+				'plugin_file' => 'my-plugin/my-plugin.php',
+			],
+		];
+
+		$handler = $this->handler_with_feature( $update_data );
+
+		// Remove the plugin from disk so get_plugins() no longer reports it as installed.
+		$this->remove_test_plugin();
+
+		$transient           = new stdClass();
+		$transient->response  = [];
+		$transient->no_update = [];
+
+		$result = $handler->filter_update_check( $transient );
+
+		$this->assertArrayNotHasKey( 'my-plugin/my-plugin.php', $result->response, 'Uninstalled plugin must not appear in response.' );
+		$this->assertArrayNotHasKey( 'my-plugin/my-plugin.php', $result->no_update, 'Uninstalled plugin must not appear in no_update.' );
 	}
 }

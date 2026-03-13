@@ -116,6 +116,8 @@ class Manager {
 			return $result;
 		}
 
+		$this->repository->refresh();
+
 		$feature = $this->get( $slug );
 
 		if ( ! $feature ) {
@@ -215,6 +217,8 @@ class Manager {
 			return $result;
 		}
 
+		$this->repository->refresh();
+
 		$feature = $this->get( $slug );
 
 		if ( ! $feature ) {
@@ -313,6 +317,8 @@ class Manager {
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
+
+		$this->repository->refresh();
 
 		$feature = $this->get( $slug );
 

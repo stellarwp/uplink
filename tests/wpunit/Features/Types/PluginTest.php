@@ -123,6 +123,7 @@ final class PluginTest extends UplinkTestCase {
 				'released_at'       => '2025-11-15',
 				'installed_version' => '1.0.0',
 				'type'              => 'plugin',
+				'dependencies'      => [],
 			],
 			$feature->to_array()
 		);
@@ -151,6 +152,7 @@ final class PluginTest extends UplinkTestCase {
 			'installed_version' => '1.2.3',
 			'version'           => null,
 			'changelog'         => null,
+			'dependencies'      => [],
 		];
 
 		$feature = Plugin::from_array( $data );

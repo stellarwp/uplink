@@ -64,6 +64,7 @@ final class FlagTest extends UplinkTestCase {
 				'is_available'      => true,
 				'documentation_url' => 'https://example.com/docs',
 				'type'              => 'flag',
+				'dependencies'      => [],
 			],
 			$feature->to_array()
 		);
@@ -85,6 +86,7 @@ final class FlagTest extends UplinkTestCase {
 			'is_available'      => true,
 			'is_enabled'        => false,
 			'documentation_url' => 'https://example.com/docs',
+			'dependencies'      => [],
 		];
 
 		$feature = Flag::from_array( $data );

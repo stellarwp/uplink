@@ -9,6 +9,8 @@ use StellarWP\Uplink\Catalog\Results\Catalog_Feature;
 use StellarWP\Uplink\Catalog\Results\Catalog_Tier;
 use StellarWP\Uplink\Catalog\Results\Product_Catalog;
 use StellarWP\Uplink\Catalog\Results\Tier_Collection;
+use StellarWP\Uplink\Features\Dependency\Clients\Fixture_Client as Dependency_Fixture;
+use StellarWP\Uplink\Features\Dependency\Feature_Dependency_Repository;
 use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Feature_Repository;
@@ -61,8 +63,10 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		Catalog_Repository $catalog,
 		License_Manager $licensing
 	): Resolve_Feature_Collection {
-		$site_data = $this->makeEmpty( \StellarWP\Uplink\Site\Data::class, [ 'get_domain' => 'example.com' ] );
-		$resolver  = new Resolve_Feature_Collection( $catalog, $licensing, $site_data );
+		$site_data    = $this->makeEmpty( \StellarWP\Uplink\Site\Data::class, [ 'get_domain' => 'example.com' ] );
+		$dep_client   = new Dependency_Fixture( codecept_data_dir( 'dependencies/default.json' ) );
+		$dependencies = new Feature_Dependency_Repository( $dep_client );
+		$resolver     = new Resolve_Feature_Collection( $catalog, $licensing, $site_data, $dependencies );
 
 		$resolver->register_type( 'plugin', Plugin::class );
 		$resolver->register_type( 'flag', Flag::class );

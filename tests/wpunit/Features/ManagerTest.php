@@ -5,6 +5,8 @@ namespace StellarWP\Uplink\Tests\Features;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Catalog\Clients\Catalog_Client;
 use StellarWP\Uplink\Catalog\Clients\Fixture_Client as Catalog_Fixture;
+use StellarWP\Uplink\Features\Dependency\Clients\Dependency_Client;
+use StellarWP\Uplink\Features\Dependency\Clients\Fixture_Client as Dependency_Fixture;
 use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Feature_Repository;
@@ -127,6 +129,13 @@ final class ManagerTest extends UplinkTestCase {
 			Licensing_Client::class,
 			static function () {
 				return new Licensing_Fixture( codecept_data_dir( 'licensing' ) );
+			}
+		);
+
+		$this->container->singleton(
+			Dependency_Client::class,
+			static function () {
+				return new Dependency_Fixture( codecept_data_dir( 'dependencies/default.json' ) );
 			}
 		);
 	}

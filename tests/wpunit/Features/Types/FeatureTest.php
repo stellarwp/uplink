@@ -175,6 +175,7 @@ final class FeatureTest extends UplinkTestCase {
 				'is_available'      => true,
 				'is_enabled'        => false,
 				'documentation_url' => 'https://example.com/docs',
+				'dependencies'      => [],
 			],
 			$result
 		);

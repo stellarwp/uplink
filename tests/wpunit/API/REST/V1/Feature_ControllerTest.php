@@ -992,7 +992,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$this->assertTrue( $plugin['additionalProperties'] );
 		$this->assertSame( [ Feature::TYPE_PLUGIN ], $plugin['properties']['type']['enum'] );
 
-		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled', 'plugin_file', 'released_at', 'version', 'changelog', 'authors', 'is_dot_org', 'installed_version' ];
+		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled', 'dependencies', 'plugin_file', 'released_at', 'version', 'changelog', 'authors', 'is_dot_org', 'installed_version' ];
 
 		foreach ( $expected as $property ) {
 			$this->assertArrayHasKey( $property, $plugin['properties'], "Missing plugin schema property: {$property}" );
@@ -1014,7 +1014,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$this->assertSame( 'theme', $theme['title'] );
 		$this->assertSame( [ Feature::TYPE_THEME ], $theme['properties']['type']['enum'] );
 
-		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled', 'released_at', 'version', 'changelog', 'authors', 'is_dot_org', 'installed_version' ];
+		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled', 'dependencies', 'released_at', 'version', 'changelog', 'authors', 'is_dot_org', 'installed_version' ];
 
 		foreach ( $expected as $property ) {
 			$this->assertArrayHasKey( $property, $theme['properties'], "Missing theme schema property: {$property}" );
@@ -1037,7 +1037,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$this->assertSame( 'flag', $flag['title'] );
 		$this->assertSame( [ Feature::TYPE_FLAG ], $flag['properties']['type']['enum'] );
 
-		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled' ];
+		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled', 'dependencies' ];
 
 		foreach ( $expected as $property ) {
 			$this->assertArrayHasKey( $property, $flag['properties'], "Missing flag schema property: {$property}" );

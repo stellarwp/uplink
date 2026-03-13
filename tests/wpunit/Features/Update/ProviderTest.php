@@ -53,33 +53,38 @@ final class ProviderTest extends UplinkTestCase {
 	/**
 	 * Tests that hooks are registered when this instance is the version leader.
 	 *
+	 * The bootstrap plugin claims leadership and runs register_hooks() via the
+	 * init action before tests run. setUp() creates a new container, so the
+	 * registered callback objects belong to the bootstrap container, not to
+	 * $this->container. We verify the WP filter state directly rather than
+	 * checking for a specific callback object.
+	 *
 	 * @return void
 	 */
 	public function test_it_registers_hooks_when_version_leader(): void {
-		$provider = $this->container->get( Provider::class );
-		$provider->register_hooks();
+		global $wp_filter;
 
-		$this->assertSame(
+		$this->assertArrayHasKey(
 			15,
-			has_filter( 'plugins_api', [ $this->container->get( Plugin_Handler::class ), 'filter_plugins_api' ] ),
+			$wp_filter['plugins_api']->callbacks ?? [],
 			'plugins_api should have a callback at priority 15.'
 		);
 
-		$this->assertSame(
+		$this->assertArrayHasKey(
 			15,
-			has_filter( 'pre_set_site_transient_update_plugins', [ $this->container->get( Plugin_Handler::class ), 'filter_update_check' ] ),
+			$wp_filter['pre_set_site_transient_update_plugins']->callbacks ?? [],
 			'pre_set_site_transient_update_plugins should have a callback at priority 15.'
 		);
 
-		$this->assertSame(
+		$this->assertArrayHasKey(
 			15,
-			has_filter( 'themes_api', [ $this->container->get( Theme_Handler::class ), 'filter_themes_api' ] ),
+			$wp_filter['themes_api']->callbacks ?? [],
 			'themes_api should have a callback at priority 15.'
 		);
 
-		$this->assertSame(
+		$this->assertArrayHasKey(
 			15,
-			has_filter( 'pre_set_site_transient_update_themes', [ $this->container->get( Theme_Handler::class ), 'filter_update_check' ] ),
+			$wp_filter['pre_set_site_transient_update_themes']->callbacks ?? [],
 			'pre_set_site_transient_update_themes should have a callback at priority 15.'
 		);
 	}
@@ -90,12 +95,9 @@ final class ProviderTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_it_does_not_register_hooks_when_higher_version_exists(): void {
-		add_filter(
-			'stellarwp/uplink/highest_version',
-			static function () {
-				return '99.0.0';
-			}
-		);
+		// In production the higher-version instance claims the action first.
+		// Simulate that here so this instance defers correctly.
+		do_action( 'stellarwp/uplink/handled/feature_updates' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 
 		$provider = new Provider( $this->container );
 		$provider->register();

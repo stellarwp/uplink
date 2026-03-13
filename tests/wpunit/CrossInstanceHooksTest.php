@@ -6,7 +6,6 @@ use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Register;
 use StellarWP\Uplink\Resources\Collection;
 use StellarWP\Uplink\Tests\UplinkTestCase;
-use StellarWP\Uplink\Uplink;
 use StellarWP\Uplink\Tests\Sample_Plugin;
 
 class CrossInstanceHooksTest extends UplinkTestCase {
@@ -21,24 +20,6 @@ class CrossInstanceHooksTest extends UplinkTestCase {
 			'uplink/tests/plugin.php',
 			Sample_Plugin::class
 		);
-	}
-
-	/**
-	 * @test
-	 */
-	public function it_should_report_version_via_highest_version_filter(): void {
-		$highest = apply_filters( 'stellarwp/uplink/highest_version', '0.0.0' );
-
-		$this->assertSame( Uplink::VERSION, $highest );
-	}
-
-	/**
-	 * @test
-	 */
-	public function it_should_not_downgrade_highest_version(): void {
-		$highest = apply_filters( 'stellarwp/uplink/highest_version', '99.0.0' );
-
-		$this->assertSame( '99.0.0', $highest );
 	}
 
 	/**

@@ -17,6 +17,6 @@ final class Provider extends Abstract_Provider {
 	 */
 	public function register(): void {
 		require_once dirname( __DIR__, 2 ) . '/global-functions.php';
-		Global_Function_Registry::register( $this->container, Uplink::VERSION );
+		Global_Function_Registry::register( Uplink::VERSION );
 	}
 }

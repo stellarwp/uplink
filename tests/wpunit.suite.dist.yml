@@ -19,6 +19,8 @@ modules:
             title: 'StellarWP Uplink Tests'
             theme: twentytwentythree
             multisite: false
+            plugins:
+                - uplink/bootstrap-plugin.php
 
 env:
   # nothing changes

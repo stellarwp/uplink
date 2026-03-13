@@ -6,6 +6,7 @@ use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Catalog\Results\Catalog_Feature;
 use StellarWP\Uplink\Catalog\Results\Product_Catalog;
 use StellarWP\Uplink\Features\Contracts\Installable;
+use StellarWP\Uplink\Features\Dependency\Feature_Dependency_Repository;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Product_Collection;
@@ -50,6 +51,15 @@ class Resolve_Feature_Collection {
 	private Data $site_data;
 
 	/**
+	 * The feature dependency repository.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var Feature_Dependency_Repository
+	 */
+	private Feature_Dependency_Repository $dependencies;
+
+	/**
 	 * Map of catalog type strings to Feature subclass names.
 	 *
 	 * @since 3.0.0
@@ -63,18 +73,21 @@ class Resolve_Feature_Collection {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Catalog_Repository $catalog   The catalog repository.
-	 * @param License_Manager    $licensing The license manager.
-	 * @param Data               $site_data The site data provider.
+	 * @param Catalog_Repository            $catalog      The catalog repository.
+	 * @param License_Manager               $licensing    The license manager.
+	 * @param Data                          $site_data    The site data provider.
+	 * @param Feature_Dependency_Repository $dependencies The feature dependency repository.
 	 */
 	public function __construct(
 		Catalog_Repository $catalog,
 		License_Manager $licensing,
-		Data $site_data
+		Data $site_data,
+		Feature_Dependency_Repository $dependencies
 	) {
-		$this->catalog   = $catalog;
-		$this->licensing = $licensing;
-		$this->site_data = $site_data;
+		$this->catalog      = $catalog;
+		$this->licensing    = $licensing;
+		$this->site_data    = $site_data;
+		$this->dependencies = $dependencies;
 	}
 
 	/**
@@ -206,8 +219,11 @@ class Resolve_Feature_Collection {
 		$minimum_rank = $minimum_tier !== null ? $minimum_tier->get_rank() : PHP_INT_MAX;
 		$is_available = $license_tier_rank >= $minimum_rank;
 
+		$feature_slug    = $catalog_feature->get_feature_slug();
+		$feature_version = (string) $catalog_feature->get_version();
+
 		$data = [
-			'slug'              => $catalog_feature->get_feature_slug(),
+			'slug'              => $feature_slug,
 			'group'             => $product->get_product_slug(),
 			'tier'              => $catalog_feature->get_minimum_tier(),
 			'name'              => $catalog_feature->get_name(),
@@ -219,8 +235,9 @@ class Resolve_Feature_Collection {
 			'plugin_file'       => $catalog_feature->get_plugin_file() ?? '',
 			'is_dot_org'        => $catalog_feature->is_dot_org(),
 			'authors'           => $catalog_feature->get_authors() ?? [],
-			'version'           => $catalog_feature->get_version(),
+			'version'           => $feature_version,
 			'changelog'         => $catalog_feature->get_changelog(),
+			'dependencies'      => $this->dependencies->get( $feature_slug, $feature_version ),
 		];
 
 		$feature = $class::from_array( $data );

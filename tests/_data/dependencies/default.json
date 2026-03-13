@@ -1,0 +1,47 @@
+[
+  {
+    "feature_slug": "kad-blocks-pro",
+    "versions": {
+      "default": [
+        {
+          "type": "theme",
+          "feature_slug": "kadence",
+          "name": "Kadence Theme",
+          "plugin_file": "",
+          "is_dot_org": true,
+          "constraint": ">=3.0.0",
+          "is_external": false
+        },
+        {
+          "type": "plugin",
+          "feature_slug": "kadence-blocks",
+          "name": "Kadence Blocks",
+          "plugin_file": "kadence-blocks/kadence-blocks.php",
+          "is_dot_org": true,
+          "constraint": ">=3.0.0",
+          "is_external": true
+        }
+      ]
+    }
+  },
+  {
+    "feature_slug": "learndash",
+    "versions": {}
+  },
+  {
+    "feature_slug": "ld-gradebook",
+    "versions": {
+      "default": [
+        {
+          "type": "plugin",
+          "feature_slug": "learndash",
+          "name": "LearnDash LMS",
+          "plugin_file": "sfwd-lms/sfwd_lms.php",
+          "is_dot_org": false,
+          "constraint": ">=4.7.0",
+          "is_external": false
+        }
+      ]
+    }
+  }
+]

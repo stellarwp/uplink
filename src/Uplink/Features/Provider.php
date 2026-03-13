@@ -2,9 +2,15 @@
 
 namespace StellarWP\Uplink\Features;
 
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestFactoryInterface;
 use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
+use StellarWP\Uplink\Features\Dependency\Clients\Dependency_Client;
+use StellarWP\Uplink\Features\Dependency\Clients\Http_Client as Dependency_Http_Client;
+use StellarWP\Uplink\Features\Dependency\Feature_Dependency_Repository;
 use StellarWP\Uplink\Features\Strategy\Strategy_Factory;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Types\Flag;
@@ -31,12 +37,33 @@ class Provider extends Abstract_Provider {
 		$this->container->singleton( Strategy_Factory::class, Strategy_Factory::class );
 
 		$this->container->singleton(
+			Dependency_Client::class,
+			function () {
+				return new Dependency_Http_Client(
+					$this->container->get( ClientInterface::class ),
+					$this->container->get( RequestFactoryInterface::class ),
+					Config::get_api_base_url()
+				);
+			}
+		);
+
+		$this->container->singleton(
+			Feature_Dependency_Repository::class,
+			static function ( ContainerInterface $c ) {
+				return new Feature_Dependency_Repository(
+					$c->get( Dependency_Client::class )
+				);
+			}
+		);
+
+		$this->container->singleton(
 			Resolve_Feature_Collection::class,
 			function ( ContainerInterface $c ) {
 				$resolver = new Resolve_Feature_Collection(
 					$c->get( Catalog_Repository::class ),
 					$c->get( License_Manager::class ),
-					$c->get( Data::class )
+					$c->get( Data::class ),
+					$c->get( Feature_Dependency_Repository::class )
 				);
 
 				$this->register_default_types( $resolver );

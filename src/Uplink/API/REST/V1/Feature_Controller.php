@@ -307,6 +307,47 @@ class Feature_Controller extends WP_REST_Controller {
 			return $this->add_additional_fields_schema( $this->schema );
 		}
 
+		$dependency_schema = [
+			'description' => __( 'The list of declared dependencies for this feature.', '%TEXTDOMAIN%' ),
+			'type'        => 'array',
+			'readonly'    => true,
+			'context'     => [ 'view' ],
+			'items'       => [
+				'type'       => 'object',
+				'properties' => [
+					'type'         => [
+						'description' => __( 'Dependency type: plugin, theme, or flag.', '%TEXTDOMAIN%' ),
+						'type'        => 'string',
+						'enum'        => [ 'plugin', 'theme', 'flag' ],
+					],
+					'feature_slug' => [
+						'description' => __( 'The slug of the dependency feature or external package.', '%TEXTDOMAIN%' ),
+						'type'        => 'string',
+					],
+					'name'         => [
+						'description' => __( 'Human-readable display name.', '%TEXTDOMAIN%' ),
+						'type'        => 'string',
+					],
+					'plugin_file'  => [
+						'description' => __( 'Plugin file path relative to the plugins directory (plugin type only).', '%TEXTDOMAIN%' ),
+						'type'        => 'string',
+					],
+					'is_dot_org'   => [
+						'description' => __( 'Whether the dependency is hosted on WordPress.org.', '%TEXTDOMAIN%' ),
+						'type'        => 'boolean',
+					],
+					'constraint'   => [
+						'description' => __( 'Version constraint (e.g. ">=1.0.0", "^2.0", "*").', '%TEXTDOMAIN%' ),
+						'type'        => 'string',
+					],
+					'is_external'  => [
+						'description' => __( 'Whether this is an external (third-party) dependency.', '%TEXTDOMAIN%' ),
+						'type'        => 'boolean',
+					],
+				],
+			],
+		];
+
 		$base_properties = [
 			'slug'              => [
 				'description' => __( 'The feature slug.', '%TEXTDOMAIN%' ),
@@ -363,6 +404,7 @@ class Feature_Controller extends WP_REST_Controller {
 				'readonly'    => true,
 				'context'     => [ 'view' ],
 			],
+			'dependencies'      => $dependency_schema,
 		];
 
 		$installable_properties = [

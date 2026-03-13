@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Features\Types;
 
+use StellarWP\Uplink\Features\Dependency\Dependency;
 use StellarWP\Uplink\Utils\Cast;
 
 /**
@@ -77,12 +78,23 @@ abstract class Feature {
 	/**
 	 * Converts the feature to an associative array.
 	 *
+	 * Dependencies are serialized to plain arrays so the output is
+	 * safe to pass directly to WP_REST_Response.
+	 *
 	 * @since 3.0.0
 	 *
 	 * @return array<string, mixed>
 	 */
 	public function to_array(): array {
-		return $this->attributes;
+		$data                 = $this->attributes;
+		$data['dependencies'] = array_map(
+			static function ( Dependency $dep ) {
+				return $dep->to_array();
+			},
+			$this->get_dependencies()
+		);
+
+		return $data;
 	}
 
 	/**
@@ -185,6 +197,34 @@ abstract class Feature {
 	}
 
 	/**
+	 * Gets the list of declared dependencies for this feature.
+	 *
+	 * Each entry is a Dependency value object describing a required feature,
+	 * plugin, or theme with a version constraint.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return Dependency[]
+	 */
+	public function get_dependencies(): array {
+		$raw = $this->attributes['dependencies'] ?? [];
+
+		if ( ! is_array( $raw ) ) {
+			return [];
+		}
+
+		$deps = [];
+
+		foreach ( $raw as $item ) {
+			if ( $item instanceof Dependency ) {
+				$deps[] = $item;
+			}
+		}
+
+		return $deps;
+	}
+
+	/**
 	 * Extracts the common base attributes shared by all feature types.
 	 *
 	 * @since 3.0.0
@@ -194,6 +234,19 @@ abstract class Feature {
 	 * @return array<string, mixed>
 	 */
 	protected static function base_attributes( array $data ): array {
+		$raw_deps = $data['dependencies'] ?? [];
+		$deps     = [];
+
+		if ( is_array( $raw_deps ) ) {
+			foreach ( $raw_deps as $item ) {
+				if ( $item instanceof Dependency ) {
+					$deps[] = $item;
+				} elseif ( is_array( $item ) ) {
+					$deps[] = Dependency::from_array( $item );
+				}
+			}
+		}
+
 		return [
 			'slug'              => Cast::to_string( $data['slug'] ?? '' ),
 			'group'             => Cast::to_string( $data['group'] ?? '' ),
@@ -203,6 +256,7 @@ abstract class Feature {
 			'is_available'      => Cast::to_bool( $data['is_available'] ?? false ),
 			'is_enabled'        => Cast::to_bool( $data['is_enabled'] ?? false ),
 			'documentation_url' => Cast::to_string( $data['documentation_url'] ?? '' ),
+			'dependencies'      => $deps,
 		];
 	}
 

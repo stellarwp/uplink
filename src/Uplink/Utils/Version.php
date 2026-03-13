@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Utils;
 
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Uplink;
 
 /**
@@ -15,6 +16,18 @@ use StellarWP\Uplink\Uplink;
  * @since 3.0.0
  */
 class Version {
+
+	/**
+	 * Whether this instance has claimed at least one leadership responsibility.
+	 *
+	 * Set to true the first time should_handle() succeeds. Stored as a static
+	 * on this (Strauss-prefixed) class, so each vendor copy tracks its own state.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var bool
+	 */
+	private static $claimed_leadership = false;
 
 	/**
 	 * Determines whether this Uplink instance is the highest active version.
@@ -38,9 +51,13 @@ class Version {
 	 * @return bool
 	 */
 	public static function is_highest_among( array $versions ): bool {
-		$highest = array_reduce( $versions, static function ( string $carry, string $v ): string {
-			return version_compare( $v, $carry, '>' ) ? $v : $carry;
-		}, Uplink::VERSION );
+		$highest = array_reduce(
+			$versions,
+			static function ( string $carry, string $v ): string {
+				return version_compare( $v, $carry, '>' ) ? $v : $carry;
+			},
+			Uplink::VERSION
+		);
 
 		return ! version_compare( Uplink::VERSION, $highest, '<' );
 	}
@@ -69,6 +86,51 @@ class Version {
 
 		do_action( $hook );
 
+		self::$claimed_leadership = true;
+
 		return true;
+	}
+
+	/**
+	 * Returns whether this instance has claimed at least one leadership responsibility.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return bool
+	 */
+	public static function is_leader(): bool {
+		return self::$claimed_leadership;
+	}
+
+	/**
+	 * Prints the debug info to the admin footer.
+	 *
+	 * TODO: We can remove this before launch.
+	 *
+	 * @return void
+	 */
+	public static function debug_info(): void {
+		if (defined('WP_DEBUG') && WP_DEBUG) {
+			$container_parts = explode('\\', get_class(Config::get_container()));
+			$prefix          = Config::get_hook_prefix() ?: $container_parts[0];
+			$version         = Uplink::VERSION;
+
+			add_action(
+				'admin_footer',
+				static function () use ($prefix, $version) {
+					if (! Version::is_leader()) {
+						return;
+					}
+					$data = [
+						'stellarwp/uplink' => [
+							'leader' => $prefix,
+							'version' => $version,
+						],
+					];
+
+					echo "<script>console.log(" . json_encode($data) . ");</script>";
+				}
+			);
+		}
 	}
 }

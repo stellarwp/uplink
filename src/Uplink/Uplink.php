@@ -106,18 +106,6 @@ class Uplink {
 		// @phpstan-ignore function.internal
 		_stellarwp_uplink_instance_registry( self::VERSION );
 
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			$container_parts = explode( '\\', get_class( $container ) );
-			$prefix          = Config::get_hook_prefix() ?: $container_parts[0];
-			$version         = self::VERSION;
-			add_action( 'admin_footer', static function () use ( $prefix, $version ) {
-				if ( ! Version::is_highest() ) {
-					return;
-				}
-				echo '<script>console.log("[Uplink] Leader: ' . esc_js( $prefix ) . ' v' . esc_js( $version ) . '")</script>';
-			} );
-		}
-
 		add_filter(
 			'stellarwp/uplink/validate_license',
 			static function ( $result, string $slug, string $key ) use ( $get_resource ) {
@@ -183,5 +171,16 @@ class Uplink {
 	 */
 	public static function is_enabled(): bool {
 		return ! static::is_disabled();
+	}
+
+	/**
+	 * Prints the debug info to the admin footer.
+	 *
+	 * TODO: We can remove this before launch.
+	 *
+	 * @return void
+	 */
+	public static function debug(): void {
+		Version::debug_info();
 	}
 }

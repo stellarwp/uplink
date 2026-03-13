@@ -77,9 +77,13 @@ if ( ! function_exists( '_stellarwp_uplink_global_function_registry' ) ) {
 
 		// @phpstan-ignore function.internal
 		$versions = array_keys( _stellarwp_uplink_instance_registry() );
-		$highest  = array_reduce( $versions, static function ( string $carry, string $v ): string {
-			return version_compare( $v, $carry, '>' ) ? $v : $carry;
-		}, '0.0.0' );
+		$highest  = array_reduce(
+			$versions,
+			static function ( string $carry, string $v ): string {
+				return version_compare( $v, $carry, '>' ) ? $v : $carry;
+			},
+			'0.0.0' 
+		);
 
 		return $registry[ $key ][ $highest ] ?? null;
 	}

@@ -3,7 +3,6 @@
 namespace StellarWP\Uplink\Tests\CLI\Commands;
 
 use StellarWP\Uplink\CLI\Commands\License as License_Command;
-use StellarWP\Uplink\Legacy\Legacy_License;
 use StellarWP\Uplink\Legacy\License_Repository as Legacy_License_Repository;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Product_Collection;

@@ -21,7 +21,7 @@ Each feature type has a strategy that defines how enable, disable, and active-st
 
 ### Plugin
 
-An installable WordPress plugin. The catalog provides `plugin_file`, `plugin_slug`, `download_url`/`is_dot_org`.
+An installable WordPress plugin. The catalog provides `plugin_file`, `download_url`/`is_dot_org`.
 
 | Aspect              | Behavior                                                                               |
 | ------------------- | -------------------------------------------------------------------------------------- |
@@ -61,6 +61,8 @@ Plugin and Theme features share a global transient lock (`stellarwp_uplink_insta
 
 `Resolve_Feature_Collection` joins catalog and licensing data to produce a `Feature_Collection`. Availability is determined by comparing integer tier ranks, not slug strings. The catalog defines ranks (e.g., `kadence-basic` = 1, `kadence-pro` = 2). A feature is available when the customer's tier rank >= the feature's minimum tier rank.
 
+For `Installable` features (Plugin, Theme), the resolver also reads `installed_version` from disk and stores it on the resolved Feature. This is the version currently on the site, distinct from the catalog's `version` which is the latest available. Flag features always have `installed_version: null`.
+
 Edge cases:
 
 - No licensing entry for a product: tier rank = `0`, all features unavailable
@@ -79,6 +81,7 @@ The `Manager` is the public interface for all feature operations.
 | `is_enabled(string $slug)`   | `bool\|WP_Error`               | Check if the feature is active locally             |
 | `enable(string $slug)`       | `Feature\|WP_Error`            | Enable a feature, return updated Feature           |
 | `disable(string $slug)`      | `Feature\|WP_Error`            | Disable a feature, return updated Feature          |
+| `update(string $slug)`       | `Feature\|WP_Error`            | Update a feature to latest version                 |
 
 Global convenience functions in `src/Uplink/global-functions.php` (non-namespaced, always delegate to the version leader):
 
@@ -93,10 +96,12 @@ Actions fired before and after enable/disable, both globally and per-slug:
 - `stellarwp/uplink/feature_enabled` / `stellarwp/uplink/{slug}/feature_enabled`
 - `stellarwp/uplink/feature_disabling` / `stellarwp/uplink/{slug}/feature_disabling`
 - `stellarwp/uplink/feature_disabled` / `stellarwp/uplink/{slug}/feature_disabled`
+- `stellarwp/uplink/feature_updating` / `stellarwp/uplink/{slug}/feature_updating`
+- `stellarwp/uplink/feature_updated` / `stellarwp/uplink/{slug}/feature_updated`
 
 ## Caching
 
-The `Feature_Repository` caches the resolved `Feature_Collection` in a transient (`stellarwp_uplink_feature_catalog`, 12h TTL). The cache includes a hash of the license key — if the key changes, the cache auto-invalidates. `refresh()` explicitly clears and re-resolves.
+The `Feature_Repository` caches the resolved `Feature_Collection` in memory for the current request. Resolution is cheap (iterates the cached catalog and licensing arrays), so no cross-request cache is needed. Fresh requests always resolve from the upstream caches (catalog and licensing), which are the single source of truth for staleness. `refresh()` clears the in-memory cache and re-resolves.
 
 ## Feature Collection
 
@@ -115,7 +120,7 @@ All parameters optional. Returns a new collection without mutating the original.
 
 ## REST API
 
-Four endpoints under `stellarwp/uplink/v1`. All require `manage_options`.
+Five endpoints under `stellarwp/uplink/v1`. All require `manage_options`.
 
 | Route                      | Method | Purpose                                                       |
 | -------------------------- | ------ | ------------------------------------------------------------- |
@@ -123,6 +128,7 @@ Four endpoints under `stellarwp/uplink/v1`. All require `manage_options`.
 | `/features/{slug}`         | GET    | Get a single feature                                          |
 | `/features/{slug}/enable`  | POST   | Enable a feature                                              |
 | `/features/{slug}/disable` | POST   | Disable a feature                                             |
+| `/features/{slug}/update`  | POST   | Update a feature to the latest available version              |
 
 Each Feature object includes `is_enabled`, stamped with live state from its strategy by the Manager before any consumer receives it.
 
@@ -136,6 +142,10 @@ Each Feature object includes `is_enabled`, stamped with live state from its stra
 | `FEATURE_CHECK_FAILED`           | 502  | Unexpected error during availability check         |
 | `FEATURE_ENABLE_FAILED`          | 422  | Strategy threw an exception during enable          |
 | `FEATURE_DISABLE_FAILED`         | 422  | Strategy threw an exception during disable         |
+| `FEATURE_NOT_ACTIVE`             | 422  | Feature is not installed or active                 |
+| `UPDATE_NOT_SUPPORTED`           | 422  | Feature type does not support updates (e.g. flags) |
+| `NO_UPDATE_AVAILABLE`            | 422  | No update available for the feature                |
+| `UPDATE_FAILED`                  | 422  | The update operation failed                        |
 | `INVALID_RESPONSE`               | 502  | Catalog response couldn't be parsed                |
 | `UNKNOWN_FEATURE_TYPE`           | 422  | No Feature subclass for the catalog type           |
 | `INSTALL_LOCKED`                 | 409  | Another install already in progress                |
@@ -158,16 +168,17 @@ Each Feature object includes `is_enabled`, stamped with live state from its stra
 
 ## Data Sources
 
-| Data                                                    | Source                                                                                    |
-| ------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| Feature exists, minimum tier, delivery type, tier ranks | Catalog                                                                                   |
-| Customer's tier, key validity                           | Licensing                                                                                 |
-| **Whether available** (`is_available`)                  | **Computed: catalog min rank vs. licensing tier rank**                                    |
-| **Whether enabled** (`is_enabled`)                      | Live WordPress state (plugin activation / theme disk / flag option), stamped by Manager   |
+| Data                                                    | Source                                                                                        |
+| ------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Feature exists, minimum tier, delivery type, tier ranks | Catalog                                                                                       |
+| Latest version, release date, changelog                 | Catalog (`version`, `released_at`, `changelog`)                                               |
+| Customer's tier, key validity                           | Licensing                                                                                     |
+| **Whether available** (`is_available`)                  | **Computed: catalog min rank vs. licensing tier rank**                                        |
+| **Whether enabled** (`is_enabled`)                      | Live WordPress state (plugin activation / theme disk / flag option), stamped by Manager       |
+| **Installed version** (`installed_version`)             | Read from disk during resolution via `Installable`. Null for flags and uninstalled extensions |
 
 ## What Features Does Not Do
 
 - **Fetch its own data** — resolved from catalog and licensing. No separate "features API."
 - **Delete extensions** — plugins are deactivated, never removed. Themes require manual deletion.
 - **Manage seats** — seat consumption is in the licensing layer, not feature enable/disable.
-- **Handle updates** — plugin/theme updates use a separate system hooking into WordPress's native update infrastructure.

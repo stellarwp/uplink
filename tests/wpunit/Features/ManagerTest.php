@@ -55,8 +55,6 @@ final class ManagerTest extends UplinkTestCase {
 			define( 'STELLARWP_UPLINK_FEATURES_USE_FIXTURE_DATA', true );
 		}
 
-		delete_transient( 'stellarwp_uplink_feature_catalog' );
-
 		$this->collection = new Feature_Collection();
 		$this->collection->add(
 			Flag::from_array(
@@ -82,6 +80,7 @@ final class ManagerTest extends UplinkTestCase {
 			[
 				'enable'    => true,
 				'disable'   => true,
+				'update'    => true,
 				'is_active' => true,
 			]
 		);
@@ -93,7 +92,7 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$this->manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$this->manager = new Manager( $repository, $factory );
 	}
 
 	/**
@@ -104,7 +103,6 @@ final class ManagerTest extends UplinkTestCase {
 	protected function tearDown(): void {
 		delete_option( 'stellarwp_uplink_feature_kad-pattern-hub_active' );
 		delete_option( License_Repository::KEY_OPTION_NAME );
-		delete_transient( Feature_Repository::TRANSIENT_KEY );
 		delete_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
 		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
 
@@ -177,6 +175,146 @@ final class ManagerTest extends UplinkTestCase {
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( Error_Code::FEATURE_NOT_FOUND, $result->get_error_code() );
+	}
+
+	/**
+	 * Tests a known feature can be updated successfully.
+	 *
+	 * @return void
+	 */
+	public function test_it_updates_a_feature(): void {
+		$result = $this->manager->update( 'test-feature' );
+
+		$this->assertInstanceOf( Feature::class, $result );
+	}
+
+	/**
+	 * Tests updating an unknown feature returns a WP_Error.
+	 *
+	 * @return void
+	 */
+	public function test_it_returns_wp_error_when_updating_unknown_feature(): void {
+		$result = $this->manager->update( 'nonexistent' );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( Error_Code::FEATURE_NOT_FOUND, $result->get_error_code() );
+	}
+
+	/**
+	 * Tests updating a feature fires global and slug-specific WordPress actions.
+	 *
+	 * @return void
+	 */
+	public function test_update_fires_actions(): void {
+		$updating_fired      = false;
+		$updated_fired       = false;
+		$slug_updating_fired = false;
+		$slug_updated_fired  = false;
+
+		add_action(
+			'stellarwp/uplink/feature_updating',
+			static function () use ( &$updating_fired ) {
+				$updating_fired = true;
+			}
+		);
+
+		add_action(
+			'stellarwp/uplink/feature_updated',
+			static function () use ( &$updated_fired ) {
+				$updated_fired = true;
+			}
+		);
+
+		add_action(
+			'stellarwp/uplink/test-feature/feature_updating',
+			static function () use ( &$slug_updating_fired ) {
+				$slug_updating_fired = true;
+			}
+		);
+
+		add_action(
+			'stellarwp/uplink/test-feature/feature_updated',
+			static function () use ( &$slug_updated_fired ) {
+				$slug_updated_fired = true;
+			}
+		);
+
+		$this->manager->update( 'test-feature' );
+
+		$this->assertTrue( $updating_fired, 'Global feature_updating action should have fired.' );
+		$this->assertTrue( $updated_fired, 'Global feature_updated action should have fired.' );
+		$this->assertTrue( $slug_updating_fired, 'Slug-specific feature_updating action should have fired.' );
+		$this->assertTrue( $slug_updated_fired, 'Slug-specific feature_updated action should have fired.' );
+	}
+
+	/**
+	 * Tests that the feature_updated action does not fire when the strategy fails to update.
+	 *
+	 * @return void
+	 */
+	public function test_update_does_not_fire_updated_action_on_failure(): void {
+		$error = new WP_Error( 'update_failed', 'Could not update feature.' );
+
+		$strategy = $this->makeEmpty(
+			Strategy::class,
+			[
+				'update' => $error,
+			]
+		);
+
+		$factory = $this->makeEmpty(
+			Strategy_Factory::class,
+			[
+				'make' => $strategy,
+			]
+		);
+
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
+			[
+				'get' => $this->collection,
+			]
+		);
+
+		$manager = new Manager( $repository, $factory );
+
+		$updated_fired = false;
+
+		add_action(
+			'stellarwp/uplink/feature_updated',
+			static function () use ( &$updated_fired ) {
+				$updated_fired = true;
+			}
+		);
+
+		$result = $manager->update( 'test-feature' );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertFalse( $updated_fired, 'feature_updated should not fire when update fails.' );
+	}
+
+	/**
+	 * Tests that update returns a WP_Error when the catalog errors.
+	 *
+	 * @return void
+	 */
+	public function test_update_returns_wp_error_when_catalog_errors(): void {
+		$error = new WP_Error( 'api_error', 'Could not fetch features.' );
+
+		$repository = $this->makeEmpty(
+			Feature_Repository::class,
+			[
+				'get' => $error,
+			]
+		);
+
+		$factory = $this->makeEmpty( Strategy_Factory::class );
+
+		$manager = new Manager( $repository, $factory );
+
+		$result = $manager->update( 'test-feature' );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
 	}
 
 	/**
@@ -382,7 +520,7 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$enabled_fired = false;
 
@@ -428,7 +566,7 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$disabled_fired = false;
 
@@ -462,7 +600,7 @@ final class ManagerTest extends UplinkTestCase {
 
 		$factory = $this->makeEmpty( Strategy_Factory::class );
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$this->assertInstanceOf( WP_Error::class, $manager->get_all() );
 	}
@@ -484,7 +622,7 @@ final class ManagerTest extends UplinkTestCase {
 
 		$factory = $this->makeEmpty( Strategy_Factory::class );
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$result = $manager->is_enabled( 'test-feature' );
 
@@ -541,7 +679,7 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$this->assertFalse( $manager->is_available( 'locked-feature' ) );
 	}
@@ -575,7 +713,7 @@ final class ManagerTest extends UplinkTestCase {
 
 		$factory = $this->makeEmpty( Strategy_Factory::class );
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$this->assertInstanceOf( WP_Error::class, $manager->is_available( 'test-feature' ) );
 	}
@@ -615,7 +753,7 @@ final class ManagerTest extends UplinkTestCase {
 
 		$factory = $this->makeEmpty( Strategy_Factory::class );
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$this->assertInstanceOf( WP_Error::class, $manager->exists( 'test-feature' ) );
 	}
@@ -637,7 +775,7 @@ final class ManagerTest extends UplinkTestCase {
 
 		$factory = $this->makeEmpty( Strategy_Factory::class );
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$this->assertNull( $manager->get( 'test-feature' ) );
 	}
@@ -682,7 +820,7 @@ final class ManagerTest extends UplinkTestCase {
 			]
 		);
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$result = $manager->disable( 'test-feature' );
 
@@ -707,7 +845,7 @@ final class ManagerTest extends UplinkTestCase {
 
 		$factory = $this->makeEmpty( Strategy_Factory::class );
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$result = $manager->enable( 'test-feature' );
 
@@ -731,7 +869,7 @@ final class ManagerTest extends UplinkTestCase {
 
 		$factory = $this->makeEmpty( Strategy_Factory::class );
 
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		$result = $manager->disable( 'test-feature' );
 

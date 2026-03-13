@@ -6,7 +6,6 @@ use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Licensing\License_Manager;
-use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Utils\Version;
 
 /**
@@ -32,8 +31,7 @@ class Provider extends Abstract_Provider {
 				return new Plugin_Handler(
 					$c->get( Resolve_Update_Data::class ),
 					$c->get( Feature_Repository::class ),
-					$c->get( Data::class ),
-					$c->get( License_Manager::class )->get_key() ?? ''
+					$c->get( License_Manager::class )
 				);
 			}
 		);
@@ -44,8 +42,7 @@ class Provider extends Abstract_Provider {
 				return new Theme_Handler(
 					$c->get( Resolve_Update_Data::class ),
 					$c->get( Feature_Repository::class ),
-					$c->get( Data::class ),
-					$c->get( License_Manager::class )->get_key() ?? ''
+					$c->get( License_Manager::class )
 				);
 			}
 		);

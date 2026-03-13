@@ -15,7 +15,7 @@ use WP_REST_Server;
 /**
  * WP REST API controller for managing features.
  *
- * Supports listing, retrieving, enabling, and disabling features.
+ * Supports listing, retrieving, enabling, disabling, and updating features.
  * Restricted to logged-in Administrators (manage_options capability).
  *
  * @since 3.0.0
@@ -125,6 +125,20 @@ class Feature_Controller extends WP_REST_Controller {
 				[
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => [ $this, 'disable' ],
+					'permission_callback' => [ $this, 'check_permissions' ],
+					'args'                => $this->get_slug_args(),
+				],
+				'schema' => [ $this, 'get_public_item_schema' ],
+			]
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<slug>[a-zA-Z0-9_-]+)/update',
+			[
+				[
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => [ $this, 'update_item' ],
 					'permission_callback' => [ $this, 'check_permissions' ],
 					'args'                => $this->get_slug_args(),
 				],
@@ -259,6 +273,28 @@ class Feature_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Triggers an update for a feature.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function update_item( $request ) {
+		$slug    = Cast::to_string( $request->get_param( 'slug' ) );
+		$feature = $this->manager->update( $slug );
+
+		if ( is_wp_error( $feature ) ) {
+			return $this->ensure_error_status( $feature );
+		}
+
+		return new WP_REST_Response(
+			$feature->to_array()
+		);
+	}
+
+	/**
 	 * Gets the schema for a single feature response.
 	 *
 	 * @since 3.0.0
@@ -330,7 +366,25 @@ class Feature_Controller extends WP_REST_Controller {
 		];
 
 		$installable_properties = [
-			'authors'    => [
+			'released_at'       => [
+				'description' => __( 'Release date of the latest version (ISO 8601), or null if not applicable.', '%TEXTDOMAIN%' ),
+				'type'        => [ 'string', 'null' ],
+				'readonly'    => true,
+				'context'     => [ 'view' ],
+			],
+			'version'           => [
+				'description' => __( 'Latest available version from the catalog, or null. Only present for installable features.', '%TEXTDOMAIN%' ),
+				'type'        => [ 'string', 'null' ],
+				'readonly'    => true,
+				'context'     => [ 'view' ],
+			],
+			'changelog'         => [
+				'description' => __( 'Changelog HTML for the latest version, or null. Only present for installable features.', '%TEXTDOMAIN%' ),
+				'type'        => [ 'string', 'null' ],
+				'readonly'    => true,
+				'context'     => [ 'view' ],
+			],
+			'authors'           => [
 				'description' => __( 'Expected authors for ownership verification.', '%TEXTDOMAIN%' ),
 				'type'        => 'array',
 				'items'       => [
@@ -339,9 +393,15 @@ class Feature_Controller extends WP_REST_Controller {
 				'readonly'    => true,
 				'context'     => [ 'view' ],
 			],
-			'is_dot_org' => [
+			'is_dot_org'        => [
 				'description' => __( 'Whether the feature is available on WordPress.org.', '%TEXTDOMAIN%' ),
 				'type'        => 'boolean',
+				'readonly'    => true,
+				'context'     => [ 'view' ],
+			],
+			'installed_version' => [
+				'description' => __( 'The currently installed version, or null if not installed.', '%TEXTDOMAIN%' ),
+				'type'        => [ 'string', 'null' ],
 				'readonly'    => true,
 				'context'     => [ 'view' ],
 			],
@@ -350,12 +410,6 @@ class Feature_Controller extends WP_REST_Controller {
 		$plugin_properties = [
 			'plugin_file' => [
 				'description' => __( 'The plugin file path relative to the plugins directory.', '%TEXTDOMAIN%' ),
-				'type'        => 'string',
-				'readonly'    => true,
-				'context'     => [ 'view' ],
-			],
-			'plugin_slug' => [
-				'description' => __( 'The slug used for plugins_api() lookups.', '%TEXTDOMAIN%' ),
 				'type'        => 'string',
 				'readonly'    => true,
 				'context'     => [ 'view' ],

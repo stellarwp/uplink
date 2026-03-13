@@ -16,10 +16,11 @@ use StellarWP\Uplink\Utils\Cast;
  *     type: string,
  *     minimum_tier: string,
  *     plugin_file: ?string,
- *     plugin_slug: ?string,
  *     is_dot_org: bool,
  *     download_url: ?string,
  *     version: ?string,
+ *     released_at: ?string,
+ *     changelog: ?string,
  *     name: string,
  *     description: string,
  *     category: string,
@@ -41,10 +42,11 @@ final class Catalog_Feature {
 		'type'              => '',
 		'minimum_tier'      => '',
 		'plugin_file'       => null,
-		'plugin_slug'       => null,
 		'is_dot_org'        => false,
 		'download_url'      => null,
 		'version'           => null,
+		'released_at'       => null,
+		'changelog'         => null,
 		'name'              => '',
 		'description'       => '',
 		'category'          => '',
@@ -83,10 +85,11 @@ final class Catalog_Feature {
 				'type'              => Cast::to_string( $data['type'] ?? '' ),
 				'minimum_tier'      => Cast::to_string( $data['minimum_tier'] ?? '' ),
 				'plugin_file'       => isset( $data['plugin_file'] ) ? Cast::to_string( $data['plugin_file'] ) : null,
-				'plugin_slug'       => isset( $data['plugin_slug'] ) ? Cast::to_string( $data['plugin_slug'] ) : null,
 				'is_dot_org'        => Cast::to_bool( $data['is_dot_org'] ?? false ),
 				'download_url'      => isset( $data['download_url'] ) ? Cast::to_string( $data['download_url'] ) : null,
 				'version'           => isset( $data['version'] ) ? Cast::to_string( $data['version'] ) : null,
+				'released_at'       => isset( $data['released_at'] ) ? Cast::to_string( $data['released_at'] ) : null,
+				'changelog'         => isset( $data['changelog'] ) ? Cast::to_string( $data['changelog'] ) : null,
 				'name'              => Cast::to_string( $data['name'] ?? '' ),
 				'description'       => Cast::to_string( $data['description'] ?? '' ),
 				'category'          => Cast::to_string( $data['category'] ?? '' ),
@@ -156,19 +159,6 @@ final class Catalog_Feature {
 	}
 
 	/**
-	 * Gets the plugin slug or null if not applicable.
-	 *
-	 * Only present for plugin features.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @return string|null
-	 */
-	public function get_plugin_slug(): ?string {
-		return $this->attributes['plugin_slug'];
-	}
-
-	/**
 	 * Whether the feature is available on WordPress.org.
 	 *
 	 * @since 3.0.0
@@ -199,6 +189,28 @@ final class Catalog_Feature {
 	 */
 	public function get_version(): ?string {
 		return $this->attributes['version'];
+	}
+
+	/**
+	 * Gets the release date (ISO 8601), or null if not provided.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string|null
+	 */
+	public function get_released_at(): ?string {
+		return $this->attributes['released_at'];
+	}
+
+	/**
+	 * Gets the changelog as an HTML string, or null if not provided.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string|null
+	 */
+	public function get_changelog(): ?string {
+		return $this->attributes['changelog'];
 	}
 
 	/**

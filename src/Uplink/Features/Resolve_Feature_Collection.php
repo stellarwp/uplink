@@ -5,9 +5,11 @@ namespace StellarWP\Uplink\Features;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Catalog\Results\Catalog_Feature;
 use StellarWP\Uplink\Catalog\Results\Product_Catalog;
+use StellarWP\Uplink\Features\Contracts\Installable;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Product_Collection;
+use StellarWP\Uplink\Site\Data;
 use WP_Error;
 
 /**
@@ -39,6 +41,15 @@ class Resolve_Feature_Collection {
 	private License_Manager $licensing;
 
 	/**
+	 * The site data provider.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var Data
+	 */
+	private Data $site_data;
+
+	/**
 	 * Map of catalog type strings to Feature subclass names.
 	 *
 	 * @since 3.0.0
@@ -54,13 +65,16 @@ class Resolve_Feature_Collection {
 	 *
 	 * @param Catalog_Repository $catalog   The catalog repository.
 	 * @param License_Manager    $licensing The license manager.
+	 * @param Data               $site_data The site data provider.
 	 */
 	public function __construct(
 		Catalog_Repository $catalog,
-		License_Manager $licensing
+		License_Manager $licensing,
+		Data $site_data
 	) {
 		$this->catalog   = $catalog;
 		$this->licensing = $licensing;
+		$this->site_data = $site_data;
 	}
 
 	/**
@@ -85,21 +99,23 @@ class Resolve_Feature_Collection {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $domain Site domain.
-	 *
 	 * @return Feature_Collection|WP_Error
 	 */
-	public function __invoke( string $domain ) {
+	public function __invoke() {
 		$catalog = $this->catalog->get();
 
 		if ( is_wp_error( $catalog ) ) {
 			return $catalog;
 		}
 
-		$products = $this->licensing->get_products( $domain );
+		$products = $this->licensing->get_products( $this->site_data->get_domain() );
 
 		if ( is_wp_error( $products ) ) {
-			return $products;
+			if ( $this->licensing->get_key() === null ) {
+				$products = new Product_Collection();
+			} else {
+				return $products;
+			}
 		}
 
 		$collection = new Feature_Collection();
@@ -199,12 +215,21 @@ class Resolve_Feature_Collection {
 			'type'              => $catalog_type,
 			'is_available'      => $is_available,
 			'documentation_url' => $catalog_feature->get_documentation_url(),
+			'released_at'       => $catalog_feature->get_released_at(),
 			'plugin_file'       => $catalog_feature->get_plugin_file() ?? '',
-			'plugin_slug'       => $catalog_feature->get_plugin_slug(),
 			'is_dot_org'        => $catalog_feature->is_dot_org(),
 			'authors'           => $catalog_feature->get_authors() ?? [],
+			'version'           => $catalog_feature->get_version(),
+			'changelog'         => $catalog_feature->get_changelog(),
 		];
 
-		return $class::from_array( $data );
+		$feature = $class::from_array( $data );
+
+		if ( $feature instanceof Installable ) {
+			$data['installed_version'] = $feature->get_installed_version();
+			$feature                   = $class::from_array( $data );
+		}
+
+		return $feature;
 	}
 }

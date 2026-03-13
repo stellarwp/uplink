@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink\Features\Strategy;
 
 use StellarWP\Uplink\Features\Error_Code;
+use WP_Ajax_Upgrader_Skin;
 use WP_Error;
 
 use function delete_transient;
@@ -115,6 +116,24 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	abstract protected function get_not_found_after_install_error_code(): string;
 
 	/**
+	 * Check whether an update is available for this extension.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return bool True if an update is available.
+	 */
+	abstract protected function check_update_available(): bool;
+
+	/**
+	 * Run the upgrade for this extension.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return true|WP_Error True on success, WP_Error on failure.
+	 */
+	abstract protected function do_update();
+
+	/**
 	 * Load WordPress admin includes required for extension management.
 	 *
 	 * Subclasses implement this to load the specific files needed for their
@@ -209,6 +228,76 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	}
 
 	/**
+	 * Update the feature: upgrade the extension to the latest available version.
+	 *
+	 * Checks the WordPress update transient for an available update. If one
+	 * exists, acquires the global install lock and runs the upgrade.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return true|WP_Error True on success, WP_Error on failure.
+	 */
+	final public function update() {
+		$this->load_wp_admin_includes();
+
+		// Can't update what's not installed or active.
+		if ( ! $this->check_active() ) {
+			return new WP_Error(
+				Error_Code::FEATURE_NOT_ACTIVE,
+				sprintf(
+					/* translators: %s: feature name */
+					__( '"%s" is not installed or active. Enable it first before updating.', '%TEXTDOMAIN%' ),
+					$this->feature->get_name()
+				)
+			);
+		}
+
+		$ownership = $this->verify_ownership();
+
+		if ( is_wp_error( $ownership ) ) {
+			return $ownership;
+		}
+
+		if ( ! $this->check_update_available() ) {
+			return new WP_Error(
+				Error_Code::NO_UPDATE_AVAILABLE,
+				sprintf(
+					/* translators: %s: feature name */
+					__( 'No update is available for "%s".', '%TEXTDOMAIN%' ),
+					$this->feature->get_name()
+				)
+			);
+		}
+
+		if ( ! $this->acquire_lock( self::LOCK_KEY ) ) {
+			return new WP_Error(
+				Error_Code::INSTALL_LOCKED,
+				sprintf(
+					/* translators: %s: feature name */
+					__( 'Another installable feature is already being installed. Cannot update "%s" right now. Please try again in a few moments.', '%TEXTDOMAIN%' ),
+					$this->feature->get_name()
+				)
+			);
+		}
+
+		try {
+			$result = $this->do_update();
+
+			// Plugin_Upgrader::upgrade() deactivates the plugin before upgrading
+			// and does not reactivate it afterward (unlike the WP admin UI path).
+			// Reactivate here so an API-triggered update doesn't leave the plugin
+			// inactive.
+			if ( $result === true ) {
+				$result = $this->do_activate();
+			}
+
+			return $result;
+		} finally {
+			$this->release_lock( self::LOCK_KEY );
+		}
+	}
+
+	/**
 	 * Check whether the feature's extension is currently active.
 
 	 * @since 3.0.0
@@ -285,6 +374,128 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	}
 
 	// ── Shared helpers ──────────────────────────────────────────────────
+
+	/**
+	 * Run an upgrader operation with standard error handling.
+	 *
+	 * Wraps the upgrader call in a try/catch, checks the result for WP_Error
+	 * and falsy values, and inspects the skin for errors. This eliminates
+	 * duplicated error handling across install and update paths.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param callable              $operation  Returns the upgrader result.
+	 * @param WP_Ajax_Upgrader_Skin $skin       The upgrader skin collecting errors.
+	 * @param string                $error_code Error_Code constant for failures.
+	 * @param bool                  $is_update  True for update operations, false for install.
+	 *
+	 * @return true|WP_Error True on success, WP_Error on failure.
+	 */
+	protected function run_upgrader( callable $operation, WP_Ajax_Upgrader_Skin $skin, string $error_code, bool $is_update ) {
+		$name = $this->feature->get_name();
+
+		try {
+			$result = $operation();
+		} catch ( \Throwable $e ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
+				error_log(
+					sprintf(
+						'Uplink: fatal error %s "%s": %s %s:%s',
+						$is_update ? 'updating' : 'installing',
+						$this->feature->get_slug(),
+						$e->getMessage(),
+						$e->getFile(),
+						$e->getLine()
+					)
+				);
+			}
+
+			return new WP_Error(
+				$error_code,
+				$is_update
+					? sprintf(
+						/* translators: %s: feature name */
+						__( 'A fatal error occurred while updating "%s".', '%TEXTDOMAIN%' ),
+						$name
+					)
+					: sprintf(
+						/* translators: %s: feature name */
+						__( 'A fatal error occurred while installing "%s".', '%TEXTDOMAIN%' ),
+						$name
+					)
+			);
+		}
+
+		if ( is_wp_error( $result ) ) {
+			return new WP_Error(
+				$error_code,
+				$is_update
+					? sprintf(
+						/* translators: %1$s: feature name, %2$s: error message */
+						__( 'Failed updating "%1$s": %2$s', '%TEXTDOMAIN%' ),
+						$name,
+						$result->get_error_message()
+					)
+					: sprintf(
+						/* translators: %1$s: feature name, %2$s: error message */
+						__( 'Failed installing "%1$s": %2$s', '%TEXTDOMAIN%' ),
+						$name,
+						$result->get_error_message()
+					)
+			);
+		}
+
+		if ( $result !== true ) {
+			$skin_errors  = $skin->get_errors();
+			$actual_code  = $error_code;
+			$requirements = $this->get_requirements_error_codes();
+
+			if ( $requirements !== [] && $skin_errors->has_errors() && array_intersect( $skin_errors->get_error_codes(), $requirements ) ) {
+				$actual_code = Error_Code::REQUIREMENTS_NOT_MET;
+			}
+
+			$message = $skin_errors->has_errors()
+				? $skin->get_error_messages()
+				: ( $is_update
+					? __( 'An unknown error occurred while updating.', '%TEXTDOMAIN%' )
+					: __( 'An unknown error occurred while installing.', '%TEXTDOMAIN%' )
+				);
+
+			return new WP_Error(
+				$actual_code,
+				$is_update
+					? sprintf(
+						/* translators: %1$s: feature name, %2$s: error message */
+						__( 'Failed updating "%1$s": %2$s', '%TEXTDOMAIN%' ),
+						$name,
+						$message
+					)
+					: sprintf(
+						/* translators: %1$s: feature name, %2$s: error message */
+						__( 'Failed installing "%1$s": %2$s', '%TEXTDOMAIN%' ),
+						$name,
+						$message
+					)
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * WordPress error codes that indicate requirements failures.
+	 *
+	 * Override in subclasses that need to detect PHP/WP version mismatches
+	 * from the upgrader skin.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string[]
+	 */
+	protected function get_requirements_error_codes(): array {
+		return [];
+	}
 
 	/**
 	 * Attempt to acquire a transient-based lock.

@@ -17,7 +17,9 @@
             "StellarWP\\Uplink\\": "src/Uplink/",
             "StellarWP\\Uplink\\Admin_Views\\": "src/admin-views/",
             "StellarWP\\Uplink\\Assets_Dir\\": "src/assets/",
-            "StellarWP\\Uplink\\Views\\": "src/views/"
+            "StellarWP\\Uplink\\Views\\": "src/views/",
+            "StellarWP\\Uplink\\Build_Dir\\": "build/",
+            "StellarWP\\Uplink\\Build_Dev_Dir\\": "build-dev/"
         }
     },
     "autoload-dev": {

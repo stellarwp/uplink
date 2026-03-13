@@ -30,7 +30,7 @@ use WP_Error;
  *
  * @since 3.0.0
  */
-final class License_Manager {
+class License_Manager {
 
 	/**
 	 * How long (in seconds) to suppress outbound API calls after a failure.

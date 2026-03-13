@@ -5,6 +5,7 @@ namespace StellarWP\Uplink\CLI\Commands;
 use StellarWP\Uplink\Features\Feature_Collection;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Features\Types\Feature as Feature_Type;
+use StellarWP\Uplink\CLI\Display;
 use StellarWP\Uplink\Utils\Cast;
 use WP_CLI;
 use WP_CLI\Formatter;
@@ -35,6 +36,9 @@ use WP_CLI_Command;
  *
  *     # Disable a feature by slug
  *     wp uplink feature disable my-feature
+ *
+ *     # Update a feature to the latest version
+ *     wp uplink feature update my-feature
  *
  * @since 3.0.0
  */
@@ -114,10 +118,11 @@ class Feature extends WP_CLI_Command {
 	 * * is_available
 	 * * is_enabled
 	 * * documentation_url
-	 * * plugin_file
-	 * * plugin_slug
-	 * * authors
-	 * * is_dot_org
+	 * * installed_version (plugin, theme)
+	 * * released_at (plugin, theme)
+	 * * plugin_file (plugin)
+	 * * authors (plugin, theme)
+	 * * is_dot_org (plugin, theme)
 	 *
 	 * ## EXAMPLES
 	 *
@@ -324,6 +329,38 @@ class Feature extends WP_CLI_Command {
 	}
 
 	/**
+	 * Updates a feature to the latest version.
+	 *
+	 * For plugin and theme features, this upgrades the installed version to the
+	 * latest available from the catalog. Flag features do not support updates.
+	 *
+	 * ## OPTIONS
+	 *
+	 * <slug>
+	 * : The feature slug. Use `wp uplink feature list` to see available slugs.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Update a feature
+	 *     wp uplink feature update my-feature
+	 *
+	 * @param array<int, string>    $args       Positional arguments.
+	 * @param array<string, string> $assoc_args Associative arguments.
+	 *
+	 * @return void
+	 */
+	public function update( array $args, array $assoc_args ): void {
+		$slug    = $args[0];
+		$feature = $this->manager->update( $slug );
+
+		if ( is_wp_error( $feature ) ) {
+			WP_CLI::error( $feature->get_error_message() );
+		} else {
+			WP_CLI::success( sprintf( 'Feature "%s" updated.', $slug ) );
+		}
+	}
+
+	/**
 	 * Converts a feature collection to display items with boolean casting.
 	 *
 	 * @since 3.0.0
@@ -357,9 +394,9 @@ class Feature extends WP_CLI_Command {
 	private function feature_to_display_item( Feature_Type $feature ): array {
 		$item = $feature->to_array();
 
-		$item['is_available'] = $this->to_display_bool( ! empty( $item['is_available'] ) );
-		$item['is_enabled']   = $this->to_display_bool( ! empty( $item['is_enabled'] ) );
-		$item['is_dot_org']   = $this->to_display_bool( ! empty( $item['is_dot_org'] ) );
+		$item['is_available'] = Display::bool( ! empty( $item['is_available'] ) );
+		$item['is_enabled']   = Display::bool( ! empty( $item['is_enabled'] ) );
+		$item['is_dot_org']   = Display::bool( ! empty( $item['is_dot_org'] ) );
 
 		foreach ( $item as $key => $value ) {
 			if ( is_array( $value ) ) {
@@ -368,18 +405,5 @@ class Feature extends WP_CLI_Command {
 		}
 
 		return $item;
-	}
-
-	/**
-	 * Converts a boolean to a display-friendly 'true'/'false' string.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param bool $value The boolean value.
-	 *
-	 * @return string
-	 */
-	private function to_display_bool( bool $value ): string {
-		return $value ? 'true' : 'false';
 	}
 }

@@ -84,7 +84,6 @@ final class FeatureTest extends UplinkTestCase {
 					'is_available'      => false,
 					'documentation_url' => 'https://example.com/docs/test-plugin',
 					'plugin_file'       => 'test-plugin/test-plugin.php',
-					'plugin_slug'       => 'test-plugin',
 					'authors'           => [ 'StellarWP' ],
 					'is_dot_org'        => true,
 				]
@@ -114,7 +113,7 @@ final class FeatureTest extends UplinkTestCase {
 			]
 		);
 
-		$this->manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$this->manager = new Manager( $repository, $factory );
 		$this->command = new Feature_Command( $this->manager );
 	}
 
@@ -146,7 +145,7 @@ final class FeatureTest extends UplinkTestCase {
 			]
 		);
 		$factory    = $this->makeEmpty( Strategy_Factory::class );
-		$manager    = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager    = new Manager( $repository, $factory );
 		$command    = new Feature_Command( $manager );
 
 		$command->list_( [], [] );
@@ -234,7 +233,6 @@ final class FeatureTest extends UplinkTestCase {
 		$item = $this->run_get_json( 'test-plugin' );
 
 		$this->assertSame( 'test-plugin/test-plugin.php', $item['plugin_file'] );
-		$this->assertSame( 'test-plugin', $item['plugin_slug'] );
 		$this->assertSame( 'StellarWP', $item['authors'] );
 		$this->assertSame( 'true', $item['is_dot_org'] );
 	}
@@ -349,7 +347,6 @@ final class FeatureTest extends UplinkTestCase {
 				'tier'         => 'Tier 2',
 				'is_available' => true,
 				'plugin_file'  => 'test-plugin/test-plugin.php',
-				'plugin_slug'  => 'test-plugin',
 				'authors'      => [ 'Alice', 'Bob' ],
 				'is_dot_org'   => false,
 			]
@@ -385,7 +382,7 @@ final class FeatureTest extends UplinkTestCase {
 		$strategy   = $this->makeEmpty( Strategy::class, [ 'is_active' => false ] );
 		$factory    = $this->makeEmpty( Strategy_Factory::class, [ 'make' => $strategy ] );
 		$repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => $this->collection ] );
-		$manager    = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager    = new Manager( $repository, $factory );
 		$command    = new Feature_Command( $manager );
 
 		$feature = $manager->get( 'test-flag' );
@@ -475,7 +472,7 @@ final class FeatureTest extends UplinkTestCase {
 		$strategy   = $this->makeEmpty( Strategy::class, $strategy_returns );
 		$factory    = $this->makeEmpty( Strategy_Factory::class, [ 'make' => $strategy ] );
 		$repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => $this->collection ] );
-		$manager    = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager    = new Manager( $repository, $factory );
 
 		return new Feature_Command( $manager );
 	}

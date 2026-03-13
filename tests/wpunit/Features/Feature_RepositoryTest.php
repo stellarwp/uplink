@@ -26,25 +26,23 @@ use WP_Error;
 final class Feature_RepositoryTest extends UplinkTestCase {
 
 	/**
-	 * Clears all relevant transients before each test.
+	 * Clears upstream caches before each test.
 	 *
 	 * @return void
 	 */
 	protected function setUp(): void {
 		parent::setUp();
 
-		delete_transient( Feature_Repository::TRANSIENT_KEY );
 		delete_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
 		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
 	}
 
 	/**
-	 * Clears all relevant transients after each test.
+	 * Clears upstream caches after each test.
 	 *
 	 * @return void
 	 */
 	protected function tearDown(): void {
-		delete_transient( Feature_Repository::TRANSIENT_KEY );
 		delete_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
 		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
 
@@ -63,7 +61,8 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		Catalog_Repository $catalog,
 		License_Manager $licensing
 	): Resolve_Feature_Collection {
-		$resolver = new Resolve_Feature_Collection( $catalog, $licensing );
+		$site_data = $this->makeEmpty( \StellarWP\Uplink\Site\Data::class, [ 'get_domain' => 'example.com' ] );
+		$resolver  = new Resolve_Feature_Collection( $catalog, $licensing, $site_data );
 
 		$resolver->register_type( 'plugin', Plugin::class );
 		$resolver->register_type( 'flag', Flag::class );
@@ -76,21 +75,13 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 * Creates a Feature_Repository backed by the real fixture files.
 	 *
 	 * @param string|null $licensing_override Optional. Pass a key for the Licensing_Fixture,
-	 *                                        or null to use a mock that returns a WP_Error.
+	 *                                        or null to use no stored key.
 	 *
 	 * @return Feature_Repository
 	 */
 	private function make_repository( ?string $licensing_override = null ): Feature_Repository {
-		$catalog_client = new Catalog_Fixture( codecept_data_dir( 'catalog/default.json' ) );
-
-		if ( $licensing_override === null ) {
-			$licensing_client = $this->makeEmpty(
-				Licensing_Client::class,
-				[ 'get_products' => new WP_Error( 'license_error', 'Licensing failed.' ) ]
-			);
-		} else {
-			$licensing_client = new Licensing_Fixture( codecept_data_dir( 'licensing' ) );
-		}
+		$catalog_client   = new Catalog_Fixture( codecept_data_dir( 'catalog/default.json' ) );
+		$licensing_client = new Licensing_Fixture( codecept_data_dir( 'licensing' ) );
 
 		$catalog   = new Catalog_Repository( $catalog_client );
 		$licensing = new License_Manager( new License_Repository(), new Product_Registry(), $licensing_client );
@@ -105,6 +96,27 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	}
 
 	/**
+	 * Creates a Feature_Repository with a stored key but a licensing client that always fails.
+	 *
+	 * @return Feature_Repository
+	 */
+	private function make_error_repository(): Feature_Repository {
+		$catalog_client   = new Catalog_Fixture( codecept_data_dir( 'catalog/default.json' ) );
+		$licensing_client = $this->makeEmpty(
+			Licensing_Client::class,
+			[ 'get_products' => new WP_Error( 'license_error', 'Licensing failed.' ) ]
+		);
+
+		$catalog   = new Catalog_Repository( $catalog_client );
+		$licensing = new License_Manager( new License_Repository(), new Product_Registry(), $licensing_client );
+		$licensing->store_key( 'LWSW-test-error-key' );
+
+		return new Feature_Repository(
+			$this->make_resolver( $catalog, $licensing )
+		);
+	}
+
+	/**
 	 * Tests get returns a Feature_Collection when catalog and licensing succeed.
 	 *
 	 * @return void
@@ -112,7 +124,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	public function test_get_returns_collection(): void {
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
 
-		$result = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$result = $repository->get();
 
 		$this->assertInstanceOf( Feature_Collection::class, $result );
 		$this->assertGreaterThan( 0, $result->count() );
@@ -125,7 +137,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 */
 	public function test_it_maps_plugin_type_to_plugin(): void {
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
-		$result     = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$result     = $repository->get();
 		$feature    = $result->get( 'kad-blocks-pro' );
 
 		$this->assertInstanceOf( Plugin::class, $feature );
@@ -139,7 +151,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 */
 	public function test_it_maps_flag_type_to_flag(): void {
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
-		$result     = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$result     = $repository->get();
 		$feature    = $result->get( 'kad-pattern-hub' );
 
 		$this->assertInstanceOf( Flag::class, $feature );
@@ -155,7 +167,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 */
 	public function test_available_when_tier_meets_minimum(): void {
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
-		$result     = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$result     = $repository->get();
 
 		$this->assertTrue(
 			$result->get( 'kad-blocks-pro' )->is_available(),
@@ -176,7 +188,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 */
 	public function test_unavailable_when_tier_below_minimum(): void {
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
-		$result     = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$result     = $repository->get();
 
 		$this->assertFalse(
 			$result->get( 'solid-central' )->is_available(),
@@ -185,16 +197,36 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Tests that a licensing error returns a WP_Error.
+	 * Tests that a licensing API error (with a stored key) returns a WP_Error.
 	 *
 	 * @return void
 	 */
 	public function test_licensing_error_returns_wp_error(): void {
-		$repository = $this->make_repository();
+		$repository = $this->make_error_repository();
 
-		$result = $repository->get( 'invalid-key', 'example.com' );
+		$result = $repository->get();
 
 		$this->assertInstanceOf( WP_Error::class, $result );
+	}
+
+	/**
+	 * Tests that feature resolution succeeds and returns a Feature_Collection when no license key is stored.
+	 *
+	 * All features should be unavailable since there is no licensed tier.
+	 *
+	 * @return void
+	 */
+	public function test_it_resolves_catalog_without_license_key(): void {
+		$repository = $this->make_repository();
+
+		$result = $repository->get();
+
+		$this->assertInstanceOf( Feature_Collection::class, $result );
+		$this->assertGreaterThan( 0, $result->count() );
+
+		foreach ( $result as $feature ) {
+			$this->assertFalse( $feature->is_available(), 'All features should be unavailable without a license.' );
+		}
 	}
 
 	/**
@@ -215,92 +247,39 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 			$this->make_resolver( $catalog, $licensing )
 		);
 
-		$result = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$result = $repository->get();
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 	}
 
 	/**
-	 * Tests that the feature catalog is stored in a WordPress transient after fetching.
+	 * Tests that the same instance is returned on repeated calls within one request.
 	 *
 	 * @return void
 	 */
-	public function test_it_caches_in_transient(): void {
+	public function test_it_returns_cached_collection_within_request(): void {
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
 
-		$repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$first  = $repository->get();
+		$second = $repository->get();
 
-		$cached = get_transient( Feature_Repository::TRANSIENT_KEY );
-
-		$this->assertIsArray( $cached );
-		$this->assertNotEmpty( $cached );
+		$this->assertSame( $first, $second );
 	}
 
 	/**
-	 * Tests that a cached transient is returned without calling the clients again.
-	 *
-	 * @return void
-	 */
-	public function test_it_returns_cached_collection(): void {
-		$cached = [
-			[
-				'slug'              => 'cached-feature',
-				'group'             => 'test',
-				'tier'              => 'free',
-				'name'              => 'Cached',
-				'description'       => '',
-				'type'              => 'plugin',
-				'is_available'      => true,
-				'documentation_url' => '',
-				'plugin_file'       => '',
-				'plugin_slug'       => '',
-				'authors'           => [],
-			],
-		];
-
-		// Set the transient after make_repository() so that store_key() inside
-		// make_repository() does not fire the key-changed hook and wipe the cache.
-		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
-		set_transient( Feature_Repository::TRANSIENT_KEY, $cached );
-		$result = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
-
-		$this->assertCount( 1, $result );
-		$this->assertSame( 'cached-feature', $result->get( 'cached-feature' )->get_slug() );
-	}
-
-	/**
-	 * Tests that a cached WP_Error transient is returned directly.
-	 *
-	 * @return void
-	 */
-	public function test_it_returns_cached_wp_error(): void {
-		$error = new WP_Error( 'api_error', 'Cached error' );
-
-		// Set the transient after make_repository() so that store_key() inside
-		// make_repository() does not fire the key-changed hook and wipe the cache.
-		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
-		set_transient( Feature_Repository::TRANSIENT_KEY, $error );
-		$result = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
-
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'Cached error', $result->get_error_message() );
-	}
-
-	/**
-	 * Tests refresh clears and re-fetches the transient cache.
+	 * Tests refresh clears the in-memory cache and re-resolves.
 	 *
 	 * @return void
 	 */
 	public function test_refresh_clears_and_refetches(): void {
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
 
-		$repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$first  = $repository->get();
+		$second = $repository->refresh();
 
-		$this->assertIsArray( get_transient( Feature_Repository::TRANSIENT_KEY ) );
-
-		$repository->refresh( 'lwsw-unified-kad-pro-2026', 'example.com' );
-
-		$this->assertIsArray( get_transient( Feature_Repository::TRANSIENT_KEY ) );
+		$this->assertInstanceOf( Feature_Collection::class, $first );
+		$this->assertInstanceOf( Feature_Collection::class, $second );
+		$this->assertNotSame( $first, $second );
 	}
 
 	/**
@@ -399,7 +378,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	 */
 	public function test_it_maps_feature_data_correctly(): void {
 		$repository = $this->make_repository( 'lwsw-unified-kad-pro-2026' );
-		$result     = $repository->get( 'lwsw-unified-kad-pro-2026', 'example.com' );
+		$result     = $repository->get();
 		$feature    = $result->get( 'kad-blocks-pro' );
 
 		$this->assertSame( 'kad-blocks-pro', $feature->get_slug() );

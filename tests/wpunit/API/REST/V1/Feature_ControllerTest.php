@@ -87,6 +87,9 @@ final class Feature_ControllerTest extends UplinkTestCase {
 
 					return true;
 				},
+				'update'    => static function () {
+					return true;
+				},
 				'is_active' => static function () use ( &$active ) {
 					return $active;
 				},
@@ -107,7 +110,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 			]
 		);
 
-		$this->manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$this->manager = new Manager( $repository, $factory );
 
 		/** @var WP_REST_Server $wp_rest_server */
 		global $wp_rest_server;
@@ -467,7 +470,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		);
 
 		$factory = $this->makeEmpty( Strategy_Factory::class );
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
@@ -674,6 +677,106 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$this->assertFalse( $data['is_enabled'] );
 	}
 
+	// ── Update (POST /features/{slug}/update) ──────────────────────────
+
+	/**
+	 * Tests an administrator can trigger a feature update via the REST endpoint.
+	 *
+	 * @return void
+	 */
+	public function test_update_returns_success_for_admin(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$request  = new WP_REST_Request( 'POST', '/stellarwp/uplink/v1/features/feature-alpha/update' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+
+		$data = $response->get_data();
+
+		$this->assertSame( 'feature-alpha', $data['slug'] );
+	}
+
+	/**
+	 * Tests that updating a feature requires the manage_options capability.
+	 *
+	 * @return void
+	 */
+	public function test_update_requires_manage_options(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'subscriber' ] ) );
+
+		$request  = new WP_REST_Request( 'POST', '/stellarwp/uplink/v1/features/feature-alpha/update' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 403, $response->get_status() );
+	}
+
+	/**
+	 * Tests that unauthenticated update requests are rejected with a 401 status.
+	 *
+	 * @return void
+	 */
+	public function test_update_unauthenticated_request_is_rejected(): void {
+		wp_set_current_user( 0 );
+
+		$request  = new WP_REST_Request( 'POST', '/stellarwp/uplink/v1/features/feature-alpha/update' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 401, $response->get_status() );
+	}
+
+	/**
+	 * Tests an invalid feature slug returns a 400 error on update.
+	 *
+	 * @return void
+	 */
+	public function test_update_invalid_slug_returns_error(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$request  = new WP_REST_Request( 'POST', '/stellarwp/uplink/v1/features/nonexistent/update' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+	}
+
+	/**
+	 * Tests that a WP_Error from Manager::update() gets an HTTP status code.
+	 *
+	 * @return void
+	 */
+	public function test_update_strategy_error_has_http_status(): void {
+		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+		$error_strategy = $this->makeEmpty(
+			Strategy::class,
+			[
+				'enable'    => true,
+				'disable'   => true,
+				'update'    => new WP_Error(
+					Error_Code::NO_UPDATE_AVAILABLE,
+					'No update available.'
+				),
+				'is_active' => true,
+			]
+		);
+
+		$factory    = $this->makeEmpty( Strategy_Factory::class, [ 'make' => $error_strategy ] );
+		$repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => $this->manager->get_all() ] );
+		$manager    = new Manager( $repository, $factory );
+
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
+		$this->server   = $wp_rest_server;
+
+		$controller = new Feature_Controller( $manager );
+		$controller->register_routes();
+
+		$request  = new WP_REST_Request( 'POST', '/stellarwp/uplink/v1/features/feature-alpha/update' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 422, $response->get_status() );
+	}
+
 	// ── Enable/Disable lifecycle ────────────────────────────────────────
 
 	/**
@@ -735,7 +838,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 
 		$factory    = $this->makeEmpty( Strategy_Factory::class, [ 'make' => $error_strategy ] );
 		$repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => $this->manager->get_all() ] );
-		$manager    = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager    = new Manager( $repository, $factory );
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
@@ -769,7 +872,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		);
 
 		$factory = $this->makeEmpty( Strategy_Factory::class );
-		$manager = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager = new Manager( $repository, $factory );
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
@@ -806,7 +909,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 
 		$factory    = $this->makeEmpty( Strategy_Factory::class, [ 'make' => $error_strategy ] );
 		$repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => $this->manager->get_all() ] );
-		$manager    = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager    = new Manager( $repository, $factory );
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
@@ -844,7 +947,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 
 		$factory    = $this->makeEmpty( Strategy_Factory::class, [ 'make' => $error_strategy ] );
 		$repository = $this->makeEmpty( Feature_Repository::class, [ 'get' => $this->manager->get_all() ] );
-		$manager    = new Manager( $repository, $factory, 'test-key', 'example.com' );
+		$manager    = new Manager( $repository, $factory );
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
@@ -889,7 +992,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$this->assertTrue( $plugin['additionalProperties'] );
 		$this->assertSame( [ Feature::TYPE_PLUGIN ], $plugin['properties']['type']['enum'] );
 
-		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled', 'plugin_file', 'plugin_slug', 'authors', 'is_dot_org' ];
+		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled', 'plugin_file', 'released_at', 'version', 'changelog', 'authors', 'is_dot_org', 'installed_version' ];
 
 		foreach ( $expected as $property ) {
 			$this->assertArrayHasKey( $property, $plugin['properties'], "Missing plugin schema property: {$property}" );
@@ -911,14 +1014,13 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$this->assertSame( 'theme', $theme['title'] );
 		$this->assertSame( [ Feature::TYPE_THEME ], $theme['properties']['type']['enum'] );
 
-		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled', 'authors', 'is_dot_org' ];
+		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled', 'released_at', 'version', 'changelog', 'authors', 'is_dot_org', 'installed_version' ];
 
 		foreach ( $expected as $property ) {
 			$this->assertArrayHasKey( $property, $theme['properties'], "Missing theme schema property: {$property}" );
 		}
 
 		$this->assertArrayNotHasKey( 'plugin_file', $theme['properties'] );
-		$this->assertArrayNotHasKey( 'plugin_slug', $theme['properties'] );
 		$this->assertCount( count( $expected ), $theme['properties'] );
 	}
 
@@ -942,7 +1044,6 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		}
 
 		$this->assertArrayNotHasKey( 'plugin_file', $flag['properties'] );
-		$this->assertArrayNotHasKey( 'plugin_slug', $flag['properties'] );
 		$this->assertArrayNotHasKey( 'authors', $flag['properties'] );
 		$this->assertArrayNotHasKey( 'is_dot_org', $flag['properties'] );
 		$this->assertCount( count( $expected ), $flag['properties'] );

@@ -321,39 +321,29 @@
       },
       {
         "feature_slug": "iconic-flux",
-        "type": "plugin",
+        "type": "flag",
         "minimum_tier": "kadence-pro",
-        "plugin_file": "iconic-flux-checkout/iconic-flux-checkout.php",
         "is_dot_org": false,
-        "download_url": "https://licensing.stellarwp.com/api/plugins/iconic-flux",
         "name": "Flux Checkout",
         "description": "Streamlined, fast WooCommerce checkout experience.",
         "category": "woocommerce",
         "authors": [
           "KadenceWP"
         ],
-        "documentation_url": "https://www.kadencewp.com/help-center/",
-        "version": "1.7.2",
-        "released_at": "2025-11-10",
-        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "iconic-delivery-slots",
-        "type": "plugin",
+        "type": "flag",
         "minimum_tier": "kadence-pro",
-        "plugin_file": "iconic-woo-delivery-slots/iconic-woo-delivery-slots.php",
         "is_dot_org": false,
-        "download_url": "https://licensing.stellarwp.com/api/plugins/iconic-delivery-slots",
         "name": "WooCommerce Delivery Slots",
         "description": "Let customers choose delivery dates and time slots.",
         "category": "woocommerce",
         "authors": [
           "KadenceWP"
         ],
-        "documentation_url": "https://www.kadencewp.com/help-center/",
-        "version": "1.9.5",
-        "released_at": "2025-10-20",
-        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "iconic-woothumbs",
@@ -393,93 +383,68 @@
       },
       {
         "feature_slug": "iconic-single-variations",
-        "type": "plugin",
+        "type": "flag",
         "minimum_tier": "kadence-pro",
-        "plugin_file": "iconic-woo-show-single-variations/iconic-woo-show-single-variations.php",
         "is_dot_org": false,
-        "download_url": "https://licensing.stellarwp.com/api/plugins/iconic-single-variations",
         "name": "Show Single Variations",
         "description": "Display product variations as individual products in shop listings.",
         "category": "woocommerce",
         "authors": [
           "KadenceWP"
         ],
-        "documentation_url": "https://www.kadencewp.com/help-center/",
-        "version": "1.5.3",
-        "released_at": "2025-09-30",
-        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "iconic-sales-booster",
-        "type": "plugin",
+        "type": "flag",
         "minimum_tier": "kadence-agency",
-        "plugin_file": "iconic-woo-sales-booster/iconic-woo-sales-booster.php",
         "is_dot_org": false,
-        "download_url": "https://licensing.stellarwp.com/api/plugins/iconic-sales-booster",
         "name": "Iconic Sales Booster",
         "description": "Cross-sells, upsells, and order bumps to increase average order value.",
         "category": "woocommerce",
         "authors": [
           "KadenceWP"
         ],
-        "documentation_url": "https://www.kadencewp.com/help-center/",
-        "version": "1.3.1",
-        "released_at": "2025-11-15",
-        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "iconic-image-swap",
-        "type": "plugin",
+        "type": "flag",
         "minimum_tier": "kadence-pro",
-        "plugin_file": "iconic-woo-image-swap/iconic-woo-image-swap.php",
         "is_dot_org": false,
-        "download_url": "https://licensing.stellarwp.com/api/plugins/iconic-image-swap",
         "name": "Image Swap for WooCommerce",
         "description": "Swap product images on hover in shop listings.",
         "category": "woocommerce",
         "authors": [
           "KadenceWP"
         ],
-        "documentation_url": "https://www.kadencewp.com/help-center/",
-        "version": "2.2.0",
-        "released_at": "2025-10-25",
-        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "iconic-linked-variations",
-        "type": "plugin",
+        "type": "flag",
         "minimum_tier": "kadence-agency",
-        "plugin_file": "iconic-woo-linked-variations/iconic-woo-linked-variations.php",
         "is_dot_org": false,
-        "download_url": "https://licensing.stellarwp.com/api/plugins/iconic-linked-variations",
         "name": "Linked Variations",
         "description": "Link product variations across different products.",
         "category": "woocommerce",
         "authors": [
           "KadenceWP"
         ],
-        "documentation_url": "https://www.kadencewp.com/help-center/",
-        "version": "1.6.4",
-        "released_at": "2025-11-07",
-        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "iconic-configurator",
-        "type": "plugin",
+        "type": "flag",
         "minimum_tier": "kadence-agency",
-        "plugin_file": "iconic-woo-product-configurator/iconic-woo-product-configurator.php",
         "is_dot_org": false,
-        "download_url": "https://licensing.stellarwp.com/api/plugins/iconic-configurator",
         "name": "Product Configurator",
         "description": "Visual step-by-step product builder for complex products.",
         "category": "woocommerce",
         "authors": [
           "KadenceWP"
         ],
-        "documentation_url": "https://www.kadencewp.com/help-center/",
-        "version": "1.1.2",
-        "released_at": "2025-09-18",
-        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "iconic-quickview",
@@ -501,75 +466,54 @@
       },
       {
         "feature_slug": "iconic-wishlist",
-        "type": "plugin",
+        "type": "flag",
         "minimum_tier": "kadence-pro",
-        "plugin_file": "iconic-woo-wishlist/iconic-woo-wishlist.php",
-        "is_dot_org": false,
-        "download_url": "https://licensing.stellarwp.com/api/plugins/iconic-wishlist",
         "name": "Wishlist for WooCommerce",
         "description": "Let customers save products to wishlists.",
         "category": "woocommerce",
         "authors": [
           "KadenceWP"
         ],
-        "documentation_url": "https://www.kadencewp.com/help-center/",
-        "version": "3.1.5",
-        "released_at": "2025-10-15",
-        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "iconic-account-pages",
-        "type": "plugin",
+        "type": "flag",
         "minimum_tier": "kadence-pro",
-        "plugin_file": "iconic-woo-account-pages/iconic-woo-account-pages.php",
         "is_dot_org": false,
-        "download_url": "https://licensing.stellarwp.com/api/plugins/iconic-account-pages",
         "name": "Account Pages",
         "description": "Customize WooCommerce My Account pages.",
         "category": "woocommerce",
         "authors": [
           "KadenceWP"
         ],
-        "documentation_url": "https://www.kadencewp.com/help-center/",
-        "version": "2.4.1",
-        "released_at": "2025-11-03",
-        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "iconic-custom-fields",
-        "type": "plugin",
+        "type": "flag",
         "minimum_tier": "kadence-agency",
-        "plugin_file": "iconic-woo-custom-fields/iconic-woo-custom-fields.php",
         "is_dot_org": false,
-        "download_url": "https://licensing.stellarwp.com/api/plugins/iconic-custom-fields",
         "name": "Custom Fields for Variations",
         "description": "Add custom data fields to product variations.",
         "category": "woocommerce",
         "authors": [
           "KadenceWP"
         ],
-        "documentation_url": "https://www.kadencewp.com/help-center/",
-        "version": "1.2.3",
-        "released_at": "2025-09-22",
-        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       },
       {
         "feature_slug": "iconic-bundled",
-        "type": "plugin",
+        "type": "flag",
         "minimum_tier": "kadence-agency",
-        "plugin_file": "iconic-woo-bundled-products/iconic-woo-bundled-products.php",
         "is_dot_org": false,
-        "download_url": "https://licensing.stellarwp.com/api/plugins/iconic-bundled",
         "name": "Bundled Products",
         "description": "Create product bundles and kits with flexible pricing.",
         "category": "woocommerce",
         "authors": [
           "KadenceWP"
         ],
-        "documentation_url": "https://www.kadencewp.com/help-center/",
-        "version": "1.4.0",
-        "released_at": "2025-10-18",
-        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+        "documentation_url": "https://www.kadencewp.com/help-center/"
       }
     ]
   },

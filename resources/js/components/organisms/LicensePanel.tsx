@@ -138,7 +138,7 @@ export function LicensePanel() {
                         <button
                             type="button"
                             onClick={ () => setEditingOpen( true ) }
-                            className="flex items-center gap-1 text-[11px] text-primary transition-colors hover:opacity-75"
+                            className="flex items-center gap-1 text-[11px] text-emerald-600 transition-colors hover:opacity-75"
                         >
                             <Pencil className="w-3 h-3" />
                             { __( 'Edit', '%TEXTDOMAIN%' ) }

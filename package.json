@@ -25,6 +25,7 @@
     "@stellarwp/changelogger": "^0.10.0",
     "@tailwindcss/postcss": "^4.1.17",
     "@wordpress/api-fetch": "^7.40.0",
+    "@wordpress/components": "^32.3.0",
     "@wordpress/data": "^10.40.0",
     "@wordpress/i18n": "^6.13.0",
     "@wordpress/scripts": "^31.1.0",
@@ -41,11 +42,16 @@
   "changelogger": {
     "changesDir": "changelog",
     "linkTemplate": "https://github.com/stellarwp/uplink/compare/${old}...${new}",
-    "ordering": ["type", "content"],
+    "ordering": [
+      "type",
+      "content"
+    ],
     "versioning": "semver",
-    "files": [{
-      "path": "changelog.txt",
-      "strategy": "stellarwp-changelog"
-    }]
+    "files": [
+      {
+        "path": "changelog.txt",
+        "strategy": "stellarwp-changelog"
+      }
+    ]
   }
 }

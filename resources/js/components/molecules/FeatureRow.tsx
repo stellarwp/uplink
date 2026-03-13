@@ -59,9 +59,6 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 
 	// Locked / unavailable feature row.
 	if ( ! feature.is_available ) {
-		const tierName   = catalogTierForUpgrade?.name         ?? feature.tier ?? '';
-		const upgradeUrl = catalogTierForUpgrade?.purchase_url ?? '#';
-
 		return (
 			<div className="border-b last:border-b-0 bg-muted/30">
 				<div
@@ -81,8 +78,6 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 							{ feature.version }
 						</span>
 					) }
-					<StatusBadge status="locked" requiredTier={ tierName } />
-					<PurchaseLink tierName={ tierName } upgradeUrl={ upgradeUrl } />
 				</div>
 
 				{ expanded && (
@@ -163,27 +158,28 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 					</span>
 				) }
 				<StatusBadge status={ badgeStatus } />
-				{ /* Stop row click propagation when interacting with the switch */ }
-				<div onClick={ ( e ) => e.stopPropagation() }>
-					<Switch
-						checked={ switchChecked }
-						onCheckedChange={ handleToggle }
-						disabled={ !! pendingAction || installableBusy }
-						aria-label={
-							switchChecked
-								? /* translators: %s is the name of the feature to disable */
-								  sprintf(
-										__( 'Disable %s', '%TEXTDOMAIN%' ),
-										feature.name
-								  )
-								: /* translators: %s is the name of the feature to enable */
-								  sprintf(
-										__( 'Enable %s', '%TEXTDOMAIN%' ),
-										feature.name
-								  )
-						}
-					/>
-				</div>
+				{ !pendingAction && (
+					<div onClick={ ( e ) => e.stopPropagation() }>
+						<Switch
+							checked={ switchChecked }
+							onCheckedChange={ handleToggle }
+							disabled={ !! pendingAction || installableBusy }
+							aria-label={
+								switchChecked
+									? /* translators: %s is the name of the feature to disable */
+									sprintf(
+											__( 'Disable %s', '%TEXTDOMAIN%' ),
+											feature.name
+									)
+									: /* translators: %s is the name of the feature to enable */
+									sprintf(
+											__( 'Enable %s', '%TEXTDOMAIN%' ),
+											feature.name
+									)
+							}
+						/>
+					</div>
+				) }
 			</div>
 
 			{ expanded && (

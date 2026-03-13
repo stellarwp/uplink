@@ -78,7 +78,7 @@
         "feature_slug": "kad-shop-kit",
         "type": "plugin",
         "minimum_tier": "kadence-pro",
-        "plugin_file": "kadence-shop-kit/kadence-shop-kit.php",
+        "plugin_file": "kadence-woo-extras/kadence-woo-extras.php",
         "is_dot_org": false,
         "download_url": "https://licensing.stellarwp.com/api/plugins/kad-shop-kit",
         "name": "Shop Kit",

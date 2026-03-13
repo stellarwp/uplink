@@ -51,12 +51,9 @@ class Feature_Manager_PageTest extends UplinkTestCase {
 
 		set_current_screen( 'dashboard' );
 
-		add_filter(
-			'stellarwp/uplink/highest_version',
-			static function () {
-				return '99.0.0';
-			}
-		);
+		// In production the higher-version instance claims the action first.
+		// Simulate that here so this instance defers correctly.
+		do_action( 'stellarwp/uplink/handled/admin_page' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 
 		$this->page->maybe_register_page();
 

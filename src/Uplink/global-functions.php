@@ -67,7 +67,11 @@ if ( ! function_exists( '_stellarwp_uplink_global_function_registry' ) ) {
 		static $registry = [];
 
 		if ( $callback !== null ) {
-			$registry[ $key ][ $version ] = $callback;
+			// Mirror the instance registry's registration window: only accept
+			// writes before wp_loaded so callbacks can't be injected after bootstrap.
+			if ( ! did_action( 'wp_loaded' ) ) {
+				$registry[ $key ][ $version ] = $callback;
+			}
 			return null;
 		}
 

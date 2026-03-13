@@ -2,7 +2,7 @@
 
 namespace StellarWP\Uplink\API\Functions;
 
-use StellarWP\ContainerContract\ContainerInterface;
+use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
 use Throwable;
@@ -25,19 +25,18 @@ class Global_Function_Registry {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param ContainerInterface $container The container for this Uplink instance.
-	 * @param string             $version   The version of this Uplink instance.
+	 * @param string $version The version of this Uplink instance.
 	 *
 	 * @return void
 	 */
-	public static function register( ContainerInterface $container, string $version ): void {
+	public static function register( string $version ): void {
 		// @phpstan-ignore function.internal
 		\_stellarwp_uplink_global_function_registry(
 			'stellarwp_uplink_has_unified_license_key',
 			$version,
-			static function () use ( $container ): bool {
+			static function (): bool {
 				try {
-					return $container->get( License_Repository::class )->key_exists();
+					return Config::get_container()->get( License_Repository::class )->key_exists();
 				} catch ( Throwable $e ) {
 					self::debug_log( $e, 'Error checking unified license key existence' );
 
@@ -50,9 +49,9 @@ class Global_Function_Registry {
 		\_stellarwp_uplink_global_function_registry(
 			'stellarwp_uplink_get_unified_license_key',
 			$version,
-			static function () use ( $container ): ?string {
+			static function (): ?string {
 				try {
-					return $container->get( License_Repository::class )->get_key();
+					return Config::get_container()->get( License_Repository::class )->get_key();
 				} catch ( Throwable $e ) {
 					self::debug_log( $e, 'Error getting unified license key' );
 
@@ -65,9 +64,9 @@ class Global_Function_Registry {
 		\_stellarwp_uplink_global_function_registry(
 			'stellarwp_uplink_is_product_license_active',
 			$version,
-			static function ( string $product ) use ( $container ): bool {
+			static function ( string $product ): bool {
 				try {
-					return $container->get( License_Repository::class )->is_product_valid( $product );
+					return Config::get_container()->get( License_Repository::class )->is_product_valid( $product );
 				} catch ( Throwable $e ) {
 					self::debug_log( $e, 'Error checking product license' );
 
@@ -80,9 +79,9 @@ class Global_Function_Registry {
 		\_stellarwp_uplink_global_function_registry(
 			'stellarwp_uplink_is_feature_enabled',
 			$version,
-			static function ( string $slug ) use ( $container ) {
+			static function ( string $slug ) {
 				try {
-					$result = $container->get( Manager::class )->is_enabled( $slug );
+					$result = Config::get_container()->get( Manager::class )->is_enabled( $slug );
 
 					if ( is_wp_error( $result ) ) {
 						self::debug_log_wp_error( $result, 'Error checking feature enabled state' );
@@ -103,9 +102,9 @@ class Global_Function_Registry {
 		\_stellarwp_uplink_global_function_registry(
 			'stellarwp_uplink_is_feature_available',
 			$version,
-			static function ( string $slug ) use ( $container ) {
+			static function ( string $slug ) {
 				try {
-					$result = $container->get( Manager::class )->is_available( $slug );
+					$result = Config::get_container()->get( Manager::class )->is_available( $slug );
 
 					if ( is_wp_error( $result ) ) {
 						self::debug_log_wp_error( $result, 'Error checking feature availability' );

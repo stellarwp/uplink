@@ -47,34 +47,23 @@ final class GlobalFunctionsTest extends UplinkTestCase {
 		$this->assertNull( $result );
 	}
 
-	public function test_registry_retrieves_callback_registered_at_leader_version(): void {
-		$called = false;
-
-		_stellarwp_uplink_global_function_registry(
-			'test_leader_registration',
-			Uplink::VERSION,
-			static function () use ( &$called ): bool {
-				$called = true;
-
-				return true;
-			}
-		);
-
-		$callback = _stellarwp_uplink_global_function_registry( 'test_leader_registration' );
+	public function test_registry_returns_callable_for_bootstrap_registered_key(): void {
+		// Callbacks registered before wp_loaded (by the bootstrap plugin via Uplink::init())
+		// should be accessible through the registry.
+		$callback = _stellarwp_uplink_global_function_registry( 'stellarwp_uplink_has_unified_license_key' );
 
 		$this->assertNotNull( $callback );
-		$this->assertTrue( $callback() );
-		$this->assertTrue( $called );
+		$this->assertIsCallable( $callback );
 	}
 
-	public function test_registry_uses_highest_version_callback_when_multiple_registered(): void {
-		_stellarwp_uplink_global_function_registry( 'test_versioned_fn', '1.0.0', fn() => 'low' );
-		_stellarwp_uplink_global_function_registry( 'test_versioned_fn', Uplink::VERSION, fn() => 'high' );
+	public function test_registry_silently_ignores_writes_after_wp_loaded(): void {
+		// Writes after wp_loaded are blocked to prevent late injection.
+		// The write returns null (same as a successful write) but the callback is not stored.
+		_stellarwp_uplink_global_function_registry( 'test_post_lock_key', Uplink::VERSION, fn() => 'new' );
 
-		$callback = _stellarwp_uplink_global_function_registry( 'test_versioned_fn' );
+		$callback = _stellarwp_uplink_global_function_registry( 'test_post_lock_key' );
 
-		$this->assertNotNull( $callback );
-		$this->assertSame( 'high', $callback() );
+		$this->assertNull( $callback );
 	}
 
 	public function test_registry_returns_null_when_callback_registered_below_leader_version(): void {

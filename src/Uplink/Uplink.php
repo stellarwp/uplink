@@ -146,6 +146,8 @@ class Uplink {
 			10,
 			3
 		);
+
+		Version::register_debug_info();
 	}
 
 	/**
@@ -173,14 +175,4 @@ class Uplink {
 		return ! static::is_disabled();
 	}
 
-	/**
-	 * Prints the debug info to the admin footer.
-	 *
-	 * TODO: We can remove this before launch.
-	 *
-	 * @return void
-	 */
-	public static function debug(): void {
-		Version::debug_info();
-	}
 }

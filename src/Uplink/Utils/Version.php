@@ -103,13 +103,13 @@ class Version {
 	}
 
 	/**
-	 * Prints the debug info to the admin footer.
+	 * Registers an admin_footer hook to print leader debug info when WP_DEBUG is enabled.
 	 *
 	 * TODO: We can remove this before launch.
 	 *
 	 * @return void
 	 */
-	public static function debug_info(): void {
+	public static function register_debug_info(): void {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			$container_parts = explode( '\\', get_class( Config::get_container() ) );
 			$prefix          = Config::get_hook_prefix() ?: $container_parts[0];

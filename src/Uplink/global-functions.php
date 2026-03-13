@@ -75,7 +75,6 @@ if ( ! function_exists( '_stellarwp_uplink_global_function_registry' ) ) {
 			return null;
 		}
 
-		// @phpstan-ignore function.internal
 		$versions = array_keys( _stellarwp_uplink_instance_registry() );
 		$highest  = array_reduce(
 			$versions,
@@ -101,7 +100,6 @@ if ( ! function_exists( 'stellarwp_uplink_has_unified_license_key' ) ) {
 	 * @return bool
 	 */
 	function stellarwp_uplink_has_unified_license_key(): bool {
-		// @phpstan-ignore function.internal
 		$callback = _stellarwp_uplink_global_function_registry( 'stellarwp_uplink_has_unified_license_key' );
 
 		return $callback ? (bool) $callback() : false;
@@ -117,7 +115,6 @@ if ( ! function_exists( 'stellarwp_uplink_get_unified_license_key' ) ) {
 	 * @return string|null The unified license key, or null if not found.
 	 */
 	function stellarwp_uplink_get_unified_license_key(): ?string {
-		// @phpstan-ignore function.internal
 		$callback = _stellarwp_uplink_global_function_registry( 'stellarwp_uplink_get_unified_license_key' );
 
 		// @phpstan-ignore return.type
@@ -136,7 +133,6 @@ if ( ! function_exists( 'stellarwp_uplink_is_product_license_active' ) ) {
 	 * @return bool
 	 */
 	function stellarwp_uplink_is_product_license_active( string $product ): bool {
-		// @phpstan-ignore function.internal
 		$callback = _stellarwp_uplink_global_function_registry( 'stellarwp_uplink_is_product_license_active' );
 
 		return $callback ? (bool) $callback( $product ) : false;
@@ -155,7 +151,6 @@ if ( ! function_exists( 'stellarwp_uplink_is_feature_enabled' ) ) {
 	 * @return bool
 	 */
 	function stellarwp_uplink_is_feature_enabled( string $slug ): bool {
-		// @phpstan-ignore function.internal
 		$callback = _stellarwp_uplink_global_function_registry( 'stellarwp_uplink_is_feature_enabled' );
 
 		return $callback ? (bool) $callback( $slug ) : false;
@@ -173,7 +168,6 @@ if ( ! function_exists( 'stellarwp_uplink_is_feature_available' ) ) {
 	 * @return bool
 	 */
 	function stellarwp_uplink_is_feature_available( string $slug ): bool {
-		// @phpstan-ignore function.internal
 		$callback = _stellarwp_uplink_global_function_registry( 'stellarwp_uplink_is_feature_available' );
 
 		return $callback ? (bool) $callback( $slug ) : false;

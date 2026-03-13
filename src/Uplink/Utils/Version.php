@@ -37,7 +37,6 @@ class Version {
 	 * @return bool
 	 */
 	public static function is_highest(): bool {
-		// @phpstan-ignore function.internal
 		return self::is_highest_among( array_keys( _stellarwp_uplink_instance_registry() ) );
 	}
 

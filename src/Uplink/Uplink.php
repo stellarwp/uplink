@@ -103,7 +103,6 @@ class Uplink {
 			return $container->get( Resources\Collection::class )->get( $slug );
 		};
 
-		// @phpstan-ignore function.internal
 		_stellarwp_uplink_instance_registry( self::VERSION );
 
 		add_filter(

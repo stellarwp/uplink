@@ -30,7 +30,6 @@ class Global_Function_Registry {
 	 * @return void
 	 */
 	public static function register( string $version ): void {
-		// @phpstan-ignore function.internal
 		\_stellarwp_uplink_global_function_registry(
 			'stellarwp_uplink_has_unified_license_key',
 			$version,
@@ -45,7 +44,6 @@ class Global_Function_Registry {
 			}
 		);
 
-		// @phpstan-ignore function.internal
 		\_stellarwp_uplink_global_function_registry(
 			'stellarwp_uplink_get_unified_license_key',
 			$version,
@@ -60,7 +58,6 @@ class Global_Function_Registry {
 			}
 		);
 
-		// @phpstan-ignore function.internal
 		\_stellarwp_uplink_global_function_registry(
 			'stellarwp_uplink_is_product_license_active',
 			$version,
@@ -75,7 +72,6 @@ class Global_Function_Registry {
 			}
 		);
 
-		// @phpstan-ignore function.internal
 		\_stellarwp_uplink_global_function_registry(
 			'stellarwp_uplink_is_feature_enabled',
 			$version,
@@ -98,7 +94,6 @@ class Global_Function_Registry {
 			}
 		);
 
-		// @phpstan-ignore function.internal
 		\_stellarwp_uplink_global_function_registry(
 			'stellarwp_uplink_is_feature_available',
 			$version,

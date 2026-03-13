@@ -281,7 +281,17 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 		}
 
 		try {
-			return $this->do_update();
+			$result = $this->do_update();
+
+			// Plugin_Upgrader::upgrade() deactivates the plugin before upgrading
+			// and does not reactivate it afterward (unlike the WP admin UI path).
+			// Reactivate here so an API-triggered update doesn't leave the plugin
+			// inactive.
+			if ( $result === true ) {
+				$result = $this->do_activate();
+			}
+
+			return $result;
 		} finally {
 			$this->release_lock( self::LOCK_KEY );
 		}
@@ -397,7 +407,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 						$e->getMessage(),
 						$e->getFile(),
 						$e->getLine()
-					) 
+					)
 				);
 			}
 

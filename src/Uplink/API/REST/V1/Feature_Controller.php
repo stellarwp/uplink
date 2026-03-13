@@ -372,6 +372,18 @@ class Feature_Controller extends WP_REST_Controller {
 				'readonly'    => true,
 				'context'     => [ 'view' ],
 			],
+			'version'           => [
+				'description' => __( 'Latest available version from the catalog, or null. Only present for installable features.', '%TEXTDOMAIN%' ),
+				'type'        => [ 'string', 'null' ],
+				'readonly'    => true,
+				'context'     => [ 'view' ],
+			],
+			'changelog'         => [
+				'description' => __( 'Changelog HTML for the latest version, or null. Only present for installable features.', '%TEXTDOMAIN%' ),
+				'type'        => [ 'string', 'null' ],
+				'readonly'    => true,
+				'context'     => [ 'view' ],
+			],
 			'authors'           => [
 				'description' => __( 'Expected authors for ownership verification.', '%TEXTDOMAIN%' ),
 				'type'        => 'array',

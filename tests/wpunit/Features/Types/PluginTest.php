@@ -149,6 +149,8 @@ final class PluginTest extends UplinkTestCase {
 			'is_dot_org'        => false,
 			'released_at'       => '2025-11-15',
 			'installed_version' => '1.2.3',
+			'version'           => null,
+			'changelog'         => null,
 		];
 
 		$feature = Plugin::from_array( $data );

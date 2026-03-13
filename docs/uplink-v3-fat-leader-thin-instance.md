@@ -10,7 +10,9 @@ For the unified key model itself: how the key relates to Licensing, Portal, and 
 
 ## Leader Election
 
-Multiple vendor-prefixed copies negotiate leadership through the `stellarwp/uplink/highest_version` filter. The highest version wins. Shared responsibilities: the admin page, REST routes, licensing operations — are claimed through a mutex pattern that ensures exactly one instance handles each, even when versions tie. This is implemented in `src/Uplink/Utils/Version.php`, where `Version::should_handle()` checks whether this instance is highest and uses `did_action()` as a per-responsibility lock.
+Multiple vendor-prefixed copies negotiate leadership through a shared global function, `_stellarwp_uplink_instance_registry()`, defined in `src/Uplink/global-functions.php`. Because global functions are declared once (PHP's `function_exists` guard), the static variable inside that function is shared by all vendor-prefixed copies regardless of which one's file was included first. Each instance calls `_stellarwp_uplink_instance_registry( Uplink::VERSION )` during bootstrap to register itself. Registrations are only accepted before `wp_loaded`, so all real instances (which initialize on `plugins_loaded`) can register, but nothing can inject fake versions after the bootstrap window closes.
+
+`Version::is_highest()` (in `src/Uplink/Utils/Version.php`) reads the registry and returns `true` if this instance's version string is greater than or equal to all registered versions. `Version::should_handle( $action )` layers a per-responsibility mutex on top: it fires `do_action( 'stellarwp/uplink/handled/{action}' )` the first time a qualifying instance claims a responsibility, and any subsequent call (even from the same instance) sees `did_action()` return `true` and backs off. This ensures exactly one instance handles each shared responsibility — admin page, REST routes, etc. — even when two copies run the same version.
 
 ## Fat Leader
 

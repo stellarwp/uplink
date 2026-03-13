@@ -22,9 +22,28 @@ Plugin consumers also need a simple, stable public API to answer questions like 
 
 ## How It Works
 
-### 1. The Registry (`_stellarwp_uplink_global_function_registry`)
+### 1. The Instance Registry (`_stellarwp_uplink_instance_registry`)
 
-`src/Uplink/global-functions.php` defines a single function that owns a `static $registry` variable:
+`src/Uplink/global-functions.php` defines a function with a `static $versions` variable that tracks every active Uplink copy:
+
+```php
+function _stellarwp_uplink_instance_registry( string $version = '' ): array {
+    static $versions = []; // one instance, shared across all callers
+
+    // Only accept registrations before wp_loaded (the bootstrap window).
+    if ( $version !== '' && ! did_action( 'wp_loaded' ) ) {
+        $versions[ $version ] = true;
+    }
+
+    return $versions;
+}
+```
+
+Each Uplink instance calls `_stellarwp_uplink_instance_registry( self::VERSION )` during `register_cross_instance_hooks()` (in `Uplink::init()`). Because the static variable lives inside the function, and the function is only defined once (via `function_exists` guard), all vendor-prefixed copies share the same registry. Registrations are only accepted before `wp_loaded`, so all real instances (which initialize on `plugins_loaded`) can register, but nothing can inject fake versions after the bootstrap window closes.
+
+### 2. The Function Registry (`_stellarwp_uplink_global_function_registry`)
+
+A second global function stores version-keyed closures and resolves to the highest version's callable on read:
 
 ```php
 function _stellarwp_uplink_global_function_registry( string $key, string $version = '', ?callable $callback = null ): ?callable {
@@ -35,7 +54,9 @@ function _stellarwp_uplink_global_function_registry( string $key, string $versio
         return null;
     }
 
-    $highest = apply_filters( 'stellarwp/uplink/highest_version', '0.0.0' ); // read mode
+    // Read mode: resolve to the highest registered version's callable.
+    $versions = array_keys( _stellarwp_uplink_instance_registry() );
+    $highest  = array_reduce( $versions, fn( $carry, $v ) => version_compare( $v, $carry, '>' ) ? $v : $carry, '0.0.0' );
     return $registry[ $key ][ $highest ] ?? null;
 }
 ```
@@ -58,7 +79,8 @@ _stellarwp_uplink_global_function_registry()
         ...
     ]
 
-Read path: apply_filters('stellarwp/uplink/highest_version') → '3.0.3'
+Read path: _stellarwp_uplink_instance_registry() → ['3.0.0', '3.0.1', '3.0.3']
+           array_reduce → '3.0.3'
            $registry['stellarwp_uplink_has_unified_license_key']['3.0.3'] → Kadence's Closure
 ```
 
@@ -74,18 +96,6 @@ _stellarwp_uplink_global_function_registry( 'stellarwp_uplink_has_unified_licens
 $callback = _stellarwp_uplink_global_function_registry( 'stellarwp_uplink_has_unified_license_key' );
 ```
 
-### 2. Version Leadership
-
-The highest-version Uplink copy is the "leader." Each copy registers a filter handler on `stellarwp/uplink/highest_version` during `Uplink::init()`:
-
-```php
-add_filter( 'stellarwp/uplink/highest_version', function( string $current ) {
-    return version_compare( self::VERSION, $current, '>' ) ? self::VERSION : $current;
-});
-```
-
-Starting from `'0.0.0'`, each copy has a chance to raise the value. The final result is the highest version loaded. When `_stellarwp_uplink_global_function_registry` reads, it calls this filter at that moment so the leader is always resolved correctly, regardless of plugin load order.
-
 ### 3. Registering Closures (`Global_Function_Registry`)
 
 `Global_Function_Registry::register()` is called by `Provider::register()` during each Uplink instance's `init()`. It registers version-keyed closures for every public function key:
@@ -94,14 +104,14 @@ Starting from `'0.0.0'`, each copy has a chance to raise the value. The final re
 \_stellarwp_uplink_global_function_registry(
     'stellarwp_uplink_has_unified_license_key',
     $version,
-    static function () use ( $container ): bool {
-        return $container->get( License_Manager::class )->key_exists();
+    static function (): bool {
+        return Config::get_container()->get( License_Repository::class )->key_exists();
     }
 );
 ```
 
 **Why closures are defined here (in a namespaced file) and not in `global-functions.php`:**
-Strauss rewrites class references at parse time. `License_Manager::class` inside this file resolves to the correct Strauss-prefixed name for *this specific Uplink copy* — e.g. `GiveWP\Vendor\StellarWP\Uplink\Licensing\License_Manager`. Defining the closures in the global-namespace file would break this resolution.
+Strauss rewrites class references at parse time. `License_Repository::class` inside this file resolves to the correct Strauss-prefixed name for *this specific Uplink copy* — e.g. `GiveWP\Vendor\StellarWP\Uplink\Licensing\Repositories\License_Repository`. Defining the closures in the global-namespace file would break this resolution.
 
 ### 4. The Public Functions
 
@@ -110,6 +120,7 @@ Strauss rewrites class references at parse time. `License_Manager::class` inside
 | Function                                                  | What it checks                                                              |
 | --------------------------------------------------------- | --------------------------------------------------------------------------- |
 | `stellarwp_uplink_has_unified_license_key()`              | Whether any unified license key is stored locally (no API call)             |
+| `stellarwp_uplink_get_unified_license_key()`              | Returns the unified license key string, or null if not found                |
 | `stellarwp_uplink_is_product_license_active( $product )`  | Whether a product slug has `validation_status: valid` in the cached catalog |
 | `stellarwp_uplink_is_feature_enabled( $slug )`            | Whether a feature is in the catalog AND currently enabled/active            |
 | `stellarwp_uplink_is_feature_available( $slug )`          | Whether a feature exists in the catalog, regardless of enabled state        |
@@ -118,7 +129,6 @@ Each function looks up the registered callback and delegates, returning `false` 
 
 ```php
 function stellarwp_uplink_has_unified_license_key(): bool {
-    // @phpstan-ignore function.internal
     $callback = _stellarwp_uplink_global_function_registry( 'stellarwp_uplink_has_unified_license_key' );
     return $callback ? (bool) $callback() : false;
 }
@@ -129,22 +139,26 @@ function stellarwp_uplink_has_unified_license_key(): bool {
 ```
 Uplink::init()
   └─ API\Functions\Provider::register()        ← runs unconditionally (outside is_enabled())
-       ├─ require_once global-functions.php     ← defines _stellarwp_uplink_global_function_registry() and public wrappers
+       ├─ require_once global-functions.php     ← defines _stellarwp_uplink_instance_registry(),
+       │                                           _stellarwp_uplink_global_function_registry(),
+       │                                           and public wrapper functions
        └─ Global_Function_Registry::register() ← stores version-keyed closures in the registry
 
+  └─ register_cross_instance_hooks()           ← calls _stellarwp_uplink_instance_registry( VERSION )
+                                                  to register this instance in the version registry
+
   └─ is_enabled() block
-       ├─ Licensing\Provider::register()       ← binds License_Manager, License_Repository
-       ├─ Features\Provider::register()        ← binds Features\Manager
-       └─ register_cross_instance_hooks()      ← registers stellarwp/uplink/highest_version filter
+       ├─ Licensing\Provider::register()       ← binds License_Repository
+       └─ Features\Provider::register()        ← binds Features\Manager
 ```
 
 `API\Functions\Provider` runs unconditionally so the global functions and version-keyed closures are always registered, even when the legacy PUE/update machinery is disabled via `TRIBE_DISABLE_PUE` or `STELLARWP_LICENSING_DISABLED`. The closures themselves resolve services lazily from the container and are wrapped in `try/catch (Throwable)`, so if the container cannot resolve a dependency (because `is_enabled()` was false) the functions fall back gracefully to `false`.
 
 ## Security
 
-The callbacks are stored in a PHP `static` variable inside `_stellarwp_uplink_global_function_registry()`. There is no WordPress filter on the return value of the public functions themselves. An attacker cannot simply hook a filter to force `stellarwp_uplink_is_product_license_active()` to return `true` — they would need to both manipulate the `stellarwp/uplink/highest_version` filter **and** know the internal registry key, making trivial overrides impractical.
+The callbacks are stored in a PHP `static` variable inside `_stellarwp_uplink_global_function_registry()`. The version registry is locked after `wp_loaded`, so no code running after the bootstrap window can inject a fake high version to hijack the leader callable. An attacker cannot simply hook a filter to force `stellarwp_uplink_is_product_license_active()` to return `true` — they would need to both register a fake version before `wp_loaded` **and** know the internal registry key, making trivial overrides impractical.
 
-`_stellarwp_uplink_global_function_registry` is marked `@internal` to signal that plugin consumers should not call it directly and should only use the public wrapper functions.
+`_stellarwp_uplink_instance_registry` and `_stellarwp_uplink_global_function_registry` are marked `@internal` to signal that plugin consumers should not call them directly and should only use the public wrapper functions.
 
 ## Adding a New Global Function
 

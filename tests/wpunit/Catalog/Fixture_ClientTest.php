@@ -49,7 +49,7 @@ final class Fixture_ClientTest extends UplinkTestCase {
 			foreach ( $tiers as $tier ) {
 				$this->assertInstanceOf( Catalog_Tier::class, $tier );
 				$this->assertNotEmpty( $tier->get_slug() );
-				$this->assertGreaterThan( 0, $tier->get_rank() );
+				$this->assertGreaterThanOrEqual( 0, $tier->get_rank() );
 			}
 		}
 	}

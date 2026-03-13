@@ -31,6 +31,8 @@ Each product defines an ordered set of tiers that represent subscription levels.
 
 Tiers are always sorted by rank. This ordering drives feature availability. A feature that requires `kadence-pro` (rank 2) is available to anyone on `kadence-pro` or `kadence-agency` (rank 3), but not to someone on `kadence-basic` (rank 1).
 
+Products that have free offerings include a free tier at rank 0 (e.g., `kadence-free`). The free tier is the entry point to the tier hierarchy. Features gated at the free tier are available without a license key — an unlicensed user resolves to rank 0, and `0 >= 0` satisfies the availability check. The `purchase_url` on the free tier points to the first paid tier, providing the upgrade path.
+
 A product's tiers are its own. Tier slugs are namespaced to the product (`kadence-basic`, `give-basic`) so there's no collision across product families.
 
 ### Features
@@ -125,11 +127,13 @@ The fixture data illustrates the structure. Each product in the current catalog 
 ```
 Product: kadence
 ├─ Tiers
+│  ├─ kadence-free   (rank 0, "Free", purchase_url → kadence-basic upgrade)
 │  ├─ kadence-basic  (rank 1, "Basic")
 │  ├─ kadence-pro    (rank 2, "Pro")
 │  └─ kadence-agency (rank 3, "Agency")
-└─ Features (31)
-   ├─ kadence           (theme, minimum: kadence-basic, the product itself, dot-org)
+└─ Features (33)
+   ├─ kad-blocks        (plugin, minimum: kadence-free,  the free blocks library, dot-org)
+   ├─ kadence           (theme,  minimum: kadence-free,  the product itself, dot-org)
    ├─ kad-blocks-pro    (plugin, minimum: kadence-basic, exclusive)
    ├─ kad-shop-kit      (plugin, minimum: kadence-pro,   exclusive)
    ├─ kad-pattern-hub   (flag,   minimum: kadence-basic)
@@ -140,12 +144,12 @@ Note that `kadence` appears as both the product and as a feature within it. This
 
 The current fixture covers four product families:
 
-| Product               | Tiers                  | Features | Categories                                                                                    |
-| --------------------- | ---------------------- | -------- | --------------------------------------------------------------------------------------------- |
-| `kadence`             | 3 (Basic, Pro, Agency) | 31       | theme, blocks, design, woocommerce, forms, social, content, security, management, performance |
-| `learndash`           | 3 (Basic, Pro, Agency) | 8        | core, membership, reporting, import, community                                                |
-| `give`                | 3 (Basic, Pro, Agency) | 28       | core, forms, gateway, email, reporting, marketing, integration                                |
-| `the-events-calendar` | 3 (Basic, Pro, Agency) | 9        | core, ticketing, community, integration                                                       |
+| Product               | Tiers                         | Features | Categories                                                                                    |
+| --------------------- | ----------------------------- | -------- | --------------------------------------------------------------------------------------------- |
+| `kadence`             | 4 (Free, Basic, Pro, Agency)  | 33       | theme, blocks, design, woocommerce, forms, social, content, security, management, performance |
+| `learndash`           | 3 (Basic, Pro, Agency)        | 8        | core, membership, reporting, import, community                                                |
+| `give`                | 4 (Free, Basic, Pro, Agency)  | 28       | core, forms, gateway, email, reporting, marketing, integration                                |
+| `the-events-calendar` | 4 (Free, Basic, Pro, Agency)  | 9        | core, ticketing, community, integration                                                       |
 
 ## Relationship to Licensing and Features
 

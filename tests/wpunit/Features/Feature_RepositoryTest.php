@@ -260,7 +260,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 
 		$this->assertInstanceOf( Feature_Collection::class, $result );
 
-		$free_features = $result->filter( tier: 'kadence-free' );
+		$free_features = $result->filter( null, 'kadence-free' );
 
 		$this->assertGreaterThan( 0, $free_features->count() );
 

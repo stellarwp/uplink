@@ -137,6 +137,12 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 				? false
 				: featureEnabled;
 
+	// @TODO: Remove this once the API is updated.
+	feature = {
+		...feature,
+		version: 'v1.0.0'
+	}
+
 	return (
 		<div className={ cn( 'border-b last:border-b-0 bg-white', pendingAction && 'opacity-75' ) }>
 			<div
@@ -153,7 +159,7 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 				</span>
 				<div className="flex-1" />
 				{ feature.version && (
-					<span className="text-xs font-mono text-muted-foreground w-16 text-right shrink-0">
+					<span className="text-xs font-mono text-muted-foreground text-right shrink-0">
 						{ feature.version }
 					</span>
 				) }

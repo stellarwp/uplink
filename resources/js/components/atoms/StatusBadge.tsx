@@ -34,7 +34,7 @@ export function StatusBadge( { status, requiredTier }: StatusBadgeProps ) {
 
     if ( status === 'disabling' ) {
         return (
-			<span className='text-xs w-20 text-right text-muted-foreground flex items-center gap-1' >
+			<span className='text-xs w-32 text-right text-muted-foreground flex items-center gap-1' >
                 <Loader2 className="w-3 h-3 animate-spin" />
                 { __( 'Deactivating…', '%TEXTDOMAIN%' ) }
             </span>

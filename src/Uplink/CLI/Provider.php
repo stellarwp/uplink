@@ -9,6 +9,7 @@ use StellarWP\Uplink\CLI\Commands\Feature;
 use StellarWP\Uplink\CLI\Commands\License;
 use StellarWP\Uplink\Contracts\Abstract_Provider;
 use StellarWP\Uplink\Features\Manager;
+use StellarWP\Uplink\Legacy\License_Repository as Legacy_License_Repository;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Site\Data;
 use StellarWP\Uplink\Utils\Version;
@@ -42,7 +43,11 @@ final class Provider extends Abstract_Provider {
 		$this->container->singleton(
 			License::class,
 			static function ( ContainerInterface $c ) {
-				return new License( $c->get( License_Manager::class ), $c->get( Data::class ) );
+				return new License(
+					$c->get( License_Manager::class ),
+					$c->get( Data::class ),
+					$c->get( Legacy_License_Repository::class )
+				);
 			}
 		);
 

@@ -3,6 +3,8 @@
 namespace StellarWP\Uplink\Tests\CLI\Commands;
 
 use StellarWP\Uplink\CLI\Commands\License as License_Command;
+use StellarWP\Uplink\Legacy\Legacy_License;
+use StellarWP\Uplink\Legacy\License_Repository as Legacy_License_Repository;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Product_Collection;
 use StellarWP\Uplink\Licensing\Results\Product_Entry;
@@ -31,6 +33,9 @@ final class LicenseTest extends UplinkTestCase {
 	/** @var Product_Collection */
 	private Product_Collection $products;
 
+	/** @var Legacy_License_Repository */
+	private Legacy_License_Repository $legacy_repository;
+
 	protected function setUp(): void {
 		parent::setUp();
 
@@ -52,6 +57,8 @@ final class LicenseTest extends UplinkTestCase {
 				'get_domain' => 'example.com',
 			] 
 		);
+
+		$this->legacy_repository = new Legacy_License_Repository();
 
 		$this->products = new Product_Collection();
 		$this->products->add(
@@ -105,7 +112,7 @@ final class LicenseTest extends UplinkTestCase {
 			] 
 		);
 
-		$command = new License_Command( $manager, $this->site_data );
+		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
 
 		$items = $this->run_get_json( $command );
 
@@ -123,7 +130,7 @@ final class LicenseTest extends UplinkTestCase {
 			] 
 		);
 
-		$command = new License_Command( $manager, $this->site_data );
+		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
 		$command->get( [], [] );
 
 		$this->assertSame( 'No license key is stored.', $this->logger->last_warning );
@@ -138,7 +145,7 @@ final class LicenseTest extends UplinkTestCase {
 			] 
 		);
 
-		$command = new License_Command( $manager, $this->site_data );
+		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
 		$command->get( [], [] );
 
 		$this->assertSame( 'Could not fetch products.', $this->logger->last_warning );
@@ -153,7 +160,7 @@ final class LicenseTest extends UplinkTestCase {
 			] 
 		);
 
-		$command = new License_Command( $manager, $this->site_data );
+		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
 
 		$items = $this->run_get_json( $command );
 
@@ -172,7 +179,7 @@ final class LicenseTest extends UplinkTestCase {
 			] 
 		);
 
-		$command = new License_Command( $manager, $this->site_data );
+		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
 
 		$items = $this->run_get_json( $command );
 
@@ -193,7 +200,7 @@ final class LicenseTest extends UplinkTestCase {
 			] 
 		);
 
-		$command = new License_Command( $manager, $this->site_data );
+		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
 		$command->set( [ 'LWSW-test-key-123' ], [] );
 
 		$this->assertSame( 'License key stored.', $this->logger->last_success );
@@ -201,7 +208,7 @@ final class LicenseTest extends UplinkTestCase {
 
 	public function test_set_calls_error_on_invalid_format(): void {
 		$manager = $this->makeEmpty( License_Manager::class );
-		$command = new License_Command( $manager, $this->site_data );
+		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
 
 		$command->set( [ 'INVALID-KEY' ], [] );
 
@@ -216,7 +223,7 @@ final class LicenseTest extends UplinkTestCase {
 			] 
 		);
 
-		$command = new License_Command( $manager, $this->site_data );
+		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
 		$command->set( [ 'LWSW-bad-key' ], [] );
 
 		$this->assertSame( 'License not recognized.', $this->logger->last_error );
@@ -234,7 +241,7 @@ final class LicenseTest extends UplinkTestCase {
 			] 
 		);
 
-		$command = new License_Command( $manager, $this->site_data );
+		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
 
 		$items = $this->run_lookup_json( $command, 'LWSW-test-key-123' );
 
@@ -250,7 +257,7 @@ final class LicenseTest extends UplinkTestCase {
 			] 
 		);
 
-		$command = new License_Command( $manager, $this->site_data );
+		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
 		$command->lookup( [ 'bad-key' ], [] );
 
 		$this->assertSame( 'Invalid key format.', $this->logger->last_error );
@@ -271,7 +278,7 @@ final class LicenseTest extends UplinkTestCase {
 			] 
 		);
 
-		$command = new License_Command( $manager, $this->site_data );
+		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
 		$command->validate( [ 'kadence' ], [] );
 
 		$this->assertSame( 'Product "kadence" validated successfully.', $this->logger->last_success );
@@ -285,7 +292,7 @@ final class LicenseTest extends UplinkTestCase {
 			] 
 		);
 
-		$command = new License_Command( $manager, $this->site_data );
+		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
 		$command->validate( [ 'kadence' ], [] );
 
 		$this->assertSame( 'Product validation failed.', $this->logger->last_error );
@@ -303,7 +310,7 @@ final class LicenseTest extends UplinkTestCase {
 			] 
 		);
 
-		$command = new License_Command( $manager, $this->site_data );
+		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
 		$command->delete( [], [] );
 
 		$this->assertSame( 'License key deleted.', $this->logger->last_success );
@@ -340,7 +347,7 @@ final class LicenseTest extends UplinkTestCase {
 			] 
 		);
 
-		$command = new License_Command( $manager, $this->site_data );
+		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
 
 		$items = $this->run_get_json( $command );
 
@@ -374,7 +381,7 @@ final class LicenseTest extends UplinkTestCase {
 			] 
 		);
 
-		$command = new License_Command( $manager, $this->site_data );
+		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
 
 		$items = $this->run_get_json( $command );
 
@@ -392,10 +399,54 @@ final class LicenseTest extends UplinkTestCase {
 			] 
 		);
 
-		$command = new License_Command( $manager, $this->site_data );
+		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
 		$command->get( [], [] );
 
 		$this->assertSame( 'No products found.', $this->logger->last_info );
+	}
+
+	// ------------------------------------------------------------------
+	// legacy
+	// ------------------------------------------------------------------
+
+	public function test_legacy_shows_licenses(): void {
+		add_filter(
+			'stellarwp/uplink/legacy_licenses',
+			static function () {
+				return [
+					[
+						'key'        => 'ABC123',
+						'slug'       => 'my-plugin',
+						'name'       => 'My Plugin',
+						'brand'      => 'My Brand',
+						'status'     => 'active',
+						'page_url'   => 'https://example.com/account',
+						'expires_at' => '2027-01-01',
+					],
+				];
+			}
+		);
+
+		$manager = $this->makeEmpty( License_Manager::class );
+		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
+
+		$items = $this->run_legacy_json( $command );
+
+		$this->assertCount( 1, $items );
+		$this->assertSame( 'my-plugin', $items[0]['slug'] );
+		$this->assertSame( 'My Plugin', $items[0]['name'] );
+		$this->assertSame( 'My Brand', $items[0]['brand'] );
+		$this->assertSame( 'ABC123', $items[0]['key'] );
+		$this->assertSame( 'active', $items[0]['status'] );
+		$this->assertSame( '2027-01-01', $items[0]['expires_at'] );
+	}
+
+	public function test_legacy_logs_message_when_empty(): void {
+		$manager = $this->makeEmpty( License_Manager::class );
+		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
+		$command->legacy( [], [] );
+
+		$this->assertSame( 'No legacy licenses found.', $this->logger->last_info );
 	}
 
 	// ------------------------------------------------------------------
@@ -417,6 +468,29 @@ final class LicenseTest extends UplinkTestCase {
 				'format' => 'json',
 				'fields' => 'product_slug,tier,status,expires,site_limit,active_count,over_limit,installed_here,validation_status,is_valid,pending_tier',
 			] 
+		);
+		$output = ob_get_clean();
+
+		$decoded = json_decode( (string) $output, true );
+
+		return is_array( $decoded ) ? $decoded : [];
+	}
+
+	/**
+	 * Runs legacy with --format=json and returns decoded license items.
+	 *
+	 * @param License_Command $command
+	 *
+	 * @return list<array<string, mixed>>
+	 */
+	private function run_legacy_json( License_Command $command ): array {
+		ob_start();
+		$command->legacy(
+			[],
+			[
+				'format' => 'json',
+				'fields' => 'slug,name,brand,key,status,expires_at,page_url',
+			]
 		);
 		$output = ob_get_clean();
 

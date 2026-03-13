@@ -2,6 +2,8 @@
 
 namespace StellarWP\Uplink\CLI\Commands;
 
+use StellarWP\Uplink\Legacy\Legacy_License;
+use StellarWP\Uplink\Legacy\License_Repository as Legacy_License_Repository;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Product_Collection;
 use StellarWP\Uplink\Licensing\Results\Product_Entry;
@@ -32,6 +34,9 @@ use WP_CLI_Command;
  *     # Delete the stored key
  *     wp uplink license delete
  *
+ *     # Show legacy per-plugin licenses
+ *     wp uplink license legacy
+ *
  * @since 3.0.0
  */
 class License extends WP_CLI_Command {
@@ -44,6 +49,15 @@ class License extends WP_CLI_Command {
 	 * @var string
 	 */
 	private const DEFAULT_PRODUCT_FIELDS = 'product_slug,tier,status,expires,site_limit,active_count';
+
+	/**
+	 * Default fields shown in legacy license table output.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	private const DEFAULT_LEGACY_FIELDS = 'slug,name,brand,key,status,expires_at';
 
 	/**
 	 * The license manager instance.
@@ -64,16 +78,27 @@ class License extends WP_CLI_Command {
 	private Data $site_data;
 
 	/**
+	 * The legacy license repository.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var Legacy_License_Repository
+	 */
+	private Legacy_License_Repository $legacy_repository;
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param License_Manager $manager   The license manager.
-	 * @param Data            $site_data The site data provider.
+	 * @param License_Manager           $manager            The license manager.
+	 * @param Data                      $site_data          The site data provider.
+	 * @param Legacy_License_Repository $legacy_repository  The legacy license repository.
 	 */
-	public function __construct( License_Manager $manager, Data $site_data ) {
-		$this->manager   = $manager;
-		$this->site_data = $site_data;
+	public function __construct( License_Manager $manager, Data $site_data, Legacy_License_Repository $legacy_repository ) {
+		$this->manager           = $manager;
+		$this->site_data         = $site_data;
+		$this->legacy_repository = $legacy_repository;
 	}
 
 	/**
@@ -313,6 +338,63 @@ class License extends WP_CLI_Command {
 		$this->manager->delete_key( $network );
 
 		WP_CLI::success( 'License key deleted.' );
+	}
+
+	/**
+	 * Lists legacy per-plugin licenses discovered across all Uplink instances.
+	 *
+	 * These are old-style license keys stored individually by each plugin,
+	 * before the unified LWSW- key was adopted. This is a read-only view.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--fields=<fields>]
+	 * : Comma-separated list of fields to display.
+	 *
+	 * [--format=<format>]
+	 * : Output format.
+	 * ---
+	 * default: table
+	 * options:
+	 *   - table
+	 *   - json
+	 *   - csv
+	 *   - yaml
+	 * ---
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # List legacy licenses
+	 *     wp uplink license legacy
+	 *
+	 *     # Show as JSON
+	 *     wp uplink license legacy --format=json
+	 *
+	 * @param array<int, string>    $args       Positional arguments.
+	 * @param array<string, string> $assoc_args Associative arguments.
+	 *
+	 * @return void
+	 */
+	public function legacy( array $args, array $assoc_args ): void {
+		$licenses = $this->legacy_repository->all();
+
+		if ( count( $licenses ) === 0 ) {
+			WP_CLI::log( 'No legacy licenses found.' );
+
+			return;
+		}
+
+		$items = array_map(
+			static fn( Legacy_License $license ): array => $license->to_array(),
+			$licenses
+		);
+
+		$formatter = new Formatter(
+			$assoc_args,
+			explode( ',', self::DEFAULT_LEGACY_FIELDS )
+		);
+
+		$formatter->display_items( $items );
 	}
 
 	/**

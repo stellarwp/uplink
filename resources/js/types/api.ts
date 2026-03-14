@@ -54,9 +54,13 @@ interface BaseFeature {
      */
     is_enabled: boolean;
     /**
-     * Installed version string, if known.
+     * Latest available version string, if known.
      */
     version?: string;
+	/**
+	 * Installed version string, if known.
+	 */
+	installed_version?: string;
 }
 
 /**

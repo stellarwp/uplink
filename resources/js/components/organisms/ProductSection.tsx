@@ -50,7 +50,7 @@ export function ProductSection( { product }: ProductSectionProps ) {
     const allFeatures = useFilteredFeatures( product.slug );
 
     // Features with no tier are free — always available regardless of license.
-    const isFreeFeature = ( f: (typeof allFeatures)[0] ) => ! f.tier;
+    const isFreeFeature = ( f: (typeof allFeatures)[0] ) => ! f.tier || f.tier.toLowerCase().includes( 'free' );
 
     const availableFeatures = allFeatures.filter( ( f ) => f.is_available || isFreeFeature( f ) );
     const lockedFeatures    = allFeatures.filter( ( f ) => ! f.is_available && ! isFreeFeature( f ) );

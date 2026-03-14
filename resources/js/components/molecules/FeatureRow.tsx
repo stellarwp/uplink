@@ -44,7 +44,7 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 	);
 
 	const [ pendingAction, setPendingAction ] = useState<
-		'enabling' | 'disabling' | null
+		'enabling' | 'disabling' | 'installing' | null
 	>( null );
 
 	const Chevron = expanded ? ChevronDown : ChevronRight;
@@ -73,9 +73,9 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 					<span className="font-medium flex-1 min-w-0 text-sm text-muted-foreground">
 						{ feature.name }
 					</span>
-					{ feature.version && (
+					{ (feature.installed_version || feature.version) && (
 						<span className="text-xs font-mono text-muted-foreground w-16 text-right shrink-0">
-							{ feature.version }
+							{ `v${feature.installed_version ?? feature.version}` }
 						</span>
 					) }
 				</div>
@@ -96,9 +96,10 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 	// UplinkError chain.
 
 	const featureEnabled = feature.is_enabled;
+	const featureInstalled = feature.installed_version !== null;
 
 	const handleToggle = async ( checked: boolean ) => {
-		setPendingAction( checked ? 'enabling' : 'disabling' );
+		setPendingAction( checked ? featureInstalled ? 'enabling' : 'installing' : 'disabling' );
 		if ( checked ) {
 			const result = await enableFeature( feature.slug );
 			if ( result instanceof UplinkError ) {
@@ -131,17 +132,11 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 	// While a request is in-flight, reflect the intended state visually so
 	// the switch position and badge stay in sync with pendingAction.
 	const switchChecked =
-		pendingAction === 'enabling'
+		pendingAction === 'enabling' || pendingAction === 'installing'
 			? true
 			: pendingAction === 'disabling'
 				? false
 				: featureEnabled;
-
-	// @TODO: Remove this once the API is updated.
-	feature = {
-		...feature,
-		version: 'v1.0.0'
-	}
 
 	return (
 		<div className={ cn( 'border-b last:border-b-0 bg-white', pendingAction && 'opacity-75' ) }>
@@ -158,14 +153,14 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 					{ feature.name }
 				</span>
 				<div className="flex-1" />
-				{ feature.version && (
+				{ ( feature.version || feature.installed_version ) && (
 					<span className="text-xs font-mono text-muted-foreground text-right shrink-0">
-						{ feature.version }
+						{ `v${feature.installed_version ?? feature.version}` }
 					</span>
 				) }
 				<StatusBadge status={ badgeStatus } />
-				{ !pendingAction && (
-					<div onClick={ ( e ) => e.stopPropagation() }>
+				{ pendingAction !== 'installing' && (
+					<div onClick={ ( e ) => e.stopPropagation() } className="flex items-center justify-end">
 						<Switch
 							checked={ switchChecked }
 							onCheckedChange={ handleToggle }

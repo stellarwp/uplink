@@ -65,9 +65,15 @@ final class License_Notice_HandlerTest extends UplinkTestCase {
 	 * @test
 	 */
 	public function it_renders_nothing_when_all_licenses_are_active(): void {
-		$this->add_licenses( [
-			[ 'slug' => 'give-recurring', 'brand' => 'give', 'is_active' => true ],
-		] );
+		$this->add_licenses(
+			[
+				[
+					'slug'      => 'give-recurring',
+					'brand'     => 'give',
+					'is_active' => true,
+				],
+			] 
+		);
 
 		$output = $this->capture_display();
 
@@ -78,9 +84,15 @@ final class License_Notice_HandlerTest extends UplinkTestCase {
 	 * @test
 	 */
 	public function it_skips_dismissed_brand(): void {
-		$this->add_licenses( [
-			[ 'slug' => 'give-recurring', 'brand' => 'give', 'is_active' => false ],
-		] );
+		$this->add_licenses(
+			[
+				[
+					'slug'      => 'give-recurring',
+					'brand'     => 'give',
+					'is_active' => false,
+				],
+			] 
+		);
 
 		update_user_meta(
 			$this->user_id,
@@ -101,14 +113,16 @@ final class License_Notice_HandlerTest extends UplinkTestCase {
 	 * @test
 	 */
 	public function it_renders_notice_for_inactive_brand(): void {
-		$this->add_licenses( [
+		$this->add_licenses(
 			[
-				'slug'     => 'give-recurring',
-				'brand'    => 'give',
-				'is_active' => false,
-				'page_url' => 'https://example.com/licenses',
-			],
-		] );
+				[
+					'slug'      => 'give-recurring',
+					'brand'     => 'give',
+					'is_active' => false,
+					'page_url'  => 'https://example.com/licenses',
+				],
+			] 
+		);
 
 		$output = $this->capture_display();
 
@@ -121,9 +135,15 @@ final class License_Notice_HandlerTest extends UplinkTestCase {
 	 * @test
 	 */
 	public function it_renders_singular_message_for_one_addon(): void {
-		$this->add_licenses( [
-			[ 'slug' => 'give-recurring', 'brand' => 'give', 'is_active' => false ],
-		] );
+		$this->add_licenses(
+			[
+				[
+					'slug'      => 'give-recurring',
+					'brand'     => 'give',
+					'is_active' => false,
+				],
+			] 
+		);
 
 		$output = $this->capture_display();
 
@@ -135,10 +155,20 @@ final class License_Notice_HandlerTest extends UplinkTestCase {
 	 * @test
 	 */
 	public function it_renders_plural_message_for_multiple_addons(): void {
-		$this->add_licenses( [
-			[ 'slug' => 'give-recurring', 'brand' => 'give', 'is_active' => false ],
-			[ 'slug' => 'give-stripe',    'brand' => 'give', 'is_active' => false ],
-		] );
+		$this->add_licenses(
+			[
+				[
+					'slug'      => 'give-recurring',
+					'brand'     => 'give',
+					'is_active' => false,
+				],
+				[
+					'slug'      => 'give-stripe',
+					'brand'     => 'give',
+					'is_active' => false,
+				],
+			] 
+		);
 
 		$output = $this->capture_display();
 
@@ -150,11 +180,25 @@ final class License_Notice_HandlerTest extends UplinkTestCase {
 	 * @test
 	 */
 	public function it_groups_multiple_addons_under_same_brand(): void {
-		$this->add_licenses( [
-			[ 'slug' => 'give-recurring', 'brand' => 'give', 'is_active' => false ],
-			[ 'slug' => 'give-stripe',    'brand' => 'give', 'is_active' => false ],
-			[ 'slug' => 'give-fee',       'brand' => 'give', 'is_active' => false ],
-		] );
+		$this->add_licenses(
+			[
+				[
+					'slug'      => 'give-recurring',
+					'brand'     => 'give',
+					'is_active' => false,
+				],
+				[
+					'slug'      => 'give-stripe',
+					'brand'     => 'give',
+					'is_active' => false,
+				],
+				[
+					'slug'      => 'give-fee',
+					'brand'     => 'give',
+					'is_active' => false,
+				],
+			] 
+		);
 
 		$output = $this->capture_display();
 
@@ -166,10 +210,20 @@ final class License_Notice_HandlerTest extends UplinkTestCase {
 	 * @test
 	 */
 	public function it_renders_separate_notices_for_different_brands(): void {
-		$this->add_licenses( [
-			[ 'slug' => 'give-recurring', 'brand' => 'give',    'is_active' => false ],
-			[ 'slug' => 'kadence-blocks', 'brand' => 'kadence', 'is_active' => false ],
-		] );
+		$this->add_licenses(
+			[
+				[
+					'slug'      => 'give-recurring',
+					'brand'     => 'give',
+					'is_active' => false,
+				],
+				[
+					'slug'      => 'kadence-blocks',
+					'brand'     => 'kadence',
+					'is_active' => false,
+				],
+			] 
+		);
 
 		$output = $this->capture_display();
 
@@ -181,9 +235,15 @@ final class License_Notice_HandlerTest extends UplinkTestCase {
 	 * @test
 	 */
 	public function it_shows_notice_again_after_dismissal_expires(): void {
-		$this->add_licenses( [
-			[ 'slug' => 'give-recurring', 'brand' => 'give', 'is_active' => false ],
-		] );
+		$this->add_licenses(
+			[
+				[
+					'slug'      => 'give-recurring',
+					'brand'     => 'give',
+					'is_active' => false,
+				],
+			] 
+		);
 
 		// Dismissal already expired.
 		update_user_meta(
@@ -205,9 +265,15 @@ final class License_Notice_HandlerTest extends UplinkTestCase {
 	 * @test
 	 */
 	public function it_enqueues_dismiss_script_when_notices_render(): void {
-		$this->add_licenses( [
-			[ 'slug' => 'give-recurring', 'brand' => 'give', 'is_active' => false ],
-		] );
+		$this->add_licenses(
+			[
+				[
+					'slug'      => 'give-recurring',
+					'brand'     => 'give',
+					'is_active' => false,
+				],
+			] 
+		);
 
 		$this->capture_display();
 
@@ -245,16 +311,19 @@ final class License_Notice_HandlerTest extends UplinkTestCase {
 		add_filter(
 			'stellarwp/uplink/legacy_licenses',
 			static function () use ( $licenses ) {
-				return array_map( static function ( array $entry ): array {
-					return array_merge(
-						[
-							'key'      => 'key-' . $entry['slug'],
-							'name'     => $entry['slug'],
-							'page_url' => 'https://example.com/licenses',
-						],
-						$entry
-					);
-				}, $licenses );
+				return array_map(
+					static function ( array $entry ): array {
+						return array_merge(
+							[
+								'key'      => 'key-' . $entry['slug'],
+								'name'     => $entry['slug'],
+								'page_url' => 'https://example.com/licenses',
+							],
+							$entry
+						);
+					},
+					$licenses 
+				);
 			}
 		);
 	}

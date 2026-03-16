@@ -78,21 +78,25 @@ final class Legacy_LicenseTest extends UplinkTestCase {
 	 * @since 3.0.0
 	 */
 	public function it_uses_explicit_is_active_value(): void {
-		$active = Legacy_License::from_data( [
-			'key'       => 'k',
-			'slug'      => 's',
-			'name'      => 'N',
-			'brand'     => 'B',
-			'is_active' => true,
-		] );
+		$active = Legacy_License::from_data(
+			[
+				'key'       => 'k',
+				'slug'      => 's',
+				'name'      => 'N',
+				'brand'     => 'B',
+				'is_active' => true,
+			] 
+		);
 
-		$inactive = Legacy_License::from_data( [
-			'key'       => 'k',
-			'slug'      => 's',
-			'name'      => 'N',
-			'brand'     => 'B',
-			'is_active' => false,
-		] );
+		$inactive = Legacy_License::from_data(
+			[
+				'key'       => 'k',
+				'slug'      => 's',
+				'name'      => 'N',
+				'brand'     => 'B',
+				'is_active' => false,
+			] 
+		);
 
 		$this->assertTrue( $active->is_active );
 		$this->assertFalse( $inactive->is_active );

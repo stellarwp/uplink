@@ -89,7 +89,7 @@ class License_Notice_Handler {
 				];
 			}
 
-			$by_brand[ $brand ]['count']++;
+			++$by_brand[ $brand ]['count'];
 		}
 
 		if ( empty( $by_brand ) ) {
@@ -123,7 +123,7 @@ class License_Notice_Handler {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string                                           $brand
+	 * @param string                                          $brand
 	 * @param array{id: string, page_url: string, count: int} $data
 	 *
 	 * @return void

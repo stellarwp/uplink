@@ -53,9 +53,14 @@ class License_Repository {
 	 * @return Legacy_License[]
 	 */
 	public function all_active(): array {
-		return array_values( array_filter( $this->all(), static function ( Legacy_License $l ): bool {
-			return $l->is_active;
-		} ) );
+		return array_values(
+			array_filter(
+				$this->all(),
+				static function ( Legacy_License $l ): bool {
+					return $l->is_active;
+				} 
+			) 
+		);
 	}
 
 	/**
@@ -66,9 +71,14 @@ class License_Repository {
 	 * @return Legacy_License[]
 	 */
 	public function all_inactive(): array {
-		return array_values( array_filter( $this->all(), static function ( Legacy_License $l ): bool {
-			return ! $l->is_active;
-		} ) );
+		return array_values(
+			array_filter(
+				$this->all(),
+				static function ( Legacy_License $l ): bool {
+					return ! $l->is_active;
+				} 
+			) 
+		);
 	}
 
 	/**

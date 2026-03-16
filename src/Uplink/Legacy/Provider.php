@@ -48,10 +48,10 @@ class Provider extends Abstract_Provider {
 			'user',
 			License_Notice_Handler::DISMISSED_META_KEY,
 			[
-				'type'         => 'object',
-				'single'       => true,
-				'default'      => [],
-				'show_in_rest' => [
+				'type'          => 'object',
+				'single'        => true,
+				'default'       => [],
+				'show_in_rest'  => [
 					'schema' => [
 						'type'                 => 'object',
 						'additionalProperties' => [

@@ -4,12 +4,6 @@ This document explains how to integrate a WordPress plugin with StellarWP Uplink
 
 ---
 
-## Overview
-
-Uplink v3 introduces a unified licensing model. Instead of each plugin managing its own license UI and validation, all plugins in a "group" (brand) share a single unified license key. Plugins report their products and any legacy licenses to Uplink via filters, and then check license status through global helper functions.
-
----
-
 ## 1. Initialization
 
 Uplink must be initialized once per plugin, typically inside a service provider registered during the plugin bootstrap.
@@ -39,6 +33,7 @@ class UplinkServiceProvider
 > **Note:** If your plugin uses vendor-prefixed namespaces, use those instead (e.g. `MyPlugin\Vendors\StellarWP\Uplink`).
 
 **Key points:**
+
 - `Config::set_container()` must be called before `Uplink::init()`
 - `Uplink::init()` sets up all internal providers (storage, API, licensing, admin UI, etc.)
 - Register the Uplink service provider after all other providers so the container is fully configured
@@ -67,13 +62,13 @@ add_filter('stellarwp/uplink/product_registry', function (array $products): arra
 
 **Product array fields:**
 
-| Field | Required | Description |
-|---|---|---|
-| `group` | Yes | Brand slug. All products with the same group share a unified license. |
-| `slug` | Yes | Unique identifier for this product. Used in `stellarwp_uplink_is_product_license_active()`. |
-| `name` | Yes | Human-readable name shown in the license UI. |
-| `version` | Yes | Current plugin version. |
-| `embedded_key` | No | A license key bundled with the plugin (see [Embedded License Keys](#6-embedded--bundled-license-keys)). |
+| Field          | Required | Description                                                                                             |
+|----------------|----------|---------------------------------------------------------------------------------------------------------|
+| `group`        | Yes      | Brand slug. All products with the same group share a unified license.                                   |
+| `slug`         | Yes      | Unique identifier for this product. Used in `stellarwp_uplink_is_product_license_active()`.             |
+| `name`         | Yes      | Human-readable name shown in the license UI.                                                            |
+| `version`      | Yes      | Current plugin version.                                                                                 |
+| `embedded_key` | No       | A license key bundled with the plugin (see [Embedded License Keys](#5-embedded--bundled-license-keys)). |
 
 ---
 
@@ -105,15 +100,15 @@ add_filter('stellarwp/uplink/legacy_licenses', function (array $licenses): array
 
 **Legacy license array fields:**
 
-| Field | Required | Description |
-|---|---|---|
-| `key` | Yes | The license key string. |
-| `slug` | Yes | The product/add-on slug this key applies to. |
-| `name` | Yes | Human-readable product name. |
-| `brand` | Yes | Must match the `group` used in `product_registry`. |
-| `is_active` | Yes | Whether the license is currently active (`bool`). |
-| `page_url` | Yes | Admin URL where the user can manage this license. |
-| `expires_at` | No | Expiry date string (e.g. `"2026-01-01"`). |
+| Field        | Required | Description                                                  |
+|--------------|----------|--------------------------------------------------------------|
+| `key`        | Yes      | The license key string.                                      |
+| `slug`       | Yes      | The product/add-on slug this key applies to.                 |
+| `name`       | Yes      | Human-readable product name.                                 |
+| `brand`      | Yes      | Must match the `group` used in `product_registry`.           |
+| `is_active`  | Yes      | Whether the license is currently active (`bool`).            |
+| `page_url`   | Yes      | Admin URL where the user can manage this license.            |
+| `expires_at` | No       | Expiry date string (e.g. `"2026-01-01"`).                    |
 
 > **Tip:** If a single license key covers multiple add-ons, emit one entry per add-on slug so each slug can be checked independently via `stellarwp_uplink_is_product_license_active()`.
 
@@ -204,16 +199,15 @@ Pass the return value as `embedded_key` when registering your product (see [Sect
 ### Filters
 
 | Filter | Purpose |
-|---|---|
-| `stellarwp/uplink/product_registry` | Register your product with Uplink. Receives and returns `array $products`. |
-| `stellarwp/uplink/legacy_licenses` | Report pre-existing licenses to Uplink. Receives and returns `array $licenses`. |
+| `stellarwp/uplink/product_registry` | Register your product with Uplink. Receives and returns `array $products`.        |
+| `stellarwp/uplink/legacy_licenses`  | Report pre-existing licenses to Uplink. Receives and returns `array $licenses`.   |
 
 ### Global Functions
 
-| Function | Signature | Purpose |
-|---|---|---|
-| `stellarwp_uplink_is_product_license_active` | `(string $slug): bool` | Check if a specific product slug has an active license. |
-| `stellarwp_uplink_has_unified_license_key` | `(): bool` | Check if a unified key is stored locally (no remote call). |
-| `stellarwp_uplink_get_unified_license_key` | `(): ?string` | Retrieve the stored unified license key. |
-| `stellarwp_uplink_is_feature_enabled` | `(string $slug): bool` | Check if a feature is in the catalog and enabled. |
-| `stellarwp_uplink_is_feature_available` | `(string $slug): bool` | Check if a feature exists in the catalog regardless of state. |
+| Function                                     | Signature              | Purpose                                                         |
+|----------------------------------------------|------------------------|-----------------------------------------------------------------|
+| `stellarwp_uplink_is_product_license_active` | `(string $slug): bool` | Check if a specific product slug has an active license.         |
+| `stellarwp_uplink_has_unified_license_key`   | `(): bool`             | Check if a unified key is stored locally (no remote call).      |
+| `stellarwp_uplink_get_unified_license_key`   | `(): ?string`          | Retrieve the stored unified license key.                        |
+| `stellarwp_uplink_is_feature_enabled`        | `(string $slug): bool` | Check if a feature is in the catalog and enabled.               |
+| `stellarwp_uplink_is_feature_available`      | `(string $slug): bool` | Check if a feature exists in the catalog regardless of state.   |

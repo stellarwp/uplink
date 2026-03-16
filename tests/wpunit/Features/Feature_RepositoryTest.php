@@ -226,7 +226,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 
 		// Free-tier features are available without a license (rank 0 >= rank 0).
 		$this->assertTrue(
-			$result->get( 'kad-blocks' )->is_available(),
+			$result->get( 'kadence-blocks' )->is_available(),
 			'Free-tier plugin should be available without a license.'
 		);
 		$this->assertTrue(

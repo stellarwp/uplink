@@ -20,6 +20,11 @@ class Token_Authorizer implements Contracts\Token_Authorizer {
 	 */
 	private $client;
 
+	/**
+	 * Constructor.
+	 *
+	 * @param Client_V3 $client The API client.
+	 */
 	public function __construct( Client_V3 $client ) {
 		$this->client = $client;
 	}
@@ -51,17 +56,15 @@ class Token_Authorizer implements Contracts\Token_Authorizer {
 		);
 
 		if ( $response instanceof WP_Error ) {
-			if ( $this->is_wp_debug() ) {
-				error_log(
-					sprintf(
-						__( 'Authorization error occurred: License: "%1$s", Token: "%2$s", Domain: "%3$s". Errors: %4$s', '%TEXTDOMAIN%' ),
-						$license,
-						$token,
-						$domain,
-						implode( ', ', $response->get_error_messages() )
-					) 
-				);
-			}
+			static::debug_log(
+				sprintf(
+					'Authorization error occurred: License: "%s", Token: "%s", Domain: "%s". Errors: %s',
+					$license,
+					$token,
+					$domain,
+					implode( ', ', $response->get_error_messages() )
+				)
+			);
 
 			return false;
 		}

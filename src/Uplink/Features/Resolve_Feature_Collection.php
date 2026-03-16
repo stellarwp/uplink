@@ -10,6 +10,7 @@ use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Licensing\Product_Collection;
 use StellarWP\Uplink\Site\Data;
+use StellarWP\Uplink\Traits\With_Debugging;
 use WP_Error;
 
 /**
@@ -21,6 +22,8 @@ use WP_Error;
  * @since 3.0.0
  */
 class Resolve_Feature_Collection {
+
+	use With_Debugging;
 
 	/**
 	 * The catalog repository.
@@ -105,6 +108,11 @@ class Resolve_Feature_Collection {
 		$catalog = $this->catalog->get();
 
 		if ( is_wp_error( $catalog ) ) {
+			static::debug_log_wp_error(
+				$catalog,
+				'Catalog fetch failed during feature resolution'
+			);
+
 			return $catalog;
 		}
 
@@ -114,6 +122,11 @@ class Resolve_Feature_Collection {
 			if ( $this->licensing->get_key() === null ) {
 				$products = new Product_Collection();
 			} else {
+				static::debug_log_wp_error(
+					$products,
+					'Licensing fetch failed during feature resolution'
+				);
+
 				return $products;
 			}
 		}
@@ -131,8 +144,7 @@ class Resolve_Feature_Collection {
 				$feature = $this->hydrate_feature( $catalog_feature, $product, $license_tier_rank );
 
 				if ( is_wp_error( $feature ) ) {
-					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
-					error_log( sprintf( 'Uplink: %s', $feature->get_error_message() ) );
+					static::debug_log( $feature->get_error_message() );
 					continue;
 				}
 
@@ -158,15 +170,29 @@ class Resolve_Feature_Collection {
 	 * @return int The tier rank, or 0 if the product has no license.
 	 */
 	private function resolve_license_tier_rank( Product_Catalog $product, Product_Collection $products ): int {
-		$license = $products->get( $product->get_product_slug() );
+		$product_slug = $product->get_product_slug();
+		$license      = $products->get( $product_slug );
 
-		if ( $license === null ) {
+		if ( null === $license ) {
 			return 0;
 		}
 
-		$tier = $product->get_tier_by_slug( $license->get_tier() );
+		$tier_slug = $license->get_tier();
+		$tier      = $product->get_tier_by_slug( $tier_slug );
 
-		return $tier !== null ? $tier->get_rank() : 0;
+		if ( null === $tier ) {
+			static::debug_log(
+				sprintf(
+					'Licensed tier slug "%s" not found in catalog for product "%s", tier rank = 0.',
+					$tier_slug,
+					$product_slug
+				)
+			);
+
+			return 0;
+		}
+
+		return $tier->get_rank();
 	}
 
 	/**

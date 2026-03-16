@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Features;
 
+use StellarWP\Uplink\Traits\With_Debugging;
 use WP_Error;
 
 /**
@@ -14,6 +15,8 @@ use WP_Error;
  * @since 3.0.0
  */
 class Feature_Repository {
+
+	use With_Debugging;
 
 	/**
 	 * The feature collection resolver.
@@ -80,8 +83,19 @@ class Feature_Repository {
 	 * @return Feature_Collection|WP_Error
 	 */
 	protected function resolve() {
-		$this->cached = ( $this->resolver )();
+		$result       = ( $this->resolver )();
+		$this->cached = $result;
 
-		return $this->cached;
+		if ( is_wp_error( $result ) ) {
+			static::debug_log(
+				sprintf(
+					'Feature resolution failed: [%s] %s',
+					$result->get_error_code(),
+					$result->get_error_message()
+				)
+			);
+		}
+
+		return $result;
 	}
 }

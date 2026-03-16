@@ -6,6 +6,7 @@ use StellarWP\Uplink\Features\Contracts\Installable;
 use StellarWP\Uplink\Features\Feature_Repository;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Licensing\License_Manager;
+use StellarWP\Uplink\Traits\With_Debugging;
 use stdClass;
 use StellarWP\Uplink\Utils\Cast;
 
@@ -19,6 +20,8 @@ use StellarWP\Uplink\Utils\Cast;
  * @since 3.0.0
  */
 class Theme_Handler {
+
+	use With_Debugging;
 
 	/**
 	 * The update data resolver.
@@ -97,24 +100,42 @@ class Theme_Handler {
 		$features = $this->feature_repository->get();
 
 		if ( is_wp_error( $features ) ) {
+			static::debug_log_wp_error(
+				$features,
+				'Theme_Handler::filter_themes_api: feature repository failed'
+			);
+
 			return $result;
 		}
 
 		$feature = $features->get( $slug );
 
+		if ( $feature === null ) {
+			return $result;
+		}
+
 		if (
-			$feature === null
-			|| (
-				$feature instanceof Installable
-				&& $feature->is_dot_org() // Dot-org features are served by WordPress.org.
-			)
+			$feature instanceof Installable
+			&& $feature->is_dot_org()
 		) {
 			return $result;
 		}
 
 		$response = ( $this->resolver )( Feature::TYPE_THEME );
 
-		if ( is_wp_error( $response ) || empty( $response[ $slug ] ) ) {
+		if ( is_wp_error( $response ) ) {
+			static::debug_log_wp_error(
+				$response,
+				sprintf(
+					'Theme_Handler::filter_themes_api: resolver failed for "%s"',
+					$slug
+				)
+			);
+
+			return $result;
+		}
+
+		if ( empty( $response[ $slug ] ) ) {
 			return $result;
 		}
 
@@ -141,7 +162,16 @@ class Theme_Handler {
 
 		$response = ( $this->resolver )( Feature::TYPE_THEME );
 
-		if ( is_wp_error( $response ) || empty( $response ) ) {
+		if ( is_wp_error( $response ) ) {
+			static::debug_log_wp_error(
+				$response,
+				'Theme_Handler::filter_update_check: resolver failed'
+			);
+
+			return $transient;
+		}
+
+		if ( empty( $response ) ) {
 			return $transient;
 		}
 

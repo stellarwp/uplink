@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink\Catalog;
 
 use StellarWP\Uplink\Catalog\Clients\Catalog_Client;
+use StellarWP\Uplink\Traits\With_Debugging;
 use WP_Error;
 
 /**
@@ -19,6 +20,8 @@ use WP_Error;
  * @since 3.0.0
  */
 class Catalog_Repository {
+
+	use With_Debugging;
 
 	/**
 	 * How long (in seconds) to suppress outbound API calls after a failure.
@@ -128,6 +131,13 @@ class Catalog_Repository {
 		$throttled = $this->get_throttled_error();
 
 		if ( $throttled !== null ) {
+			static::debug_log(
+				sprintf(
+					'Catalog fetch throttled: %s',
+					$throttled->get_error_message()
+				)
+			);
+
 			return $throttled;
 		}
 
@@ -154,6 +164,17 @@ class Catalog_Repository {
 	 */
 	protected function fetch() {
 		$result = $this->client->get_catalog();
+
+		if ( is_wp_error( $result ) ) {
+			static::debug_log(
+				sprintf(
+					'Catalog fetch failed: [%s] %s',
+					$result->get_error_code(),
+					$result->get_error_message()
+				)
+			);
+		}
+
 		$this->set_catalog( $result );
 
 		return $result;

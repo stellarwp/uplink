@@ -8,6 +8,7 @@ use StellarWP\Uplink\Licensing\Registry\Product_Registry;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
 use StellarWP\Uplink\Licensing\Results\Product_Entry;
 use StellarWP\Uplink\Licensing\Results\Validation_Result;
+use StellarWP\Uplink\Traits\With_Debugging;
 use WP_Error;
 
 /**
@@ -31,6 +32,8 @@ use WP_Error;
  * @since 3.0.0
  */
 class License_Manager {
+
+	use With_Debugging;
 
 	/**
 	 * How long (in seconds) to suppress outbound API calls after a failure.
@@ -125,8 +128,17 @@ class License_Manager {
 	 */
 	public function store_key( string $key, bool $network = false ): bool {
 		if ( ! License_Key::is_valid_format( $key ) ) {
+			static::debug_log( 'Rejected license key: invalid format.' );
+
 			return false;
 		}
+
+		static::debug_log(
+			sprintf(
+				'Storing license key (network: %s).',
+				$network ? 'yes' : 'no'
+			)
+		);
 
 		return $this->repository->store_key( $key, $network );
 	}
@@ -146,7 +158,16 @@ class License_Manager {
 	 * @return Product_Entry[]|WP_Error The product list on success, WP_Error on failure.
 	 */
 	public function validate_and_store( string $key, string $domain, bool $network = false ) {
+		static::debug_log(
+			sprintf(
+				'Validating and storing license key for domain "%s".',
+				$domain
+			)
+		);
+
 		if ( ! License_Key::is_valid_format( $key ) ) {
+			static::debug_log( 'Validate-and-store rejected: invalid key format.' );
+
 			return new WP_Error(
 				Error_Code::INVALID_KEY,
 				__( 'The license key format is invalid.', '%TEXTDOMAIN%' ),
@@ -157,6 +178,13 @@ class License_Manager {
 		$throttled = $this->get_throttled_error();
 
 		if ( $throttled !== null ) {
+			static::debug_log(
+				sprintf(
+					'Validate-and-store throttled: %s',
+					$throttled->get_error_message()
+				)
+			);
+
 			return $throttled;
 		}
 
@@ -164,6 +192,14 @@ class License_Manager {
 		$result = $this->client->get_products( $key, $domain );
 
 		if ( is_wp_error( $result ) ) {
+			static::debug_log(
+				sprintf(
+					'Validate-and-store API failed: [%s] %s',
+					$result->get_error_code(),
+					$result->get_error_message()
+				)
+			);
+
 			$data = $result->get_error_data();
 
 			if ( ! is_array( $data ) || empty( $data['status'] ) ) {
@@ -175,15 +211,26 @@ class License_Manager {
 			return $result;
 		}
 
+		static::debug_log(
+			sprintf(
+				'License validated, %d product(s) returned.',
+				count( $result )
+			)
+		);
+
 		$this->repository->set_products( Product_Collection::from_array( $result ) );
 
 		if ( ! $this->repository->store_key( $key, $network ) ) {
+			static::debug_log( 'Failed to persist license key to repository.' );
+
 			return new WP_Error(
 				Error_Code::STORE_FAILED,
 				__( 'The license key could not be stored.', '%TEXTDOMAIN%' ),
 				[ 'status' => 500 ]
 			);
 		}
+
+		static::debug_log( 'License key validated and stored successfully.' );
 
 		return $result;
 	}
@@ -203,9 +250,19 @@ class License_Manager {
 	 * @return Validation_Result|WP_Error
 	 */
 	public function validate_product( string $domain, string $product_slug ) {
+		static::debug_log(
+			sprintf(
+				'Validating product "%s" on domain "%s".',
+				$product_slug,
+				$domain
+			)
+		);
+
 		$key = $this->get_key();
 
 		if ( $key === null ) {
+			static::debug_log( 'Cannot validate product: no license key stored.' );
+
 			return new WP_Error(
 				Error_Code::INVALID_KEY,
 				__( 'No license key is stored.', '%TEXTDOMAIN%' ),
@@ -216,12 +273,27 @@ class License_Manager {
 		$throttled = $this->get_throttled_error();
 
 		if ( $throttled !== null ) {
+			static::debug_log(
+				sprintf(
+					'Product validation throttled: %s',
+					$throttled->get_error_message()
+				)
+			);
+
 			return $throttled;
 		}
 
 		$result = $this->client->validate( $key, $domain, $product_slug );
 
 		if ( is_wp_error( $result ) ) {
+			static::debug_log(
+				sprintf(
+					'Product validation API failed: [%s] %s',
+					$result->get_error_code(),
+					$result->get_error_message()
+				)
+			);
+
 			$data = $result->get_error_data();
 
 			if ( ! is_array( $data ) || empty( $data['status'] ) ) {
@@ -234,8 +306,23 @@ class License_Manager {
 		}
 
 		if ( ! $result->is_valid() ) {
+			static::debug_log(
+				sprintf(
+					'Product validation failed for "%s": %s',
+					$product_slug,
+					$result->get_status()
+				)
+			);
+
 			return $result->to_wp_error();
 		}
+
+		static::debug_log(
+			sprintf(
+				'Product "%s" validated successfully, refreshing product cache.',
+				$product_slug
+			)
+		);
 
 		$this->fetch_and_cache( $key, $domain );
 
@@ -252,6 +339,13 @@ class License_Manager {
 	 * @return bool Whether the key was successfully deleted.
 	 */
 	public function delete_key( bool $network = false ): bool {
+		static::debug_log(
+			sprintf(
+				'Deleting license key (network: %s).',
+				$network ? 'yes' : 'no'
+			)
+		);
+
 		return $this->repository->delete_key( $network );
 	}
 
@@ -298,6 +392,13 @@ class License_Manager {
 		$throttled = $this->get_throttled_error();
 
 		if ( $throttled !== null ) {
+			static::debug_log(
+				sprintf(
+					'Products fetch throttled: %s',
+					$throttled->get_error_message()
+				)
+			);
+
 			return $throttled;
 		}
 
@@ -431,6 +532,14 @@ class License_Manager {
 		$result = $this->client->get_products( $key, $domain );
 
 		if ( is_wp_error( $result ) ) {
+			static::debug_log(
+				sprintf(
+					'Products fetch failed: [%s] %s',
+					$result->get_error_code(),
+					$result->get_error_message()
+				)
+			);
+
 			$this->repository->set_products( $result );
 
 			return $result;

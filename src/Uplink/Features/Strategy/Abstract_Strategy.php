@@ -4,6 +4,7 @@ namespace StellarWP\Uplink\Features\Strategy;
 
 use StellarWP\Uplink\Features\Contracts\Strategy;
 use StellarWP\Uplink\Features\Types\Feature;
+use StellarWP\Uplink\Traits\With_Debugging;
 
 /**
  * Base class for feature-gating strategies.
@@ -13,6 +14,8 @@ use StellarWP\Uplink\Features\Types\Feature;
  * @since 3.0.0
  */
 abstract class Abstract_Strategy implements Strategy {
+
+	use With_Debugging;
 
 	/**
 	 * The feature this strategy operates on.

@@ -9,6 +9,7 @@ use Psr\Http\Message\StreamFactoryInterface;
 use StellarWP\Uplink\Licensing\Error_Code;
 use StellarWP\Uplink\Licensing\Results\Product_Entry;
 use StellarWP\Uplink\Licensing\Results\Validation_Result;
+use StellarWP\Uplink\Traits\With_Debugging;
 use WP_Error;
 
 /**
@@ -17,6 +18,8 @@ use WP_Error;
  * @since 3.0.0
  */
 final class Http_Client implements Licensing_Client {
+
+	use With_Debugging;
 
 	/**
 	 * The PSR-18 HTTP client.
@@ -87,6 +90,13 @@ final class Http_Client implements Licensing_Client {
 	 * @return Product_Entry[]|WP_Error
 	 */
 	public function get_products( string $key, string $domain ) {
+		self::debug_log(
+			sprintf(
+				'Licensing HTTP request: GET products for domain "%s".',
+				$domain
+			)
+		);
+
 		$query = http_build_query(
 			[
 				'key'    => $key,
@@ -102,6 +112,13 @@ final class Http_Client implements Licensing_Client {
 		try {
 			$response = $this->client->sendRequest( $request );
 		} catch ( ClientExceptionInterface $e ) {
+			self::debug_log(
+				sprintf(
+					'Licensing HTTP exception (get_products): %s',
+					$e->getMessage()
+				)
+			);
+
 			return new WP_Error(
 				Error_Code::INVALID_RESPONSE,
 				$e->getMessage(),
@@ -110,6 +127,10 @@ final class Http_Client implements Licensing_Client {
 		}
 
 		$status_code = $response->getStatusCode();
+
+		self::debug_log(
+			sprintf( 'Licensing HTTP response (get_products): %d', $status_code )
+		);
 
 		if ( $status_code < 200 || $status_code >= 300 ) {
 			return $this->error_from_response(
@@ -121,6 +142,8 @@ final class Http_Client implements Licensing_Client {
 		$data = json_decode( (string) $response->getBody(), true );
 
 		if ( ! is_array( $data ) || ! isset( $data['products'] ) || ! is_array( $data['products'] ) ) {
+			self::debug_log( 'Licensing response body could not be decoded as JSON.' );
+
 			return new WP_Error(
 				Error_Code::INVALID_RESPONSE,
 				'License response could not be decoded.',
@@ -151,6 +174,14 @@ final class Http_Client implements Licensing_Client {
 	 * @return Validation_Result|WP_Error
 	 */
 	public function validate( string $key, string $domain, string $product_slug ) {
+		self::debug_log(
+			sprintf(
+				'Licensing HTTP request: POST validate for product "%s" on domain "%s".',
+				$product_slug,
+				$domain
+			)
+		);
+
 		$request = $this->request_factory->createRequest(
 			'POST',
 			$this->base_url . '/stellarwp/v4/licenses/validate'
@@ -173,6 +204,13 @@ final class Http_Client implements Licensing_Client {
 		try {
 			$response = $this->client->sendRequest( $request );
 		} catch ( ClientExceptionInterface $e ) {
+			self::debug_log(
+				sprintf(
+					'Licensing HTTP exception (validate): %s',
+					$e->getMessage()
+				)
+			);
+
 			return new WP_Error(
 				Error_Code::INVALID_RESPONSE,
 				$e->getMessage(),
@@ -181,6 +219,10 @@ final class Http_Client implements Licensing_Client {
 		}
 
 		$status_code = $response->getStatusCode();
+
+		self::debug_log(
+			sprintf( 'Licensing HTTP response (validate): %d', $status_code )
+		);
 
 		if ( $status_code < 200 || $status_code >= 300 ) {
 			return $this->error_from_response(
@@ -192,6 +234,8 @@ final class Http_Client implements Licensing_Client {
 		$data = json_decode( (string) $response->getBody(), true );
 
 		if ( ! is_array( $data ) || ! isset( $data['status'] ) ) {
+			self::debug_log( 'Validation response body could not be decoded as JSON.' );
+
 			return new WP_Error(
 				Error_Code::INVALID_RESPONSE,
 				'Validation response could not be decoded.',

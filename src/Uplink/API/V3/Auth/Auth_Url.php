@@ -42,15 +42,13 @@ final class Auth_Url implements Contracts\Auth_Url {
 		);
 
 		if ( $response instanceof WP_Error ) {
-			if ( $this->is_wp_debug() ) {
-				error_log(
-					sprintf(
-						'Token auth failed for slug: "%s". Errors: %s',
-						$slug,
-						implode( ', ', $response->get_error_messages() )
-					) 
-				);
-			}
+			self::debug_log(
+				sprintf(
+					'Token auth failed for slug: "%s". Errors: %s',
+					$slug,
+					implode( ', ', $response->get_error_messages() )
+				)
+			);
 
 			return '';
 		}

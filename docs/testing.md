@@ -22,6 +22,20 @@ To run tests for the first time, there are a couple of things you need to do:
 
 You can simply run `slic run` or `slic run SUITE_YOU_WANT_TO_RUN` to quickly run automated tests for this library. If you want to use xdebug with your tests, you'll need to open a `slic ssh` session and turn xdebugging on (there's help text to show you how).
 
+## Debug logging
+
+Uplink uses the `With_Debugging` trait (`src/Uplink/Traits/With_Debugging.php`) for all debug output. When `WP_DEBUG` is enabled, log messages are written via `error_log()` with an `Uplink:` prefix so they're easy to filter.
+
+The trait provides three methods:
+
+| Method                  | Use for                                      |
+| ----------------------- | -------------------------------------------- |
+| `debug_log()`           | Plain string messages                        |
+| `debug_log_throwable()` | Exceptions — logs message, file, line, trace |
+| `debug_log_wp_error()`  | `WP_Error` objects — logs code and message   |
+
+To see Uplink debug output during test runs, make sure `WP_DEBUG` is `true` in the test environment (slic sets this by default). Grep for `Uplink:` in the PHP error log to isolate Uplink messages from other output.
+
 ## Local development with fixtures
 
 During development the [sample plugin](https://github.com/stellarwp/uplink-sample-plugin) replaces the real API clients with fixture clients that read local JSON files. The admin settings page (under **Uplink Sample Plugin**) exposes three controls:

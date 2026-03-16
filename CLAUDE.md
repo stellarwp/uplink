@@ -55,6 +55,10 @@ Fixture data lives in `tests/_data/`. The catalog and licensing fixture files ar
 
 The minimum PHP version is 7.4 (see `composer.json`). Do not use language features from PHP 8.0+ (named arguments, union types, match expressions, constructor promotion, etc.).
 
+## Debugging
+
+All debug logging goes through the `With_Debugging` trait (`src/Uplink/Traits/With_Debugging.php`). Never call `error_log()` directly — use `debug_log()`, `debug_log_throwable()`, or `debug_log_wp_error()` instead. Since it's a trait, standalone global functions that aren't inside a class can't use it — route those through a class that uses the trait (see `Global_Function_Registry` for the pattern).
+
 ## Key principles
 
 - One unified `LWSW-` license key per site, shared by all products

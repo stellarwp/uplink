@@ -147,14 +147,53 @@ export default class UplinkError extends Error {
 	}
 
 	/**
-	 * Wrap an unknown caught value into an UplinkError with context.
+	 * Async wrap of an unknown caught value into an UplinkError with context.
 	 *
 	 * The provided `code` and `message` describe what operation failed.
 	 * The original value is preserved as `cause` so the full error chain
 	 * is available for inspection. When the original is a WpRestError,
 	 * its `data` and `additional_errors` are also carried forward.
+	 *
+	 * Handles `Response` objects that apiFetch throws when it cannot
+	 * parse JSON or when `parse: false` is used.
 	 */
-	static wrap(error: unknown, code: ErrorCode, message: string): UplinkError {
+	static async wrap(
+		error: unknown,
+		code: ErrorCode,
+		message: string
+	): Promise<UplinkError> {
+		if (error instanceof Response) {
+			try {
+				const body = await error.json();
+				if (isWpRestError(body)) {
+					return new UplinkError(
+						{
+							code,
+							message,
+							data: body.data,
+							additional_errors: body.additional_errors,
+						},
+						{ cause: new UplinkError(body) }
+					);
+				}
+			} catch {
+				// Response body wasn't JSON, fall through.
+			}
+
+			return new UplinkError({ code, message });
+		}
+
+		return UplinkError.wrapSync(error, code, message);
+	}
+
+	/**
+	 * Synchronous wrap of an unknown caught value into an UplinkError
+	 * with context.
+	 *
+	 * Same as `wrap` but cannot handle `Response` objects. Use this in
+	 * synchronous code paths where `await` is not available.
+	 */
+	static wrapSync(error: unknown, code: ErrorCode, message: string): UplinkError {
 		if (error instanceof UplinkError || error instanceof Error) {
 			return new UplinkError({ code, message }, { cause: error });
 		}

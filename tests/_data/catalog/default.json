@@ -545,7 +545,7 @@
     "tiers": [
       {
         "slug": "learndash-basic",
-        "name": "Basic",
+        "name": "Essentials",
         "rank": 1,
         "purchase_url": "https://software.liquidweb.com/learndash?tier=basic"
       },
@@ -556,10 +556,10 @@
         "purchase_url": "https://software.liquidweb.com/learndash?tier=pro"
       },
       {
-        "slug": "learndash-agency",
-        "name": "Agency",
+        "slug": "learndash-elite",
+        "name": "Elite",
         "rank": 3,
-        "purchase_url": "https://software.liquidweb.com/learndash?tier=agency"
+        "purchase_url": "https://software.liquidweb.com/learndash?tier=elite"
       }
     ],
     "features": [
@@ -569,7 +569,6 @@
         "minimum_tier": "learndash-basic",
         "plugin_file": "sfwd-lms/sfwd_lms.php",
         "is_dot_org": false,
-        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash",
         "name": "LearnDash LMS",
         "description": "The most trusted WordPress LMS plugin for creating and selling courses.",
         "category": "core",
@@ -577,100 +576,17 @@
           "LearnDash"
         ],
         "documentation_url": "https://www.learndash.com/support/",
-        "version": "4.17.0",
+        "version": "5.0.2.1",
         "released_at": "2025-11-19",
         "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
       },
       {
-        "feature_slug": "ld-instructor-role",
-        "type": "flag",
-        "minimum_tier": "learndash-basic",
-        "is_dot_org": false,
-        "name": "Instructor Role",
-        "description": "Allow multiple instructors to create and manage their own courses.",
-        "category": "core",
-        "authors": [
-          "LearnDash"
-        ],
-        "documentation_url": "https://www.learndash.com/support/"
-      },
-      {
-        "feature_slug": "ld-ratings-reviews",
-        "type": "flag",
-        "minimum_tier": "learndash-basic",
-        "is_dot_org": false,
-        "name": "Ratings, Reviews & Feedback",
-        "description": "Enable students to rate and review courses.",
-        "category": "core",
-        "authors": [
-          "LearnDash"
-        ],
-        "documentation_url": "https://www.learndash.com/support/"
-      },
-      {
-        "feature_slug": "ld-propanel",
+        "feature_slug": "learndash-memberdash",
         "type": "plugin",
-        "minimum_tier": "learndash-pro",
-        "plugin_file": "learndash-propanel/learndash-propanel.php",
-        "is_dot_org": false,
-        "download_url": "https://licensing.stellarwp.com/api/plugins/ld-propanel",
-        "name": "ProPanel",
-        "description": "Real-time reporting dashboard for course activity and student progress.",
-        "category": "reporting",
-        "authors": [
-          "LearnDash"
-        ],
-        "documentation_url": "https://www.learndash.com/support/",
-        "version": "3.2.2",
-        "released_at": "2025-11-06",
-        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
-      },
-      {
-        "feature_slug": "ld-notes",
-        "type": "flag",
         "minimum_tier": "learndash-basic",
-        "is_dot_org": false,
-        "name": "Notes",
-        "description": "Allow students to take and save notes within lessons.",
-        "category": "core",
-        "authors": [
-          "LearnDash"
-        ],
-        "documentation_url": "https://www.learndash.com/support/"
-      },
-      {
-        "feature_slug": "ld-gradebook",
-        "type": "flag",
-        "minimum_tier": "learndash-pro",
-        "is_dot_org": false,
-        "name": "Gradebook",
-        "description": "Comprehensive gradebook for tracking student performance across courses.",
-        "category": "reporting",
-        "authors": [
-          "LearnDash"
-        ],
-        "documentation_url": "https://www.learndash.com/support/"
-      },
-      {
-        "feature_slug": "ld-groups-management",
-        "type": "flag",
-        "minimum_tier": "learndash-pro",
-        "is_dot_org": false,
-        "name": "Groups Management",
-        "description": "Organize learners into groups with group leaders and bulk enrollment.",
-        "category": "management",
-        "authors": [
-          "LearnDash"
-        ],
-        "documentation_url": "https://www.learndash.com/support/"
-      },
-      {
-        "feature_slug": "ld-memberdash",
-        "type": "plugin",
-        "minimum_tier": "learndash-agency",
         "plugin_file": "memberdash/memberdash.php",
         "is_dot_org": false,
-        "download_url": "https://licensing.stellarwp.com/api/plugins/ld-memberdash",
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-memberdash",
         "name": "MemberDash",
         "description": "Membership and content restriction functionality.",
         "category": "membership",
@@ -680,6 +596,492 @@
         "documentation_url": "https://www.learndash.com/support/",
         "version": "2.1.0",
         "released_at": "2025-11-08",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-gradebook",
+        "type": "plugin",
+        "minimum_tier": "learndash-pro",
+        "plugin_file": "learndash-gradebook/learndash-gradebook.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-gradebook",
+        "name": "Gradebook",
+        "description": "Easily customize, track, and share scores with Gradebook. Explore student progression and scores in simple, flexible gradebook tables, and share individual scores and progress with students and their parents.",
+        "category": "reporting",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "4.3.4",
+        "released_at": "2025-11-15",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-groups-plus",
+        "type": "plugin",
+        "minimum_tier": "learndash-agency",
+        "plugin_file": "learndash-groups-plus/learndash-groups-plus.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-groups-plus",
+        "name": "Groups Plus",
+        "description": "Groups Plus modifies LearnDash Groups Hierarchy to create Organizations. Using WooCommerce, you can create and sell entire Organizations and allow your customers to purchase individual course seats within their Organization.",
+        "category": "management",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "2.1.5",
+        "released_at": "2025-11-15",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-instructor-role",
+        "type": "plugin",
+        "minimum_tier": "learndash-agency",
+        "plugin_file": "instructor-role/instructor.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-instructor-role",
+        "name": "Instructor Role",
+        "description": "Add multiple course authors without compromising site security by creating roles with restricted back-end access to Course Authors.",
+        "category": "core",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "5.9.13",
+        "released_at": "2025-11-15",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-notes",
+        "type": "plugin",
+        "minimum_tier": "learndash-pro",
+        "plugin_file": "learndash-notes/learndash-student-notes.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-notes",
+        "name": "Notes",
+        "description": "The Notes add-on makes note-taking simple and facilitates instructor communication during study time with an intuitive and flexible toolset.",
+        "category": "core",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "2.0.1",
+        "released_at": "2025-11-15",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-propanel",
+        "type": "plugin",
+        "minimum_tier": "learndash-pro",
+        "plugin_file": "learndash-propanel/learndash_propanel.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/ld-propanel",
+        "name": "ProPanel",
+        "description": "Real-time reporting dashboard for course activity and student progress.",
+        "category": "reporting",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "3.0.5",
+        "released_at": "2025-11-06",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-ratings-reviews",
+        "type": "plugin",
+        "minimum_tier": "learndash-agency",
+        "plugin_file": "wdm-course-review/wdm-course-review.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-ratings-reviews",
+        "name": "Ratings, Reviews & Feedback",
+        "description": "Full control over the display of ratings and reviews, set custom templates, and make your courses better with student feedback.",
+        "category": "core",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "2.2.5",
+        "released_at": "2025-11-15",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-seats-plus",
+        "type": "plugin",
+        "minimum_tier": "learndash-agency",
+        "plugin_file": "ld-group-registration/ld-group-registration.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-seats-plus",
+        "name": "Group Registration",
+        "description": "Group registration and seat management for LearnDash courses.",
+        "category": "management",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "4.3.17",
+        "released_at": "2025-11-15",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-achievements",
+        "type": "plugin",
+        "minimum_tier": "learndash-basic",
+        "plugin_file": "learndash-achievements/learndash-achievements.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-achievements",
+        "name": "Achievements",
+        "description": "Award badges and points for learner milestones and accomplishments through gamification.",
+        "category": "core",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "2.0.4",
+        "released_at": "2025-11-15",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-certificate-builder",
+        "type": "plugin",
+        "minimum_tier": "learndash-basic",
+        "plugin_file": "learndash-certificate-builder/learndash-certificate-builder.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-certificate-builder",
+        "name": "Certificate Builder",
+        "description": "Build certificates using a drag and drop builder through the standard WordPress Gutenberg editor.",
+        "category": "core",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "1.1.5",
+        "released_at": "2025-11-15",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-elementor",
+        "type": "plugin",
+        "minimum_tier": "learndash-basic",
+        "plugin_file": "learndash-elementor/learndash-elementor.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-elementor",
+        "name": "Elementor",
+        "description": "Use the powerful editing capabilities of Elementor to build your course exactly how you want it.",
+        "category": "integration",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "1.0.11",
+        "released_at": "2025-11-15",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-notifications",
+        "type": "plugin",
+        "minimum_tier": "learndash-basic",
+        "plugin_file": "learndash-notifications/learndash-notifications.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-notifications",
+        "name": "Notifications",
+        "description": "Configure various notifications to be sent out automatically based on what learners do and do not do in a course.",
+        "category": "core",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "1.6.7",
+        "released_at": "2025-11-15",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-woocommerce",
+        "type": "plugin",
+        "minimum_tier": "learndash-basic",
+        "plugin_file": "learndash-woocommerce/learndash_woocommerce.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-woocommerce",
+        "name": "WooCommerce",
+        "description": "Sell your LearnDash courses with the WooCommerce shopping cart.",
+        "category": "integration",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "2.0.2",
+        "released_at": "2025-11-15",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-integrity",
+        "type": "plugin",
+        "minimum_tier": "learndash-basic",
+        "plugin_file": "learndash-integrity/learndash-integrity.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-integrity",
+        "name": "Integrity",
+        "description": "Protect your course and website from spam, abuse and the copying of your content by students.",
+        "category": "core",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "1.2.1",
+        "released_at": "2025-11-15",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-tec",
+        "type": "plugin",
+        "minimum_tier": "learndash-basic",
+        "plugin_file": "ld-tec/learndash-tec.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-tec",
+        "name": "Events Calendar",
+        "description": "Connect an event with a course or group and automatically enroll the user using The Events Calendar.",
+        "category": "integration",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "1.0.3",
+        "released_at": "2025-11-15",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-zapier",
+        "type": "plugin",
+        "minimum_tier": "learndash-basic",
+        "plugin_file": "learndash-zapier/learndash_zapier.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-zapier",
+        "name": "Zapier",
+        "description": "Create Zaps that include LearnDash activities, connecting with over 300 applications.",
+        "category": "integration",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "2.3.2",
+        "released_at": "2025-11-15",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-migrations",
+        "type": "plugin",
+        "minimum_tier": "learndash-basic",
+        "plugin_file": "learndash-migration/learndash-migration.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-migrations",
+        "name": "Migrations",
+        "description": "Bring your course content over from other learning management systems like LearnPress, Tutor LMS, Sensei LMS, or Lifter LMS.",
+        "category": "core",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "1.1.1",
+        "released_at": "2024-11-06",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-paidmemberships",
+        "type": "plugin",
+        "minimum_tier": "learndash-basic",
+        "plugin_file": "learndash-paidmemberships/learndash-paidmemberships.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-paidmemberships",
+        "name": "Paid Memberships Pro",
+        "description": "Create membership level access and associate the access levels to LearnDash courses with Paid Memberships Pro.",
+        "category": "integration",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "1.3.5",
+        "released_at": "2025-11-15",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-edd",
+        "type": "plugin",
+        "minimum_tier": "learndash-basic",
+        "plugin_file": "learndash-edd/learndash-edd.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-edd",
+        "name": "Easy Digital Downloads",
+        "description": "Sell LearnDash courses using the Easy Digital Downloads shopping cart.",
+        "category": "integration",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "1.4.0",
+        "released_at": "2025-11-15",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-memberpress",
+        "type": "plugin",
+        "minimum_tier": "learndash-basic",
+        "plugin_file": "learndash-memberpress/learndash-memberpress.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-memberpress",
+        "name": "MemberPress",
+        "description": "Create membership levels in MemberPress and associate them to LearnDash courses with auto-enrollment.",
+        "category": "integration",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "2.2.2",
+        "released_at": "2025-11-15",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-gravity-forms",
+        "type": "plugin",
+        "minimum_tier": "learndash-basic",
+        "plugin_file": "learndash-gravity-forms/learndash_gravityforms.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-gravity-forms",
+        "name": "Gravity Forms",
+        "description": "Create custom course registration forms and auto-enroll users with Gravity Forms.",
+        "category": "integration",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "2.1.3",
+        "released_at": "2025-11-15",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-bbpress",
+        "type": "plugin",
+        "minimum_tier": "learndash-basic",
+        "plugin_file": "learndash-bbpress/learndash-bbpress.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-bbpress",
+        "name": "bbPress",
+        "description": "Add forums to your courses with bbPress, protecting them so only enrolled users can view and post.",
+        "category": "integration",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "2.2.5",
+        "released_at": "2025-11-15",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-thrivecart",
+        "type": "plugin",
+        "minimum_tier": "learndash-basic",
+        "plugin_file": "learndash-thrivecart/learndash-thrivecart.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-thrivecart",
+        "name": "ThriveCart",
+        "description": "Sell your courses with ThriveCart, a premium eCommerce solution with subscriptions, analytics, and more.",
+        "category": "integration",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "1.0.3",
+        "released_at": "2025-11-15",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-2checkout",
+        "type": "plugin",
+        "minimum_tier": "learndash-basic",
+        "plugin_file": "learndash-2checkout/sfwd-2checkout.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-2checkout",
+        "name": "2Checkout",
+        "description": "Sell courses using the 2Checkout payment gateway.",
+        "category": "integration",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "1.1.1.2",
+        "released_at": "2025-11-15",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-event-espresso",
+        "type": "plugin",
+        "minimum_tier": "learndash-basic",
+        "plugin_file": "learndash-event-espresso/event-espresso.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-event-espresso",
+        "name": "Event Espresso",
+        "description": "Associate online courses to live events so that when users register, they are auto-enrolled.",
+        "category": "integration",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "1.1.0",
+        "released_at": "2025-11-15",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-samcart",
+        "type": "plugin",
+        "minimum_tier": "learndash-basic",
+        "plugin_file": "learndash-samcart/learndash-samcart.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-samcart",
+        "name": "SamCart",
+        "description": "Sell LearnDash courses with SamCart, a high-converting hosted shopping cart.",
+        "category": "integration",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "1.1.0.1",
+        "released_at": "2025-11-15",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-multilingual",
+        "type": "plugin",
+        "minimum_tier": "learndash-basic",
+        "plugin_file": "learndash-multilingual/ld-multilingual.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-multilingual",
+        "name": "Multilingual",
+        "description": "Greater compatibility between LearnDash and multilingual sites using 3rd party translation plugins.",
+        "category": "integration",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "1.0.0",
+        "released_at": "2025-11-15",
+        "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
+      },
+      {
+        "feature_slug": "learndash-restrict-content-pro",
+        "type": "plugin",
+        "minimum_tier": "learndash-basic",
+        "plugin_file": "learndash-restrict-content-pro/learndash-restrict-content-pro.php",
+        "is_dot_org": false,
+        "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-restrict-content-pro",
+        "name": "Restrict Content Pro",
+        "description": "Create membership levels in Restrict Content Pro and associate them to LearnDash courses with auto-enrollment.",
+        "category": "integration",
+        "authors": [
+          "LearnDash"
+        ],
+        "documentation_url": "https://www.learndash.com/support/",
+        "version": "1.1.2",
+        "released_at": "2025-11-15",
         "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
       }
     ]

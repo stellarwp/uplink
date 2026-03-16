@@ -44,6 +44,8 @@ final class License_Notice_HandlerTest extends UplinkTestCase {
 
 	protected function tearDown(): void {
 		remove_all_filters( 'stellarwp/uplink/legacy_licenses' );
+		wp_dequeue_script( 'stellarwp-uplink-notice-dismiss' );
+		wp_deregister_script( 'stellarwp-uplink-notice-dismiss' );
 		wp_set_current_user( 0 );
 		parent::tearDown();
 	}

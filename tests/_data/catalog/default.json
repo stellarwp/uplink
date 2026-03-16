@@ -556,10 +556,10 @@
         "purchase_url": "https://software.liquidweb.com/learndash?tier=pro"
       },
       {
-        "slug": "learndash-agency",
+        "slug": "learndash-elite",
         "name": "Elite",
         "rank": 3,
-        "purchase_url": "https://software.liquidweb.com/learndash?tier=agency"
+        "purchase_url": "https://software.liquidweb.com/learndash?tier=elite"
       }
     ],
     "features": [
@@ -568,7 +568,7 @@
         "type": "plugin",
         "minimum_tier": "learndash-basic",
         "plugin_file": "sfwd-lms/sfwd_lms.php",
-        "is_dot_org": true,
+        "is_dot_org": false,
         "name": "LearnDash LMS",
         "description": "The most trusted WordPress LMS plugin for creating and selling courses.",
         "category": "core",

@@ -149,7 +149,7 @@ final class License_Notice_HandlerTest extends UplinkTestCase {
 
 		$output = $this->capture_display();
 
-		$this->assertStringContainsString( 'inactive Give license', $output );
+		$this->assertStringContainsString( '1 inactive Give license', $output );
 		$this->assertStringNotContainsString( 'inactive Give licenses', $output );
 	}
 

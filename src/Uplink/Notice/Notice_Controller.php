@@ -43,12 +43,12 @@ final class Notice_Controller extends Controller {
 			$large ? 'notice-large' : '',
 		];
 
-		echo $this->view->render(
+		$this->view->display(
 			self::VIEW,
 			[
 				'message'           => $message,
-				'id'                => $id,
-				'classes'           => $this->classes( $classes ),
+				'id'                => esc_attr( $id ),
+				'classes'           => esc_attr( $this->classes( $classes ) ),
 				'allowed_tags'      => [
 					'a'      => [
 						'href'   => [],
@@ -68,7 +68,7 @@ final class Notice_Controller extends Controller {
 					'https',
 					'mailto',
 				],
-			] 
+			]
 		);
 	}
 }

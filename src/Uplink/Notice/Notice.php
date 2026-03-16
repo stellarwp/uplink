@@ -72,6 +72,8 @@ final class Notice {
 	 * @param bool   $alt         Whether this is an alt-notice.
 	 * @param bool   $large       Whether this should be a large notice.
 	 * @param string $id          Optional unique ID for persistent dismissal.
+	 *
+	 * @throws InvalidArgumentException If the type is not one of the allowed types or the message is empty.
 	 */
 	public function __construct(
 		string $type,
@@ -84,14 +86,18 @@ final class Notice {
 		if ( ! in_array( $type, self::ALLOWED_TYPES, true ) ) {
 			throw new InvalidArgumentException(
 				sprintf(
+					/* translators: %s is the list of allowed notice types. */
 					__( 'Notice $type must be one of: %s', '%TEXTDOMAIN%' ),
-					implode( ', ', self::ALLOWED_TYPES ) 
+					implode( ', ', self::ALLOWED_TYPES )
 				)
 			);
 		}
 
 		if ( empty( $message ) ) {
-			throw new InvalidArgumentException( __( 'The $message cannot be empty', '%TEXTDOMAIN%' ) );
+			throw new InvalidArgumentException(
+				/* translators: %s is the list of allowed notice types. */
+				__( 'The $message cannot be empty', '%TEXTDOMAIN%' )
+			);
 		}
 
 		$this->type        = $type;
@@ -103,9 +109,19 @@ final class Notice {
 	}
 
 	/**
-	 * @return array{type: string, message: string, dismissible: bool, alt: bool, large: bool, id: string}
+	 * @deprecated 3.0.0 Use to_array() instead.
+	 * @return array<mixed>
 	 */
 	public function toArray(): array {
+		return get_object_vars( $this );
+	}
+
+	/**
+	 * @since 3.0.0
+	 *
+	 * @return array{type: string, message: string, dismissible: bool, alt: bool, large: bool, id: string}
+	 */
+	public function to_array(): array {
 		return [
 			'type'        => $this->type,
 			'message'     => $this->message,

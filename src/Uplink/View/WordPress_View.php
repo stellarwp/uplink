@@ -73,6 +73,22 @@ final class WordPress_View implements Contracts\View {
 	}
 
 	/**
+	 * Render a view directly to output.
+	 *
+	 * @param string  $name  The relative path/name of the view file without extension.
+	 * @param mixed[] $args  Arguments to be extracted and passed to the view.
+	 *
+	 * @return void
+	 *
+	 */
+	public function display( string $name, array $args = [] ): void {
+		$file = $this->get_path( $name );
+
+		extract( $args );
+		include $file;
+	}
+
+	/**
 	 * Get the absolute server path to a view file.
 	 *
 	 * @param string $name  The relative view path/name, e.g. `admin/notice`.

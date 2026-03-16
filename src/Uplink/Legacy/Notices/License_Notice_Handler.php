@@ -5,6 +5,7 @@ namespace StellarWP\Uplink\Legacy\Notices;
 use StellarWP\Uplink\Legacy\License_Repository;
 use StellarWP\Uplink\Notice\Notice;
 use StellarWP\Uplink\Notice\Notice_Controller;
+use StellarWP\Uplink\Uplink;
 use StellarWP\Uplink\Utils\Cast;
 use StellarWP\Uplink\Utils\Version;
 
@@ -43,6 +44,12 @@ class License_Notice_Handler {
 	 */
 	private $controller;
 
+	/**
+	 * @since 3.0.0
+	 *
+	 * @param License_Repository $repository The license repository.
+	 * @param Notice_Controller  $controller The notice controller.
+	 */
 	public function __construct( License_Repository $repository, Notice_Controller $controller ) {
 		$this->repository = $repository;
 		$this->controller = $controller;
@@ -125,15 +132,16 @@ class License_Notice_Handler {
 	 *
 	 * TODO: Decide on messaging for all brands.
 	 *
-	 * @param string                                          $brand
-	 * @param array{id: string, page_url: string, count: int} $data
+	 * @param string                                          $brand The brand name.
+	 * @param array{id: string, page_url: string, count: int} $data The notice data.
 	 *
 	 * @return void
 	 */
 	private function render_notice( string $brand, array $data ): void {
 		$message = sprintf(
+			/* translators: %1$s is the brand name, %2$s is the page URL, %3$d is the number of inactive licenses. */
 			_n(
-				'You have an inactive %1$s license. Please <a href="%2$s">activate it</a> to receive critical updates and new features.',
+				'You have %3$d inactive %1$s license. Please <a href="%2$s">activate it</a> to receive critical updates and new features.',
 				'You have %3$d inactive %1$s licenses. Please <a href="%2$s">activate them</a> to receive critical updates and new features.',
 				$data['count'],
 				'%TEXTDOMAIN%'
@@ -144,7 +152,7 @@ class License_Notice_Handler {
 		);
 
 		$this->controller->render(
-			( new Notice( Notice::ERROR, $message, true, false, false, $data['id'] ) )->toArray()
+			( new Notice( Notice::ERROR, $message, true, false, false, $data['id'] ) )->to_array()
 		);
 	}
 
@@ -153,7 +161,7 @@ class License_Notice_Handler {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @return void
+	 * @return void Enqueues the notice dismiss script.
 	 */
 	private function enqueue_dismiss_script(): void {
 		$handle = 'stellarwp-uplink-notice-dismiss';
@@ -165,7 +173,7 @@ class License_Notice_Handler {
 				$handle,
 				$assets_url . 'assets/js/notice-dismiss.js',
 				[ 'wp-api-fetch' ],
-				null,
+				Uplink::VERSION,
 				[ 'in_footer' => true ]
 			);
 

@@ -64,7 +64,7 @@ final class Notice_Handler {
 		}
 
 		foreach ( $this->notices as $notice ) {
-			$this->controller->render( $notice->toArray() );
+			$this->controller->render( $notice->to_array() );
 		}
 
 		$this->clear();

@@ -64,8 +64,9 @@ export const getCatalog =
 		}
 	};
 
-export const getProductCatalog = forwardResolver('getCatalog');
-export const getProductTiers = forwardResolver('getCatalog');
+export const getProductCatalog = forwardResolverWithoutArgs('getCatalog');
+export const getProductTiers   = forwardResolverWithoutArgs('getCatalog');
+export const getCatalogTier    = forwardResolverWithoutArgs('getCatalog');
 
 // ---------------------------------------------------------------------------
 // License
@@ -92,4 +93,5 @@ export const getLicenseKey =
 		}
 	};
 
-export const hasLicense = forwardResolver('getLicenseKey');
+export const hasLicense         = forwardResolver( 'getLicenseKey' );
+export const getLicenseProducts = forwardResolverWithoutArgs( 'getLicenseKey' );

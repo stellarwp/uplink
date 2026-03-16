@@ -1,31 +1,30 @@
 /**
- * Application shell — header + 2-tab navigation.
+ * Application shell — full-width two-column layout.
  *
- * Tabs: My Products | Licenses
+ * Main area: FilterBar header + product sections.
+ * Sidebar: license panel.
  *
  * @package StellarWP\Uplink
  */
-import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
-import { Cloud, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useSelect } from '@wordpress/data';
-import { MyProductsTab } from '@/components/organisms/MyProductsTab';
-import { LicenseList } from '@/components/organisms/LicenseList';
+import { Shell } from '@/components/templates/Shell';
+import { FilterBar } from '@/components/molecules/FilterBar';
+import { LicensePanel } from '@/components/organisms/LicensePanel';
+import { LegacyLicenseBanner } from '@/components/molecules/LegacyLicenseBanner';
+import { ProductSection } from '@/components/organisms/ProductSection';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { PRODUCTS } from '@/data/products';
 import { store as uplinkStore } from '@/store';
-import { cn } from '@/lib/utils';
-
-type Tab = 'my-products' | 'licenses';
+import { useFilter } from '@/context/filter-context';
 
 /**
  * @since 3.0.0
  */
 export function AppShell() {
-    const [ activeTab, setActiveTab ] = useState<Tab>( 'my-products' );
-    const [ addLicenseOpen, setAddLicenseOpen ] = useState( false );
-
-    // Trigger both resolvers and wait for them to complete before rendering
-    // tab content, so we never flash a "No license" state on first load.
+    // Trigger all three resolvers and wait for completion before rendering
+    // content, so we never flash stale tier badges or a "No license" state.
     const isLoading = useSelect(
         ( select ) => {
             const s = select( uplinkStore ) as unknown as {
@@ -33,88 +32,48 @@ export function AppShell() {
             };
             select( uplinkStore ).getLicenseKey();
             select( uplinkStore ).getFeatures();
+            select( uplinkStore ).getCatalog();
             return ! s.hasFinishedResolution( 'getLicenseKey', [] )
-                || ! s.hasFinishedResolution( 'getFeatures', [] );
+                || ! s.hasFinishedResolution( 'getFeatures', [] )
+                || ! s.hasFinishedResolution( 'getCatalog', [] );
         },
         [],
     );
 
-    // When MyProductsTab requests to open the Add License dialog,
-    // switch to the Licenses tab which owns the dialog.
-    const handleAddLicenseRequest = () => {
-        setActiveTab( 'licenses' );
-        // Small delay so tab content mounts first, then dialog can be triggered.
-        // LicenseList manages its own dialog state; we signal via a key prop trick.
-        setAddLicenseOpen( true );
-    };
+    const { productFilter } = useFilter();
+
+    const visibleProducts = productFilter === 'all'
+        ? PRODUCTS
+        : PRODUCTS.filter( ( p ) => p.slug === productFilter );
 
     return (
-        <div className="max-w-[1200px] mx-auto p-4 md:p-8 space-y-6">
-            {/* Page Header */}
-            <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary text-primary-foreground">
-                    <Cloud className="w-6 h-6" />
-                </div>
-                <div>
-                    <h1 className="text-xl font-normal tracking-tight m-0 p-0">
-                        { __( 'Liquid Web Software', '%TEXTDOMAIN%' ) }
-                    </h1>
-                    <p className="text-sm text-muted-foreground leading-tight m-0 p-0">
-                        { __( 'Manage your product licenses and features', '%TEXTDOMAIN%' ) }
-                    </p>
-                </div>
-            </div>
-
+        <Shell
+            header={ <FilterBar /> }
+            sideContent={ <LicensePanel /> }
+        >
             { isLoading ? (
                 <div className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
                     <Loader2 className="w-5 h-5 animate-spin" />
                     { __( 'Loading…', '%TEXTDOMAIN%' ) }
                 </div>
             ) : (
-                <>
-                    {/* Tab Navigation */}
-                    <div className="border-b border-border">
-                        <nav className="flex gap-0" aria-label={ __( 'Dashboard tabs', '%TEXTDOMAIN%' ) }>
-                            { (
-                                [
-                                    { id: 'my-products', label: __( 'My Products', '%TEXTDOMAIN%' ) },
-                                    { id: 'licenses', label: __( 'Licenses', '%TEXTDOMAIN%' ) },
-                                ] as const
-                            ).map( ( tab ) => (
-                                <button
-                                    key={ tab.id }
-                                    type="button"
-                                    role="tab"
-                                    aria-selected={ activeTab === tab.id }
-                                    onClick={ () => setActiveTab( tab.id ) }
-                                    className={ cn(
-                                        'px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors',
-                                        activeTab === tab.id
-                                            ? 'border-primary text-primary'
-                                            : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
-                                    ) }
-                                >
-                                    { tab.label }
-                                </button>
-                            ) ) }
-                        </nav>
-                    </div>
+                <ErrorBoundary>
+                    <div className="space-y-8">
+                        <LegacyLicenseBanner />
 
-                    {/* Tab Content */}
-                    <div role="tabpanel">
-                        { activeTab === 'my-products' && (
-                            <ErrorBoundary>
-                                <MyProductsTab onAddLicense={ handleAddLicenseRequest } />
-                            </ErrorBoundary>
-                        ) }
-                        { activeTab === 'licenses' && (
-                            <ErrorBoundary>
-                                <LicenseList openAddDialog={ addLicenseOpen } onAddDialogClose={ () => setAddLicenseOpen( false ) } />
-                            </ErrorBoundary>
-                        ) }
+						<div className="flex items-center !mt-8 !mb-6">
+							<h2 className="!text-2xl !font-normal !m-0 !p-0">{ __( 'Your Features', '%TEXTDOMAIN%' ) }</h2>
+						</div>
+
+                        { visibleProducts.map( ( product ) => (
+                            <ProductSection
+                                key={ product.slug }
+                                product={ product }
+                            />
+                        ) ) }
                     </div>
-                </>
+                </ErrorBoundary>
             ) }
-        </div>
+        </Shell>
     );
 }

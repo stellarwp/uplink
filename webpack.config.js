@@ -25,6 +25,7 @@ module.exports = {
             '@components': path.resolve( process.cwd(), 'resources', 'js', 'components' ),
             '@lib':        path.resolve( process.cwd(), 'resources', 'js', 'lib' ),
             '@css':        path.resolve( process.cwd(), 'resources', 'css' ),
+            '@img':        path.resolve( process.cwd(), 'resources', 'img' ),
         },
     },
     optimization: {

@@ -77,6 +77,21 @@ export const getProductTiers = createSelector(
 	(state: State, slug: string) => [state.catalog.byProductSlug, slug]
 );
 
+/**
+ * Returns a single CatalogTier by product slug and tier slug, or null.
+ *
+ * CatalogTier.purchase_url is the authoritative source for upgrade links —
+ * prefer it over the static Tier.upgradeUrl fixture when available.
+ */
+export const getCatalogTier = (
+	state: State,
+	productSlug: string,
+	tierSlug: string
+): CatalogTier | null =>
+	state.catalog.byProductSlug[ productSlug ]?.tiers.find(
+		( t ) => t.slug === tierSlug
+	) ?? null;
+
 // ---------------------------------------------------------------------------
 // License
 // ---------------------------------------------------------------------------

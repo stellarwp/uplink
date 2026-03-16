@@ -29,7 +29,7 @@
     ],
     "features": [
       {
-        "feature_slug": "kad-blocks",
+        "feature_slug": "kadence-blocks",
         "type": "plugin",
         "minimum_tier": "kadence-free",
         "plugin_file": "kadence-blocks/kadence-blocks.php",
@@ -38,7 +38,7 @@
         "description": "A free Gutenberg block library for building pages with Kadence.",
         "category": "blocks",
         "authors": [
-          "KadenceWP"
+          "Kadence WP"
         ],
         "documentation_url": "https://www.kadencewp.com/help-center/",
         "version": "3.4.6",

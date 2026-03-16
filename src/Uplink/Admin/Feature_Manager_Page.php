@@ -41,8 +41,8 @@ class Feature_Manager_Page {
 			'manage_options',
 			'lws-feature-manager',
 			[ $this, 'render' ],
-			'dashicons-admin-network',
-			81
+			'dashicons-cloud',
+			3
 		);
 
 		add_action( 'admin_enqueue_scripts', [ $this, 'maybe_enqueue_assets' ] );

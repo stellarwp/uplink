@@ -1,126 +1,145 @@
 /**
- * Product section: sticky header + feature list.
+ * Product section: sticky dark header + feature list + tier group accordions.
  *
- * Renders for both licensed and unlicensed products.
- * License state and feature availability come from the stellarwp/uplink store.
+ * Available features render as FeatureRow entries. Locked features are
+ * grouped by tier and rendered inside collapsible TierGroup accordions.
  *
- * @package StellarWP\\Uplink
+ * Header counts (active / deactivated) always reflect the full unfiltered
+ * feature set so they remain stable while the user searches.
+ *
+ * @package StellarWP\Uplink
  */
-import { useState } from 'react';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { BrandIcon } from '@/components/atoms/BrandIcon';
+import { ProductLogo } from '@/components/atoms/ProductLogo';
 import { FeatureRow } from '@/components/molecules/FeatureRow';
-import { BRAND_CONFIGS } from '@/data/brands';
+import { TierGroup } from '@/components/molecules/TierGroup';
 import { store as uplinkStore } from '@/store';
+import { useFilter } from '@/context/filter-context';
+import { useFilteredFeatures } from '@/hooks/useFilteredFeatures';
 import type { Product } from '@/types/api';
 
 interface ProductSectionProps {
     product: Product;
-    /** Opens the Add License dialog — passed down from MyProductsTab */
-    onAddLicense: () => void;
 }
 
 /**
  * @since 3.0.0
  */
-export function ProductSection( { product, onAddLicense }: ProductSectionProps ) {
-    const config = BRAND_CONFIGS[ product.slug ];
-    // TODO: product active/inactive state is local-only for now. When the
-    // product-status REST endpoint lands (Phase 5), replace this with a
-    // store action + selector so the state is persisted server-side.
-    const [ productActive, setProductActive ] = useState( true );
+export function ProductSection( { product }: ProductSectionProps ) {
+    const { searchQuery } = useFilter();
+    const isSearching = searchQuery.trim().length > 0;
 
-    const { features, hasLicense } = useSelect(
-        ( select ) => ({
-            features: select( uplinkStore ).getFeaturesByGroup( product.slug ),
-            hasLicense: select( uplinkStore ).hasLicense(),
-        }),
-        [product.slug],
+    // Full unfiltered set — used only for header counts so they stay stable.
+    const { hasLicense, licenseProduct, catalogTiers, allFeaturesUnfiltered } = useSelect(
+        ( select ) => {
+            const licenseProducts = select( uplinkStore ).getLicenseProducts();
+            const catalog = select( uplinkStore ).getProductCatalog( product.slug );
+            return {
+                allFeaturesUnfiltered: select( uplinkStore ).getFeaturesByGroup( product.slug ),
+                hasLicense: select( uplinkStore ).hasLicense(),
+                licenseProduct: licenseProducts.find( ( lp ) => lp.product_slug === product.slug ) ?? null,
+                catalogTiers: catalog?.tiers ?? [],
+            };
+        },
+        [ product.slug ],
     );
 
-    return (
-        <div className="rounded-lg border border-border bg-background overflow-clip">
-            {/* Sticky product header — clears WP admin bar */}
-            <div className="sticky top-[var(--wp-admin--admin-bar--height,0px)] z-10 flex items-center justify-between px-4 py-3 bg-background border-b border-border">
-                <div className="flex items-center gap-3">
-                    { config && (
-                        <BrandIcon icon={ config.icon } colorClass={ config.colorClass } />
-                    ) }
-                    <div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="text-base font-semibold text-foreground m-0">
-                                { product.name }
-                            </h3>
-                            { hasLicense ? (
-                                <Badge variant="success">
-                                    { __( 'Active license', '%TEXTDOMAIN%' ) }
-                                </Badge>
-                            ) : (
-                                <Badge variant="outline">
-                                    { __( 'No license', '%TEXTDOMAIN%' ) }
-                                </Badge>
-                            ) }
-                        </div>
-                        <p className="text-xs text-muted-foreground m-0">
-                            { product.tagline }
-                        </p>
-                    </div>
-                </div>
+    // Filtered set — used for rendering rows.
+    const allFeatures = useFilteredFeatures( product.slug );
 
-                { hasLicense ? (
-                    <Button
-                        size="sm"
-                        variant={ productActive ? 'outline' : 'default' }
-                        onClick={ () => setProductActive( ( v ) => ! v ) }
-                        aria-label={
-                            productActive
-                                ? /* translators: %s is the product name */
-                                  sprintf( __( 'Deactivate %s', '%TEXTDOMAIN%' ), product.name )
-                                : /* translators: %s is the product name */
-                                  sprintf( __( 'Activate %s', '%TEXTDOMAIN%' ), product.name )
-                        }
-                    >
-                        { productActive
-                            ? /* translators: %s is the product name */
-                              sprintf( __( 'Deactivate %s', '%TEXTDOMAIN%' ), product.name )
-                            : /* translators: %s is the product name */
-                              sprintf( __( 'Activate %s', '%TEXTDOMAIN%' ), product.name ) }
-                    </Button>
+    // Features with no tier are free — always available regardless of license.
+    const isFreeFeature = ( f: (typeof allFeatures)[0] ) => ! f.tier || f.tier.toLowerCase().includes( 'free' );
+
+    const availableFeatures = allFeatures.filter( ( f ) => f.is_available || isFreeFeature( f ) );
+    const lockedFeatures    = allFeatures.filter( ( f ) => ! f.is_available && ! isFreeFeature( f ) );
+
+    // Counts derived from the unfiltered set — unaffected by search.
+    const activeCount      = allFeaturesUnfiltered.filter( ( f ) => f.is_available && f.is_enabled ).length;
+    const deactivatedCount = allFeaturesUnfiltered.filter( ( f ) => f.is_available && ! f.is_enabled ).length;
+
+    const tierName = licenseProduct
+        ? ( catalogTiers.find( ( t ) => t.slug === licenseProduct.tier )?.name ?? licenseProduct.tier )
+        : null;
+
+    // Catalog tiers sorted by rank — these slugs match feature.tier values from the API.
+    const sortedCatalogTiers = catalogTiers.slice().sort( ( a, b ) => a.rank - b.rank );
+
+    // Group locked features by their minimum catalog-tier slug.
+    const lockedByTier = sortedCatalogTiers.reduce<Record<string, typeof lockedFeatures>>(
+        ( acc, tier ) => {
+            acc[ tier.slug ] = lockedFeatures.filter( ( f ) => f.tier === tier.slug );
+            return acc;
+        },
+        {}
+    );
+
+    const hasContent = availableFeatures.length > 0 || lockedFeatures.length > 0;
+
+    return (
+        <section id={ product.slug } className="scroll-mt-20">
+			<div className="h-0"></div>
+            <div className="flex items-center gap-3 px-4 py-3 bg-neutral-800 text-white sticky top-0 z-10 border-x border-neutral-800 transition-[border-radius] rounded-t-lg border-t">
+                <ProductLogo slug={ product.slug } size={ 28 } />
+                <h2 className="text-base font-semibold m-0 p-0 text-white">
+                    { product.name }
+                </h2>
+                { tierName ? (
+                    <Badge variant="gradient">{ tierName }</Badge>
                 ) : (
-                    <Button size="sm" onClick={ onAddLicense }>
-                        { __( 'Add License', '%TEXTDOMAIN%' ) }
-                    </Button>
+                    <Badge variant="outline" className="text-white border-white/40">
+                        { __( 'Not Licensed', '%TEXTDOMAIN%' ) }
+                    </Badge>
                 ) }
+                <span className="ml-auto text-xs text-white/70">
+                    { activeCount } { __( 'active', '%TEXTDOMAIN%' ) }
+                    { ' · ' }
+                    { deactivatedCount } { __( 'deactivated', '%TEXTDOMAIN%' ) }
+                </span>
             </div>
 
-            {/* Feature list — visible when licensed and product is active */}
-            { hasLicense && productActive && (
-                <div className="divide-y divide-border">
-                    { features.map( ( feature ) => (
+            { ! hasLicense && (
+                <div className="border border-t-0 rounded-b-lg">
+                    <p className="px-4 py-6 text-sm text-muted-foreground text-center">
+                        { __( 'Add a license to unlock features.', '%TEXTDOMAIN%' ) }
+                    </p>
+                </div>
+            ) }
+
+            { hasLicense && isSearching && ! hasContent && (
+                <div className="border border-t-0 rounded-b-lg">
+                    <p className="px-4 py-6 text-sm text-muted-foreground text-center">
+                        { __( 'No features match your search.', '%TEXTDOMAIN%' ) }
+                    </p>
+                </div>
+            ) }
+
+            { hasLicense && hasContent && (
+                <div className="border border-t-0 rounded-b-lg overflow-hidden">
+                    { availableFeatures.map( ( feature ) => (
                         <FeatureRow
                             key={ feature.slug }
                             feature={ feature }
                             product={ product }
                         />
                     ) ) }
+
+                    { sortedCatalogTiers.map( ( tier ) => {
+                        const locked = lockedByTier[ tier.slug ] ?? [];
+                        if ( locked.length === 0 ) return null;
+                        return (
+                            <TierGroup
+                                key={ tier.slug }
+                                tier={ tier }
+                                features={ locked }
+                                product={ product }
+                                forceOpen={ isSearching }
+                            />
+                        );
+                    } ) }
                 </div>
             ) }
-
-            { ! hasLicense && (
-                <p className="px-4 py-6 text-sm text-muted-foreground text-center">
-                    { __( 'Add a license to unlock features.', '%TEXTDOMAIN%' ) }
-                </p>
-            ) }
-
-            { hasLicense && ! productActive && (
-                <p className="px-4 py-6 text-sm text-muted-foreground text-center">
-                    { /* translators: %s is the product name */
-                      sprintf( __( '%s is deactivated. Activate it to manage features.', '%TEXTDOMAIN%' ), product.name ) }
-                </p>
-            ) }
-        </div>
+        </section>
     );
 }

@@ -63,6 +63,10 @@ class License_Notice_Handler {
 	 * @return void
 	 */
 	public function display(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
 		if ( ! Version::should_handle( 'legacy_license_notices' ) ) {
 			return;
 		}

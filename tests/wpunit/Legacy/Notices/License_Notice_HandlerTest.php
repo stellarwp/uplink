@@ -57,6 +57,22 @@ final class License_Notice_HandlerTest extends UplinkTestCase {
 	/**
 	 * @test
 	 */
+	public function it_renders_nothing_for_non_admin_user(): void {
+		$subscriber_id = self::factory()->user->create( [ 'role' => 'subscriber' ] );
+		wp_set_current_user( $subscriber_id );
+
+		$this->add_licenses( [
+			[ 'slug' => 'give-recurring', 'brand' => 'give', 'is_active' => false ],
+		] );
+
+		$output = $this->capture_display();
+
+		$this->assertSame( '', trim( $output ) );
+	}
+
+	/**
+	 * @test
+	 */
 	public function it_renders_nothing_when_no_inactive_licenses(): void {
 		$output = $this->capture_display();
 

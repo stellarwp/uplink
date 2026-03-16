@@ -46,6 +46,32 @@ class License_Repository {
 	}
 
 	/**
+	 * Get all legacy licenses that are currently active.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return Legacy_License[]
+	 */
+	public function all_active(): array {
+		return array_values( array_filter( $this->all(), static function ( Legacy_License $l ): bool {
+			return $l->is_active;
+		} ) );
+	}
+
+	/**
+	 * Get all legacy licenses that are not currently active.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return Legacy_License[]
+	 */
+	public function all_inactive(): array {
+		return array_values( array_filter( $this->all(), static function ( Legacy_License $l ): bool {
+			return ! $l->is_active;
+		} ) );
+	}
+
+	/**
 	 * Get a legacy license by resource slug.
 	 *
 	 * @since 3.0.0

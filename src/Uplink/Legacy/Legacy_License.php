@@ -42,11 +42,13 @@ class Legacy_License {
 	public string $brand;
 
 	/**
+	 * Whether the license is currently active.
+	 *
 	 * @since 3.0.0
 	 *
-	 * @var string
+	 * @var bool
 	 */
-	public string $status;
+	public bool $is_active;
 
 	/**
 	 * @since 3.0.0
@@ -65,7 +67,7 @@ class Legacy_License {
 	/**
 	 * @since 3.0.0
 	 *
-	 * @return array<string, string>
+	 * @return array<string, mixed>
 	 */
 	public function to_array(): array {
 		return [
@@ -73,7 +75,7 @@ class Legacy_License {
 			'slug'       => $this->slug,
 			'name'       => $this->name,
 			'brand'      => $this->brand,
-			'status'     => $this->status,
+			'is_active'  => $this->is_active,
 			'page_url'   => $this->page_url,
 			'expires_at' => $this->expires_at,
 		];
@@ -91,7 +93,7 @@ class Legacy_License {
 		$self->slug       = Cast::to_string( $data['slug'] ?? '' );
 		$self->name       = Cast::to_string( $data['name'] ?? '' );
 		$self->brand      = Cast::to_string( $data['brand'] ?? '' );
-		$self->status     = Cast::to_string( $data['status'] ?? 'unknown' );
+		$self->is_active  = (bool) ( $data['is_active'] ?? false );
 		$self->page_url   = Cast::to_string( $data['page_url'] ?? '' );
 		$self->expires_at = Cast::to_string( $data['expires_at'] ?? '' );
 

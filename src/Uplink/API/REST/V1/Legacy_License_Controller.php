@@ -32,7 +32,7 @@ final class Legacy_License_Controller extends WP_REST_Controller {
 	 *
 	 * @var string
 	 */
-	protected $rest_base = 'license/legacy';
+	protected $rest_base = 'legacy-licenses';
 
 	/**
 	 * The legacy license repository.
@@ -149,9 +149,9 @@ final class Legacy_License_Controller extends WP_REST_Controller {
 					'readonly'    => true,
 					'context'     => [ 'view' ],
 				],
-				'status'     => [
-					'description' => __( 'The license status.', '%TEXTDOMAIN%' ),
-					'type'        => 'string',
+				'is_active'  => [
+					'description' => __( 'Whether the license is currently active.', '%TEXTDOMAIN%' ),
+					'type'        => 'boolean',
 					'readonly'    => true,
 					'context'     => [ 'view' ],
 				],

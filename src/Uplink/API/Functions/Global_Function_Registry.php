@@ -5,8 +5,8 @@ namespace StellarWP\Uplink\API\Functions;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
+use StellarWP\Uplink\Traits\With_Debugging;
 use Throwable;
-use WP_Error;
 
 /**
  * Registers this Uplink instance's callbacks into the global function registry.
@@ -19,6 +19,8 @@ use WP_Error;
  * @since 3.0.0
  */
 class Global_Function_Registry {
+
+	use With_Debugging;
 
 	/**
 	 * Registers this instance's callbacks into the global function registry.
@@ -37,7 +39,7 @@ class Global_Function_Registry {
 				try {
 					return Config::get_container()->get( License_Repository::class )->key_exists();
 				} catch ( Throwable $e ) {
-					self::debug_log( $e, 'Error checking unified license key existence' );
+					self::debug_log_throwable( $e, 'Error checking unified license key existence' );
 
 					return false;
 				}
@@ -51,7 +53,7 @@ class Global_Function_Registry {
 				try {
 					return Config::get_container()->get( License_Repository::class )->get_key();
 				} catch ( Throwable $e ) {
-					self::debug_log( $e, 'Error getting unified license key' );
+					self::debug_log_throwable( $e, 'Error getting unified license key' );
 
 					return null;
 				}
@@ -65,7 +67,7 @@ class Global_Function_Registry {
 				try {
 					return Config::get_container()->get( License_Repository::class )->is_product_valid( $product );
 				} catch ( Throwable $e ) {
-					self::debug_log( $e, 'Error checking product license' );
+					self::debug_log_throwable( $e, 'Error checking product license' );
 
 					return false;
 				}
@@ -87,7 +89,7 @@ class Global_Function_Registry {
 
 					return $result;
 				} catch ( Throwable $e ) {
-					self::debug_log( $e, 'Error checking feature enabled state' );
+					self::debug_log_throwable( $e, 'Error checking feature enabled state' );
 
 					return false;
 				}
@@ -109,42 +111,11 @@ class Global_Function_Registry {
 
 					return $result;
 				} catch ( Throwable $e ) {
-					self::debug_log( $e, 'Error checking feature availability' );
+					self::debug_log_throwable( $e, 'Error checking feature availability' );
 
 					return false;
 				}
 			}
 		);
-	}
-
-	/**
-	 * Logs a Throwable message and trace when WP_DEBUG is enabled.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @param Throwable $e The Throwable to log.
-	 * @param string    $context The context of the log.
-	 *
-	 * @return void
-	 */
-	private static function debug_log( Throwable $e, string $context ): void {
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
-			error_log( "{$context}: {$e->getMessage()} {$e->getFile()}:{$e->getLine()} {$e->getTraceAsString()}" );
-		}
-	}
-
-	/**
-	 * Logs a WP_Error message and trace when WP_DEBUG is enabled.
-	 *
-	 * @param WP_Error $error The WP_Error to log.
-	 * @param string   $context The context of the log.
-	 * @return void
-	 */
-	private static function debug_log_wp_error( WP_Error $error, string $context ): void {
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
-			error_log( "{$context}: [{$error->get_error_code()}] {$error->get_error_message()}" );
-		}
 	}
 }

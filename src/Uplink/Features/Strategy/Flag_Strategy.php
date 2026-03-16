@@ -39,6 +39,10 @@ class Flag_Strategy extends Abstract_Strategy {
 	 * @return true
 	 */
 	public function enable() {
+		static::debug_log(
+			sprintf( 'Setting flag option "%s" to active.', $this->get_option_key() )
+		);
+
 		update_option( $this->get_option_key(), '1', true );
 
 		return true;
@@ -72,6 +76,10 @@ class Flag_Strategy extends Abstract_Strategy {
 	 * @return true
 	 */
 	public function disable() {
+		static::debug_log(
+			sprintf( 'Setting flag option "%s" to inactive.', $this->get_option_key() )
+		);
+
 		update_option( $this->get_option_key(), '0', true );
 
 		return true;

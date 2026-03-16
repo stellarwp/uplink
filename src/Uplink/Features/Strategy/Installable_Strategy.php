@@ -164,9 +164,21 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 
 		// Idempotent: if the extension is already active, verify ownership and bail.
 		if ( $this->check_active() ) {
+			static::debug_log(
+				sprintf(
+					'Feature "%s" already active, verifying ownership.',
+					$this->feature->get_slug()
+				)
+			);
+
 			$ownership = $this->verify_ownership();
 
 			if ( is_wp_error( $ownership ) ) {
+				static::debug_log_wp_error(
+					$ownership,
+					sprintf( 'Ownership check failed for active "%s"', $this->feature->get_slug() )
+				);
+
 				return $ownership;
 			}
 
@@ -180,6 +192,11 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 		$ownership = $this->verify_ownership();
 
 		if ( is_wp_error( $ownership ) ) {
+			static::debug_log_wp_error(
+				$ownership,
+				sprintf( 'Pre-install ownership check failed for "%s"', $this->feature->get_slug() )
+			);
+
 			return $ownership;
 		}
 
@@ -187,6 +204,11 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 		$ensure_result = $this->ensure_installed();
 
 		if ( is_wp_error( $ensure_result ) ) {
+			static::debug_log_wp_error(
+				$ensure_result,
+				sprintf( 'Installation failed for "%s"', $this->feature->get_slug() )
+			);
+
 			return $ensure_result;
 		}
 
@@ -195,6 +217,11 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 		$ownership = $this->verify_ownership();
 
 		if ( is_wp_error( $ownership ) ) {
+			static::debug_log_wp_error(
+				$ownership,
+				sprintf( 'Post-install ownership check failed for "%s"', $this->feature->get_slug() )
+			);
+
 			return $ownership;
 		}
 
@@ -220,6 +247,11 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 		$ownership = $this->verify_ownership();
 
 		if ( is_wp_error( $ownership ) ) {
+			static::debug_log_wp_error(
+				$ownership,
+				sprintf( 'Ownership check failed when disabling "%s"', $this->feature->get_slug() )
+			);
+
 			return $ownership;
 		}
 
@@ -242,6 +274,13 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 
 		// Can't update what's not installed or active.
 		if ( ! $this->check_active() ) {
+			static::debug_log(
+				sprintf(
+					'Cannot update "%s": not active.',
+					$this->feature->get_slug()
+				)
+			);
+
 			return new WP_Error(
 				Error_Code::FEATURE_NOT_ACTIVE,
 				sprintf(
@@ -255,10 +294,22 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 		$ownership = $this->verify_ownership();
 
 		if ( is_wp_error( $ownership ) ) {
+			static::debug_log_wp_error(
+				$ownership,
+				sprintf( 'Ownership check failed when updating "%s"', $this->feature->get_slug() )
+			);
+
 			return $ownership;
 		}
 
 		if ( ! $this->check_update_available() ) {
+			static::debug_log(
+				sprintf(
+					'No update available for "%s".',
+					$this->feature->get_slug()
+				)
+			);
+
 			return new WP_Error(
 				Error_Code::NO_UPDATE_AVAILABLE,
 				sprintf(
@@ -270,6 +321,13 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 		}
 
 		if ( ! $this->acquire_lock( self::LOCK_KEY ) ) {
+			static::debug_log(
+				sprintf(
+					'Install lock held, cannot update "%s".',
+					$this->feature->get_slug()
+				)
+			);
+
 			return new WP_Error(
 				Error_Code::INSTALL_LOCKED,
 				sprintf(
@@ -327,6 +385,13 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 		// Already on disk — ready for activation. Ownership is verified
 		// by the caller (enable()) after this method returns.
 		if ( $this->check_installed() ) {
+			static::debug_log(
+				sprintf(
+					'Feature "%s" already installed on disk.',
+					$this->feature->get_slug()
+				)
+			);
+
 			return true;
 		}
 
@@ -334,6 +399,13 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 		// Only one feature can be installed at a time — two simultaneous
 		// requests could race the installer, causing file conflicts or corruption.
 		if ( ! $this->acquire_lock( self::LOCK_KEY ) ) {
+			static::debug_log(
+				sprintf(
+					'Install lock held, cannot install "%s".',
+					$this->feature->get_slug()
+				)
+			);
+
 			return new WP_Error(
 				Error_Code::INSTALL_LOCKED,
 				sprintf(
@@ -348,6 +420,11 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 			$install_result = $this->do_install();
 
 			if ( is_wp_error( $install_result ) ) {
+				static::debug_log_wp_error(
+					$install_result,
+					sprintf( 'do_install() failed for "%s"', $this->feature->get_slug() )
+				);
+
 				return $install_result;
 			}
 
@@ -356,6 +433,13 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 			// a confusing "not found" during activation.
 			// @phpstan-ignore-next-line booleanNot.alwaysTrue -- (do_install() creates files on disk; side effects invisible to static analysis).
 			if ( ! $this->check_installed() ) {
+				static::debug_log(
+					sprintf(
+						'Feature "%s" not found on disk after install — unexpected directory structure.',
+						$this->feature->get_slug()
+					)
+				);
+
 				return new WP_Error(
 					$this->get_not_found_after_install_error_code(),
 					sprintf(
@@ -397,19 +481,16 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 		try {
 			$result = $operation();
 		} catch ( \Throwable $e ) {
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
-				error_log(
-					sprintf(
-						'Uplink: fatal error %s "%s": %s %s:%s',
-						$is_update ? 'updating' : 'installing',
-						$this->feature->get_slug(),
-						$e->getMessage(),
-						$e->getFile(),
-						$e->getLine()
-					)
-				);
-			}
+			static::debug_log(
+				sprintf(
+					'Fatal error %s "%s": %s %s:%s',
+					$is_update ? 'updating' : 'installing',
+					$this->feature->get_slug(),
+					$e->getMessage(),
+					$e->getFile(),
+					$e->getLine()
+				)
+			);
 
 			return new WP_Error(
 				$error_code,

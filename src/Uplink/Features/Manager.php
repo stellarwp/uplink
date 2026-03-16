@@ -5,6 +5,7 @@ namespace StellarWP\Uplink\Features;
 use StellarWP\Uplink\Features\Strategy\Strategy_Factory;
 use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Features\Error_Code;
+use StellarWP\Uplink\Traits\With_Debugging;
 use Throwable;
 use WP_Error;
 
@@ -17,6 +18,8 @@ use WP_Error;
  * @since 3.0.0
  */
 class Manager {
+
+	use With_Debugging;
 
 	/**
 	 * The repository for fetching available features.
@@ -64,15 +67,34 @@ class Manager {
 	 * @return Feature|WP_Error The feature with updated is_enabled state, or WP_Error on failure.
 	 */
 	public function enable( string $slug ) {
+		static::debug_log(
+			sprintf(
+				'Enabling feature "%s".',
+				$slug
+			)
+		);
+
 		$features = $this->repository->get();
 
 		if ( is_wp_error( $features ) ) {
+			static::debug_log_wp_error(
+				$features,
+				sprintf( 'Cannot enable "%s": feature resolution failed', $slug )
+			);
+
 			return $features;
 		}
 
 		$feature = $features->get( $slug );
 
 		if ( ! $feature ) {
+			static::debug_log(
+				sprintf(
+					'Cannot enable "%s": not found in catalog.',
+					$slug
+				)
+			);
+
 			return new WP_Error(
 				Error_Code::FEATURE_NOT_FOUND,
 				sprintf( 'Feature "%s" not found in the catalog.', $slug )
@@ -106,6 +128,11 @@ class Manager {
 
 			$result = $strategy->enable();
 		} catch ( Throwable $e ) {
+			static::debug_log_throwable(
+				$e,
+				sprintf( 'Exception enabling feature "%s"', $slug )
+			);
+
 			return new WP_Error(
 				Error_Code::FEATURE_ENABLE_FAILED,
 				$e->getMessage()
@@ -113,6 +140,11 @@ class Manager {
 		}
 
 		if ( is_wp_error( $result ) ) {
+			static::debug_log_wp_error(
+				$result,
+				sprintf( 'Strategy failed enabling "%s"', $slug )
+			);
+
 			return $result;
 		}
 
@@ -121,11 +153,25 @@ class Manager {
 		$feature = $this->get( $slug );
 
 		if ( ! $feature ) {
+			static::debug_log(
+				sprintf(
+					'Feature "%s" not found after enabling.',
+					$slug
+				)
+			);
+
 			return new WP_Error(
 				Error_Code::FEATURE_NOT_FOUND,
 				sprintf( 'Feature "%s" not found after enabling.', $slug )
 			);
 		}
+
+		static::debug_log(
+			sprintf(
+				'Feature "%s" enabled successfully.',
+				$slug
+			)
+		);
 
 		/**
 		 * Fires after a feature has been successfully enabled.
@@ -165,15 +211,34 @@ class Manager {
 	 * @return Feature|WP_Error The feature with updated is_enabled state, or WP_Error on failure.
 	 */
 	public function disable( string $slug ) {
+		static::debug_log(
+			sprintf(
+				'Disabling feature "%s".',
+				$slug
+			)
+		);
+
 		$features = $this->repository->get();
 
 		if ( is_wp_error( $features ) ) {
+			static::debug_log_wp_error(
+				$features,
+				sprintf( 'Cannot disable "%s": feature resolution failed', $slug )
+			);
+
 			return $features;
 		}
 
 		$feature = $features->get( $slug );
 
 		if ( ! $feature ) {
+			static::debug_log(
+				sprintf(
+					'Cannot disable "%s": not found in catalog.',
+					$slug
+				)
+			);
+
 			return new WP_Error(
 				Error_Code::FEATURE_NOT_FOUND,
 				sprintf( 'Feature "%s" not found in the catalog.', $slug )
@@ -207,6 +272,11 @@ class Manager {
 
 			$result = $strategy->disable();
 		} catch ( Throwable $e ) {
+			static::debug_log_throwable(
+				$e,
+				sprintf( 'Exception disabling feature "%s"', $slug )
+			);
+
 			return new WP_Error(
 				Error_Code::FEATURE_DISABLE_FAILED,
 				$e->getMessage()
@@ -214,6 +284,11 @@ class Manager {
 		}
 
 		if ( is_wp_error( $result ) ) {
+			static::debug_log_wp_error(
+				$result,
+				sprintf( 'Strategy failed disabling "%s"', $slug )
+			);
+
 			return $result;
 		}
 
@@ -222,11 +297,25 @@ class Manager {
 		$feature = $this->get( $slug );
 
 		if ( ! $feature ) {
+			static::debug_log(
+				sprintf(
+					'Feature "%s" not found after disabling.',
+					$slug
+				)
+			);
+
 			return new WP_Error(
 				Error_Code::FEATURE_NOT_FOUND,
 				sprintf( 'Feature "%s" not found after disabling.', $slug )
 			);
 		}
+
+		static::debug_log(
+			sprintf(
+				'Feature "%s" disabled successfully.',
+				$slug
+			)
+		);
 
 		/**
 		 * Fires after a feature has been successfully disabled.
@@ -266,15 +355,34 @@ class Manager {
 	 * @return Feature|WP_Error The feature with updated state, or WP_Error on failure.
 	 */
 	public function update( string $slug ) {
+		static::debug_log(
+			sprintf(
+				'Updating feature "%s".',
+				$slug
+			)
+		);
+
 		$features = $this->repository->get();
 
 		if ( is_wp_error( $features ) ) {
+			static::debug_log_wp_error(
+				$features,
+				sprintf( 'Cannot update "%s": feature resolution failed', $slug )
+			);
+
 			return $features;
 		}
 
 		$feature = $features->get( $slug );
 
 		if ( ! $feature ) {
+			static::debug_log(
+				sprintf(
+					'Cannot update "%s": not found in catalog.',
+					$slug
+				)
+			);
+
 			return new WP_Error(
 				Error_Code::FEATURE_NOT_FOUND,
 				sprintf( 'Feature "%s" not found in the catalog.', $slug )
@@ -308,6 +416,11 @@ class Manager {
 
 			$result = $strategy->update();
 		} catch ( Throwable $e ) {
+			static::debug_log_throwable(
+				$e,
+				sprintf( 'Exception updating feature "%s"', $slug )
+			);
+
 			return new WP_Error(
 				Error_Code::UPDATE_FAILED,
 				$e->getMessage()
@@ -315,6 +428,11 @@ class Manager {
 		}
 
 		if ( is_wp_error( $result ) ) {
+			static::debug_log_wp_error(
+				$result,
+				sprintf( 'Strategy failed updating "%s"', $slug )
+			);
+
 			return $result;
 		}
 
@@ -323,11 +441,25 @@ class Manager {
 		$feature = $this->get( $slug );
 
 		if ( ! $feature ) {
+			static::debug_log(
+				sprintf(
+					'Feature "%s" not found after updating.',
+					$slug
+				)
+			);
+
 			return new WP_Error(
 				Error_Code::FEATURE_NOT_FOUND,
 				sprintf( 'Feature "%s" not found after updating.', $slug )
 			);
 		}
+
+		static::debug_log(
+			sprintf(
+				'Feature "%s" updated successfully.',
+				$slug
+			)
+		);
 
 		/**
 		 * Fires after a feature has been successfully updated.
@@ -485,12 +617,19 @@ class Manager {
 	 */
 	private function stamp_enabled_state( Feature_Collection $features ): void {
 		foreach ( $features as $feature ) {
-			$strategy           = $this->strategy_factory->make( $feature );
-			$class              = get_class( $feature );
-			$data               = $feature->to_array();
-			$data['is_enabled'] = $strategy->is_active();
+			try {
+				$strategy           = $this->strategy_factory->make( $feature );
+				$class              = get_class( $feature );
+				$data               = $feature->to_array();
+				$data['is_enabled'] = $strategy->is_active();
 
-			$features->offsetSet( $feature->get_slug(), $class::from_array( $data ) );
+				$features->offsetSet( $feature->get_slug(), $class::from_array( $data ) );
+			} catch ( Throwable $e ) {
+				static::debug_log_throwable(
+					$e,
+					sprintf( 'Failed to stamp enabled state for "%s"', $feature->get_slug() )
+				);
+			}
 		}
 	}
 }

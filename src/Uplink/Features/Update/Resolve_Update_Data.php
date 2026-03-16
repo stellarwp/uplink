@@ -7,6 +7,7 @@ use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Catalog\Results\Catalog_Feature;
 use StellarWP\Uplink\Features\Contracts\Installable;
 use StellarWP\Uplink\Features\Feature_Repository;
+use StellarWP\Uplink\Traits\With_Debugging;
 use WP_Error;
 
 /**
@@ -26,6 +27,8 @@ use WP_Error;
  * @since 3.0.0
  */
 class Resolve_Update_Data {
+
+	use With_Debugging;
 
 	/**
 	 * The feature repository.
@@ -77,20 +80,28 @@ class Resolve_Update_Data {
 		$features = $this->feature_repository->get();
 
 		if ( is_wp_error( $features ) ) {
+			static::debug_log_wp_error(
+				$features,
+				'Resolve_Update_Data: feature repository failed'
+			);
+
 			return $features;
 		}
 
 		$catalog = $this->catalog_repository->get();
 
 		if ( is_wp_error( $catalog ) ) {
+			static::debug_log_wp_error(
+				$catalog,
+				'Resolve_Update_Data: catalog repository failed'
+			);
+
 			return $catalog;
 		}
 
 		$catalog_features = $this->build_catalog_feature_map( $catalog );
-
-		$available = $features->filter( null, null, true, $type );
-
-		$updates = [];
+		$available        = $features->filter( null, null, true, $type );
+		$updates          = [];
 
 		foreach ( $available as $feature ) {
 			if ( ! $feature instanceof Installable ) {

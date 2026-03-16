@@ -103,6 +103,13 @@ class Plugin_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error
 	 */
 	protected function do_install() {
+		static::debug_log(
+			sprintf(
+				'Fetching plugin info for "%s" via plugins_api().',
+				$this->feature->get_slug()
+			)
+		);
+
 		$plugin_info = plugins_api(
 			'plugin_information',
 			[
@@ -138,6 +145,14 @@ class Plugin_Strategy extends Installable_Strategy {
 		$upgrader      = new Plugin_Upgrader( $skin );
 		$download_link = Cast::to_string( $plugin_info->download_link );
 
+		static::debug_log(
+			sprintf(
+				'Installing plugin "%s" from %s.',
+				$this->feature->get_slug(),
+				$download_link
+			)
+		);
+
 		return $this->run_upgrader(
 			static function () use ( $upgrader, $download_link ) {
 				return $upgrader->install( $download_link );
@@ -160,6 +175,14 @@ class Plugin_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error
 	 */
 	protected function do_activate() {
+		static::debug_log(
+			sprintf(
+				'Activating plugin "%s" (%s).',
+				$this->feature->get_slug(),
+				$this->feature->get_plugin_file()
+			)
+		);
+
 		$plugin_file = $this->feature->get_plugin_file();
 		$completed   = false;
 		$die_output  = '';
@@ -237,10 +260,15 @@ class Plugin_Strategy extends Installable_Strategy {
 				ob_end_clean();
 			}
 
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentionally logging.
-				error_log( "Uplink: fatal error activating plugin \"{$this->feature->get_slug()}\": {$e->getMessage()} {$e->getFile()}:{$e->getLine()}" );
-			}
+			static::debug_log(
+				sprintf(
+					'Fatal error activating plugin "%s": %s %s:%s',
+					$this->feature->get_slug(),
+					$e->getMessage(),
+					$e->getFile(),
+					$e->getLine()
+				)
+			);
 
 			return new WP_Error(
 				Error_Code::ACTIVATION_FATAL,
@@ -304,8 +332,20 @@ class Plugin_Strategy extends Installable_Strategy {
 
 		// Idempotent: if already inactive, bail.
 		if ( ! $this->check_active() ) {
+			static::debug_log(
+				sprintf( 'Plugin "%s" already inactive.', $this->feature->get_slug() )
+			);
+
 			return true;
 		}
+
+		static::debug_log(
+			sprintf(
+				'Deactivating plugin "%s" (%s).',
+				$this->feature->get_slug(),
+				$plugin_file
+			)
+		);
 
 		// deactivate_plugins() returns void — it never errors. We verify the
 		// actual state afterward to confirm deactivation succeeded.
@@ -337,6 +377,10 @@ class Plugin_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error
 	 */
 	protected function do_update() {
+		static::debug_log(
+			sprintf( 'Running plugin upgrade for "%s".', $this->feature->get_slug() )
+		);
+
 		$skin        = new WP_Ajax_Upgrader_Skin();
 		$upgrader    = new Plugin_Upgrader( $skin );
 		$plugin_file = $this->feature->get_plugin_file();

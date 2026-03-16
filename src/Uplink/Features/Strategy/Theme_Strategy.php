@@ -79,6 +79,13 @@ class Theme_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error
 	 */
 	protected function do_install() {
+		static::debug_log(
+			sprintf(
+				'Fetching theme info for "%s" via themes_api().',
+				$this->feature->get_slug()
+			)
+		);
+
 		$theme_info = themes_api(
 			'theme_information',
 			[
@@ -113,6 +120,14 @@ class Theme_Strategy extends Installable_Strategy {
 		$skin          = new WP_Ajax_Upgrader_Skin();
 		$upgrader      = new Theme_Upgrader( $skin );
 		$download_link = Cast::to_string( $theme_info->download_link );
+
+		static::debug_log(
+			sprintf(
+				'Installing theme "%s" from %s.',
+				$this->feature->get_slug(),
+				$download_link
+			)
+		);
 
 		return $this->run_upgrader(
 			static function () use ( $upgrader, $download_link ) {
@@ -152,8 +167,19 @@ class Theme_Strategy extends Installable_Strategy {
 	 */
 	protected function do_deactivate() {
 		if ( ! $this->check_installed() ) {
+			static::debug_log(
+				sprintf( 'Theme "%s" not installed, already disabled.', $this->feature->get_slug() )
+			);
+
 			return true;
 		}
+
+		static::debug_log(
+			sprintf(
+				'Theme "%s" is on disk, cannot deactivate programmatically.',
+				$this->feature->get_slug()
+			)
+		);
 
 		return new WP_Error(
 			Error_Code::THEME_DELETE_REQUIRED,
@@ -173,6 +199,10 @@ class Theme_Strategy extends Installable_Strategy {
 	 * @return true|WP_Error
 	 */
 	protected function do_update() {
+		static::debug_log(
+			sprintf( 'Running theme upgrade for "%s".', $this->feature->get_slug() )
+		);
+
 		$skin     = new WP_Ajax_Upgrader_Skin();
 		$upgrader = new Theme_Upgrader( $skin );
 		$slug     = $this->feature->get_slug();

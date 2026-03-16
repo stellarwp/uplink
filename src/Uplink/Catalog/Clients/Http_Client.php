@@ -8,6 +8,7 @@ use Psr\Http\Message\RequestFactoryInterface;
 use StellarWP\Uplink\Catalog\Catalog_Collection;
 use StellarWP\Uplink\Catalog\Error_Code;
 use StellarWP\Uplink\Catalog\Results\Product_Catalog;
+use StellarWP\Uplink\Traits\With_Debugging;
 use WP_Error;
 
 /**
@@ -16,6 +17,8 @@ use WP_Error;
  * @since 3.0.0
  */
 final class Http_Client implements Catalog_Client {
+
+	use With_Debugging;
 
 	/**
 	 * The PSR-18 HTTP client.
@@ -67,14 +70,21 @@ final class Http_Client implements Catalog_Client {
 	 * @inheritDoc
 	 */
 	public function get_catalog() {
-		$request = $this->request_factory->createRequest(
-			'GET',
-			$this->base_url . '/stellarwp/v4/catalog'
+		$url = $this->base_url . '/stellarwp/v4/catalog';
+
+		self::debug_log(
+			sprintf( 'Catalog HTTP request: GET %s', $url )
 		);
+
+		$request = $this->request_factory->createRequest( 'GET', $url );
 
 		try {
 			$response = $this->client->sendRequest( $request );
 		} catch ( ClientExceptionInterface $e ) {
+			self::debug_log(
+				sprintf( 'Catalog HTTP exception: %s', $e->getMessage() )
+			);
+
 			return new WP_Error(
 				Error_Code::INVALID_RESPONSE,
 				$e->getMessage()
@@ -82,6 +92,10 @@ final class Http_Client implements Catalog_Client {
 		}
 
 		$status_code = $response->getStatusCode();
+
+		self::debug_log(
+			sprintf( 'Catalog HTTP response: %d', $status_code )
+		);
 
 		if ( $status_code < 200 || $status_code >= 300 ) {
 			return new WP_Error(
@@ -94,6 +108,8 @@ final class Http_Client implements Catalog_Client {
 		$data = json_decode( (string) $response->getBody(), true );
 
 		if ( ! is_array( $data ) ) {
+			self::debug_log( 'Catalog response body could not be decoded as JSON.' );
+
 			return new WP_Error(
 				Error_Code::INVALID_RESPONSE,
 				'Catalog response could not be decoded.'

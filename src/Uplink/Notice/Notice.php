@@ -59,18 +59,27 @@ final class Notice {
 	private $large;
 
 	/**
-	 * @param string $type  The notice type, one of the above constants.
-	 * @param string $message  The already translated message to display.
-	 * @param bool   $dismissible  Whether this notice is dismissible.
-	 * @param bool   $alt  Whether this is an alt-notice.
-	 * @param bool   $large  Whether this should be a large notice.
+	 * Optional unique identifier used for persistent dismissal.
+	 *
+	 * @var string
+	 */
+	private $id;
+
+	/**
+	 * @param string $type        The notice type, one of the above constants.
+	 * @param string $message     The already translated message to display.
+	 * @param bool   $dismissible Whether this notice is dismissible.
+	 * @param bool   $alt         Whether this is an alt-notice.
+	 * @param bool   $large       Whether this should be a large notice.
+	 * @param string $id          Optional unique ID for persistent dismissal.
 	 */
 	public function __construct(
 		string $type,
 		string $message,
 		bool $dismissible = false,
 		bool $alt = false,
-		bool $large = false
+		bool $large = false,
+		string $id = ''
 	) {
 		if ( ! in_array( $type, self::ALLOWED_TYPES, true ) ) {
 			throw new InvalidArgumentException(
@@ -90,12 +99,20 @@ final class Notice {
 		$this->dismissible = $dismissible;
 		$this->alt         = $alt;
 		$this->large       = $large;
+		$this->id          = $id;
 	}
 
 	/**
-	 * @return array{type: string, message: string, dismissible: bool, alt: bool, large: bool}
+	 * @return array{type: string, message: string, dismissible: bool, alt: bool, large: bool, id: string}
 	 */
 	public function toArray(): array {
-		return get_object_vars( $this );
+		return [
+			'type'        => $this->type,
+			'message'     => $this->message,
+			'dismissible' => $this->dismissible,
+			'alt'         => $this->alt,
+			'large'       => $this->large,
+			'id'          => $this->id,
+		];
 	}
 }

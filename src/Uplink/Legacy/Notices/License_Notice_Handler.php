@@ -1,10 +1,11 @@
 <?php declare( strict_types=1 );
 
-namespace StellarWP\Uplink\Legacy\Admin;
+namespace StellarWP\Uplink\Legacy\Notices;
 
 use StellarWP\Uplink\Legacy\License_Repository;
 use StellarWP\Uplink\Notice\Notice;
 use StellarWP\Uplink\Notice\Notice_Controller;
+use StellarWP\Uplink\Utils\Cast;
 use StellarWP\Uplink\Utils\Version;
 
 /**
@@ -17,6 +18,20 @@ use StellarWP\Uplink\Utils\Version;
  * @since 3.0.0
  */
 class License_Notice_Handler {
+
+	/**
+	 * User meta key that stores a map of notice ID => dismissed-until timestamp.
+	 *
+	 * @since 3.0.0
+	 */
+	public const DISMISSED_META_KEY = 'stellarwp_uplink_dismissed_notices';
+
+	/**
+	 * How long a dismissal lasts in seconds (7 days).
+	 *
+	 * @since 3.0.0
+	 */
+	public const DISMISS_TTL = 7 * DAY_IN_SECONDS;
 
 	/**
 	 * @var License_Repository
@@ -51,7 +66,7 @@ class License_Notice_Handler {
 			return;
 		}
 
-		// Group by brand, skipping any slug already covered by v3.
+		// Group by brand, skipping any slug already covered by v3 or dismissed by the user.
 		$by_brand = [];
 
 		foreach ( $licenses as $license ) {
@@ -60,9 +75,15 @@ class License_Notice_Handler {
 			}
 
 			$brand = $license->brand;
+			$id    = 'legacy-' . $brand;
+
+			if ( $this->is_dismissed( $id ) ) {
+				continue;
+			}
 
 			if ( ! isset( $by_brand[ $brand ] ) ) {
 				$by_brand[ $brand ] = [
+					'id'       => $id,
 					'page_url' => $license->page_url,
 					'count'    => 0,
 				];
@@ -71,9 +92,30 @@ class License_Notice_Handler {
 			$by_brand[ $brand ]['count']++;
 		}
 
+		if ( empty( $by_brand ) ) {
+			return;
+		}
+
 		foreach ( $by_brand as $brand => $data ) {
 			$this->render_notice( $brand, $data );
 		}
+
+		$this->enqueue_dismiss_script();
+	}
+
+	/**
+	 * Whether a notice is currently dismissed for the current user.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $id The notice ID.
+	 *
+	 * @return bool
+	 */
+	private function is_dismissed( string $id ): bool {
+		$dismissed = (array) get_user_meta( get_current_user_id(), self::DISMISSED_META_KEY, true );
+
+		return isset( $dismissed[ $id ] ) && Cast::to_int( $dismissed[ $id ] ) > time();
 	}
 
 	/**
@@ -81,8 +123,8 @@ class License_Notice_Handler {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string                                   $brand
-	 * @param array{page_url: string, count: int} $data
+	 * @param string                                           $brand
+	 * @param array{id: string, page_url: string, count: int} $data
 	 *
 	 * @return void
 	 */
@@ -99,6 +141,42 @@ class License_Notice_Handler {
 			$data['count']
 		);
 
-		$this->controller->render( ( new Notice( Notice::ERROR, $message ) )->toArray() );
+		$this->controller->render(
+			( new Notice( Notice::ERROR, $message, true, false, false, $data['id'] ) )->toArray()
+		);
+	}
+
+	/**
+	 * Register and enqueue the notice dismiss script, passing config via wp_localize_script.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return void
+	 */
+	private function enqueue_dismiss_script(): void {
+		$handle = 'stellarwp-uplink-notice-dismiss';
+
+		if ( ! wp_script_is( $handle, 'registered' ) ) {
+			$assets_url = trailingslashit( plugin_dir_url( __DIR__ . '/index.php' ) );
+
+			wp_register_script(
+				$handle,
+				$assets_url . 'assets/js/notice-dismiss.js',
+				[ 'wp-api-fetch' ],
+				null,
+				[ 'in_footer' => true ]
+			);
+
+			wp_localize_script(
+				$handle,
+				'uplinkNoticeDismiss',
+				[
+					'ttl'     => self::DISMISS_TTL,
+					'metaKey' => self::DISMISSED_META_KEY,
+				]
+			);
+		}
+
+		wp_enqueue_script( $handle );
 	}
 }

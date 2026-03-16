@@ -891,8 +891,8 @@ function FeatureRow({
 
   // When this feature is a plugin or theme, block toggling while any
   // other installable feature is mid-toggle (WordPress cannot safely
-  // install/activate/deactivate multiple plugins or themes at once).
-  const installableBusy = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_2__.useSelect)(select => feature.type !== 'flag' && select(_store__WEBPACK_IMPORTED_MODULE_10__.store).isAnyInstallableToggling(), [feature.type]);
+  // install/activate/deactivate/update multiple plugins or themes at once).
+  const installableBusy = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_2__.useSelect)(select => feature.type !== 'flag' && select(_store__WEBPACK_IMPORTED_MODULE_10__.store).isAnyInstallableBusy(), [feature.type]);
   const [pendingAction, setPendingAction] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null);
   const Chevron = expanded ? lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"] : lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"];
 
@@ -2723,6 +2723,7 @@ let ErrorCode = /*#__PURE__*/function (ErrorCode) {
   ErrorCode["FeaturesFetchFailed"] = "features-fetch-failed";
   ErrorCode["FeatureEnableFailed"] = "feature-enable-failed";
   ErrorCode["FeatureDisableFailed"] = "feature-disable-failed";
+  ErrorCode["FeatureUpdateFailed"] = "feature-update-failed";
   ErrorCode["LicenseFetchFailed"] = "license-fetch-failed";
   ErrorCode["LicenseActionInProgress"] = "license-action-in-progress";
   ErrorCode["LicenseStoreFailed"] = "license-store-failed";
@@ -3088,6 +3089,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   receiveFeatures: () => (/* binding */ receiveFeatures),
 /* harmony export */   receiveLicense: () => (/* binding */ receiveLicense),
 /* harmony export */   storeLicense: () => (/* binding */ storeLicense),
+/* harmony export */   updateFeature: () => (/* binding */ updateFeature),
 /* harmony export */   validateProduct: () => (/* binding */ validateProduct)
 /* harmony export */ });
 /* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/api-fetch */ "@wordpress/api-fetch");
@@ -3128,6 +3130,7 @@ const receiveCatalog = catalogs => ({
 /**
  * Enable a feature via the REST API.
  *
+ * @param slug
  * @since 3.0.0
  */
 const enableFeature = slug => async ({
@@ -3161,6 +3164,7 @@ const enableFeature = slug => async ({
 /**
  * Disable a feature via the REST API.
  *
+ * @param slug
  * @since 3.0.0
  */
 const disableFeature = slug => async ({
@@ -3192,9 +3196,44 @@ const disableFeature = slug => async ({
 };
 
 /**
+ * Update a feature via the REST API.
+ *
+ * @param slug
+ * @since 3.0.0
+ */
+const updateFeature = slug => async ({
+  dispatch
+}) => {
+  dispatch({
+    type: 'UPDATE_FEATURE_START',
+    slug
+  });
+  try {
+    const feature = await _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0___default()({
+      path: `/stellarwp/uplink/v1/features/${slug}/update`,
+      method: 'POST'
+    });
+    dispatch({
+      type: 'UPDATE_FEATURE_FINISHED',
+      feature
+    });
+    return null;
+  } catch (err) {
+    const error = _errors__WEBPACK_IMPORTED_MODULE_2__.UplinkError.wrap(err, _errors__WEBPACK_IMPORTED_MODULE_2__.ErrorCode.FeatureUpdateFailed, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Liquid Web Software failed to update your feature.', '%TEXTDOMAIN%'));
+    dispatch({
+      type: 'UPDATE_FEATURE_FAILED',
+      slug,
+      error
+    });
+    return error;
+  }
+};
+
+/**
  * Store a license key via the REST API, then invalidate the license
  * and features resolvers so the UI refreshes with the new entitlements.
  *
+ * @param key
  * @since 3.0.0
  */
 const storeLicense = key => async ({
@@ -3234,6 +3273,7 @@ const storeLicense = key => async ({
 /**
  * Validate a specific product against the license via the REST API.
  *
+ * @param productSlug
  * @since 3.0.0
  */
 const validateProduct = productSlug => async ({
@@ -3425,6 +3465,7 @@ function catalog(state = CATALOG_DEFAULT, action) {
 const FEATURES_DEFAULT = {
   bySlug: {},
   toggling: {},
+  updating: {},
   errorBySlug: {}
 };
 function features(state = FEATURES_DEFAULT, action) {
@@ -3478,6 +3519,54 @@ function features(state = FEATURES_DEFAULT, action) {
         return {
           ...state,
           toggling: remainingToggling,
+          errorBySlug: {
+            ...state.errorBySlug,
+            [action.slug]: action.error
+          }
+        };
+      }
+    case 'UPDATE_FEATURE_START':
+      {
+        const {
+          [action.slug]: _,
+          ...remainingErrors
+        } = state.errorBySlug;
+        return {
+          ...state,
+          updating: {
+            ...state.updating,
+            [action.slug]: true
+          },
+          errorBySlug: remainingErrors
+        };
+      }
+    case 'UPDATE_FEATURE_FINISHED':
+      {
+        const {
+          slug
+        } = action.feature;
+        const {
+          [slug]: _,
+          ...remainingUpdating
+        } = state.updating;
+        return {
+          ...state,
+          bySlug: {
+            ...state.bySlug,
+            [slug]: action.feature
+          },
+          updating: remainingUpdating
+        };
+      }
+    case 'UPDATE_FEATURE_FAILED':
+      {
+        const {
+          [action.slug]: _,
+          ...remainingUpdating
+        } = state.updating;
+        return {
+          ...state,
+          updating: remainingUpdating,
           errorBySlug: {
             ...state.errorBySlug,
             [action.slug]: action.error
@@ -3728,9 +3817,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   getStoreLicenseError: () => (/* binding */ getStoreLicenseError),
 /* harmony export */   getValidateProductError: () => (/* binding */ getValidateProductError),
 /* harmony export */   hasLicense: () => (/* binding */ hasLicense),
-/* harmony export */   isAnyInstallableToggling: () => (/* binding */ isAnyInstallableToggling),
+/* harmony export */   isAnyInstallableBusy: () => (/* binding */ isAnyInstallableBusy),
 /* harmony export */   isFeatureEnabled: () => (/* binding */ isFeatureEnabled),
 /* harmony export */   isFeatureToggling: () => (/* binding */ isFeatureToggling),
+/* harmony export */   isFeatureUpdating: () => (/* binding */ isFeatureUpdating),
 /* harmony export */   isLicenseDeleting: () => (/* binding */ isLicenseDeleting),
 /* harmony export */   isLicenseStoring: () => (/* binding */ isLicenseStoring),
 /* harmony export */   isProductValidating: () => (/* binding */ isProductValidating)
@@ -3753,21 +3843,30 @@ const getFeature = (state, slug) => state.features.bySlug[slug] ?? null;
 const isFeatureEnabled = (state, slug) => state.features.bySlug[slug]?.is_enabled ?? false;
 const isFeatureToggling = (state, slug) => state.features.toggling[slug] ?? false;
 const getFeatureError = (state, slug) => state.features.errorBySlug[slug] ?? null;
+const isFeatureUpdating = (state, slug) => state.features.updating[slug] ?? false;
 
 /**
- * True when any plugin or theme feature is being toggled.
+ * True when any plugin or theme feature is being toggled or updated.
  *
- * Plugin and theme toggles trigger WordPress install/activate/deactivate
+ * Both toggle and update operations trigger WordPress install/activate/deactivate
  * operations that should not run concurrently. Flag features are exempt
  * because they only flip a database option.
  *
- * Memoized via createSelector so the `.some()` loop only re-runs when
- * the `toggling` or `bySlug` sub-trees actually change.
+ * Memoized via createSelector so the loops only re-run when
+ * the relevant sub-trees actually change.
  */
-const isAnyInstallableToggling = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_0__.createSelector)(state => Object.keys(state.features.toggling).some(slug => {
-  const feature = state.features.bySlug[slug];
-  return feature !== undefined && feature.type !== 'flag';
-}), state => [state.features.toggling, state.features.bySlug]);
+const isAnyInstallableBusy = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_0__.createSelector)(state => {
+  const {
+    toggling,
+    updating,
+    bySlug
+  } = state.features;
+  const isNonFlag = slug => {
+    const feature = bySlug[slug];
+    return feature !== undefined && feature.type !== 'flag';
+  };
+  return Object.keys(toggling).some(isNonFlag) || Object.keys(updating).some(isNonFlag);
+}, state => [state.features.toggling, state.features.updating, state.features.bySlug]);
 
 // ---------------------------------------------------------------------------
 // Catalog
@@ -3791,6 +3890,7 @@ const getCatalogTier = (state, productSlug, tierSlug) => state.catalog.byProduct
 
 /**
  * Returns the stored unified license key, or null. Triggers getLicenseKey resolver.
+ * @param state
  */
 const getLicenseKey = state => state.license.license.key;
 const hasLicense = state => state.license.license.key !== null;

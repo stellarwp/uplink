@@ -4,7 +4,12 @@
  * @package StellarWP\Uplink
  */
 import { combineReducers } from '@wordpress/data';
-import type { Action, CatalogState, FeaturesState, LicenseState } from './types';
+import type {
+	Action,
+	CatalogState,
+	FeaturesState,
+	LicenseState,
+} from './types';
 
 export const reducer = combineReducers({ features, license, catalog });
 
@@ -42,6 +47,7 @@ function catalog(
 const FEATURES_DEFAULT: FeaturesState = {
 	bySlug: {},
 	toggling: {},
+	updating: {},
 	errorBySlug: {},
 };
 
@@ -86,6 +92,40 @@ function features(
 			return {
 				...state,
 				toggling: remainingToggling,
+				errorBySlug: {
+					...state.errorBySlug,
+					[action.slug]: action.error,
+				},
+			};
+		}
+
+		case 'UPDATE_FEATURE_START': {
+			const { [action.slug]: _, ...remainingErrors } = state.errorBySlug;
+			return {
+				...state,
+				updating: { ...state.updating, [action.slug]: true },
+				errorBySlug: remainingErrors,
+			};
+		}
+
+		case 'UPDATE_FEATURE_FINISHED': {
+			const { slug } = action.feature;
+			const { [slug]: _, ...remainingUpdating } = state.updating;
+			return {
+				...state,
+				bySlug: {
+					...state.bySlug,
+					[slug]: action.feature,
+				},
+				updating: remainingUpdating,
+			};
+		}
+
+		case 'UPDATE_FEATURE_FAILED': {
+			const { [action.slug]: _, ...remainingUpdating } = state.updating;
+			return {
+				...state,
+				updating: remainingUpdating,
 				errorBySlug: {
 					...state.errorBySlug,
 					[action.slug]: action.error,

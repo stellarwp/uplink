@@ -79,7 +79,6 @@ final class WordPress_View implements Contracts\View {
 	 * @param mixed[] $args  Arguments to be extracted and passed to the view.
 	 *
 	 * @return void
-	 *
 	 */
 	public function display( string $name, array $args = [] ): void {
 		$file = $this->get_path( $name );

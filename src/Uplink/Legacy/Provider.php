@@ -31,6 +31,7 @@ class Provider extends Abstract_Provider {
 		);
 
 		$this->register_dismissed_notices_meta();
+
 		add_action( 'admin_notices', [ $this->container->get( License_Notice_Handler::class ), 'display' ], 10, 0 );
 	}
 

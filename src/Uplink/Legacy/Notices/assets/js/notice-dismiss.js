@@ -15,20 +15,20 @@
 
 		var id = notice.getAttribute( 'data-uplink-notice-id' );
 
-		window.wp.apiFetch( { path: '/wp/v2/users/me' } ).then( function( user ) {
-			var dismissed = Object.assign( {}, user.meta[ META_KEY ] || {} );
-			dismissed[ id ] = Math.floor( Date.now() / 1000 ) + TTL;
-
+		( async function() {
 			try {
-				return window.wp.apiFetch( {
+				var user      = await window.wp.apiFetch( { path: '/wp/v2/users/me' } );
+				var dismissed = Object.assign( {}, user.meta[ META_KEY ] || {} );
+				dismissed[ id ] = Math.floor( Date.now() / 1000 ) + TTL;
+
+				await window.wp.apiFetch( {
 					path:   '/wp/v2/users/me',
 					method: 'PATCH',
 					data:   { meta: { [ META_KEY ]: dismissed } },
 				} );
 			} catch ( error ) {
 				console.error( error );
-				return false;
 			}
-		} );
+		} )();
 	} );
 } )();

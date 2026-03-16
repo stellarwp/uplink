@@ -149,8 +149,8 @@ final class License_Notice_HandlerTest extends UplinkTestCase {
 
 		$output = $this->capture_display();
 
-		$this->assertStringContainsString( 'add-on is not receiving', $output );
-		$this->assertStringNotContainsString( 'add-ons are not receiving', $output );
+		$this->assertStringContainsString( 'inactive Give license', $output );
+		$this->assertStringNotContainsString( 'inactive Give licenses', $output );
 	}
 
 	/**
@@ -175,7 +175,7 @@ final class License_Notice_HandlerTest extends UplinkTestCase {
 		$output = $this->capture_display();
 
 		$this->assertStringContainsString( '2', $output );
-		$this->assertStringContainsString( 'add-ons are not receiving', $output );
+		$this->assertStringContainsString( 'inactive Give licenses', $output );
 	}
 
 	/**

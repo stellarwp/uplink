@@ -123,6 +123,8 @@ class License_Notice_Handler {
 	 *
 	 * @since 3.0.0
 	 *
+	 * TODO: Decide on messaging for all brands.
+	 *
 	 * @param string                                          $brand
 	 * @param array{id: string, page_url: string, count: int} $data
 	 *
@@ -131,8 +133,8 @@ class License_Notice_Handler {
 	private function render_notice( string $brand, array $data ): void {
 		$message = sprintf(
 			_n(
-				'Your %1$s add-on is not receiving critical updates and new features because you have an inactive license. Please <a href="%2$s">activate your license</a> to receive updates.',
-				'Your %1$s add-ons are not receiving critical updates and new features because you have %3$d inactive license keys. Please <a href="%2$s">activate your licenses</a> to receive updates.',
+				'You have an inactive %1$s license. Please <a href="%2$s">activate it</a> to receive critical updates and new features.',
+				'You have %3$d inactive %1$s licenses. Please <a href="%2$s">activate them</a> to receive critical updates and new features.',
 				$data['count'],
 				'%TEXTDOMAIN%'
 			),

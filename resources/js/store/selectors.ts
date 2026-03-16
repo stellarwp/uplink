@@ -100,9 +100,6 @@ export const getProductTiers = createSelector(
  *
  * CatalogTier.purchase_url is the authoritative source for upgrade links —
  * prefer it over the static Tier.upgradeUrl fixture when available.
- * @param state
- * @param productSlug
- * @param tierSlug
  */
 export const getCatalogTier = (
 	state: State,

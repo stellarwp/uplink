@@ -2894,14 +2894,49 @@ class UplinkError extends Error {
   }
 
   /**
-   * Wrap an unknown caught value into an UplinkError with context.
+   * Async wrap of an unknown caught value into an UplinkError with context.
    *
    * The provided `code` and `message` describe what operation failed.
    * The original value is preserved as `cause` so the full error chain
    * is available for inspection. When the original is a WpRestError,
    * its `data` and `additional_errors` are also carried forward.
+   *
+   * Handles `Response` objects that apiFetch throws when it cannot
+   * parse JSON or when `parse: false` is used.
    */
-  static wrap(error, code, message) {
+  static async wrap(error, code, message) {
+    if (error instanceof Response) {
+      try {
+        const body = await error.json();
+        if ((0,_utils__WEBPACK_IMPORTED_MODULE_0__.isWpRestError)(body)) {
+          return new UplinkError({
+            code,
+            message,
+            data: body.data,
+            additional_errors: body.additional_errors
+          }, {
+            cause: new UplinkError(body)
+          });
+        }
+      } catch {
+        // Response body wasn't JSON, fall through.
+      }
+      return new UplinkError({
+        code,
+        message
+      });
+    }
+    return UplinkError.wrapSync(error, code, message);
+  }
+
+  /**
+   * Synchronous wrap of an unknown caught value into an UplinkError
+   * with context.
+   *
+   * Same as `wrap` but cannot handle `Response` objects. Use this in
+   * synchronous code paths where `await` is not available.
+   */
+  static wrapSync(error, code, message) {
     if (error instanceof UplinkError || error instanceof Error) {
       return new UplinkError({
         code,
@@ -3151,7 +3186,7 @@ const enableFeature = slug => async ({
     });
     return null;
   } catch (err) {
-    const error = _errors__WEBPACK_IMPORTED_MODULE_2__.UplinkError.wrap(err, _errors__WEBPACK_IMPORTED_MODULE_2__.ErrorCode.FeatureEnableFailed, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Liquid Web Software failed to enable your feature.', '%TEXTDOMAIN%'));
+    const error = await _errors__WEBPACK_IMPORTED_MODULE_2__.UplinkError.wrap(err, _errors__WEBPACK_IMPORTED_MODULE_2__.ErrorCode.FeatureEnableFailed, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Liquid Web Software failed to enable your feature.', '%TEXTDOMAIN%'));
     dispatch({
       type: 'TOGGLE_FEATURE_FAILED',
       slug,
@@ -3185,7 +3220,7 @@ const disableFeature = slug => async ({
     });
     return null;
   } catch (err) {
-    const error = _errors__WEBPACK_IMPORTED_MODULE_2__.UplinkError.wrap(err, _errors__WEBPACK_IMPORTED_MODULE_2__.ErrorCode.FeatureDisableFailed, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Liquid Web Software failed to disable your feature.', '%TEXTDOMAIN%'));
+    const error = await _errors__WEBPACK_IMPORTED_MODULE_2__.UplinkError.wrap(err, _errors__WEBPACK_IMPORTED_MODULE_2__.ErrorCode.FeatureDisableFailed, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Liquid Web Software failed to disable your feature.', '%TEXTDOMAIN%'));
     dispatch({
       type: 'TOGGLE_FEATURE_FAILED',
       slug,
@@ -3219,7 +3254,7 @@ const updateFeature = slug => async ({
     });
     return null;
   } catch (err) {
-    const error = _errors__WEBPACK_IMPORTED_MODULE_2__.UplinkError.wrap(err, _errors__WEBPACK_IMPORTED_MODULE_2__.ErrorCode.FeatureUpdateFailed, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Liquid Web Software failed to update your feature.', '%TEXTDOMAIN%'));
+    const error = await _errors__WEBPACK_IMPORTED_MODULE_2__.UplinkError.wrap(err, _errors__WEBPACK_IMPORTED_MODULE_2__.ErrorCode.FeatureUpdateFailed, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Liquid Web Software failed to update your feature.', '%TEXTDOMAIN%'));
     dispatch({
       type: 'UPDATE_FEATURE_FAILED',
       slug,
@@ -3261,7 +3296,7 @@ const storeLicense = key => async ({
     dispatch.invalidateResolution('getFeatures', []);
     return null;
   } catch (err) {
-    const error = _errors__WEBPACK_IMPORTED_MODULE_2__.UplinkError.wrap(err, _errors__WEBPACK_IMPORTED_MODULE_2__.ErrorCode.LicenseStoreFailed, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Liquid Web Software failed to activate your license.', '%TEXTDOMAIN%'));
+    const error = await _errors__WEBPACK_IMPORTED_MODULE_2__.UplinkError.wrap(err, _errors__WEBPACK_IMPORTED_MODULE_2__.ErrorCode.LicenseStoreFailed, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Liquid Web Software failed to activate your license.', '%TEXTDOMAIN%'));
     dispatch({
       type: 'STORE_LICENSE_FAILED',
       error
@@ -3301,7 +3336,7 @@ const validateProduct = productSlug => async ({
     dispatch.invalidateResolution('getFeatures', []);
     return null;
   } catch (err) {
-    const error = _errors__WEBPACK_IMPORTED_MODULE_2__.UplinkError.wrap(err, _errors__WEBPACK_IMPORTED_MODULE_2__.ErrorCode.LicenseValidateFailed, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Liquid Web Software failed to validate your product.', '%TEXTDOMAIN%'));
+    const error = await _errors__WEBPACK_IMPORTED_MODULE_2__.UplinkError.wrap(err, _errors__WEBPACK_IMPORTED_MODULE_2__.ErrorCode.LicenseValidateFailed, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Liquid Web Software failed to validate your product.', '%TEXTDOMAIN%'));
     dispatch({
       type: 'VALIDATE_PRODUCT_FAILED',
       error
@@ -3337,7 +3372,7 @@ const deleteLicense = () => async ({
     dispatch.invalidateResolution('getFeatures', []);
     return null;
   } catch (err) {
-    const error = _errors__WEBPACK_IMPORTED_MODULE_2__.UplinkError.wrap(err, _errors__WEBPACK_IMPORTED_MODULE_2__.ErrorCode.LicenseDeleteFailed, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Liquid Web Software failed to remove your license.', '%TEXTDOMAIN%'));
+    const error = await _errors__WEBPACK_IMPORTED_MODULE_2__.UplinkError.wrap(err, _errors__WEBPACK_IMPORTED_MODULE_2__.ErrorCode.LicenseDeleteFailed, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Liquid Web Software failed to remove your license.', '%TEXTDOMAIN%'));
     dispatch({
       type: 'DELETE_LICENSE_FAILED',
       error
@@ -3738,7 +3773,7 @@ const getFeatures = () => async ({
     });
     dispatch.receiveFeatures(features);
   } catch (err) {
-    throw _errors__WEBPACK_IMPORTED_MODULE_2__.UplinkError.wrap(err, _errors__WEBPACK_IMPORTED_MODULE_2__.ErrorCode.FeaturesFetchFailed, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Liquid Web Software failed to load your features.', '%TEXTDOMAIN%'));
+    throw await _errors__WEBPACK_IMPORTED_MODULE_2__.UplinkError.wrap(err, _errors__WEBPACK_IMPORTED_MODULE_2__.ErrorCode.FeaturesFetchFailed, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Liquid Web Software failed to load your features.', '%TEXTDOMAIN%'));
   }
 };
 const getFeaturesByGroup = (0,_lib_forward_resolver__WEBPACK_IMPORTED_MODULE_3__.forwardResolverWithoutArgs)('getFeatures');
@@ -3762,7 +3797,7 @@ const getCatalog = () => async ({
     });
     dispatch.receiveCatalog(catalogs);
   } catch (err) {
-    throw _errors__WEBPACK_IMPORTED_MODULE_2__.UplinkError.wrap(err, _errors__WEBPACK_IMPORTED_MODULE_2__.ErrorCode.CatalogFetchFailed, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Liquid Web Software failed to load the product catalog.', '%TEXTDOMAIN%'));
+    throw await _errors__WEBPACK_IMPORTED_MODULE_2__.UplinkError.wrap(err, _errors__WEBPACK_IMPORTED_MODULE_2__.ErrorCode.CatalogFetchFailed, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Liquid Web Software failed to load the product catalog.', '%TEXTDOMAIN%'));
   }
 };
 const getProductCatalog = (0,_lib_forward_resolver__WEBPACK_IMPORTED_MODULE_3__.forwardResolverWithoutArgs)('getCatalog');
@@ -3786,7 +3821,7 @@ const getLicenseKey = () => async ({
     });
     dispatch.receiveLicense(result);
   } catch (err) {
-    throw _errors__WEBPACK_IMPORTED_MODULE_2__.UplinkError.wrap(err, _errors__WEBPACK_IMPORTED_MODULE_2__.ErrorCode.LicenseFetchFailed, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Liquid Web Software failed to load your license.', '%TEXTDOMAIN%'));
+    throw await _errors__WEBPACK_IMPORTED_MODULE_2__.UplinkError.wrap(err, _errors__WEBPACK_IMPORTED_MODULE_2__.ErrorCode.LicenseFetchFailed, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Liquid Web Software failed to load your license.', '%TEXTDOMAIN%'));
   }
 };
 const hasLicense = (0,_lib_forward_resolver__WEBPACK_IMPORTED_MODULE_3__.forwardResolver)('getLicenseKey');

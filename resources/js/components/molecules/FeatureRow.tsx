@@ -21,6 +21,49 @@ import { store as uplinkStore } from '@/store';
 import { UplinkError } from '@/errors';
 import type { Feature, Product } from '@/types/api';
 
+interface VersionDisplayProps {
+	feature:        Feature;
+	pendingAction:  'enabling' | 'disabling' | 'installing' | 'updating' | null;
+	installableBusy: boolean;
+	onUpdate:       () => void;
+}
+
+function VersionDisplay( { feature, pendingAction, installableBusy, onUpdate }: VersionDisplayProps ) {
+	if ( feature.has_update ) {
+		return (
+			<div className="flex items-center gap-1.5">
+				<span className="text-xs font-mono text-muted-foreground line-through">
+					v{ feature.installed_version }
+				</span>
+				<span className="text-muted-foreground text-xs">→</span>
+				<span className="text-xs font-mono font-bold">
+					v{ feature.version }
+				</span>
+				<Button
+					variant="default"
+					size="icon-xs"
+					className="rounded-full"
+					disabled={ !! pendingAction || installableBusy }
+					onClick={ onUpdate }
+					aria-label={ sprintf( __( 'Update %s', '%TEXTDOMAIN%' ), feature.name ) }
+				>
+					<Download className="w-3.5 h-3.5" />
+				</Button>
+			</div>
+		);
+	}
+
+	if ( ! feature.version && ! feature.installed_version ) {
+		return null;
+	}
+
+	return (
+		<span className="text-xs font-mono text-muted-foreground text-right">
+			{ `v${ feature.installed_version ?? feature.version }` }
+		</span>
+	);
+}
+
 interface FeatureRowProps {
 	feature: Feature;
 	product: Product;
@@ -47,8 +90,6 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 	const [ pendingAction, setPendingAction ] = useState<
 		'enabling' | 'disabling' | 'installing' | 'updating' | null
 	>( null );
-
-	const showUpdate = feature.has_update ?? false;
 
 	const Chevron = expanded ? ChevronDown : ChevronRight;
 
@@ -143,8 +184,8 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 		setPendingAction( null );
 	};
 
-	const badgeStatus =
-		pendingAction ?? ( featureEnabled ? 'enabled' : 'available' );
+	const badgeStatus  = pendingAction ?? ( featureEnabled ? 'enabled' : 'available' );
+	const showSwitch   = pendingAction !== 'installing' && pendingAction !== 'updating';
 
 	// While a request is in-flight, reflect the intended state visually so
 	// the switch position and badge stay in sync with pendingAction.
@@ -169,35 +210,14 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 					</span>
 				</div>
 				<div className="flex items-center gap-3 ml-auto shrink-0">
-					{ showUpdate ? (
-						<div className="flex items-center gap-1.5">
-							<span className="text-xs font-mono text-muted-foreground line-through">
-								v{ feature.installed_version }
-							</span>
-							<span className="text-muted-foreground text-xs">→</span>
-							<span className="text-xs font-mono font-bold">
-								v{ feature.version }
-							</span>
-							<Button
-								variant="default"
-								size="icon-xs"
-								className="rounded-full"
-								disabled={ !! pendingAction || installableBusy }
-								onClick={ handleUpdate }
-								aria-label={ sprintf( __( 'Update %s', '%TEXTDOMAIN%' ), feature.name ) }
-							>
-								<Download className="w-3.5 h-3.5" />
-							</Button>
-						</div>
-					) : (
-						( feature.version || feature.installed_version ) && (
-							<span className="text-xs font-mono text-muted-foreground text-right">
-								{ `v${feature.installed_version ?? feature.version}` }
-							</span>
-						)
-					) }
+					<VersionDisplay
+						feature={ feature }
+						pendingAction={ pendingAction }
+						installableBusy={ installableBusy }
+						onUpdate={ handleUpdate }
+					/>
 					<StatusBadge status={ badgeStatus } />
-					{ pendingAction !== 'installing' && (
+					{ showSwitch && (
 						<Switch
 							checked={ switchChecked }
 							onCheckedChange={ handleToggle }

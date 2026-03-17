@@ -774,7 +774,23 @@ function StatusBadge({
         })]
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("span", {
         className: "text-[10px] text-muted-foreground",
-        children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Activating…', '%TEXTDOMAIN%')
+        children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Installing…', '%TEXTDOMAIN%')
+      })]
+    });
+  }
+  if (status === 'updating') {
+    return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
+      className: "flex flex-col items-end gap-0.5 w-36",
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsxs)("div", {
+        className: "flex items-center gap-2 w-full",
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"], {
+          className: "w-3.5 h-3.5 text-muted-foreground animate-pulse shrink-0"
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.ProgressBar, {
+          className: "h-1.5 rounded-full bg-muted [&>div]:bg-primary"
+        })]
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_6__.jsx)("span", {
+        className: "text-[10px] text-muted-foreground",
+        children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Updating…', '%TEXTDOMAIN%')
       })]
     });
   }
@@ -844,15 +860,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_data__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_data__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/chevron-down.js");
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/chevron-right.js");
-/* harmony import */ var _lib_utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @/lib/utils */ "./resources/js/lib/utils.ts");
-/* harmony import */ var _components_atoms_FeatureIcon__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @/components/atoms/FeatureIcon */ "./resources/js/components/atoms/FeatureIcon.tsx");
-/* harmony import */ var _components_atoms_StatusBadge__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @/components/atoms/StatusBadge */ "./resources/js/components/atoms/StatusBadge.tsx");
-/* harmony import */ var _components_ui_switch__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @/components/ui/switch */ "./resources/js/components/ui/switch.tsx");
-/* harmony import */ var _context_toast_context__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @/context/toast-context */ "./resources/js/context/toast-context.tsx");
-/* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @/store */ "./resources/js/store/index.ts");
-/* harmony import */ var _errors__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @/errors */ "./resources/js/errors/index.ts");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! react/jsx-runtime */ "react/jsx-runtime");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12___default = /*#__PURE__*/__webpack_require__.n(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__);
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/download.js");
+/* harmony import */ var _lib_utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @/lib/utils */ "./resources/js/lib/utils.ts");
+/* harmony import */ var _components_ui_button__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @/components/ui/button */ "./resources/js/components/ui/button.tsx");
+/* harmony import */ var _components_atoms_FeatureIcon__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @/components/atoms/FeatureIcon */ "./resources/js/components/atoms/FeatureIcon.tsx");
+/* harmony import */ var _components_atoms_StatusBadge__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @/components/atoms/StatusBadge */ "./resources/js/components/atoms/StatusBadge.tsx");
+/* harmony import */ var _components_ui_switch__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @/components/ui/switch */ "./resources/js/components/ui/switch.tsx");
+/* harmony import */ var _context_toast_context__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @/context/toast-context */ "./resources/js/context/toast-context.tsx");
+/* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! @/store */ "./resources/js/store/index.ts");
+/* harmony import */ var _errors__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @/errors */ "./resources/js/errors/index.ts");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! react/jsx-runtime */ "react/jsx-runtime");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14___default = /*#__PURE__*/__webpack_require__.n(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__);
 /**
  * A single feature row in the product feature list.
  *
@@ -873,6 +891,46 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
+function VersionDisplay({
+  feature,
+  pendingAction,
+  installableBusy,
+  onUpdate
+}) {
+  if (feature.has_update) {
+    return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsxs)("div", {
+      className: "flex items-center gap-1.5",
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsxs)("span", {
+        className: "text-xs font-mono text-muted-foreground line-through",
+        children: ["v", feature.installed_version]
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsx)("span", {
+        className: "text-muted-foreground text-xs",
+        children: "\u2192"
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsxs)("span", {
+        className: "text-xs font-mono font-bold",
+        children: ["v", feature.version]
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsx)(_components_ui_button__WEBPACK_IMPORTED_MODULE_7__.Button, {
+        variant: "default",
+        size: "icon-xs",
+        className: "rounded-full",
+        disabled: !!pendingAction || installableBusy,
+        onClick: onUpdate,
+        "aria-label": (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Update %s', '%TEXTDOMAIN%'), feature.name),
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], {
+          className: "w-3.5 h-3.5"
+        })
+      })]
+    });
+  }
+  if (!feature.version && !feature.installed_version) {
+    return null;
+  }
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsx)("span", {
+    className: "text-xs font-mono text-muted-foreground text-right",
+    children: `v${feature.installed_version ?? feature.version}`
+  });
+}
 /**
  * @since 3.0.0
  */
@@ -883,48 +941,49 @@ function FeatureRow({
   const [expanded, setExpanded] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false);
   const {
     addToast
-  } = (0,_context_toast_context__WEBPACK_IMPORTED_MODULE_9__.useToast)();
+  } = (0,_context_toast_context__WEBPACK_IMPORTED_MODULE_11__.useToast)();
   const {
     enableFeature,
-    disableFeature
-  } = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_2__.useDispatch)(_store__WEBPACK_IMPORTED_MODULE_10__.store);
+    disableFeature,
+    updateFeature
+  } = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_2__.useDispatch)(_store__WEBPACK_IMPORTED_MODULE_12__.store);
 
   // When this feature is a plugin or theme, block toggling while any
   // other installable feature is mid-toggle (WordPress cannot safely
   // install/activate/deactivate/update multiple plugins or themes at once).
-  const installableBusy = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_2__.useSelect)(select => feature.type !== 'flag' && select(_store__WEBPACK_IMPORTED_MODULE_10__.store).isAnyInstallableBusy(), [feature.type]);
+  const installableBusy = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_2__.useSelect)(select => feature.type !== 'flag' && select(_store__WEBPACK_IMPORTED_MODULE_12__.store).isAnyInstallableBusy(), [feature.type]);
   const [pendingAction, setPendingAction] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null);
   const Chevron = expanded ? lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"] : lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"];
 
   // Prefer the API's purchase_url for the locked-feature upgrade link;
   // fall back to the static fixture upgradeUrl. Hoisted unconditionally
   // to satisfy React's Rules of Hooks.
-  const catalogTierForUpgrade = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_2__.useSelect)(select => select(_store__WEBPACK_IMPORTED_MODULE_10__.store).getCatalogTier(product.slug, feature.tier ?? ''), [product.slug, feature.tier]);
+  const catalogTierForUpgrade = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_2__.useSelect)(select => select(_store__WEBPACK_IMPORTED_MODULE_12__.store).getCatalogTier(product.slug, feature.tier ?? ''), [product.slug, feature.tier]);
 
   // Locked / unavailable feature row.
   if (!feature.is_available) {
-    return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsxs)("div", {
+    return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsxs)("div", {
       className: "border-b last:border-b-0 bg-muted/30",
-      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsxs)("div", {
-        role: "button",
-        tabIndex: 0,
-        onClick: () => setExpanded(!expanded),
-        onKeyDown: e => e.key === 'Enter' && setExpanded(!expanded),
-        className: "flex items-center gap-3 py-3 px-4 cursor-pointer hover:bg-accent/30 transition-colors",
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(Chevron, {
-          className: "w-4 h-4 text-muted-foreground shrink-0"
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(_components_atoms_FeatureIcon__WEBPACK_IMPORTED_MODULE_6__.FeatureIcon, {
-          slug: feature.slug
-        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("span", {
-          className: "font-medium flex-1 min-w-0 text-sm text-muted-foreground",
-          children: feature.name
-        }), (feature.installed_version || feature.version) && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("span", {
-          className: "text-xs font-mono text-muted-foreground w-16 text-right shrink-0",
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsxs)("div", {
+        className: "flex items-center gap-3 py-3 px-4",
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsxs)("div", {
+          onClick: () => setExpanded(!expanded),
+          className: "flex items-center gap-3 min-w-0 cursor-pointer",
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsx)(Chevron, {
+            className: "w-4 h-4 text-muted-foreground shrink-0"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsx)(_components_atoms_FeatureIcon__WEBPACK_IMPORTED_MODULE_8__.FeatureIcon, {
+            slug: feature.slug
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsx)("span", {
+            className: "font-medium min-w-0 text-sm text-muted-foreground truncate",
+            children: feature.name
+          })]
+        }), (feature.installed_version || feature.version) && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsx)("span", {
+          className: "text-xs font-mono text-muted-foreground w-16 text-right shrink-0 ml-auto",
           children: `v${feature.installed_version ?? feature.version}`
         })]
-      }), expanded && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("div", {
+      }), expanded && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsx)("div", {
         className: "px-4 pb-3 pl-[2.75rem]",
-        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("p", {
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsx)("p", {
           className: "text-sm text-muted-foreground leading-relaxed mt-2 mb-0",
           children: feature.description
         })
@@ -942,7 +1001,7 @@ function FeatureRow({
     setPendingAction(checked ? featureInstalled ? 'enabling' : 'installing' : 'disabling');
     if (checked) {
       const result = await enableFeature(feature.slug);
-      if (result instanceof _errors__WEBPACK_IMPORTED_MODULE_11__.UplinkError) {
+      if (result instanceof _errors__WEBPACK_IMPORTED_MODULE_13__.UplinkError) {
         addToast(result.message, 'error');
       } else {
         /* translators: %s is the name of the feature being enabled */
@@ -950,7 +1009,7 @@ function FeatureRow({
       }
     } else {
       const result = await disableFeature(feature.slug);
-      if (result instanceof _errors__WEBPACK_IMPORTED_MODULE_11__.UplinkError) {
+      if (result instanceof _errors__WEBPACK_IMPORTED_MODULE_13__.UplinkError) {
         addToast(result.message, 'error');
       } else {
         /* translators: %s is the name of the feature being disabled */
@@ -959,48 +1018,59 @@ function FeatureRow({
     }
     setPendingAction(null);
   };
+  const handleUpdate = async () => {
+    setPendingAction('updating');
+    const result = await updateFeature(feature.slug);
+    if (result instanceof _errors__WEBPACK_IMPORTED_MODULE_13__.UplinkError) {
+      addToast(result.message, 'error');
+    } else {
+      /* translators: %s is the name of the feature being updated */
+      addToast((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('%s updated.', '%TEXTDOMAIN%'), feature.name), 'success');
+    }
+    setPendingAction(null);
+  };
   const badgeStatus = pendingAction ?? (featureEnabled ? 'enabled' : 'available');
+  const showSwitch = pendingAction !== 'installing' && pendingAction !== 'updating';
 
   // While a request is in-flight, reflect the intended state visually so
   // the switch position and badge stay in sync with pendingAction.
   const switchChecked = pendingAction === 'enabling' || pendingAction === 'installing' ? true : pendingAction === 'disabling' ? false : featureEnabled;
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsxs)("div", {
-    className: (0,_lib_utils__WEBPACK_IMPORTED_MODULE_5__.cn)('border-b last:border-b-0 bg-white', pendingAction && 'opacity-75'),
-    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsxs)("div", {
-      role: "button",
-      tabIndex: 0,
-      onClick: () => setExpanded(!expanded),
-      onKeyDown: e => e.key === 'Enter' && setExpanded(!expanded),
-      className: "flex items-center gap-3 py-3 px-4 cursor-pointer hover:bg-accent/30 transition-colors",
-      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(Chevron, {
-        className: "w-4 h-4 text-muted-foreground shrink-0"
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(_components_atoms_FeatureIcon__WEBPACK_IMPORTED_MODULE_6__.FeatureIcon, {
-        slug: feature.slug
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("span", {
-        className: "font-medium flex-1 min-w-0 text-sm",
-        children: feature.name
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("div", {
-        className: "flex-1"
-      }), (feature.version || feature.installed_version) && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("span", {
-        className: "text-xs font-mono text-muted-foreground text-right shrink-0",
-        children: `v${feature.installed_version ?? feature.version}`
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(_components_atoms_StatusBadge__WEBPACK_IMPORTED_MODULE_7__.StatusBadge, {
-        status: badgeStatus
-      }), pendingAction !== 'installing' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("div", {
-        onClick: e => e.stopPropagation(),
-        className: "flex items-center justify-end",
-        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(_components_ui_switch__WEBPACK_IMPORTED_MODULE_8__.Switch, {
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsxs)("div", {
+    className: (0,_lib_utils__WEBPACK_IMPORTED_MODULE_6__.cn)('border-b last:border-b-0 bg-white', pendingAction && 'opacity-75'),
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsxs)("div", {
+      className: "flex items-center gap-3 py-3 px-4",
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsxs)("div", {
+        onClick: () => setExpanded(!expanded),
+        className: "flex items-center gap-3 min-w-0 cursor-pointer",
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsx)(Chevron, {
+          className: "w-4 h-4 text-muted-foreground shrink-0"
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsx)(_components_atoms_FeatureIcon__WEBPACK_IMPORTED_MODULE_8__.FeatureIcon, {
+          slug: feature.slug
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsx)("span", {
+          className: "font-medium min-w-0 text-sm truncate",
+          children: feature.name
+        })]
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsxs)("div", {
+        className: "flex items-center gap-3 ml-auto shrink-0",
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsx)(VersionDisplay, {
+          feature: feature,
+          pendingAction: pendingAction,
+          installableBusy: installableBusy,
+          onUpdate: handleUpdate
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsx)(_components_atoms_StatusBadge__WEBPACK_IMPORTED_MODULE_9__.StatusBadge, {
+          status: badgeStatus
+        }), showSwitch && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsx)(_components_ui_switch__WEBPACK_IMPORTED_MODULE_10__.Switch, {
           checked: switchChecked,
           onCheckedChange: handleToggle,
           disabled: !!pendingAction || installableBusy,
           "aria-label": switchChecked ? /* translators: %s is the name of the feature to disable */
           (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Disable %s', '%TEXTDOMAIN%'), feature.name) : /* translators: %s is the name of the feature to enable */
           (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.sprintf)((0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Enable %s', '%TEXTDOMAIN%'), feature.name)
-        })
+        })]
       })]
-    }), expanded && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("div", {
+    }), expanded && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsx)("div", {
       className: "px-4 pb-3 pl-[2.75rem]",
-      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("p", {
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_14__.jsx)("p", {
         className: "text-sm text-muted-foreground leading-relaxed !mt-[0.75em] !mb-0",
         children: feature.description
       })
@@ -1344,31 +1414,28 @@ function TierGroup({
   const isOpen = expanded || forceOpen;
   const Chevron = isOpen ? lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"] : lucide_react__WEBPACK_IMPORTED_MODULE_3__["default"];
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.Fragment, {
-    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("button", {
-      type: "button",
-      onClick: () => setExpanded(!expanded),
-      className: "w-full flex items-center gap-2 px-4 py-3 text-left bg-muted/50 hover:bg-muted/70 transition-colors border-b",
-      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(Chevron, {
-        className: "w-4 h-4 shrink-0 text-muted-foreground"
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("span", {
-        className: "font-medium text-sm",
-        children: [tier.name, " ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Features', '%TEXTDOMAIN%')]
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_components_ui_badge__WEBPACK_IMPORTED_MODULE_6__.Badge, {
-        variant: "secondary",
-        className: "text-xs",
-        children: features.length
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], {
-        className: "w-3.5 h-3.5 text-muted-foreground ml-1"
-      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
-        className: "flex-1"
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("div", {
+      className: "w-full flex items-center gap-2 px-4 py-3 bg-muted/50 border-b",
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("div", {
+        onClick: () => setExpanded(!expanded),
+        className: "flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity",
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(Chevron, {
+          className: "w-4 h-4 shrink-0 text-muted-foreground"
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("span", {
+          className: "font-medium text-sm",
+          children: [tier.name, " ", (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Features', '%TEXTDOMAIN%')]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_components_ui_badge__WEBPACK_IMPORTED_MODULE_6__.Badge, {
+          variant: "secondary",
+          className: "text-xs",
+          children: features.length
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_5__["default"], {
+          className: "w-3.5 h-3.5 text-muted-foreground ml-1"
+        })]
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)(_components_ui_button__WEBPACK_IMPORTED_MODULE_7__.Button, {
         variant: "outline",
         size: "sm",
-        className: "gap-1 text-xs h-7",
-        onClick: e => {
-          e.stopPropagation();
-          window.open(tier.purchase_url, '_blank', 'noopener,noreferrer');
-        },
+        className: "gap-1 text-xs h-7 ml-auto shrink-0",
+        onClick: () => window.open(tier.purchase_url, '_blank', 'noopener,noreferrer'),
         children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_4__["default"], {
           className: "w-3 h-3"
         }), (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Upgrade to', '%TEXTDOMAIN%'), ' ', tier.name]

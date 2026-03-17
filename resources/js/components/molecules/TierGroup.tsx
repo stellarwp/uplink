@@ -31,34 +31,30 @@ export function TierGroup( { tier, features, product, forceOpen = false }: TierG
 
     return (
         <>
-            <button
-                type="button"
-                onClick={ () => setExpanded( ! expanded ) }
-                className="w-full flex items-center gap-2 px-4 py-3 text-left
-                           bg-muted/50 hover:bg-muted/70 transition-colors border-b"
-            >
-                <Chevron className="w-4 h-4 shrink-0 text-muted-foreground" />
-                <span className="font-medium text-sm">
-                    { tier.name } { __( 'Features', '%TEXTDOMAIN%' ) }
-                </span>
-                <Badge variant="secondary" className="text-xs">
-                    { features.length }
-                </Badge>
-                <Lock className="w-3.5 h-3.5 text-muted-foreground ml-1" />
-                <div className="flex-1" />
+            <div className="w-full flex items-center gap-2 px-4 py-3 bg-muted/50 border-b">
+                <div
+                    onClick={ () => setExpanded( ! expanded ) }
+                    className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                >
+                    <Chevron className="w-4 h-4 shrink-0 text-muted-foreground" />
+                    <span className="font-medium text-sm">
+                        { tier.name } { __( 'Features', '%TEXTDOMAIN%' ) }
+                    </span>
+                    <Badge variant="secondary" className="text-xs">
+                        { features.length }
+                    </Badge>
+                    <Lock className="w-3.5 h-3.5 text-muted-foreground ml-1" />
+                </div>
                 <Button
                     variant="outline"
                     size="sm"
-                    className="gap-1 text-xs h-7"
-                    onClick={ ( e ) => {
-                        e.stopPropagation();
-                        window.open( tier.purchase_url, '_blank', 'noopener,noreferrer' );
-                    } }
+                    className="gap-1 text-xs h-7 ml-auto shrink-0"
+                    onClick={ () => window.open( tier.purchase_url, '_blank', 'noopener,noreferrer' ) }
                 >
                     <ExternalLink className="w-3 h-3" />
                     { __( 'Upgrade to', '%TEXTDOMAIN%' ) }{ ' ' }{ tier.name }
                 </Button>
-            </button>
+            </div>
 
             { isOpen && features.map( ( feature ) => (
                 <FeatureRow

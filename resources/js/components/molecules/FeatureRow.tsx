@@ -9,8 +9,9 @@
 import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { ChevronRight, ChevronDown } from 'lucide-react';
+import { ChevronRight, ChevronDown, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import { FeatureIcon } from '@/components/atoms/FeatureIcon';
 import { StatusBadge } from '@/components/atoms/StatusBadge';
 import { PurchaseLink } from '@/components/atoms/PurchaseLink';
@@ -31,7 +32,7 @@ interface FeatureRowProps {
 export function FeatureRow( { feature, product }: FeatureRowProps ) {
 	const [ expanded, setExpanded ] = useState( false );
 	const { addToast } = useToast();
-	const { enableFeature, disableFeature } = useDispatch( uplinkStore );
+	const { enableFeature, disableFeature, updateFeature } = useDispatch( uplinkStore );
 
 	// When this feature is a plugin or theme, block toggling while any
 	// other installable feature is mid-toggle (WordPress cannot safely
@@ -44,8 +45,10 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 	);
 
 	const [ pendingAction, setPendingAction ] = useState<
-		'enabling' | 'disabling' | 'installing' | null
+		'enabling' | 'disabling' | 'installing' | 'updating' | null
 	>( null );
+
+	const showUpdate = feature.has_update ?? false;
 
 	const Chevron = expanded ? ChevronDown : ChevronRight;
 
@@ -61,20 +64,19 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 	if ( ! feature.is_available ) {
 		return (
 			<div className="border-b last:border-b-0 bg-muted/30">
-				<div
-					role="button"
-					tabIndex={ 0 }
-					onClick={ () => setExpanded( ! expanded ) }
-					onKeyDown={ ( e ) => e.key === 'Enter' && setExpanded( ! expanded ) }
-					className="flex items-center gap-3 py-3 px-4 cursor-pointer hover:bg-accent/30 transition-colors"
-				>
-					<Chevron className="w-4 h-4 text-muted-foreground shrink-0" />
-					<FeatureIcon slug={ feature.slug } />
-					<span className="font-medium flex-1 min-w-0 text-sm text-muted-foreground">
-						{ feature.name }
-					</span>
+				<div className="flex items-center gap-3 py-3 px-4">
+					<div
+						onClick={ () => setExpanded( ! expanded ) }
+						className="flex items-center gap-3 min-w-0 cursor-pointer"
+					>
+						<Chevron className="w-4 h-4 text-muted-foreground shrink-0" />
+						<FeatureIcon slug={ feature.slug } />
+						<span className="font-medium min-w-0 text-sm text-muted-foreground truncate">
+							{ feature.name }
+						</span>
+					</div>
 					{ (feature.installed_version || feature.version) && (
-						<span className="text-xs font-mono text-muted-foreground w-16 text-right shrink-0">
+						<span className="text-xs font-mono text-muted-foreground w-16 text-right shrink-0 ml-auto">
 							{ `v${feature.installed_version ?? feature.version}` }
 						</span>
 					) }
@@ -126,6 +128,21 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 		setPendingAction( null );
 	};
 
+	const handleUpdate = async () => {
+		setPendingAction( 'updating' );
+		const result = await updateFeature( feature.slug );
+		if ( result instanceof UplinkError ) {
+			addToast( result.message, 'error' );
+		} else {
+			/* translators: %s is the name of the feature being updated */
+			addToast(
+				sprintf( __( '%s updated.', '%TEXTDOMAIN%' ), feature.name ),
+				'success'
+			);
+		}
+		setPendingAction( null );
+	};
+
 	const badgeStatus =
 		pendingAction ?? ( featureEnabled ? 'enabled' : 'available' );
 
@@ -140,27 +157,47 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 
 	return (
 		<div className={ cn( 'border-b last:border-b-0 bg-white', pendingAction && 'opacity-75' ) }>
-			<div
-				role="button"
-				tabIndex={ 0 }
-				onClick={ () => setExpanded( ! expanded ) }
-				onKeyDown={ ( e ) => e.key === 'Enter' && setExpanded( ! expanded ) }
-				className="flex items-center gap-3 py-3 px-4 cursor-pointer hover:bg-accent/30 transition-colors"
-			>
-				<Chevron className="w-4 h-4 text-muted-foreground shrink-0" />
-				<FeatureIcon slug={ feature.slug } />
-				<span className="font-medium flex-1 min-w-0 text-sm">
-					{ feature.name }
-				</span>
-				<div className="flex-1" />
-				{ ( feature.version || feature.installed_version ) && (
-					<span className="text-xs font-mono text-muted-foreground text-right shrink-0">
-						{ `v${feature.installed_version ?? feature.version}` }
+			<div className="flex items-center gap-3 py-3 px-4">
+				<div
+					onClick={ () => setExpanded( ! expanded ) }
+					className="flex items-center gap-3 min-w-0 cursor-pointer"
+				>
+					<Chevron className="w-4 h-4 text-muted-foreground shrink-0" />
+					<FeatureIcon slug={ feature.slug } />
+					<span className="font-medium min-w-0 text-sm truncate">
+						{ feature.name }
 					</span>
-				) }
-				<StatusBadge status={ badgeStatus } />
-				{ pendingAction !== 'installing' && (
-					<div onClick={ ( e ) => e.stopPropagation() } className="flex items-center justify-end">
+				</div>
+				<div className="flex items-center gap-3 ml-auto shrink-0">
+					{ showUpdate ? (
+						<div className="flex items-center gap-1.5">
+							<span className="text-xs font-mono text-muted-foreground line-through">
+								v{ feature.installed_version }
+							</span>
+							<span className="text-muted-foreground text-xs">→</span>
+							<span className="text-xs font-mono font-bold">
+								v{ feature.version }
+							</span>
+							<Button
+								variant="default"
+								size="icon-xs"
+								className="rounded-full"
+								disabled={ !! pendingAction || installableBusy }
+								onClick={ handleUpdate }
+								aria-label={ sprintf( __( 'Update %s', '%TEXTDOMAIN%' ), feature.name ) }
+							>
+								<Download className="w-3.5 h-3.5" />
+							</Button>
+						</div>
+					) : (
+						( feature.version || feature.installed_version ) && (
+							<span className="text-xs font-mono text-muted-foreground text-right">
+								{ `v${feature.installed_version ?? feature.version}` }
+							</span>
+						)
+					) }
+					<StatusBadge status={ badgeStatus } />
+					{ pendingAction !== 'installing' && (
 						<Switch
 							checked={ switchChecked }
 							onCheckedChange={ handleToggle }
@@ -179,8 +216,8 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 									)
 							}
 						/>
-					</div>
-				) }
+					) }
+				</div>
 			</div>
 
 			{ expanded && (

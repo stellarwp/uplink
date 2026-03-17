@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Legacy\Notices;
 
+use StellarWP\Uplink\Admin\Feature_Manager_Page;
 use StellarWP\Uplink\Legacy\License_Repository;
 use StellarWP\Uplink\Notice\Notice;
 use StellarWP\Uplink\Notice\Notice_Controller;
@@ -108,6 +109,10 @@ class License_Notice_Handler {
 		}
 
 		foreach ( $by_brand as $brand => $data ) {
+			if ( $this->is_on_notice_page( $data['page_url'] ) ) {
+				continue;
+			}
+
 			$this->render_notice( $brand, $data );
 		}
 
@@ -127,6 +132,42 @@ class License_Notice_Handler {
 		$dismissed = (array) get_user_meta( get_current_user_id(), self::DISMISSED_META_KEY, true );
 
 		return isset( $dismissed[ $id ] ) && Cast::to_int( $dismissed[ $id ] ) > time();
+	}
+
+	/**
+	 * Whether the current admin request is already on the given page URL.
+	 *
+	 * Compares the `page` query parameter from the notice URL against the
+	 * current request so the notice is suppressed when the user is already
+	 * on the page they would be directed to.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $page_url The brand's license page URL.
+	 *
+	 * @return bool
+	 */
+	private function is_on_notice_page( string $page_url ): bool {
+		$current_page = Cast::to_string( isset( $_GET['page'] ) ? $_GET['page'] : '' );
+
+		if ( $current_page === '' ) {
+			return false;
+		}
+
+		if ( $current_page === Feature_Manager_Page::PAGE_SLUG ) {
+			return true;
+		}
+
+		$parsed = wp_parse_url( $page_url );
+
+		if ( empty( $parsed['query'] ) ) {
+			return false;
+		}
+
+		$params = [];
+		wp_parse_str( $parsed['query'], $params );
+
+		return ! empty( $params['page'] ) && $current_page === $params['page'];
 	}
 
 	/**

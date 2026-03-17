@@ -35,7 +35,7 @@ export const getFeatures =
 		}
 	};
 
-export const getFeaturesByGroup = forwardResolverWithoutArgs('getFeatures');
+export const getFeaturesByProduct = forwardResolverWithoutArgs('getFeatures');
 export const getFeature = forwardResolverWithoutArgs('getFeatures');
 export const isFeatureEnabled = forwardResolverWithoutArgs('getFeatures');
 

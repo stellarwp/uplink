@@ -1,5 +1,5 @@
 /**
- * Hook that returns features for a product group filtered by the active
+ * Hook that returns features for a product filtered by the active
  * search query from FilterContext.
  *
  * When the search query is empty the original selector result is returned
@@ -20,7 +20,7 @@ export function useFilteredFeatures( productSlug: string ): Feature[] {
     const { searchQuery } = useFilter();
 
     const features = useSelect(
-        ( select ) => select( uplinkStore ).getFeaturesByGroup( productSlug ),
+        ( select ) => select( uplinkStore ).getFeaturesByProduct( productSlug ),
         [ productSlug ],
     );
 

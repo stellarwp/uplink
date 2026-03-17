@@ -234,7 +234,7 @@ class Resolve_Feature_Collection {
 
 		$data = [
 			'slug'              => $catalog_feature->get_feature_slug(),
-			'group'             => $product->get_product_slug(),
+			'product'           => $product->get_product_slug(),
 			'tier'              => $catalog_feature->get_minimum_tier(),
 			'name'              => $catalog_feature->get_name(),
 			'description'       => $catalog_feature->get_description(),

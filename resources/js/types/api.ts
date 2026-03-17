@@ -34,9 +34,9 @@ interface BaseFeature {
      */
     description: string;
     /**
-     * Product group slug this feature belongs to (e.g. "give").
+     * Product slug this feature belongs to (e.g. "give").
      */
-    group: string;
+    product: string;
     /**
      * Minimum tier slug required to access this feature, or null for free features.
      */
@@ -250,7 +250,7 @@ export interface ProductCatalog {
  */
 export interface Product {
     /**
-     * Unique product slug, matches feature group field (e.g. "give", "kadence").
+     * Unique product slug, matches feature product field (e.g. "give", "kadence").
      */
     slug: string;
     /**

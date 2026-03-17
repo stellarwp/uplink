@@ -67,7 +67,7 @@ final class License_ManagerTest extends UplinkTestCase {
 					'embedded_key' => 'LWSW-EMBEDDED-KEY',
 					'name'         => 'GiveWP',
 					'version'      => '3.0.0',
-					'group'        => 'givewp',
+					'product'        => 'givewp',
 				];
 				return $products;
 			} 

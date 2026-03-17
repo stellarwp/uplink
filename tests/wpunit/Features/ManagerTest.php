@@ -60,7 +60,7 @@ final class ManagerTest extends UplinkTestCase {
 			Flag::from_array(
 				[
 					'slug'         => 'test-feature',
-					'group'        => 'TestGroup',
+					'product'        => 'TestGroup',
 					'tier'         => 'Tier 1',
 					'name'         => 'Test Feature',
 					'is_available' => true,
@@ -650,7 +650,7 @@ final class ManagerTest extends UplinkTestCase {
 			Flag::from_array(
 				[
 					'slug'         => 'locked-feature',
-					'group'        => 'TestGroup',
+					'product'        => 'TestGroup',
 					'tier'         => 'Pro',
 					'name'         => 'Locked Feature',
 					'is_available' => false,

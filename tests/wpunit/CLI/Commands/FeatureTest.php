@@ -66,7 +66,7 @@ final class FeatureTest extends UplinkTestCase {
 					'slug'              => 'test-flag',
 					'name'              => 'Test Flag',
 					'description'       => 'A test flag feature.',
-					'group'             => 'TestGroup',
+					'product'             => 'TestGroup',
 					'tier'              => 'Tier 1',
 					'is_available'      => true,
 					'documentation_url' => 'https://example.com/docs/test-flag',
@@ -79,7 +79,7 @@ final class FeatureTest extends UplinkTestCase {
 					'slug'              => 'test-plugin',
 					'name'              => 'Test Plugin',
 					'description'       => 'A test plugin feature.',
-					'group'             => 'OtherGroup',
+					'product'             => 'OtherGroup',
 					'tier'              => 'Tier 2',
 					'is_available'      => false,
 					'documentation_url' => 'https://example.com/docs/test-plugin',
@@ -154,7 +154,7 @@ final class FeatureTest extends UplinkTestCase {
 	}
 
 	public function test_list_filters_by_group(): void {
-		$items = $this->run_list_json( [ 'group' => 'TestGroup' ] );
+		$items = $this->run_list_json( [ 'product' => 'TestGroup' ] );
 
 		$this->assertCount( 1, $items );
 		$this->assertSame( 'test-flag', $items[0]['slug'] );
@@ -184,7 +184,7 @@ final class FeatureTest extends UplinkTestCase {
 	public function test_list_filters_combine(): void {
 		$items = $this->run_list_json(
 			[
-				'group'     => 'TestGroup',
+				'product'     => 'TestGroup',
 				'type'      => 'flag',
 				'available' => 'true',
 				'tier'      => 'Tier 1',
@@ -196,7 +196,7 @@ final class FeatureTest extends UplinkTestCase {
 	}
 
 	public function test_list_filters_return_empty_when_nothing_matches(): void {
-		$items = $this->run_list_json( [ 'group' => 'NonexistentGroup' ] );
+		$items = $this->run_list_json( [ 'product' => 'NonexistentGroup' ] );
 
 		$this->assertSame( [], $items );
 	}
@@ -225,7 +225,7 @@ final class FeatureTest extends UplinkTestCase {
 
 		$this->assertArrayHasKey( 'slug', $item );
 		$this->assertArrayHasKey( 'name', $item );
-		$this->assertArrayNotHasKey( 'group', $item );
+		$this->assertArrayNotHasKey( 'product', $item );
 		$this->assertArrayNotHasKey( 'tier', $item );
 	}
 
@@ -343,7 +343,7 @@ final class FeatureTest extends UplinkTestCase {
 			[
 				'slug'         => 'test-plugin',
 				'name'         => 'Test Plugin',
-				'group'        => 'OtherGroup',
+				'product'        => 'OtherGroup',
 				'tier'         => 'Tier 2',
 				'is_available' => true,
 				'plugin_file'  => 'test-plugin/test-plugin.php',

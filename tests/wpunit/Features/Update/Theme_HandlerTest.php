@@ -126,7 +126,7 @@ final class Theme_HandlerTest extends UplinkTestCase {
 		$feature = new Theme(
 			[
 				'slug'         => 'my-theme',
-				'group'        => 'test',
+				'product'        => 'test',
 				'tier'         => 'basic',
 				'name'         => 'My Theme',
 				'description'  => 'A test theme.',

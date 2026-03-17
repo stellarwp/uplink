@@ -28,7 +28,7 @@ final class FunctionsTest extends UplinkTestCase {
 					'slug'         => 'test-feature',
 					'name'         => 'Test Feature',
 					'description'  => '',
-					'group'        => 'test',
+					'product'        => 'test',
 					'tier'         => 'free',
 					'is_available' => true,
 				]
@@ -108,7 +108,7 @@ final class FunctionsTest extends UplinkTestCase {
 					'slug'         => 'locked-feature',
 					'name'         => 'Locked Feature',
 					'description'  => '',
-					'group'        => 'test',
+					'product'        => 'test',
 					'tier'         => 'pro',
 					'is_available' => false,
 				]

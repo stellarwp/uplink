@@ -425,7 +425,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		$feature    = $result->get( 'kad-blocks-pro' );
 
 		$this->assertSame( 'kad-blocks-pro', $feature->get_slug() );
-		$this->assertSame( 'kadence', $feature->get_group() );
+		$this->assertSame( 'kadence', $feature->get_product() );
 		$this->assertSame( 'kadence-basic', $feature->get_tier() );
 		$this->assertSame( 'Blocks Pro', $feature->get_name() );
 		$this->assertSame( 'Premium Gutenberg blocks for advanced page building.', $feature->get_description() );

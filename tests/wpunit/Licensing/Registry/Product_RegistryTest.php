@@ -36,7 +36,7 @@ final class Product_RegistryTest extends UplinkTestCase {
 					'embedded_key' => 'LWSW-UNIFIED-PRO-2026',
 					'name'         => 'GiveWP',
 					'version'      => '3.0.0',
-					'group'        => 'givewp',
+					'product'        => 'givewp',
 				];
 				return $products;
 			} 

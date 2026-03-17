@@ -59,9 +59,11 @@ class Uplink {
 		$container->singleton( API\REST\V1\Provider::class, API\REST\V1\Provider::class );
 		$container->singleton( CLI\Provider::class, CLI\Provider::class );
 
+		$container->get( View\Provider::class )->register();
+		$container->singleton( Notice\Notice_Controller::class, Notice\Notice_Controller::class );
+
 		if ( static::is_enabled() ) {
 			$container->get( Storage\Provider::class )->register();
-			$container->get( View\Provider::class )->register();
 			$container->get( API\V3\Provider::class )->register();
 			$container->get( Notice\Provider::class )->register();
 			$container->get( Admin\Provider::class )->register();

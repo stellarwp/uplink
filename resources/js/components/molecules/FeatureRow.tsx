@@ -9,60 +9,17 @@
 import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { ChevronRight, ChevronDown, Download } from 'lucide-react';
+import { ChevronRight, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import { FeatureIcon } from '@/components/atoms/FeatureIcon';
 import { StatusBadge } from '@/components/atoms/StatusBadge';
+import { VersionDisplay } from '@/components/molecules/VersionDisplay';
 import { PurchaseLink } from '@/components/atoms/PurchaseLink';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/context/toast-context';
 import { store as uplinkStore } from '@/store';
 import { UplinkError } from '@/errors';
 import type { Feature, Product } from '@/types/api';
-
-interface VersionDisplayProps {
-	feature:        Feature;
-	pendingAction:  'enabling' | 'disabling' | 'installing' | 'updating' | null;
-	installableBusy: boolean;
-	onUpdate:       () => void;
-}
-
-function VersionDisplay( { feature, pendingAction, installableBusy, onUpdate }: VersionDisplayProps ) {
-	if ( feature.has_update ) {
-		return (
-			<div className="flex items-center gap-1.5">
-				<span className="text-xs font-mono text-muted-foreground line-through">
-					v{ feature.installed_version }
-				</span>
-				<span className="text-muted-foreground text-xs">→</span>
-				<span className="text-xs font-mono font-bold">
-					v{ feature.version }
-				</span>
-				<Button
-					variant="default"
-					size="icon-xs"
-					className="rounded-full"
-					disabled={ !! pendingAction || installableBusy }
-					onClick={ onUpdate }
-					aria-label={ sprintf( __( 'Update %s', '%TEXTDOMAIN%' ), feature.name ) }
-				>
-					<Download className="w-3.5 h-3.5" />
-				</Button>
-			</div>
-		);
-	}
-
-	if ( ! feature.version && ! feature.installed_version ) {
-		return null;
-	}
-
-	return (
-		<span className="text-xs font-mono text-muted-foreground text-right">
-			{ `v${ feature.installed_version ?? feature.version }` }
-		</span>
-	);
-}
 
 interface FeatureRowProps {
 	feature: Feature;

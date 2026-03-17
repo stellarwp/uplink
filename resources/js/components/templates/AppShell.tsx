@@ -18,6 +18,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { PRODUCTS } from '@/data/products';
 import { store as uplinkStore } from '@/store';
 import { useFilter } from '@/context/filter-context';
+import type { SelectWithResolution } from '@/types/data';
 
 /**
  * @since 3.0.0
@@ -27,9 +28,7 @@ export function AppShell() {
     // content, so we never flash stale tier badges or a "No license" state.
     const isLoading = useSelect(
         ( select ) => {
-            const s = select( uplinkStore ) as unknown as {
-                hasFinishedResolution: ( name: string, args?: unknown[] ) => boolean;
-            };
+            const s = select( uplinkStore ) as SelectWithResolution< typeof uplinkStore >;
             select( uplinkStore ).getLicenseKey();
             select( uplinkStore ).getFeatures();
             select( uplinkStore ).getCatalog();

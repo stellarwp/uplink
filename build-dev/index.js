@@ -1739,7 +1739,7 @@ function ProductSection({
     const licenseProducts = select(_store__WEBPACK_IMPORTED_MODULE_6__.store).getLicenseProducts();
     const catalog = select(_store__WEBPACK_IMPORTED_MODULE_6__.store).getProductCatalog(product.slug);
     return {
-      allFeaturesUnfiltered: select(_store__WEBPACK_IMPORTED_MODULE_6__.store).getFeaturesByGroup(product.slug),
+      allFeaturesUnfiltered: select(_store__WEBPACK_IMPORTED_MODULE_6__.store).getFeaturesByProduct(product.slug),
       hasLicense: select(_store__WEBPACK_IMPORTED_MODULE_6__.store).hasLicense(),
       licenseProduct: licenseProducts.find(lp => lp.product_slug === product.slug) ?? null,
       catalogTiers: catalog?.tiers ?? []
@@ -3004,7 +3004,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _context_filter_context__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @/context/filter-context */ "./resources/js/context/filter-context.tsx");
 /* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @/store */ "./resources/js/store/index.ts");
 /**
- * Hook that returns features for a product group filtered by the active
+ * Hook that returns features for a product filtered by the active
  * search query from FilterContext.
  *
  * When the search query is empty the original selector result is returned
@@ -3023,7 +3023,7 @@ function useFilteredFeatures(productSlug) {
   const {
     searchQuery
   } = (0,_context_filter_context__WEBPACK_IMPORTED_MODULE_1__.useFilter)();
-  const features = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_0__.useSelect)(select => select(_store__WEBPACK_IMPORTED_MODULE_2__.store).getFeaturesByGroup(productSlug), [productSlug]);
+  const features = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_0__.useSelect)(select => select(_store__WEBPACK_IMPORTED_MODULE_2__.store).getFeaturesByProduct(productSlug), [productSlug]);
   const query = searchQuery.trim();
   if (!query) return features;
 
@@ -3732,7 +3732,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   getCatalogTier: () => (/* binding */ getCatalogTier),
 /* harmony export */   getFeature: () => (/* binding */ getFeature),
 /* harmony export */   getFeatures: () => (/* binding */ getFeatures),
-/* harmony export */   getFeaturesByGroup: () => (/* binding */ getFeaturesByGroup),
+/* harmony export */   getFeaturesByProduct: () => (/* binding */ getFeaturesByProduct),
 /* harmony export */   getLicenseKey: () => (/* binding */ getLicenseKey),
 /* harmony export */   getLicenseProducts: () => (/* binding */ getLicenseProducts),
 /* harmony export */   getProductCatalog: () => (/* binding */ getProductCatalog),
@@ -3776,7 +3776,7 @@ const getFeatures = () => async ({
     throw await _errors__WEBPACK_IMPORTED_MODULE_2__.UplinkError.wrap(err, _errors__WEBPACK_IMPORTED_MODULE_2__.ErrorCode.FeaturesFetchFailed, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Liquid Web Software failed to load your features.', '%TEXTDOMAIN%'));
   }
 };
-const getFeaturesByGroup = (0,_lib_forward_resolver__WEBPACK_IMPORTED_MODULE_3__.forwardResolverWithoutArgs)('getFeatures');
+const getFeaturesByProduct = (0,_lib_forward_resolver__WEBPACK_IMPORTED_MODULE_3__.forwardResolverWithoutArgs)('getFeatures');
 const getFeature = (0,_lib_forward_resolver__WEBPACK_IMPORTED_MODULE_3__.forwardResolverWithoutArgs)('getFeatures');
 const isFeatureEnabled = (0,_lib_forward_resolver__WEBPACK_IMPORTED_MODULE_3__.forwardResolverWithoutArgs)('getFeatures');
 
@@ -3844,7 +3844,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   getFeature: () => (/* binding */ getFeature),
 /* harmony export */   getFeatureError: () => (/* binding */ getFeatureError),
 /* harmony export */   getFeatures: () => (/* binding */ getFeatures),
-/* harmony export */   getFeaturesByGroup: () => (/* binding */ getFeaturesByGroup),
+/* harmony export */   getFeaturesByProduct: () => (/* binding */ getFeaturesByProduct),
 /* harmony export */   getLicenseKey: () => (/* binding */ getLicenseKey),
 /* harmony export */   getLicenseProducts: () => (/* binding */ getLicenseProducts),
 /* harmony export */   getProductCatalog: () => (/* binding */ getProductCatalog),
@@ -3873,7 +3873,7 @@ __webpack_require__.r(__webpack_exports__);
 // ---------------------------------------------------------------------------
 
 const getFeatures = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_0__.createSelector)(state => Object.values(state.features.bySlug), state => [state.features.bySlug]);
-const getFeaturesByGroup = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_0__.createSelector)((state, group) => Object.values(state.features.bySlug).filter(f => f.group === group), (state, group) => [state.features.bySlug, group]);
+const getFeaturesByProduct = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_0__.createSelector)((state, product) => Object.values(state.features.bySlug).filter(f => f.product === product), (state, product) => [state.features.bySlug, product]);
 const getFeature = (state, slug) => state.features.bySlug[slug] ?? null;
 const isFeatureEnabled = (state, slug) => state.features.bySlug[slug]?.is_enabled ?? false;
 const isFeatureToggling = (state, slug) => state.features.toggling[slug] ?? false;

@@ -1017,7 +1017,7 @@ final class PluginStrategyTest extends UplinkTestCase {
 		return new Plugin(
 			[
 				'slug'         => $slug,
-				'group'        => 'Test',
+				'product'        => 'Test',
 				'tier'         => 'Tier 1',
 				'name'         => 'Test Feature',
 				'description'  => 'A test feature for unit tests.',

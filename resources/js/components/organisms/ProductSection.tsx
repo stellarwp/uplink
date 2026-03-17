@@ -37,7 +37,7 @@ export function ProductSection( { product }: ProductSectionProps ) {
             const licenseProducts = select( uplinkStore ).getLicenseProducts();
             const catalog = select( uplinkStore ).getProductCatalog( product.slug );
             return {
-                allFeaturesUnfiltered: select( uplinkStore ).getFeaturesByGroup( product.slug ),
+                allFeaturesUnfiltered: select( uplinkStore ).getFeaturesByProduct( product.slug ),
                 hasLicense: select( uplinkStore ).hasLicense(),
                 licenseProduct: licenseProducts.find( ( lp ) => lp.product_slug === product.slug ) ?? null,
                 catalogTiers: catalog?.tiers ?? [],

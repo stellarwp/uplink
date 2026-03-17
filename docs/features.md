@@ -111,7 +111,7 @@ A typed, keyed collection of `Feature` objects with filtering:
 
 ```php
 $features->filter(
-    group: 'kadence',      // product family
+    product: 'kadence',    // product family
     tier: 'kadence-pro',   // minimum tier
     available: true,       // only available features
     type: 'plugin',        // only installable features
@@ -124,13 +124,13 @@ All parameters optional. Returns a new collection without mutating the original.
 
 Five endpoints under `stellarwp/uplink/v1`. All require `manage_options`.
 
-| Route                      | Method | Purpose                                                       |
-| -------------------------- | ------ | ------------------------------------------------------------- |
-| `/features`                | GET    | List features (filters: `group`, `tier`, `available`, `type`) |
-| `/features/{slug}`         | GET    | Get a single feature                                          |
-| `/features/{slug}/enable`  | POST   | Enable a feature                                              |
-| `/features/{slug}/disable` | POST   | Disable a feature                                             |
-| `/features/{slug}/update`  | POST   | Update a feature to the latest available version              |
+| Route                      | Method | Purpose                                                         |
+| -------------------------- | ------ | --------------------------------------------------------------- |
+| `/features`                | GET    | List features (filters: `product`, `tier`, `available`, `type`) |
+| `/features/{slug}`         | GET    | Get a single feature                                            |
+| `/features/{slug}/enable`  | POST   | Enable a feature                                                |
+| `/features/{slug}/disable` | POST   | Disable a feature                                               |
+| `/features/{slug}/update`  | POST   | Update a feature to the latest available version                |
 
 Each Feature object includes `is_enabled`, stamped with live state from its strategy by the Manager before any consumer receives it. Installable features (Plugin, Theme) additionally include `has_update` — a pre-computed boolean the frontend can read directly without doing any version parsing.
 

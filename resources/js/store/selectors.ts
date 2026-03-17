@@ -22,10 +22,10 @@ export const getFeatures = createSelector(
 	(state: State) => [state.features.bySlug]
 );
 
-export const getFeaturesByGroup = createSelector(
-	(state: State, group: string): Feature[] =>
-		Object.values(state.features.bySlug).filter((f) => f.group === group),
-	(state: State, group: string) => [state.features.bySlug, group]
+export const getFeaturesByProduct = createSelector(
+	(state: State, product: string): Feature[] =>
+		Object.values(state.features.bySlug).filter((f) => f.product === product),
+	(state: State, product: string) => [state.features.bySlug, product]
 );
 
 export const getFeature = (state: State, slug: string): Feature | null =>

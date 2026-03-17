@@ -51,13 +51,13 @@ final class Registered_Product {
 	public ?string $version;
 
 	/**
-	 * Product group or brand (e.g. 'givewp', 'kadence').
+	 * Product brand (e.g. 'givewp', 'kadence').
 	 *
 	 * @since 3.0.0
 	 *
 	 * @var string|null
 	 */
-	public ?string $group;
+	public ?string $product;
 
 	/**
 	 * Constructor.
@@ -68,20 +68,20 @@ final class Registered_Product {
 	 * @param string|null $embedded_key The locally embedded license key.
 	 * @param string|null $name         The human-readable product name.
 	 * @param string|null $version      The currently installed version.
-	 * @param string|null $group        The product group or brand.
+	 * @param string|null $product      The product brand.
 	 */
 	private function __construct(
 		string $slug,
 		?string $embedded_key,
 		?string $name,
 		?string $version,
-		?string $group
+		?string $product
 	) {
 		$this->slug         = $slug;
 		$this->embedded_key = $embedded_key;
 		$this->name         = $name;
 		$this->version      = $version;
-		$this->group        = $group;
+		$this->product      = $product;
 	}
 
 	/**
@@ -109,7 +109,7 @@ final class Registered_Product {
 			$embedded_key,
 			isset( $data['name'] ) && is_string( $data['name'] ) ? $data['name'] : null,
 			isset( $data['version'] ) && is_string( $data['version'] ) ? $data['version'] : null,
-			isset( $data['group'] ) && is_string( $data['group'] ) ? $data['group'] : null,
+			isset( $data['product'] ) && is_string( $data['product'] ) ? $data['product'] : null,
 		);
 	}
 

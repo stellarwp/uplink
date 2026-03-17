@@ -222,7 +222,7 @@ final class FlagStrategyTest extends UplinkTestCase {
 		return new Flag(
 			[
 				'slug'         => $slug,
-				'group'        => 'TEC',
+				'product'        => 'TEC',
 				'tier'         => 'Tier 1',
 				'name'         => $name,
 				'description'  => $description,

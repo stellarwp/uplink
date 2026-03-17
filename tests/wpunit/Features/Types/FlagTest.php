@@ -16,7 +16,7 @@ final class FlagTest extends UplinkTestCase {
 		$feature = Flag::from_array(
 			[
 				'slug'              => 'test-feature',
-				'group'             => 'TEC',
+				'product'             => 'TEC',
 				'tier'              => 'Tier 1',
 				'name'              => 'Test Feature',
 				'description'       => 'Test feature description.',
@@ -27,7 +27,7 @@ final class FlagTest extends UplinkTestCase {
 
 		$this->assertInstanceOf( Flag::class, $feature );
 		$this->assertSame( 'test-feature', $feature->get_slug() );
-		$this->assertSame( 'TEC', $feature->get_group() );
+		$this->assertSame( 'TEC', $feature->get_product() );
 		$this->assertSame( 'Tier 1', $feature->get_tier() );
 		$this->assertSame( 'Test Feature', $feature->get_name() );
 		$this->assertSame( 'Test feature description.', $feature->get_description() );
@@ -45,7 +45,7 @@ final class FlagTest extends UplinkTestCase {
 		$feature = new Flag(
 			[
 				'slug'              => 'test-feature',
-				'group'             => 'TEC',
+				'product'             => 'TEC',
 				'tier'              => 'Tier 1',
 				'name'              => 'Test Feature',
 				'description'       => 'Test feature description.',
@@ -57,7 +57,7 @@ final class FlagTest extends UplinkTestCase {
 		$this->assertSame(
 			[
 				'slug'              => 'test-feature',
-				'group'             => 'TEC',
+				'product'             => 'TEC',
 				'tier'              => 'Tier 1',
 				'name'              => 'Test Feature',
 				'description'       => 'Test feature description.',
@@ -77,7 +77,7 @@ final class FlagTest extends UplinkTestCase {
 	public function test_to_array_round_trips_through_from_array(): void {
 		$data = [
 			'slug'              => 'test-feature',
-			'group'             => 'TEC',
+			'product'             => 'TEC',
 			'tier'              => 'Tier 1',
 			'name'              => 'Test Feature',
 			'description'       => 'Test feature description.',
@@ -101,7 +101,7 @@ final class FlagTest extends UplinkTestCase {
 		$feature = Flag::from_array(
 			[
 				'slug'         => 'test-feature',
-				'group'        => 'TEC',
+				'product'        => 'TEC',
 				'tier'         => 'Tier 1',
 				'name'         => 'Test Feature',
 				'is_available' => true,
@@ -120,7 +120,7 @@ final class FlagTest extends UplinkTestCase {
 		$feature = new Flag(
 			[
 				'slug'         => 'test-feature',
-				'group'        => 'TEC',
+				'product'        => 'TEC',
 				'tier'         => 'Tier 1',
 				'name'         => 'Test Feature',
 				'description'  => 'Test feature description.',

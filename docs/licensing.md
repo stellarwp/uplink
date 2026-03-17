@@ -113,12 +113,12 @@ The unified key is stored in a WordPress option (`stellarwp_uplink_unified_licen
 
 The full product catalog and related metadata are stored in a WordPress option (`stellarwp_uplink_licensing_products_state`) as a state envelope with four keys:
 
-| Key                | Type                 | Description                                                                                 |
-| ------------------ | -------------------- | ------------------------------------------------------------------------------------------- |
-| `collection`       | `array&#124;null`    | `Product_Collection::to_array()` from the last successful fetch, or `null` if never fetched |
-| `last_success_at`  | `int&#124;null`      | Unix timestamp of the last successful fetch                                                 |
-| `last_failure_at`  | `int&#124;null`      | Unix timestamp of the most recent failed fetch, or `null` if no failure has occurred        |
-| `last_error`       | `WP_Error&#124;null` | Error from the most recent failed attempt, or `null` if the last fetch succeeded            |
+| Key               | Type                 | Description                                                                                 |
+| ----------------- | -------------------- | ------------------------------------------------------------------------------------------- |
+| `collection`      | `array&#124;null`    | `Product_Collection::to_array()` from the last successful fetch, or `null` if never fetched |
+| `last_success_at` | `int&#124;null`      | Unix timestamp of the last successful fetch                                                 |
+| `last_failure_at` | `int&#124;null`      | Unix timestamp of the most recent failed fetch, or `null` if no failure has occurred        |
+| `last_error`      | `WP_Error&#124;null` | Error from the most recent failed attempt, or `null` if the last fetch succeeded            |
 
 Unlike a transient, this option has no TTL — product data persists indefinitely. Re-validation frequency (how often the API is called to refresh) is a separate concern from data persistence.
 
@@ -130,13 +130,13 @@ Since there is only one unified key per site, there is only one state entry. Inv
 
 Products opt into unified licensing by declaring themselves through a WordPress filter (`stellarwp/uplink/product_registry`). Each product contributes:
 
-| Field           | Required | Description                                         |
-| --------------- | -------- | --------------------------------------------------- |
-| `slug`          | Yes      | Product identifier, must match what Licensing knows |
-| `embedded_key`  | No       | `LWSW-`-prefixed key if the product ships with one  |
-| `name`          | No       | Human-readable display name                         |
-| `version`       | No       | Currently installed version                         |
-| `group`         | No       | Product brand/family (e.g., `givewp`, `kadence`)    |
+| Field          | Required | Description                                         |
+| -------------- | -------- | --------------------------------------------------- |
+| `slug`         | Yes      | Product identifier, must match what Licensing knows |
+| `embedded_key` | No       | `LWSW-`-prefixed key if the product ships with one  |
+| `name`         | No       | Human-readable display name                         |
+| `version`      | No       | Currently installed version                         |
+| `product`      | No       | Product brand/family (e.g., `givewp`, `kadence`)    |
 
 Only `slug` is required. Products do not declare their tier. Tiers are a property of the license, not the product.
 

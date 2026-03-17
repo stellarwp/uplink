@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCON-310: Kadence AI Credit Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Courier Prime', 'SF Mono', Menlo, monospace;
+    background: #1a1510;
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(34,80,20,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 30%, rgba(120,60,10,0.1) 0%, transparent 50%),
+      repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(0,0,0,0.05) 40px, rgba(0,0,0,0.05) 41px);
+    color: #c4b998;
+    padding: 32px;
+    min-height: 100vh;
+  }
+  h1 {
+    font-family: 'Cinzel Decorative', 'Georgia', serif;
+    font-size: 24px; font-weight: 700; margin-bottom: 4px;
+    color: #7fba4c;
+    text-shadow: 0 0 20px rgba(100,180,50,0.3), 0 2px 4px rgba(0,0,0,0.5);
+    letter-spacing: 2px;
+  }
+  .subtitle { font-size: 13px; color: #8a7e65; margin-bottom: 24px; }
+  .subtitle a { color: #9bcc5a; }
+
+  /* ── Rusted metal frame ── */
+  .diagram {
+    background: linear-gradient(135deg, #2a2318 0%, #1e1a12 50%, #2a2318 100%);
+    border-radius: 4px; padding: 32px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5), inset 0 0 60px rgba(0,0,0,0.3);
+    border: 4px solid #5a4a30;
+    border-image: repeating-linear-gradient(
+      90deg,
+      #6b5530 0px, #4a3820 3px, #7a6035 6px, #3d2e18 9px, #6b5530 12px
+    ) 4;
+    overflow-x: auto;
+    position: relative;
+  }
+  .diagram::before {
+    content: '';
+    position: absolute; inset: 4px;
+    border: 2px solid rgba(90,74,48,0.4);
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  svg { display: block; margin: 0 auto; position: relative; z-index: 1; }
+
+  .tables { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; }
+  @media (max-width: 900px) { .tables { grid-template-columns: 1fr; } }
+
+  /* ── Riveted metal table cards ── */
+  .table-card {
+    background: linear-gradient(180deg, #262016 0%, #1e1a12 100%);
+    border-radius: 4px; padding: 24px 20px 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(127,186,76,0.08);
+    border: 3px solid #5a4a30;
+    position: relative;
+    background-image:
+      radial-gradient(circle at 12px 12px, #6b5530 3px, transparent 3px),
+      radial-gradient(circle at calc(100% - 12px) 12px, #6b5530 3px, transparent 3px),
+      radial-gradient(circle at 12px calc(100% - 12px), #6b5530 3px, transparent 3px),
+      radial-gradient(circle at calc(100% - 12px) calc(100% - 12px), #6b5530 3px, transparent 3px),
+      radial-gradient(circle at 12px 12px, #4a3820 2px, transparent 2px),
+      radial-gradient(circle at calc(100% - 12px) 12px, #4a3820 2px, transparent 2px),
+      radial-gradient(circle at 12px calc(100% - 12px), #4a3820 2px, transparent 2px),
+      radial-gradient(circle at calc(100% - 12px) calc(100% - 12px), #4a3820 2px, transparent 2px),
+      linear-gradient(180deg, #262016 0%, #1e1a12 100%);
+  }
+  .table-card::before {
+    content: '';
+    position: absolute; top: 6px; left: 6px; right: 6px; bottom: 6px;
+    border: 1px solid rgba(90,74,48,0.3);
+    border-radius: 2px;
+    pointer-events: none;
+  }
+  .table-card h3 {
+    font-family: 'Cinzel Decorative', 'Georgia', serif;
+    font-size: 13px; font-weight: 700; margin-bottom: 12px;
+    color: #7fba4c;
+    text-shadow: 0 0 10px rgba(100,180,50,0.2);
+    letter-spacing: 1px;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th {
+    text-align: left; padding: 6px 10px;
+    background: rgba(127,186,76,0.08);
+    font-weight: 700; color: #9bcc5a;
+    border-bottom: 2px solid #5a4a30;
+    text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px;
+  }
+  td { padding: 6px 10px; border-bottom: 1px solid #2a2318; vertical-align: top; color: #b0a484; }
+  td a { color: #9bcc5a; }
+  code {
+    font-family: 'Courier Prime', 'SF Mono', Menlo, monospace; font-size: 11px;
+    background: rgba(127,186,76,0.1); color: #a4d65e;
+    padding: 1px 5px; border-radius: 3px;
+    border: 1px solid rgba(127,186,76,0.15);
+  }
+
+  /* ── Legend ── */
+  .legend {
+    display: flex; gap: 24px; flex-wrap: wrap; margin-top: 20px; padding: 16px 20px;
+    background: linear-gradient(90deg, #262016, #1e1a12);
+    border-radius: 4px; font-size: 12px; color: #8a7e65;
+    border: 3px solid #5a4a30;
+    background-image:
+      radial-gradient(circle at 12px 50%, #6b5530 3px, transparent 3px),
+      radial-gradient(circle at calc(100% - 12px) 50%, #6b5530 3px, transparent 3px),
+      radial-gradient(circle at 12px 50%, #4a3820 2px, transparent 2px),
+      radial-gradient(circle at calc(100% - 12px) 50%, #4a3820 2px, transparent 2px),
+      linear-gradient(90deg, #262016, #1e1a12);
+  }
+  .legend-item { display: flex; align-items: center; gap: 8px; }
+  .legend-swatch { width: 28px; height: 3px; flex-shrink: 0; border-radius: 2px; }
+
+  /* ── Tooltip ── */
+  #tooltip {
+    position: fixed; pointer-events: none; z-index: 999;
+    max-width: 340px; padding: 10px 14px;
+    background: linear-gradient(135deg, #2d2a1e, #1a1710);
+    color: #c4b998; font-size: 12px; line-height: 1.45;
+    border-radius: 4px;
+    border: 2px solid #5a4a30;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 15px rgba(100,180,50,0.1);
+    opacity: 0; transition: opacity 0.15s;
+  }
+  #tooltip.visible { opacity: 1; }
+
+  /* ── Goblin header ── */
+  .goblin-header {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 2px;
+  }
+  .goblin-sigil {
+    font-size: 28px;
+    animation: torch 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 8px rgba(100,180,50,0.4));
+  }
+  @keyframes torch {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  /* ── Ambient floating goblins (CSS background decoration) ── */
+  body::before {
+    content: '';
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(circle at 5% 90%, rgba(127,186,76,0.04) 0%, transparent 20%),
+      radial-gradient(circle at 95% 10%, rgba(196,122,42,0.03) 0%, transparent 15%);
+  }
+  body > * { position: relative; z-index: 1; }
+</style>
+</head>
+<body>
+
+<div class="goblin-header">
+  <span class="goblin-sigil">&#x1F9CC;</span>
+  <h1>Kadence AI Credit Flow</h1>
+</div>
+<p class="subtitle">SCON-310 — How credits are checked and deducted. Two flows, four contraptions. <a href="black-boxes.md">Full schematics in black-boxes.md</a></p>
+
+<div class="diagram">
+<svg viewBox="0 0 960 820" xmlns="http://www.w3.org/2000/svg" font-family="'Courier Prime', 'SF Mono', Menlo, monospace">
+  <defs>
+    <!-- ── Rusty metal fill ── -->
+    <pattern id="rust" width="80" height="80" patternUnits="userSpaceOnUse">
+      <rect width="80" height="80" fill="#2a2318"/>
+      <circle cx="15" cy="20" r="1.2" fill="#5a4a30" opacity="0.6"/>
+      <circle cx="55" cy="12" r="0.8" fill="#6b5530" opacity="0.4"/>
+      <circle cx="40" cy="55" r="1" fill="#4a3820" opacity="0.5"/>
+      <circle cx="70" cy="40" r="0.6" fill="#5a4a30" opacity="0.3"/>
+      <circle cx="10" cy="65" r="1.4" fill="#3d2e18" opacity="0.4"/>
+      <circle cx="60" cy="72" r="0.9" fill="#6b5530" opacity="0.35"/>
+    </pattern>
+
+    <!-- ── Rivet (reusable) ── -->
+    <symbol id="rivet" viewBox="0 0 10 10">
+      <circle cx="5" cy="5" r="4.5" fill="#4a3820" stroke="#6b5530" stroke-width="1"/>
+      <circle cx="5" cy="5" r="2" fill="#3d2e18"/>
+      <circle cx="4" cy="4" r="0.8" fill="#7a6035" opacity="0.5"/>
+    </symbol>
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- GOBLIN IN MINECART — used on all flow paths                -->
+    <!-- Drawn facing RIGHT; animateMotion auto-rotate handles      -->
+    <!-- orientation along any path direction.                      -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- GOBLIN IN MINECART (тележка!)                             -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <symbol id="goblin-minecart" viewBox="0 0 70 55">
+      <!-- ── Cart body (trapezoidal metal bucket) ── -->
+      <path d="M12,30 L8,48 L62,48 L58,30 Z" fill="#5a4a30" stroke="#4a3820" stroke-width="1.5"/>
+      <!-- Rust stains on cart -->
+      <path d="M12,30 L8,48 L62,48 L58,30 Z" fill="url(#rust)" opacity="0.5"/>
+      <!-- Inner lip -->
+      <path d="M14,32 L10,46 L60,46 L56,32 Z" fill="none" stroke="#6b5530" stroke-width="0.5" opacity="0.6"/>
+      <!-- Rivets on cart -->
+      <circle cx="14" cy="35" r="1.5" fill="#4a3820" stroke="#6b5530" stroke-width="0.5"/>
+      <circle cx="56" cy="35" r="1.5" fill="#4a3820" stroke="#6b5530" stroke-width="0.5"/>
+      <circle cx="11" cy="44" r="1.5" fill="#4a3820" stroke="#6b5530" stroke-width="0.5"/>
+      <circle cx="59" cy="44" r="1.5" fill="#4a3820" stroke="#6b5530" stroke-width="0.5"/>
+      <!-- Metal rim highlight -->
+      <line x1="13" y1="30" x2="57" y2="30" stroke="#7a6035" stroke-width="1" opacity="0.5"/>
+
+      <!-- ── Wheels ── -->
+      <circle cx="18" cy="50" r="5" fill="#3d2e18" stroke="#6b5530" stroke-width="1.5"/>
+      <circle cx="18" cy="50" r="2" fill="#4a3820"/>
+      <line x1="18" y1="45" x2="18" y2="55" stroke="#5a4a30" stroke-width="0.8"/>
+      <line x1="13" y1="50" x2="23" y2="50" stroke="#5a4a30" stroke-width="0.8"/>
+      <circle cx="52" cy="50" r="5" fill="#3d2e18" stroke="#6b5530" stroke-width="1.5"/>
+      <circle cx="52" cy="50" r="2" fill="#4a3820"/>
+      <line x1="52" y1="45" x2="52" y2="55" stroke="#5a4a30" stroke-width="0.8"/>
+      <line x1="47" y1="50" x2="57" y2="50" stroke="#5a4a30" stroke-width="0.8"/>
+      <!-- Axle -->
+      <line x1="18" y1="50" x2="52" y2="50" stroke="#4a3820" stroke-width="1"/>
+
+      <!-- ── Goblin riding in the cart ── -->
+      <!-- Body (hunched in cart) -->
+      <ellipse cx="35" cy="28" rx="10" ry="6" fill="#5a8a2a"/>
+      <!-- Head (poking up) -->
+      <circle cx="35" cy="18" r="8" fill="#6aaa30"/>
+      <!-- Big yellow eyes -->
+      <circle cx="31" cy="16" r="2.2" fill="#ffe066"/>
+      <circle cx="39" cy="16" r="2.2" fill="#ffe066"/>
+      <circle cx="31.5" cy="16" r="1.1" fill="#1a1510"/>
+      <circle cx="39.5" cy="16" r="1.1" fill="#1a1510"/>
+      <!-- Gleeful grin -->
+      <path d="M29,22 Q35,27 41,22" fill="none" stroke="#1a1510" stroke-width="1" stroke-linecap="round"/>
+      <!-- Teeth -->
+      <line x1="33" y1="23" x2="33" y2="24.5" stroke="#ffe066" stroke-width="0.8"/>
+      <line x1="37" y1="23" x2="37" y2="24.5" stroke="#ffe066" stroke-width="0.8"/>
+      <!-- Pointy ears -->
+      <path d="M27,16 L20,10 L28,15" fill="#6aaa30"/>
+      <path d="M43,16 L50,10 L42,15" fill="#6aaa30"/>
+      <!-- Arms gripping cart rim, one hand up waving -->
+      <path d="M25,28 Q20,25 17,30" fill="none" stroke="#5a8a2a" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M45,28 Q50,20 48,12" fill="none" stroke="#5a8a2a" stroke-width="2.5" stroke-linecap="round"/>
+      <!-- Waving hand -->
+      <circle cx="48" cy="11" r="2.5" fill="#6aaa30"/>
+      <!-- Little nose -->
+      <ellipse cx="35" cy="19.5" rx="1.5" ry="1" fill="#5a9a25"/>
+
+      <!-- ── Gold nuggets in cart ── -->
+      <circle cx="22" cy="38" r="3" fill="#c47a2a" opacity="0.8"/>
+      <circle cx="22" cy="38" r="1.5" fill="#e8a530"/>
+      <circle cx="30" cy="40" r="2.5" fill="#c47a2a" opacity="0.8"/>
+      <circle cx="30" cy="40" r="1.2" fill="#e8a530"/>
+      <circle cx="42" cy="39" r="2.8" fill="#c47a2a" opacity="0.8"/>
+      <circle cx="42" cy="39" r="1.4" fill="#e8a530"/>
+      <circle cx="50" cy="38" r="2" fill="#c47a2a" opacity="0.7"/>
+      <circle cx="50" cy="38" r="1" fill="#e8a530"/>
+      <circle cx="36" cy="36" r="2.2" fill="#c47a2a" opacity="0.8"/>
+      <circle cx="36" cy="36" r="1.1" fill="#ffe066"/>
+    </symbol>
+
+    <!-- ── Decorative corner goblin (peeks from edge) ── -->
+    <symbol id="corner-goblin" viewBox="0 0 40 40">
+      <circle cx="20" cy="25" r="12" fill="#6aaa30"/>
+      <circle cx="15" cy="22" r="2.5" fill="#ffe066"/>
+      <circle cx="25" cy="22" r="2.5" fill="#ffe066"/>
+      <circle cx="15" cy="22" r="1.2" fill="#1a1510"/>
+      <circle cx="25" cy="22" r="1.2" fill="#1a1510"/>
+      <path d="M15,30 Q20,34 25,30" fill="none" stroke="#1a1510" stroke-width="1.2"/>
+      <path d="M8,22 L2,15 L9,20" fill="#6aaa30"/>
+      <path d="M32,22 L38,15 L31,20" fill="#6aaa30"/>
+      <!-- Little hands gripping edge -->
+      <rect x="8" y="35" width="6" height="5" rx="2" fill="#5a8a2a"/>
+      <rect x="26" y="35" width="6" height="5" rx="2" fill="#5a8a2a"/>
+    </symbol>
+
+    <!-- ── Filters ── -->
+    <filter id="sh" x="-4%" y="-4%" width="108%" height="108%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.4"/>
+    </filter>
+    <filter id="glow-green">
+      <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#5ea832" flood-opacity="0.3"/>
+    </filter>
+    <filter id="glow-orange">
+      <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#c47a2a" flood-opacity="0.4"/>
+    </filter>
+
+    <style>
+      @keyframes dash { to { stroke-dashoffset: -20; } }
+      .flow { animation: dash 1.2s linear infinite; }
+      svg a text { text-decoration: underline; cursor: pointer; }
+      svg a:hover text { fill: #a4d65e !important; }
+      .mono { font-family: 'Courier Prime', 'SF Mono', Menlo, monospace; }
+      .muted { fill: #6b5f48; }
+      .step { fill: #2a2318; stroke: #4a6b2a; stroke-width: 1.5; font-size: 10px; font-weight: 700; }
+    </style>
+  </defs>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- DECORATIVE CORNER GOBLINS                                     -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <use href="#corner-goblin" x="0" y="-8" width="35" height="35" opacity="0.6"/>
+  <use href="#corner-goblin" x="925" y="-8" width="35" height="35" opacity="0.6" transform="translate(960,0) scale(-1,1)"/>
+  <use href="#corner-goblin" x="0" y="790" width="35" height="35" opacity="0.5" transform="translate(0,820) scale(1,-1)"/>
+  <use href="#corner-goblin" x="925" y="790" width="35" height="35" opacity="0.5" transform="translate(960,820) scale(-1,-1)"/>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- ACTOR 1: kadence-blocks (top) — RIVETED METAL PLATE          -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <rect x="150" y="10" width="660" height="70" rx="4" fill="url(#rust)" stroke="#6b5530" stroke-width="3" filter="url(#sh)">
+    <title>kadence-blocks: The only codebase that contains credit-related client code. Browser JS talks directly to Prophecy for AI generation; WP PHP proxies balance checks through Credit Relay.</title>
+  </rect>
+  <!-- Inner border -->
+  <rect x="155" y="15" width="650" height="60" rx="2" fill="none" stroke="#4a3820" stroke-width="0.5" opacity="0.6"/>
+  <!-- Corner rivets -->
+  <use href="#rivet" x="153" y="13" width="10" height="10"/>
+  <use href="#rivet" x="797" y="13" width="10" height="10"/>
+  <use href="#rivet" x="153" y="67" width="10" height="10"/>
+  <use href="#rivet" x="797" y="67" width="10" height="10"/>
+  <!-- Green glow accent line -->
+  <line x1="165" y1="11" x2="795" y2="11" stroke="#7fba4c" stroke-width="1" opacity="0.3"/>
+
+  <a href="https://github.com/stellarwp/kadence-blocks" target="_blank"><text x="370" y="33" font-size="15" font-weight="700" fill="#7fba4c" text-anchor="middle">kadence-blocks</text></a>
+  <text x="525" y="33" font-size="11" fill="#a4d65e" font-weight="600">(free plugin — all credit code lives here)</text>
+  <a href="https://github.com/stellarwp/kadence-blocks/blob/7a88d8bd/src/blocks/advancedheading/ai-text/fetch-ai.js#L25-L65" target="_blank"><text x="310" y="53" font-size="11" fill="#9bcc5a">Browser JS sends AI prompts directly.</text></a>
+  <a href="https://github.com/stellarwp/kadence-blocks/blob/7a88d8bd/includes/class-kadence-blocks-prebuilt-library-rest-api.php#L769-L779" target="_blank"><text x="566" y="53" font-size="11" fill="#9bcc5a">WP PHP proxies balance checks.</text></a>
+  <text x="480" y="70" font-size="9" class="muted" text-anchor="middle">Source:</text>
+  <a href="https://github.com/stellarwp/kadence-blocks/blob/7a88d8bd/src/blocks/advancedheading/ai-text/fetch-ai.js" target="_blank"><text x="524" y="70" font-size="9" fill="#9bcc5a">fetch-ai.js</text></a>
+  <text x="573" y="70" font-size="9" class="muted">·</text>
+  <a href="https://github.com/stellarwp/kadence-blocks/blob/7a88d8bd/includes/class-kadence-blocks-prebuilt-library-rest-api.php#L769-L779" target="_blank"><text x="581" y="70" font-size="9" fill="#9bcc5a">credit proxy</text></a>
+  <text x="637" y="70" font-size="9" class="muted">·</text>
+  <a href="https://github.com/stellarwp/kadence-blocks/blob/7a88d8bd/includes/class-kadence-blocks-prebuilt-library-rest-api.php#L3017-L3037" target="_blank"><text x="645" y="70" font-size="9" fill="#9bcc5a">token builder</text></a>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- STARTERTEMPLATECLOUD GROUP — FACTORY WALLS                    -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <rect x="60" y="140" width="840" height="380" rx="4" fill="#1e1a12" stroke="#5a4a30" stroke-width="3">
+    <title>content.startertemplatecloud.com: A single WordPress site that hosts both Prophecy and Credit Relay as separate plugins in the same PHP process. They are decoupled via a WP filter hook — Prophecy fires the hook, Credit Relay listens.</title>
+  </rect>
+  <rect x="65" y="145" width="830" height="370" rx="2" fill="none" stroke="#4a3820" stroke-width="0.5" opacity="0.4"/>
+  <!-- Rivets along top edge -->
+  <use href="#rivet" x="63" y="143" width="10" height="10"/>
+  <use href="#rivet" x="893" y="143" width="10" height="10"/>
+  <use href="#rivet" x="63" y="507" width="10" height="10"/>
+  <use href="#rivet" x="893" y="507" width="10" height="10"/>
+  <use href="#rivet" x="475" y="143" width="10" height="10"/>
+
+  <text x="80" y="164" font-size="10" font-weight="600" fill="#c47a2a" letter-spacing="0.5">THE GOBLIN WORKSHOP (STARTERTEMPLATECLOUD)</text>
+  <text x="445" y="164" font-size="9" class="muted">same cauldron, same brew</text>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- FLOW ② : AI GENERATION — GOBLIN ON ORANGE ROCKET             -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+
+  <!-- Trail -->
+  <path id="path-flow2" d="M610,80 L610,185" fill="none" stroke="#c47a2a" stroke-width="3" stroke-dasharray="6,6" class="flow" opacity="0.4">
+    <title>Flow ②: Browser JS calls Prophecy directly (not through WP PHP) for speed and streaming. The X-Prophecy-Token header carries the license key, domain, and product slug as base64 JSON.</title>
+  </path>
+
+  <!-- MINECART GOBLIN on flow ② -->
+  <g filter="url(#glow-orange)">
+    <use href="#goblin-minecart" x="-18" y="-18" width="36" height="28">
+      <animateMotion dur="3s" repeatCount="indefinite" rotate="auto" keyPoints="0;1;0" keyTimes="0;0.5;1" calcMode="linear">
+        <mpath href="#path-flow2"/>
+      </animateMotion>
+    </use>
+  </g>
+
+  <rect x="630" y="100" width="230" height="20" rx="4" fill="#2a2318" stroke="#5a4a30" stroke-width="1"/>
+  <text x="745" y="114" font-size="10" fill="#c47a2a" font-weight="600" text-anchor="middle">② AI generation (browser JS)</text>
+  <a href="https://github.com/stellarwp/kadence-blocks/blob/7a88d8bd/includes/class-kadence-blocks-prebuilt-library-rest-api.php#L3017-L3037" target="_blank"><text x="630" y="152" font-size="9" fill="#c47a2a">X-Prophecy-Token</text></a>
+
+  <!-- ── PROPHECY REQUEST LIFECYCLE — INNER FURNACE ── -->
+  <rect x="240" y="185" width="640" height="225" rx="4" fill="#252015" stroke="#5a4a30" stroke-width="2" filter="url(#sh)">
+    <title>Prophecy: Pure AI engine — wraps LLM calls and streams responses. Has zero knowledge of credits or licensing. Before processing any request it fires a generic "prophecy/rest/authorized" WP filter hook, letting any external plugin (like Credit Relay) gate access. This separation means the AI engine can be reused with a different billing system without code changes.</title>
+  </rect>
+  <rect x="244" y="189" width="632" height="217" rx="2" fill="none" stroke="#4a3820" stroke-width="0.5" opacity="0.4"/>
+  <use href="#rivet" x="243" y="188" width="8" height="8"/>
+  <use href="#rivet" x="869" y="188" width="8" height="8"/>
+  <use href="#rivet" x="243" y="399" width="8" height="8"/>
+  <use href="#rivet" x="869" y="399" width="8" height="8"/>
+
+  <a href="https://github.com/stellarwp/prophecy-wordpress" target="_blank"><text x="260" y="208" font-size="13" font-weight="700" fill="#c4b998">Prophecy</text></a>
+  <a href="black-boxes.md#3-prophecy-saas-ai-engine" target="_blank"><text x="350" y="208" font-size="11" fill="#9bcc5a" font-style="italic">AI request lifecycle</text></a>
+
+  <!-- Step 2a -->
+  <circle cx="272" cy="232" r="10" class="step"/><text x="272" y="236" font-size="9" font-weight="700" fill="#c47a2a" text-anchor="middle">2a</text>
+  <text x="290" y="236" font-size="10" fill="#8a7e65">Request arrives from browser. Before processing, Prophecy fires a</text>
+  <a href="black-boxes.md#3-prophecy-saas-ai-engine" target="_blank"><text x="698" y="236" font-size="10" fill="#cc4444" font-weight="600">WP filter hook.</text></a>
+
+  <!-- Down-arrow 2a → 2b -->
+  <line x1="272" y1="244" x2="272" y2="252" stroke="#c47a2a" stroke-width="1.5"/>
+
+  <!-- Step 2b: Credit Relay — INNER VAULT -->
+  <rect x="260" y="252" width="605" height="82" rx="4" fill="url(#rust)" stroke="#7fba4c" stroke-width="2">
+    <title>Credit Relay: A thin bridge between Prophecy's authorization hook and the V3 Licensing service. It exists as a separate plugin so that (1) Prophecy stays billing-agnostic and reusable, (2) credit logic can be swapped or removed without touching the AI engine, and (3) only this plugin needs updating when the licensing API changes (e.g. V3 → V4). It stores no data locally — every call proxies to the licensing service via SHA-256-signed requests.</title>
+  </rect>
+  <use href="#rivet" x="262" y="254" width="8" height="8"/>
+  <use href="#rivet" x="854" y="254" width="8" height="8"/>
+  <use href="#rivet" x="262" y="324" width="8" height="8"/>
+  <use href="#rivet" x="854" y="324" width="8" height="8"/>
+
+  <circle cx="282" cy="274" r="10" class="step"/><text x="282" y="278" font-size="9" font-weight="700" fill="#c47a2a" text-anchor="middle">2b</text>
+  <a href="https://github.com/stellarwp/kadence-prophecy-licensing-service-connect" target="_blank"><text x="300" y="274" font-size="12" font-weight="700" fill="#c47a2a">Credit Relay</text></a>
+  <a href="black-boxes.md#4-credit-relay-plugin-on-startertemplatecloud" target="_blank"><text x="415" y="274" font-size="10" fill="#9bcc5a">hooks prophecy/rest/authorized</text></a>
+  <a href="https://github.com/stellarwp/kadence-prophecy-licensing-service-connect/blob/bc0445fd/class-kadence-license-relay.php#L410-L432" target="_blank"><text x="300" y="294" font-size="10" fill="#9bcc5a">Checks balance with V3 Licensing (SHA-256 + shared secret). Returns allow or deny.</text></a>
+  <a href="https://github.com/stellarwp/kadence-blocks/blob/7a88d8bd/src/blocks/advancedheading/ai-text/ai-text.js#L136-L140" target="_blank"><text x="300" y="312" font-size="10" fill="#9bcc5a">Cost: 1 credit default · 2 if text > 400 chars · count($prompts) for wizard.</text></a>
+  <text x="300" y="328" font-size="9" class="muted">On success: deducts credits via V3 Licensing after LLM responds.</text>
+
+  <!-- Down-arrow 2b → 2c -->
+  <line x1="272" y1="334" x2="272" y2="348" stroke="#c47a2a" stroke-width="1.5"/>
+
+  <!-- Step 2c -->
+  <circle cx="272" cy="360" r="10" class="step"/><text x="272" y="364" font-size="9" font-weight="700" fill="#c47a2a" text-anchor="middle">2c</text>
+  <a href="https://github.com/stellarwp/prophecy-wordpress" target="_blank"><text x="290" y="360" font-size="10" fill="#8a7e65">Allowed → calls LLM, streams response back to browser.</text></a>
+  <a href="https://github.com/stellarwp/kadence-blocks/blob/7a88d8bd/src/blocks/advancedheading/ai-text/fetch-ai.js#L25-L65" target="_blank"><text x="290" y="378" font-size="10" fill="#9bcc5a">Denied → HTTP 423</text></a>
+  <text x="400" y="378" font-size="10" fill="#8a7e65">(credits exhausted, browser shows error).</text>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- FLOW ① : BALANCE CHECK — GOBLIN ON GREEN ROCKET              -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+
+  <!-- Trail (L-shaped) -->
+  <path id="path-flow1" d="M300,80 L300,130 L180,130 L180,440" fill="none" stroke="#5ea832" stroke-width="3" stroke-dasharray="6,6" class="flow" opacity="0.4">
+    <title>Flow ①: Balance checks go through kadence-blocks WP PHP (wp_safe_remote_get) rather than browser JS. This keeps the licensing key server-side and lets the plugin cache or rate-limit balance lookups.</title>
+  </path>
+
+  <!-- MINECART GOBLIN on flow ① — follows the L-shaped path -->
+  <g filter="url(#glow-green)">
+    <use href="#goblin-minecart" x="-18" y="-18" width="36" height="28">
+      <animateMotion dur="5s" repeatCount="indefinite" rotate="auto" keyPoints="0;1;0" keyTimes="0;0.5;1" calcMode="linear">
+        <mpath href="#path-flow1"/>
+      </animateMotion>
+    </use>
+  </g>
+
+  <rect x="85" y="96" width="210" height="20" rx="4" fill="#1e2a12" stroke="#4a6b2a" stroke-width="1"/>
+  <text x="190" y="110" font-size="10" fill="#7fba4c" font-weight="600" text-anchor="middle">① Check balance (WP PHP proxy)</text>
+  <a href="https://github.com/stellarwp/kadence-blocks/blob/7a88d8bd/includes/class-kadence-blocks-prebuilt-library-rest-api.php#L2518-L2552" target="_blank"><text x="148" y="300" font-size="9" fill="#9bcc5a" transform="rotate(-90,148,300)" text-anchor="middle">wp_safe_remote_get</text></a>
+
+  <!-- Balance endpoint — RIVETED PLATE -->
+  <rect x="80" y="440" width="800" height="50" rx="4" fill="url(#rust)" stroke="#5ea832" stroke-width="2" filter="url(#sh)">
+    <title>Balance endpoint: Credit Relay exposes GET /kadence-credits/v1/get-remaining as a separate REST route outside the AI flow. kadence-blocks PHP calls it to display the credit count in the UI. It returns a plain integer — no credit logic runs in the plugin itself.</title>
+  </rect>
+  <use href="#rivet" x="82" y="442" width="8" height="8"/>
+  <use href="#rivet" x="870" y="442" width="8" height="8"/>
+  <use href="#rivet" x="82" y="480" width="8" height="8"/>
+  <use href="#rivet" x="870" y="480" width="8" height="8"/>
+
+  <text x="100" y="462" font-size="11" fill="#7fba4c" font-weight="700">①</text>
+  <text x="118" y="462" font-size="11" fill="#8a7e65" font-weight="600">Credit Relay also serves</text>
+  <a href="https://github.com/stellarwp/kadence-blocks/blob/7a88d8bd/includes/class-kadence-blocks-prebuilt-library-rest-api.php#L2518-L2552" target="_blank"><text x="310" y="462" font-size="11" fill="#9bcc5a" font-weight="600">GET /kadence-credits/v1/get-remaining</text></a>
+  <text x="568" y="462" font-size="11" fill="#8a7e65">→ plain integer balance.</text>
+  <text x="100" y="480" font-size="9" class="muted">Separate REST endpoint, not part of the AI flow. kadence-blocks PHP calls this to show the credit count.</text>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- ACTOR 4: V3 Licensing — THE VAULT (source of truth)          -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+
+  <!-- Trail -->
+  <path id="path-hmac" d="M480,520 L480,580" fill="none" stroke="#8b6cc4" stroke-width="3" stroke-dasharray="6,6" class="flow" opacity="0.4">
+    <title>Server-to-server: Credit Relay signs all requests to V3 Licensing with SHA-256 + shared secret (not true HMAC). This prevents clients from forging credit operations — only the relay's shared secret is accepted.</title>
+  </path>
+
+  <!-- MINECART GOBLIN on HMAC flow -->
+  <g filter="url(#glow-green)">
+    <use href="#goblin-minecart" x="-18" y="-18" width="36" height="28">
+      <animateMotion dur="2.5s" repeatCount="indefinite" rotate="auto" keyPoints="0;1;0" keyTimes="0;0.5;1" calcMode="linear">
+        <mpath href="#path-hmac"/>
+      </animateMotion>
+    </use>
+  </g>
+
+  <rect x="510" y="542" width="130" height="16" rx="3" fill="#1e1828" stroke="#4a3860" stroke-width="1"/>
+  <a href="https://github.com/stellarwp/kadence-prophecy-licensing-service-connect/blob/bc0445fd/class-kadence-license-relay.php#L410-L432" target="_blank"><text x="516" y="554" font-size="9" fill="#9bcc5a" font-weight="600">SHA-256 + secret signed</text></a>
+
+  <!-- V3 Licensing — THE VAULT -->
+  <rect x="220" y="580" width="370" height="100" rx="4" fill="url(#rust)" stroke="#c47a2a" stroke-width="3" filter="url(#sh)">
+    <title>V3 Licensing: The single source of truth for credit balances. Runs on licensing.kadencewp.com. Neither Prophecy nor Credit Relay store balances — every check and deduction flows here. Credits are embedded in the license/validate response and consumed via POST /credits/usage.</title>
+  </rect>
+  <rect x="225" y="585" width="360" height="90" rx="2" fill="none" stroke="#4a3820" stroke-width="0.5" opacity="0.5"/>
+  <use href="#rivet" x="223" y="583" width="10" height="10"/>
+  <use href="#rivet" x="577" y="583" width="10" height="10"/>
+  <use href="#rivet" x="223" y="667" width="10" height="10"/>
+  <use href="#rivet" x="577" y="667" width="10" height="10"/>
+  <!-- Accent glow -->
+  <line x1="230" y1="581" x2="580" y2="581" stroke="#c47a2a" stroke-width="1" opacity="0.4"/>
+
+  <text x="240" y="605" font-size="14" font-weight="700" fill="#c47a2a">V3 Licensing</text>
+  <text x="375" y="605" font-size="10" fill="#c47a2a" font-weight="600">★ SOURCE OF TRUTH</text>
+  <text x="240" y="623" font-size="10" class="mono muted">licensing.kadencewp.com</text>
+  <a href="https://github.com/stellarwp/licensing/blob/15eafb31/docs/rest/v3/signed.md" target="_blank"><text x="240" y="641" font-size="10" fill="#9bcc5a">GET .../license/validate</text></a>
+  <text x="395" y="641" font-size="10" fill="#8a7e65">→ credits in response</text>
+  <a href="https://github.com/stellarwp/licensing/blob/15eafb31/docs/rest/v3/signed.md" target="_blank"><text x="240" y="658" font-size="10" fill="#9bcc5a">POST .../credits/usage</text></a>
+  <text x="385" y="658" font-size="10" fill="#8a7e65">→ deduct credits</text>
+  <text x="240" y="673" font-size="9" class="muted">The goblin vault. All gold counted here.</text>
+
+  <!-- V4 future note — DUSTY CRATE -->
+  <rect x="640" y="590" width="250" height="80" rx="4" fill="#1e1a12" stroke="#4a3d2a" stroke-width="2" stroke-dasharray="4,3">
+    <title>V4 Licensing: Has a complete generic credit system (pool → allocation → usage, 8 credit types, per-site hard caps) already built. Not yet deployed for Kadence. When it goes live, only Credit Relay needs updating — Prophecy and kadence-blocks are unaffected.</title>
+  </rect>
+  <use href="#rivet" x="643" y="593" width="8" height="8" opacity="0.5"/>
+  <use href="#rivet" x="879" y="593" width="8" height="8" opacity="0.5"/>
+
+  <a href="https://github.com/stellarwp/licensing" target="_blank"><text x="660" y="616" font-size="12" font-weight="600" fill="#6b5f48">V4 Licensing</text></a>
+  <text x="766" y="616" font-size="10" fill="#5a5040">FUTURE</text>
+  <text x="660" y="634" font-size="9" fill="#5a5040">Built and ready, not yet live for Kadence.</text>
+  <a href="https://github.com/stellarwp/licensing/blob/15eafb31/docs/credits.md" target="_blank"><text x="660" y="652" font-size="9" fill="#9bcc5a">Pool → allocation → usage, 8 types</text></a>
+  <text x="660" y="664" font-size="8" class="muted">Sealed crate. Do not open yet.</text>
+
+  <!-- Uplink footnote — PIPE SEGMENT -->
+  <rect x="60" y="720" width="840" height="28" rx="4" fill="#1e1828" stroke="#5a4a60" stroke-width="2">
+    <title>Uplink: PHP library vendored into each plugin. Provides license key and domain helpers used to build Prophecy tokens and credit API params. Does NOT manage credits itself — it just supplies the identity data that other actors need.</title>
+  </rect>
+  <use href="#rivet" x="62" y="724" width="8" height="8"/>
+  <use href="#rivet" x="890" y="724" width="8" height="8"/>
+
+  <a href="https://github.com/stellarwp/uplink" target="_blank"><text x="80" y="738" font-size="10" fill="#8b6cc4" font-weight="600">Uplink</text></a>
+  <text x="116" y="738" font-size="10" fill="#6b5f48">provides</text>
+  <a href="https://github.com/stellarwp/kadence-blocks/blob/7a88d8bd/includes/helper-functions.php#L154-L163" target="_blank"><text x="162" y="738" font-size="10" fill="#9bcc5a">get_license_key()</text></a>
+  <text x="256" y="738" font-size="10" fill="#6b5f48">·</text>
+  <a href="https://github.com/stellarwp/kadence-blocks/blob/7a88d8bd/includes/class-kadence-blocks-prebuilt-library-rest-api.php#L18" target="_blank"><text x="264" y="738" font-size="10" fill="#9bcc5a">get_license_domain()</text></a>
+  <text x="380" y="738" font-size="10" fill="#6b5f48">·</text>
+  <a href="https://github.com/stellarwp/kadence-blocks/blob/7a88d8bd/includes/class-kadence-blocks-prebuilt-library-rest-api.php#L19" target="_blank"><text x="388" y="738" font-size="10" fill="#9bcc5a">get_original_domain()</text></a>
+  <text x="514" y="738" font-size="10" fill="#6b5f48">— builds tokens + API params. Does NOT manage credits.</text>
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- SCATTERED WORKSHOP DETAILS (flavor)                           -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+
+  <!-- Tiny mushrooms growing in corners -->
+  <g opacity="0.3">
+    <ellipse cx="75" cy="515" rx="4" ry="2" fill="#8b6cc4"/>
+    <rect x="74" y="515" width="2" height="4" fill="#6b5f48"/>
+    <ellipse cx="890" cy="178" rx="3" ry="1.5" fill="#7fba4c"/>
+    <rect x="889" y="178" width="2" height="3" fill="#5a4a30"/>
+    <ellipse cx="870" cy="515" rx="3.5" ry="1.8" fill="#c47a2a"/>
+    <rect x="869" y="515" width="2" height="3.5" fill="#5a4a30"/>
+  </g>
+
+  <!-- Tiny gear decoration -->
+  <g opacity="0.15" transform="translate(910,700)">
+    <circle cx="0" cy="0" r="12" fill="none" stroke="#6b5530" stroke-width="2"/>
+    <circle cx="0" cy="0" r="5" fill="none" stroke="#6b5530" stroke-width="1.5"/>
+    <line x1="0" y1="-12" x2="0" y2="-16" stroke="#6b5530" stroke-width="2.5"/>
+    <line x1="0" y1="12" x2="0" y2="16" stroke="#6b5530" stroke-width="2.5"/>
+    <line x1="-12" y1="0" x2="-16" y2="0" stroke="#6b5530" stroke-width="2.5"/>
+    <line x1="12" y1="0" x2="16" y2="0" stroke="#6b5530" stroke-width="2.5"/>
+    <line x1="-8.5" y1="-8.5" x2="-11.3" y2="-11.3" stroke="#6b5530" stroke-width="2.5"/>
+    <line x1="8.5" y1="-8.5" x2="11.3" y2="-11.3" stroke="#6b5530" stroke-width="2.5"/>
+    <line x1="-8.5" y1="8.5" x2="-11.3" y2="11.3" stroke="#6b5530" stroke-width="2.5"/>
+    <line x1="8.5" y1="8.5" x2="11.3" y2="11.3" stroke="#6b5530" stroke-width="2.5"/>
+  </g>
+
+  <!-- Another gear -->
+  <g opacity="0.12" transform="translate(40,700)">
+    <circle cx="0" cy="0" r="10" fill="none" stroke="#5a4a30" stroke-width="2"/>
+    <circle cx="0" cy="0" r="4" fill="none" stroke="#5a4a30" stroke-width="1.5"/>
+    <line x1="0" y1="-10" x2="0" y2="-14" stroke="#5a4a30" stroke-width="2"/>
+    <line x1="0" y1="10" x2="0" y2="14" stroke="#5a4a30" stroke-width="2"/>
+    <line x1="-10" y1="0" x2="-14" y2="0" stroke="#5a4a30" stroke-width="2"/>
+    <line x1="10" y1="0" x2="14" y2="0" stroke="#5a4a30" stroke-width="2"/>
+  </g>
+
+</svg>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-swatch" style="background:#5ea832"></div> ① Balance check (goblin in minecart)</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#c47a2a"></div> ② AI generation (goblin in minecart)</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#8b6cc4"></div> Server-to-server (goblin in minecart)</div>
+  <div class="legend-item"><span style="color:#c47a2a;font-weight:600">★ Rusty border</span> = the vault (source of truth)</div>
+</div>
+
+<div class="tables">
+  <div class="table-card">
+    <h3>Credit Flows (detail)</h3>
+    <table>
+      <tr><th>Flow</th><th>Full path</th><th>Auth</th></tr>
+      <tr><td>① Get balance</td><td>Browser → kadence-blocks WP REST → PHP <code>wp_safe_remote_get</code> → Credit Relay <code>GET /get-remaining</code> → V3 Licensing <code>GET /license/validate</code></td><td><code>key</code> query param</td></tr>
+      <tr><td>② AI generation</td><td>Browser JS → Prophecy (direct) → Credit Relay hooks <code>prophecy/rest/authorized</code> → checks balance + deducts via V3 Licensing <code>POST /credits/usage</code></td><td><code>X-Prophecy-Token</code> header (base64 JSON with domain, key, slug)</td></tr>
+      <tr><td>Credits exhausted</td><td>Credit Relay denies filter → Prophecy returns <strong style="color:#cc4444">HTTP 423</strong> → browser shows "out of credits"</td><td>—</td></tr>
+    </table>
+  </div>
+  <div class="table-card">
+    <h3>Uplink's Role</h3>
+    <table>
+      <tr><th>Function</th><th>Used for</th></tr>
+      <tr><td><code>get_license_key($slug)</code></td><td>License key for Prophecy token + credit API — <a href="https://github.com/stellarwp/kadence-blocks/blob/7a88d8bd/includes/helper-functions.php#L154-L163">fallback chain</a>: kadence-blocks-pro → kadence-creative-kit → kadence-blocks</td></tr>
+      <tr><td><code>get_license_domain()</code></td><td><code>site</code> param in credit balance API call</td></tr>
+      <tr><td><code>get_original_domain()</code></td><td><code>domain</code> field in Prophecy token</td></tr>
+      <tr><td><code>is_authorized()</code></td><td>Gates event tracking</td></tr>
+    </table>
+  </div>
+  <div class="table-card">
+    <h3>Codebases</h3>
+    <table>
+      <tr><th>Actor</th><th>Repo</th><th>Role</th></tr>
+      <tr><td>kadence-blocks</td><td><a href="https://github.com/stellarwp/kadence-blocks">stellarwp/kadence-blocks</a></td><td>Free WP plugin. All credit-related client code (JS + PHP proxy)</td></tr>
+      <tr><td>Prophecy</td><td><a href="https://github.com/stellarwp/prophecy-wordpress">stellarwp/prophecy-wordpress</a></td><td>WP plugin on startertemplatecloud. LLM wrapper, no credit logic</td></tr>
+      <tr><td>Credit Relay</td><td><a href="https://github.com/stellarwp/kadence-prophecy-licensing-service-connect">stellarwp/kadence-prophecy-licensing-service-connect</a></td><td>WP plugin on startertemplatecloud. Checks + deducts credits</td></tr>
+      <tr><td>V3 Licensing</td><td><a href="https://github.com/stellarwp/licensing">stellarwp/licensing</a></td><td>Server app. Stores credit balances (source of truth)</td></tr>
+      <tr><td>Uplink</td><td><a href="https://github.com/stellarwp/uplink">stellarwp/uplink</a></td><td>PHP lib vendored into each plugin. Provides license key + domain helpers</td></tr>
+    </table>
+  </div>
+  <div class="table-card">
+    <h3>Other Kadence Products</h3>
+    <table>
+      <tr><th>Product</th><th>Credit involvement</th></tr>
+      <tr><td>kadence-blocks-pro</td><td>No credit code. License key is priority 1 in <a href="https://github.com/stellarwp/kadence-blocks/blob/7a88d8bd/includes/helper-functions.php#L154-L163">fallback chain</a></td></tr>
+      <tr><td>kadence-creative-kit</td><td>Calls Prophecy for layouts. License key priority 2 in fallback chain</td></tr>
+      <tr><td>kadence-starter-templates</td><td>Calls Prophecy + credit balance API</td></tr>
+      <tr><td>kadence-frontend-wizard</td><td>Calls Prophecy endpoints</td></tr>
+      <tr><td colspan="2" style="color:#6b5f48">Not involved: kadence-theme, kadence-pro-addon, kadence-woo-extras, kadence-insights, kadence-conversions, kadence-galleries</td></tr>
+    </table>
+  </div>
+</div>
+
+<div id="tooltip"></div>
+<script>
+(function () {
+  var tip = document.getElementById('tooltip');
+  var texts = new Map();
+
+  document.querySelectorAll('svg title').forEach(function (t) {
+    var el = t.parentElement;
+    texts.set(el, t.textContent.trim());
+    t.remove();
+  });
+
+  var GAP = 12;
+
+  function position(e) {
+    var x = e.clientX + GAP;
+    var y = e.clientY + GAP;
+    var r = tip.getBoundingClientRect();
+    if (x + r.width > window.innerWidth - GAP) x = e.clientX - r.width - GAP;
+    if (y + r.height > window.innerHeight - GAP) y = e.clientY - r.height - GAP;
+    tip.style.left = x + 'px';
+    tip.style.top = y + 'px';
+  }
+
+  function show(e) {
+    var el = e.currentTarget;
+    tip.textContent = texts.get(el);
+    tip.classList.add('visible');
+    position(e);
+  }
+
+  function hide() {
+    tip.classList.remove('visible');
+  }
+
+  texts.forEach(function (_, el) {
+    el.addEventListener('mouseenter', show);
+    el.addEventListener('mousemove', position);
+    el.addEventListener('mouseleave', hide);
+  });
+})();
+</script>
+</body>
+</html>

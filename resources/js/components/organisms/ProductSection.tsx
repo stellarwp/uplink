@@ -100,7 +100,6 @@ export function ProductSection( { product }: ProductSectionProps ) {
                         <FeatureRow
                             key={ feature.slug }
                             feature={ feature }
-                            product={ product }
                         />
                     ) ) }
 
@@ -112,7 +111,6 @@ export function ProductSection( { product }: ProductSectionProps ) {
                                 key={ tier.slug }
                                 tier={ tier }
                                 features={ locked }
-                                product={ product }
                                 forceOpen={ isSearching }
                             />
                         );

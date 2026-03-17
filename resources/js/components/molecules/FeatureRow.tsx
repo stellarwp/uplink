@@ -14,22 +14,20 @@ import { cn } from '@/lib/utils';
 import { FeatureIcon } from '@/components/atoms/FeatureIcon';
 import { StatusBadge } from '@/components/atoms/StatusBadge';
 import { VersionDisplay } from '@/components/molecules/VersionDisplay';
-import { PurchaseLink } from '@/components/atoms/PurchaseLink';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/context/toast-context';
 import { store as uplinkStore } from '@/store';
 import { UplinkError } from '@/errors';
-import type { Feature, Product } from '@/types/api';
+import type { Feature } from '@/types/api';
 
 interface FeatureRowProps {
 	feature: Feature;
-	product: Product;
 }
 
 /**
  * @since 3.0.0
  */
-export function FeatureRow( { feature, product }: FeatureRowProps ) {
+export function FeatureRow( { feature }: FeatureRowProps ) {
 	const [ expanded, setExpanded ] = useState( false );
 	const { addToast } = useToast();
 	const { enableFeature, disableFeature, updateFeature } = useDispatch( uplinkStore );
@@ -50,52 +48,11 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 
 	const Chevron = expanded ? ChevronDown : ChevronRight;
 
-	// Prefer the API's purchase_url for the locked-feature upgrade link;
-	// fall back to the static fixture upgradeUrl. Hoisted unconditionally
-	// to satisfy React's Rules of Hooks.
-	const catalogTierForUpgrade = useSelect(
-		( select ) => select( uplinkStore ).getCatalogTier( product.slug, feature.tier ?? '' ),
-		[ product.slug, feature.tier ]
-	);
-
-	// Locked / unavailable feature row.
-	if ( ! feature.is_available ) {
-		return (
-			<div className="border-b last:border-b-0 bg-muted/30">
-				<div className="flex items-center gap-3 py-3 px-4">
-					<div
-						onClick={ () => setExpanded( ! expanded ) }
-						className="flex items-center gap-3 min-w-0 cursor-pointer"
-					>
-						<Chevron className="w-4 h-4 text-muted-foreground shrink-0" />
-						<FeatureIcon slug={ feature.slug } />
-						<span className="font-medium min-w-0 text-sm text-muted-foreground truncate">
-							{ feature.name }
-						</span>
-					</div>
-					{ (feature.installed_version || feature.version) && (
-						<span className="text-xs font-mono text-muted-foreground w-16 text-right shrink-0 ml-auto">
-							{ `v${feature.installed_version ?? feature.version}` }
-						</span>
-					) }
-				</div>
-
-				{ expanded && (
-					<div className="px-4 pb-3 pl-[2.75rem]">
-						<p className="text-sm text-muted-foreground leading-relaxed mt-2 mb-0">
-							{ feature.description }
-						</p>
-					</div>
-				) }
-			</div>
-		);
-	}
-
 	// TODO: Refactor error display to use an error modal instead of
 	// toasts. The modal will show safe, user-facing messages from the
 	// UplinkError chain.
 
-	const featureEnabled = feature.is_enabled;
+	const featureEnabled   = feature.is_enabled;
 	const featureInstalled = feature.installed_version !== null;
 
 	const handleToggle = async ( checked: boolean ) => {
@@ -154,7 +111,12 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 				: featureEnabled;
 
 	return (
-		<div className={ cn( 'border-b last:border-b-0 bg-white', pendingAction && 'opacity-75' ) }>
+		<div className={ cn(
+			'border-b last:border-b-0',
+			feature.is_available
+				? cn( 'bg-white', pendingAction && 'opacity-75' )
+				: 'bg-muted/30'
+		) }>
 			<div className="flex items-center gap-3 py-3 px-4">
 				<div
 					onClick={ () => setExpanded( ! expanded ) }
@@ -162,44 +124,57 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 				>
 					<Chevron className="w-4 h-4 text-muted-foreground shrink-0" />
 					<FeatureIcon slug={ feature.slug } />
-					<span className="font-medium min-w-0 text-sm truncate">
+					<span className={ cn(
+						'font-medium min-w-0 text-sm truncate',
+						! feature.is_available && 'text-muted-foreground'
+					) }>
 						{ feature.name }
 					</span>
 				</div>
-				<div className="flex items-center gap-3 ml-auto shrink-0">
-					<VersionDisplay
-						feature={ feature }
-						pendingAction={ pendingAction }
-						installableBusy={ installableBusy }
-						onUpdate={ handleUpdate }
-					/>
-					<StatusBadge status={ badgeStatus } />
-					{ showSwitch && (
-						<Switch
-							checked={ switchChecked }
-							onCheckedChange={ handleToggle }
-							disabled={ !! pendingAction || installableBusy }
-							aria-label={
-								switchChecked
-									? /* translators: %s is the name of the feature to disable */
-									sprintf(
-											__( 'Disable %s', '%TEXTDOMAIN%' ),
-											feature.name
-									)
-									: /* translators: %s is the name of the feature to enable */
-									sprintf(
-											__( 'Enable %s', '%TEXTDOMAIN%' ),
-											feature.name
-									)
-							}
+
+				{ feature.is_available ? (
+					<div className="flex items-center gap-3 ml-auto shrink-0">
+						<VersionDisplay
+							feature={ feature }
+							pendingAction={ pendingAction }
+							installableBusy={ installableBusy }
+							onUpdate={ handleUpdate }
 						/>
-					) }
-				</div>
+						<StatusBadge status={ badgeStatus } />
+						{ showSwitch && (
+							<Switch
+								checked={ switchChecked }
+								onCheckedChange={ handleToggle }
+								disabled={ !! pendingAction || installableBusy }
+								aria-label={
+									switchChecked
+										? /* translators: %s is the name of the feature to disable */
+										sprintf(
+												__( 'Disable %s', '%TEXTDOMAIN%' ),
+												feature.name
+										)
+										: /* translators: %s is the name of the feature to enable */
+										sprintf(
+												__( 'Enable %s', '%TEXTDOMAIN%' ),
+												feature.name
+										)
+								}
+							/>
+						) }
+					</div>
+				) : ( feature.installed_version || feature.version ) && (
+					<span className="text-xs font-mono text-muted-foreground w-16 text-right shrink-0 ml-auto">
+						{ `v${ feature.installed_version ?? feature.version }` }
+					</span>
+				) }
 			</div>
 
 			{ expanded && (
 				<div className="px-4 pb-3 pl-[2.75rem]">
-					<p className="text-sm text-muted-foreground leading-relaxed !mt-[0.75em] !mb-0">
+					<p className={ cn(
+						'text-sm text-muted-foreground leading-relaxed',
+						feature.is_available ? '!mt-[0.75em] !mb-0' : 'mt-2 mb-0'
+					) }>
 						{ feature.description }
 					</p>
 				</div>

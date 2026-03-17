@@ -54,7 +54,7 @@ final class LicenseTest extends UplinkTestCase {
 			Data::class,
 			[
 				'get_domain' => 'example.com',
-			] 
+			]
 		);
 
 		$this->legacy_repository = new Legacy_License_Repository();
@@ -71,8 +71,8 @@ final class LicenseTest extends UplinkTestCase {
 						'site_limit'   => 5,
 						'active_count' => 2,
 					],
-				] 
-			) 
+				]
+			)
 		);
 		$this->products->add(
 			Product_Entry::from_array(
@@ -85,8 +85,8 @@ final class LicenseTest extends UplinkTestCase {
 						'site_limit'   => 0,
 						'active_count' => 10,
 					],
-				] 
-			) 
+				]
+			)
 		);
 	}
 
@@ -108,7 +108,7 @@ final class LicenseTest extends UplinkTestCase {
 			[
 				'get_key'      => 'LWSW-test-key-123',
 				'get_products' => $this->products,
-			] 
+			]
 		);
 
 		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
@@ -126,7 +126,7 @@ final class LicenseTest extends UplinkTestCase {
 			License_Manager::class,
 			[
 				'get_key' => null,
-			] 
+			]
 		);
 
 		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
@@ -141,7 +141,7 @@ final class LicenseTest extends UplinkTestCase {
 			[
 				'get_key'      => 'LWSW-test-key-123',
 				'get_products' => new WP_Error( 'api_error', 'Could not fetch products.' ),
-			] 
+			]
 		);
 
 		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
@@ -156,7 +156,7 @@ final class LicenseTest extends UplinkTestCase {
 			[
 				'get_key'      => 'LWSW-test-key-123',
 				'get_products' => $this->products,
-			] 
+			]
 		);
 
 		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
@@ -175,7 +175,7 @@ final class LicenseTest extends UplinkTestCase {
 			[
 				'get_key'      => 'LWSW-test-key-123',
 				'get_products' => $this->products,
-			] 
+			]
 		);
 
 		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
@@ -196,7 +196,7 @@ final class LicenseTest extends UplinkTestCase {
 				'validate_and_store' => [],
 				'get_products'       => $this->products,
 				'get_key'            => 'LWSW-test-key-123',
-			] 
+			]
 		);
 
 		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
@@ -219,7 +219,7 @@ final class LicenseTest extends UplinkTestCase {
 			License_Manager::class,
 			[
 				'validate_and_store' => new WP_Error( 'api_error', 'License not recognized.' ),
-			] 
+			]
 		);
 
 		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
@@ -237,7 +237,7 @@ final class LicenseTest extends UplinkTestCase {
 			License_Manager::class,
 			[
 				'lookup_products' => $this->products,
-			] 
+			]
 		);
 
 		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
@@ -253,7 +253,7 @@ final class LicenseTest extends UplinkTestCase {
 			License_Manager::class,
 			[
 				'lookup_products' => new WP_Error( 'invalid_key', 'Invalid key format.' ),
-			] 
+			]
 		);
 
 		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
@@ -274,7 +274,7 @@ final class LicenseTest extends UplinkTestCase {
 					\StellarWP\Uplink\Licensing\Results\Validation_Result::class,
 					[ 'is_valid' => true ]
 				),
-			] 
+			]
 		);
 
 		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
@@ -288,7 +288,7 @@ final class LicenseTest extends UplinkTestCase {
 			License_Manager::class,
 			[
 				'validate_product' => new WP_Error( 'validation_failed', 'Product validation failed.' ),
-			] 
+			]
 		);
 
 		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
@@ -306,7 +306,7 @@ final class LicenseTest extends UplinkTestCase {
 			License_Manager::class,
 			[
 				'delete_key' => true,
-			] 
+			]
 		);
 
 		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
@@ -334,8 +334,8 @@ final class LicenseTest extends UplinkTestCase {
 						'site_limit'   => 1,
 						'active_count' => 2,
 					],
-				] 
-			) 
+				]
+			)
 		);
 
 		$manager = $this->makeEmpty(
@@ -343,7 +343,7 @@ final class LicenseTest extends UplinkTestCase {
 			[
 				'get_key'      => 'LWSW-test-key-123',
 				'get_products' => $products,
-			] 
+			]
 		);
 
 		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
@@ -368,8 +368,8 @@ final class LicenseTest extends UplinkTestCase {
 						'site_limit'   => 5,
 						'active_count' => 2,
 					],
-				] 
-			) 
+				]
+			)
 		);
 
 		$manager = $this->makeEmpty(
@@ -377,7 +377,7 @@ final class LicenseTest extends UplinkTestCase {
 			[
 				'get_key'      => 'LWSW-test-key-123',
 				'get_products' => $products,
-			] 
+			]
 		);
 
 		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
@@ -395,7 +395,7 @@ final class LicenseTest extends UplinkTestCase {
 			[
 				'get_key'      => 'LWSW-test-key-123',
 				'get_products' => new Product_Collection(),
-			] 
+			]
 		);
 
 		$command = new License_Command( $manager, $this->site_data, $this->legacy_repository );
@@ -418,7 +418,7 @@ final class LicenseTest extends UplinkTestCase {
 						'slug'       => 'my-plugin',
 						'name'       => 'My Plugin',
 						'brand'      => 'My Brand',
-						'status'     => 'active',
+						'is_active'  => true,
 						'page_url'   => 'https://example.com/account',
 						'expires_at' => '2027-01-01',
 					],
@@ -436,7 +436,7 @@ final class LicenseTest extends UplinkTestCase {
 		$this->assertSame( 'My Plugin', $items[0]['name'] );
 		$this->assertSame( 'My Brand', $items[0]['brand'] );
 		$this->assertSame( 'ABC123', $items[0]['key'] );
-		$this->assertSame( 'active', $items[0]['status'] );
+		$this->assertTrue( $items[0]['is_active'] );
 		$this->assertSame( '2027-01-01', $items[0]['expires_at'] );
 	}
 
@@ -466,7 +466,7 @@ final class LicenseTest extends UplinkTestCase {
 			[
 				'format' => 'json',
 				'fields' => 'product_slug,tier,status,expires,site_limit,active_count,over_limit,installed_here,validation_status,is_valid,pending_tier',
-			] 
+			]
 		);
 		$output = ob_get_clean();
 
@@ -488,7 +488,7 @@ final class LicenseTest extends UplinkTestCase {
 			[],
 			[
 				'format' => 'json',
-				'fields' => 'slug,name,brand,key,status,expires_at,page_url',
+				'fields' => 'slug,name,brand,key,is_active,expires_at,page_url',
 			]
 		);
 		$output = ob_get_clean();

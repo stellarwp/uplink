@@ -21,26 +21,34 @@ final class Notice_Controller extends Controller {
 	 * @see Notice::toArray()
 	 * @see src/views/admin/notice.php
 	 *
-	 * @param array{type?: string, message?: string, dismissible?: bool, alt?: bool, large?: bool} $args The notice.
+	 * @param array{type?: string, message?: string, dismissible?: bool, alt?: bool, large?: bool, id?: string} $args The notice.
 	 *
 	 * @throws FileNotFoundException If the view is not found.
 	 *
 	 * @return void
 	 */
 	public function render( array $args = [] ): void {
+		$type        = $args['type'] ?? 'info';
+		$dismissible = $args['dismissible'] ?? false;
+		$alt         = $args['alt'] ?? false;
+		$large       = $args['large'] ?? false;
+		$message     = $args['message'] ?? '';
+		$id          = $args['id'] ?? '';
+
 		$classes = [
 			'notice',
-			sprintf( 'notice-%s', $args['type'] ),
-			$args['dismissible'] ? 'is-dismissible' : '',
-			$args['alt'] ? 'notice-alt' : '',
-			$args['large'] ? 'notice-large' : '',
+			sprintf( 'notice-%s', $type ),
+			$dismissible ? 'is-dismissible' : '',
+			$alt ? 'notice-alt' : '',
+			$large ? 'notice-large' : '',
 		];
 
-		echo $this->view->render(
+		$this->view->display(
 			self::VIEW,
 			[
-				'message'           => $args['message'],
-				'classes'           => $this->classes( $classes ),
+				'message'           => $message,
+				'id'                => esc_attr( $id ),
+				'classes'           => esc_attr( $this->classes( $classes ) ),
 				'allowed_tags'      => [
 					'a'      => [
 						'href'   => [],
@@ -60,7 +68,7 @@ final class Notice_Controller extends Controller {
 					'https',
 					'mailto',
 				],
-			] 
+			]
 		);
 	}
 }

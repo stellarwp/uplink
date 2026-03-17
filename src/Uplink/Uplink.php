@@ -173,5 +173,4 @@ class Uplink {
 	public static function is_enabled(): bool {
 		return ! static::is_disabled();
 	}
-
 }

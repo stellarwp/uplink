@@ -10,14 +10,6 @@
 import { __ } from '@wordpress/i18n';
 import { AlertTriangle } from 'lucide-react';
 
-declare global {
-    interface Window {
-        uplink?: {
-            legacyLicenses?: Array<{ key: string; slug: string; name: string; status: string }>;
-        };
-    }
-}
-
 /**
  * @since 3.0.0
  */

@@ -148,7 +148,8 @@ class License_Notice_Handler {
 	 * @return bool
 	 */
 	private function is_on_notice_page( string $page_url ): bool {
-		$current_page = Cast::to_string( isset( $_GET['page'] ) ? $_GET['page'] : '' );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- reading current page slug, not processing a form.
+		$current_page = sanitize_key( Cast::to_string( $_GET['page'] ?? '' ) );
 
 		if ( $current_page === '' ) {
 			return false;

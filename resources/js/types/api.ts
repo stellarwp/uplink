@@ -57,10 +57,15 @@ interface BaseFeature {
      * Latest available version string, if known.
      */
     version?: string;
-	/**
-	 * Installed version string, if known.
-	 */
-	installed_version?: string;
+    /**
+     * Installed version string, if known.
+     */
+    installed_version?: string;
+    /**
+     * Whether a newer version is available and the feature is currently installed.
+     * Only present for installable features (plugin/theme).
+     */
+    has_update?: boolean;
 }
 
 /**

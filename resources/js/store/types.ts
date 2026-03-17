@@ -3,10 +3,7 @@
  *
  * @package StellarWP\Uplink
  */
-import type {
-	ReduxStoreConfig,
-	StoreDescriptor,
-} from '@wordpress/data';
+import type { ReduxStoreConfig, StoreDescriptor } from '@wordpress/data';
 import type { Thunk as BaseThunk } from '@/types/data';
 
 import type UplinkError from '@/errors/uplink-error';
@@ -36,7 +33,11 @@ export interface FeaturesState {
 	 */
 	toggling: Record<string, boolean>;
 	/**
-	 * Per-feature errors from toggle failures, keyed by slug.
+	 * Feature slugs currently being updated.
+	 */
+	updating: Record<string, boolean>;
+	/**
+	 * Per-feature errors from toggle or update failures, keyed by slug.
 	 */
 	errorBySlug: Record<string, UplinkError>;
 }
@@ -91,6 +92,9 @@ export type Action =
 	| { type: 'TOGGLE_FEATURE_START'; slug: string }
 	| { type: 'TOGGLE_FEATURE_FINISHED'; feature: Feature }
 	| { type: 'TOGGLE_FEATURE_FAILED'; slug: string; error: UplinkError }
+	| { type: 'UPDATE_FEATURE_START'; slug: string }
+	| { type: 'UPDATE_FEATURE_FINISHED'; feature: Feature }
+	| { type: 'UPDATE_FEATURE_FAILED'; slug: string; error: UplinkError }
 	| { type: 'RECEIVE_LICENSE'; license: License }
 	| { type: 'STORE_LICENSE_START' }
 	| { type: 'STORE_LICENSE_FINISHED'; license: License }

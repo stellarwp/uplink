@@ -330,6 +330,9 @@
   .uplink-ui .left-3 {
     left: calc(var(--spacing) * 3) !important;
   }
+  .uplink-ui .isolate {
+    isolation: isolate !important;
+  }
   .uplink-ui .z-10 {
     z-index: 10 !important;
   }

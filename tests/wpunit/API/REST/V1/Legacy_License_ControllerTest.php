@@ -26,7 +26,7 @@ final class Legacy_License_ControllerTest extends UplinkTestCase {
 		'slug'       => 'my-plugin',
 		'name'       => 'My Plugin',
 		'brand'      => 'My Brand',
-		'status'     => 'active',
+		'is_active'  => true,
 		'page_url'   => 'https://example.com/account',
 		'expires_at' => '2027-01-01',
 	];
@@ -68,7 +68,7 @@ final class Legacy_License_ControllerTest extends UplinkTestCase {
 	public function test_returns_empty_array_when_no_legacy_licenses(): void {
 		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
 
-		$request  = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/license/legacy' );
+		$request  = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/legacy-licenses' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 200, $response->get_status() );
@@ -85,7 +85,7 @@ final class Legacy_License_ControllerTest extends UplinkTestCase {
 			}
 		);
 
-		$request  = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/license/legacy' );
+		$request  = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/legacy-licenses' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 200, $response->get_status() );
@@ -102,7 +102,7 @@ final class Legacy_License_ControllerTest extends UplinkTestCase {
 			}
 		);
 
-		$request  = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/license/legacy' );
+		$request  = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/legacy-licenses' );
 		$response = $this->server->dispatch( $request );
 		$item     = $response->get_data()[0];
 
@@ -110,7 +110,7 @@ final class Legacy_License_ControllerTest extends UplinkTestCase {
 		$this->assertArrayHasKey( 'slug', $item );
 		$this->assertArrayHasKey( 'name', $item );
 		$this->assertArrayHasKey( 'brand', $item );
-		$this->assertArrayHasKey( 'status', $item );
+		$this->assertArrayHasKey( 'is_active', $item );
 		$this->assertArrayHasKey( 'page_url', $item );
 		$this->assertArrayHasKey( 'expires_at', $item );
 
@@ -118,7 +118,7 @@ final class Legacy_License_ControllerTest extends UplinkTestCase {
 		$this->assertSame( 'my-plugin', $item['slug'] );
 		$this->assertSame( 'My Plugin', $item['name'] );
 		$this->assertSame( 'My Brand', $item['brand'] );
-		$this->assertSame( 'active', $item['status'] );
+		$this->assertTrue( $item['is_active'] );
 		$this->assertSame( 'https://example.com/account', $item['page_url'] );
 		$this->assertSame( '2027-01-01', $item['expires_at'] );
 	}
@@ -136,13 +136,13 @@ final class Legacy_License_ControllerTest extends UplinkTestCase {
 						[
 							'slug' => 'another-plugin',
 							'name' => 'Another Plugin',
-						] 
+						]
 					),
 				];
 			}
 		);
 
-		$request  = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/license/legacy' );
+		$request  = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/legacy-licenses' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 200, $response->get_status() );
@@ -152,7 +152,7 @@ final class Legacy_License_ControllerTest extends UplinkTestCase {
 	public function test_requires_manage_options(): void {
 		wp_set_current_user( self::factory()->user->create( [ 'role' => 'subscriber' ] ) );
 
-		$request  = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/license/legacy' );
+		$request  = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/legacy-licenses' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 403, $response->get_status() );
@@ -161,7 +161,7 @@ final class Legacy_License_ControllerTest extends UplinkTestCase {
 	public function test_rejects_unauthenticated(): void {
 		wp_set_current_user( 0 );
 
-		$request  = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/license/legacy' );
+		$request  = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/legacy-licenses' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 401, $response->get_status() );
@@ -173,7 +173,7 @@ final class Legacy_License_ControllerTest extends UplinkTestCase {
 
 		$this->assertArrayHasKey( 'properties', $schema );
 
-		$expected = [ 'key', 'slug', 'name', 'brand', 'status', 'page_url', 'expires_at' ];
+		$expected = [ 'key', 'slug', 'name', 'brand', 'is_active', 'page_url', 'expires_at' ];
 
 		foreach ( $expected as $property ) {
 			$this->assertArrayHasKey( $property, $schema['properties'], "Missing schema property: {$property}" );

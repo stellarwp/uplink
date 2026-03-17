@@ -115,6 +115,10 @@ final class ThemeTest extends UplinkTestCase {
 				'released_at'       => '2025-11-15',
 				'installed_version' => '2.0.0',
 				'type'              => 'theme',
+				'is_dot_org'        => false,
+				'version'           => null,
+				'changelog'         => null,
+				'has_update'        => false,
 			],
 			$feature->to_array()
 		);
@@ -142,6 +146,7 @@ final class ThemeTest extends UplinkTestCase {
 			'installed_version' => '2.0.0',
 			'version'           => null,
 			'changelog'         => null,
+			'has_update'        => false,
 		];
 
 		$feature = Theme::from_array( $data );

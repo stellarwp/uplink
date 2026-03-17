@@ -44,12 +44,12 @@ final class License_RepositoryTest extends UplinkTestCase {
 					$licenses,
 					[
 						[
-							'key'      => 'key-1',
-							'slug'     => 'plugin-one',
-							'name'     => 'Plugin One',
-							'brand'    => 'Brand',
-							'status'   => 'valid',
-							'page_url' => 'https://example.com/license',
+							'key'       => 'key-1',
+							'slug'      => 'plugin-one',
+							'name'      => 'Plugin One',
+							'brand'     => 'Brand',
+							'is_active' => true,
+							'page_url'  => 'https://example.com/license',
 						],
 					]
 				);
@@ -228,6 +228,84 @@ final class License_RepositoryTest extends UplinkTestCase {
 		$this->repository->has_any();
 
 		$this->assertSame( 1, $call_count, 'Filter should only be applied once per request cycle.' );
+	}
+
+	/**
+	 * @since 3.0.0
+	 */
+	public function it_all_active_returns_only_active_licenses(): void {
+		add_filter(
+			'stellarwp/uplink/legacy_licenses',
+			static function ( array $licenses ) {
+				return array_merge(
+					$licenses,
+					[
+						[
+							'key'       => 'k1',
+							'slug'      => 'active-plugin',
+							'name'      => 'Active',
+							'brand'     => 'B',
+							'is_active' => true,
+						],
+						[
+							'key'       => 'k2',
+							'slug'      => 'inactive-plugin',
+							'name'      => 'Inactive',
+							'brand'     => 'B',
+							'is_active' => false,
+						],
+					]
+				);
+			}
+		);
+
+		$result = $this->repository->all_active();
+
+		$this->assertCount( 1, $result );
+		$this->assertSame( 'active-plugin', $result[0]->slug );
+	}
+
+	/**
+	 * @since 3.0.0
+	 */
+	public function it_all_inactive_returns_only_inactive_licenses(): void {
+		add_filter(
+			'stellarwp/uplink/legacy_licenses',
+			static function ( array $licenses ) {
+				return array_merge(
+					$licenses,
+					[
+						[
+							'key'       => 'k1',
+							'slug'      => 'active-plugin',
+							'name'      => 'Active',
+							'brand'     => 'B',
+							'is_active' => true,
+						],
+						[
+							'key'       => 'k2',
+							'slug'      => 'expired-plugin',
+							'name'      => 'Expired',
+							'brand'     => 'B',
+							'is_active' => false,
+						],
+						[
+							'key'       => 'k3',
+							'slug'      => 'inactive-plugin',
+							'name'      => 'Inactive',
+							'brand'     => 'B',
+							'is_active' => false,
+						],
+					]
+				);
+			}
+		);
+
+		$result = $this->repository->all_inactive();
+
+		$this->assertCount( 2, $result );
+		$this->assertSame( 'expired-plugin', $result[0]->slug );
+		$this->assertSame( 'inactive-plugin', $result[1]->slug );
 	}
 
 	/**

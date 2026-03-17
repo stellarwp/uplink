@@ -296,6 +296,7 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 				'version'     => '2.0.0',
 				'package'     => 'https://example.com/my-plugin.zip',
 				'plugin_file' => 'my-plugin/my-plugin.php',
+				'has_update'  => true,
 			],
 		];
 

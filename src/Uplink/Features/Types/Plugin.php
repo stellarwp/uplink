@@ -41,7 +41,7 @@ final class Plugin extends Feature implements Installable {
 	 * @return static
 	 */
 	public static function from_array( array $data ) {
-		return new self(
+		$instance = new self(
 			array_merge(
 				self::base_attributes( $data ),
 				[
@@ -55,6 +55,10 @@ final class Plugin extends Feature implements Installable {
 				]
 			)
 		);
+
+		$instance->attributes['has_update'] = $instance->has_update();
+
+		return $instance;
 	}
 
 	/**
@@ -98,6 +102,29 @@ final class Plugin extends Feature implements Installable {
 	}
 
 	/**
+	 * Whether a newer version is available and this plugin is currently installed.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return bool
+	 */
+	public function has_update(): bool {
+		$installed_version = $this->get_installed_version();
+
+		if ( $installed_version === null ) {
+			return false;
+		}
+
+		$catalog_version = Cast::to_string( $this->attributes['version'] ?? '' );
+
+		if ( $catalog_version === '' ) {
+			return false;
+		}
+
+		return version_compare( $catalog_version, $installed_version, '>' );
+	}
+
+	/**
 	 * Builds the complete update data array for this Plugin feature.
 	 *
 	 * @since 3.0.0
@@ -119,6 +146,7 @@ final class Plugin extends Feature implements Installable {
 			],
 			'plugin_file'       => $this->get_plugin_file(),
 			'installed_version' => $this->get_installed_version() ?? '',
+			'has_update'        => $this->has_update(),
 		];
 	}
 

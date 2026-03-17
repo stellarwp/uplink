@@ -405,6 +405,12 @@ class Feature_Controller extends WP_REST_Controller {
 				'readonly'    => true,
 				'context'     => [ 'view' ],
 			],
+			'has_update'        => [
+				'description' => __( 'Whether a newer version is available and the feature is currently installed.', '%TEXTDOMAIN%' ),
+				'type'        => 'boolean',
+				'readonly'    => true,
+				'context'     => [ 'view' ],
+			],
 		];
 
 		$plugin_properties = [

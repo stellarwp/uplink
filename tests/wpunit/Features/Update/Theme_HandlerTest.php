@@ -328,8 +328,9 @@ final class Theme_HandlerTest extends UplinkTestCase {
 	public function test_filter_update_check_adds_to_response_when_update_available(): void {
 		$update_data = [
 			'my-theme' => [
-				'version' => '2.0.0',
-				'package' => 'https://example.com/my-theme.zip',
+				'version'    => '2.0.0',
+				'package'    => 'https://example.com/my-theme.zip',
+				'has_update' => true,
 			],
 		];
 

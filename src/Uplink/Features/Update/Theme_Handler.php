@@ -204,10 +204,6 @@ class Theme_Handler {
 				continue;
 			}
 
-			/** @var string $new_version */
-			$new_version       = Cast::to_string( $update_data['version'] ?? '' );
-			$installed_version = Cast::to_string( $update_data['installed_version'] ?? '' );
-
 			$update_array = $this->to_update_array( $slug, $update_data );
 
 			/**
@@ -218,7 +214,7 @@ class Theme_Handler {
 			 * already in `response` from another system (e.g. legacy licensing) to avoid
 			 * clearing updates we didn't provide.
 			 */
-			if ( version_compare( $new_version, $installed_version, '>' ) ) {
+			if ( $update_data['has_update'] ?? false ) {
 				$wp_response[ $slug ] = $update_array;
 				unset( $wp_no_update[ $slug ] );
 			} elseif ( ! isset( $wp_response[ $slug ] ) ) {

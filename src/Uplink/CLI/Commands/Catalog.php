@@ -6,6 +6,7 @@ use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Catalog\Results\Catalog_Tier;
 use StellarWP\Uplink\CLI\Display;
 use StellarWP\Uplink\Catalog\Results\Product_Catalog;
+use StellarWP\Uplink\Utils\Cast;
 use WP_CLI;
 use WP_CLI\Formatter;
 use WP_CLI_Command;
@@ -247,7 +248,7 @@ class Catalog extends WP_CLI_Command {
 			$item['is_dot_org'] = Display::bool( ! empty( $item['is_dot_org'] ) );
 
 			if ( is_array( $item['authors'] ) ) {
-				$item['authors'] = implode( ', ', $item['authors'] );
+				$item['authors'] = implode( ', ', array_map( [ Cast::class, 'to_string' ], $item['authors'] ) );
 			} else {
 				$item['authors'] = '';
 			}

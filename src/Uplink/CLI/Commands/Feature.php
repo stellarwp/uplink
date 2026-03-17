@@ -400,7 +400,7 @@ class Feature extends WP_CLI_Command {
 
 		foreach ( $item as $key => $value ) {
 			if ( is_array( $value ) ) {
-				$item[ $key ] = implode( ', ', $value );
+				$item[ $key ] = implode( ', ', array_map( [ Cast::class, 'to_string' ], $value ) );
 			}
 		}
 

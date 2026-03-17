@@ -36,6 +36,7 @@ export const receiveCatalog = (catalogs: ProductCatalog[]): Action => ({
 /**
  * Enable a feature via the REST API.
  *
+ * @param slug
  * @since 3.0.0
  */
 export const enableFeature =
@@ -53,7 +54,10 @@ export const enableFeature =
 			const error = UplinkError.wrap(
 				err,
 				ErrorCode.FeatureEnableFailed,
-				__('Liquid Web Software failed to enable your feature.', '%TEXTDOMAIN%')
+				__(
+					'Liquid Web Software failed to enable your feature.',
+					'%TEXTDOMAIN%'
+				)
 			);
 			dispatch({ type: 'TOGGLE_FEATURE_FAILED', slug, error });
 			return error;
@@ -63,6 +67,7 @@ export const enableFeature =
 /**
  * Disable a feature via the REST API.
  *
+ * @param slug
  * @since 3.0.0
  */
 export const disableFeature =
@@ -80,9 +85,43 @@ export const disableFeature =
 			const error = UplinkError.wrap(
 				err,
 				ErrorCode.FeatureDisableFailed,
-				__('Liquid Web Software failed to disable your feature.', '%TEXTDOMAIN%')
+				__(
+					'Liquid Web Software failed to disable your feature.',
+					'%TEXTDOMAIN%'
+				)
 			);
 			dispatch({ type: 'TOGGLE_FEATURE_FAILED', slug, error });
+			return error;
+		}
+	};
+
+/**
+ * Update a feature via the REST API.
+ *
+ * @param slug
+ * @since 3.0.0
+ */
+export const updateFeature =
+	(slug: string): Thunk<UplinkError | null> =>
+	async ({ dispatch }) => {
+		dispatch({ type: 'UPDATE_FEATURE_START', slug });
+		try {
+			const feature = await apiFetch<Feature>({
+				path: `/stellarwp/uplink/v1/features/${slug}/update`,
+				method: 'POST',
+			});
+			dispatch({ type: 'UPDATE_FEATURE_FINISHED', feature });
+			return null;
+		} catch (err) {
+			const error = UplinkError.wrap(
+				err,
+				ErrorCode.FeatureUpdateFailed,
+				__(
+					'Liquid Web Software failed to update your feature.',
+					'%TEXTDOMAIN%'
+				)
+			);
+			dispatch({ type: 'UPDATE_FEATURE_FAILED', slug, error });
 			return error;
 		}
 	};
@@ -91,6 +130,7 @@ export const disableFeature =
  * Store a license key via the REST API, then invalidate the license
  * and features resolvers so the UI refreshes with the new entitlements.
  *
+ * @param key
  * @since 3.0.0
  */
 export const storeLicense =
@@ -99,7 +139,10 @@ export const storeLicense =
 		if (!select.canModifyLicense()) {
 			return new UplinkError(
 				ErrorCode.LicenseActionInProgress,
-				__('Liquid Web Software failed to activate your license, another action is in progress.', '%TEXTDOMAIN%')
+				__(
+					'Liquid Web Software failed to activate your license, another action is in progress.',
+					'%TEXTDOMAIN%'
+				)
 			);
 		}
 		dispatch({ type: 'STORE_LICENSE_START' });
@@ -119,7 +162,10 @@ export const storeLicense =
 			const error = UplinkError.wrap(
 				err,
 				ErrorCode.LicenseStoreFailed,
-				__('Liquid Web Software failed to activate your license.', '%TEXTDOMAIN%')
+				__(
+					'Liquid Web Software failed to activate your license.',
+					'%TEXTDOMAIN%'
+				)
 			);
 			dispatch({ type: 'STORE_LICENSE_FAILED', error });
 			return error;
@@ -129,6 +175,7 @@ export const storeLicense =
 /**
  * Validate a specific product against the license via the REST API.
  *
+ * @param productSlug
  * @since 3.0.0
  */
 export const validateProduct =
@@ -137,7 +184,10 @@ export const validateProduct =
 		if (!select.canModifyLicense()) {
 			return new UplinkError(
 				ErrorCode.LicenseActionInProgress,
-				__('Liquid Web Software failed to validate your product, another action is in progress.', '%TEXTDOMAIN%')
+				__(
+					'Liquid Web Software failed to validate your product, another action is in progress.',
+					'%TEXTDOMAIN%'
+				)
 			);
 		}
 		dispatch({ type: 'VALIDATE_PRODUCT_START' });
@@ -157,7 +207,10 @@ export const validateProduct =
 			const error = UplinkError.wrap(
 				err,
 				ErrorCode.LicenseValidateFailed,
-				__('Liquid Web Software failed to validate your product.', '%TEXTDOMAIN%')
+				__(
+					'Liquid Web Software failed to validate your product.',
+					'%TEXTDOMAIN%'
+				)
 			);
 			dispatch({ type: 'VALIDATE_PRODUCT_FAILED', error });
 			return error;
@@ -176,7 +229,10 @@ export const deleteLicense =
 		if (!select.canModifyLicense()) {
 			return new UplinkError(
 				ErrorCode.LicenseActionInProgress,
-				__('Liquid Web Software failed to delete your license, another action is in progress.', '%TEXTDOMAIN%')
+				__(
+					'Liquid Web Software failed to delete your license, another action is in progress.',
+					'%TEXTDOMAIN%'
+				)
 			);
 		}
 		dispatch({ type: 'DELETE_LICENSE_START' });
@@ -192,7 +248,10 @@ export const deleteLicense =
 			const error = UplinkError.wrap(
 				err,
 				ErrorCode.LicenseDeleteFailed,
-				__('Liquid Web Software failed to remove your license.', '%TEXTDOMAIN%')
+				__(
+					'Liquid Web Software failed to remove your license.',
+					'%TEXTDOMAIN%'
+				)
 			);
 			dispatch({ type: 'DELETE_LICENSE_FAILED', error });
 			return error;

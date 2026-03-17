@@ -35,11 +35,11 @@ export function FeatureRow( { feature, product }: FeatureRowProps ) {
 
 	// When this feature is a plugin or theme, block toggling while any
 	// other installable feature is mid-toggle (WordPress cannot safely
-	// install/activate/deactivate multiple plugins or themes at once).
+	// install/activate/deactivate/update multiple plugins or themes at once).
 	const installableBusy = useSelect(
 		( select ) =>
 			feature.type !== 'flag' &&
-			select( uplinkStore ).isAnyInstallableToggling(),
+			select( uplinkStore ).isAnyInstallableBusy(),
 		[ feature.type ]
 	);
 

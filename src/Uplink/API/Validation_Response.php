@@ -7,6 +7,7 @@ use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Messages;
 use StellarWP\Uplink\Resources\Resource;
+use StellarWP\Uplink\Utils\Cast;
 
 class Validation_Response {
 	/**
@@ -461,7 +462,7 @@ class Validation_Response {
 			}
 
 			if ( isset( $this->response->daily_limit ) ) {
-				$this->daily_limit = intval( $this->response->daily_limit );
+				$this->daily_limit = Cast::to_int( $this->response->daily_limit );
 			}
 
 			// If the license key is new or not the same as the one we have, mark it as a new key.

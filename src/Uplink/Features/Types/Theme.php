@@ -41,7 +41,7 @@ final class Theme extends Feature implements Installable {
 	 * @return static
 	 */
 	public static function from_array( array $data ) {
-		return new self(
+		$instance = new self(
 			array_merge(
 				self::base_attributes( $data ),
 				[
@@ -54,6 +54,10 @@ final class Theme extends Feature implements Installable {
 				]
 			)
 		);
+
+		$instance->attributes['has_update'] = $instance->has_update();
+
+		return $instance;
 	}
 
 	/**
@@ -85,6 +89,29 @@ final class Theme extends Feature implements Installable {
 	}
 
 	/**
+	 * Whether a newer version is available and this theme is currently installed.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return bool
+	 */
+	public function has_update(): bool {
+		$installed_version = $this->get_installed_version();
+
+		if ( $installed_version === null ) {
+			return false;
+		}
+
+		$catalog_version = Cast::to_string( $this->attributes['version'] ?? '' );
+
+		if ( $catalog_version === '' ) {
+			return false;
+		}
+
+		return version_compare( $catalog_version, $installed_version, '>' );
+	}
+
+	/**
 	 * Builds the complete update data array for this Theme feature.
 	 *
 	 * @since 3.0.0
@@ -105,6 +132,7 @@ final class Theme extends Feature implements Installable {
 				'description' => $this->get_description(),
 			],
 			'installed_version' => $this->get_installed_version() ?? '',
+			'has_update'        => $this->has_update(),
 		];
 	}
 

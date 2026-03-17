@@ -3,6 +3,7 @@
 namespace StellarWP\Uplink\Features\Strategy;
 
 use StellarWP\Uplink\Features\Error_Code;
+use StellarWP\Uplink\Utils\Cast;
 use WP_Ajax_Upgrader_Skin;
 use WP_Error;
 
@@ -532,7 +533,11 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 			$actual_code  = $error_code;
 			$requirements = $this->get_requirements_error_codes();
 
-			if ( $requirements !== [] && $skin_errors->has_errors() && array_intersect( $skin_errors->get_error_codes(), $requirements ) ) {
+			if (
+				$requirements !== []
+				&& $skin_errors->has_errors()
+				&& array_intersect( array_map( [ Cast::class, 'to_string' ], $skin_errors->get_error_codes() ), $requirements )
+			) {
 				$actual_code = Error_Code::REQUIREMENTS_NOT_MET;
 			}
 

@@ -151,6 +151,7 @@ final class PluginTest extends UplinkTestCase {
 			'installed_version' => '1.2.3',
 			'version'           => null,
 			'changelog'         => null,
+			'has_update'        => false,
 		];
 
 		$feature = Plugin::from_array( $data );

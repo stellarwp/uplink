@@ -8,7 +8,6 @@ use StellarWP\Uplink\Features\Types\Feature;
 use StellarWP\Uplink\Licensing\License_Manager;
 use StellarWP\Uplink\Traits\With_Debugging;
 use stdClass;
-use StellarWP\Uplink\Utils\Cast;
 
 /**
  * Consolidated update handler for Plugin features.
@@ -211,10 +210,6 @@ class Plugin_Handler {
 				continue;
 			}
 
-			/** @var string $new_version */
-			$new_version       = Cast::to_string( $update_data['version'] ?? '' );
-			$installed_version = Cast::to_string( $update_data['installed_version'] ?? '' );
-
 			$update_object = $this->to_update_object( $slug, $plugin_file, $update_data );
 
 			/**
@@ -225,7 +220,7 @@ class Plugin_Handler {
 			 * already in `response` from another system (e.g. legacy licensing) to avoid
 			 * clearing updates we didn't provide.
 			 */
-			if ( version_compare( $new_version, $installed_version, '>' ) ) {
+			if ( $update_data['has_update'] ?? false ) {
 				$wp_response[ $plugin_file ] = $update_object;
 				unset( $wp_no_update[ $plugin_file ] );
 			} elseif ( ! isset( $wp_response[ $plugin_file ] ) ) {

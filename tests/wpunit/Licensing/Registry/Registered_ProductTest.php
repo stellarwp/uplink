@@ -29,7 +29,7 @@ final class Registered_ProductTest extends UplinkTestCase {
 				'embedded_key' => 'LWSW-UNIFIED-PRO-2026',
 				'name'         => 'GiveWP',
 				'version'      => '3.0.0',
-				'group'        => 'givewp',
+				'product'        => 'givewp',
 			] 
 		);
 
@@ -38,7 +38,7 @@ final class Registered_ProductTest extends UplinkTestCase {
 		$this->assertSame( 'LWSW-UNIFIED-PRO-2026', $product->embedded_key );
 		$this->assertSame( 'GiveWP', $product->name );
 		$this->assertSame( '3.0.0', $product->version );
-		$this->assertSame( 'givewp', $product->group );
+		$this->assertSame( 'givewp', $product->product );
 	}
 
 	public function test_from_array_allows_optional_fields_to_be_absent(): void {
@@ -49,7 +49,7 @@ final class Registered_ProductTest extends UplinkTestCase {
 		$this->assertNull( $product->embedded_key );
 		$this->assertNull( $product->name );
 		$this->assertNull( $product->version );
-		$this->assertNull( $product->group );
+		$this->assertNull( $product->product );
 	}
 
 	public function test_from_array_treats_empty_embedded_key_as_null(): void {

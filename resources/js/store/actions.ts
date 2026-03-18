@@ -51,7 +51,7 @@ export const enableFeature =
 			dispatch({ type: 'TOGGLE_FEATURE_FINISHED', feature });
 			return null;
 		} catch (err) {
-			const error = UplinkError.wrap(
+			const error = await UplinkError.wrap(
 				err,
 				ErrorCode.FeatureEnableFailed,
 				__(
@@ -82,7 +82,7 @@ export const disableFeature =
 			dispatch({ type: 'TOGGLE_FEATURE_FINISHED', feature });
 			return null;
 		} catch (err) {
-			const error = UplinkError.wrap(
+			const error = await UplinkError.wrap(
 				err,
 				ErrorCode.FeatureDisableFailed,
 				__(
@@ -113,7 +113,7 @@ export const updateFeature =
 			dispatch({ type: 'UPDATE_FEATURE_FINISHED', feature });
 			return null;
 		} catch (err) {
-			const error = UplinkError.wrap(
+			const error = await UplinkError.wrap(
 				err,
 				ErrorCode.FeatureUpdateFailed,
 				__(
@@ -159,7 +159,7 @@ export const storeLicense =
 			dispatch.invalidateResolution('getFeatures', []);
 			return null;
 		} catch (err) {
-			const error = UplinkError.wrap(
+			const error = await UplinkError.wrap(
 				err,
 				ErrorCode.LicenseStoreFailed,
 				__(
@@ -204,7 +204,7 @@ export const validateProduct =
 			dispatch.invalidateResolution('getFeatures', []);
 			return null;
 		} catch (err) {
-			const error = UplinkError.wrap(
+			const error = await UplinkError.wrap(
 				err,
 				ErrorCode.LicenseValidateFailed,
 				__(
@@ -245,7 +245,7 @@ export const deleteLicense =
 			dispatch.invalidateResolution('getFeatures', []);
 			return null;
 		} catch (err) {
-			const error = UplinkError.wrap(
+			const error = await UplinkError.wrap(
 				err,
 				ErrorCode.LicenseDeleteFailed,
 				__(

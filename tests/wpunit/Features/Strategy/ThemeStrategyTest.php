@@ -433,7 +433,7 @@ final class ThemeStrategyTest extends UplinkTestCase {
 		return new Theme(
 			[
 				'slug'         => $slug,
-				'group'        => 'Test',
+				'product'        => 'Test',
 				'tier'         => 'Tier 1',
 				'name'         => 'Test Theme Feature',
 				'description'  => 'A test theme for unit tests.',

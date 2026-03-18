@@ -21,27 +21,27 @@ Manage the unified license key.
 
 Manage the product catalog.
 
-| Command    | Usage                                | Description                                       |
-| ---------- | ------------------------------------ | ------------------------------------------------- |
-| `list`     | `wp uplink catalog list`             | List all products in the catalog                  |
-| `tiers`    | `wp uplink catalog tiers <slug>`     | Show tiers for a specific product                 |
-| `features` | `wp uplink catalog features <slug>`  | Show features for a specific product              |
-| `refresh`  | `wp uplink catalog refresh`          | Force refresh the catalog from the API            |
-| `status`   | `wp uplink catalog status`           | Show when the catalog was last fetched and errors |
-| `delete`   | `wp uplink catalog delete`           | Delete the cached catalog                         |
+| Command    | Usage                               | Description                                       |
+| ---------- | ----------------------------------- | ------------------------------------------------- |
+| `list`     | `wp uplink catalog list`            | List all products in the catalog                  |
+| `tiers`    | `wp uplink catalog tiers <slug>`    | Show tiers for a specific product                 |
+| `features` | `wp uplink catalog features <slug>` | Show features for a specific product              |
+| `refresh`  | `wp uplink catalog refresh`         | Force refresh the catalog from the API            |
+| `status`   | `wp uplink catalog status`          | Show when the catalog was last fetched and errors |
+| `delete`   | `wp uplink catalog delete`          | Delete the cached catalog                         |
 
 ### `wp uplink feature`
 
 Manage Uplink features.
 
-| Command      | Usage                                  | Description                                          |
-| ------------ | -------------------------------------- | ---------------------------------------------------- |
-| `list`       | `wp uplink feature list`               | List features with optional filters                  |
-| `get`        | `wp uplink feature get <slug>`         | Show detailed information for a single feature       |
-| `is-enabled` | `wp uplink feature is-enabled <slug>`  | Check if a feature is enabled (exit code 0 = yes)    |
-| `enable`     | `wp uplink feature enable <slug>`      | Enable a feature                                     |
-| `disable`    | `wp uplink feature disable <slug>`     | Disable a feature                                    |
-| `update`     | `wp uplink feature update <slug>`      | Update a feature to the latest version               |
+| Command      | Usage                                 | Description                                       |
+| ------------ | ------------------------------------- | ------------------------------------------------- |
+| `list`       | `wp uplink feature list`              | List features with optional filters               |
+| `get`        | `wp uplink feature get <slug>`        | Show detailed information for a single feature    |
+| `is-enabled` | `wp uplink feature is-enabled <slug>` | Check if a feature is enabled (exit code 0 = yes) |
+| `enable`     | `wp uplink feature enable <slug>`     | Enable a feature                                  |
+| `disable`    | `wp uplink feature disable <slug>`    | Disable a feature                                 |
+| `update`     | `wp uplink feature update <slug>`     | Update a feature to the latest version            |
 
 ## License Commands
 
@@ -254,25 +254,25 @@ wp uplink catalog delete
 Lists features with optional filters.
 
 ```bash
-wp uplink feature list [--group=<group>] [--tier=<tier>] [--available=<bool>] [--type=<type>] [--fields=<fields>] [--format=<format>]
+wp uplink feature list [--product=<product>] [--tier=<tier>] [--available=<bool>] [--type=<type>] [--fields=<fields>] [--format=<format>]
 ```
 
 **Options:**
 
-| Option               | Description                                                       |
-| -------------------- | ----------------------------------------------------------------- |
-| `--group=<group>`    | Filter by product group (e.g. `kadence`)                          |
-| `--tier=<tier>`      | Filter by tier (e.g. `Tier 1`)                                    |
-| `--available=<bool>` | Filter by availability (`true` or `false`)                        |
-| `--type=<type>`      | Filter by type (`flag`, `plugin`, `theme`)                        |
-| `--fields=<fields>`  | Comma-separated field list                                        |
-| `--format=<format>`  | Output format: `table` (default), `json`, `csv`, `yaml`, `count`  |
+| Option                | Description                                                      |
+| --------------------- | ---------------------------------------------------------------- |
+| `--product=<product>` | Filter by product (e.g. `kadence`)                               |
+| `--tier=<tier>`       | Filter by tier (e.g. `Tier 1`)                                   |
+| `--available=<bool>`  | Filter by availability (`true` or `false`)                       |
+| `--type=<type>`       | Filter by type (`flag`, `plugin`, `theme`)                       |
+| `--fields=<fields>`   | Comma-separated field list                                       |
+| `--format=<format>`   | Output format: `table` (default), `json`, `csv`, `yaml`, `count` |
 
-**Default fields:** `slug, name, type, group, is_available, is_enabled`
+**Default fields:** `slug, name, type, product, is_available, is_enabled`
 
 **Available fields:**
 
-- All types: `slug`, `name`, `description`, `type`, `group`, `tier`, `is_available`, `is_enabled`, `documentation_url`
+- All types: `slug`, `name`, `description`, `type`, `product`, `tier`, `is_available`, `is_enabled`, `documentation_url`
 - Plugin and Theme: `installed_version`, `released_at`, `authors`, `is_dot_org`
 - Plugin only: `plugin_file`
 
@@ -288,8 +288,8 @@ wp uplink feature list --format=json
 # Available flag features only
 wp uplink feature list --type=flag --available=true
 
-# Count features in a product group
-wp uplink feature list --group=kadence --format=count
+# Count features in a product
+wp uplink feature list --product=kadence --format=count
 
 # Show plugin-specific fields
 wp uplink feature list --type=plugin --fields=slug,plugin_file,authors,is_dot_org

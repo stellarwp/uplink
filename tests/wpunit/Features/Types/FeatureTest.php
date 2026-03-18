@@ -24,7 +24,7 @@ final class FeatureTest extends UplinkTestCase {
 
 		$this->feature = new class( [
 			'slug'              => 'test-feature',
-			'group'             => 'TEC',
+			'product'             => 'TEC',
 			'tier'              => 'Tier 1',
 			'name'              => 'Test Feature',
 			'description'       => 'A test feature.',
@@ -45,7 +45,7 @@ final class FeatureTest extends UplinkTestCase {
 				return new self(
 					[
 						'slug'              => $data['slug'],
-						'group'             => $data['group'],
+						'product'             => $data['product'],
 						'tier'              => $data['tier'],
 						'name'              => $data['name'],
 						'description'       => $data['description'] ?? '',
@@ -74,7 +74,7 @@ final class FeatureTest extends UplinkTestCase {
 	 * @return void
 	 */
 	public function test_get_group(): void {
-		$this->assertSame( 'TEC', $this->feature->get_group() );
+		$this->assertSame( 'TEC', $this->feature->get_product() );
 	}
 
 	/**
@@ -167,7 +167,7 @@ final class FeatureTest extends UplinkTestCase {
 		$this->assertSame(
 			[
 				'slug'              => 'test-feature',
-				'group'             => 'TEC',
+				'product'             => 'TEC',
 				'tier'              => 'Tier 1',
 				'name'              => 'Test Feature',
 				'description'       => 'A test feature.',
@@ -191,7 +191,7 @@ final class FeatureTest extends UplinkTestCase {
 		$feature = $this->feature::from_array(
 			[
 				'slug'              => 'from-array-feature',
-				'group'             => 'LearnDash',
+				'product'             => 'LearnDash',
 				'tier'              => 'Tier 2',
 				'name'              => 'From Array',
 				'description'       => 'Hydrated from array.',
@@ -203,7 +203,7 @@ final class FeatureTest extends UplinkTestCase {
 
 		$this->assertInstanceOf( Feature::class, $feature );
 		$this->assertSame( 'from-array-feature', $feature->get_slug() );
-		$this->assertSame( 'LearnDash', $feature->get_group() );
+		$this->assertSame( 'LearnDash', $feature->get_product() );
 		$this->assertSame( 'Tier 2', $feature->get_tier() );
 		$this->assertSame( 'From Array', $feature->get_name() );
 		$this->assertSame( 'Hydrated from array.', $feature->get_description() );

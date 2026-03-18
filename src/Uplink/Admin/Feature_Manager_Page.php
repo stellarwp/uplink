@@ -14,6 +14,13 @@ use StellarWP\Uplink\Utils\Version;
 class Feature_Manager_Page {
 
 	/**
+	 * The admin page slug.
+	 *
+	 * @since 3.0.0
+	 */
+	public const PAGE_SLUG = 'lws-feature-manager';
+
+	/**
 	 * Hook suffix returned by add_menu_page().
 	 * Empty string until the page is registered.
 	 *
@@ -39,7 +46,7 @@ class Feature_Manager_Page {
 			__( 'Liquid Web Software', '%TEXTDOMAIN%' ),
 			__( 'LW Software', '%TEXTDOMAIN%' ),
 			'manage_options',
-			'lws-feature-manager',
+			self::PAGE_SLUG,
 			[ $this, 'render' ],
 			'dashicons-cloud',
 			3

@@ -27,7 +27,7 @@ export const getFeatures =
 			});
 			dispatch.receiveFeatures(features);
 		} catch (err) {
-			throw UplinkError.wrap(
+			throw await UplinkError.wrap(
 				err,
 				ErrorCode.FeaturesFetchFailed,
 				__('Liquid Web Software failed to load your features.', '%TEXTDOMAIN%')
@@ -35,7 +35,7 @@ export const getFeatures =
 		}
 	};
 
-export const getFeaturesByGroup = forwardResolverWithoutArgs('getFeatures');
+export const getFeaturesByProduct = forwardResolverWithoutArgs('getFeatures');
 export const getFeature = forwardResolverWithoutArgs('getFeatures');
 export const isFeatureEnabled = forwardResolverWithoutArgs('getFeatures');
 
@@ -56,7 +56,7 @@ export const getCatalog =
 			});
 			dispatch.receiveCatalog(catalogs);
 		} catch (err) {
-			throw UplinkError.wrap(
+			throw await UplinkError.wrap(
 				err,
 				ErrorCode.CatalogFetchFailed,
 				__('Liquid Web Software failed to load the product catalog.', '%TEXTDOMAIN%')
@@ -85,7 +85,7 @@ export const getLicenseKey =
 			});
 			dispatch.receiveLicense(result);
 		} catch (err) {
-			throw UplinkError.wrap(
+			throw await UplinkError.wrap(
 				err,
 				ErrorCode.LicenseFetchFailed,
 				__('Liquid Web Software failed to load your license.', '%TEXTDOMAIN%')

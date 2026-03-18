@@ -49,7 +49,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 			Plugin::from_array(
 				[
 					'slug'              => 'feature-alpha',
-					'group'             => 'GroupA',
+					'product'             => 'GroupA',
 					'tier'              => 'Tier 1',
 					'name'              => 'Feature Alpha',
 					'description'       => 'Alpha description',
@@ -62,7 +62,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 			Flag::from_array(
 				[
 					'slug'              => 'feature-beta',
-					'group'             => 'GroupB',
+					'product'             => 'GroupB',
 					'tier'              => 'Tier 2',
 					'name'              => 'Feature Beta',
 					'description'       => 'Beta description',
@@ -177,7 +177,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
 
 		$request = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/features' );
-		$request->set_param( 'group', 'GroupA' );
+		$request->set_param( 'product', 'GroupA' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 200, $response->get_status() );
@@ -257,7 +257,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
 
 		$request = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/features' );
-		$request->set_param( 'group', 'NonexistentGroup' );
+		$request->set_param( 'product', 'NonexistentGroup' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 200, $response->get_status() );
@@ -273,7 +273,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
 
 		$request = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/features' );
-		$request->set_param( 'group', 'GroupA' );
+		$request->set_param( 'product', 'GroupA' );
 		$request->set_param( 'tier', 'Tier 1' );
 		$response = $this->server->dispatch( $request );
 
@@ -294,7 +294,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
 
 		$request = new WP_REST_Request( 'GET', '/stellarwp/uplink/v1/features' );
-		$request->set_param( 'group', 'GroupA' );
+		$request->set_param( 'product', 'GroupA' );
 		$request->set_param( 'tier', 'Tier 2' );
 		$response = $this->server->dispatch( $request );
 
@@ -386,7 +386,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$this->assertSame( 'feature-alpha', $data['slug'] );
 		$this->assertSame( 'Feature Alpha', $data['name'] );
 		$this->assertSame( 'Alpha description', $data['description'] );
-		$this->assertSame( 'GroupA', $data['group'] );
+		$this->assertSame( 'GroupA', $data['product'] );
 		$this->assertSame( 'Tier 1', $data['tier'] );
 		$this->assertSame( 'plugin', $data['type'] );
 		$this->assertTrue( $data['is_available'] );
@@ -573,7 +573,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$this->assertSame( 'feature-alpha', $data['slug'] );
 		$this->assertSame( 'Feature Alpha', $data['name'] );
 		$this->assertSame( 'Alpha description', $data['description'] );
-		$this->assertSame( 'GroupA', $data['group'] );
+		$this->assertSame( 'GroupA', $data['product'] );
 		$this->assertSame( 'Tier 1', $data['tier'] );
 		$this->assertSame( 'plugin', $data['type'] );
 		$this->assertTrue( $data['is_available'] );
@@ -669,7 +669,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$this->assertSame( 'feature-alpha', $data['slug'] );
 		$this->assertSame( 'Feature Alpha', $data['name'] );
 		$this->assertSame( 'Alpha description', $data['description'] );
-		$this->assertSame( 'GroupA', $data['group'] );
+		$this->assertSame( 'GroupA', $data['product'] );
 		$this->assertSame( 'Tier 1', $data['tier'] );
 		$this->assertSame( 'plugin', $data['type'] );
 		$this->assertTrue( $data['is_available'] );
@@ -992,7 +992,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$this->assertTrue( $plugin['additionalProperties'] );
 		$this->assertSame( [ Feature::TYPE_PLUGIN ], $plugin['properties']['type']['enum'] );
 
-		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled', 'plugin_file', 'released_at', 'version', 'changelog', 'authors', 'is_dot_org', 'installed_version', 'has_update' ];
+		$expected = [ 'slug', 'name', 'description', 'product', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled', 'plugin_file', 'released_at', 'version', 'changelog', 'authors', 'is_dot_org', 'installed_version', 'has_update' ];
 
 		foreach ( $expected as $property ) {
 			$this->assertArrayHasKey( $property, $plugin['properties'], "Missing plugin schema property: {$property}" );
@@ -1014,7 +1014,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$this->assertSame( 'theme', $theme['title'] );
 		$this->assertSame( [ Feature::TYPE_THEME ], $theme['properties']['type']['enum'] );
 
-		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled', 'released_at', 'version', 'changelog', 'authors', 'is_dot_org', 'installed_version', 'has_update' ];
+		$expected = [ 'slug', 'name', 'description', 'product', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled', 'released_at', 'version', 'changelog', 'authors', 'is_dot_org', 'installed_version', 'has_update' ];
 
 		foreach ( $expected as $property ) {
 			$this->assertArrayHasKey( $property, $theme['properties'], "Missing theme schema property: {$property}" );
@@ -1037,7 +1037,7 @@ final class Feature_ControllerTest extends UplinkTestCase {
 		$this->assertSame( 'flag', $flag['title'] );
 		$this->assertSame( [ Feature::TYPE_FLAG ], $flag['properties']['type']['enum'] );
 
-		$expected = [ 'slug', 'name', 'description', 'group', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled' ];
+		$expected = [ 'slug', 'name', 'description', 'product', 'tier', 'type', 'is_available', 'documentation_url', 'is_enabled' ];
 
 		foreach ( $expected as $property ) {
 			$this->assertArrayHasKey( $property, $flag['properties'], "Missing flag schema property: {$property}" );

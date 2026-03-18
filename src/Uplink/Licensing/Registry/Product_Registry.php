@@ -14,7 +14,7 @@ namespace StellarWP\Uplink\Licensing\Registry;
  *           'embedded_key' => GIVE_LICENSE_KEY,
  *           'name'         => 'GiveWP',
  *           'version'      => GIVE_VERSION,
- *           'group'        => 'givewp',
+ *           'product'      => 'givewp',
  *       ];
  *       return $products;
  *   } );

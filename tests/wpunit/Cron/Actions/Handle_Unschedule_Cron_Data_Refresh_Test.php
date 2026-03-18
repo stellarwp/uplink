@@ -77,24 +77,26 @@ final class Handle_Unschedule_Cron_Data_Refresh_Test extends UplinkTestCase {
 	 * @return Catalog_Collection
 	 */
 	private function make_catalog_with_plugin( string $plugin_file ): Catalog_Collection {
-		return Catalog_Collection::from_array( [
+		return Catalog_Collection::from_array(
 			[
-				'product_slug' => 'test-product',
-				'tiers'        => [],
-				'features'     => [
-					[
-						'feature_slug'      => 'test-feature',
-						'type'              => 'plugin',
-						'minimum_tier'      => '',
-						'plugin_file'       => $plugin_file,
-						'is_dot_org'        => false,
-						'name'              => 'Test Feature',
-						'description'       => '',
-						'category'          => '',
-						'documentation_url' => '',
+				[
+					'product_slug' => 'test-product',
+					'tiers'        => [],
+					'features'     => [
+						[
+							'feature_slug'      => 'test-feature',
+							'type'              => 'plugin',
+							'minimum_tier'      => '',
+							'plugin_file'       => $plugin_file,
+							'is_dot_org'        => false,
+							'name'              => 'Test Feature',
+							'description'       => '',
+							'category'          => '',
+							'documentation_url' => '',
+						],
 					],
 				],
-			],
-		] );
+			] 
+		);
 	}
 }

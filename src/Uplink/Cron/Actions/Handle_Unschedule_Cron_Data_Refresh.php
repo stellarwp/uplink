@@ -32,7 +32,7 @@ class Handle_Unschedule_Cron_Data_Refresh {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Catalog_Repository $catalog
+	 * @param Catalog_Repository $catalog The catalog repository
 	 */
 	public function __construct( Catalog_Repository $catalog ) {
 		$this->catalog = $catalog;

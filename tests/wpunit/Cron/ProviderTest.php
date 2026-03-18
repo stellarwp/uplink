@@ -110,25 +110,27 @@ final class ProviderTest extends UplinkTestCase {
 	 * @return void
 	 */
 	private function store_catalog_with_plugin( string $plugin_file ): void {
-		$catalog = Catalog_Collection::from_array( [
+		$catalog = Catalog_Collection::from_array(
 			[
-				'product_slug' => 'test-product',
-				'tiers'        => [],
-				'features'     => [
-					[
-						'feature_slug'      => 'test-feature',
-						'type'              => 'plugin',
-						'minimum_tier'      => '',
-						'plugin_file'       => $plugin_file,
-						'is_dot_org'        => false,
-						'name'              => 'Test Feature',
-						'description'       => '',
-						'category'          => '',
-						'documentation_url' => '',
+				[
+					'product_slug' => 'test-product',
+					'tiers'        => [],
+					'features'     => [
+						[
+							'feature_slug'      => 'test-feature',
+							'type'              => 'plugin',
+							'minimum_tier'      => '',
+							'plugin_file'       => $plugin_file,
+							'is_dot_org'        => false,
+							'name'              => 'Test Feature',
+							'description'       => '',
+							'category'          => '',
+							'documentation_url' => '',
+						],
 					],
 				],
-			],
-		] );
+			] 
+		);
 
 		$this->container->get( Catalog_Repository::class )->set_catalog( $catalog );
 	}

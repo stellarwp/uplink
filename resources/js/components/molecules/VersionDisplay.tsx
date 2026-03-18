@@ -3,16 +3,12 @@
  * button when a newer version is available.
  *
  * When upgradeLabel is provided the update button is rendered fully disabled
- * (no onClick handler) with an upsell tooltip. The span wrapper around the
- * button is required because disabled:pointer-events-none on the Button
- * suppresses hover events — without the span the tooltip would never show.
+ * (no onClick handler) with an upsell tooltip.
  *
  * @package StellarWP\Uplink
  */
-import { __, sprintf } from '@wordpress/i18n';
-import { Download } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { sprintf, __ } from '@wordpress/i18n';
+import { UpdateButton } from '@/components/atoms/UpdateButton';
 import type { Feature } from '@/types/api';
 
 export interface VersionDisplayProps {
@@ -45,38 +41,13 @@ export function VersionDisplay( {
 				<span className="text-xs font-mono font-bold">
 					v{ feature.version }
 				</span>
-				{ upgradeLabel ? (
-					<TooltipProvider>
-						<Tooltip>
-							<TooltipTrigger asChild>
-								{ /* span required: disabled:pointer-events-none on Button
-								     would otherwise block the hover events that open the tooltip. */ }
-								<span>
-									<Button
-										variant="default"
-										size="icon-xs"
-										className="rounded-full"
-										disabled
-										aria-label={ sprintf( __( 'Update %s', '%TEXTDOMAIN%' ), feature.name ) }
-									>
-										<Download className="w-3.5 h-3.5" />
-									</Button>
-								</span>
-							</TooltipTrigger>
-							<TooltipContent>{ upgradeLabel }</TooltipContent>
-						</Tooltip>
-					</TooltipProvider>
-				) : onUpdate && (
-					<Button
-						variant="default"
-						size="icon-xs"
-						className="rounded-full"
+				{ ( upgradeLabel || onUpdate ) && (
+					<UpdateButton
+						featureName={ feature.name }
 						disabled={ !! pendingAction || installableBusy }
 						onClick={ onUpdate }
-						aria-label={ sprintf( __( 'Update %s', '%TEXTDOMAIN%' ), feature.name ) }
-					>
-						<Download className="w-3.5 h-3.5" />
-					</Button>
+						upgradeLabel={ upgradeLabel }
+					/>
 				) }
 			</div>
 		);

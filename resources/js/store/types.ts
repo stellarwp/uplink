@@ -7,7 +7,7 @@ import type { ReduxStoreConfig, StoreDescriptor } from '@wordpress/data';
 import type { Thunk as BaseThunk } from '@/types/data';
 
 import type UplinkError from '@/errors/uplink-error';
-import type { Feature, License, ProductCatalog } from '@/types/api';
+import type { Feature, LegacyLicense, License, ProductCatalog } from '@/types/api';
 
 import type * as actions from './actions';
 import type * as selectors from './selectors';
@@ -76,10 +76,15 @@ export interface LicenseState {
 	validateError: UplinkError | null;
 }
 
+export interface LegacyLicensesState {
+	bySlug: Record<string, LegacyLicense>;
+}
+
 export interface State {
 	features: FeaturesState;
 	license: LicenseState;
 	catalog: CatalogState;
+	legacyLicenses: LegacyLicensesState;
 }
 
 // ---------------------------------------------------------------------------
@@ -89,6 +94,7 @@ export interface State {
 export type Action =
 	| { type: 'RECEIVE_CATALOG'; catalogs: ProductCatalog[] }
 	| { type: 'RECEIVE_FEATURES'; features: Feature[] }
+	| { type: 'RECEIVE_LEGACY_LICENSES'; licenses: LegacyLicense[] }
 	| { type: 'TOGGLE_FEATURE_START'; slug: string }
 	| { type: 'TOGGLE_FEATURE_FINISHED'; feature: Feature }
 	| { type: 'TOGGLE_FEATURE_FAILED'; slug: string; error: UplinkError }

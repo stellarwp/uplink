@@ -1184,33 +1184,38 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
 /* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/triangle-alert.js");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react/jsx-runtime */ "react/jsx-runtime");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _wordpress_data__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/data */ "@wordpress/data");
+/* harmony import */ var _wordpress_data__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_data__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/triangle-alert.js");
+/* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @/store */ "./resources/js/store/index.ts");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react/jsx-runtime */ "react/jsx-runtime");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__);
 /**
  * Amber warning banner shown when one or more legacy licenses are active.
  *
- * Legacy license data is passed from PHP via wp_localize_script under
- * window.uplink.legacyLicenses. The banner is hidden until that data is
- * available (no REST endpoint exists yet).
+ * Legacy license data is fetched from the REST API via the store's
+ * getLegacyLicenses resolver.
  *
- * @package StellarWP\\Uplink
+ * @package StellarWP\Uplink
  */
+
+
 
 
 
 /**
  * @since 3.0.0
  */
+
 function LegacyLicenseBanner() {
-  const legacyLicenses = window.uplink?.legacyLicenses ?? [];
-  if (!legacyLicenses.length) return null;
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
+  const hasLegacy = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_1__.useSelect)(select => select(_store__WEBPACK_IMPORTED_MODULE_3__.store).hasLegacyLicenses(), []);
+  if (!hasLegacy) return null;
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
     role: "alert",
     className: "flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800",
-    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_1__["default"], {
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_2__["default"], {
       className: "w-4 h-4 shrink-0 mt-0.5"
-    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("p", {
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("p", {
       className: "m-0",
       children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('You have one or more legacy licenses active. Legacy licenses work but do not receive automatic upgrades. Consider upgrading to a unified license for the latest features.', '%TEXTDOMAIN%')
     })]
@@ -2801,6 +2806,7 @@ let ErrorCode = /*#__PURE__*/function (ErrorCode) {
   ErrorCode["LicenseDeleteFailed"] = "license-delete-failed";
   ErrorCode["LicenseValidateFailed"] = "license-validate-failed";
   ErrorCode["CatalogFetchFailed"] = "catalog-fetch-failed";
+  ErrorCode["LegacyLicensesFetchFailed"] = "legacy-licenses-fetch-failed";
   ErrorCode["ResolutionFailed"] = "resolution-failed";
   return ErrorCode;
 }({});
@@ -3395,6 +3401,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   enableFeature: () => (/* binding */ enableFeature),
 /* harmony export */   receiveCatalog: () => (/* binding */ receiveCatalog),
 /* harmony export */   receiveFeatures: () => (/* binding */ receiveFeatures),
+/* harmony export */   receiveLegacyLicenses: () => (/* binding */ receiveLegacyLicenses),
 /* harmony export */   receiveLicense: () => (/* binding */ receiveLicense),
 /* harmony export */   storeLicense: () => (/* binding */ storeLicense),
 /* harmony export */   updateFeature: () => (/* binding */ updateFeature),
@@ -3429,6 +3436,10 @@ const receiveLicense = license => ({
 const receiveCatalog = catalogs => ({
   type: 'RECEIVE_CATALOG',
   catalogs
+});
+const receiveLegacyLicenses = licenses => ({
+  type: 'RECEIVE_LEGACY_LICENSES',
+  licenses
 });
 
 // ---------------------------------------------------------------------------
@@ -3742,7 +3753,8 @@ __webpack_require__.r(__webpack_exports__);
 const reducer = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_0__.combineReducers)({
   features,
   license,
-  catalog
+  catalog,
+  legacyLicenses
 });
 
 // ---------------------------------------------------------------------------
@@ -3759,6 +3771,27 @@ function catalog(state = CATALOG_DEFAULT, action) {
         return {
           ...state,
           byProductSlug: Object.fromEntries(action.catalogs.map(c => [c.product_slug, c]))
+        };
+      }
+    default:
+      return state;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Legacy licenses
+// ---------------------------------------------------------------------------
+
+const LEGACY_LICENSES_DEFAULT = {
+  bySlug: {}
+};
+function legacyLicenses(state = LEGACY_LICENSES_DEFAULT, action) {
+  switch (action.type) {
+    case 'RECEIVE_LEGACY_LICENSES':
+      {
+        return {
+          ...state,
+          bySlug: Object.fromEntries(action.licenses.map(l => [l.slug, l]))
         };
       }
     default:
@@ -4006,10 +4039,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   getFeature: () => (/* binding */ getFeature),
 /* harmony export */   getFeatures: () => (/* binding */ getFeatures),
 /* harmony export */   getFeaturesByProduct: () => (/* binding */ getFeaturesByProduct),
+/* harmony export */   getLegacyLicenseBySlug: () => (/* binding */ getLegacyLicenseBySlug),
+/* harmony export */   getLegacyLicenses: () => (/* binding */ getLegacyLicenses),
 /* harmony export */   getLicenseKey: () => (/* binding */ getLicenseKey),
 /* harmony export */   getLicenseProducts: () => (/* binding */ getLicenseProducts),
 /* harmony export */   getProductCatalog: () => (/* binding */ getProductCatalog),
 /* harmony export */   getProductTiers: () => (/* binding */ getProductTiers),
+/* harmony export */   hasLegacyLicense: () => (/* binding */ hasLegacyLicense),
+/* harmony export */   hasLegacyLicenses: () => (/* binding */ hasLegacyLicenses),
 /* harmony export */   hasLicense: () => (/* binding */ hasLicense),
 /* harmony export */   isFeatureEnabled: () => (/* binding */ isFeatureEnabled)
 /* harmony export */ });
@@ -4052,6 +4089,29 @@ const getFeatures = () => async ({
 const getFeaturesByProduct = (0,_lib_forward_resolver__WEBPACK_IMPORTED_MODULE_3__.forwardResolverWithoutArgs)('getFeatures');
 const getFeature = (0,_lib_forward_resolver__WEBPACK_IMPORTED_MODULE_3__.forwardResolverWithoutArgs)('getFeatures');
 const isFeatureEnabled = (0,_lib_forward_resolver__WEBPACK_IMPORTED_MODULE_3__.forwardResolverWithoutArgs)('getFeatures');
+
+// ---------------------------------------------------------------------------
+// Legacy licenses
+// ---------------------------------------------------------------------------
+
+/**
+ * Fetches legacy licenses from the REST API.
+ */
+const getLegacyLicenses = () => async ({
+  dispatch
+}) => {
+  try {
+    const licenses = await _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_0___default()({
+      path: '/stellarwp/uplink/v1/legacy-licenses'
+    });
+    dispatch.receiveLegacyLicenses(licenses);
+  } catch (err) {
+    throw await _errors__WEBPACK_IMPORTED_MODULE_2__.UplinkError.wrap(err, _errors__WEBPACK_IMPORTED_MODULE_2__.ErrorCode.LegacyLicensesFetchFailed, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Liquid Web Software failed to load legacy licenses.', '%TEXTDOMAIN%'));
+  }
+};
+const getLegacyLicenseBySlug = (0,_lib_forward_resolver__WEBPACK_IMPORTED_MODULE_3__.forwardResolverWithoutArgs)('getLegacyLicenses');
+const hasLegacyLicense = (0,_lib_forward_resolver__WEBPACK_IMPORTED_MODULE_3__.forwardResolverWithoutArgs)('getLegacyLicenses');
+const hasLegacyLicenses = (0,_lib_forward_resolver__WEBPACK_IMPORTED_MODULE_3__.forwardResolver)('getLegacyLicenses');
 
 // ---------------------------------------------------------------------------
 // Catalog
@@ -4118,12 +4178,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   getFeatureError: () => (/* binding */ getFeatureError),
 /* harmony export */   getFeatures: () => (/* binding */ getFeatures),
 /* harmony export */   getFeaturesByProduct: () => (/* binding */ getFeaturesByProduct),
+/* harmony export */   getLegacyLicenseBySlug: () => (/* binding */ getLegacyLicenseBySlug),
+/* harmony export */   getLegacyLicenses: () => (/* binding */ getLegacyLicenses),
 /* harmony export */   getLicenseKey: () => (/* binding */ getLicenseKey),
 /* harmony export */   getLicenseProducts: () => (/* binding */ getLicenseProducts),
 /* harmony export */   getProductCatalog: () => (/* binding */ getProductCatalog),
 /* harmony export */   getProductTiers: () => (/* binding */ getProductTiers),
 /* harmony export */   getStoreLicenseError: () => (/* binding */ getStoreLicenseError),
 /* harmony export */   getValidateProductError: () => (/* binding */ getValidateProductError),
+/* harmony export */   hasLegacyLicense: () => (/* binding */ hasLegacyLicense),
+/* harmony export */   hasLegacyLicenses: () => (/* binding */ hasLegacyLicenses),
 /* harmony export */   hasLicense: () => (/* binding */ hasLicense),
 /* harmony export */   isAnyInstallableBusy: () => (/* binding */ isAnyInstallableBusy),
 /* harmony export */   isFeatureEnabled: () => (/* binding */ isFeatureEnabled),
@@ -4175,6 +4239,15 @@ const isAnyInstallableBusy = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_0__.cre
   };
   return Object.keys(toggling).some(isNonFlag) || Object.keys(updating).some(isNonFlag);
 }, state => [state.features.toggling, state.features.updating, state.features.bySlug]);
+
+// ---------------------------------------------------------------------------
+// Legacy licenses
+// ---------------------------------------------------------------------------
+
+const getLegacyLicenses = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_0__.createSelector)(state => Object.values(state.legacyLicenses.bySlug), state => [state.legacyLicenses.bySlug]);
+const getLegacyLicenseBySlug = (state, slug) => state.legacyLicenses.bySlug[slug] ?? null;
+const hasLegacyLicense = (state, slug) => slug in state.legacyLicenses.bySlug;
+const hasLegacyLicenses = state => Object.keys(state.legacyLicenses.bySlug).length > 0;
 
 // ---------------------------------------------------------------------------
 // Catalog

@@ -1,5 +1,5 @@
 /**
- * Behaviour hook for FeatureRow.
+ * Behavior hook for FeatureRow.
  *
  * Encapsulates store wiring, async action handlers, and all derived state
  * so FeatureRow itself stays a pure composition of atoms.

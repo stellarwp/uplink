@@ -1,30 +1,26 @@
 /**
  * Amber warning banner shown when one or more legacy licenses are active.
  *
- * Legacy license data is passed from PHP via wp_localize_script under
- * window.uplink.legacyLicenses. The banner is hidden until that data is
- * available (no REST endpoint exists yet).
+ * Legacy license data is fetched from the REST API via the store's
+ * getLegacyLicenses resolver.
  *
- * @package StellarWP\\Uplink
+ * @package StellarWP\Uplink
  */
 import { __ } from '@wordpress/i18n';
+import { useSelect } from '@wordpress/data';
 import { AlertTriangle } from 'lucide-react';
-
-declare global {
-    interface Window {
-        uplink?: {
-            legacyLicenses?: Array<{ key: string; slug: string; name: string; status: string }>;
-        };
-    }
-}
+import { store as uplinkStore } from '@/store';
 
 /**
  * @since 3.0.0
  */
 export function LegacyLicenseBanner() {
-    const legacyLicenses = window.uplink?.legacyLicenses ?? [];
+    const hasLegacy = useSelect(
+        ( select ) => select( uplinkStore ).hasLegacyLicenses(),
+        []
+    );
 
-    if ( ! legacyLicenses.length ) return null;
+    if ( ! hasLegacy ) return null;
 
     return (
         <div

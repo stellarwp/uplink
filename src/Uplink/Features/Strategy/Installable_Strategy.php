@@ -30,7 +30,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	protected const LOCK_TTL = MINUTE_IN_SECONDS * 2;
 
 	/**
-	 * Transient key for the global install lock.
+	 * Key for the global install lock.
 	 *
 	 * Only one installable feature can be installed at a time, regardless of
 	 * type (plugin or theme). This prevents filesystem conflicts when multiple
@@ -149,7 +149,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	 * Enable the feature: install (if needed) and activate the extension.
 	 *
 	 * Idempotent: returns true if the extension is already active. Uses a
-	 * global transient lock to prevent concurrent installs of any extension.
+	 * global lock to prevent concurrent installs of any extension.
 	 *
 	 * @since 3.0.0
 	 *
@@ -369,7 +369,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	/**
 	 * Ensure the extension is installed on disk, downloading if needed.
 	 *
-	 * Acquires a global transient lock to prevent concurrent installs of any
+	 * Acquires a global lock to prevent concurrent installs of any
 	 * feature, delegates to do_install() for the actual download, and verifies
 	 * the expected file exists on disk afterward.
 	 *
@@ -393,7 +393,7 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 			return true;
 		}
 
-		// Acquire a global transient lock to prevent concurrent installs.
+		// Acquire a global lock to prevent concurrent installs.
 		// Only one feature can be installed at a time — two simultaneous
 		// requests could race the installer, causing file conflicts or corruption.
 		if ( ! $this->acquire_lock( self::LOCK_KEY ) ) {

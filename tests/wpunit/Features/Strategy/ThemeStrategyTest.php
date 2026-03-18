@@ -153,6 +153,41 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	}
 
 	/**
+	 * enable() proceeds when a stale lock has expired past the TTL.
+	 *
+	 * Simulates a process that crashed without releasing the lock by writing
+	 * an option timestamp older than the TTL. The next enable() should
+	 * reclaim the expired lock and proceed normally.
+	 */
+	public function test_enable_proceeds_when_stale_lock_has_expired(): void {
+		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
+
+		// Simulate a stale lock from 5 minutes ago (TTL is 2 minutes).
+		update_option( 'stellarwp_uplink_install_lock.lock', time() - 300, false );
+
+		$result = $this->strategy->enable();
+
+		$this->assertTrue( $result );
+		$this->assertSame( $this->original_stylesheet, get_option( 'stylesheet' ) );
+	}
+
+	/**
+	 * enable() is blocked by a lock that is still within the TTL window.
+	 *
+	 * Writes an option timestamp just 10 seconds ago — well within the
+	 * 2-minute TTL — to verify the boundary is respected.
+	 */
+	public function test_enable_blocked_by_fresh_lock_within_ttl(): void {
+		// Lock acquired 10 seconds ago — still valid.
+		update_option( 'stellarwp_uplink_install_lock.lock', time() - 10, false );
+
+		$result = $this->strategy->enable();
+
+		$this->assertWPError( $result );
+		$this->assertSame( Error_Code::INSTALL_LOCKED, $result->get_error_code() );
+	}
+
+	/**
 	 * enable() skips installation when the theme is already installed
 	 * and does NOT switch the active theme.
 	 */

@@ -164,6 +164,57 @@ final class PluginStrategyTest extends UplinkTestCase {
 	}
 
 	/**
+	 * enable() proceeds when a stale lock has expired past the TTL.
+	 *
+	 * Simulates a process that crashed without releasing the lock by writing
+	 * an option timestamp older than the TTL. The next enable() should
+	 * reclaim the expired lock and proceed normally.
+	 */
+	public function test_enable_proceeds_when_stale_lock_has_expired(): void {
+		$plugin_dir  = WP_PLUGIN_DIR . '/test-feature';
+		$plugin_path = $plugin_dir . '/test-feature.php';
+
+		if ( ! is_dir( $plugin_dir ) ) {
+			mkdir( $plugin_dir, 0755, true );
+		}
+		file_put_contents( $plugin_path, "<?php\n/**\n * Plugin Name: Test Feature\n * Author: StellarWP\n */\n" );
+
+		// Simulate a stale lock from 5 minutes ago (TTL is 2 minutes).
+		update_option( 'stellarwp_uplink_install_lock.lock', time() - 300, false );
+
+		try {
+			$result = $this->strategy->enable();
+
+			$this->assertTrue( $result );
+			$this->assertTrue( is_plugin_active( self::PLUGIN_FILE ) );
+		} finally {
+			deactivate_plugins( self::PLUGIN_FILE );
+			if ( file_exists( $plugin_path ) ) {
+				unlink( $plugin_path );
+			}
+			if ( is_dir( $plugin_dir ) ) {
+				rmdir( $plugin_dir );
+			}
+		}
+	}
+
+	/**
+	 * enable() is blocked by a lock that is still within the TTL window.
+	 *
+	 * Writes an option timestamp just 10 seconds ago — well within the
+	 * 2-minute TTL — to verify the boundary is respected.
+	 */
+	public function test_enable_blocked_by_fresh_lock_within_ttl(): void {
+		// Lock acquired 10 seconds ago — still valid.
+		update_option( 'stellarwp_uplink_install_lock.lock', time() - 10, false );
+
+		$result = $this->strategy->enable();
+
+		$this->assertWPError( $result );
+		$this->assertSame( Error_Code::INSTALL_LOCKED, $result->get_error_code() );
+	}
+
+	/**
 	 * enable() skips installation when the plugin file already exists on disk
 	 * and proceeds directly to activation.
 	 *

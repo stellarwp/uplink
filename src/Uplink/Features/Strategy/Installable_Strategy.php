@@ -6,10 +6,7 @@ use StellarWP\Uplink\Features\Error_Code;
 use StellarWP\Uplink\Utils\Cast;
 use WP_Ajax_Upgrader_Skin;
 use WP_Error;
-
-use function delete_transient;
-use function get_transient;
-use function set_transient;
+use WP_Upgrader;
 
 /**
  * Abstract base for strategies that install extensions (plugins, themes) from ZIP files.
@@ -584,37 +581,39 @@ abstract class Installable_Strategy extends Abstract_Strategy {
 	}
 
 	/**
-	 * Attempt to acquire a transient-based lock.
+	 * Attempt to acquire an atomic install lock.
 	 *
-	 * Uses a simple set-if-absent pattern. The transient TTL ensures the lock
-	 * auto-expires even if the process crashes without releasing it.
+	 * Delegates to WP_Upgrader::create_lock() which uses INSERT IGNORE
+	 * on wp_options for atomicity. The lock auto-expires after LOCK_TTL
+	 * seconds even if the process crashes without releasing it.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $lock_key Transient key for the lock.
+	 * @param string $lock_key Lock name.
 	 *
 	 * @return bool True if lock acquired, false if already held.
 	 */
 	protected function acquire_lock( string $lock_key ): bool {
-		if ( get_transient( $lock_key ) !== false ) {
-			return false;
+		if ( ! class_exists( 'WP_Upgrader' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 		}
 
-		set_transient( $lock_key, '1', self::LOCK_TTL );
-
-		return true;
+		return WP_Upgrader::create_lock(
+			$lock_key,
+			self::LOCK_TTL
+		);
 	}
 
 	/**
-	 * Release a transient-based install lock.
+	 * Release the install lock.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string $lock_key Transient key for the lock.
+	 * @param string $lock_key Lock name.
 	 *
 	 * @return void
 	 */
 	protected function release_lock( string $lock_key ): void {
-		delete_transient( $lock_key );
+		WP_Upgrader::release_lock( $lock_key );
 	}
 }

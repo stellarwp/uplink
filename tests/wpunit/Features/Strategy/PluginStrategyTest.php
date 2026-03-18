@@ -7,12 +7,13 @@ use StellarWP\Uplink\Features\Strategy\Plugin_Strategy;
 use StellarWP\Uplink\Features\Types\Plugin;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
+use WP_Upgrader;
 
 /**
  * Tests for the Plugin_Strategy feature-gating strategy.
  *
  * These tests exercise the strategy's logic against real WordPress state
- * (active_plugins option, transients) via the WPLoader module.
+ * (active_plugins option, WP_Upgrader locks) via the WPLoader module.
  * Plugin installation is not tested here — it requires actual filesystem and
  * HTTP operations better suited to integration tests with a real ZIP URL.
  *
@@ -46,13 +47,17 @@ final class PluginStrategyTest extends UplinkTestCase {
 		// Load plugin.php so is_plugin_active() etc. are available.
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
+		if ( ! class_exists( 'WP_Upgrader' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+		}
+
 		$this->feature  = $this->make_plugin_feature();
 		$this->strategy = new Plugin_Strategy( $this->feature );
 	}
 
 	protected function tearDown(): void {
 		// Clean up locks.
-		delete_transient( 'stellarwp_uplink_install_lock' );
+		WP_Upgrader::release_lock( 'stellarwp_uplink_install_lock' );
 
 		// Ensure the test plugin is deactivated.
 		$active = get_option( 'active_plugins', [] );
@@ -149,8 +154,8 @@ final class PluginStrategyTest extends UplinkTestCase {
 	 * in progress (global lock).
 	 */
 	public function test_enable_returns_install_locked_error_when_concurrent_install_in_progress(): void {
-		// Simulate an in-progress install by setting the transient lock.
-		set_transient( 'stellarwp_uplink_install_lock', '1', 120 );
+		// Simulate an in-progress install by acquiring the WP_Upgrader lock.
+		WP_Upgrader::create_lock( 'stellarwp_uplink_install_lock', 120 );
 
 		$result = $this->strategy->enable();
 
@@ -184,7 +189,7 @@ final class PluginStrategyTest extends UplinkTestCase {
 
 			// Verify no lock was left behind (it should have been released or
 			// never acquired since the plugin was already on disk).
-			$this->assertFalse( get_transient( 'stellarwp_uplink_install_lock' ) );
+			$this->assertFalse( get_option( 'stellarwp_uplink_install_lock.lock' ) );
 		} finally {
 			// Clean up the dummy plugin.
 			deactivate_plugins( self::PLUGIN_FILE );
@@ -198,7 +203,7 @@ final class PluginStrategyTest extends UplinkTestCase {
 	}
 
 	/**
-	 * enable() releases the transient lock even when installation fails.
+	 * enable() releases the install lock even when installation fails.
 	 *
 	 * We simulate a plugins_api() response with a fake download_link that
 	 * Plugin_Upgrader::install() cannot fetch. The lock should be released
@@ -233,7 +238,7 @@ final class PluginStrategyTest extends UplinkTestCase {
 			$this->assertWPError( $result );
 
 			// Lock should be released.
-			$this->assertFalse( get_transient( 'stellarwp_uplink_install_lock' ) );
+			$this->assertFalse( get_option( 'stellarwp_uplink_install_lock.lock' ) );
 		} finally {
 			remove_filter( 'plugins_api', $filter, 10 );
 		}
@@ -864,7 +869,7 @@ final class PluginStrategyTest extends UplinkTestCase {
 			// Exception details must not leak.
 			$this->assertStringNotContainsString( 'Simulated fatal', $result->get_error_message() );
 			// Lock should be released even after a fatal throw.
-			$this->assertFalse( get_transient( 'stellarwp_uplink_install_lock' ) );
+			$this->assertFalse( get_option( 'stellarwp_uplink_install_lock.lock' ) );
 		} finally {
 			remove_filter( 'plugins_api', $api_filter, 10 );
 			remove_filter( 'pre_http_request', $http_filter, 10 );
@@ -945,7 +950,7 @@ final class PluginStrategyTest extends UplinkTestCase {
 				]
 			);
 
-			set_transient( 'stellarwp_uplink_install_lock', '1', 120 );
+			WP_Upgrader::create_lock( 'stellarwp_uplink_install_lock', 120 );
 
 			$result = $this->strategy->update();
 

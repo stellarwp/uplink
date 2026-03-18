@@ -14,4 +14,5 @@ export enum ErrorCode {
 	LicenseDeleteFailed = 'license-delete-failed',
 	LicenseValidateFailed = 'license-validate-failed',
 	CatalogFetchFailed = 'catalog-fetch-failed',
+	ResolutionFailed = 'resolution-failed',
 }

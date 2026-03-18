@@ -1905,17 +1905,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
 /* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var lucide_react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! lucide-react */ "./node_modules/lucide-react/dist/esm/icons/loader-circle.js");
-/* harmony import */ var _wordpress_data__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/data */ "@wordpress/data");
-/* harmony import */ var _wordpress_data__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_data__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _components_templates_Shell__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @/components/templates/Shell */ "./resources/js/components/templates/Shell.tsx");
-/* harmony import */ var _components_molecules_FilterBar__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @/components/molecules/FilterBar */ "./resources/js/components/molecules/FilterBar.tsx");
-/* harmony import */ var _components_organisms_LicensePanel__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @/components/organisms/LicensePanel */ "./resources/js/components/organisms/LicensePanel.tsx");
-/* harmony import */ var _components_molecules_LegacyLicenseBanner__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @/components/molecules/LegacyLicenseBanner */ "./resources/js/components/molecules/LegacyLicenseBanner.tsx");
-/* harmony import */ var _components_organisms_ProductSection__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @/components/organisms/ProductSection */ "./resources/js/components/organisms/ProductSection.tsx");
-/* harmony import */ var _components_ErrorBoundary__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @/components/ErrorBoundary */ "./resources/js/components/ErrorBoundary.tsx");
-/* harmony import */ var _data_products__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @/data/products */ "./resources/js/data/products.ts");
-/* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @/store */ "./resources/js/store/index.ts");
-/* harmony import */ var _context_filter_context__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @/context/filter-context */ "./resources/js/context/filter-context.tsx");
+/* harmony import */ var _components_templates_Shell__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @/components/templates/Shell */ "./resources/js/components/templates/Shell.tsx");
+/* harmony import */ var _components_molecules_FilterBar__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @/components/molecules/FilterBar */ "./resources/js/components/molecules/FilterBar.tsx");
+/* harmony import */ var _components_organisms_LicensePanel__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @/components/organisms/LicensePanel */ "./resources/js/components/organisms/LicensePanel.tsx");
+/* harmony import */ var _components_molecules_LegacyLicenseBanner__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @/components/molecules/LegacyLicenseBanner */ "./resources/js/components/molecules/LegacyLicenseBanner.tsx");
+/* harmony import */ var _components_organisms_ProductSection__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @/components/organisms/ProductSection */ "./resources/js/components/organisms/ProductSection.tsx");
+/* harmony import */ var _components_ErrorBoundary__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @/components/ErrorBoundary */ "./resources/js/components/ErrorBoundary.tsx");
+/* harmony import */ var _data_products__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @/data/products */ "./resources/js/data/products.ts");
+/* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @/store */ "./resources/js/store/index.ts");
+/* harmony import */ var _context_filter_context__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @/context/filter-context */ "./resources/js/context/filter-context.tsx");
+/* harmony import */ var _hooks_use_resolvable_select__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! @/hooks/use-resolvable-select */ "./resources/js/hooks/use-resolvable-select/index.ts");
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! react/jsx-runtime */ "react/jsx-runtime");
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12___default = /*#__PURE__*/__webpack_require__.n(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__);
 /**
@@ -1946,35 +1945,40 @@ __webpack_require__.r(__webpack_exports__);
 function AppShell() {
   // Trigger all three resolvers and wait for completion before rendering
   // content, so we never flash stale tier badges or a "No license" state.
-  const isLoading = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_2__.useSelect)(select => {
-    const s = select(_store__WEBPACK_IMPORTED_MODULE_10__.store);
-    select(_store__WEBPACK_IMPORTED_MODULE_10__.store).getLicenseKey();
-    select(_store__WEBPACK_IMPORTED_MODULE_10__.store).getFeatures();
-    select(_store__WEBPACK_IMPORTED_MODULE_10__.store).getCatalog();
-    return !s.hasFinishedResolution('getLicenseKey', []) || !s.hasFinishedResolution('getFeatures', []) || !s.hasFinishedResolution('getCatalog', []);
-  }, []);
+  // If any resolver fails, the error is thrown during render and caught
+  // by the ErrorBoundary above this component.
+  const {
+    license,
+    features,
+    catalog
+  } = (0,_hooks_use_resolvable_select__WEBPACK_IMPORTED_MODULE_11__.useResolvableSelectWithError)(resolve => ({
+    license: resolve(_store__WEBPACK_IMPORTED_MODULE_9__.store).getLicenseKey(),
+    features: resolve(_store__WEBPACK_IMPORTED_MODULE_9__.store).getFeatures(),
+    catalog: resolve(_store__WEBPACK_IMPORTED_MODULE_9__.store).getCatalog()
+  }), []);
+  const isLoading = license.isResolving || features.isResolving || catalog.isResolving;
   const {
     productFilter
-  } = (0,_context_filter_context__WEBPACK_IMPORTED_MODULE_11__.useFilter)();
-  const visibleProducts = productFilter === 'all' ? _data_products__WEBPACK_IMPORTED_MODULE_9__.PRODUCTS : _data_products__WEBPACK_IMPORTED_MODULE_9__.PRODUCTS.filter(p => p.slug === productFilter);
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(_components_templates_Shell__WEBPACK_IMPORTED_MODULE_3__.Shell, {
-    header: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(_components_molecules_FilterBar__WEBPACK_IMPORTED_MODULE_4__.FilterBar, {}),
-    sideContent: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(_components_organisms_LicensePanel__WEBPACK_IMPORTED_MODULE_5__.LicensePanel, {}),
+  } = (0,_context_filter_context__WEBPACK_IMPORTED_MODULE_10__.useFilter)();
+  const visibleProducts = productFilter === 'all' ? _data_products__WEBPACK_IMPORTED_MODULE_8__.PRODUCTS : _data_products__WEBPACK_IMPORTED_MODULE_8__.PRODUCTS.filter(p => p.slug === productFilter);
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(_components_templates_Shell__WEBPACK_IMPORTED_MODULE_2__.Shell, {
+    header: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(_components_molecules_FilterBar__WEBPACK_IMPORTED_MODULE_3__.FilterBar, {}),
+    sideContent: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(_components_organisms_LicensePanel__WEBPACK_IMPORTED_MODULE_4__.LicensePanel, {}),
     children: isLoading ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsxs)("div", {
       className: "flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground",
       children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(lucide_react__WEBPACK_IMPORTED_MODULE_1__["default"], {
         className: "w-5 h-5 animate-spin"
       }), (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Loading…', '%TEXTDOMAIN%')]
-    }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(_components_ErrorBoundary__WEBPACK_IMPORTED_MODULE_8__.ErrorBoundary, {
+    }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(_components_ErrorBoundary__WEBPACK_IMPORTED_MODULE_7__.ErrorBoundary, {
       children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsxs)("div", {
         className: "space-y-8",
-        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(_components_molecules_LegacyLicenseBanner__WEBPACK_IMPORTED_MODULE_6__.LegacyLicenseBanner, {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("div", {
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(_components_molecules_LegacyLicenseBanner__WEBPACK_IMPORTED_MODULE_5__.LegacyLicenseBanner, {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("div", {
           className: "flex items-center !mt-8 !mb-6",
           children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("h2", {
             className: "!text-2xl !font-normal !m-0 !p-0",
             children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Your Features', '%TEXTDOMAIN%')
           })
-        }), visibleProducts.map(product => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(_components_organisms_ProductSection__WEBPACK_IMPORTED_MODULE_7__.ProductSection, {
+        }), visibleProducts.map(product => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(_components_organisms_ProductSection__WEBPACK_IMPORTED_MODULE_6__.ProductSection, {
           product: product
         }, product.slug))]
       })
@@ -2797,6 +2801,7 @@ let ErrorCode = /*#__PURE__*/function (ErrorCode) {
   ErrorCode["LicenseDeleteFailed"] = "license-delete-failed";
   ErrorCode["LicenseValidateFailed"] = "license-validate-failed";
   ErrorCode["CatalogFetchFailed"] = "catalog-fetch-failed";
+  ErrorCode["ResolutionFailed"] = "resolution-failed";
   return ErrorCode;
 }({});
 
@@ -3052,6 +3057,207 @@ __webpack_require__.r(__webpack_exports__);
  */
 function isWpRestError(value) {
   return typeof value === 'object' && value !== null && 'code' in value && typeof value.code === 'string' && 'message' in value && typeof value.message === 'string';
+}
+
+/***/ },
+
+/***/ "./resources/js/hooks/use-resolvable-select/index.ts"
+/*!***********************************************************!*\
+  !*** ./resources/js/hooks/use-resolvable-select/index.ts ***!
+  \***********************************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   useResolvableSelect: () => (/* reexport safe */ _use_resolvable_select__WEBPACK_IMPORTED_MODULE_0__["default"]),
+/* harmony export */   useResolvableSelectWithError: () => (/* reexport safe */ _use_resolvable_select_with_error__WEBPACK_IMPORTED_MODULE_1__["default"])
+/* harmony export */ });
+/* harmony import */ var _use_resolvable_select__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./use-resolvable-select */ "./resources/js/hooks/use-resolvable-select/use-resolvable-select.ts");
+/* harmony import */ var _use_resolvable_select_with_error__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./use-resolvable-select-with-error */ "./resources/js/hooks/use-resolvable-select/use-resolvable-select-with-error.ts");
+
+
+
+/***/ },
+
+/***/ "./resources/js/hooks/use-resolvable-select/use-resolvable-select-with-error.ts"
+/*!**************************************************************************************!*\
+  !*** ./resources/js/hooks/use-resolvable-select/use-resolvable-select-with-error.ts ***!
+  \**************************************************************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ useResolvableSelectWithError)
+/* harmony export */ });
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _use_resolvable_select__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./use-resolvable-select */ "./resources/js/hooks/use-resolvable-select/use-resolvable-select.ts");
+/* harmony import */ var _errors_uplink_error__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @/errors/uplink-error */ "./resources/js/errors/uplink-error.ts");
+/* harmony import */ var _errors_error_code__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @/errors/error-code */ "./resources/js/errors/error-code.ts");
+/**
+ * Wrapper around useResolvableSelect that throws resolution errors
+ * during render so they are caught by the nearest React ErrorBoundary.
+ *
+ * @package StellarWP\Uplink
+ */
+
+
+
+
+
+
+/**
+ * The consumer must return a record of resolvable results so the hook
+ * can inspect each one for errors.
+ */
+
+/**
+ * Find the first error among a set of resolvable results and wrap it
+ * as an UplinkError.
+ */
+function findError(results) {
+  for (const key in results) {
+    const entry = results[key];
+    if (entry.status === 'ERROR') {
+      return _errors_uplink_error__WEBPACK_IMPORTED_MODULE_2__["default"].syncFrom(entry.error, _errors_error_code__WEBPACK_IMPORTED_MODULE_3__.ErrorCode.ResolutionFailed, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Liquid Web Software failed to load your data.', '%TEXTDOMAIN%'));
+    }
+  }
+  return null;
+}
+
+/**
+ * Like useResolvableSelect, but throws resolution errors during render
+ * so they are caught by the nearest React ErrorBoundary.
+ *
+ * The consumer callback must return a flat object of resolvable results.
+ *
+ * @throws {UplinkError} When any selector's resolution fails. If the resolver
+ *   threw an UplinkError, that exact instance is re-thrown. Otherwise a new
+ *   UplinkError with code {@link ErrorCode.ResolutionFailed} is created.
+ *
+ * @example
+ * ```ts
+ * const { features, catalog } = useResolvableSelectWithError(
+ *     ( resolve ) => ( {
+ *         features: resolve( uplinkStore ).getFeatures(),
+ *         catalog: resolve( uplinkStore ).getCatalog(),
+ *     } ),
+ *     [],
+ * );
+ * ```
+ */
+function useResolvableSelectWithError(mapResolvableSelect, deps) {
+  const result = (0,_use_resolvable_select__WEBPACK_IMPORTED_MODULE_1__["default"])(mapResolvableSelect, deps);
+  const found = findError(result);
+  if (found) {
+    throw found;
+  }
+  return result;
+}
+
+/***/ },
+
+/***/ "./resources/js/hooks/use-resolvable-select/use-resolvable-select.ts"
+/*!***************************************************************************!*\
+  !*** ./resources/js/hooks/use-resolvable-select/use-resolvable-select.ts ***!
+  \***************************************************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ useResolvableSelect)
+/* harmony export */ });
+/* harmony import */ var _wordpress_data__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/data */ "@wordpress/data");
+/* harmony import */ var _wordpress_data__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_data__WEBPACK_IMPORTED_MODULE_0__);
+/**
+ * Like useSelect, but selectors return objects containing
+ * both the original data AND the resolution info.
+ *
+ * Ported from sync-saas and converted to TypeScript.
+ *
+ * Inspired by `@wordpress/core-data` `useQuerySelect`.
+ *
+ * @see https://github.com/WordPress/gutenberg/blob/c97c26fe371e3d40efe197d8f398326a16cdbf46/packages/core-data/src/hooks/use-query-select.ts
+ *
+ * @package StellarWP\Uplink
+ */
+
+
+/**
+ * Meta selectors added by @wordpress/data that should not be enriched.
+ */
+const META_SELECTORS = ['getIsResolving', 'hasStartedResolution', 'hasFinishedResolution', 'isResolving', 'getCachedResolvers'];
+
+/**
+ * Cache enriched selector proxies by selector object identity so we
+ * don't recreate them on every useSelect call within the same render.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const cache = new WeakMap();
+
+/**
+ * Wrap store selectors so each call returns a {@link ResolvableSelectResponse}
+ * with the original data and resolution metadata.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function enrichSelectors(selectors) {
+  const cached = cache.get(selectors);
+  if (cached) {
+    return cached;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const resolvers = {};
+  for (const selectorName in selectors) {
+    if (META_SELECTORS.includes(selectorName)) {
+      continue;
+    }
+    Object.defineProperty(resolvers, selectorName, {
+      get: () => (...args) => {
+        const data = selectors[selectorName](...args);
+        const resolutionState = selectors.getResolutionState(selectorName, args);
+        const resolutionStatus = resolutionState?.status;
+        let status;
+        switch (resolutionStatus) {
+          case 'resolving':
+            status = 'RESOLVING';
+            break;
+          case 'finished':
+            status = 'SUCCESS';
+            break;
+          case 'error':
+            status = 'ERROR';
+            break;
+          default:
+            status = 'IDLE';
+        }
+        return {
+          data,
+          status,
+          error: resolutionState?.error ?? null,
+          isResolving: status === 'RESOLVING',
+          hasStarted: status !== 'IDLE',
+          hasResolved: status === 'SUCCESS' || status === 'ERROR'
+        };
+      }
+    });
+  }
+  cache.set(selectors, resolvers);
+  return resolvers;
+}
+
+/**
+ * Like useSelect, but the selectors return objects containing
+ * both the original data AND the resolution info.
+ */
+function useResolvableSelect(mapResolvableSelect, deps) {
+  return (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_0__.useSelect)((select, registry) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const resolve = store => enrichSelectors(select(store));
+    return mapResolvableSelect(resolve, registry);
+  },
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  deps);
 }
 
 /***/ },

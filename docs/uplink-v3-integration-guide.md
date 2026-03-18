@@ -49,8 +49,8 @@ Add your plugin to the Uplink product registry so it participates in unified lic
 ```php
 add_filter('stellarwp/uplink/product_registry', function (array $products): array {
     $products[] = [
-        'group'        => 'your-brand',          // Brand slug — all products in the same group share a unified license
-        'slug'         => 'your-plugin',         // Unique slug for this specific product
+        'product'      => 'your-brand',          // Product (brand) slug — all plugins in the same product share a unified license
+        'slug'         => 'your-plugin',         // Unique slug for this specific plugin
         'name'         => 'Your Plugin',         // Human-readable product name
         'version'      => YOUR_PLUGIN_VERSION,   // Current plugin version
         'embedded_key' => getBundledLicenseKey(), // Optional: pre-embedded license key
@@ -64,8 +64,8 @@ add_filter('stellarwp/uplink/product_registry', function (array $products): arra
 
 | Field          | Required | Description                                                                                             |
 | -------------- | -------- | ------------------------------------------------------------------------------------------------------- |
-| `group`        | Yes      | Brand slug. All products with the same group share a unified license.                                   |
-| `slug`         | Yes      | Unique identifier for this product. Used in `stellarwp_uplink_is_product_license_active()`.             |
+| `product`      | Yes      | Product (brand) slug. All plugins in the same product share a unified license.                          |
+| `slug`         | Yes      | Unique identifier for this plugin. Used in `stellarwp_uplink_is_product_license_active()`.              |
 | `name`         | Yes      | Human-readable name shown in the license UI.                                                            |
 | `version`      | Yes      | Current plugin version.                                                                                 |
 | `embedded_key` | No       | A license key bundled with the plugin (see [Embedded License Keys](#5-embedded--bundled-license-keys)). |
@@ -87,7 +87,7 @@ add_filter('stellarwp/uplink/legacy_licenses', function (array $licenses): array
             'key'        => $license['key'],         // The license key string
             'slug'       => $license['slug'],        // The product/add-on slug this key covers
             'name'       => $license['name'],        // Human-readable product name
-            'brand'      => 'your-brand',            // Must match the group used in product_registry
+            'brand'      => 'your-brand',            // Must match the product used in product_registry
             'is_active'  => $license['is_active'],   // bool
             'page_url'   => admin_url('...'),        // Where the user can manage this license
             'expires_at' => $license['expires'],     // Optional: ISO date string e.g. "2026-01-01"
@@ -100,15 +100,15 @@ add_filter('stellarwp/uplink/legacy_licenses', function (array $licenses): array
 
 **Legacy license array fields:**
 
-| Field        | Required | Description                                        |
-| ------------ | -------- | -------------------------------------------------- |
-| `key`        | Yes      | The license key string.                            |
-| `slug`       | Yes      | The product/add-on slug this key applies to.       |
-| `name`       | Yes      | Human-readable product name.                       |
-| `brand`      | Yes      | Must match the `group` used in `product_registry`. |
-| `is_active`  | Yes      | Whether the license is currently active (`bool`).  |
-| `page_url`   | Yes      | Admin URL where the user can manage this license.  |
-| `expires_at` | No       | Expiry date string (e.g. `"2026-01-01"`).          |
+| Field        | Required | Description                                          |
+| ------------ | -------- | ---------------------------------------------------- |
+| `key`        | Yes      | The license key string.                              |
+| `slug`       | Yes      | The product/add-on slug this key applies to.         |
+| `name`       | Yes      | Human-readable product name.                         |
+| `brand`      | Yes      | Must match the `product` used in `product_registry`. |
+| `is_active`  | Yes      | Whether the license is currently active (`bool`).    |
+| `page_url`   | Yes      | Admin URL where the user can manage this license.    |
+| `expires_at` | No       | Expiry date string (e.g. `"2026-01-01"`).            |
 
 > **Tip:** If a single license key covers multiple add-ons, emit one entry per add-on slug so each slug can be checked independently via `stellarwp_uplink_is_product_license_active()`.
 

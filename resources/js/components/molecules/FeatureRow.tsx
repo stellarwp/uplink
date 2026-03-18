@@ -21,13 +21,15 @@ import { UplinkError } from '@/errors';
 import type { Feature } from '@/types/api';
 
 interface FeatureRowProps {
-	feature: Feature;
+	feature:          Feature;
+	/** Tier display name passed by TierGroup; enables the upsell tooltip on the update button. */
+	upgradeTierName?: string;
 }
 
 /**
  * @since 3.0.0
  */
-export function FeatureRow( { feature }: FeatureRowProps ) {
+export function FeatureRow( { feature, upgradeTierName }: FeatureRowProps ) {
 	const [ expanded, setExpanded ] = useState( false );
 	const { addToast } = useToast();
 	const { enableFeature, disableFeature, updateFeature } = useDispatch( uplinkStore );
@@ -162,10 +164,17 @@ export function FeatureRow( { feature }: FeatureRowProps ) {
 							/>
 						) }
 					</div>
-				) : ( feature.installed_version || feature.version ) && (
-					<span className="text-xs font-mono text-muted-foreground w-16 text-right shrink-0 ml-auto">
-						{ `v${ feature.installed_version ?? feature.version }` }
-					</span>
+				) : (
+					<div className="ml-auto shrink-0">
+						<VersionDisplay
+							feature={ feature }
+							upgradeLabel={ upgradeTierName
+								? /* translators: %s is the name of the tier required to receive updates */
+								  sprintf( __( 'Upgrade to %s to receive updates and support.', '%TEXTDOMAIN%' ), upgradeTierName )
+								: undefined
+							}
+						/>
+					</div>
 				) }
 			</div>
 

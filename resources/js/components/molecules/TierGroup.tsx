@@ -59,6 +59,7 @@ export function TierGroup( { tier, features, forceOpen = false }: TierGroupProps
                 <FeatureRow
                     key={ feature.slug }
                     feature={ feature }
+                    upgradeTierName={ tier.name }
                 />
             ) ) }
         </>

@@ -564,7 +564,7 @@
     ],
     "features": [
       {
-        "feature_slug": "learndash",
+        "feature_slug": "learndash-core",
         "type": "plugin",
         "minimum_tier": "learndash-basic",
         "plugin_file": "sfwd-lms/sfwd_lms.php",
@@ -619,7 +619,7 @@
       {
         "feature_slug": "learndash-groups-plus",
         "type": "plugin",
-        "minimum_tier": "learndash-agency",
+        "minimum_tier": "learndash-elite",
         "plugin_file": "learndash-groups-plus/learndash-groups-plus.php",
         "is_dot_org": false,
         "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-groups-plus",
@@ -637,7 +637,7 @@
       {
         "feature_slug": "learndash-instructor-role",
         "type": "plugin",
-        "minimum_tier": "learndash-agency",
+        "minimum_tier": "learndash-elite",
         "plugin_file": "instructor-role/instructor.php",
         "is_dot_org": false,
         "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-instructor-role",
@@ -689,9 +689,9 @@
         "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
       },
       {
-        "feature_slug": "learndash-ratings-reviews",
+        "feature_slug": "learndash-reviews-plus",
         "type": "plugin",
-        "minimum_tier": "learndash-agency",
+        "minimum_tier": "learndash-elite",
         "plugin_file": "wdm-course-review/wdm-course-review.php",
         "is_dot_org": false,
         "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-ratings-reviews",
@@ -709,7 +709,7 @@
       {
         "feature_slug": "learndash-seats-plus",
         "type": "plugin",
-        "minimum_tier": "learndash-agency",
+        "minimum_tier": "learndash-elite",
         "plugin_file": "ld-group-registration/ld-group-registration.php",
         "is_dot_org": false,
         "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-seats-plus",
@@ -836,7 +836,7 @@
         "feature_slug": "learndash-tec",
         "type": "plugin",
         "minimum_tier": "learndash-basic",
-        "plugin_file": "ld-tec/learndash-tec.php",
+        "plugin_file": "learndash-tec/learndash-tec.php",
         "is_dot_org": false,
         "download_url": "https://licensing.stellarwp.com/api/plugins/learndash-tec",
         "name": "Events Calendar",
@@ -869,7 +869,7 @@
         "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
       },
       {
-        "feature_slug": "learndash-migrations",
+        "feature_slug": "learndash-migration",
         "type": "plugin",
         "minimum_tier": "learndash-basic",
         "plugin_file": "learndash-migration/learndash-migration.php",
@@ -990,7 +990,7 @@
           "LearnDash"
         ],
         "documentation_url": "https://www.learndash.com/support/",
-        "version": "1.0.3",
+        "version": "1.1.0.1",
         "released_at": "2025-11-15",
         "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
       },
@@ -1044,7 +1044,7 @@
           "LearnDash"
         ],
         "documentation_url": "https://www.learndash.com/support/",
-        "version": "1.1.0.1",
+        "version": "1.0.3",
         "released_at": "2025-11-15",
         "changelog": "<h4>Latest release</h4><ul><li>Bug fixes and performance improvements.</li></ul>"
       },

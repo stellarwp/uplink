@@ -97,19 +97,3 @@ export type Thunk<
 	? ( args: ThunkArgs< A, S > ) => Promise< R >
 	: ( args: ThunkArgs< A, S > ) => T;
 
-// ---------------------------------------------------------------------------
-// Resolution metadata selectors
-// ---------------------------------------------------------------------------
-
-/**
- * Extends a store's curried selectors with `hasFinishedResolution`, which is
- * injected by @wordpress/data at runtime but absent from its published types.
- *
- * Usage:
- *   const s = select( uplinkStore ) as SelectWithResolution< typeof uplinkStore >;
- *   s.hasFinishedResolution( 'getLicenseKey', [] );
- */
-export type SelectWithResolution< S extends StoreDescriptor< AnyConfig > > =
-	CurriedSelectorsOf< S > & {
-		hasFinishedResolution: ( selectorName: string, args?: unknown[] ) => boolean;
-	};

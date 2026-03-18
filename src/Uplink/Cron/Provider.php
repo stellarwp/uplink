@@ -17,15 +17,6 @@ use StellarWP\Uplink\Utils\Version;
 final class Provider extends Abstract_Provider {
 
 	/**
-	 * WordPress built-in recurrence that fires every 12 hours.
-	 *
-	 * @since 3.0.0
-	 *
-	 * @var string
-	 */
-	const RECURRENCE = 'twicedaily';
-
-	/**
 	 * @inheritDoc
 	 */
 	public function register(): void {
@@ -49,7 +40,7 @@ final class Provider extends Abstract_Provider {
 			'init',
 			static function () {
 				if ( ! wp_next_scheduled( CronHook::DATA_REFRESH ) ) {
-					wp_schedule_event( time(), self::RECURRENCE, CronHook::DATA_REFRESH );
+					wp_schedule_event( time(), 'twicedaily', CronHook::DATA_REFRESH );
 				}
 			}
 		);

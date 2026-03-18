@@ -6,24 +6,13 @@
 import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
 import { KeyRound, Pencil, Trash2 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogHeader, DialogContent, DialogFooter } from '@/components/ui/dialog';
+import { SectionHeader } from '@/components/atoms/SectionHeader';
 import { LicenseKeyInput } from '@/components/molecules/LicenseKeyInput';
+import { LicenseProductCard } from '@/components/molecules/LicenseProductCard';
 import { PRODUCTS } from '@/data/products';
-import { formatDate, getExpiryStatus, expiryCardClass, expiryTextClass } from '@/lib/license-utils';
-import logoGiveNobg from '@img/logo-givewp-nobg.svg';
-import logoLearnDashNobg from '@img/logo-learndash-nobg.svg';
-import logoTecNobg from '@img/logo-tec-nobg.svg';
-import logoKadenceNobg from '@img/logo-kadence-nobg.svg';
 import type { LicenseProduct } from '@/types/api';
-
-const NOBG_LOGOS: Record<string, string> = {
-    give:                 logoGiveNobg,
-    learndash:            logoLearnDashNobg,
-    'the-events-calendar': logoTecNobg,
-    kadence:              logoKadenceNobg,
-};
 
 interface LicenseSectionProps {
     licenseKey:      string | null;
@@ -47,12 +36,10 @@ export function LicenseSection( { licenseKey, licenseProducts, tierNameMap, onRe
 
     return (
         <div className="space-y-3">
-            <div className="flex items-center gap-2.5">
-                <KeyRound className="w-4 h-4 text-muted-foreground" />
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    { __( 'License', '%TEXTDOMAIN%' ) }
-                </span>
-                { hasLicense && (
+            <SectionHeader
+                icon={ <KeyRound className="w-4 h-4 text-muted-foreground" /> }
+                label={ __( 'License', '%TEXTDOMAIN%' ) }
+                action={ hasLicense && (
                     <button
                         type="button"
                         onClick={ () => setEditingOpen( true ) }
@@ -62,7 +49,7 @@ export function LicenseSection( { licenseKey, licenseProducts, tierNameMap, onRe
                         { __( 'Edit', '%TEXTDOMAIN%' ) }
                     </button>
                 ) }
-            </div>
+            />
 
             { ! hasLicense && (
                 <div className="space-y-2">
@@ -75,40 +62,14 @@ export function LicenseSection( { licenseKey, licenseProducts, tierNameMap, onRe
 
             { hasLicense && licenseProducts.length > 0 && (
                 <div className="space-y-3">
-                    { licenseProducts.map( ( lp ) => {
-                        const product      = PRODUCTS.find( ( p ) => p.slug === lp.product_slug );
-                        const tierName     = tierNameMap[ lp.tier ] ?? lp.tier;
-                        const expiryStatus = getExpiryStatus( lp.expires );
-                        const logo         = NOBG_LOGOS[ lp.product_slug ];
-
-                        return (
-                            <div
-                                key={ lp.product_slug }
-                                className={ `rounded-lg border bg-card px-3 py-2.5 space-y-2.5 ${ expiryCardClass[ expiryStatus ] }` }
-                            >
-                                <div className="flex items-center gap-2">
-                                    { logo ? (
-                                        <img src={ logo } alt="" className="w-6 h-6 shrink-0" />
-                                    ) : (
-                                        <div className="w-6 h-6 rounded bg-neutral-300 shrink-0" />
-                                    ) }
-                                    <span className="text-sm font-medium text-foreground flex-1 min-w-0">
-                                        { product?.name ?? lp.product_slug }
-                                    </span>
-                                    <Badge variant="gradient" className="text-[10px]">
-                                        { tierName }
-                                    </Badge>
-                                </div>
-                                <span className={ `text-xs ${ expiryTextClass[ expiryStatus ] }` }>
-                                    { expiryStatus === 'expired'
-                                        ? __( 'Expired', '%TEXTDOMAIN%' )
-                                        : __( 'Expires', '%TEXTDOMAIN%' ) }
-                                    { ' ' }
-                                    { formatDate( lp.expires ) }
-                                </span>
-                            </div>
-                        );
-                    } ) }
+                    { licenseProducts.map( ( lp ) => (
+                        <LicenseProductCard
+                            key={ lp.product_slug }
+                            lp={ lp }
+                            productName={ PRODUCTS.find( ( p ) => p.slug === lp.product_slug )?.name ?? lp.product_slug }
+                            tierName={ tierNameMap[ lp.tier ] ?? lp.tier }
+                        />
+                    ) ) }
                 </div>
             ) }
 

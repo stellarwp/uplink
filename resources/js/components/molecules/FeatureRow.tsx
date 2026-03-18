@@ -8,16 +8,13 @@
  */
 import { useState } from 'react';
 import { __, sprintf } from '@wordpress/i18n';
-import { useSelect, useDispatch } from '@wordpress/data';
 import { ChevronRight, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { FeatureIcon } from '@/components/atoms/FeatureIcon';
 import { StatusBadge } from '@/components/atoms/StatusBadge';
 import { VersionDisplay } from '@/components/molecules/VersionDisplay';
 import { Switch } from '@/components/ui/switch';
-import { useToast } from '@/context/toast-context';
-import { store as uplinkStore } from '@/store';
-import { UplinkError } from '@/errors';
+import { useFeatureRow } from '@/hooks/useFeatureRow';
 import type { Feature } from '@/types/api';
 
 interface FeatureRowProps {
@@ -31,86 +28,17 @@ interface FeatureRowProps {
  */
 export function FeatureRow( { feature, upgradeTierName }: FeatureRowProps ) {
 	const [ expanded, setExpanded ] = useState( false );
-	const { addToast } = useToast();
-	const { enableFeature, disableFeature, updateFeature } = useDispatch( uplinkStore );
-
-	// When this feature is a plugin or theme, block toggling while any
-	// other installable feature is mid-toggle (WordPress cannot safely
-	// install/activate/deactivate/update multiple plugins or themes at once).
-	const installableBusy = useSelect(
-		( select ) =>
-			feature.type !== 'flag' &&
-			select( uplinkStore ).isAnyInstallableBusy(),
-		[ feature.type ]
-	);
-
-	const [ pendingAction, setPendingAction ] = useState<
-		'enabling' | 'disabling' | 'installing' | 'updating' | null
-	>( null );
+	const {
+		pendingAction,
+		installableBusy,
+		badgeStatus,
+		showSwitch,
+		switchChecked,
+		handleToggle,
+		handleUpdate,
+	} = useFeatureRow( feature );
 
 	const Chevron = expanded ? ChevronDown : ChevronRight;
-
-	// TODO: Refactor error display to use an error modal instead of
-	// toasts. The modal will show safe, user-facing messages from the
-	// UplinkError chain.
-
-	const featureEnabled   = feature.is_enabled;
-	const featureInstalled = feature.installed_version !== null;
-
-	const handleToggle = async ( checked: boolean ) => {
-		setPendingAction( checked ? featureInstalled ? 'enabling' : 'installing' : 'disabling' );
-		if ( checked ) {
-			const result = await enableFeature( feature.slug );
-			if ( result instanceof UplinkError ) {
-				addToast( result.message, 'error' );
-			} else {
-				/* translators: %s is the name of the feature being enabled */
-				addToast(
-					sprintf( __( '%s enabled', '%TEXTDOMAIN%' ), feature.name ),
-					'success'
-				);
-			}
-		} else {
-			const result = await disableFeature( feature.slug );
-			if ( result instanceof UplinkError ) {
-				addToast( result.message, 'error' );
-			} else {
-				/* translators: %s is the name of the feature being disabled */
-				addToast(
-					sprintf( __( '%s disabled', '%TEXTDOMAIN%' ), feature.name ),
-					'default'
-				);
-			}
-		}
-		setPendingAction( null );
-	};
-
-	const handleUpdate = async () => {
-		setPendingAction( 'updating' );
-		const result = await updateFeature( feature.slug );
-		if ( result instanceof UplinkError ) {
-			addToast( result.message, 'error' );
-		} else {
-			/* translators: %s is the name of the feature being updated */
-			addToast(
-				sprintf( __( '%s updated.', '%TEXTDOMAIN%' ), feature.name ),
-				'success'
-			);
-		}
-		setPendingAction( null );
-	};
-
-	const badgeStatus  = pendingAction ?? ( featureEnabled ? 'enabled' : 'available' );
-	const showSwitch   = pendingAction !== 'installing' && pendingAction !== 'updating';
-
-	// While a request is in-flight, reflect the intended state visually so
-	// the switch position and badge stay in sync with pendingAction.
-	const switchChecked =
-		pendingAction === 'enabling' || pendingAction === 'installing'
-			? true
-			: pendingAction === 'disabling'
-				? false
-				: featureEnabled;
 
 	return (
 		<div className={ cn(
@@ -151,15 +79,9 @@ export function FeatureRow( { feature, upgradeTierName }: FeatureRowProps ) {
 								aria-label={
 									switchChecked
 										? /* translators: %s is the name of the feature to disable */
-										sprintf(
-												__( 'Disable %s', '%TEXTDOMAIN%' ),
-												feature.name
-										)
+										  sprintf( __( 'Disable %s', '%TEXTDOMAIN%' ), feature.name )
 										: /* translators: %s is the name of the feature to enable */
-										sprintf(
-												__( 'Enable %s', '%TEXTDOMAIN%' ),
-												feature.name
-										)
+										  sprintf( __( 'Enable %s', '%TEXTDOMAIN%' ), feature.name )
 								}
 							/>
 						) }

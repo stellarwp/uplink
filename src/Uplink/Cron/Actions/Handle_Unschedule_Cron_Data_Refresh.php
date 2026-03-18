@@ -48,11 +48,7 @@ class Handle_Unschedule_Cron_Data_Refresh {
 			return;
 		}
 
-		$timestamp = wp_next_scheduled( CronHook::DATA_REFRESH );
-
-		if ( $timestamp ) {
-			wp_unschedule_event( $timestamp, CronHook::DATA_REFRESH );
-		}
+		wp_clear_scheduled_hook( CronHook::DATA_REFRESH );
 	}
 
 	/**

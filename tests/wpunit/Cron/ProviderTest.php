@@ -17,6 +17,8 @@ final class ProviderTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
+		wp_clear_scheduled_hook( CronHook::DATA_REFRESH );
+
 		$this->container->singleton(
 			Catalog_Client::class,
 			$this->makeEmpty( Catalog_Client::class )

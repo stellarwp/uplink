@@ -37,8 +37,8 @@ class Refresh_License_Job {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param License_Manager $license_manager The license manager
-	 * @param Data            $site_data       The site data
+	 * @param License_Manager $license_manager The license manager.
+	 * @param Data            $site_data       The site data.
 	 */
 	public function __construct( License_Manager $license_manager, Data $site_data ) {
 		$this->license_manager = $license_manager;

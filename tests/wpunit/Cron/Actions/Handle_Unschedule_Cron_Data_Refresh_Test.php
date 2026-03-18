@@ -9,8 +9,20 @@ use StellarWP\Uplink\Cron\ValueObjects\CronHook;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
 
+/**
+ * Tests the Handle_Unschedule_Cron_Data_Refresh action.
+ *
+ * @since 3.0.0
+ */
 final class Handle_Unschedule_Cron_Data_Refresh_Test extends UplinkTestCase {
 
+	/**
+	 * Test that the action does not unschedule when the catalog returns an error.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return void
+	 */
 	public function test_does_not_unschedule_when_catalog_returns_error(): void {
 		wp_schedule_event( time(), 'twicedaily', CronHook::DATA_REFRESH );
 
@@ -25,6 +37,13 @@ final class Handle_Unschedule_Cron_Data_Refresh_Test extends UplinkTestCase {
 		$this->assertNotFalse( wp_next_scheduled( CronHook::DATA_REFRESH ) );
 	}
 
+	/**
+	 * Test that the action does not unschedule when the catalog has no plugin features.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return void
+	 */
 	public function test_does_not_unschedule_when_catalog_has_no_plugin_features(): void {
 		wp_schedule_event( time(), 'twicedaily', CronHook::DATA_REFRESH );
 
@@ -39,6 +58,13 @@ final class Handle_Unschedule_Cron_Data_Refresh_Test extends UplinkTestCase {
 		$this->assertNotFalse( wp_next_scheduled( CronHook::DATA_REFRESH ) );
 	}
 
+	/**
+	 * Test that the action does not unschedule when the catalog plugin is active.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return void
+	 */
 	public function test_does_not_unschedule_when_catalog_plugin_is_active(): void {
 		wp_schedule_event( time(), 'twicedaily', CronHook::DATA_REFRESH );
 		update_option( 'active_plugins', [ 'give/give.php' ] );
@@ -54,6 +80,13 @@ final class Handle_Unschedule_Cron_Data_Refresh_Test extends UplinkTestCase {
 		$this->assertNotFalse( wp_next_scheduled( CronHook::DATA_REFRESH ) );
 	}
 
+	/**
+	 * Test that the action unschedules when all catalog plugins are inactive.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return void
+	 */
 	public function test_unschedules_when_all_catalog_plugins_inactive(): void {
 		wp_schedule_event( time(), 'twicedaily', CronHook::DATA_REFRESH );
 		update_option( 'active_plugins', [] );
@@ -71,6 +104,8 @@ final class Handle_Unschedule_Cron_Data_Refresh_Test extends UplinkTestCase {
 
 	/**
 	 * Build a minimal catalog collection containing one plugin feature.
+	 *
+	 * @since 3.0.0
 	 *
 	 * @param string $plugin_file Plugin basename, e.g. 'give/give.php'.
 	 *
@@ -96,7 +131,7 @@ final class Handle_Unschedule_Cron_Data_Refresh_Test extends UplinkTestCase {
 						],
 					],
 				],
-			] 
+			]
 		);
 	}
 }

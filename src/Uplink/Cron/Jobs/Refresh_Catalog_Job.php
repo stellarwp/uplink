@@ -26,7 +26,7 @@ class Refresh_Catalog_Job {
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Catalog_Repository $catalog The catalog repository
+	 * @param Catalog_Repository $catalog The catalog repository.
 	 */
 	public function __construct( Catalog_Repository $catalog ) {
 		$this->catalog = $catalog;

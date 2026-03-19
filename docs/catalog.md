@@ -12,7 +12,7 @@ The catalog data comes from the Commerce Portal API. It is not license-specific.
 
 ### Products
 
-The catalog is organized by product. A product is a brand family, not a plugin. Kadence, GiveWP, LearnDash, and The Events Calendar are each a product. A product encompasses many features (plugins, themes, flags) that customers can enable based on their tier.
+The catalog is organized by product. Kadence, GiveWP, LearnDash, and The Events Calendar are each a product. A product encompasses many features (plugins, themes, flags) that customers can enable based on their tier.
 
 Each product has an entry plugin that bootstraps Uplink on the site (see [Products and Entry Plugins](uplink-v3.md#products-and-entry-plugins)), but the product itself is the umbrella under which all of its features, tiers, and licensing live. A product catalog contains two things: tiers and features.
 
@@ -53,7 +53,7 @@ Features are the individual capabilities, plugins, themes, and flags that make u
 | `name`              | string         | Display name                                                                                                                       |
 | `description`       | string         | Short description of what the feature does                                                                                         |
 | `category`          | string         | Grouping category (e.g., `blocks`, `theme`, `security`, `woocommerce`)                                                             |
-| `authors`           | string[]\|null | Brand/author names for ownership verification. Null if not applicable.                                                             |
+| `authors`           | string[]\|null | Product/author names for ownership verification. Null if not applicable.                                                           |
 | `documentation_url` | string         | Link to the feature's documentation                                                                                                |
 
 #### Feature Types
@@ -144,12 +144,12 @@ Note that `kadence` appears as both the product and as a feature within it. This
 
 The current fixture covers four product families:
 
-| Product               | Tiers                         | Features | Categories                                                                                    |
-| --------------------- | ----------------------------- | -------- | --------------------------------------------------------------------------------------------- |
-| `kadence`             | 4 (Free, Basic, Pro, Agency)  | 33       | theme, blocks, design, woocommerce, forms, social, content, security, management, performance |
-| `learndash`           | 3 (Basic, Pro, Agency)        | 8        | core, membership, reporting, import, community                                                |
-| `give`                | 4 (Free, Basic, Pro, Agency)  | 28       | core, forms, gateway, email, reporting, marketing, integration                                |
-| `the-events-calendar` | 4 (Free, Basic, Pro, Agency)  | 9        | core, ticketing, community, integration                                                       |
+| Product               | Tiers                        | Features | Categories                                                                                    |
+| --------------------- | ---------------------------- | -------- | --------------------------------------------------------------------------------------------- |
+| `kadence`             | 4 (Free, Basic, Pro, Agency) | 33       | theme, blocks, design, woocommerce, forms, social, content, security, management, performance |
+| `learndash`           | 3 (Basic, Pro, Agency)       | 8        | core, membership, reporting, import, community                                                |
+| `give`                | 4 (Free, Basic, Pro, Agency) | 28       | core, forms, gateway, email, reporting, marketing, integration                                |
+| `the-events-calendar` | 4 (Free, Basic, Pro, Agency) | 9        | core, ticketing, community, integration                                                       |
 
 ## Relationship to Licensing and Features
 

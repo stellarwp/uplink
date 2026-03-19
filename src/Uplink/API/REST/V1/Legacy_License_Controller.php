@@ -143,8 +143,8 @@ final class Legacy_License_Controller extends WP_REST_Controller {
 					'readonly'    => true,
 					'context'     => [ 'view' ],
 				],
-				'brand'      => [
-					'description' => __( 'The brand name.', '%TEXTDOMAIN%' ),
+				'product'    => [
+					'description' => __( 'The product name.', '%TEXTDOMAIN%' ),
 					'type'        => 'string',
 					'readonly'    => true,
 					'context'     => [ 'view' ],

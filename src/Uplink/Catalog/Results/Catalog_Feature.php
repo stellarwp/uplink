@@ -247,7 +247,7 @@ final class Catalog_Feature {
 	}
 
 	/**
-	 * Gets the author/brand names, or null if not applicable for this feature type.
+	 * Gets the author/product names, or null if not applicable for this feature type.
 	 *
 	 * @since 3.0.0
 	 *

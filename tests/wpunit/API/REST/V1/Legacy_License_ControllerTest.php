@@ -25,7 +25,7 @@ final class Legacy_License_ControllerTest extends UplinkTestCase {
 		'key'        => 'ABC123',
 		'slug'       => 'my-plugin',
 		'name'       => 'My Plugin',
-		'brand'      => 'My Brand',
+		'product'    => 'My Product',
 		'is_active'  => true,
 		'page_url'   => 'https://example.com/account',
 		'expires_at' => '2027-01-01',
@@ -109,7 +109,7 @@ final class Legacy_License_ControllerTest extends UplinkTestCase {
 		$this->assertArrayHasKey( 'key', $item );
 		$this->assertArrayHasKey( 'slug', $item );
 		$this->assertArrayHasKey( 'name', $item );
-		$this->assertArrayHasKey( 'brand', $item );
+		$this->assertArrayHasKey( 'product', $item );
 		$this->assertArrayHasKey( 'is_active', $item );
 		$this->assertArrayHasKey( 'page_url', $item );
 		$this->assertArrayHasKey( 'expires_at', $item );
@@ -117,7 +117,7 @@ final class Legacy_License_ControllerTest extends UplinkTestCase {
 		$this->assertSame( 'ABC123', $item['key'] );
 		$this->assertSame( 'my-plugin', $item['slug'] );
 		$this->assertSame( 'My Plugin', $item['name'] );
-		$this->assertSame( 'My Brand', $item['brand'] );
+		$this->assertSame( 'My Product', $item['product'] );
 		$this->assertTrue( $item['is_active'] );
 		$this->assertSame( 'https://example.com/account', $item['page_url'] );
 		$this->assertSame( '2027-01-01', $item['expires_at'] );
@@ -173,7 +173,7 @@ final class Legacy_License_ControllerTest extends UplinkTestCase {
 
 		$this->assertArrayHasKey( 'properties', $schema );
 
-		$expected = [ 'key', 'slug', 'name', 'brand', 'is_active', 'page_url', 'expires_at' ];
+		$expected = [ 'key', 'slug', 'name', 'product', 'is_active', 'page_url', 'expires_at' ];
 
 		foreach ( $expected as $property ) {
 			$this->assertArrayHasKey( $property, $schema['properties'], "Missing schema property: {$property}" );

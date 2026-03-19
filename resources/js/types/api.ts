@@ -281,7 +281,7 @@ export interface LegacyLicense {
 	key: string;
 	slug: string;
 	name: string;
-	brand: string;
+	product: string;
 	is_active: boolean;
 	page_url: string;
 	expires_at: string;

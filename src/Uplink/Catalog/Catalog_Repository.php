@@ -122,10 +122,10 @@ class Catalog_Repository {
 	 * @return Catalog_Collection|WP_Error
 	 */
 	public function get() {
-		$state = $this->read_catalog_state();
+		$cached = $this->get_cached();
 
-		if ( is_array( $state[ self::STATE_KEY_COLLECTION ] ) ) {
-			return Catalog_Collection::from_array( $state[ self::STATE_KEY_COLLECTION ] );
+		if ( $cached !== null ) {
+			return $cached;
 		}
 
 		$throttled = $this->get_throttled_error();

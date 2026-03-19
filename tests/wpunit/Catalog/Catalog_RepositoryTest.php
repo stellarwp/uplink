@@ -123,6 +123,44 @@ final class Catalog_RepositoryTest extends UplinkTestCase {
 	}
 
 	// -------------------------------------------------------------------------
+	// get_cached
+	// -------------------------------------------------------------------------
+
+	public function test_get_cached_returns_null_when_no_data_stored(): void {
+		$this->assertNull( $this->repository->get_cached() );
+	}
+
+	public function test_get_cached_returns_collection_after_successful_fetch(): void {
+		$this->repository->get();
+
+		$result = $this->repository->get_cached();
+
+		$this->assertInstanceOf( Catalog_Collection::class, $result );
+		$this->assertCount( 4, $result );
+	}
+
+	public function test_get_cached_returns_null_when_only_error_stored(): void {
+		$this->repository->set_catalog( new WP_Error( Error_Code::INVALID_RESPONSE, 'API failure' ) );
+
+		$this->assertNull( $this->repository->get_cached() );
+	}
+
+	public function test_get_cached_does_not_trigger_api_fetch(): void {
+		$client = $this->makeEmpty(
+			Catalog_Client::class,
+			[
+				'get_catalog' => function () {
+					$this->fail( 'get_catalog() should not be called from get_cached().' );
+				},
+			]
+		);
+
+		$repository = new Catalog_Repository( $client );
+
+		$this->assertNull( $repository->get_cached() );
+	}
+
+	// -------------------------------------------------------------------------
 	// Error throttling
 	// -------------------------------------------------------------------------
 

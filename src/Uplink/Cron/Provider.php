@@ -45,9 +45,9 @@ final class Provider extends Abstract_Provider {
 			}
 		);
 
-		add_action(
-			'deactivated_plugin',
-			$this->container->get( Handle_Unschedule_Cron_Data_Refresh::class )
-		);
+		$unschedule = $this->container->get( Handle_Unschedule_Cron_Data_Refresh::class );
+
+		add_action( 'deactivated_plugin', $unschedule );
+		add_action( 'switch_theme', $unschedule );
 	}
 }

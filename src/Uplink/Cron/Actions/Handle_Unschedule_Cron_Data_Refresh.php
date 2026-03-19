@@ -4,19 +4,22 @@ namespace StellarWP\Uplink\Cron\Actions;
 
 use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Cron\ValueObjects\CronHook;
+use StellarWP\Uplink\Features\Types\Feature;
 
+use function get_stylesheet;
+use function get_template;
 use function is_plugin_active;
 use function is_plugin_active_for_network;
 
 /**
- * Unschedules the data refresh cron event when no catalog plugins remain active.
+ * Unschedules the data refresh cron event when no catalog plugins or themes remain active.
  *
  * Reads the stored catalog from the DB (no API call) and cross-references its
- * plugin features against the active plugins list. If none match, the event is
- * removed. The cron will be rescheduled on the next page load via init if any
- * Uplink instance is still active.
+ * plugin and theme features against the active plugins/theme. If none match, the
+ * event is removed. The cron will be rescheduled on the next page load via init
+ * if any Uplink instance is still active.
  *
- * Conservative defaults: when the catalog is unreadable or contains no plugin
+ * Conservative defaults: when the catalog is unreadable or contains no installable
  * features, the event is left in place since we cannot confirm Uplink is gone.
  *
  * @since 3.0.0
@@ -47,7 +50,7 @@ class Handle_Unschedule_Cron_Data_Refresh {
 	 * @return void
 	 */
 	public function __invoke(): void {
-		if ( $this->has_active_catalog_plugin() ) {
+		if ( $this->has_active_catalog_feature() ) {
 			return;
 		}
 
@@ -55,40 +58,51 @@ class Handle_Unschedule_Cron_Data_Refresh {
 	}
 
 	/**
-	 * Check whether any plugin listed in the stored catalog is still active.
+	 * Check whether any plugin or theme listed in the stored catalog is still active.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @return bool
 	 */
-	private function has_active_catalog_plugin(): bool {
+	private function has_active_catalog_feature(): bool {
 		$catalog = $this->catalog->get();
 
 		if ( is_wp_error( $catalog ) ) {
 			return true;
 		}
 
-		$found_catalog_plugin = false;
+		$found_catalog_feature = false;
 
 		foreach ( $catalog as $product_catalog ) {
 			foreach ( $product_catalog->get_features() as $catalog_feature ) {
-				$plugin_file = $catalog_feature->get_plugin_file();
+				$type = $catalog_feature->get_type();
 
-				if ( $plugin_file === null ) {
-					continue;
-				}
+				if ( $type === Feature::TYPE_PLUGIN ) {
+					$plugin_file = $catalog_feature->get_plugin_file();
 
-				$found_catalog_plugin = true;
+					if ( $plugin_file === null ) {
+						continue;
+					}
 
-				if ( is_plugin_active( $plugin_file ) || is_plugin_active_for_network( $plugin_file ) ) {
-					return true;
+					$found_catalog_feature = true;
+
+					if ( is_plugin_active( $plugin_file ) || is_plugin_active_for_network( $plugin_file ) ) {
+						return true;
+					}
+				} elseif ( $type === Feature::TYPE_THEME ) {
+					$found_catalog_feature = true;
+					$slug                  = $catalog_feature->get_feature_slug();
+
+					if ( get_stylesheet() === $slug || get_template() === $slug ) {
+						return true;
+					}
 				}
 			}
 		}
 
-		// If the catalog has no plugin features we cannot determine whether
+		// If the catalog has no installable features we cannot determine whether
 		// Uplink is still needed, so leave the cron in place.
-		if ( ! $found_catalog_plugin ) {
+		if ( ! $found_catalog_feature ) {
 			return true;
 		}
 

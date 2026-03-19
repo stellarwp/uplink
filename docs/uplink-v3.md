@@ -14,7 +14,7 @@ Uplink v3 introduces **unified licensing**. Instead of each plugin managing its 
 
 ## Products and Entry Plugins
 
-A **product** is not a plugin. A product is a brand family, like Kadence, GiveWP, The Events Calendar, or LearnDash. Each product encompasses many features: plugins, themes, and capability flags that the customer can enable based on their tier.
+A product is a brand family, like Kadence, GiveWP, The Events Calendar, or LearnDash. Each product encompasses many features: plugins, themes, and capability flags that the customer can enable based on their tier.
 
 Each product has an **entry plugin**, a WordPress plugin that bootstraps Uplink on the site. The entry plugin bundles a vendor-prefixed copy of the Uplink library, registers the product with the leader via the product registry, and may contribute an embedded license key. The entry plugin is how a product gets on the site, but it is not the product itself.
 

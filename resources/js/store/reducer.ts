@@ -8,10 +8,11 @@ import type {
 	Action,
 	CatalogState,
 	FeaturesState,
+	LegacyLicensesState,
 	LicenseState,
 } from './types';
 
-export const reducer = combineReducers({ features, license, catalog });
+export const reducer = combineReducers({ features, license, catalog, legacyLicenses });
 
 // ---------------------------------------------------------------------------
 // Catalog
@@ -31,6 +32,33 @@ function catalog(
 				...state,
 				byProductSlug: Object.fromEntries(
 					action.catalogs.map((c) => [c.product_slug, c])
+				),
+			};
+		}
+
+		default:
+			return state;
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Legacy licenses
+// ---------------------------------------------------------------------------
+
+const LEGACY_LICENSES_DEFAULT: LegacyLicensesState = {
+	bySlug: {},
+};
+
+function legacyLicenses(
+	state: LegacyLicensesState = LEGACY_LICENSES_DEFAULT,
+	action: Action
+): LegacyLicensesState {
+	switch (action.type) {
+		case 'RECEIVE_LEGACY_LICENSES': {
+			return {
+				...state,
+				bySlug: Object.fromEntries(
+					action.licenses.map((l) => [l.slug, l])
 				),
 			};
 		}

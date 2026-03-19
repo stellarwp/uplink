@@ -269,6 +269,25 @@ export interface Product {
 }
 
 // ---------------------------------------------------------------------------
+// Legacy license types — GET /stellarwp/uplink/v1/legacy-licenses
+// ---------------------------------------------------------------------------
+
+/**
+ * A legacy per-plugin license as returned by the legacy-licenses endpoint.
+ *
+ * @since 3.0.0
+ */
+export interface LegacyLicense {
+	key: string;
+	slug: string;
+	name: string;
+	product: string;
+	is_active: boolean;
+	page_url: string;
+	expires_at: string;
+}
+
+// ---------------------------------------------------------------------------
 // License types — GET/POST /stellarwp/uplink/v1/license
 // ---------------------------------------------------------------------------
 

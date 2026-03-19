@@ -4,13 +4,19 @@ This document explains how to integrate a WordPress plugin with StellarWP Uplink
 
 ---
 
+## Notes on examples
+
+Since the recommendation is to use [Strauss](https://github.com/BrianHenryIE/strauss) to prefix this library's namespaces, all examples use the `Boomshakalaka` namespace prefix. Replace `Boomshakalaka` with your actual vendor prefix wherever it appears.
+
+---
+
 ## 1. Initialization
 
 Uplink must be initialized once per plugin, typically inside a service provider registered during the plugin bootstrap.
 
 ```php
-use StellarWP\Uplink\Config;
-use StellarWP\Uplink\Uplink;
+use Boomshakalaka\StellarWP\Uplink\Config;
+use Boomshakalaka\StellarWP\Uplink\Uplink;
 
 class UplinkServiceProvider
 {
@@ -29,8 +35,6 @@ class UplinkServiceProvider
     }
 }
 ```
-
-> **Note:** If your plugin uses vendor-prefixed namespaces, use those instead (e.g. `MyPlugin\Vendors\StellarWP\Uplink`).
 
 **Key points:**
 

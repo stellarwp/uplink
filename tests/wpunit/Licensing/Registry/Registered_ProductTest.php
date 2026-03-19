@@ -29,8 +29,8 @@ final class Registered_ProductTest extends UplinkTestCase {
 				'embedded_key' => 'LWSW-UNIFIED-PRO-2026',
 				'name'         => 'GiveWP',
 				'version'      => '3.0.0',
-				'product'        => 'givewp',
-			] 
+				'product'      => 'givewp',
+			]
 		);
 
 		$this->assertNotNull( $product );
@@ -57,7 +57,7 @@ final class Registered_ProductTest extends UplinkTestCase {
 			[
 				'slug'         => 'give',
 				'embedded_key' => '',
-			] 
+			]
 		);
 
 		$this->assertNotNull( $product );
@@ -69,7 +69,7 @@ final class Registered_ProductTest extends UplinkTestCase {
 			[
 				'slug'         => 'give',
 				'embedded_key' => 'INVALID-KEY-NO-PREFIX',
-			] 
+			]
 		);
 
 		$this->assertNotNull( $product );
@@ -81,7 +81,7 @@ final class Registered_ProductTest extends UplinkTestCase {
 			[
 				'slug'         => 'give',
 				'embedded_key' => 'LWSW-SOME-UNIFIED-KEY',
-			] 
+			]
 		);
 
 		$this->assertNotNull( $product );
@@ -93,7 +93,7 @@ final class Registered_ProductTest extends UplinkTestCase {
 			[
 				'slug'         => 'give',
 				'embedded_key' => 'LWSW-UNIFIED-PRO-2026',
-			] 
+			]
 		);
 
 		$this->assertTrue( $product->has_embedded_key() );

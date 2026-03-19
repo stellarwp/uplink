@@ -83,7 +83,7 @@ final class Legacy_LicenseTest extends UplinkTestCase {
 				'key'       => 'k',
 				'slug'      => 's',
 				'name'      => 'N',
-				'product'   => 'B',
+				'product'   => 'P',
 				'is_active' => true,
 			]
 		);
@@ -93,7 +93,7 @@ final class Legacy_LicenseTest extends UplinkTestCase {
 				'key'       => 'k',
 				'slug'      => 's',
 				'name'      => 'N',
-				'product'   => 'B',
+				'product'   => 'P',
 				'is_active' => false,
 			]
 		);

@@ -39,7 +39,7 @@ class Legacy_License {
 	 *
 	 * @var string
 	 */
-	public string $brand;
+	public string $product;
 
 	/**
 	 * Whether the license is currently active.
@@ -74,7 +74,7 @@ class Legacy_License {
 			'key'        => $this->key,
 			'slug'       => $this->slug,
 			'name'       => $this->name,
-			'brand'      => $this->brand,
+			'product'    => $this->product,
 			'is_active'  => $this->is_active,
 			'page_url'   => $this->page_url,
 			'expires_at' => $this->expires_at,
@@ -92,7 +92,7 @@ class Legacy_License {
 		$self->key        = Cast::to_string( $data['key'] ?? '' );
 		$self->slug       = Cast::to_string( $data['slug'] ?? '' );
 		$self->name       = Cast::to_string( $data['name'] ?? '' );
-		$self->brand      = Cast::to_string( $data['brand'] ?? '' );
+		$self->product    = Cast::to_string( $data['product'] ?? '' );
 		$self->is_active  = (bool) ( $data['is_active'] ?? false );
 		$self->page_url   = Cast::to_string( $data['page_url'] ?? '' );
 		$self->expires_at = Cast::to_string( $data['expires_at'] ?? '' );

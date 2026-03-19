@@ -1,7 +1,7 @@
 /**
  * Page header filter bar.
  *
- * Displays the brand logo, a feature search input, and a product filter
+ * Displays the product logo, a feature search input, and a product filter
  * dropdown. Both inputs are wired to FilterContext via useFilter().
  *
  * @package StellarWP\Uplink

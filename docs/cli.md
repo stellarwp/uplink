@@ -139,9 +139,9 @@ Lists legacy per-plugin licenses discovered across all Uplink instances. Read-on
 wp uplink license legacy [--fields=<fields>] [--format=<format>]
 ```
 
-**Default fields:** `slug, name, brand, key, status, expires_at`
+**Default fields:** `slug, name, product, key, status, expires_at`
 
-**Available fields:** `slug`, `name`, `brand`, `key`, `status`, `page_url`, `expires_at`
+**Available fields:** `slug`, `name`, `product`, `key`, `status`, `page_url`, `expires_at`
 
 **Examples:**
 

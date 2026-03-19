@@ -57,7 +57,7 @@ class License extends WP_CLI_Command {
 	 *
 	 * @var string
 	 */
-	private const DEFAULT_LEGACY_FIELDS = 'slug,name,brand,key,is_active,expires_at';
+	private const DEFAULT_LEGACY_FIELDS = 'slug,name,product,key,is_active,expires_at';
 
 	/**
 	 * The license manager instance.

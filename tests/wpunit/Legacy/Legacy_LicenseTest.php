@@ -19,7 +19,7 @@ final class Legacy_LicenseTest extends UplinkTestCase {
 				'key'       => 'key-123',
 				'slug'      => 'my-plugin',
 				'name'      => 'My Plugin',
-				'brand'     => 'StellarWP',
+				'product'   => 'StellarWP',
 				'is_active' => true,
 				'page_url'  => 'https://example.com/licenses',
 			]
@@ -28,7 +28,7 @@ final class Legacy_LicenseTest extends UplinkTestCase {
 		$this->assertSame( 'key-123', $license->key );
 		$this->assertSame( 'my-plugin', $license->slug );
 		$this->assertSame( 'My Plugin', $license->name );
-		$this->assertSame( 'StellarWP', $license->brand );
+		$this->assertSame( 'StellarWP', $license->product );
 		$this->assertTrue( $license->is_active );
 		$this->assertSame( 'https://example.com/licenses', $license->page_url );
 	}
@@ -39,10 +39,10 @@ final class Legacy_LicenseTest extends UplinkTestCase {
 	public function it_defaults_is_active_to_false_and_page_url_to_empty_when_omitted(): void {
 		$license = Legacy_License::from_data(
 			[
-				'key'   => 'key-456',
-				'slug'  => 'slug',
-				'name'  => 'Name',
-				'brand' => 'Brand',
+				'key'     => 'key-456',
+				'slug'    => 'slug',
+				'name'    => 'Name',
+				'product' => 'Product',
 			]
 		);
 
@@ -59,7 +59,7 @@ final class Legacy_LicenseTest extends UplinkTestCase {
 				'key'       => 'key-from-array',
 				'slug'      => 'give-recurring',
 				'name'      => 'Give Recurring',
-				'brand'     => 'GiveWP',
+				'product'   => 'GiveWP',
 				'is_active' => false,
 				'page_url'  => 'https://site.com/wp-admin/licenses',
 			]
@@ -69,7 +69,7 @@ final class Legacy_LicenseTest extends UplinkTestCase {
 		$this->assertSame( 'key-from-array', $license->key );
 		$this->assertSame( 'give-recurring', $license->slug );
 		$this->assertSame( 'Give Recurring', $license->name );
-		$this->assertSame( 'GiveWP', $license->brand );
+		$this->assertSame( 'GiveWP', $license->product );
 		$this->assertFalse( $license->is_active );
 		$this->assertSame( 'https://site.com/wp-admin/licenses', $license->page_url );
 	}
@@ -83,9 +83,9 @@ final class Legacy_LicenseTest extends UplinkTestCase {
 				'key'       => 'k',
 				'slug'      => 's',
 				'name'      => 'N',
-				'brand'     => 'B',
+				'product'   => 'P',
 				'is_active' => true,
-			] 
+			]
 		);
 
 		$inactive = Legacy_License::from_data(
@@ -93,9 +93,9 @@ final class Legacy_LicenseTest extends UplinkTestCase {
 				'key'       => 'k',
 				'slug'      => 's',
 				'name'      => 'N',
-				'brand'     => 'B',
+				'product'   => 'P',
 				'is_active' => false,
-			] 
+			]
 		);
 
 		$this->assertTrue( $active->is_active );
@@ -111,7 +111,7 @@ final class Legacy_LicenseTest extends UplinkTestCase {
 		$this->assertSame( '', $license->key );
 		$this->assertSame( '', $license->slug );
 		$this->assertSame( '', $license->name );
-		$this->assertSame( '', $license->brand );
+		$this->assertSame( '', $license->product );
 		$this->assertFalse( $license->is_active );
 		$this->assertSame( '', $license->page_url );
 	}
@@ -122,10 +122,10 @@ final class Legacy_LicenseTest extends UplinkTestCase {
 	public function it_casts_non_string_values_to_string_in_from_data(): void {
 		$license = Legacy_License::from_data(
 			[
-				'key'   => 12345,
-				'slug'  => 'num-slug',
-				'name'  => 'Name',
-				'brand' => 'Brand',
+				'key'     => 12345,
+				'slug'    => 'num-slug',
+				'name'    => 'Name',
+				'product' => 'Product',
 			]
 		);
 

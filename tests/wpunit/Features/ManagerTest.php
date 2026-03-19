@@ -51,9 +51,8 @@ final class ManagerTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		if ( ! defined( 'STELLARWP_UPLINK_FEATURES_USE_FIXTURE_DATA' ) ) {
-			define( 'STELLARWP_UPLINK_FEATURES_USE_FIXTURE_DATA', true );
-		}
+		delete_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
+		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
 
 		$this->collection = new Feature_Collection();
 		$this->collection->add(

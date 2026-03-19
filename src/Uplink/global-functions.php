@@ -81,7 +81,7 @@ if ( ! function_exists( '_stellarwp_uplink_global_function_registry' ) ) {
 			static function ( string $carry, string $v ): string {
 				return version_compare( $v, $carry, '>' ) ? $v : $carry;
 			},
-			'0.0.0' 
+			'0.0.0'
 		);
 
 		return $registry[ $key ][ $highest ] ?? null;
@@ -185,6 +185,8 @@ if ( ! function_exists( 'stellarwp_uplink_get_license_page_url' ) ) {
 	function stellarwp_uplink_get_license_page_url(): string {
 		$callback = _stellarwp_uplink_global_function_registry( 'stellarwp_uplink_get_license_page_url' );
 
-		return $callback ? (string) $callback() : '';
+		$result = $callback ? $callback() : '';
+
+		return is_string( $result ) ? $result : '';
 	}
 }

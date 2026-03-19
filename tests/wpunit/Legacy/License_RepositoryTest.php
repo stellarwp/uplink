@@ -47,7 +47,7 @@ final class License_RepositoryTest extends UplinkTestCase {
 							'key'       => 'key-1',
 							'slug'      => 'plugin-one',
 							'name'      => 'Plugin One',
-							'brand'     => 'Brand',
+							'product'   => 'Product',
 							'is_active' => true,
 							'page_url'  => 'https://example.com/license',
 						],
@@ -75,10 +75,10 @@ final class License_RepositoryTest extends UplinkTestCase {
 					$licenses,
 					[
 						[
-							'key'   => 'key-a',
-							'slug'  => 'plugin-a',
-							'name'  => 'A',
-							'brand' => 'Brand',
+							'key'     => 'key-a',
+							'slug'    => 'plugin-a',
+							'name'    => 'A',
+							'product' => 'Product',
 						],
 					]
 				);
@@ -91,10 +91,10 @@ final class License_RepositoryTest extends UplinkTestCase {
 					$licenses,
 					[
 						[
-							'key'   => 'key-b',
-							'slug'  => 'plugin-b',
-							'name'  => 'B',
-							'brand' => 'Brand',
+							'key'     => 'key-b',
+							'slug'    => 'plugin-b',
+							'name'    => 'B',
+							'product' => 'Product',
 						],
 					]
 				);
@@ -117,10 +117,10 @@ final class License_RepositoryTest extends UplinkTestCase {
 			static function ( array $licenses ) {
 				$licenses[] = (object) [ 'slug' => 'invalid' ];
 				$licenses[] = [
-					'key'   => 'valid-key',
-					'slug'  => 'valid-plugin',
-					'name'  => 'Valid',
-					'brand' => 'Brand',
+					'key'     => 'valid-key',
+					'slug'    => 'valid-plugin',
+					'name'    => 'Valid',
+					'product' => 'Product',
 				];
 
 				return $licenses;
@@ -144,22 +144,22 @@ final class License_RepositoryTest extends UplinkTestCase {
 					$licenses,
 					[
 						[
-							'key'   => 'k1',
-							'slug'  => 'first',
-							'name'  => 'First',
-							'brand' => 'B',
+							'key'     => 'k1',
+							'slug'    => 'first',
+							'name'    => 'First',
+							'product' => 'B',
 						],
 						[
-							'key'   => 'k2',
-							'slug'  => 'target',
-							'name'  => 'Target',
-							'brand' => 'B',
+							'key'     => 'k2',
+							'slug'    => 'target',
+							'name'    => 'Target',
+							'product' => 'B',
 						],
 						[
-							'key'   => 'k3',
-							'slug'  => 'third',
-							'name'  => 'Third',
-							'brand' => 'B',
+							'key'     => 'k3',
+							'slug'    => 'third',
+							'name'    => 'Third',
+							'product' => 'B',
 						],
 					]
 				);
@@ -184,10 +184,10 @@ final class License_RepositoryTest extends UplinkTestCase {
 					$licenses,
 					[
 						[
-							'key'   => 'k1',
-							'slug'  => 'only-one',
-							'name'  => 'Only',
-							'brand' => 'B',
+							'key'     => 'k1',
+							'slug'    => 'only-one',
+							'name'    => 'Only',
+							'product' => 'B',
 						],
 					]
 				);
@@ -212,10 +212,10 @@ final class License_RepositoryTest extends UplinkTestCase {
 					$licenses,
 					[
 						[
-							'key'   => 'k1',
-							'slug'  => 's1',
-							'name'  => 'N',
-							'brand' => 'B',
+							'key'     => 'k1',
+							'slug'    => 's1',
+							'name'    => 'N',
+							'product' => 'B',
 						],
 					]
 				);
@@ -244,14 +244,14 @@ final class License_RepositoryTest extends UplinkTestCase {
 							'key'       => 'k1',
 							'slug'      => 'active-plugin',
 							'name'      => 'Active',
-							'brand'     => 'B',
+							'product'   => 'B',
 							'is_active' => true,
 						],
 						[
 							'key'       => 'k2',
 							'slug'      => 'inactive-plugin',
 							'name'      => 'Inactive',
-							'brand'     => 'B',
+							'product'   => 'B',
 							'is_active' => false,
 						],
 					]
@@ -279,21 +279,21 @@ final class License_RepositoryTest extends UplinkTestCase {
 							'key'       => 'k1',
 							'slug'      => 'active-plugin',
 							'name'      => 'Active',
-							'brand'     => 'B',
+							'product'   => 'B',
 							'is_active' => true,
 						],
 						[
 							'key'       => 'k2',
 							'slug'      => 'expired-plugin',
 							'name'      => 'Expired',
-							'brand'     => 'B',
+							'product'   => 'B',
 							'is_active' => false,
 						],
 						[
 							'key'       => 'k3',
 							'slug'      => 'inactive-plugin',
 							'name'      => 'Inactive',
-							'brand'     => 'B',
+							'product'   => 'B',
 							'is_active' => false,
 						],
 					]
@@ -326,10 +326,10 @@ final class License_RepositoryTest extends UplinkTestCase {
 					$licenses,
 					[
 						[
-							'key'   => 'k1',
-							'slug'  => 's1',
-							'name'  => 'N',
-							'brand' => 'B',
+							'key'     => 'k1',
+							'slug'    => 's1',
+							'name'    => 'N',
+							'product' => 'B',
 						],
 					]
 				);

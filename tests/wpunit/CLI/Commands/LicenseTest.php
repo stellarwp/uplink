@@ -417,7 +417,7 @@ final class LicenseTest extends UplinkTestCase {
 						'key'        => 'ABC123',
 						'slug'       => 'my-plugin',
 						'name'       => 'My Plugin',
-						'brand'      => 'My Brand',
+						'product'    => 'My Product',
 						'is_active'  => true,
 						'page_url'   => 'https://example.com/account',
 						'expires_at' => '2027-01-01',
@@ -434,7 +434,7 @@ final class LicenseTest extends UplinkTestCase {
 		$this->assertCount( 1, $items );
 		$this->assertSame( 'my-plugin', $items[0]['slug'] );
 		$this->assertSame( 'My Plugin', $items[0]['name'] );
-		$this->assertSame( 'My Brand', $items[0]['brand'] );
+		$this->assertSame( 'My Product', $items[0]['product'] );
 		$this->assertSame( 'ABC123', $items[0]['key'] );
 		$this->assertTrue( $items[0]['is_active'] );
 		$this->assertSame( '2027-01-01', $items[0]['expires_at'] );
@@ -488,7 +488,7 @@ final class LicenseTest extends UplinkTestCase {
 			[],
 			[
 				'format' => 'json',
-				'fields' => 'slug,name,brand,key,is_active,expires_at,page_url',
+				'fields' => 'slug,name,product,key,is_active,expires_at,page_url',
 			]
 		);
 		$output = ob_get_clean();

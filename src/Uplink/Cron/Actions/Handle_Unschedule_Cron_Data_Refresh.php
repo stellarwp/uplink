@@ -5,6 +5,9 @@ namespace StellarWP\Uplink\Cron\Actions;
 use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Cron\ValueObjects\CronHook;
 
+use function is_plugin_active;
+use function is_plugin_active_for_network;
+
 /**
  * Unschedules the data refresh cron event when no catalog plugins remain active.
  *
@@ -65,19 +68,19 @@ class Handle_Unschedule_Cron_Data_Refresh {
 			return true;
 		}
 
-		$found_plugin_feature = false;
+		$found_catalog_plugin = false;
 
-		foreach ( $catalog as $product ) {
-			foreach ( $product->get_features() as $feature ) {
-				$plugin_file = $feature->get_plugin_file();
+		foreach ( $catalog as $product_catalog ) {
+			foreach ( $product_catalog->get_features() as $catalog_feature ) {
+				$plugin_file = $catalog_feature->get_plugin_file();
 
 				if ( $plugin_file === null ) {
 					continue;
 				}
 
-				$found_plugin_feature = true;
+				$found_catalog_plugin = true;
 
-				if ( is_plugin_active( $plugin_file ) ) {
+				if ( is_plugin_active( $plugin_file ) || is_plugin_active_for_network( $plugin_file ) ) {
 					return true;
 				}
 			}
@@ -85,7 +88,7 @@ class Handle_Unschedule_Cron_Data_Refresh {
 
 		// If the catalog has no plugin features we cannot determine whether
 		// Uplink is still needed, so leave the cron in place.
-		if ( ! $found_plugin_feature ) {
+		if ( ! $found_catalog_plugin ) {
 			return true;
 		}
 

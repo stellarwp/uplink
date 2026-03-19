@@ -38,13 +38,13 @@ final class Handle_Unschedule_Cron_Data_Refresh_Test extends UplinkTestCase {
 	}
 
 	/**
-	 * Test that the action does not unschedule when the catalog has no plugin features.
+	 * Test that the action does not unschedule when the catalog has no installable features.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @return void
 	 */
-	public function test_does_not_unschedule_when_catalog_has_no_plugin_features(): void {
+	public function test_does_not_unschedule_when_catalog_has_no_installable_features(): void {
 		wp_schedule_event( time(), 'twicedaily', CronHook::DATA_REFRESH );
 
 		$catalog = $this->makeEmpty(
@@ -103,6 +103,50 @@ final class Handle_Unschedule_Cron_Data_Refresh_Test extends UplinkTestCase {
 	}
 
 	/**
+	 * Test that the action does not unschedule when the catalog theme is active.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return void
+	 */
+	public function test_does_not_unschedule_when_catalog_theme_is_active(): void {
+		wp_schedule_event( time(), 'twicedaily', CronHook::DATA_REFRESH );
+
+		$active_theme_slug = get_stylesheet();
+
+		$catalog = $this->makeEmpty(
+			Catalog_Repository::class,
+			[ 'get' => $this->make_catalog_with_theme( $active_theme_slug ) ]
+		);
+
+		$action = new Handle_Unschedule_Cron_Data_Refresh( $catalog );
+		( $action )();
+
+		$this->assertNotFalse( wp_next_scheduled( CronHook::DATA_REFRESH ) );
+	}
+
+	/**
+	 * Test that the action unschedules when the catalog theme is not active.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return void
+	 */
+	public function test_unschedules_when_catalog_theme_is_inactive(): void {
+		wp_schedule_event( time(), 'twicedaily', CronHook::DATA_REFRESH );
+
+		$catalog = $this->makeEmpty(
+			Catalog_Repository::class,
+			[ 'get' => $this->make_catalog_with_theme( 'some-inactive-theme' ) ]
+		);
+
+		$action = new Handle_Unschedule_Cron_Data_Refresh( $catalog );
+		( $action )();
+
+		$this->assertFalse( wp_next_scheduled( CronHook::DATA_REFRESH ) );
+	}
+
+	/**
 	 * Build a minimal catalog collection containing one plugin feature.
 	 *
 	 * @since 3.0.0
@@ -125,6 +169,39 @@ final class Handle_Unschedule_Cron_Data_Refresh_Test extends UplinkTestCase {
 							'plugin_file'       => $plugin_file,
 							'is_dot_org'        => false,
 							'name'              => 'Test Feature',
+							'description'       => '',
+							'category'          => '',
+							'documentation_url' => '',
+						],
+					],
+				],
+			]
+		);
+	}
+
+	/**
+	 * Build a minimal catalog collection containing one theme feature.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $theme_slug Theme stylesheet slug, e.g. 'twentytwentyfour'.
+	 *
+	 * @return Catalog_Collection
+	 */
+	private function make_catalog_with_theme( string $theme_slug ): Catalog_Collection {
+		return Catalog_Collection::from_array(
+			[
+				[
+					'product_slug' => 'test-product',
+					'tiers'        => [],
+					'features'     => [
+						[
+							'feature_slug'      => $theme_slug,
+							'type'              => 'theme',
+							'minimum_tier'      => '',
+							'plugin_file'       => null,
+							'is_dot_org'        => false,
+							'name'              => 'Test Theme',
 							'description'       => '',
 							'category'          => '',
 							'documentation_url' => '',

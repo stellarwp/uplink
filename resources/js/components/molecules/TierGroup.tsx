@@ -12,19 +12,18 @@ import { ChevronRight, ChevronDown, Lock, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { FeatureRow } from '@/components/molecules/FeatureRow';
-import type { CatalogTier, Feature, Product } from '@/types/api';
+import type { CatalogTier, Feature } from '@/types/api';
 
 interface TierGroupProps {
     tier:       CatalogTier;
     features:   Feature[];
-    product:    Product;
     forceOpen?: boolean;
 }
 
 /**
  * @since 3.0.0
  */
-export function TierGroup( { tier, features, product, forceOpen = false }: TierGroupProps ) {
+export function TierGroup( { tier, features, forceOpen = false }: TierGroupProps ) {
     const [ expanded, setExpanded ] = useState( false );
     const isOpen = expanded || forceOpen;
     const Chevron = isOpen ? ChevronDown : ChevronRight;
@@ -60,7 +59,7 @@ export function TierGroup( { tier, features, product, forceOpen = false }: TierG
                 <FeatureRow
                     key={ feature.slug }
                     feature={ feature }
-                    product={ product }
+                    upgradeTierName={ tier.name }
                 />
             ) ) }
         </>

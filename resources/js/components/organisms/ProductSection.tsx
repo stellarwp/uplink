@@ -17,7 +17,7 @@ import { FeatureRow } from '@/components/molecules/FeatureRow';
 import { TierGroup } from '@/components/molecules/TierGroup';
 import { store as uplinkStore } from '@/store';
 import { useFilter } from '@/context/filter-context';
-import { useFilteredFeatures } from '@/hooks/useFilteredFeatures';
+import { useProductFeatureGroups } from '@/hooks/useProductFeatureGroups';
 import type { Product } from '@/types/api';
 
 interface ProductSectionProps {
@@ -32,50 +32,29 @@ export function ProductSection( { product }: ProductSectionProps ) {
     const isSearching = searchQuery.trim().length > 0;
 
     // Full unfiltered set — used only for header counts so they stay stable.
-    const { hasLicense, licenseProduct, catalogTiers, allFeaturesUnfiltered } = useSelect(
+    const { hasLicense, licenseProduct, allFeaturesUnfiltered } = useSelect(
         ( select ) => {
             const licenseProducts = select( uplinkStore ).getLicenseProducts();
-            const catalog = select( uplinkStore ).getProductCatalog( product.slug );
             return {
                 allFeaturesUnfiltered: select( uplinkStore ).getFeaturesByProduct( product.slug ),
-                hasLicense: select( uplinkStore ).hasLicense(),
-                licenseProduct: licenseProducts.find( ( lp ) => lp.product_slug === product.slug ) ?? null,
-                catalogTiers: catalog?.tiers ?? [],
+                hasLicense:            select( uplinkStore ).hasLicense(),
+                licenseProduct:        licenseProducts.find( ( lp ) => lp.product_slug === product.slug ) ?? null,
             };
         },
         [ product.slug ],
     );
 
-    // Filtered set — used for rendering rows.
-    const allFeatures = useFilteredFeatures( product.slug );
-
-    // Features with no tier are free — always available regardless of license.
-    const isFreeFeature = ( f: (typeof allFeatures)[0] ) => ! f.tier || f.tier.toLowerCase().includes( 'free' );
-
-    const availableFeatures = allFeatures.filter( ( f ) => f.is_available || isFreeFeature( f ) );
-    const lockedFeatures    = allFeatures.filter( ( f ) => ! f.is_available && ! isFreeFeature( f ) );
+    const { availableFeatures, lockedByTier, sortedCatalogTiers } = useProductFeatureGroups( product.slug );
 
     // Counts derived from the unfiltered set — unaffected by search.
     const activeCount      = allFeaturesUnfiltered.filter( ( f ) => f.is_available && f.is_enabled ).length;
     const deactivatedCount = allFeaturesUnfiltered.filter( ( f ) => f.is_available && ! f.is_enabled ).length;
 
     const tierName = licenseProduct
-        ? ( catalogTiers.find( ( t ) => t.slug === licenseProduct.tier )?.name ?? licenseProduct.tier )
+        ? ( sortedCatalogTiers.find( ( t ) => t.slug === licenseProduct.tier )?.name ?? licenseProduct.tier )
         : null;
 
-    // Catalog tiers sorted by rank — these slugs match feature.tier values from the API.
-    const sortedCatalogTiers = catalogTiers.slice().sort( ( a, b ) => a.rank - b.rank );
-
-    // Group locked features by their minimum catalog-tier slug.
-    const lockedByTier = sortedCatalogTiers.reduce<Record<string, typeof lockedFeatures>>(
-        ( acc, tier ) => {
-            acc[ tier.slug ] = lockedFeatures.filter( ( f ) => f.tier === tier.slug );
-            return acc;
-        },
-        {}
-    );
-
-    const hasContent = availableFeatures.length > 0 || lockedFeatures.length > 0;
+    const hasContent = availableFeatures.length > 0 || Object.values( lockedByTier ).some( ( f ) => f.length > 0 );
 
     return (
         <section id={ product.slug } className="scroll-mt-20">
@@ -121,7 +100,6 @@ export function ProductSection( { product }: ProductSectionProps ) {
                         <FeatureRow
                             key={ feature.slug }
                             feature={ feature }
-                            product={ product }
                         />
                     ) ) }
 
@@ -133,7 +111,6 @@ export function ProductSection( { product }: ProductSectionProps ) {
                                 key={ tier.slug }
                                 tier={ tier }
                                 features={ locked }
-                                product={ product }
                                 forceOpen={ isSearching }
                             />
                         );

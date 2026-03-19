@@ -96,3 +96,4 @@ export type Thunk<
 > = [T] extends [Awaited< infer R >]
 	? ( args: ThunkArgs< A, S > ) => Promise< R >
 	: ( args: ThunkArgs< A, S > ) => T;
+

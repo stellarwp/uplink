@@ -29,9 +29,9 @@ export function AppShell() {
     // by the ErrorBoundary above this component.
     const { license, features, catalog } = useResolvableSelectWithError(
         ( resolve ) => ( {
-            license: resolve( uplinkStore ).getLicenseKey(),
+            license:  resolve( uplinkStore ).getLicenseKey(),
             features: resolve( uplinkStore ).getFeatures(),
-            catalog: resolve( uplinkStore ).getCatalog(),
+            catalog:  resolve( uplinkStore ).getCatalog(),
         } ),
         [],
     );

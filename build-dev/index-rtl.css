@@ -30,9 +30,7 @@
     --color-blue-200: oklch(88.2% 0.059 254.128);
     --color-blue-800: oklch(42.4% 0.199 265.638);
     --color-neutral-50: oklch(98.5% 0 0);
-    --color-neutral-300: oklch(87% 0 0);
     --color-neutral-800: oklch(26.9% 0 0);
-    --color-neutral-900: oklch(20.5% 0 0);
     --color-black: #000;
     --color-white: #fff;
     --spacing: 0.25rem;
@@ -521,14 +519,8 @@
   .uplink-ui .w-5 {
     width: calc(var(--spacing) * 5) !important;
   }
-  .uplink-ui .w-6 {
-    width: calc(var(--spacing) * 6) !important;
-  }
   .uplink-ui .w-8 {
     width: calc(var(--spacing) * 8) !important;
-  }
-  .uplink-ui .w-16 {
-    width: calc(var(--spacing) * 16) !important;
   }
   .uplink-ui .w-25 {
     width: calc(var(--spacing) * 25) !important;
@@ -846,14 +838,8 @@
   .uplink-ui .bg-neutral-50 {
     background-color: var(--color-neutral-50) !important;
   }
-  .uplink-ui .bg-neutral-300 {
-    background-color: var(--color-neutral-300) !important;
-  }
   .uplink-ui .bg-neutral-800 {
     background-color: var(--color-neutral-800) !important;
-  }
-  .uplink-ui .bg-neutral-900 {
-    background-color: var(--color-neutral-900) !important;
   }
   .uplink-ui .bg-popover {
     background-color: oklch(1 0 0) !important;

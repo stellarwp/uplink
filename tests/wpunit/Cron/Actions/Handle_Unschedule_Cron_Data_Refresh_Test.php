@@ -7,7 +7,6 @@ use StellarWP\Uplink\Catalog\Catalog_Repository;
 use StellarWP\Uplink\Cron\Actions\Handle_Unschedule_Cron_Data_Refresh;
 use StellarWP\Uplink\Cron\ValueObjects\CronHook;
 use StellarWP\Uplink\Tests\UplinkTestCase;
-use WP_Error;
 
 /**
  * Tests the Handle_Unschedule_Cron_Data_Refresh action.
@@ -17,18 +16,18 @@ use WP_Error;
 final class Handle_Unschedule_Cron_Data_Refresh_Test extends UplinkTestCase {
 
 	/**
-	 * Test that the action does not unschedule when the catalog returns an error.
+	 * Test that the action does not unschedule when no catalog is cached (e.g. never fetched or error).
 	 *
 	 * @since 3.0.0
 	 *
 	 * @return void
 	 */
-	public function test_does_not_unschedule_when_catalog_returns_error(): void {
+	public function test_does_not_unschedule_when_no_catalog_cached(): void {
 		wp_schedule_event( time(), 'twicedaily', CronHook::DATA_REFRESH );
 
 		$catalog = $this->makeEmpty(
 			Catalog_Repository::class,
-			[ 'get' => new WP_Error( 'catalog_error', 'API unavailable.' ) ]
+			[ 'get_cached' => null ]
 		);
 
 		$action = new Handle_Unschedule_Cron_Data_Refresh( $catalog );
@@ -49,7 +48,7 @@ final class Handle_Unschedule_Cron_Data_Refresh_Test extends UplinkTestCase {
 
 		$catalog = $this->makeEmpty(
 			Catalog_Repository::class,
-			[ 'get' => Catalog_Collection::from_array( [] ) ]
+			[ 'get_cached' => Catalog_Collection::from_array( [] ) ]
 		);
 
 		$action = new Handle_Unschedule_Cron_Data_Refresh( $catalog );
@@ -71,7 +70,7 @@ final class Handle_Unschedule_Cron_Data_Refresh_Test extends UplinkTestCase {
 
 		$catalog = $this->makeEmpty(
 			Catalog_Repository::class,
-			[ 'get' => $this->make_catalog_with_plugin( 'give/give.php' ) ]
+			[ 'get_cached' => $this->make_catalog_with_plugin( 'give/give.php' ) ]
 		);
 
 		$action = new Handle_Unschedule_Cron_Data_Refresh( $catalog );
@@ -93,7 +92,7 @@ final class Handle_Unschedule_Cron_Data_Refresh_Test extends UplinkTestCase {
 
 		$catalog = $this->makeEmpty(
 			Catalog_Repository::class,
-			[ 'get' => $this->make_catalog_with_plugin( 'give/give.php' ) ]
+			[ 'get_cached' => $this->make_catalog_with_plugin( 'give/give.php' ) ]
 		);
 
 		$action = new Handle_Unschedule_Cron_Data_Refresh( $catalog );
@@ -116,7 +115,7 @@ final class Handle_Unschedule_Cron_Data_Refresh_Test extends UplinkTestCase {
 
 		$catalog = $this->makeEmpty(
 			Catalog_Repository::class,
-			[ 'get' => $this->make_catalog_with_theme( $active_theme_slug ) ]
+			[ 'get_cached' => $this->make_catalog_with_theme( $active_theme_slug ) ]
 		);
 
 		$action = new Handle_Unschedule_Cron_Data_Refresh( $catalog );
@@ -137,7 +136,7 @@ final class Handle_Unschedule_Cron_Data_Refresh_Test extends UplinkTestCase {
 
 		$catalog = $this->makeEmpty(
 			Catalog_Repository::class,
-			[ 'get' => $this->make_catalog_with_theme( 'some-inactive-theme' ) ]
+			[ 'get_cached' => $this->make_catalog_with_theme( 'some-inactive-theme' ) ]
 		);
 
 		$action = new Handle_Unschedule_Cron_Data_Refresh( $catalog );

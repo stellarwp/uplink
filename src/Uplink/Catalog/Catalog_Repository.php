@@ -145,6 +145,27 @@ class Catalog_Repository {
 	}
 
 	/**
+	 * Returns the cached catalog collection without making any API call.
+	 *
+	 * Returns null when no successful fetch has been stored yet. Callers
+	 * that need a best-effort read without triggering outbound HTTP (e.g.
+	 * during plugin/theme deactivation hooks) should use this instead of get().
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return Catalog_Collection|null
+	 */
+	public function get_cached(): ?Catalog_Collection {
+		$state = $this->read_catalog_state();
+
+		if ( is_array( $state[ self::STATE_KEY_COLLECTION ] ) ) {
+			return Catalog_Collection::from_array( $state[ self::STATE_KEY_COLLECTION ] );
+		}
+
+		return null;
+	}
+
+	/**
 	 * Always fetches from the API, bypassing stored state.
 	 *
 	 * @since 3.0.0

@@ -65,9 +65,9 @@ class Handle_Unschedule_Cron_Data_Refresh {
 	 * @return bool
 	 */
 	private function has_active_catalog_feature(): bool {
-		$catalog = $this->catalog->get();
+		$catalog = $this->catalog->get_cached();
 
-		if ( is_wp_error( $catalog ) ) {
+		if ( $catalog === null ) {
 			return true;
 		}
 

@@ -58,10 +58,13 @@ class Uplink {
 		$container->singleton( Catalog\Provider::class, Catalog\Provider::class );
 		$container->singleton( API\REST\V1\Provider::class, API\REST\V1\Provider::class );
 		$container->singleton( CLI\Provider::class, CLI\Provider::class );
+		$container->singleton( Cron\Provider::class, Cron\Provider::class );
+
+		$container->get( View\Provider::class )->register();
+		$container->singleton( Notice\Notice_Controller::class, Notice\Notice_Controller::class );
 
 		if ( static::is_enabled() ) {
 			$container->get( Storage\Provider::class )->register();
-			$container->get( View\Provider::class )->register();
 			$container->get( API\V3\Provider::class )->register();
 			$container->get( Notice\Provider::class )->register();
 			$container->get( Admin\Provider::class )->register();
@@ -79,6 +82,7 @@ class Uplink {
 		$container->get( API\REST\V1\Provider::class )->register();
 		$container->get( API\Functions\Provider::class )->register();
 		$container->get( CLI\Provider::class )->register();
+		$container->get( Cron\Provider::class )->register();
 
 		static::register_cross_instance_hooks( $container );
 

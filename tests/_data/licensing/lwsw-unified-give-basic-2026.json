@@ -13,7 +13,22 @@
       },
       "installed_here": true,
       "validation_status": "valid",
-      "is_valid": true
+      "is_valid": true,
+      "capabilities": [
+        "give-recurring",
+        "give-fee-recovery",
+        "give-form-field-manager",
+        "give-annual-receipts",
+        "give-funds",
+        "give-tributes",
+        "give-pdf-receipts",
+        "give-manual-donations",
+        "give-stripe",
+        "give-paypal",
+        "give-mailchimp",
+        "give-constant-contact",
+        "give-convertkit"
+      ]
     }
   ]
 }

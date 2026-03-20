@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\Legacy\Notices;
 
+use StellarWP\Uplink\Admin\Feature_Manager_Page;
 use StellarWP\Uplink\Legacy\License_Repository;
 use StellarWP\Uplink\Notice\Notice;
 use StellarWP\Uplink\Notice\Notice_Controller;
@@ -77,38 +78,42 @@ class License_Notice_Handler {
 			return;
 		}
 
-		// Group by brand, skipping any slug already covered by v3 or dismissed by the user.
-		$by_brand = [];
+		// Group by product, skipping any slug already covered by v3 or dismissed by the user.
+		$by_product = [];
 
 		foreach ( $licenses as $license ) {
 			if ( stellarwp_uplink_is_feature_available( $license->slug ) ) {
 				continue;
 			}
 
-			$brand = $license->brand;
-			$id    = 'legacy-' . $brand;
+			$product = $license->product;
+			$id      = 'legacy-' . $product;
 
 			if ( $this->is_dismissed( $id ) ) {
 				continue;
 			}
 
-			if ( ! isset( $by_brand[ $brand ] ) ) {
-				$by_brand[ $brand ] = [
+			if ( ! isset( $by_product[ $product ] ) ) {
+				$by_product[ $product ] = [
 					'id'       => $id,
 					'page_url' => $license->page_url,
 					'count'    => 0,
 				];
 			}
 
-			++$by_brand[ $brand ]['count'];
+			++$by_product[ $product ]['count'];
 		}
 
-		if ( empty( $by_brand ) ) {
+		if ( empty( $by_product ) ) {
 			return;
 		}
 
-		foreach ( $by_brand as $brand => $data ) {
-			$this->render_notice( $brand, $data );
+		foreach ( $by_product as $product => $data ) {
+			if ( $this->is_on_notice_page( $data['page_url'] ) ) {
+				continue;
+			}
+
+			$this->render_notice( $product, $data );
 		}
 
 		$this->enqueue_dismiss_script();
@@ -130,27 +135,64 @@ class License_Notice_Handler {
 	}
 
 	/**
-	 * Render a single brand's license notice.
+	 * Whether the current admin request is already on the given page URL.
+	 *
+	 * Compares the `page` query parameter from the notice URL against the
+	 * current request so the notice is suppressed when the user is already
+	 * on the page they would be directed to.
 	 *
 	 * @since 3.0.0
 	 *
-	 * TODO: Decide on messaging for all brands.
+	 * @param string $page_url The product's license page URL.
 	 *
-	 * @param string                                          $brand The brand name.
+	 * @return bool
+	 */
+	private function is_on_notice_page( string $page_url ): bool {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- reading current page slug, not processing a form.
+		$current_page = sanitize_key( Cast::to_string( $_GET['page'] ?? '' ) );
+
+		if ( $current_page === '' ) {
+			return false;
+		}
+
+		if ( $current_page === Feature_Manager_Page::PAGE_SLUG ) {
+			return true;
+		}
+
+		$parsed = wp_parse_url( $page_url );
+
+		if ( empty( $parsed['query'] ) ) {
+			return false;
+		}
+
+		$params = [];
+		wp_parse_str( $parsed['query'], $params );
+
+		return ! empty( $params['page'] ) && $current_page === $params['page'];
+	}
+
+	/**
+	 * Render a single product's license notice.
+	 *
+	 * @since 3.0.0
+	 *
+	 * TODO: Decide on messaging for all products.
+	 *
+	 * @param string                                          $product The product name.
 	 * @param array{id: string, page_url: string, count: int} $data The notice data.
 	 *
 	 * @return void
 	 */
-	private function render_notice( string $brand, array $data ): void {
+	private function render_notice( string $product, array $data ): void {
 		$message = sprintf(
-			/* translators: %1$s is the brand name, %2$s is the page URL, %3$d is the number of inactive licenses. */
+			/* translators: %1$s is the product name, %2$s is the page URL, %3$d is the number of inactive licenses. */
 			_n(
 				'You have %3$d inactive %1$s license. Please <a href="%2$s">activate it</a> to receive critical updates and new features.',
 				'You have %3$d inactive %1$s licenses. Please <a href="%2$s">activate them</a> to receive critical updates and new features.',
 				$data['count'],
 				'%TEXTDOMAIN%'
 			),
-			ucfirst( $brand ),
+			ucfirst( $product ),
 			esc_url( $data['page_url'] ),
 			$data['count']
 		);

@@ -16,8 +16,9 @@ use WP_Error;
 /**
  * Joins catalog and licensing data to produce a resolved Feature_Collection.
  *
- * For each catalog feature, computes is_available by comparing
- * the site's licensed tier rank against the feature's minimum tier rank.
+ * For each catalog feature, computes is_available by checking whether
+ * the feature's slug appears in the product entry's capabilities array.
+ * When no license exists, only free-tier features (minimum tier rank 0) are available.
  *
  * @since 3.0.0
  */
@@ -138,10 +139,10 @@ class Resolve_Feature_Collection {
 				continue;
 			}
 
-			$license_tier_rank = $this->resolve_license_tier_rank( $product, $products );
+			$capabilities = $this->resolve_capabilities( $product, $products );
 
 			foreach ( $product->get_features() as $catalog_feature ) {
-				$feature = $this->hydrate_feature( $catalog_feature, $product, $license_tier_rank );
+				$feature = $this->hydrate_feature( $catalog_feature, $product, $capabilities );
 
 				if ( is_wp_error( $feature ) ) {
 					static::debug_log( $feature->get_error_message() );
@@ -156,63 +157,49 @@ class Resolve_Feature_Collection {
 	}
 
 	/**
-	 * Resolves the licensed tier rank for a given product.
+	 * Resolves the capabilities granted by the license for a given product.
 	 *
-	 * Looks up the license's tier slug directly in the product's tier collection.
-	 * Both the catalog and licensing fixtures use the same product-prefixed
-	 * tier slug convention (e.g. "kadence-pro").
+	 * Returns the capabilities array from the product entry when a license exists,
+	 * or null when no license is present for this product.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @param Product_Catalog    $product  The catalog product.
 	 * @param Product_Collection $products The licensing product collection.
 	 *
-	 * @return int The tier rank, or 0 if the product has no license.
+	 * @return string[]|null The capabilities array, or null if the product has no license.
 	 */
-	private function resolve_license_tier_rank( Product_Catalog $product, Product_Collection $products ): int {
-		$product_slug = $product->get_product_slug();
-		$license      = $products->get( $product_slug );
+	private function resolve_capabilities( Product_Catalog $product, Product_Collection $products ): ?array {
+		$license = $products->get( $product->get_product_slug() );
 
 		if ( null === $license ) {
-			return 0;
+			return null;
 		}
 
-		$tier_slug = $license->get_tier();
-		$tier      = $product->get_tier_by_slug( $tier_slug );
-
-		if ( null === $tier ) {
-			static::debug_log(
-				sprintf(
-					'Licensed tier slug "%s" not found in catalog for product "%s", tier rank = 0.',
-					$tier_slug,
-					$product_slug
-				)
-			);
-
-			return 0;
-		}
-
-		return $tier->get_rank();
+		return $license->get_capabilities();
 	}
 
 	/**
 	 * Hydrates a Feature object from a catalog feature entry.
 	 *
 	 * Maps catalog types (plugin, theme, flag) to Feature subclasses
-	 * (Plugin, Theme,Flag) and computes is_available from tier rank comparison.
+	 * (Plugin, Theme, Flag) and computes is_available from the capabilities array.
+	 *
+	 * When capabilities is null (no license), only free-tier features
+	 * (minimum tier rank 0) are available.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param Catalog_Feature $catalog_feature   The catalog feature entry.
-	 * @param Product_Catalog $product           The parent catalog product.
-	 * @param int             $license_tier_rank The resolved license tier rank.
+	 * @param Catalog_Feature $catalog_feature The catalog feature entry.
+	 * @param Product_Catalog $product         The parent catalog product.
+	 * @param string[]|null   $capabilities    The license capabilities, or null if unlicensed.
 	 *
 	 * @return Feature|WP_Error The hydrated feature, or WP_Error for unknown types.
 	 */
 	private function hydrate_feature(
 		Catalog_Feature $catalog_feature,
 		Product_Catalog $product,
-		int $license_tier_rank
+		?array $capabilities
 	) {
 		$catalog_type = $catalog_feature->get_type();
 		$class        = $this->type_map[ $catalog_type ] ?? null;
@@ -228,13 +215,19 @@ class Resolve_Feature_Collection {
 			);
 		}
 
-		$minimum_tier = $product->get_tier_by_slug( $catalog_feature->get_minimum_tier() );
-		$minimum_rank = $minimum_tier !== null ? $minimum_tier->get_rank() : PHP_INT_MAX;
-		$is_available = $license_tier_rank >= $minimum_rank;
+		if ( $catalog_feature->is_dot_org() ) {
+			$is_available = true;
+		} elseif ( $capabilities === null ) {
+			$minimum_tier = $product->get_tier_by_slug( $catalog_feature->get_minimum_tier() );
+			$minimum_rank = $minimum_tier !== null ? $minimum_tier->get_rank() : PHP_INT_MAX;
+			$is_available = $minimum_rank === 0;
+		} else {
+			$is_available = in_array( $catalog_feature->get_feature_slug(), $capabilities, true );
+		}
 
 		$data = [
 			'slug'              => $catalog_feature->get_feature_slug(),
-			'group'             => $product->get_product_slug(),
+			'product'           => $product->get_product_slug(),
 			'tier'              => $catalog_feature->get_minimum_tier(),
 			'name'              => $catalog_feature->get_name(),
 			'description'       => $catalog_feature->get_description(),

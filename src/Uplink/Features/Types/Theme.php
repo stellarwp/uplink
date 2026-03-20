@@ -28,7 +28,22 @@ final class Theme extends Feature implements Installable {
 	public function __construct( array $attributes ) {
 		$attributes['type'] = self::TYPE_THEME;
 
+		$attributes = array_merge(
+			$attributes,
+			[
+				'authors'           => $attributes['authors'] ?? [],
+				'is_dot_org'        => $attributes['is_dot_org'] ?? false,
+				'released_at'       => $attributes['released_at'] ?? null,
+				'installed_version' => $attributes['installed_version'] ?? null,
+				'version'           => $attributes['version'] ?? null,
+				'changelog'         => $attributes['changelog'] ?? null,
+			]
+		);
+
 		parent::__construct( $attributes );
+
+		// has_update() reads $this->attributes, so it must be set after parent::__construct().
+		$this->attributes['has_update'] = $this->has_update();
 	}
 
 	/**
@@ -41,19 +56,7 @@ final class Theme extends Feature implements Installable {
 	 * @return static
 	 */
 	public static function from_array( array $data ) {
-		return new self(
-			array_merge(
-				self::base_attributes( $data ),
-				[
-					'authors'           => $data['authors'] ?? [],
-					'is_dot_org'        => $data['is_dot_org'] ?? false,
-					'released_at'       => $data['released_at'] ?? null,
-					'installed_version' => $data['installed_version'] ?? null,
-					'version'           => $data['version'] ?? null,
-					'changelog'         => $data['changelog'] ?? null,
-				]
-			)
-		);
+		return new self( $data );
 	}
 
 	/**
@@ -85,6 +88,29 @@ final class Theme extends Feature implements Installable {
 	}
 
 	/**
+	 * Whether a newer version is available and this theme is currently installed.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return bool
+	 */
+	public function has_update(): bool {
+		$installed_version = $this->get_installed_version();
+
+		if ( $installed_version === null ) {
+			return false;
+		}
+
+		$catalog_version = Cast::to_string( $this->attributes['version'] ?? '' );
+
+		if ( $catalog_version === '' ) {
+			return false;
+		}
+
+		return version_compare( $catalog_version, $installed_version, '>' );
+	}
+
+	/**
 	 * Builds the complete update data array for this Theme feature.
 	 *
 	 * @since 3.0.0
@@ -105,6 +131,7 @@ final class Theme extends Feature implements Installable {
 				'description' => $this->get_description(),
 			],
 			'installed_version' => $this->get_installed_version() ?? '',
+			'has_update'        => $this->has_update(),
 		];
 	}
 

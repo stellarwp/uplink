@@ -39,7 +39,7 @@ final class PluginTest extends UplinkTestCase {
 		return new Plugin(
 			[
 				'slug'         => $slug,
-				'group'        => self::GROUP,
+				'product'        => self::GROUP,
 				'tier'         => self::TIER,
 				'name'         => $name,
 				'description'  => $description,
@@ -63,7 +63,7 @@ final class PluginTest extends UplinkTestCase {
 		$feature = Plugin::from_array(
 			[
 				'slug'              => 'test-feature',
-				'group'             => 'LearnDash',
+				'product'             => 'LearnDash',
 				'tier'              => 'Tier 2',
 				'name'              => 'Test Feature',
 				'description'       => 'Test feature description.',
@@ -76,7 +76,7 @@ final class PluginTest extends UplinkTestCase {
 
 		$this->assertInstanceOf( Plugin::class, $feature );
 		$this->assertSame( 'test-feature', $feature->get_slug() );
-		$this->assertSame( 'LearnDash', $feature->get_group() );
+		$this->assertSame( 'LearnDash', $feature->get_product() );
 		$this->assertSame( 'Tier 2', $feature->get_tier() );
 		$this->assertSame( 'Test Feature', $feature->get_name() );
 		$this->assertSame( 'Test feature description.', $feature->get_description() );
@@ -96,7 +96,7 @@ final class PluginTest extends UplinkTestCase {
 		$feature = new Plugin(
 			[
 				'slug'              => 'test-feature',
-				'group'             => 'LearnDash',
+				'product'             => 'LearnDash',
 				'tier'              => 'Tier 2',
 				'name'              => 'Test Feature',
 				'description'       => 'Test feature description.',
@@ -112,7 +112,7 @@ final class PluginTest extends UplinkTestCase {
 		$this->assertSame(
 			[
 				'slug'              => 'test-feature',
-				'group'             => 'LearnDash',
+				'product'             => 'LearnDash',
 				'tier'              => 'Tier 2',
 				'name'              => 'Test Feature',
 				'description'       => 'Test feature description.',
@@ -123,6 +123,10 @@ final class PluginTest extends UplinkTestCase {
 				'released_at'       => '2025-11-15',
 				'installed_version' => '1.0.0',
 				'type'              => 'plugin',
+				'is_dot_org'        => false,
+				'version'           => null,
+				'changelog'         => null,
+				'has_update'        => false,
 			],
 			$feature->to_array()
 		);
@@ -136,7 +140,7 @@ final class PluginTest extends UplinkTestCase {
 	public function test_to_array_round_trips_through_from_array(): void {
 		$data = [
 			'slug'              => 'test-feature',
-			'group'             => 'LearnDash',
+			'product'             => 'LearnDash',
 			'tier'              => 'Tier 2',
 			'name'              => 'Test Feature',
 			'description'       => 'Test feature description.',
@@ -151,6 +155,7 @@ final class PluginTest extends UplinkTestCase {
 			'installed_version' => '1.2.3',
 			'version'           => null,
 			'changelog'         => null,
+			'has_update'        => false,
 		];
 
 		$feature = Plugin::from_array( $data );
@@ -167,7 +172,7 @@ final class PluginTest extends UplinkTestCase {
 		$feature = Plugin::from_array(
 			[
 				'slug'         => 'test-feature',
-				'group'        => 'LearnDash',
+				'product'        => 'LearnDash',
 				'tier'         => 'Tier 2',
 				'name'         => 'Test Feature',
 				'plugin_file'  => 'test-feature/test-feature.php',
@@ -187,7 +192,7 @@ final class PluginTest extends UplinkTestCase {
 		$feature = Plugin::from_array(
 			[
 				'slug'         => 'test-feature',
-				'group'        => 'LearnDash',
+				'product'        => 'LearnDash',
 				'tier'         => 'Tier 1',
 				'name'         => 'Test Feature',
 				'plugin_file'  => 'test-feature/test-feature.php',
@@ -211,7 +216,7 @@ final class PluginTest extends UplinkTestCase {
 		$feature = new Plugin(
 			[
 				'slug'         => 'test-feature',
-				'group'        => 'LearnDash',
+				'product'        => 'LearnDash',
 				'tier'         => 'Tier 2',
 				'name'         => 'Test Feature',
 				'description'  => 'Test feature description.',
@@ -266,7 +271,7 @@ final class PluginTest extends UplinkTestCase {
 		$feature = new Plugin(
 			[
 				'slug'         => self::SLUG,
-				'group'        => self::GROUP,
+				'product'        => self::GROUP,
 				'tier'         => self::TIER,
 				'name'         => self::NAME,
 				'plugin_file'  => self::PLUGIN_FILE,
@@ -285,7 +290,7 @@ final class PluginTest extends UplinkTestCase {
 		$feature = Plugin::from_array(
 			[
 				'slug'         => 'test-feature',
-				'group'        => 'LearnDash',
+				'product'        => 'LearnDash',
 				'tier'         => 'Tier 1',
 				'name'         => 'Test Feature',
 				'plugin_file'  => 'test-feature/test-feature.php',
@@ -402,7 +407,7 @@ final class PluginTest extends UplinkTestCase {
 		$feature = Plugin::from_array(
 			[
 				'slug'         => 'nonexistent-plugin',
-				'group'        => 'LearnDash',
+				'product'        => 'LearnDash',
 				'tier'         => 'Tier 2',
 				'name'         => 'Nonexistent Plugin',
 				'plugin_file'  => 'nonexistent-plugin/nonexistent-plugin.php',
@@ -424,7 +429,7 @@ final class PluginTest extends UplinkTestCase {
 		$feature = Plugin::from_array(
 			[
 				'slug'         => 'no-file',
-				'group'        => 'LearnDash',
+				'product'        => 'LearnDash',
 				'tier'         => 'Tier 2',
 				'name'         => 'No File',
 				'plugin_file'  => '',
@@ -444,7 +449,7 @@ final class PluginTest extends UplinkTestCase {
 		$feature = Plugin::from_array(
 			[
 				'slug'         => 'nonexistent-plugin',
-				'group'        => 'LearnDash',
+				'product'        => 'LearnDash',
 				'tier'         => 'Tier 2',
 				'name'         => 'Nonexistent Plugin',
 				'plugin_file'  => 'nonexistent-plugin/nonexistent-plugin.php',
@@ -466,7 +471,7 @@ final class PluginTest extends UplinkTestCase {
 		$feature = new Plugin(
 			[
 				'slug'              => 'the-slug',
-				'group'             => 'LearnDash',
+				'product'             => 'LearnDash',
 				'tier'              => 'Tier 1',
 				'name'              => 'The Name',
 				'description'       => 'The description.',
@@ -478,7 +483,7 @@ final class PluginTest extends UplinkTestCase {
 		);
 
 		$this->assertSame( 'the-slug', $feature->get_slug() );
-		$this->assertSame( 'LearnDash', $feature->get_group() );
+		$this->assertSame( 'LearnDash', $feature->get_product() );
 		$this->assertSame( 'Tier 1', $feature->get_tier() );
 		$this->assertSame( 'The Name', $feature->get_name() );
 		$this->assertSame( 'The description.', $feature->get_description() );

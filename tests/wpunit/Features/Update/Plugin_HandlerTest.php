@@ -98,7 +98,7 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 		$feature = new Plugin(
 			[
 				'slug'         => 'my-plugin',
-				'group'        => 'test',
+				'product'        => 'test',
 				'tier'         => 'basic',
 				'name'         => 'My Plugin',
 				'description'  => 'A test plugin.',
@@ -296,6 +296,7 @@ final class Plugin_HandlerTest extends UplinkTestCase {
 				'version'     => '2.0.0',
 				'package'     => 'https://example.com/my-plugin.zip',
 				'plugin_file' => 'my-plugin/my-plugin.php',
+				'has_update'  => true,
 			],
 		];
 

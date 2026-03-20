@@ -49,7 +49,7 @@ All communication between vendor-prefixed copies happens through non-prefixed Wo
 
 ### Product Registry
 
-Products declare themselves to the leader through a cross-instance filter. Each instance contributes its slug, display name, product family group (`kadence`, `give`, `the-events-calendar`, `learndash`), and a contributed key if it has one. The leader reads this filter lazily, by the time it's consumed, all plugins have loaded and registered.
+Products declare themselves to the leader through a cross-instance filter. Each instance contributes its slug, display name, product (`kadence`, `give`, `the-events-calendar`, `learndash`), and a contributed key if it has one. The leader reads this filter lazily, by the time it's consumed, all plugins have loaded and registered.
 
 A product does not provide its tier. Tiers come from the v4 licensing API response, they're a property of the license, not the product.
 

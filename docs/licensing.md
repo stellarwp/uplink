@@ -47,6 +47,7 @@ When the site calls `get_products()` with its key, Licensing returns an array of
 | `active_count`      | int          | Current number of activated sites                                                            |
 | `installed_here`    | bool\|null   | Whether this product is activated on the requesting domain. `null` if no domain was provided |
 | `validation_status` | string\|null | One of the `Validation_Status` constants                                                     |
+| `capabilities`      | string[]     | Feature slugs this license grants access to. This is the source of truth for `is_available`  |
 
 `get_products()` is a **read-only** operation. It does not consume seats. It is the bulk fetch used for periodic status checks.
 
@@ -113,12 +114,12 @@ The unified key is stored in a WordPress option (`stellarwp_uplink_unified_licen
 
 The full product catalog and related metadata are stored in a WordPress option (`stellarwp_uplink_licensing_products_state`) as a state envelope with four keys:
 
-| Key                | Type                 | Description                                                                                 |
-| ------------------ | -------------------- | ------------------------------------------------------------------------------------------- |
-| `collection`       | `array&#124;null`    | `Product_Collection::to_array()` from the last successful fetch, or `null` if never fetched |
-| `last_success_at`  | `int&#124;null`      | Unix timestamp of the last successful fetch                                                 |
-| `last_failure_at`  | `int&#124;null`      | Unix timestamp of the most recent failed fetch, or `null` if no failure has occurred        |
-| `last_error`       | `WP_Error&#124;null` | Error from the most recent failed attempt, or `null` if the last fetch succeeded            |
+| Key               | Type                 | Description                                                                                 |
+| ----------------- | -------------------- | ------------------------------------------------------------------------------------------- |
+| `collection`      | `array&#124;null`    | `Product_Collection::to_array()` from the last successful fetch, or `null` if never fetched |
+| `last_success_at` | `int&#124;null`      | Unix timestamp of the last successful fetch                                                 |
+| `last_failure_at` | `int&#124;null`      | Unix timestamp of the most recent failed fetch, or `null` if no failure has occurred        |
+| `last_error`      | `WP_Error&#124;null` | Error from the most recent failed attempt, or `null` if the last fetch succeeded            |
 
 Unlike a transient, this option has no TTL — product data persists indefinitely. Re-validation frequency (how often the API is called to refresh) is a separate concern from data persistence.
 
@@ -130,13 +131,13 @@ Since there is only one unified key per site, there is only one state entry. Inv
 
 Products opt into unified licensing by declaring themselves through a WordPress filter (`stellarwp/uplink/product_registry`). Each product contributes:
 
-| Field           | Required | Description                                         |
-| --------------- | -------- | --------------------------------------------------- |
-| `slug`          | Yes      | Product identifier, must match what Licensing knows |
-| `embedded_key`  | No       | `LWSW-`-prefixed key if the product ships with one  |
-| `name`          | No       | Human-readable display name                         |
-| `version`       | No       | Currently installed version                         |
-| `group`         | No       | Product brand/family (e.g., `givewp`, `kadence`)    |
+| Field          | Required | Description                                         |
+| -------------- | -------- | --------------------------------------------------- |
+| `slug`         | Yes      | Product identifier, must match what Licensing knows |
+| `embedded_key` | No       | `LWSW-`-prefixed key if the product ships with one  |
+| `name`         | No       | Human-readable display name                         |
+| `version`      | No       | Currently installed version                         |
+| `product`      | No       | Product brand/family (e.g., `givewp`, `kadence`)    |
 
 Only `slug` is required. Products do not declare their tier. Tiers are a property of the license, not the product.
 
@@ -259,12 +260,10 @@ Both Licensing and the Catalog use the same product-prefixed tier slug conventio
 
 ### How Licensing Data Feeds Feature Resolution
 
-The `Resolve_Feature_Collection` class consumes the `Product_Collection` from the licensing `License_Repository` alongside the `Catalog_Collection` from the catalog `Catalog_Repository`. For each product in the catalog, it looks up the matching licensing entry to determine:
+The `Resolve_Feature_Collection` class consumes the `Product_Collection` from the licensing `License_Repository` alongside the `Catalog_Collection` from the catalog `Catalog_Repository`. For each product in the catalog, it looks up the matching licensing entry to determine `is_available` for each feature:
 
-1. **Whether the site has a license** for that product at all
-2. **What tier rank** the license grants (by looking up the tier slug in the catalog's tier collection)
-
-That tier rank is compared against each feature's minimum tier rank to compute `is_available`. A product with no licensing entry gets a tier rank of `0`, making all of its features unavailable.
+- **If a product entry exists**: a feature is available if its slug appears in the entry's `capabilities` array. This is the source of truth for access — it handles grandfathered tiers, promotional grants, and individual exceptions that the catalog's tier structure alone cannot express.
+- **If no product entry exists** (unlicensed): the resolver falls back to the catalog's tier rank structure, making only free-tier features (minimum tier rank 0) available.
 
 ### Cache Invalidation
 

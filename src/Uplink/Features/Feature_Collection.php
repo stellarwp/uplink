@@ -101,24 +101,24 @@ class Feature_Collection extends Collection {
 	}
 
 	/**
-	 * Filters the collection by group, tier, availability and/or type.
+	 * Filters the collection by product, tier, availability and/or type.
 	 *
 	 * All parameters are optional. When null, that criterion is not applied.
 	 *
 	 * @since 3.0.0
 	 *
-	 * @param string|null $group     Filter by product group (e.g. 'LearnDash', 'TEC').
+	 * @param string|null $product   Filter by product (e.g. 'LearnDash', 'TEC').
 	 * @param string|null $tier      Filter by tier (e.g. 'Tier 1', 'Tier 2').
 	 * @param bool|null   $available Filter by availability (true/false).
 	 * @param string|null $type      Filter by feature type (a Feature::TYPE_* constant).
 	 *
 	 * @return Feature_Collection
 	 */
-	public function filter( ?string $group = null, ?string $tier = null, ?bool $available = null, ?string $type = null ): Feature_Collection {
+	public function filter( ?string $product = null, ?string $tier = null, ?bool $available = null, ?string $type = null ): Feature_Collection {
 		$filtered = new self();
 
 		foreach ( $this as $feature ) {
-			if ( $group !== null && $feature->get_group() !== $group ) {
+			if ( $product !== null && $feature->get_product() !== $product ) {
 				continue;
 			}
 

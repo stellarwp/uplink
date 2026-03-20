@@ -174,14 +174,14 @@ class Feature_Controller extends WP_REST_Controller {
 			return $this->ensure_error_status( $features );
 		}
 
-		$group     = $request->get_param( 'group' );
+		$product   = $request->get_param( 'product' );
 		$tier      = $request->get_param( 'tier' );
 		$available = $request->get_param( 'available' );
 		$type      = $request->get_param( 'type' );
 
-		if ( $group !== null || $tier !== null || $available !== null || $type !== null ) {
+		if ( $product !== null || $tier !== null || $available !== null || $type !== null ) {
 			$features = $features->filter(
-				$group !== null ? Cast::to_string( $group ) : null,
+				$product !== null ? Cast::to_string( $product ) : null,
 				$tier !== null ? Cast::to_string( $tier ) : null,
 				$available !== null ? Cast::to_bool( $available ) : null,
 				$type !== null ? Cast::to_string( $type ) : null
@@ -326,8 +326,8 @@ class Feature_Controller extends WP_REST_Controller {
 				'readonly'    => true,
 				'context'     => [ 'view' ],
 			],
-			'group'             => [
-				'description' => __( 'The product group the feature belongs to.', '%TEXTDOMAIN%' ),
+			'product'           => [
+				'description' => __( 'The product the feature belongs to.', '%TEXTDOMAIN%' ),
 				'type'        => 'string',
 				'readonly'    => true,
 				'context'     => [ 'view' ],
@@ -405,6 +405,12 @@ class Feature_Controller extends WP_REST_Controller {
 				'readonly'    => true,
 				'context'     => [ 'view' ],
 			],
+			'has_update'        => [
+				'description' => __( 'Whether a newer version is available and the feature is currently installed.', '%TEXTDOMAIN%' ),
+				'type'        => 'boolean',
+				'readonly'    => true,
+				'context'     => [ 'view' ],
+			],
 		];
 
 		$plugin_properties = [
@@ -466,8 +472,8 @@ class Feature_Controller extends WP_REST_Controller {
 	 */
 	public function get_collection_params(): array {
 		return [
-			'group'     => [
-				'description'       => __( 'Filter by product group.', '%TEXTDOMAIN%' ),
+			'product'   => [
+				'description'       => __( 'Filter by product.', '%TEXTDOMAIN%' ),
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 			],

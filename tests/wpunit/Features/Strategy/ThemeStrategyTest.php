@@ -7,12 +7,13 @@ use StellarWP\Uplink\Features\Strategy\Theme_Strategy;
 use StellarWP\Uplink\Features\Types\Theme;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 use WP_Error;
+use WP_Upgrader;
 
 /**
  * Tests for the Theme_Strategy feature-gating strategy.
  *
  * These tests exercise the strategy's logic against real WordPress state
- * (theme directories, transients) via the WPLoader module.
+ * (theme directories, WP_Upgrader locks) via the WPLoader module.
  *
  * Theme enable = install only (no switch_theme).
  * Theme disable = error if on disk (user must delete manually), success if not on disk.
@@ -52,6 +53,10 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
+		if ( ! class_exists( 'WP_Upgrader' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+		}
+
 		$this->feature             = $this->make_theme_feature();
 		$this->strategy            = new Theme_Strategy( $this->feature );
 		$this->original_stylesheet = get_option( 'stylesheet', '' );
@@ -59,7 +64,7 @@ final class ThemeStrategyTest extends UplinkTestCase {
 
 	protected function tearDown(): void {
 		// Clean up locks.
-		delete_transient( 'stellarwp_uplink_install_lock' );
+		WP_Upgrader::release_lock( 'stellarwp_uplink_install_lock' );
 
 		// Restore original active theme.
 		update_option( 'stylesheet', $this->original_stylesheet );
@@ -139,7 +144,42 @@ final class ThemeStrategyTest extends UplinkTestCase {
 	 * in progress (global lock).
 	 */
 	public function test_enable_returns_install_locked_error_when_concurrent_install_in_progress(): void {
-		set_transient( 'stellarwp_uplink_install_lock', '1', 120 );
+		WP_Upgrader::create_lock( 'stellarwp_uplink_install_lock', 120 );
+
+		$result = $this->strategy->enable();
+
+		$this->assertWPError( $result );
+		$this->assertSame( Error_Code::INSTALL_LOCKED, $result->get_error_code() );
+	}
+
+	/**
+	 * enable() proceeds when a stale lock has expired past the TTL.
+	 *
+	 * Simulates a process that crashed without releasing the lock by writing
+	 * an option timestamp older than the TTL. The next enable() should
+	 * reclaim the expired lock and proceed normally.
+	 */
+	public function test_enable_proceeds_when_stale_lock_has_expired(): void {
+		$this->install_test_theme( self::STYLESHEET, 'StellarWP' );
+
+		// Simulate a stale lock from 5 minutes ago (TTL is 2 minutes).
+		update_option( 'stellarwp_uplink_install_lock.lock', time() - 300, false );
+
+		$result = $this->strategy->enable();
+
+		$this->assertTrue( $result );
+		$this->assertSame( $this->original_stylesheet, get_option( 'stylesheet' ) );
+	}
+
+	/**
+	 * enable() is blocked by a lock that is still within the TTL window.
+	 *
+	 * Writes an option timestamp just 10 seconds ago — well within the
+	 * 2-minute TTL — to verify the boundary is respected.
+	 */
+	public function test_enable_blocked_by_fresh_lock_within_ttl(): void {
+		// Lock acquired 10 seconds ago — still valid.
+		update_option( 'stellarwp_uplink_install_lock.lock', time() - 10, false );
 
 		$result = $this->strategy->enable();
 
@@ -157,7 +197,7 @@ final class ThemeStrategyTest extends UplinkTestCase {
 		$result = $this->strategy->enable();
 
 		$this->assertTrue( $result );
-		$this->assertFalse( get_transient( 'stellarwp_uplink_install_lock' ) );
+		$this->assertFalse( get_option( 'stellarwp_uplink_install_lock.lock' ) );
 		// The active theme should NOT have changed.
 		$this->assertSame( $this->original_stylesheet, get_option( 'stylesheet' ) );
 	}
@@ -331,7 +371,7 @@ final class ThemeStrategyTest extends UplinkTestCase {
 			// Exception details must not leak.
 			$this->assertStringNotContainsString( 'Simulated fatal', $result->get_error_message() );
 			// Lock should be released even after a fatal throw.
-			$this->assertFalse( get_transient( 'stellarwp_uplink_install_lock' ) );
+			$this->assertFalse( get_option( 'stellarwp_uplink_install_lock.lock' ) );
 		} finally {
 			remove_filter( 'themes_api', $api_filter, 10 );
 			remove_filter( 'pre_http_request', $http_filter, 10 );
@@ -385,7 +425,7 @@ final class ThemeStrategyTest extends UplinkTestCase {
 			]
 		);
 
-		set_transient( 'stellarwp_uplink_install_lock', '1', 120 );
+		WP_Upgrader::create_lock( 'stellarwp_uplink_install_lock', 120 );
 
 		try {
 			$result = $this->strategy->update();
@@ -433,7 +473,7 @@ final class ThemeStrategyTest extends UplinkTestCase {
 		return new Theme(
 			[
 				'slug'         => $slug,
-				'group'        => 'Test',
+				'product'        => 'Test',
 				'tier'         => 'Tier 1',
 				'name'         => 'Test Theme Feature',
 				'description'  => 'A test theme for unit tests.',

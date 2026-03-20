@@ -81,7 +81,7 @@ if ( ! function_exists( '_stellarwp_uplink_global_function_registry' ) ) {
 			static function ( string $carry, string $v ): string {
 				return version_compare( $v, $carry, '>' ) ? $v : $carry;
 			},
-			'0.0.0' 
+			'0.0.0'
 		);
 
 		return $registry[ $key ][ $highest ] ?? null;
@@ -171,5 +171,22 @@ if ( ! function_exists( 'stellarwp_uplink_is_feature_available' ) ) {
 		$callback = _stellarwp_uplink_global_function_registry( 'stellarwp_uplink_is_feature_available' );
 
 		return $callback ? (bool) $callback( $slug ) : false;
+	}
+}
+
+if ( ! function_exists( 'stellarwp_uplink_get_license_page_url' ) ) {
+	/**
+	 * Returns the admin URL for the unified Feature Manager page.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string The admin URL, or an empty string if no instance is active.
+	 */
+	function stellarwp_uplink_get_license_page_url(): string {
+		$callback = _stellarwp_uplink_global_function_registry( 'stellarwp_uplink_get_license_page_url' );
+
+		$result = $callback ? $callback() : '';
+
+		return is_string( $result ) ? $result : '';
 	}
 }

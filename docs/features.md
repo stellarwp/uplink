@@ -12,7 +12,7 @@ Features are not a third data source. They are the computed intersection of what
 
 Every feature has two independent states:
 
-- **Available**: the customer's license tier meets or exceeds the feature's minimum tier requirement. Computed from catalog + licensing data.
+- **Available**: the feature's slug appears in the capabilities array returned by the licensing API for this product. Computed from the licensing response — the catalog defines what features exist and their metadata, but capabilities are the source of truth for access.
 - **Enabled**: the feature is actively turned on for this site. A feature cannot be enabled without being available, with one exception: grandfathered flags.
 
 ## Feature Types
@@ -59,14 +59,19 @@ Plugin and Theme features share a global transient lock (`stellarwp_uplink_insta
 
 ## Resolution
 
-`Resolve_Feature_Collection` joins catalog and licensing data to produce a `Feature_Collection`. Availability is determined by comparing integer tier ranks, not slug strings. The catalog defines ranks (e.g., `kadence-basic` = 1, `kadence-pro` = 2). A feature is available when the customer's tier rank >= the feature's minimum tier rank.
+`Resolve_Feature_Collection` joins catalog and licensing data to produce a `Feature_Collection`. Availability is determined by checking whether the feature's slug appears in the product entry's `capabilities` array from the licensing response.
+
+The catalog defines which features exist, their metadata (name, description, type, minimum tier for display), and which tier they belong to for UI purposes. The `capabilities` array is what decides access. This allows the licensing service to handle cases the catalog alone cannot: grandfathered access after a tier restructure, one-time promotional grants, or individual exceptions made for a specific license.
 
 For `Installable` features (Plugin, Theme), the resolver also reads `installed_version` from disk and stores it on the resolved Feature. This is the version currently on the site, distinct from the catalog's `version` which is the latest available. Flag features always have `installed_version: null`.
 
+`has_update()` is a computed method on the `Installable` interface that centralizes the update-available check. It returns `true` when the feature is installed on disk and `version_compare( catalog_version, installed_version, '>' )`. Both Plugin and Theme implement this method. The update handlers (`Plugin_Handler`, `Theme_Handler`) delegate to this result (via the `has_update` field in the update data array) rather than performing their own inline comparison.
+
 Edge cases:
 
-- No licensing entry for a product: tier rank = `0`. Free-tier features (`minimum_tier` at rank 0) satisfy `0 >= 0` and are available. All paid-tier features are unavailable.
-- Feature's `minimum_tier` slug not in tier collection: rank = `PHP_INT_MAX`, feature unavailable
+- No licensing entry for a product (unlicensed): the resolver falls back to tier rank comparison using rank 0, making only free-tier features (`minimum_tier` at rank 0) available. Paid-tier features are unavailable.
+- A feature capable but outside the catalog tier: it is available — capabilities override the catalog tier.
+- A feature in the customer's catalog tier but absent from capabilities: it is unavailable — capabilities are the authority.
 
 ## The Manager
 
@@ -109,7 +114,7 @@ A typed, keyed collection of `Feature` objects with filtering:
 
 ```php
 $features->filter(
-    group: 'kadence',      // product family
+    product: 'kadence',    // product family
     tier: 'kadence-pro',   // minimum tier
     available: true,       // only available features
     type: 'plugin',        // only installable features
@@ -122,15 +127,15 @@ All parameters optional. Returns a new collection without mutating the original.
 
 Five endpoints under `stellarwp/uplink/v1`. All require `manage_options`.
 
-| Route                      | Method | Purpose                                                       |
-| -------------------------- | ------ | ------------------------------------------------------------- |
-| `/features`                | GET    | List features (filters: `group`, `tier`, `available`, `type`) |
-| `/features/{slug}`         | GET    | Get a single feature                                          |
-| `/features/{slug}/enable`  | POST   | Enable a feature                                              |
-| `/features/{slug}/disable` | POST   | Disable a feature                                             |
-| `/features/{slug}/update`  | POST   | Update a feature to the latest available version              |
+| Route                      | Method | Purpose                                                         |
+| -------------------------- | ------ | --------------------------------------------------------------- |
+| `/features`                | GET    | List features (filters: `product`, `tier`, `available`, `type`) |
+| `/features/{slug}`         | GET    | Get a single feature                                            |
+| `/features/{slug}/enable`  | POST   | Enable a feature                                                |
+| `/features/{slug}/disable` | POST   | Disable a feature                                               |
+| `/features/{slug}/update`  | POST   | Update a feature to the latest available version                |
 
-Each Feature object includes `is_enabled`, stamped with live state from its strategy by the Manager before any consumer receives it.
+Each Feature object includes `is_enabled`, stamped with live state from its strategy by the Manager before any consumer receives it. Installable features (Plugin, Theme) additionally include `has_update` — a pre-computed boolean the frontend can read directly without doing any version parsing.
 
 ## Error Codes
 
@@ -168,14 +173,15 @@ Each Feature object includes `is_enabled`, stamped with live state from its stra
 
 ## Data Sources
 
-| Data                                                    | Source                                                                                        |
-| ------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| Feature exists, minimum tier, delivery type, tier ranks | Catalog                                                                                       |
-| Latest version, release date, changelog                 | Catalog (`version`, `released_at`, `changelog`)                                               |
-| Customer's tier, key validity                           | Licensing                                                                                     |
-| **Whether available** (`is_available`)                  | **Computed: catalog min rank vs. licensing tier rank**                                        |
-| **Whether enabled** (`is_enabled`)                      | Live WordPress state (plugin activation / theme disk / flag option), stamped by Manager       |
-| **Installed version** (`installed_version`)             | Read from disk during resolution via `Installable`. Null for flags and uninstalled extensions |
+| Data                                                    | Source                                                                                                                                                                              |
+| ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Feature exists, minimum tier, delivery type, tier ranks | Catalog                                                                                                                                                                             |
+| Latest version, release date, changelog                 | Catalog (`version`, `released_at`, `changelog`)                                                                                                                                     |
+| Customer's tier, key validity                           | Licensing                                                                                                                                                                           |
+| **Whether available** (`is_available`)                  | **Licensing capabilities array** — feature slug present in `Product_Entry::get_capabilities()`. Falls back to catalog tier rank 0 when unlicensed.                                  |
+| **Whether enabled** (`is_enabled`)                      | Live WordPress state (plugin activation / theme disk / flag option), stamped by Manager                                                                                             |
+| **Installed version** (`installed_version`)             | Read from disk during resolution via `Installable`. Null for flags and uninstalled extensions                                                                                       |
+| **Update available** (`has_update`)                     | Computed by `Installable::has_update()`: `version_compare( catalog_version, installed_version, '>' )`. False when not installed or catalog version is absent. Plugin and Theme only |
 
 ## What Features Does Not Do
 

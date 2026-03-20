@@ -97,14 +97,14 @@ abstract class Feature {
 	}
 
 	/**
-	 * Gets the product group the feature belongs to.
+	 * Gets the product the feature belongs to.
 	 *
 	 * @since 3.0.0
 	 *
 	 * @return string
 	 */
-	public function get_group(): string {
-		return Cast::to_string( $this->attributes['group'] ?? '' );
+	public function get_product(): string {
+		return Cast::to_string( $this->attributes['product'] ?? '' );
 	}
 
 	/**
@@ -196,7 +196,7 @@ abstract class Feature {
 	protected static function base_attributes( array $data ): array {
 		return [
 			'slug'              => Cast::to_string( $data['slug'] ?? '' ),
-			'group'             => Cast::to_string( $data['group'] ?? '' ),
+			'product'           => Cast::to_string( $data['product'] ?? '' ),
 			'tier'              => Cast::to_string( $data['tier'] ?? '' ),
 			'name'              => Cast::to_string( $data['name'] ?? '' ),
 			'description'       => Cast::to_string( $data['description'] ?? '' ),

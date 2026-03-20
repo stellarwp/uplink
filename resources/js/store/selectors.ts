@@ -8,6 +8,7 @@ import type { State } from './types';
 import type {
 	CatalogTier,
 	Feature,
+	LegacyLicense,
 	LicenseProduct,
 	ProductCatalog,
 } from '@/types/api';
@@ -22,10 +23,10 @@ export const getFeatures = createSelector(
 	(state: State) => [state.features.bySlug]
 );
 
-export const getFeaturesByGroup = createSelector(
-	(state: State, group: string): Feature[] =>
-		Object.values(state.features.bySlug).filter((f) => f.group === group),
-	(state: State, group: string) => [state.features.bySlug, group]
+export const getFeaturesByProduct = createSelector(
+	(state: State, product: string): Feature[] =>
+		Object.values(state.features.bySlug).filter((f) => f.product === product),
+	(state: State, product: string) => [state.features.bySlug, product]
 );
 
 export const getFeature = (state: State, slug: string): Feature | null =>
@@ -73,6 +74,24 @@ export const isAnyInstallableBusy = createSelector(
 		state.features.bySlug,
 	]
 );
+
+// ---------------------------------------------------------------------------
+// Legacy licenses
+// ---------------------------------------------------------------------------
+
+export const getLegacyLicenses = createSelector(
+	(state: State): LegacyLicense[] => Object.values(state.legacyLicenses.bySlug),
+	(state: State) => [state.legacyLicenses.bySlug]
+);
+
+export const getLegacyLicenseBySlug = (state: State, slug: string): LegacyLicense | null =>
+	state.legacyLicenses.bySlug[slug] ?? null;
+
+export const hasLegacyLicense = (state: State, slug: string): boolean =>
+	slug in state.legacyLicenses.bySlug;
+
+export const hasLegacyLicenses = (state: State): boolean =>
+	Object.keys(state.legacyLicenses.bySlug).length > 0;
 
 // ---------------------------------------------------------------------------
 // Catalog

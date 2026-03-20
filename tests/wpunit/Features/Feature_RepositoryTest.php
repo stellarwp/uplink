@@ -159,9 +159,9 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	}
 
 	/**
-	 * Tests is_available is true when the license tier rank meets the minimum.
+	 * Tests is_available is true when the feature slug is in the license capabilities.
 	 *
-	 * kadence-pro (rank 2) meets kadence-basic (rank 1) minimum for kad-blocks-pro.
+	 * kadence-pro capabilities include kad-blocks-pro and kad-pattern-hub.
 	 *
 	 * @return void
 	 */
@@ -171,18 +171,18 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 
 		$this->assertTrue(
 			$result->get( 'kad-blocks-pro' )->is_available(),
-			'Pro tier (rank 2) should meet kadence-basic minimum (rank 1).'
+			'kad-blocks-pro should be available — it is in the kadence-pro capabilities.'
 		);
 		$this->assertTrue(
 			$result->get( 'kad-pattern-hub' )->is_available(),
-			'Pro tier (rank 2) should meet kadence-basic minimum (rank 1).'
+			'kad-pattern-hub should be available — it is in the kadence-pro capabilities.'
 		);
 	}
 
 	/**
-	 * Tests is_available is false when the license tier rank is below the minimum.
+	 * Tests is_available is false when the feature slug is not in the license capabilities.
 	 *
-	 * kadence-pro (rank 2) does not meet kadence-agency (rank 3) minimum for solid-central.
+	 * kadence-pro capabilities do not include solid-central (an agency-tier feature).
 	 *
 	 * @return void
 	 */
@@ -192,7 +192,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 
 		$this->assertFalse(
 			$result->get( 'solid-central' )->is_available(),
-			'Pro tier (rank 2) should not meet kadence-agency minimum (rank 3).'
+			'solid-central should not be available — it is not in the kadence-pro capabilities.'
 		);
 	}
 
@@ -224,7 +224,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		$this->assertInstanceOf( Feature_Collection::class, $result );
 		$this->assertGreaterThan( 0, $result->count() );
 
-		// Free-tier features are available without a license (rank 0 >= rank 0).
+		// Free-tier features (minimum tier rank 0) are available without a license.
 		$this->assertTrue(
 			$result->get( 'kadence-blocks' )->is_available(),
 			'Free-tier plugin should be available without a license.'
@@ -248,8 +248,8 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 	/**
 	 * Tests that free-tier features resolve as available for unlicensed users.
 	 *
-	 * An unlicensed user resolves to tier rank 0. Features with minimum_tier at the
-	 * free tier (rank 0) satisfy 0 >= 0 and are available without a license key.
+	 * Without a license there is no capabilities array, so the resolver falls back
+	 * to making only features with minimum tier rank 0 available.
 	 *
 	 * @return void
 	 */
@@ -363,7 +363,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		$method = new ReflectionMethod( Resolve_Feature_Collection::class, 'hydrate_feature' );
 		$method->setAccessible( true ); // Required for PHP < 8.1.
 
-		$result = $method->invoke( $resolver, $catalog_feature, $product, 1 );
+		$result = $method->invoke( $resolver, $catalog_feature, $product, null );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( Error_Code::UNKNOWN_FEATURE_TYPE, $result->get_error_code() );
@@ -408,7 +408,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		$method = new ReflectionMethod( Resolve_Feature_Collection::class, 'hydrate_feature' );
 		$method->setAccessible( true ); // Required for PHP < 8.1.
 
-		$result = $method->invoke( $resolver, $catalog_feature, $product, 1 );
+		$result = $method->invoke( $resolver, $catalog_feature, $product, [ 'test-flag' ] );
 
 		$this->assertInstanceOf( Flag::class, $result );
 		$this->assertSame( 'test-flag', $result->get_slug() );
@@ -425,7 +425,7 @@ final class Feature_RepositoryTest extends UplinkTestCase {
 		$feature    = $result->get( 'kad-blocks-pro' );
 
 		$this->assertSame( 'kad-blocks-pro', $feature->get_slug() );
-		$this->assertSame( 'kadence', $feature->get_group() );
+		$this->assertSame( 'kadence', $feature->get_product() );
 		$this->assertSame( 'kadence-basic', $feature->get_tier() );
 		$this->assertSame( 'Blocks Pro', $feature->get_name() );
 		$this->assertSame( 'Premium Gutenberg blocks for advanced page building.', $feature->get_description() );

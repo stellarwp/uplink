@@ -36,7 +36,7 @@ final class ThemeTest extends UplinkTestCase {
 		return new Theme(
 			[
 				'slug'         => $slug,
-				'group'        => self::GROUP,
+				'product'        => self::GROUP,
 				'tier'         => self::TIER,
 				'name'         => $name,
 				'description'  => $description,
@@ -59,7 +59,7 @@ final class ThemeTest extends UplinkTestCase {
 		$feature = Theme::from_array(
 			[
 				'slug'              => 'test-theme',
-				'group'             => 'Kadence',
+				'product'             => 'Kadence',
 				'tier'              => 'Tier 2',
 				'name'              => 'Test Theme',
 				'description'       => 'Test theme description.',
@@ -71,7 +71,7 @@ final class ThemeTest extends UplinkTestCase {
 
 		$this->assertInstanceOf( Theme::class, $feature );
 		$this->assertSame( 'test-theme', $feature->get_slug() );
-		$this->assertSame( 'Kadence', $feature->get_group() );
+		$this->assertSame( 'Kadence', $feature->get_product() );
 		$this->assertSame( 'Tier 2', $feature->get_tier() );
 		$this->assertSame( 'Test Theme', $feature->get_name() );
 		$this->assertSame( 'Test theme description.', $feature->get_description() );
@@ -90,7 +90,7 @@ final class ThemeTest extends UplinkTestCase {
 		$feature = new Theme(
 			[
 				'slug'              => 'test-theme',
-				'group'             => 'Kadence',
+				'product'             => 'Kadence',
 				'tier'              => 'Tier 2',
 				'name'              => 'Test Theme',
 				'description'       => 'Test theme description.',
@@ -105,7 +105,7 @@ final class ThemeTest extends UplinkTestCase {
 		$this->assertSame(
 			[
 				'slug'              => 'test-theme',
-				'group'             => 'Kadence',
+				'product'             => 'Kadence',
 				'tier'              => 'Tier 2',
 				'name'              => 'Test Theme',
 				'description'       => 'Test theme description.',
@@ -115,6 +115,10 @@ final class ThemeTest extends UplinkTestCase {
 				'released_at'       => '2025-11-15',
 				'installed_version' => '2.0.0',
 				'type'              => 'theme',
+				'is_dot_org'        => false,
+				'version'           => null,
+				'changelog'         => null,
+				'has_update'        => false,
 			],
 			$feature->to_array()
 		);
@@ -128,7 +132,7 @@ final class ThemeTest extends UplinkTestCase {
 	public function test_to_array_round_trips_through_from_array(): void {
 		$data = [
 			'slug'              => 'test-theme',
-			'group'             => 'Kadence',
+			'product'             => 'Kadence',
 			'tier'              => 'Tier 2',
 			'name'              => 'Test Theme',
 			'description'       => 'Test theme description.',
@@ -142,6 +146,7 @@ final class ThemeTest extends UplinkTestCase {
 			'installed_version' => '2.0.0',
 			'version'           => null,
 			'changelog'         => null,
+			'has_update'        => false,
 		];
 
 		$feature = Theme::from_array( $data );
@@ -158,7 +163,7 @@ final class ThemeTest extends UplinkTestCase {
 		$feature = Theme::from_array(
 			[
 				'slug'         => 'test-theme',
-				'group'        => 'Kadence',
+				'product'        => 'Kadence',
 				'tier'         => 'Tier 2',
 				'name'         => 'Test Theme',
 				'is_available' => false,
@@ -177,7 +182,7 @@ final class ThemeTest extends UplinkTestCase {
 		$feature = Theme::from_array(
 			[
 				'slug'         => 'test-theme',
-				'group'        => 'Kadence',
+				'product'        => 'Kadence',
 				'tier'         => 'Tier 1',
 				'name'         => 'Test Theme',
 				'is_available' => true,
@@ -200,7 +205,7 @@ final class ThemeTest extends UplinkTestCase {
 		$feature = new Theme(
 			[
 				'slug'         => 'test-theme',
-				'group'        => 'Kadence',
+				'product'        => 'Kadence',
 				'tier'         => 'Tier 2',
 				'name'         => 'Test Theme',
 				'description'  => 'Test theme description.',
@@ -296,7 +301,7 @@ final class ThemeTest extends UplinkTestCase {
 		$feature = new Theme(
 			[
 				'slug'         => self::SLUG,
-				'group'        => self::GROUP,
+				'product'        => self::GROUP,
 				'tier'         => self::TIER,
 				'name'         => self::NAME,
 				'is_available' => true,
@@ -314,7 +319,7 @@ final class ThemeTest extends UplinkTestCase {
 		$feature = Theme::from_array(
 			[
 				'slug'         => 'test-theme',
-				'group'        => 'Kadence',
+				'product'        => 'Kadence',
 				'tier'         => 'Tier 1',
 				'name'         => 'Test Theme',
 				'is_available' => true,
@@ -338,7 +343,7 @@ final class ThemeTest extends UplinkTestCase {
 		$feature = Theme::from_array(
 			[
 				'slug'         => 'nonexistent-theme',
-				'group'        => 'Kadence',
+				'product'        => 'Kadence',
 				'tier'         => 'Tier 2',
 				'name'         => 'Nonexistent Theme',
 				'is_available' => true,
@@ -357,7 +362,7 @@ final class ThemeTest extends UplinkTestCase {
 		$feature = Theme::from_array(
 			[
 				'slug'         => 'nonexistent-theme',
-				'group'        => 'Kadence',
+				'product'        => 'Kadence',
 				'tier'         => 'Tier 2',
 				'name'         => 'Nonexistent Theme',
 				'is_available' => true,
@@ -378,7 +383,7 @@ final class ThemeTest extends UplinkTestCase {
 		$feature = new Theme(
 			[
 				'slug'              => 'the-slug',
-				'group'             => 'Kadence',
+				'product'             => 'Kadence',
 				'tier'              => 'Tier 1',
 				'name'              => 'The Name',
 				'description'       => 'The description.',
@@ -389,7 +394,7 @@ final class ThemeTest extends UplinkTestCase {
 		);
 
 		$this->assertSame( 'the-slug', $feature->get_slug() );
-		$this->assertSame( 'Kadence', $feature->get_group() );
+		$this->assertSame( 'Kadence', $feature->get_product() );
 		$this->assertSame( 'Tier 1', $feature->get_tier() );
 		$this->assertSame( 'The Name', $feature->get_name() );
 		$this->assertSame( 'The description.', $feature->get_description() );

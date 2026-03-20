@@ -30,9 +30,7 @@
     --color-blue-200: oklch(88.2% 0.059 254.128);
     --color-blue-800: oklch(42.4% 0.199 265.638);
     --color-neutral-50: oklch(98.5% 0 0);
-    --color-neutral-300: oklch(87% 0 0);
     --color-neutral-800: oklch(26.9% 0 0);
-    --color-neutral-900: oklch(20.5% 0 0);
     --color-black: #000;
     --color-white: #fff;
     --spacing: 0.25rem;
@@ -52,6 +50,7 @@
     --font-weight-normal: 400;
     --font-weight-medium: 500;
     --font-weight-semibold: 600;
+    --font-weight-bold: 700;
     --tracking-wider: 0.05em;
     --leading-relaxed: 1.625;
     --animate-spin: spin 1s linear infinite;
@@ -520,14 +519,8 @@
   .uplink-ui .w-5 {
     width: calc(var(--spacing) * 5) !important;
   }
-  .uplink-ui .w-6 {
-    width: calc(var(--spacing) * 6) !important;
-  }
   .uplink-ui .w-8 {
     width: calc(var(--spacing) * 8) !important;
-  }
-  .uplink-ui .w-16 {
-    width: calc(var(--spacing) * 16) !important;
   }
   .uplink-ui .w-25 {
     width: calc(var(--spacing) * 25) !important;
@@ -689,6 +682,11 @@
   .uplink-ui .justify-self-end {
     justify-self: flex-end !important;
   }
+  .uplink-ui .truncate {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
   .uplink-ui .overflow-hidden {
     overflow: hidden !important;
   }
@@ -840,14 +838,8 @@
   .uplink-ui .bg-neutral-50 {
     background-color: var(--color-neutral-50) !important;
   }
-  .uplink-ui .bg-neutral-300 {
-    background-color: var(--color-neutral-300) !important;
-  }
   .uplink-ui .bg-neutral-800 {
     background-color: var(--color-neutral-800) !important;
-  }
-  .uplink-ui .bg-neutral-900 {
-    background-color: var(--color-neutral-900) !important;
   }
   .uplink-ui .bg-popover {
     background-color: oklch(1 0 0) !important;
@@ -963,9 +955,6 @@
   .uplink-ui .text-center {
     text-align: center !important;
   }
-  .uplink-ui .text-left {
-    text-align: left !important;
-  }
   .uplink-ui .text-right {
     text-align: right !important;
   }
@@ -1009,6 +998,10 @@
   .uplink-ui .\!font-normal {
     --tw-font-weight: var(--font-weight-normal) !important;
     font-weight: var(--font-weight-normal) !important;
+  }
+  .uplink-ui .font-bold {
+    --tw-font-weight: var(--font-weight-bold) !important;
+    font-weight: var(--font-weight-bold) !important;
   }
   .uplink-ui .font-medium {
     --tw-font-weight: var(--font-weight-medium) !important;
@@ -1087,6 +1080,9 @@
   }
   .uplink-ui .uppercase {
     text-transform: uppercase !important;
+  }
+  .uplink-ui .line-through {
+    text-decoration-line: line-through !important;
   }
   .uplink-ui .underline-offset-4 {
     text-underline-offset: 4px !important;
@@ -1294,13 +1290,6 @@
       }
     }
   }
-  .uplink-ui .hover\:bg-accent\/30 {
-    .uplink-ui &:hover {
-      @media (hover: hover) {
-        background-color: color-mix(in oklab, oklch(0.965 0 0) 30%, transparent) !important;
-      }
-    }
-  }
   .uplink-ui .hover\:bg-destructive\/90 {
     .uplink-ui &:hover {
       @media (hover: hover) {
@@ -1312,13 +1301,6 @@
     .uplink-ui &:hover {
       @media (hover: hover) {
         background-color: color-mix(in oklab, oklch(0.955 0 0) 50%, transparent) !important;
-      }
-    }
-  }
-  .uplink-ui .hover\:bg-muted\/70 {
-    .uplink-ui &:hover {
-      @media (hover: hover) {
-        background-color: color-mix(in oklab, oklch(0.955 0 0) 70%, transparent) !important;
       }
     }
   }
@@ -1361,6 +1343,13 @@
     .uplink-ui &:hover {
       @media (hover: hover) {
         opacity: 75% !important;
+      }
+    }
+  }
+  .uplink-ui .hover\:opacity-80 {
+    .uplink-ui &:hover {
+      @media (hover: hover) {
+        opacity: 80% !important;
       }
     }
   }

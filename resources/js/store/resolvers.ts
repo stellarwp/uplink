@@ -10,7 +10,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { UplinkError, ErrorCode } from '@/errors';
-import type { Feature, ProductCatalog, License } from '@/types/api';
+import type { Feature, LegacyLicense, ProductCatalog, License } from '@/types/api';
 import type { Thunk } from './types';
 import { forwardResolver, forwardResolverWithoutArgs } from '@/lib/forward-resolver';
 
@@ -27,7 +27,7 @@ export const getFeatures =
 			});
 			dispatch.receiveFeatures(features);
 		} catch (err) {
-			throw UplinkError.wrap(
+			throw await UplinkError.wrap(
 				err,
 				ErrorCode.FeaturesFetchFailed,
 				__('Liquid Web Software failed to load your features.', '%TEXTDOMAIN%')
@@ -35,9 +35,37 @@ export const getFeatures =
 		}
 	};
 
-export const getFeaturesByGroup = forwardResolverWithoutArgs('getFeatures');
+export const getFeaturesByProduct = forwardResolverWithoutArgs('getFeatures');
 export const getFeature = forwardResolverWithoutArgs('getFeatures');
 export const isFeatureEnabled = forwardResolverWithoutArgs('getFeatures');
+
+// ---------------------------------------------------------------------------
+// Legacy licenses
+// ---------------------------------------------------------------------------
+
+/**
+ * Fetches legacy licenses from the REST API.
+ */
+export const getLegacyLicenses =
+	(): Thunk =>
+	async ({ dispatch }) => {
+		try {
+			const licenses = await apiFetch<LegacyLicense[]>({
+				path: '/stellarwp/uplink/v1/legacy-licenses',
+			});
+			dispatch.receiveLegacyLicenses(licenses);
+		} catch (err) {
+			throw await UplinkError.wrap(
+				err,
+				ErrorCode.LegacyLicensesFetchFailed,
+				__('Liquid Web Software failed to load legacy licenses.', '%TEXTDOMAIN%')
+			);
+		}
+	};
+
+export const getLegacyLicenseBySlug = forwardResolverWithoutArgs('getLegacyLicenses');
+export const hasLegacyLicense = forwardResolverWithoutArgs('getLegacyLicenses');
+export const hasLegacyLicenses = forwardResolver('getLegacyLicenses');
 
 // ---------------------------------------------------------------------------
 // Catalog
@@ -56,7 +84,7 @@ export const getCatalog =
 			});
 			dispatch.receiveCatalog(catalogs);
 		} catch (err) {
-			throw UplinkError.wrap(
+			throw await UplinkError.wrap(
 				err,
 				ErrorCode.CatalogFetchFailed,
 				__('Liquid Web Software failed to load the product catalog.', '%TEXTDOMAIN%')
@@ -85,7 +113,7 @@ export const getLicenseKey =
 			});
 			dispatch.receiveLicense(result);
 		} catch (err) {
-			throw UplinkError.wrap(
+			throw await UplinkError.wrap(
 				err,
 				ErrorCode.LicenseFetchFailed,
 				__('Liquid Web Software failed to load your license.', '%TEXTDOMAIN%')

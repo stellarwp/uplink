@@ -51,16 +51,15 @@ final class ManagerTest extends UplinkTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
-		if ( ! defined( 'STELLARWP_UPLINK_FEATURES_USE_FIXTURE_DATA' ) ) {
-			define( 'STELLARWP_UPLINK_FEATURES_USE_FIXTURE_DATA', true );
-		}
+		delete_option( Catalog_Repository::CATALOG_STATE_OPTION_NAME );
+		delete_option( License_Repository::PRODUCTS_STATE_OPTION_NAME );
 
 		$this->collection = new Feature_Collection();
 		$this->collection->add(
 			Flag::from_array(
 				[
 					'slug'         => 'test-feature',
-					'group'        => 'TestGroup',
+					'product'        => 'TestGroup',
 					'tier'         => 'Tier 1',
 					'name'         => 'Test Feature',
 					'is_available' => true,
@@ -650,7 +649,7 @@ final class ManagerTest extends UplinkTestCase {
 			Flag::from_array(
 				[
 					'slug'         => 'locked-feature',
-					'group'        => 'TestGroup',
+					'product'        => 'TestGroup',
 					'tier'         => 'Pro',
 					'name'         => 'Locked Feature',
 					'is_available' => false,

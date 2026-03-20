@@ -53,6 +53,18 @@ interface Installable {
 	public function get_installed_version(): ?string;
 
 	/**
+	 * Whether a newer version is available and the feature is currently installed.
+	 *
+	 * Returns true only when the feature is installed on disk and the catalog version
+	 * is strictly greater than the installed version.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return bool
+	 */
+	public function has_update(): bool;
+
+	/**
 	 * Builds the complete update data array for this feature type.
 	 *
 	 * Each type includes common fields plus type-specific fields (e.g. plugin_file,

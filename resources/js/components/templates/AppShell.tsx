@@ -8,7 +8,6 @@
  */
 import { __ } from '@wordpress/i18n';
 import { Loader2 } from 'lucide-react';
-import { useSelect } from '@wordpress/data';
 import { Shell } from '@/components/templates/Shell';
 import { FilterBar } from '@/components/molecules/FilterBar';
 import { LicensePanel } from '@/components/organisms/LicensePanel';
@@ -18,6 +17,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { PRODUCTS } from '@/data/products';
 import { store as uplinkStore } from '@/store';
 import { useFilter } from '@/context/filter-context';
+import { useResolvableSelectWithError } from '@/hooks/use-resolvable-select';
 
 /**
  * @since 3.0.0
@@ -25,20 +25,19 @@ import { useFilter } from '@/context/filter-context';
 export function AppShell() {
     // Trigger all three resolvers and wait for completion before rendering
     // content, so we never flash stale tier badges or a "No license" state.
-    const isLoading = useSelect(
-        ( select ) => {
-            const s = select( uplinkStore ) as unknown as {
-                hasFinishedResolution: ( name: string, args?: unknown[] ) => boolean;
-            };
-            select( uplinkStore ).getLicenseKey();
-            select( uplinkStore ).getFeatures();
-            select( uplinkStore ).getCatalog();
-            return ! s.hasFinishedResolution( 'getLicenseKey', [] )
-                || ! s.hasFinishedResolution( 'getFeatures', [] )
-                || ! s.hasFinishedResolution( 'getCatalog', [] );
-        },
+    // If any resolver fails, the error is thrown during render and caught
+    // by the ErrorBoundary above this component.
+    const { license, features, catalog } = useResolvableSelectWithError(
+        ( resolve ) => ( {
+            license:  resolve( uplinkStore ).getLicenseKey(),
+            features: resolve( uplinkStore ).getFeatures(),
+            catalog:  resolve( uplinkStore ).getCatalog(),
+        } ),
         [],
     );
+
+    const isLoading =
+        license.isResolving || features.isResolving || catalog.isResolving;
 
     const { productFilter } = useFilter();
 

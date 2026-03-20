@@ -22,8 +22,8 @@ use WP_CLI_Command;
  *     # List available flag features as JSON
  *     wp uplink feature list --type=flag --available=true --format=json
  *
- *     # Count features in a group
- *     wp uplink feature list --group=Kadence --format=count
+ *     # Count features for a product
+ *     wp uplink feature list --product=Kadence --format=count
  *
  *     # Get a single feature
  *     wp uplink feature get my-feature
@@ -51,7 +51,7 @@ class Feature extends WP_CLI_Command {
 	 *
 	 * @var string
 	 */
-	private const DEFAULT_FIELDS = 'slug,name,type,group,is_available,is_enabled';
+	private const DEFAULT_FIELDS = 'slug,name,type,product,is_available,is_enabled';
 
 	/**
 	 * The feature manager instance.
@@ -78,8 +78,8 @@ class Feature extends WP_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * [--group=<group>]
-	 * : Filter by product group.
+	 * [--product=<product>]
+	 * : Filter by product.
 	 *
 	 * [--tier=<tier>]
 	 * : Filter by tier.
@@ -113,7 +113,7 @@ class Feature extends WP_CLI_Command {
 	 * * name
 	 * * description
 	 * * type
-	 * * group
+	 * * product
 	 * * tier
 	 * * is_available
 	 * * is_enabled
@@ -132,8 +132,8 @@ class Feature extends WP_CLI_Command {
 	 *     # List available flag features as JSON
 	 *     wp uplink feature list --type=flag --available=true --format=json
 	 *
-	 *     # Count features in a group
-	 *     wp uplink feature list --group=Kadence --format=count
+	 *     # Count features for a product
+	 *     wp uplink feature list --product=Kadence --format=count
 	 *
 	 * @subcommand list
 	 *
@@ -151,13 +151,13 @@ class Feature extends WP_CLI_Command {
 			return; // WP_CLI::error() exits, but PHPStan needs this for type narrowing.
 		}
 
-		$group     = $assoc_args['group'] ?? null;
+		$product   = $assoc_args['product'] ?? null;
 		$tier      = $assoc_args['tier'] ?? null;
 		$available = isset( $assoc_args['available'] ) ? Cast::to_bool( $assoc_args['available'] ) : null;
 		$type      = $assoc_args['type'] ?? null;
 
-		if ( $group !== null || $tier !== null || $available !== null || $type !== null ) {
-			$features = $features->filter( $group, $tier, $available, $type );
+		if ( $product !== null || $tier !== null || $available !== null || $type !== null ) {
+			$features = $features->filter( $product, $tier, $available, $type );
 		}
 
 		$items = $this->collection_to_display_items( $features );
@@ -400,7 +400,7 @@ class Feature extends WP_CLI_Command {
 
 		foreach ( $item as $key => $value ) {
 			if ( is_array( $value ) ) {
-				$item[ $key ] = implode( ', ', $value );
+				$item[ $key ] = implode( ', ', array_map( [ Cast::class, 'to_string' ], $value ) );
 			}
 		}
 

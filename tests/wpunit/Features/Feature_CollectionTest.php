@@ -164,7 +164,7 @@ final class Feature_CollectionTest extends UplinkTestCase {
 		$flag   = Flag::from_array(
 			[
 				'slug'              => 'my-flag',
-				'group'             => 'TEC',
+				'product'             => 'TEC',
 				'tier'              => 'Tier 1',
 				'name'              => 'My Flag',
 				'description'       => '',
@@ -175,7 +175,7 @@ final class Feature_CollectionTest extends UplinkTestCase {
 		$plugin = Plugin::from_array(
 			[
 				'slug'              => 'my-plugin',
-				'group'             => 'LD',
+				'product'             => 'LD',
 				'tier'              => 'Tier 2',
 				'name'              => 'My Plugin',
 				'description'       => '',
@@ -202,7 +202,7 @@ final class Feature_CollectionTest extends UplinkTestCase {
 		$data = [
 			[
 				'slug'              => 'my-flag',
-				'group'             => 'TEC',
+				'product'             => 'TEC',
 				'tier'              => 'Tier 1',
 				'name'              => 'My Flag',
 				'description'       => '',
@@ -228,7 +228,7 @@ final class Feature_CollectionTest extends UplinkTestCase {
 		$data = [
 			[
 				'slug'              => 'my-plugin',
-				'group'             => 'LearnDash',
+				'product'             => 'LearnDash',
 				'tier'              => 'Tier 2',
 				'name'              => 'My Plugin',
 				'description'       => '',
@@ -256,7 +256,7 @@ final class Feature_CollectionTest extends UplinkTestCase {
 		$data = [
 			[
 				'slug'              => 'unknown-feature',
-				'group'             => 'TEC',
+				'product'             => 'TEC',
 				'tier'              => 'Tier 1',
 				'name'              => 'Unknown',
 				'description'       => '',
@@ -281,7 +281,7 @@ final class Feature_CollectionTest extends UplinkTestCase {
 		$data = [
 			[
 				'slug'              => 'my-flag',
-				'group'             => 'TEC',
+				'product'             => 'TEC',
 				'tier'              => 'Tier 1',
 				'name'              => 'My Flag',
 				'description'       => '',
@@ -453,7 +453,7 @@ final class Feature_CollectionTest extends UplinkTestCase {
 				Feature::class,
 				[
 					'get_slug'     => 'tec-feature-1',
-					'get_group'    => 'TEC',
+					'get_product'  => 'TEC',
 					'get_tier'     => 'Tier 1',
 					'get_type'     => 'flag',
 					'is_available' => true,
@@ -466,7 +466,7 @@ final class Feature_CollectionTest extends UplinkTestCase {
 				Feature::class,
 				[
 					'get_slug'     => 'tec-feature-2',
-					'get_group'    => 'TEC',
+					'get_product'  => 'TEC',
 					'get_tier'     => 'Tier 2',
 					'get_type'     => 'flag',
 					'is_available' => false,
@@ -479,7 +479,7 @@ final class Feature_CollectionTest extends UplinkTestCase {
 				Feature::class,
 				[
 					'get_slug'     => 'ld-feature-1',
-					'get_group'    => 'LearnDash',
+					'get_product'  => 'LearnDash',
 					'get_tier'     => 'Tier 1',
 					'get_type'     => 'plugin',
 					'is_available' => true,

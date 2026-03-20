@@ -15,7 +15,6 @@
       "validation_status": "valid",
       "is_valid": true,
       "capabilities": [
-        "give",
         "give-recurring",
         "give-fee-recovery",
         "give-form-field-manager",
@@ -63,7 +62,6 @@
       "validation_status": "valid",
       "is_valid": true,
       "capabilities": [
-        "the-events-calendar",
         "tec-calendar",
         "tec-tickets-rsvp",
         "tec-filter-bar",
@@ -136,8 +134,6 @@
       "validation_status": "valid",
       "is_valid": true,
       "capabilities": [
-        "kadence-blocks",
-        "kadence",
         "kad-blocks-pro",
         "kad-theme-kit-pro",
         "kad-pattern-hub",

@@ -15,7 +15,6 @@
       "validation_status": "valid",
       "is_valid": true,
       "capabilities": [
-        "give",
         "give-recurring",
         "give-fee-recovery",
         "give-form-field-manager",

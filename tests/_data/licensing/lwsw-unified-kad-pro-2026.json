@@ -15,8 +15,6 @@
       "validation_status": "valid",
       "is_valid": true,
       "capabilities": [
-        "kadence-blocks",
-        "kadence",
         "kad-blocks-pro",
         "kad-theme-kit-pro",
         "kad-pattern-hub",

@@ -215,7 +215,9 @@ class Resolve_Feature_Collection {
 			);
 		}
 
-		if ( $capabilities === null ) {
+		if ( $catalog_feature->is_dot_org() ) {
+			$is_available = true;
+		} elseif ( $capabilities === null ) {
 			$minimum_tier = $product->get_tier_by_slug( $catalog_feature->get_minimum_tier() );
 			$minimum_rank = $minimum_tier !== null ? $minimum_tier->get_rank() : PHP_INT_MAX;
 			$is_available = $minimum_rank === 0;

@@ -2,6 +2,7 @@
 
 namespace StellarWP\Uplink\API\Functions;
 
+use StellarWP\Uplink\Admin\Feature_Manager_Page;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Features\Manager;
 use StellarWP\Uplink\Licensing\Repositories\License_Repository;
@@ -115,6 +116,14 @@ class Global_Function_Registry {
 
 					return false;
 				}
+			}
+		);
+
+		\_stellarwp_uplink_global_function_registry(
+			'stellarwp_uplink_get_license_page_url',
+			$version,
+			static function (): string {
+				return admin_url( 'admin.php?page=' . Feature_Manager_Page::PAGE_SLUG );
 			}
 		);
 	}

@@ -7,6 +7,7 @@ use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Config;
 use StellarWP\Uplink\Messages;
 use StellarWP\Uplink\Resources\Resource;
+use StellarWP\Uplink\Utils\Cast;
 
 class Validation_Response {
 	/**
@@ -146,8 +147,8 @@ class Validation_Response {
 			$this->response = is_array( $this->response->results ) ? reset( $this->response->results ) : $this->response->results;
 		}
 
-		$this->resource        = $resource;
-		$this->container       = $container ?: Config::get_container();
+		$this->resource  = $resource;
+		$this->container = $container ?: Config::get_container();
 
 		$this->parse();
 	}
@@ -159,7 +160,7 @@ class Validation_Response {
 	 *
 	 * @return int
 	 */
-	public function get_daily_limit() : int {
+	public function get_daily_limit(): int {
 		return $this->daily_limit;
 	}
 
@@ -170,7 +171,7 @@ class Validation_Response {
 	 *
 	 * @return string
 	 */
-	public function get_key() : string {
+	public function get_key(): string {
 		return ! empty( $this->replacement_key ) ? $this->replacement_key : $this->key;
 	}
 
@@ -241,7 +242,7 @@ class Validation_Response {
 	 *
 	 * @return string
 	 */
-	public function get_result() : string {
+	public function get_result(): string {
 		return $this->result;
 	}
 
@@ -268,7 +269,7 @@ class Validation_Response {
 	 * @return stdClass
 	 */
 	public function get_update_details() {
-		$update = new stdClass;
+		$update = new stdClass();
 
 		if ( ! empty( $this->response->api_invalid ) ) {
 			return $this->handle_api_errors();
@@ -321,8 +322,8 @@ class Validation_Response {
 	/**
 	 * @return stdClass
 	 */
-	public function handle_api_errors() : stdClass {
-		$update      = new stdClass;
+	public function handle_api_errors(): stdClass {
+		$update      = new stdClass();
 		$copy_fields = [
 			'id',
 			'slug',
@@ -361,14 +362,14 @@ class Validation_Response {
 	 *
 	 * @return stdClass
 	 */
-	public function get_expire_details() : stdClass {
-		$update = new stdClass;
+	public function get_expire_details(): stdClass {
+		$update = new stdClass();
 
 		$update->version        = $this->response->version ?: '';
 		$update->message        = $this->response->api_invalid_message ?: '';
 		$update->inline_message = $this->response->api_inline_invalid_message ?: '';
 		$update->api_expired    = $this->response->api_expired ?: '';
-		$update->sections       = $this->response->sections ?: new stdClass;
+		$update->sections       = $this->response->sections ?: new stdClass();
 
 		return $update;
 	}
@@ -380,7 +381,7 @@ class Validation_Response {
 	 *
 	 * @return string
 	 */
-	public function get_version() : string {
+	public function get_version(): string {
 		return $this->version ?: '';
 	}
 
@@ -391,7 +392,7 @@ class Validation_Response {
 	 *
 	 * @return bool
 	 */
-	public function has_replacement_key() : bool {
+	public function has_replacement_key(): bool {
 		return ! empty( $this->replacement_key );
 	}
 
@@ -402,7 +403,7 @@ class Validation_Response {
 	 *
 	 * @return bool
 	 */
-	public function is_valid() : bool {
+	public function is_valid(): bool {
 		return $this->is_valid;
 	}
 
@@ -428,7 +429,7 @@ class Validation_Response {
 	 */
 	private function parse() {
 		$this->current_key = $this->resource->get_license_key( $this->validation_type );
-		$this->expiration  = isset( $this->response->expiration ) ? $this->response->expiration : __( 'unknown date', '%TEXTDOMAIN%' );
+		$this->expiration  = $this->response->expiration ?? __( 'unknown date', '%TEXTDOMAIN%' );
 
 		if ( ! empty( $this->response->api_inline_invalid_message ) ) {
 			$this->api_response_message = wp_kses( $this->response->api_inline_invalid_message, 'post' );
@@ -461,7 +462,7 @@ class Validation_Response {
 			}
 
 			if ( isset( $this->response->daily_limit ) ) {
-				$this->daily_limit = intval( $this->response->daily_limit );
+				$this->daily_limit = Cast::to_int( $this->response->daily_limit );
 			}
 
 			// If the license key is new or not the same as the one we have, mark it as a new key.
@@ -481,7 +482,7 @@ class Validation_Response {
 	 * @return object
 	 */
 	public function to_wp_format() {
-		$info = new StdClass;
+		$info = new StdClass();
 
 		// The custom update API is built so that many fields have the same name and format
 		// as those returned by the native WordPress.org API. These can be assigned directly.
@@ -510,8 +511,8 @@ class Validation_Response {
 			}
 		}
 
-		//Other fields need to be renamed and/or transformed.
-		$info->download_link = isset( $this->response->download_url ) ? $this->response->download_url : '';
+		// Other fields need to be renamed and/or transformed.
+		$info->download_link = $this->response->download_url ?? '';
 
 		if ( ! empty( $this->author_homepage ) && ! empty( $this->response->author ) ) {
 			$info->author = sprintf( '<a href="%s">%s</a>', esc_url( $this->author_homepage ), $this->response->author );

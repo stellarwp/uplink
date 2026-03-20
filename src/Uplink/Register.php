@@ -17,7 +17,7 @@ class Register {
 	 * @param string   $version       Resource version.
 	 * @param string   $path          Resource path to bootstrap file.
 	 * @param string   $class         Resource class.
-	 * @param string   $license_class Resource license class.
+	 * @param string   $license_class Class with a KEY/DATA constant, or path to a PHP file that returns the key.
 	 * @param bool|int $oauth         Whether the plugin uses OAuth (bool) or a set of OAuth options (int).
 	 *
 	 * @return Resources\Resource
@@ -37,12 +37,12 @@ class Register {
 	 * @param string $version       Resource version.
 	 * @param string $path          Resource path to bootstrap file.
 	 * @param string $class         Resource class.
-	 * @param string $license_class Resource license class.
+	 * @param string $license_class Class with a KEY/DATA constant, or path to a PHP file that returns the key.
 	 * @param bool   $oauth         Whether the plugin uses OAuth (bool) or a set of OAuth options (int).
 	 *
 	 * @return Resources\Resource
 	 */
-	public static function service( $slug, $name, $version, $path, $class, $license_class = null, $oauth = false) {
+	public static function service( $slug, $name, $version, $path, $class, $license_class = null, $oauth = false ) {
 		return Resources\Service::register( $slug, $name, $version, $path, $class, $license_class, $oauth );
 	}
 }

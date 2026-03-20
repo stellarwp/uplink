@@ -204,8 +204,8 @@ final class ConnectControllerTest extends UplinkTestCase {
 
 		$this->assertNull( $this->token_manager->get( $this->plugin ) );
 
-		$nonce   = ( $this->container->get( Nonce::class ) )->create();
-		$token   = '53ca40ab-c6c7-4482-a1eb-14c56da31016';
+		$nonce = ( $this->container->get( Nonce::class ) )->create();
+		$token = '53ca40ab-c6c7-4482-a1eb-14c56da31016';
 
 		// Mock these were passed via the query string.
 		$_GET[ Connect_Controller::TOKEN ]   = $token;
@@ -214,7 +214,7 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$_GET[ Connect_Controller::SLUG ]    = $this->slug;
 
 		// Mock we're an admin inside the dashboard.
-		$screen = WP_Screen::get( 'dashboard' );
+		$screen                    = WP_Screen::get( 'dashboard' );
 		$GLOBALS['current_screen'] = $screen;
 
 		$this->assertTrue( $screen->in_admin() );
@@ -245,9 +245,14 @@ final class ConnectControllerTest extends UplinkTestCase {
 		wp_set_current_user( 1 );
 
 		// Mock our sample plugin is network activated, otherwise license key check fails.
-		$this->assertTrue( update_site_option( 'active_sitewide_plugins', [
-			'uplink/index.php' => time(),
-		] ) );
+		$this->assertTrue(
+			update_site_option(
+				'active_sitewide_plugins',
+				[
+					'uplink/index.php' => time(),
+				] 
+			) 
+		);
 		$this->assertEmpty( $this->plugin->get_license_key( 'network' ) );
 
 		$this->assertNull( $this->token_manager->get( $this->plugin ) );
@@ -318,5 +323,4 @@ final class ConnectControllerTest extends UplinkTestCase {
 		$this->assertEquals( 1, did_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/' . $this->slug . '/connected' ) );
 		$this->assertEquals( 1, did_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/connected' ) );
 	}
-
 }

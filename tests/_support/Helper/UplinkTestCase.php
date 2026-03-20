@@ -25,6 +25,7 @@ class UplinkTestCase extends WPTestCase {
 		parent::setUp();
 
 		$container = new Container();
+		$container->singleton( ContainerInterface::class, $container );
 		Config::set_container( $container );
 		Config::set_hook_prefix( 'test' );
 
@@ -43,8 +44,8 @@ class UplinkTestCase extends WPTestCase {
 	}
 
 	/**
-	 * @param  string  $path          The path to the plugin file, e.g. my-plugin/my-plugin.php
-	 * @param  bool    $network_wide  Whether this should happen network wide.
+	 * @param string  $path          The path to the plugin file, e.g. my-plugin/my-plugin.php
+	 * @param bool    $network_wide  Whether this should happen network wide.
 	 *
 	 * @return void
 	 */
@@ -69,7 +70,7 @@ class UplinkTestCase extends WPTestCase {
 	/**
 	 * Mock we're inside the wp-admin dashboard and fire off the admin_init hook.
 	 *
-	 * @param  bool  $network  Whether we're in the network dashboard.
+	 * @param bool  $network  Whether we're in the network dashboard.
 	 *
 	 * @return void
 	 */
@@ -86,5 +87,4 @@ class UplinkTestCase extends WPTestCase {
 		// Fire off admin_init to run any of our events hooked into this action.
 		do_action( 'admin_init' );
 	}
-
 }

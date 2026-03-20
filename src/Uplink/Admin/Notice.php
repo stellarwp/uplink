@@ -111,5 +111,4 @@ class Notice {
 		 */
 		do_action( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/notices_save_notices', $this->notices, $this->saved_notices );
 	}
-
 }

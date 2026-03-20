@@ -22,13 +22,15 @@ class Option_Storage implements Storage {
 	protected $option_name;
 
 	/**
-	 * @param  string  $option_name  The option name as set via Config::set_token_auth_prefix().
+	 * @param string $option_name  The option name as set via Config::set_token_auth_prefix().
 	 */
 	public function __construct( string $option_name ) {
 		if ( ! $option_name ) {
 			throw new InvalidArgumentException(
-				__( 'You must set a token prefix with StellarWP\Uplink\Config::set_hook_prefix() before using Option Storage.',
-					'%TEXTDOMAIN%' )
+				__(
+					'You must set a token prefix with StellarWP\Uplink\Config::set_hook_prefix() before using Option Storage.',
+					'%TEXTDOMAIN%' 
+				)
 			);
 		}
 
@@ -38,9 +40,9 @@ class Option_Storage implements Storage {
 	/**
 	 * Put a value in storage.
 	 *
-	 * @param  string|int|float|mixed[]|object  $key     The storage key. Accepts any variable that can be json encoded.
-	 * @param  mixed                            $value   The value to store.
-	 * @param  int                              $expire  The storage lifespan in seconds.
+	 * @param string|int|float|mixed[]|object $key     The storage key. Accepts any variable that can be json encoded.
+	 * @param mixed                           $value   The value to store.
+	 * @param int                             $expire  The storage lifespan in seconds.
 	 *
 	 * @throws Invalid_Key_Exception If passed an invalid storage key.
 	 */
@@ -58,7 +60,7 @@ class Option_Storage implements Storage {
 	/**
 	 * Get a value from storage.
 	 *
-	 * @param  string|int|float|mixed[]|object  $key  The storage key. Accepts any variable that can be json encoded.
+	 * @param string|int|float|mixed[]|object $key  The storage key. Accepts any variable that can be json encoded.
 	 *
 	 * @throws Invalid_Key_Exception If passed an invalid storage key.
 	 *
@@ -80,7 +82,7 @@ class Option_Storage implements Storage {
 	/**
 	 * Delete a value from storage.
 	 *
-	 * @param  string|int|float|mixed[]|object  $key  The storage key.
+	 * @param string|int|float|mixed[]|object $key  The storage key.
 	 *
 	 * @throws Invalid_Key_Exception If passed an invalid storage key.
 	 */
@@ -95,9 +97,9 @@ class Option_Storage implements Storage {
 	/**
 	 * Get an item from storage, or execute the given Closure and store the result.
 	 *
-	 * @param  string|int|float|mixed[]|object  $key       The storage key.
-	 * @param  Closure                          $callback  The callback used to generate and store the value.
-	 * @param  int                              $expire    The storage lifespan in seconds.
+	 * @param string|int|float|mixed[]|object $key       The storage key.
+	 * @param Closure                         $callback  The callback used to generate and store the value.
+	 * @param int                             $expire    The storage lifespan in seconds.
 	 *
 	 * @throws Invalid_Key_Exception If passed an invalid storage key.
 	 *
@@ -120,7 +122,7 @@ class Option_Storage implements Storage {
 	/**
 	 * Retrieve an item from storage and delete it.
 	 *
-	 * @param  string|int|float|mixed[]|object  $key  The storage key.
+	 * @param string|int|float|mixed[]|object $key  The storage key.
 	 *
 	 * @throws Invalid_Key_Exception If passed an invalid storage key.
 	 */
@@ -131,5 +133,4 @@ class Option_Storage implements Storage {
 
 		return $value;
 	}
-
 }

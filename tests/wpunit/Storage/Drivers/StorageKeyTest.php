@@ -5,7 +5,6 @@ namespace StellarWP\Uplink\Tests\Storage\Drivers;
 use StellarWP\Uplink\Storage\Contracts\Storage;
 use StellarWP\Uplink\Storage\Drivers\Option_Storage;
 use StellarWP\Uplink\Storage\Drivers\Transient_Storage;
-use StellarWP\Uplink\Storage\Exceptions\Invalid_Key_Exception;
 use StellarWP\Uplink\Tests\UplinkTestCase;
 
 final class StorageKeyTest extends UplinkTestCase {
@@ -13,9 +12,9 @@ final class StorageKeyTest extends UplinkTestCase {
 	/**
 	 * @dataProvider compositeProvider
 	 *
-	 * @param  mixed    $key     The storage key.
-	 * @param  mixed    $data    The data to store.
-	 * @param  Storage  $driver  The concrete storage driver.
+	 * @param mixed    $key     The storage key.
+	 * @param mixed    $data    The data to store.
+	 * @param Storage  $driver  The concrete storage driver.
 	 */
 	public function test_it_stores_various_types_of_data_and_keys( $key, $data, Storage $driver ) {
 		$expire = 10;
@@ -108,12 +107,11 @@ final class StorageKeyTest extends UplinkTestCase {
 
 		foreach ( $this->keyProvider() as $key_and_data_description => $key_and_data ) {
 			foreach ( $this->storageProvider() as $driver_type => $driver ) {
-				$description               = "$key_and_data_description with $driver_type";
+				$description                = "$key_and_data_description with $driver_type";
 				$test_cases[ $description ] = array_merge( $key_and_data, $driver );
 			}
 		}
 
 		return $test_cases;
 	}
-
 }

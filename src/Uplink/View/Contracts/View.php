@@ -12,9 +12,9 @@ interface View {
 	 * @example If the server path is /app/views, and you wish to load /app/views/admin/notice.php,
 	 * pass `admin/notice` as the view name.
 	 *
-	 * @param  string  $name  The relative path/name of the view file without extension.
+	 * @param string  $name  The relative path/name of the view file without extension.
 	 *
-	 * @param  mixed[]  $args  Arguments to be extracted and passed to the view.
+	 * @param mixed[] $args  Arguments to be extracted and passed to the view.
 	 *
 	 * @throws FileNotFoundException If the view file cannot be found.
 	 *
@@ -22,4 +22,18 @@ interface View {
 	 */
 	public function render( string $name, array $args = [] ): string;
 
+	/**
+	 * Renders a view directly to output.
+	 *
+	 * Use this instead of echo render() to avoid PHPCS escaping warnings
+	 * when the view template handles its own escaping.
+	 *
+	 * @param string  $name  The relative path/name of the view file without extension.
+	 * @param mixed[] $args  Arguments to be extracted and passed to the view.
+	 *
+	 * @throws FileNotFoundException If the view file cannot be found.
+	 *
+	 * @return void
+	 */
+	public function display( string $name, array $args = [] ): void;
 }

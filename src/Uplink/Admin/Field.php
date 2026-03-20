@@ -64,7 +64,7 @@ abstract class Field {
 	 *
 	 * @return string
 	 */
-	public function get_html_content( array $args = [] ) : string {
+	public function get_html_content( array $args = [] ): string {
 		if ( empty( $args['html'] ) ) {
 			return '';
 		}
@@ -107,8 +107,8 @@ abstract class Field {
 	/**
 	 * @return string
 	 */
-	public function add_nonce_field() : string {
-		return '<input type="hidden" value="' . esc_attr( wp_create_nonce( $this->group->get_name() )  ). '" class="wp-nonce" />';
+	public function add_nonce_field(): string {
+		return '<input type="hidden" value="' . esc_attr( wp_create_nonce( $this->group->get_name() ) ) . '" class="wp-nonce" />';
 	}
 
 	/**
@@ -127,7 +127,7 @@ abstract class Field {
 	/**
 	 * @return string
 	 */
-	public function get_path() : string {
+	public function get_path(): string {
 		return apply_filters( 'stellarwp/uplink/' . Config::get_hook_prefix() . '/field-template_path', dirname( __DIR__, 2 ) . $this->path, $this->path );
 	}
 

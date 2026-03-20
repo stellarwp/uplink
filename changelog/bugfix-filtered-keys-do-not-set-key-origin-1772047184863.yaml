@@ -1,0 +1,4 @@
+significance: patch
+type: tweak
+entry: "`key_origin` is now set to `filter` when a key has been set via a filter."
+timestamp: 2026-02-25T19:19:44.862Z

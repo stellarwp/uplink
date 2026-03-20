@@ -4,16 +4,28 @@ namespace StellarWP\Uplink;
 
 use RuntimeException;
 use StellarWP\ContainerContract\ContainerInterface;
+use StellarWP\Uplink\Utils\Version;
 
 class Uplink {
 
+	/**
+	 * The Uplink library version.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @var string
+	 */
+	public const VERSION = '3.0.0';
+
 	public const UPLINK_ADMIN_VIEWS_PATH = 'uplink.admin-views.path';
-	public const UPLINK_ASSETS_URI = 'uplink.assets.uri';
+	public const UPLINK_ASSETS_URI       = 'uplink.assets.uri';
 
 	/**
 	 * Initializes the service provider.
 	 *
 	 * @since 1.0.0
+	 *
+	 * @throws RuntimeException If the container has not been configured.
 	 *
 	 * @return void
 	 */
@@ -33,15 +45,26 @@ class Uplink {
 		$container->singleton( View\Provider::class, View\Provider::class );
 		$container->singleton( API\Client::class, API\Client::class );
 		$container->singleton( API\V3\Provider::class, API\V3\Provider::class );
+		$container->singleton( API\Functions\Provider::class, API\Functions\Provider::class );
 		$container->singleton( Resources\Collection::class, Resources\Collection::class );
 		$container->singleton( Site\Data::class, Site\Data::class );
 		$container->singleton( Notice\Provider::class, Notice\Provider::class );
 		$container->singleton( Admin\Provider::class, Admin\Provider::class );
 		$container->singleton( Auth\Provider::class, Auth\Provider::class );
+		$container->singleton( Legacy\Provider::class, Legacy\Provider::class );
+		$container->singleton( Features\Provider::class, Features\Provider::class );
+		$container->singleton( Http\Provider::class, Http\Provider::class );
+		$container->singleton( Licensing\Provider::class, Licensing\Provider::class );
+		$container->singleton( Catalog\Provider::class, Catalog\Provider::class );
+		$container->singleton( API\REST\V1\Provider::class, API\REST\V1\Provider::class );
+		$container->singleton( CLI\Provider::class, CLI\Provider::class );
+		$container->singleton( Cron\Provider::class, Cron\Provider::class );
+
+		$container->get( View\Provider::class )->register();
+		$container->singleton( Notice\Notice_Controller::class, Notice\Notice_Controller::class );
 
 		if ( static::is_enabled() ) {
 			$container->get( Storage\Provider::class )->register();
-			$container->get( View\Provider::class )->register();
 			$container->get( API\V3\Provider::class )->register();
 			$container->get( Notice\Provider::class )->register();
 			$container->get( Admin\Provider::class )->register();
@@ -51,7 +74,83 @@ class Uplink {
 			}
 		}
 
+		$container->get( Legacy\Provider::class )->register();
+		$container->get( Features\Provider::class )->register();
+		$container->get( Http\Provider::class )->register();
+		$container->get( Licensing\Provider::class )->register();
+		$container->get( Catalog\Provider::class )->register();
+		$container->get( API\REST\V1\Provider::class )->register();
+		$container->get( API\Functions\Provider::class )->register();
+		$container->get( CLI\Provider::class )->register();
+		$container->get( Cron\Provider::class )->register();
+
+		static::register_cross_instance_hooks( $container );
+
 		require_once __DIR__ . '/functions.php';
+	}
+
+	/**
+	 * Registers shared, non-prefixed WordPress hooks that enable cross-instance
+	 * communication between vendor-prefixed copies of Uplink.
+	 *
+	 * Each handler checks its own Collection and only responds for resources
+	 * it owns, allowing the unified UI to delegate operations to the correct instance.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param ContainerInterface $container The container for this Uplink instance.
+	 *
+	 * @return void
+	 */
+	protected static function register_cross_instance_hooks( ContainerInterface $container ): void {
+		$get_resource = static function ( string $slug ) use ( $container ): ?Resources\Resource {
+			return $container->get( Resources\Collection::class )->get( $slug );
+		};
+
+		_stellarwp_uplink_instance_registry( self::VERSION );
+
+		add_filter(
+			'stellarwp/uplink/validate_license',
+			static function ( $result, string $slug, string $key ) use ( $get_resource ) {
+				$resource = $get_resource( $slug );
+				if ( ! $resource ) {
+					return $result;
+				}
+				return $resource->validate_license( $key );
+			},
+			10,
+			3
+		);
+
+		add_filter(
+			'stellarwp/uplink/set_license_key',
+			static function ( $result, string $slug, string $key, string $type ) use ( $get_resource ) {
+				$resource = $get_resource( $slug );
+				if ( ! $resource ) {
+					return $result;
+				}
+				$resource->set_license_key( $key, $type );
+				$resource->validate_license( $key, $type === 'network' );
+				return true;
+			},
+			10,
+			4
+		);
+
+		add_filter(
+			'stellarwp/uplink/delete_license_key',
+			static function ( $result, string $slug, string $type ) use ( $get_resource ) {
+				$resource = $get_resource( $slug );
+				if ( ! $resource ) {
+					return $result;
+				}
+				return $resource->delete_license_key( $type );
+			},
+			10,
+			3
+		);
+
+		Version::register_debug_info();
 	}
 
 	/**
@@ -61,7 +160,7 @@ class Uplink {
 	 *
 	 * @return bool
 	 */
-	public static function is_disabled() : bool {
+	public static function is_disabled(): bool {
 		$is_pue_disabled       = defined( 'TRIBE_DISABLE_PUE' ) && TRIBE_DISABLE_PUE;
 		$is_licensing_disabled = defined( 'STELLARWP_LICENSING_DISABLED' ) && STELLARWP_LICENSING_DISABLED;
 
@@ -75,7 +174,7 @@ class Uplink {
 	 *
 	 * @return bool
 	 */
-	public static function is_enabled() : bool {
+	public static function is_enabled(): bool {
 		return ! static::is_disabled();
 	}
 }

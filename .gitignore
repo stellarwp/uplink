@@ -6,3 +6,27 @@ vendor/
 node_modules/
 
 local-scripts/
+
+# Frontend build outputs (production /build/ is committed via CI with git add -f)
+/build/
+/build-dev/
+
+# Track Claude commands and settings (ignore everything else in .claude/).
+!.claude/
+.claude/*
+!.claude/commands/
+!.claude/settings.json
+
+# OS
+.DS_Store
+
+# PHPStan cache
+phpstan-cache
+
+# Partial phpcs output files.
+diff.txt
+diffcs.txt
+phpcs.json
+
+tests/_data/Features/Themes/*.zip
+tests/_data/Features/Plugins/*.zip

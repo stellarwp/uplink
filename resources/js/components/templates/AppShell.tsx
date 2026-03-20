@@ -1,0 +1,78 @@
+/**
+ * Application shell — full-width two-column layout.
+ *
+ * Main area: FilterBar header + product sections.
+ * Sidebar: license panel.
+ *
+ * @package StellarWP\Uplink
+ */
+import { __ } from '@wordpress/i18n';
+import { Loader2 } from 'lucide-react';
+import { Shell } from '@/components/templates/Shell';
+import { FilterBar } from '@/components/molecules/FilterBar';
+import { LicensePanel } from '@/components/organisms/LicensePanel';
+import { LegacyLicenseBanner } from '@/components/molecules/LegacyLicenseBanner';
+import { ProductSection } from '@/components/organisms/ProductSection';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { PRODUCTS } from '@/data/products';
+import { store as uplinkStore } from '@/store';
+import { useFilter } from '@/context/filter-context';
+import { useResolvableSelectWithError } from '@/hooks/use-resolvable-select';
+
+/**
+ * @since 3.0.0
+ */
+export function AppShell() {
+    // Trigger all three resolvers and wait for completion before rendering
+    // content, so we never flash stale tier badges or a "No license" state.
+    // If any resolver fails, the error is thrown during render and caught
+    // by the ErrorBoundary above this component.
+    const { license, features, catalog } = useResolvableSelectWithError(
+        ( resolve ) => ( {
+            license:  resolve( uplinkStore ).getLicenseKey(),
+            features: resolve( uplinkStore ).getFeatures(),
+            catalog:  resolve( uplinkStore ).getCatalog(),
+        } ),
+        [],
+    );
+
+    const isLoading =
+        license.isResolving || features.isResolving || catalog.isResolving;
+
+    const { productFilter } = useFilter();
+
+    const visibleProducts = productFilter === 'all'
+        ? PRODUCTS
+        : PRODUCTS.filter( ( p ) => p.slug === productFilter );
+
+    return (
+        <Shell
+            header={ <FilterBar /> }
+            sideContent={ <LicensePanel /> }
+        >
+            { isLoading ? (
+                <div className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    { __( 'Loading…', '%TEXTDOMAIN%' ) }
+                </div>
+            ) : (
+                <ErrorBoundary>
+                    <div className="space-y-8">
+                        <LegacyLicenseBanner />
+
+						<div className="flex items-center !mt-8 !mb-6">
+							<h2 className="!text-2xl !font-normal !m-0 !p-0">{ __( 'Your Features', '%TEXTDOMAIN%' ) }</h2>
+						</div>
+
+                        { visibleProducts.map( ( product ) => (
+                            <ProductSection
+                                key={ product.slug }
+                                product={ product }
+                            />
+                        ) ) }
+                    </div>
+                </ErrorBoundary>
+            ) }
+        </Shell>
+    );
+}

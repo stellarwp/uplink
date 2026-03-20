@@ -2,7 +2,6 @@
 
 namespace StellarWP\Uplink\Admin\Fields;
 
-use StellarWP\ContainerContract\ContainerInterface;
 use StellarWP\Uplink\Admin\Group;
 use StellarWP\Uplink\Auth\Token\Contracts\Token_Manager;
 use StellarWP\Uplink\Auth\Token\Token_Manager as Concrete_Token_Manager;
@@ -21,11 +20,6 @@ class FieldTest extends UplinkTestCase {
 	use TestUtils;
 	use SnapshotAssertions;
 	use With_Uopz;
-
-	/**
-	 * @var ContainerInterface|null
-	 */
-	private $original_container = null;
 
 	public function resourceProvider() {
 		$resources = $this->get_test_resources();
@@ -52,18 +46,12 @@ class FieldTest extends UplinkTestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		// Clone the original container used in all tests to avoid polluting the global container with custom bindings.
-		$this->original_container = $this->container;
-		$this->container          = clone $this->container;
-		// Bind the token manager to the cloned container.
-		$this->container->singleton( Token_Manager::class, static function ( $c ) {
-			return new Concrete_Token_Manager( 'something' );
-		} );
-	}
-
-	public function tearDown(): void {
-		$this->container = $this->original_container;
-		parent::tearDown();
+		$this->container->singleton(
+			Token_Manager::class,
+			static function ( $c ) {
+				return new Concrete_Token_Manager( 'something' );
+			}
+		);
 	}
 
 	/**
@@ -90,11 +78,15 @@ class FieldTest extends UplinkTestCase {
 		$this->assertEquals( $current_resource->get_path(), $field->get_product() );
 		$this->assertEquals( $field_name, $field->get_field_name() );
 		$this->assertEquals( 'stellarwp_uplink_license_key_' . $slug, $field->get_field_id() );
-		$this->assertEquals( $license_key,
+		$this->assertEquals(
+			$license_key,
 			$field->get_field_value(),
-			'Field value should be equal to the license key' );
-		$this->assertStringContainsString( 'A valid license key is required for support and updates',
-			$field->get_key_status_html() );
+			'Field value should be equal to the license key' 
+		);
+		$this->assertStringContainsString(
+			'A valid license key is required for support and updates',
+			$field->get_key_status_html() 
+		);
 		$this->assertEquals( 'License key', $field->get_placeholder() );
 		$this->assertEquals( 'stellarwp-uplink-license-key-field', $field->get_classes() );
 	}
@@ -175,9 +167,11 @@ class FieldTest extends UplinkTestCase {
 		$nonce_value = $matches[1];
 
 		$this->assertNotEmpty( $nonce_action, 'Nonce action should not be empty.' );
-		$this->assertStringContainsString( 'stellarwp-uplink-license-key-nonce__' . $field->get_slug(),
+		$this->assertStringContainsString(
+			'stellarwp-uplink-license-key-nonce__' . $field->get_slug(),
 			$nonce_field,
-			'Nonce field should contain the correct action slug.' );
+			'Nonce field should contain the correct action slug.' 
+		);
 
 		// Validate the nonce
 		$is_valid_nonce = wp_verify_nonce( $nonce_value, $nonce_action );
@@ -263,12 +257,15 @@ class FieldTest extends UplinkTestCase {
 			Resource::OAUTH_REQUIRES_LICENSE_KEY
 		);
 		add_filter( 'stellarwp/uplink/test/auth/can_auth', '__return_true' );
-		update_option( 'test_storage', [
-			'stellarwp_auth_url_service_oauth_with_license_key_field_1' => [
-				'expiration' => 0,
-				'value'      => 'https://licensing.stellarwp.com/account-auth',
-			]
-		] );
+		update_option(
+			'test_storage',
+			[
+				'stellarwp_auth_url_service_oauth_with_license_key_field_1' => [
+					'expiration' => 0,
+					'value'      => 'https://licensing.stellarwp.com/account-auth',
+				],
+			] 
+		);
 		$collection = $this->container->get( Collection::class );
 
 		$field = $this->container->get( Field::class )->set_resource( $collection->get( $slug ) );

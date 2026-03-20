@@ -20,7 +20,7 @@ Fetches all products (subscriptions) under a license key. When a domain is provi
     "products": [
         {
             "product_slug": "kadence",
-            "tier": "professional",
+            "tier": "kadence-pro",
             "pending_tier": null,
             "status": "active",
             "expires": "2027-02-18 00:00:00",
@@ -31,7 +31,13 @@ Fetches all products (subscriptions) under a license key. When a domain is provi
             },
             "installed_here": true,
             "validation_status": "valid",
-            "is_valid": true
+            "is_valid": true,
+            "capabilities": [
+                "kadence-blocks",
+                "kadence",
+                "kad-blocks-pro",
+                "kad-pattern-hub"
+            ]
         }
     ]
 }
@@ -42,6 +48,8 @@ The `installed_here`, `validation_status`, and `is_valid` fields are only presen
 `pending_tier` is non-null when the subscription has a scheduled downgrade.
 
 `site_limit: 0` means unlimited activations (`over_limit` is always false).
+
+`capabilities` is an array of feature slugs that this license grants access to. It is the source of truth for feature availability — the `Resolve_Feature_Collection` class checks whether a feature slug appears in this array rather than comparing tier ranks. This allows the licensing service to handle cases the catalog tier structure cannot express: grandfathered access after a tier restructure, promotional grants, or individual per-license exceptions.
 
 ### Error responses
 

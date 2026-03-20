@@ -53,7 +53,7 @@ See [Catalog](catalog.md) for the product/tier/feature structure, caching, and d
 
 ### Features: "What can this customer actually use?"
 
-Features are not a third data source. They are the computed join of catalog and licensing data. The resolution process walks every feature in the catalog, looks up the customer's tier from licensing, compares ranks, and produces a resolved collection where each feature knows whether it's available to this customer.
+Features are not a third data source. They are the computed join of catalog and licensing data. The resolution process walks every feature in the catalog, checks whether the feature's slug appears in the licensing product entry's capabilities array, and produces a resolved collection where each feature knows whether it's available to this customer.
 
 Beyond availability, features track local state, specifically whether a feature is currently enabled on this site. A Plugin feature is enabled by installing and activating the plugin. A Flag feature is enabled by setting a WordPress option that unlocks functionality within an already-installed plugin. Strategies handle the mechanics of each type.
 
@@ -69,7 +69,8 @@ See [Features](features.md) for the resolution algorithm, strategies, caching, a
                     │  API (v4)   │
                     └──────┬──────┘
                            │ product_slug, tier, status,
-                           │ seats, validation_status
+                           │ seats, validation_status,
+                           │ capabilities[]
                            ▼
 ┌─────────────┐    ┌──────────────┐    ┌───────────────┐
 │  Commerce   │    │   Feature    │    │   WordPress   │
@@ -78,17 +79,19 @@ See [Features](features.md) for the resolution algorithm, strategies, caching, a
 └─────────────┘    └──────────────┘    └───────────────┘
   product families,   joins by           is_available,
   tiers + ranks,      product_slug,      is_enabled,
-  features + types,   compares tier      enable/disable
-  minimum_tier        ranks              via strategies
+  features + types,   checks slug in     enable/disable
+  minimum_tier        capabilities[]     via strategies
 ```
 
-The catalog provides structure (what exists, what tier it requires). Licensing provides entitlements (what the key covers, what tier it grants). Feature resolution compares the two by tier rank and produces a collection where each feature knows its availability. Strategies then handle the local mechanics of enabling and disabling.
+The catalog provides structure (what features exist, their metadata, and which tier they belong to for display). Licensing provides entitlements (what the key covers and, critically, which feature slugs the license grants via the `capabilities` array). Feature resolution checks the capabilities array and produces a collection where each feature knows its availability. Strategies then handle the local mechanics of enabling and disabling.
 
-## Tier Slugs
+## Tier Slugs and Capabilities
 
-Both Licensing and the Catalog currently use the same product-prefixed tier slug convention: `kadence-basic`, `give-pro`, `the-events-calendar-agency`. This means tier values from a licensing response can be looked up directly in the catalog's tier collection without transformation. The actual slug format, tier names, and number of tiers per product are not finalized and will change as the catalog and licensing contracts are settled.
+Both Licensing and the Catalog use the same product-prefixed tier slug convention: `kadence-basic`, `give-pro`, `the-events-calendar-agency`. The catalog uses tier slugs to define minimum requirements per feature (for display and upsell purposes). The licensing response uses the tier slug to describe the customer's subscription level.
 
-Tiers have integer ranks. Availability is determined by comparing ranks, not slugs. A feature is available when the customer's tier rank meets or exceeds the feature's minimum tier rank. This design is intentional. As long as both systems agree on tier slugs and the catalog defines ranks, the resolution logic works regardless of what the slugs or tier names end up being.
+Feature availability is **not** determined by comparing tier ranks. Instead, the licensing response includes a `capabilities` array — a list of feature slugs that the license actually grants. A feature is available if and only if its slug appears in this array. The catalog's tier structure is used for display (e.g., showing which tier a feature belongs to in the UI) but has no bearing on the availability decision.
+
+This design allows the licensing service to handle cases that tier rank comparison cannot: access grandfathered after a tier restructure, promotional grants, or individual per-license exceptions. The actual tier slug format, tier names, and number of tiers per product are subject to change as the catalog and licensing contracts are finalized.
 
 ## One Key Per Site
 

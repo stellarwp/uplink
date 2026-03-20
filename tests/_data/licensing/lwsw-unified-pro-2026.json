@@ -13,7 +13,36 @@
       },
       "installed_here": true,
       "validation_status": "valid",
-      "is_valid": true
+      "is_valid": true,
+      "capabilities": [
+        "give-recurring",
+        "give-fee-recovery",
+        "give-form-field-manager",
+        "give-annual-receipts",
+        "give-funds",
+        "give-tributes",
+        "give-pdf-receipts",
+        "give-manual-donations",
+        "give-stripe",
+        "give-paypal",
+        "give-mailchimp",
+        "give-constant-contact",
+        "give-convertkit",
+        "give-peer-to-peer",
+        "give-text-to-give",
+        "give-authorize",
+        "give-square",
+        "give-mollie",
+        "give-razorpay",
+        "give-gocardless",
+        "give-braintree",
+        "give-currency-switcher",
+        "give-gift-aid",
+        "give-webhooks",
+        "give-activecampaign",
+        "give-zapier",
+        "give-ga-tracking"
+      ]
     },
     {
       "product_slug": "the-events-calendar",
@@ -28,7 +57,16 @@
       },
       "installed_here": true,
       "validation_status": "valid",
-      "is_valid": true
+      "is_valid": true,
+      "capabilities": [
+        "tec-calendar",
+        "tec-tickets-rsvp",
+        "tec-filter-bar",
+        "tec-event-aggregator",
+        "tec-community",
+        "tec-promoter",
+        "tec-eventbrite"
+      ]
     },
     {
       "product_slug": "learndash",
@@ -43,7 +81,34 @@
       },
       "installed_here": false,
       "validation_status": "not_activated",
-      "is_valid": false
+      "is_valid": false,
+      "capabilities": [
+        "learndash-core",
+        "learndash-memberdash",
+        "learndash-achievements",
+        "learndash-certificate-builder",
+        "learndash-elementor",
+        "learndash-notifications",
+        "learndash-woocommerce",
+        "learndash-integrity",
+        "learndash-tec",
+        "learndash-zapier",
+        "learndash-migration",
+        "learndash-paidmemberships",
+        "learndash-edd",
+        "learndash-memberpress",
+        "learndash-gravity-forms",
+        "learndash-bbpress",
+        "learndash-thrivecart",
+        "learndash-2checkout",
+        "learndash-event-espresso",
+        "learndash-samcart",
+        "learndash-multilingual",
+        "learndash-restrict-content-pro",
+        "learndash-gradebook",
+        "learndash-notes",
+        "learndash-propanel"
+      ]
     },
     {
       "product_slug": "kadence",
@@ -58,7 +123,34 @@
       },
       "installed_here": true,
       "validation_status": "valid",
-      "is_valid": true
+      "is_valid": true,
+      "capabilities": [
+        "kad-blocks-pro",
+        "kad-theme-kit-pro",
+        "kad-pattern-hub",
+        "kad-galleries",
+        "kad-captcha",
+        "kad-simple-share",
+        "kad-custom-fonts",
+        "kad-reading-time",
+        "solid-performance",
+        "solid-mail",
+        "kad-shop-kit",
+        "kad-creative-kit",
+        "kad-insights",
+        "kad-conversions",
+        "solid-security",
+        "solid-backups",
+        "iconic-flux",
+        "iconic-delivery-slots",
+        "iconic-woothumbs",
+        "iconic-swatches",
+        "iconic-single-variations",
+        "iconic-image-swap",
+        "iconic-quickview",
+        "iconic-wishlist",
+        "iconic-account-pages"
+      ]
     }
   ]
 }

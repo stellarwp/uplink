@@ -47,6 +47,7 @@ When the site calls `get_products()` with its key, Licensing returns an array of
 | `active_count`      | int          | Current number of activated sites                                                            |
 | `installed_here`    | bool\|null   | Whether this product is activated on the requesting domain. `null` if no domain was provided |
 | `validation_status` | string\|null | One of the `Validation_Status` constants                                                     |
+| `capabilities`      | string[]     | Feature slugs this license grants access to. This is the source of truth for `is_available`  |
 
 `get_products()` is a **read-only** operation. It does not consume seats. It is the bulk fetch used for periodic status checks.
 
@@ -259,12 +260,10 @@ Both Licensing and the Catalog use the same product-prefixed tier slug conventio
 
 ### How Licensing Data Feeds Feature Resolution
 
-The `Resolve_Feature_Collection` class consumes the `Product_Collection` from the licensing `License_Repository` alongside the `Catalog_Collection` from the catalog `Catalog_Repository`. For each product in the catalog, it looks up the matching licensing entry to determine:
+The `Resolve_Feature_Collection` class consumes the `Product_Collection` from the licensing `License_Repository` alongside the `Catalog_Collection` from the catalog `Catalog_Repository`. For each product in the catalog, it looks up the matching licensing entry to determine `is_available` for each feature:
 
-1. **Whether the site has a license** for that product at all
-2. **What tier rank** the license grants (by looking up the tier slug in the catalog's tier collection)
-
-That tier rank is compared against each feature's minimum tier rank to compute `is_available`. A product with no licensing entry gets a tier rank of `0`, making all of its features unavailable.
+- **If a product entry exists**: a feature is available if its slug appears in the entry's `capabilities` array. This is the source of truth for access — it handles grandfathered tiers, promotional grants, and individual exceptions that the catalog's tier structure alone cannot express.
+- **If no product entry exists** (unlicensed): the resolver falls back to the catalog's tier rank structure, making only free-tier features (minimum tier rank 0) available.
 
 ### Cache Invalidation
 

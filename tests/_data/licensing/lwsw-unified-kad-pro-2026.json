@@ -13,7 +13,34 @@
       },
       "installed_here": true,
       "validation_status": "valid",
-      "is_valid": true
+      "is_valid": true,
+      "capabilities": [
+        "kad-blocks-pro",
+        "kad-theme-kit-pro",
+        "kad-pattern-hub",
+        "kad-galleries",
+        "kad-captcha",
+        "kad-simple-share",
+        "kad-custom-fonts",
+        "kad-reading-time",
+        "solid-performance",
+        "solid-mail",
+        "kad-shop-kit",
+        "kad-creative-kit",
+        "kad-insights",
+        "kad-conversions",
+        "solid-security",
+        "solid-backups",
+        "iconic-flux",
+        "iconic-delivery-slots",
+        "iconic-woothumbs",
+        "iconic-swatches",
+        "iconic-single-variations",
+        "iconic-image-swap",
+        "iconic-quickview",
+        "iconic-wishlist",
+        "iconic-account-pages"
+      ]
     }
   ]
 }

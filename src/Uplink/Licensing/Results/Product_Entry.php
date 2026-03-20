@@ -24,6 +24,7 @@ use StellarWP\Uplink\Utils\Cast;
  *     active_count: int,
  *     installed_here: ?bool,
  *     validation_status: ?string,
+ *     capabilities: string[],
  * }
  */
 final class Product_Entry {
@@ -45,6 +46,7 @@ final class Product_Entry {
 		'active_count'      => 0,
 		'installed_here'    => null,
 		'validation_status' => null,
+		'capabilities'      => [],
 	];
 
 	/**
@@ -72,7 +74,9 @@ final class Product_Entry {
 	 * @return self
 	 */
 	public static function from_array( array $data ): self {
-		$activations = isset( $data['activations'] ) && is_array( $data['activations'] ) ? $data['activations'] : [];
+		$activations  = isset( $data['activations'] ) && is_array( $data['activations'] ) ? $data['activations'] : [];
+		$raw_caps     = isset( $data['capabilities'] ) && is_array( $data['capabilities'] ) ? $data['capabilities'] : [];
+		$capabilities = array_values( array_filter( array_map( [ Cast::class, 'to_string' ], $raw_caps ) ) );
 
 		return new self(
 			[
@@ -85,6 +89,7 @@ final class Product_Entry {
 				'active_count'      => Cast::to_int( $activations['active_count'] ?? 0 ),
 				'installed_here'    => isset( $data['installed_here'] ) ? Cast::to_bool( $data['installed_here'] ) : null,
 				'validation_status' => isset( $data['validation_status'] ) ? Cast::to_string( $data['validation_status'] ) : null,
+				'capabilities'      => $capabilities,
 			]
 		);
 	}
@@ -108,6 +113,7 @@ final class Product_Entry {
 				'active_count' => $this->get_active_count(),
 				'over_limit'   => $this->is_over_limit(),
 			],
+			'capabilities' => $this->get_capabilities(),
 		];
 
 		if ( $this->get_installed_here() !== null ) {
@@ -210,6 +216,17 @@ final class Product_Entry {
 	 */
 	public function get_installed_here(): ?bool {
 		return $this->attributes['installed_here'];
+	}
+
+	/**
+	 * Gets the list of feature slugs this license grants access to.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return string[]
+	 */
+	public function get_capabilities(): array {
+		return $this->attributes['capabilities'];
 	}
 
 	/**

@@ -59,7 +59,7 @@ Plugin and Theme features share a global transient lock (`stellarwp_uplink_insta
 
 ## Resolution
 
-`Resolve_Feature_Collection` joins catalog and licensing data to produce a `Feature_Collection`. Availability is determined by checking whether the feature's slug appears in the product entry's `capabilities` array from the licensing response — not by comparing tier ranks.
+`Resolve_Feature_Collection` joins catalog and licensing data to produce a `Feature_Collection`. Availability is determined by checking whether the feature's slug appears in the product entry's `capabilities` array from the licensing response.
 
 The catalog still defines which features exist, their metadata (name, description, type, minimum tier for display), and which tier they belong to for UI purposes. But the `capabilities` array is what decides access. This allows the licensing service to handle cases the catalog alone cannot: grandfathered access after a tier restructure, one-time promotional grants, or individual exceptions made for a specific license.
 

@@ -122,10 +122,10 @@ class Catalog_Repository {
 	 * @return Catalog_Collection|WP_Error
 	 */
 	public function get() {
-		$state = $this->read_catalog_state();
+		$cached = $this->get_cached();
 
-		if ( is_array( $state[ self::STATE_KEY_COLLECTION ] ) ) {
-			return Catalog_Collection::from_array( $state[ self::STATE_KEY_COLLECTION ] );
+		if ( $cached !== null ) {
+			return $cached;
 		}
 
 		$throttled = $this->get_throttled_error();
@@ -142,6 +142,27 @@ class Catalog_Repository {
 		}
 
 		return $this->fetch();
+	}
+
+	/**
+	 * Returns the cached catalog collection without making any API call.
+	 *
+	 * Returns null when no successful fetch has been stored yet. Callers
+	 * that need a best-effort read without triggering outbound HTTP (e.g.
+	 * during plugin/theme deactivation hooks) should use this instead of get().
+	 *
+	 * @since 3.0.0
+	 *
+	 * @return Catalog_Collection|null
+	 */
+	public function get_cached(): ?Catalog_Collection {
+		$state = $this->read_catalog_state();
+
+		if ( is_array( $state[ self::STATE_KEY_COLLECTION ] ) ) {
+			return Catalog_Collection::from_array( $state[ self::STATE_KEY_COLLECTION ] );
+		}
+
+		return null;
 	}
 
 	/**
